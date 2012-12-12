@@ -35,8 +35,8 @@ for %%i in (*.ts) do %QTBINS%\lrelease -removeidentical %%i
 del *.ts
 cd ..
 copy /y ..\bin\*.dll
-copy /y ..\bin\*.exe
 copy /y ..\3rdparty\win32\artephis.exe bin
+copy /y ..\bin\*.exe
 copy /y ..\doc\readme.txt README.txt
 copy /y ..\doc\license.txt
 copy /y ..\doc\trademarks.txt
