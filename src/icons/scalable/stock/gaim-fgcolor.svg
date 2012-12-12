@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="stock_gaim-fgcolor.svg"
+   sodipodi:docbase="/usr/share/icons/dlg-etiquette/scalable/stock"
+   inkscape:version="0.41"
+   sodipodi:version="0.32"
+   id="svg2"
+   height="102.00000pt"
+   width="102.00000pt">
+  <defs
+     id="defs3">
+    <linearGradient
+       id="linearGradient2084">
+      <stop
+         style="stop-color:#ff2900;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop2086" />
+      <stop
+         style="stop-color:#fff900;stop-opacity:1.0000000;"
+         offset="1.0000000"
+         id="stop2088" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-y="50"
+     inkscape:window-x="188"
+     inkscape:window-height="542"
+     inkscape:window-width="640"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     inkscape:cy="50.280136"
+     inkscape:cx="99.456138"
+     inkscape:zoom="1.9798990"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata4">
+    <rdf:RDF
+       id="RDF5">
+      <cc:Work
+         id="Work6"
+         rdf:about="">
+        <dc:format
+           id="format7">image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage"
+           id="type9" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <path
+       id="text2052"
+       d="M 85.169029,98.275231 L 41.726925,98.275231 L 34.871443,117.90356 L 6.9443765,117.90356 L 46.850495,10.164252 L 79.973295,10.164252 L 119.87941,117.90356 L 91.952347,117.90356 L 85.169029,98.275231 M 48.654569,78.286090 L 78.169221,78.286090 L 63.447977,35.421290 L 48.654569,78.286090"
+       style="font-size:147.78975;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#0598e8;fill-opacity:1.0000000;stroke:#000000;stroke-width:4.7500000;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans;text-anchor:start;writing-mode:lr-tb" />
+  </g>
+</svg>

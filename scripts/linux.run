@@ -1,0 +1,14 @@
+# !/usr/bin/sh
+TMPDIR=`mktemp -d /tmp/phisketeer.XXXXXX`
+ARCHIVE=`awk '/^__PHIARCHIVE__/ {print NR + 1; exit 0; }' $0`
+tail -n+$ARCHIVE $0 | tar xzv -C $TMPDIR
+
+CURDIR=`pwd`
+cd $TMPDIR
+./linuxinstaller.sh $TMPDIR `cat ./version`
+
+cd $CURDIR
+rm -rf $TMPDIR
+exit 0
+
+__PHIARCHIVE__

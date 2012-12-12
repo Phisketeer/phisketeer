@@ -1,0 +1,1101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDlg</class>
+ <widget class="QDialog" name="SettingsDlg">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>552</width>
+    <height>456</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Main</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Security</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="_askAppMode">
+            <property name="text">
+             <string>Always ask before starting Phi in application mode</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="_askUnsecure">
+            <property name="text">
+             <string>Always ask before sending POST data over an unsecure connection</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label_20">
+            <property name="maximumSize">
+             <size>
+              <width>32</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="pixmap">
+             <pixmap>:/phi/philogo_fade_64.png</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_21">
+            <property name="maximumSize">
+             <size>
+              <width>32</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="pixmap">
+             <pixmap resource="phia.qrc">:/gnome/secure</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="_usePasswd">
+         <property name="title">
+          <string>Protect user profile with a password</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Password</string>
+            </property>
+            <property name="buddy">
+             <cstring>_passwd</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="_passwd">
+            <property name="maxLength">
+             <number>20</number>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::PasswordEchoOnEdit</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>141</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Verify</string>
+            </property>
+            <property name="buddy">
+             <cstring>_verify</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="_verify">
+            <property name="maxLength">
+             <number>20</number>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::PasswordEchoOnEdit</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>141</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="horlayout">
+         <property name="title">
+          <string>Accepted languages</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QListWidget" name="_languages"/>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QToolButton" name="_delLang">
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="phia.qrc">
+                  <normaloff>:/gnome/remove</normaloff>:/gnome/remove</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="_lang">
+                <property name="maxLength">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="_addLang">
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="phia.qrc">
+                  <normaloff>:/gnome/addlocale</normaloff>:/gnome/addlocale</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Note: the default language of the server will always be accepted!</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>Settings</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_10">
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>Updates</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Current version of this Phi installation is:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="_version">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_10">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QLabel" name="label_16">
+              <property name="text">
+               <string>Check for updates</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="_intervalCombo"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="_lastCheck">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="_downloadInstall">
+            <property name="text">
+             <string>Download update and start installation automatically</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Phi download server</string>
+              </property>
+              <property name="buddy">
+               <cstring>_downloadServer</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="_downloadServer"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="_checkNow">
+              <property name="text">
+               <string>Check now</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>Home</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>URL</string>
+            </property>
+            <property name="buddy">
+             <cstring>_home</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="_home">
+            <property name="text">
+             <string>http://</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_17">
+            <property name="maximumSize">
+             <size>
+              <width>32</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="pixmap">
+             <pixmap resource="phia.qrc">:/gnome/home</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="_useProxy">
+         <property name="title">
+          <string>Use Proxy</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>Host</string>
+            </property>
+            <property name="buddy">
+             <cstring>_proxyPasswd</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLineEdit" name="_proxyHost"/>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>Port</string>
+            </property>
+            <property name="buddy">
+             <cstring>_proxyPasswd</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QSpinBox" name="_proxyPort">
+            <property name="maximum">
+             <number>65536</number>
+            </property>
+            <property name="value">
+             <number>1080</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5">
+           <widget class="QLineEdit" name="_proxyUser"/>
+          </item>
+          <item row="1" column="5">
+           <widget class="QLineEdit" name="_proxyPasswd">
+            <property name="echoMode">
+             <enum>QLineEdit::PasswordEchoOnEdit</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Password</string>
+            </property>
+            <property name="buddy">
+             <cstring>_proxyPasswd</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>User name</string>
+            </property>
+            <property name="buddy">
+             <cstring>_proxyUser</cstring>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_6">
+      <attribute name="title">
+       <string>Config</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>WebKit settings (this has no effect in Phi)</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QCheckBox" name="_w_javaScript">
+            <property name="text">
+             <string>Enable JavaScript</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="_w_openWindows">
+            <property name="text">
+             <string>JavaScript is allowed to open windows</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="_w_java">
+            <property name="text">
+             <string>Enable Java</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="_w_autoLoadImages">
+            <property name="text">
+             <string>Auto load images</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="_w_printBackgrounds">
+            <property name="text">
+             <string>Print backgrounds</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="_w_plugins">
+            <property name="text">
+             <string>Enable Plug-Ins</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>Cache</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Directory</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="_cacheDir"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="_loadCacheDir">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="arrowType">
+               <enum>Qt::RightArrow</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="_clearCache">
+              <property name="text">
+               <string>Clear cache</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_19">
+              <property name="maximumSize">
+               <size>
+                <width>32</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="pixmap">
+               <pixmap resource="phia.qrc">:/gnome/cache</pixmap>
+              </property>
+              <property name="scaledContents">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Downloads</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <item>
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Directory</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="_downloadDir"/>
+          </item>
+          <item>
+           <widget class="QToolButton" name="_loadDownloadDir">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="arrowType">
+             <enum>Qt::RightArrow</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_18">
+            <property name="maximumSize">
+             <size>
+              <width>32</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="pixmap">
+             <pixmap resource="phia.qrc">:/gnome/inetfolder</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Addresses</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Phi can automatically fill out address lines if you enter your addresses here.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="_addressTree">
+         <property name="dragDropMode">
+          <enum>QAbstractItemView::DragDrop</enum>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="uniformRowHeights">
+          <bool>true</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>Title</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Firstname</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Lastname</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Organisation</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Unit</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Street</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>State</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>City</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Zip</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Country</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="_addAddress">
+           <property name="text">
+            <string>Add</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="_chgAddress">
+           <property name="text">
+            <string>Change</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="_delAddress">
+           <property name="text">
+            <string>Delete</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="title">
+       <string>Contacts</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_11">
+       <item>
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Phi can automatically fill out contact lines if you enter your contact information here.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="_contactTree">
+         <property name="dragDropMode">
+          <enum>QAbstractItemView::DragDrop</enum>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="uniformRowHeights">
+          <bool>true</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Email</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Mobile</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Phone</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Fax</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>URL</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <item>
+          <widget class="QPushButton" name="_addContact">
+           <property name="text">
+            <string>Add</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="_chgContact">
+           <property name="text">
+            <string>Change</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="_delContact">
+           <property name="text">
+            <string>Delete</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Credit cards</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_12">
+       <item>
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>Phi can automatically fill out credit card information if you enter your credit cards here. The information is currently not stored encrypted - we recommend to store only a part of the number (for example the first 10 digests).</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="_cardTree">
+         <property name="dragDropMode">
+          <enum>QAbstractItemView::DragDrop</enum>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="uniformRowHeights">
+          <bool>true</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string>Type</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Number</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Valid thru</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>CIV</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <item>
+          <widget class="QPushButton" name="_addCard">
+           <property name="text">
+            <string>Add</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="_chgCard">
+           <property name="text">
+            <string>Change</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="_delCard">
+           <property name="text">
+            <string>Delete</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>_askUnsecure</tabstop>
+  <tabstop>_askAppMode</tabstop>
+  <tabstop>_usePasswd</tabstop>
+  <tabstop>_passwd</tabstop>
+  <tabstop>_verify</tabstop>
+  <tabstop>_languages</tabstop>
+  <tabstop>_delLang</tabstop>
+  <tabstop>_lang</tabstop>
+  <tabstop>_addLang</tabstop>
+  <tabstop>_intervalCombo</tabstop>
+  <tabstop>_downloadInstall</tabstop>
+  <tabstop>_downloadServer</tabstop>
+  <tabstop>_checkNow</tabstop>
+  <tabstop>_home</tabstop>
+  <tabstop>_useProxy</tabstop>
+  <tabstop>_proxyHost</tabstop>
+  <tabstop>_proxyPort</tabstop>
+  <tabstop>_proxyUser</tabstop>
+  <tabstop>_proxyPasswd</tabstop>
+  <tabstop>_w_javaScript</tabstop>
+  <tabstop>_w_openWindows</tabstop>
+  <tabstop>_w_java</tabstop>
+  <tabstop>_w_autoLoadImages</tabstop>
+  <tabstop>_w_printBackgrounds</tabstop>
+  <tabstop>_w_plugins</tabstop>
+  <tabstop>_cacheDir</tabstop>
+  <tabstop>_loadCacheDir</tabstop>
+  <tabstop>_clearCache</tabstop>
+  <tabstop>_downloadDir</tabstop>
+  <tabstop>_loadDownloadDir</tabstop>
+  <tabstop>_addressTree</tabstop>
+  <tabstop>_addAddress</tabstop>
+  <tabstop>_chgAddress</tabstop>
+  <tabstop>_delAddress</tabstop>
+  <tabstop>_contactTree</tabstop>
+  <tabstop>_addContact</tabstop>
+  <tabstop>_chgContact</tabstop>
+  <tabstop>_delContact</tabstop>
+  <tabstop>_cardTree</tabstop>
+  <tabstop>_addCard</tabstop>
+  <tabstop>_chgCard</tabstop>
+  <tabstop>_delCard</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources>
+  <include location="phia.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SettingsDlg</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>SettingsDlg</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

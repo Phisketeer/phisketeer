@@ -1,0 +1,15 @@
+The Phi(sketeer) software enables you to easily and quickly create high value Intranet and Internet applications. Realize an entire web site including database connection in no time by means of a menu-driven editor. You don't need any programming skills in PHP or ASP.
+
+The focal point of Phi is on fast application development. Integrated database connection and JavaScript allow you to process any information from Web forms rapidly. It realizes multiple language versions easily. With Phi you reduce your development effort considerably.
+
+Phi is far more than just another HTML editor. It simplifies the creation and modification of layouts. Page element can be comfortably inserted by drag-and-drop. Create amazing visual effects - as fading, transparency and animations - at the click of your mouse. The PhiPlugin extends the range of effects by perspective presentation of all page elements. Those effects leads to a completely new Web experience.
+
+Copyright (C) 2010,2011  Marius B. Schumacher
+Copyright (C) 2011,2012  Phisys AG, Switzerland
+Copyright (C) 2012  Phisketeer.org team
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.

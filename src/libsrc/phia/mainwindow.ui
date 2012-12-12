@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/phia/phi/images/own/philogo.png</normaloff>:/phia/phi/images/own/philogo.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuPhi">
+    <property name="title">
+     <string>Φ</string>
+    </property>
+    <widget class="QMenu" name="menuView">
+     <property name="title">
+      <string>View</string>
+     </property>
+     <addaction name="actionZoom_in"/>
+     <addaction name="actionZoom_out"/>
+     <addaction name="actionZoom_normal"/>
+    </widget>
+    <addaction name="actionAbout"/>
+    <addaction name="separator"/>
+    <addaction name="menuView"/>
+    <addaction name="actionConsole"/>
+    <addaction name="actionCookies"/>
+    <addaction name="actionDownloads"/>
+    <addaction name="actionPrintPreview"/>
+    <addaction name="actionPrint"/>
+    <addaction name="actionSettings"/>
+   </widget>
+   <addaction name="menuPhi"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/folder</normaloff>:/gnome/folder</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/save</normaloff>:/gnome/save</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/print</normaloff>:/gnome/print</iconset>
+   </property>
+   <property name="text">
+    <string>Print</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/config</normaloff>:/gnome/config</iconset>
+   </property>
+   <property name="text">
+    <string>User profile</string>
+   </property>
+  </action>
+  <action name="actionZoom_in">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/zoomin</normaloff>:/gnome/zoomin</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom in</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+  </action>
+  <action name="actionZoom_out">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/zoomout</normaloff>:/gnome/zoomout</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom out</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="actionZoom_normal">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/zoomnormal</normaloff>:/gnome/zoomnormal</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom normal</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/quit</normaloff>:/gnome/quit</iconset>
+   </property>
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionPrintPreview">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/printpreview</normaloff>:/gnome/printpreview</iconset>
+   </property>
+   <property name="text">
+    <string>Print preview</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/info</normaloff>:/gnome/info</iconset>
+   </property>
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionCookies">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/cookie</normaloff>:/gnome/cookie</iconset>
+   </property>
+   <property name="text">
+    <string>Cookies</string>
+   </property>
+  </action>
+  <action name="actionDownloads">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/inetfolder</normaloff>:/gnome/inetfolder</iconset>
+   </property>
+   <property name="text">
+    <string>Downloads</string>
+   </property>
+  </action>
+  <action name="actionConsole">
+   <property name="icon">
+    <iconset resource="phia.qrc">
+     <normaloff>:/gnome/script</normaloff>:/gnome/script</iconset>
+   </property>
+   <property name="text">
+    <string>JavaScript console</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="phia.qrc"/>
+ </resources>
+ <connections/>
+</ui>

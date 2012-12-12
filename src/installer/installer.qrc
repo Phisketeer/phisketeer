@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/misc">
+        <file alias="philogo64">philogo_fade_64.png</file>
+        <file alias="watermark">watermark.png</file>
+        <file alias="philogo">philogo.png</file>
+    </qresource>
+    <qresource prefix="/gnome">
+        <file alias="app">../icons/scalable/apps/gnome-applications.svg</file>
+        <file alias="data">../icons/scalable/filesystems/gnome-fs-home.svg</file>
+        <file alias="file">../icons/scalable/filesystems/gnome-fs-regular.svg</file>
+        <file alias="world">../icons/scalable/filesystems/gnome-fs-web.svg</file>
+        <file alias="folder">../icons/scalable/apps/gnome-folder.svg</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WizardLicense</class>
+ <widget class="QWizardPage" name="WizardLicense">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>327</width>
+    <height>207</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>WizardPage</string>
+  </property>
+  <property name="title">
+   <string>License Agreement</string>
+  </property>
+  <property name="subTitle">
+   <string>Please read the following important information before continuing.</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTextBrowser" name="_license"/>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="_accept">
+     <property name="text">
+      <string>I accept the agreement</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="radioButton_2">
+     <property name="text">
+      <string>I do not accept the agreement</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

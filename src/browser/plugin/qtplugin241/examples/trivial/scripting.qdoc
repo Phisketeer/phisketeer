@@ -1,0 +1,111 @@
+/****************************************************************************
+** 
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** All rights reserved.
+** Contact: Nokia Corporation (qt-info@nokia.com)
+** 
+** This file is part of a Qt Solutions component.
+**
+** Commercial Usage  
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Solutions Commercial License Agreement provided
+** with the Software or, alternatively, in accordance with the terms
+** contained in a written agreement between you and Nokia.
+** 
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** 
+** In addition, as a special exception, Nokia gives you certain
+** additional rights. These rights are described in the Nokia Qt LGPL
+** Exception version 1.1, included in the file LGPL_EXCEPTION.txt in this
+** package.
+** 
+** GNU General Public License Usage 
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+** 
+** Please note Third Party Software included with Qt Solutions may impose
+** additional restrictions and it is the user's responsibility to ensure
+** that they have met the licensing requirements of the GPL, LGPL, or Qt
+** Solutions Commercial license and the relevant license of the Third
+** Party Software they are using.
+** 
+** If you are unsure which license is appropriate for your use, please
+** contact Nokia at qt-info@nokia.com.
+** 
+****************************************************************************/
+
+/*! \page qtbrowserplugin-example-scripting.html
+
+  \title Scripting Example
+
+  This example demonstrates the combination of Javascript and a
+  trivial plugin, and the use of a plugin in combination with a form.
+
+  If the browser supports scripting plugins, and everything is set up
+  correctly, the plugin below should react to mouse clicks and drags
+  by changing its text. The \c About... button should pop up an
+  \c{About Qt} dialog. The second plugin instance, below the
+  horizontal line, should display the word \c QtBrowserPlugin, and
+  pressing the \c Go! button should navigate the browser to a search
+  for this word at google.com.
+
+  \raw HTML 
+  <object id="ScriptableObject" TYPE=trivial/very WIDTH=200 HEIGHT=100 text="Very Scriptable!"> </object>
+
+  <script language=JavaScript>
+  var ScriptableObject = document.getElementById('ScriptableObject');
+  ScriptableObject.text = 'This is some text'
+
+  var oldText
+  ScriptableObject.mouseDown = function()
+  {
+    oldText = ScriptableObject.text
+    ScriptableObject.text = 'Mouse Down'
+  }
+
+  ScriptableObject.mouseMove = function(x, y)
+  {
+    ScriptableObject.text = 'Mouse at ' + x + ',' + y
+  }
+
+  ScriptableObject.mouseUp = function()
+  {
+    ScriptableObject.text = oldText
+  }
+  </script>
+
+  <!-- Special hookup code required for Internet Explorer -->
+  <!--[if IE]>
+  <script language=JScript>
+  function ScriptableObject::mouseDown() { ScriptableObject.mouseDown() }
+  function ScriptableObject::mouseMove(x, y) { ScriptableObject.mouseMove(x, y) }
+  function ScriptableObject::mouseUp() { ScriptableObject.mouseUp() }
+  </script>
+  <![endif]-->
+
+  <form>
+  <input type="button" value="About..." OnClick="ScriptableObject.about();"/>
+  </form>
+
+  <hr>
+  <form method="GET" action="http://www.google.com/search">
+  Search at Google:
+  <object id="SearchableText" name="q" type=trivial/very width=150 height=40 text="QtBrowserPlugin"></object>
+  <input type="submit" value="Go!">
+  </form>
+  \endraw
+
+  Implementation:
+
+  \quotefile trivial/trivial.cpp
+*/

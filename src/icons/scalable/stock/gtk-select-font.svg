@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="102.40000pt"
+   height="102.40000pt"
+   id="svg5055"
+   sodipodi:version="0.32"
+   inkscape:version="0.41"
+   sodipodi:docbase="/usr/share/icons/dlg-etiquette/scalable/stock"
+   sodipodi:docname="stock_fonts.svg">
+  <defs
+     id="defs3" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4000000"
+     inkscape:cx="84.554356"
+     inkscape:cy="60.010921"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="640"
+     inkscape:window-height="542"
+     inkscape:window-x="33"
+     inkscape:window-y="45" />
+  <metadata
+     id="metadata4">
+    <rdf:RDF
+       id="RDF5">
+      <cc:Work
+         rdf:about=""
+         id="Work6">
+        <dc:format
+           id="format7">image/svg+xml</dc:format>
+        <dc:type
+           id="type9"
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="text5065"
+       d="M 55.843733,62.694810 L 27.502834,62.694810 L 23.030433,75.500000 L 4.8112832,75.500000 L 30.845365,5.2126873 L 52.454123,5.2126873 L 78.488205,75.500000 L 60.269056,75.500000 L 55.843733,62.694810 M 32.022313,49.654230 L 51.277176,49.654230 L 41.673283,21.689954 L 32.022313,49.654230"
+       style="font-size:96.415550;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans;text-anchor:start;writing-mode:lr-tb" />
+    <path
+       id="text5069"
+       d="M 101.42497,94.283284 L 96.767103,65.289378 L 78.973009,94.283284 L 101.42497,94.283284 M 93.417626,124.42857 L 94.202660,120.97443 C 95.284222,120.86976 96.540275,120.73020 97.970821,120.55574 C 99.436173,120.34640 100.57011,120.11962 101.37263,119.87538 C 102.45419,119.52648 103.25667,119.16013 103.78007,118.77633 C 104.33827,118.39254 104.61739,117.79941 104.61744,116.99692 C 104.61739,116.71781 104.40805,115.00818 103.98941,111.86804 C 103.57068,108.72792 102.97754,104.31429 102.21000,98.627137 L 76.146888,98.627137 C 74.995486,100.44146 73.774324,102.55233 72.483398,104.95974 C 71.192438,107.33230 70.198063,109.14660 69.500270,110.40264 C 68.872230,111.51915 68.261649,112.77520 67.668525,114.17080 C 67.110268,115.53154 66.831145,116.43868 66.831156,116.89225 C 66.831145,118.04364 67.755739,118.96823 69.604941,119.66604 C 71.454116,120.36385 73.774324,120.79998 76.565572,120.97443 L 75.780539,124.42857 L 47.257652,124.42857 L 48.042686,120.97443 C 48.949843,120.90465 50.136114,120.71275 51.601505,120.39873 C 53.032013,120.04984 54.235730,119.59626 55.212659,119.03801 C 56.433822,118.34021 57.602648,117.48539 58.719143,116.47357 C 59.870521,115.42686 61.091683,113.87424 62.382633,111.81570 C 68.418656,102.25576 75.030376,91.614203 82.217814,79.891002 C 89.440089,68.167891 95.790132,57.910129 101.26796,49.117686 L 105.45481,49.117686 L 115.34623,113.43810 C 115.55551,114.72906 115.90442,115.82810 116.39294,116.73524 C 116.88135,117.60751 117.61404,118.42743 118.59104,119.19502 C 119.28878,119.68349 120.23082,120.10217 121.41716,120.45107 C 122.60336,120.76509 123.65007,120.93954 124.55729,120.97443 L 123.77226,124.42857 L 93.417626,124.42857"
+       style="font-size:107.18325;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Georgia;text-anchor:start;writing-mode:lr-tb" />
+  </g>
+</svg>

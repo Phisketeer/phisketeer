@@ -1,0 +1,53 @@
+/*
+#    Copyright (C) 2010-2012  Marius B. Schumacher
+#    Copyright (C) 2011-2012  Phisys AG, Switzerland
+#    Copyright (C) 2012  Phisketeer.org team
+#
+#    This C++ library is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Lesser General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#ifndef PHISYSINFO_H
+#define PHISYSINFO_H
+#include <QString>
+#include <QMutex>
+#include "phi.h"
+
+/** Information about the underlying system.
+ * Collects system specific user data and process information.
+ * @ingroup server_api
+ * @internal */
+class PHIEXPORT PHISysInfo
+{
+    friend class PHI;
+    Q_DISABLE_COPY( PHISysInfo )
+
+public:
+    // inline QString application() const { return _application; }
+    static QString systemString();
+    static QString realUserName();
+    static QString realGroupName();
+    static quint8 systemType();
+    static quint32 realUserId();
+    static quint32 realGroupId();
+    static quint32 effUserId();
+    static quint32 effGroupId();
+    static quint32 pProcessId();
+    static quint32 processId();
+
+private:
+    PHISysInfo();
+    ~PHISysInfo();
+    static QMutex _mutex;
+};
+
+#endif // PHISYSINFO_H

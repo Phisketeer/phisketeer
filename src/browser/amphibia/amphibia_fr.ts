@@ -1,0 +1,1 @@
+../../ts/amphibia_fr.ts

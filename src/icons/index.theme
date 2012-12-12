@@ -1,0 +1,58 @@
+# Made by Andrew Fitzsimon ( andrew at fitzsimon.com.au )
+# Mods and 'non-etiquette' icons by Silvestre Herrera ( silvestre.herrera at gmail dot com )
+
+[Icon Theme]
+Name=Dropline Etiquette
+Comment=A 'more-fun' version of ettiquette icons
+Inherits=gnome
+Directories=scalable/apps,scalable/filesystems,scalable/mimetypes,scalable/devices,scalable/emblems,scalable/stock
+Example=gnome-theme-preview.svg
+
+[scalable/actions]
+MinSize=1
+Size=128
+MaxSize=256
+Context=Actions
+Type=scalable
+
+[scalable/apps]
+MinSize=1
+Size=128
+MaxSize=256
+Context=Applications
+Type=scalable
+
+[scalable/devices]
+MinSize=1
+Size=128
+MaxSize=256
+Context=Devices
+Type=scalable
+
+[scalable/emblems]
+MinSize=1
+Size=128
+MaxSize=256
+Context=Emblems
+Type=Scalable
+
+[scalable/filesystems]
+MinSize=1
+Size=128
+MaxSize=128
+Context=FileSystems
+Type=scalable
+
+[scalable/mimetypes]
+MinSize=1
+Size=128
+MaxSize=128
+Context=MimeTypes
+Type=scalable
+
+[scalable/stock]
+MinSize=1
+Size=24
+MaxSize=128
+Context=Stock
+Type=scalable
