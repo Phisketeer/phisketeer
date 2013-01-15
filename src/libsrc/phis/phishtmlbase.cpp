@@ -209,7 +209,7 @@ void PHISHtmlBase::jQueryItemSetup() const
         _jquery+="\t$('#"+_it->id()+"').droppable({";
         QByteArray arr;
         if ( !_it->dropAcceptedIds().isEmpty() ) {
-            arr=_it->dropAcceptedIds().join( ",#" ).toAscii();
+            arr=_it->dropAcceptedIds().join( ",#" ).toLatin1();
             arr.prepend( "#" );
             //arr.append( "'" );
         }
@@ -441,7 +441,7 @@ QByteArray PHISHtmlBase::textShadowStyle() const
     arr+="text-shadow:"+QByteArray::number( static_cast<int>(xOff) )+"px ";
     arr+=QByteArray::number( static_cast<int>(yOff) )+"px ";
     arr+=QByteArray::number( static_cast<int>(radius) )+"px ";
-    arr+=c.name().toAscii()+';';
+    arr+=c.name().toLatin1()+';';
     return arr;
 }
 
@@ -552,16 +552,17 @@ QByteArray PHISHtmlBase::createHtmlCode()
 
     if ( useObjTag>0 ) {
         static QByteArray phisid=QByteArray::fromRawData( "phisid", 6 );
-        QUrl url=_req->url();
-        url.removeEncodedQueryItem( "phis" );
-        url.addEncodedQueryItem( "phis", "1" );
+        QUrl url( _req->url() );
+        QUrlQuery query( _req->url() );
+        query.removeQueryItem( "phis" );
+        query.addQueryItem( "phis", "1" );
         if ( _p->attributes() & PHIPage::ARequiresSession ) {
-            if ( !url.hasEncodedQueryItem( phisid ) )
-                url.addEncodedQueryItem( phisid, _p->variant( PHIBasePage::DSession ).toByteArray() );
+            if ( !query.hasQueryItem( phisid ) )
+                query.addQueryItem( phisid, _p->variant( PHIBasePage::DSession ).toString() );
         }
         if ( _p->attributes() & PHIPage::AApplication ) {
             static QByteArray phiapp=QByteArray::fromRawData( "phiapp", 6 );
-            if ( !url.hasEncodedQueryItem( phiapp ) ) url.addEncodedQueryItem( phiapp, "1" );
+            if ( !query.hasQueryItem( phiapp ) ) query.addQueryItem( phiapp, "1" );
         }
         QByteArray path;
         path.reserve( 60 );
@@ -572,6 +573,7 @@ QByteArray PHISHtmlBase::createHtmlCode()
         case PHISRequest::MacOS: path+="phisketeer.dmg"; break;
         default: path="";
         }
+        url.setQuery( query );
         if ( useObjTag==2 ) _out+=phiObjectExclusive( url, path );
         else _out+=phiObject( url, path );
     }

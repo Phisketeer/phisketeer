@@ -37,7 +37,7 @@ PHILicense::PHILicense( quint32 serial, const QString &registrar, const QString 
     _email=email.toUtf8();
     _procs=procs;
     _validDate=expiry;
-    _id=QUuid::createUuid().toString().toAscii().mid( 1 );
+    _id=QUuid::createUuid().toString().toLatin1().mid( 1 );
     _id.chop( 1 );
 }
 
@@ -51,7 +51,7 @@ void PHILicense::clear()
     _validDate=QDate( 2010, 1, 1 );
     _created=QDateTime::currentDateTime();
     _number=0;
-    _id=QUuid().toString().toAscii().mid( 1 );
+    _id=QUuid().toString().toLatin1().mid( 1 );
     _id.chop( 1 );
     _email="unregistered";
     _domain="localhost";
@@ -71,12 +71,12 @@ QDataStream& operator>> ( QDataStream &in, PHILicense &l )
     in >> l._version >> l._number >> l._id >> l._registrar >> l._email >> l._domain >> l._validDate
        >> l._procs >> l._created >> hash;
     check=QCryptographicHash::hash( QByteArray::number( l._number )+l._domain+l._email+l._registrar+
-        l._validDate.toString( "yyyy-MM-dd" ).toAscii()+QByteArray::number( l._procs )+magic, QCryptographicHash::Md5 );
+        l._validDate.toString( "yyyy-MM-dd" ).toLatin1()+QByteArray::number( l._procs )+magic, QCryptographicHash::Md5 );
     if ( check!=hash ) {
         l._domain="localhost";
         l._procs=1;
         l._number=0;
-        l._id=QUuid().toString().toAscii().mid( 1 );
+        l._id=QUuid().toString().toLatin1().mid( 1 );
         l._id.chop( 1 );
         l._validDate=QDate( 2010, 1, 1 );
     }
@@ -87,7 +87,7 @@ QDataStream& operator<< ( QDataStream &out, const PHILicense &l )
 {
     QByteArray magic="PHILIC";
     QByteArray hash=QCryptographicHash::hash( QByteArray::number( l._number )+l._domain
-        +l._email+l._registrar+l._validDate.toString( "yyyy-MM-dd").toAscii()
+        +l._email+l._registrar+l._validDate.toString( "yyyy-MM-dd").toLatin1()
         +QByteArray::number( l._procs )+magic, QCryptographicHash::Md5 );
     out << magic << l._version << l._number << l._id << l._registrar << l._email << l._domain
         << l._validDate << l._procs << l._created << hash;

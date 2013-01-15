@@ -445,7 +445,7 @@ void PHIAScriptAjaxObj::slotFinished()
     qDebug( "slotFinished();" );
     if ( _reply ) {
         _status=_reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
-        _statusText=QString::fromAscii(
+        _statusText=QString::fromLatin1(
             _reply->attribute( QNetworkRequest::HttpReasonPhraseAttribute ).toByteArray() );
         QString translated=_codec->toUnicode( _reply->readAll() );
         _responseText=_responseText+translated;
@@ -656,14 +656,16 @@ void PHIAScriptPhiObj::href( const QString &l )
     }
     qDebug( "----------------------- %s %s", qPrintable( link ), qPrintable( _view->url().toString( ) ) );
     QUrl url=PHI::createUrlForLink( _view->url(), link );
+    QUrlQuery query( url );
     //if ( _view->url().host()==url.host() ) { // same host so add session and lang
         QString sid=_view->page()->session();
         QString philang=_view->page()->lang();
         if ( !sid.isEmpty() )
-            if ( !url.hasQueryItem( "phisid" ) ) url.addQueryItem( "phisid", sid );
+            if ( !query.hasQueryItem( "phisid" ) ) query.addQueryItem( "phisid", sid );
         if ( !philang.isEmpty() )
-            if ( !url.hasQueryItem( "philang" ) ) url.addQueryItem( "philang", philang );
+            if ( !query.hasQueryItem( "philang" ) ) query.addQueryItem( "philang", philang );
     //}
+    url.setQuery( query );
     emit hrefRequested( url );
 }
 
@@ -740,7 +742,7 @@ void PHIAScriptPhiObj::setCursor( const QString &id, const QString &shape )
 {
     PHIBaseItem *it=_view->page()->getElementById( id );
     if ( !it ) return;
-    it->setCursor( shape.toAscii() );
+    it->setCursor( shape.toLatin1() );
 }
 
 void PHIAScriptPhiObj::setHtml( const QString &id, const QString &html )

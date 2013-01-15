@@ -180,8 +180,8 @@ public slots:
     inline QString port() const { return _url.port( 80 )==80 ? QString() :
         QString::number( _url.port() ); }
     inline QString protocol() const { return _url.scheme(); }
-    inline QString search() const { return QString('?')+
-        QString::fromAscii( _url.encodedQuery() ); }
+    inline QString search() const { QUrlQuery q( _url ); return QString('?')+
+        q.toString(); }
     void reload();
 
 signals:

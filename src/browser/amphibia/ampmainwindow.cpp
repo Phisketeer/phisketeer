@@ -23,6 +23,7 @@
 #include <QTimer>
 #include <QKeyEvent>
 #include <QApplication>
+#include <QStandardPaths>
 #include "ampmainwindow.h"
 #include "phia.h"
 #include "phi.h"
@@ -45,7 +46,7 @@ AMPMainWindow::AMPMainWindow( QWidget *parent )
     //setWindowTitle( PHIA::browserName() );
 
     QString path=s.value( PHIA::configName( PHIA::CacheDirectory ) ).toString();
-    if ( path.isEmpty() ) path=QDesktopServices::storageLocation( QDesktopServices::CacheLocation )
+    if ( path.isEmpty() ) path=QStandardPaths::writableLocation( QStandardPaths::CacheLocation )
         +QDir::separator()+PHIA::phiaDir();
     QDir cacheDir( path );
     if ( !cacheDir.exists() ) cacheDir.mkpath( path );
@@ -185,7 +186,7 @@ void AMPMainWindow::setCurrentView( PHIAAbstractWebView *newView )
     _urlCombo->slotSetCurrentUrl( newView->url() );
     setWindowTitle( PHIA::browserName()+" - "+newView->title() );
     QSslConfiguration sslConfig=newView->sslConfiguration();
-    if ( !sslConfig.peerCertificate().isValid() ) _sslTool->setIcon( QPixmap( ":/gnome/unsecure" ) );
+    if ( sslConfig.peerCertificate().isNull() ) _sslTool->setIcon( QPixmap( ":/gnome/unsecure" ) );
     else _sslTool->setIcon( QPixmap( ":/gnome/secure" ) );
     _currentView=newView;
 }
@@ -235,7 +236,7 @@ void AMPMainWindow::slotPageLoading( bool loading )
     if ( !loading && _currentView ) setWindowTitle( PHIA::browserName()+" - "+_currentView->title() );
     if ( !loading && _currentView ) {
         qDebug( "setting SSL icon" );
-        if ( !_currentView->sslConfiguration().peerCertificate().isValid() )
+        if ( _currentView->sslConfiguration().peerCertificate().isNull() )
             _sslTool->setIcon( QPixmap( ":/gnome/unsecure" ) );
         else _sslTool->setIcon( QPixmap( ":/gnome/secure" ) );
     }
@@ -365,7 +366,9 @@ void AMPMainWindow::on_actionSaveAs_triggered()
             QMessageBox::Cancel | QMessageBox::Yes, QMessageBox::Cancel );
         if ( res==QMessageBox::Cancel ) return;
         QUrl url=phiview->url();
-        url.addQueryItem( "phi", "0" );
+        QUrlQuery query( url );
+        query.addQueryItem( "phi", "0" );
+        url.setQuery( query );
         slotUrlComboActivated( url.toString() );
         return;
     }
@@ -437,7 +440,7 @@ void AMPMainWindow::on_actionSettings_triggered()
 
     QSettings s;
     QString path=s.value( PHIA::configName( PHIA::CacheDirectory ) ).toString();
-    if ( path.isEmpty() ) path=QDesktopServices::storageLocation( QDesktopServices::CacheLocation )
+    if ( path.isEmpty() ) path=QStandardPaths::writableLocation( QStandardPaths::CacheLocation )
         +QDir::separator()+PHIA::phiaDir();
     QDir cacheDir( path );
     if ( !cacheDir.exists() ) cacheDir.mkpath( path );

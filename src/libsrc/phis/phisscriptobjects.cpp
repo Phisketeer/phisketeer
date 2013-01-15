@@ -168,7 +168,7 @@ PHISReplyObj::PHISReplyObj( QScriptEngine *engine, PHIResponseRec *resp )
     : QObject( engine ), _ownContent( false ), _charset( "utf-8" ), _resp( resp )
 {
     qDebug( "PHISReplyObj::PHISReplyObj()" );
-    _contentType=QString::fromAscii( _resp->contentType() );
+    _contentType=QString::fromLatin1( _resp->contentType() );
     setObjectName( "reply" );
     QScriptValue reply=engine->newQObject( this, PHISSCRIPTEXTENSION );
     engine->globalObject().setProperty( "reply", reply );
@@ -202,7 +202,7 @@ void PHISReplyObj::setContent( const QString &c )
 
 void PHISReplyObj::setContentType( const QString &t )
 {
-    _resp->setContentType( t.toAscii() );
+    _resp->setContentType( t.toLatin1() );
     _contentType=t;
 }
 
@@ -530,12 +530,12 @@ qint16 PHISEmailObj::connect()
         if ( res ) return disconnectFromServer( res, t );
         res=waitForResponseLine();
         if ( res!=334 ) return disconnectFromServer( res, t );
-        data=QString::fromAscii( _user.toAscii().toBase64() );
+        data=QString::fromLatin1( _user.toLatin1().toBase64() );
         res=waitForDataWritten( data, t );
         if ( res ) return disconnectFromServer( res, t );
         res=waitForResponseLine();
         if ( res!=334 ) return disconnectFromServer( res, t );
-        data=QString::fromAscii( _password.toAscii().toBase64() );
+        data=QString::fromLatin1( _password.toLatin1().toBase64() );
         res=waitForDataWritten( data, t );
         if ( res ) return disconnectFromServer( res, t );
         res=waitForResponseLine();
@@ -657,7 +657,7 @@ qint16 PHISEmailObj::waitForResponseLine( bool *moreLines )
             return 1;
         }
         if ( _socket->canReadLine() ) {
-            _lastError=QString::fromAscii( _socket->readLine( 1024 ) );
+            _lastError=QString::fromLatin1( _socket->readLine( 1024 ) );
             _lastError.chop( 2 );
             //qDebug( "readLine %s", qPrintable( _lastError ) );
             if ( moreLines ) {
@@ -706,10 +706,10 @@ qint16 PHISEmailObj::waitForMessageWritten( QTextStream &t, const QString &to,
     d.append( "MIME-Version: 1.0\r\n" );
     d.append( "Content-type: "+_contentType+"\r\n" );
     d.append( "\r\n"+body );
-    //d.replace( QChar::fromAscii( '\n' ), QString::fromAscii( "\r\n" ) );
-    //d.replace( QString::fromAscii( "\r\n.\r\n" ), QString::fromAscii( "\r\n..\r\n" ) );
-    //d.replace( QChar::fromAscii( '\n' ), QString::fromAscii( "\r\n" ) );
-    d.replace( QString::fromAscii( "\r\n.\r\n" ), QString::fromAscii( "\r\n..\r\n" ) );
+    //d.replace( QChar::fromLatin1( '\n' ), QString::fromLatin1( "\r\n" ) );
+    //d.replace( QString::fromLatin1( "\r\n.\r\n" ), QString::fromLatin1( "\r\n..\r\n" ) );
+    //d.replace( QChar::fromLatin1( '\n' ), QString::fromLatin1( "\r\n" ) );
+    d.replace( QString::fromLatin1( "\r\n.\r\n" ), QString::fromLatin1( "\r\n..\r\n" ) );
     t << d << "\r\n.\r\n";
     t.flush();
     if ( !_socket->waitForBytesWritten( _timeout ) ) {

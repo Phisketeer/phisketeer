@@ -134,7 +134,7 @@ PHIACreditCard PHIACreditCardDlg::creditCard() const
     c.name=_name->text();
     c.number=_number->text();
     c.civ=_civ->text();
-    c.valid.setYMD( _yearCombo->currentText().toInt(), _monthCombo->currentIndex()+1, 1 );
+    c.valid.setDate( _yearCombo->currentText().toInt(), _monthCombo->currentIndex()+1, 1 );
     return c;
 }
 

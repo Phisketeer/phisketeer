@@ -69,7 +69,7 @@ qint8 PHISHtmlWebKit533::adjustDateEditButtonSpace() const
 
 QByteArray PHISHtmlWebKit533::phisEngine() const
 {
-    static QByteArray arr="Phis "+PHIS::libVersion().toAscii()+"/WebKit 533";
+    static QByteArray arr="Phis "+PHIS::libVersion().toLatin1()+"/WebKit 533";
     return arr;
 }
 
@@ -87,7 +87,7 @@ QByteArray PHISHtmlWebKit533::effectStyle() const
                 arr+="-webkit-box-shadow:"+QByteArray::number( static_cast<int>(xOff) )+"px ";
                 arr+=QByteArray::number( static_cast<int>(yOff) )+"px ";
                 arr+=QByteArray::number( static_cast<int>(radius) )+"px ";
-                arr+=c.name().toAscii()+';';
+                arr+=c.name().toLatin1()+';';
             }
         }
     }
@@ -207,7 +207,7 @@ void PHISHtmlWebKit533::dateEdit() const
         "top:"+QByteArray::number( _it->height()+3 )+"px;width:200px;height:160px;"
         "overflow:visible;display:none;font-size:10pt;\"></div>\n";
     arr+=_indent+"\t<input type=\"text\" id=\""+_it->id()+"_phical\" readonly=\"readonly\" name=\""
-        +_it->id()+"\" value=\""+now.toString( PHI::isoDateFormat() ).toAscii()
+        +_it->id()+"\" value=\""+now.toString( PHI::isoDateFormat() ).toLatin1()
         +"\" style=\"position:absolute;left:"+QByteArray::number( lleft )+"px;top:"
         +QByteArray::number( ltop )+"px;width:"+QByteArray::number( lwidth )+"px;height:"
         +QByteArray::number( lheight )+"px;margin:0px;"+fontStyle()+_endtag;
@@ -218,8 +218,8 @@ void PHISHtmlWebKit533::dateEdit() const
         +"\" onclick=\"new phiCalendar().init('"+_it->id()+"_phidiv','"
         +_it->id()+"_phical','close','"+daynames.toUtf8()+"','"+monthnames.toUtf8()
         +"',window.document.getElementById('"+_it->id()+"_phical').value,'"
-        +start.toString( PHI::isoDateFormat() ).toAscii()+"','"
-        +end.toString( PHI::isoDateFormat() ).toAscii()+"');"+_endtag;
+        +start.toString( PHI::isoDateFormat() ).toLatin1()+"','"
+        +end.toString( PHI::isoDateFormat() ).toLatin1()+"');"+_endtag;
     arr+=_indent+"</div>\n";
         //"window.document.getElementById( '"+it->id()+"_phidiv' ).style.display="
         //"'block';\" />\n";

@@ -180,7 +180,7 @@ GTwitterItem::~GTwitterItem()
 
 void GTwitterItem::setValue( const QString &v )
 {
-    QByteArray lang="&lang="+_item->view()->page()->lang().left( 2 ).toAscii();
+    QByteArray lang="&lang="+_item->view()->page()->lang().left( 2 ).toLatin1();
     QByteArray arr="<html><head><style>body { margin:0; padding:0; }</style>"
         "<script type=\"text/javascript\" charset=\"utf-8\" src=\"http://platform.twitter.com/widgets.js\"></script></head><body>"
         "<a href=\"https://twitter.com/share?"+v.toUtf8()+lang+"\" class=\"twitter-share-button\">Tweet</a></body></html>";
@@ -199,7 +199,7 @@ GFBLikeItem::~GFBLikeItem()
 
 void GFBLikeItem::setValue( const QString &v )
 {
-    QByteArray lang=_item->view()->page()->lang().toAscii();
+    QByteArray lang=_item->view()->page()->lang().toLatin1();
     lang.replace( "-", "_" );
     if ( lang!="C" ) lang="&locale="+(lang.size()==2?lang+"_"+lang.toUpper():lang);
     else lang="";
@@ -241,7 +241,7 @@ void GGooglePlusItem::setValue( const QString &v )
         "<g:plusone href=\""+href.toUtf8()+"\" size=\""+size.toUtf8()+"\" callback=\""+cb.toUtf8()+"\" "
         "annotation=\""+annotation.toUtf8()+"\"></g:plusone>"
         "<script type=\"text/javascript\">window.___gcfg={lang:'"
-        +_item->view()->page()->lang().left( 2 ).toAscii()
+        +_item->view()->page()->lang().left( 2 ).toLatin1()
         +"'};gapi.plusone.go();</script></body></html>";
     setContent( arr );
     _value=v;
@@ -425,7 +425,7 @@ void GYouTubeItem::setValue( const QString &s )
     qDebug( "SET CONTENT %s", qPrintable(s) );
     QByteArray arr="<html><head><style>body { margin:0; padding:0; }</style></head><body>";
     /*
-    arr+="<embed src=\"http://www.youtube-nocookie.com/v/"+s.toAscii();
+    arr+="<embed src=\"http://www.youtube-nocookie.com/v/"+s.toLatin1();
     arr+="?version=3\" type=\"application/x-shockwave-flash\" width=\"";
     arr+=QByteArray::number( static_cast<int>(width()) );
     arr+="\" height=\""+QByteArray::number( static_cast<int>(width()*0.5605) );

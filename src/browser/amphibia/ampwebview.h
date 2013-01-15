@@ -8,21 +8,7 @@
 #include <QtWebKit>
 #include <QPrinter>
 #include <QSslConfiguration>
-/*
-#include <QPaintEvent>
-#include <QResizeEvent>
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QContextMenuEvent>
-#include <QKeyEvent>
-#include <QFocusEvent>
-#include <QDragEnterEvent>
-#include <QDragLeaveEvent>
-#include <QDragMoveEvent>
-#include <QDropEvent>
-#include <QInputMethodEvent>
-#include <QCursor>
-*/
+#include <QWebView>
 #include "phiaabstractwebview.h"
 #include "ampwebpage.h"
 #include "phiahistory.h"

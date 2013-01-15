@@ -19,6 +19,7 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 #include <QApplication>
+#include <QNetworkCookie>
 #include "phiaabstractwebview.h"
 #include "phiatools.h"
 #include "phiasettingsdlg.h"
@@ -167,17 +168,17 @@ bool PHIAAbstractWebView::canGoForward() const
 
 void PHIAAbstractWebView::openSslDlg()
 {
-    if ( !_sslConfig.peerCertificate().isValid() ) {
+    if ( _sslConfig.peerCertificate().isNull() ) {
         QMessageBox::information( this, tr( "SSL" ), tr( "You are not securely connected." ),
             QMessageBox::Ok );
         return;
     }
     QSslCertificate c=_sslConfig.peerCertificate();
-    QString tmp=tr( "Issuer:" )+' '+c.issuerInfo( QSslCertificate::Organization )+'\n';
-    tmp+=tr( "Organisation (O):" )+' '+c.subjectInfo( QSslCertificate::Organization )+'\n';
-    tmp+=tr( "Common name (CN):" )+' '+c.subjectInfo( QSslCertificate::CommonName )+'\n';
+    QString tmp=tr( "Issuer:" )+' '+c.issuerInfo( QSslCertificate::Organization ).first()+'\n';
+    tmp+=tr( "Organisation (O):" )+' '+c.subjectInfo( QSslCertificate::Organization ).first()+'\n';
+    tmp+=tr( "Common name (CN):" )+' '+c.subjectInfo( QSslCertificate::CommonName ).first()+'\n';
     tmp+=tr( "Expiry date:" )+' '+c.expiryDate().toString( "yyyy-MM-dd" )+'\n';
-    tmp+=tr( "Country (C):" )+' '+c.subjectInfo( QSslCertificate::CountryName );
+    tmp+=tr( "Country (C):" )+' '+c.subjectInfo( QSslCertificate::CountryName ).first();
     QMessageBox::information( this, tr( "Host SSL certificate" ), tmp, QMessageBox::Ok );
 }
 

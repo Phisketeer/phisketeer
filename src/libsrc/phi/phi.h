@@ -90,10 +90,10 @@ typedef short PHIRC;
 #include <QGradient>
 #include <QGraphicsItem>
 #include <QDateTime>
-#include <QApplication>
+#include <QGuiApplication>
 #include <QFont>
 #include <QEasingCurve>
-//#include <QTranslator>
+#include <QStandardPaths>
 
 typedef QHash <QByteArray, QRect> PHIRectHash;
 typedef QList <QByteArray> PHIByteArrayList;
@@ -144,7 +144,7 @@ public:
     static QUrl createUrlForLink( const QUrl &ref, const QString &link );
     static void createMimeTypes( QString &filename );
     static Qt::Alignment toQtAlignment( quint8 );
-    static void setupApplication( QApplication *app );
+    static void setupApplication( QGuiApplication *app );
     static void hsvToHsl( qreal h, qreal s, qreal v, qreal *hh, qreal *ss, qreal *ll );
     static void hslToHsv( qreal hh, qreal ss, qreal ll, qreal *h, qreal *s, qreal *v );
     static QColor percentColor( const QColor &c, qreal fac );
@@ -157,12 +157,7 @@ public:
     static inline QString errorText() { return QString( ' ' )+QObject::tr( "Error: %1"); }
     static inline quint16 maxLength() { return static_cast<quint16>(100); }
     static inline QString stdTmpPath() {
-#ifdef Q_OS_MAC
-        return QString( "/tmp/phi" );
-#else
-        return QDir::tempPath()+QDir::separator()+"phi";
-#endif
-    }
+        return QStandardPaths::writableLocation( QStandardPaths::TempLocation )+QDir::separator()+"phi"; }
     static inline quint8 maxPatternStyle() { return static_cast<quint8>(15); }
     static inline quint8 maxLineStyle() { return static_cast<quint8>(5); }
     static inline int maxZValue() { return 1000; }
@@ -242,7 +237,7 @@ public:
     static void updateTranslations();
     static QEasingCurve::Type toEasingCurveType( const QString &name );
     static QString toEasingCurveString( quint8 ease ) {
-        return QString::fromAscii( toEasingCurveByteArray( ease ) ); }
+        return QString::fromLatin1( toEasingCurveByteArray( ease ) ); }
     static QByteArray toEasingCurveByteArray( quint8 ease );
     static QStringList availableEasingCurves();
     static QString defaultEasingCurve() { static QString s( "easeOutQuad" ); return s; }

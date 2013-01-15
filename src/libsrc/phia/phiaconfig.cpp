@@ -195,7 +195,7 @@ PHIAConfig::PHIAConfig( QObject *parent )
     clear();
     connect( &_timer, SIGNAL( timeout() ), this, SLOT( slotPasswordTimeout() ) );
     QSettings s;
-    QString cfile=QDesktopServices::storageLocation( QDesktopServices::DataLocation );
+    QString cfile=QStandardPaths::writableLocation( QStandardPaths::DataLocation );
     QDir path( cfile );
     if ( !path.exists() ) path.mkpath( cfile );
     cfile+="/phia.cfg";
@@ -277,8 +277,7 @@ void PHIAConfig::clear()
     _pwTimeout=30*60; // timeout after 30 min
     _server="www.phisketeer.org";
     _interval=IEveryTwoWeeks;
-    _downloadDir=QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
-    _downloadDir+=QDir::separator()+tr( "Downloads" );
+    _downloadDir=QStandardPaths::writableLocation( QStandardPaths::DownloadLocation );
 }
 
 PHIADownloadEntry* PHIAConfig::addDownload( QNetworkReply *reply, QWidget *parent, bool ask )
@@ -295,8 +294,7 @@ PHIADownloadEntry* PHIAConfig::addDownload( QNetworkReply *reply, QWidget *paren
     qDebug( "adding download entry" );
     PHIADownloadEntry *e=new PHIADownloadEntry( this );
     if ( _downloadDir.isEmpty() ) {
-        _downloadDir=QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
-        _downloadDir+=QDir::separator()+tr( "Downloads" );
+        _downloadDir=QStandardPaths::writableLocation( QStandardPaths::DownloadLocation );
         QDir mkdir( _downloadDir );
         if ( !mkdir.exists() ) mkdir.mkpath( _downloadDir );
     }
@@ -316,7 +314,7 @@ bool PHIAConfig::slotSaveDownloadEntries()
     QSettings s;
     s.setValue( PHIA::configName( PHIA::DownloadDirectory ), _downloadDir );
     QString dir=s.value( PHIA::configName( PHIA::CacheDirectory ) ).toString();
-    if ( dir.isEmpty() ) QDesktopServices::storageLocation( QDesktopServices::CacheLocation );
+    if ( dir.isEmpty() ) QStandardPaths::writableLocation( QStandardPaths::CacheLocation );
     QDir mkdir( dir );
     if ( !mkdir.exists() ) mkdir.mkpath( dir );
     QFile f( dir+QDir::separator()+"downloads.db" );
@@ -333,7 +331,7 @@ bool PHIAConfig::loadDownloadEntries()
     QSettings s;
     _downloadDir=s.value( PHIA::configName( PHIA::DownloadDirectory ), QString() ).toString();
     QString dir=s.value( PHIA::configName( PHIA::CacheDirectory ), QString() ).toString();
-    if ( dir.isEmpty() ) QDesktopServices::storageLocation( QDesktopServices::CacheLocation );
+    if ( dir.isEmpty() )QStandardPaths::writableLocation( QStandardPaths::CacheLocation );
     QDir mkdir( dir );
     if ( !mkdir.exists() ) return false;
     QFile f( dir+QDir::separator()+"downloads.db" );
@@ -469,8 +467,7 @@ void PHIAConfig::slotGetUpdateInfoFinished()
     }
     // download silently
     if ( _downloadDir.isEmpty() ) {
-        _downloadDir=QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
-        _downloadDir+=QDir::separator()+tr( "Downloads" );
+        _downloadDir=QStandardPaths::writableLocation( QStandardPaths::DownloadLocation );
         QDir mkdir( _downloadDir );
         if ( !mkdir.exists() ) mkdir.mkpath( _downloadDir );
     }

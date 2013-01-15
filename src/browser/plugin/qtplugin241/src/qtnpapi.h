@@ -80,17 +80,17 @@ struct NPRect
     uint16	right;
 };
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 struct NPEvent
 {
     uint16 event;
     uint32 wParam;
     uint32 lParam;
 };
-#elif defined(Q_WS_X11)
+#elif defined(Q_OS_X11)
 #  include <X11/Xlib.h>
 typedef XEvent NPEvent;
-#elif defined (Q_WS_MAC)
+#elif defined (Q_OS_MAC)
 typedef struct EventRecord NPEvent;
 #endif
 
@@ -159,7 +159,7 @@ struct NPWindow
     uint32 width, height;
     // Used by MAC only (Clipping rectangle in port coordinates)
     NPRect clipRect;
-#ifdef Q_WS_X11
+#ifdef Q_OS_X11
     // Contains information about the plug-in's Unix window environment
     // points to an NPSetWindowCallbackStruct
     void* ws_info; // probably obsolete with XEmbed
@@ -260,7 +260,7 @@ struct NPByteRange
 #define NPVERS_WIN16_HAS_LIVECONNECT        10
 
 // Mac specifics
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 # define getFocusEvent       (osEvt + 16)
 # define loseFocusEvent      (osEvt + 17)
 # define adjustCursorEvent   (osEvt + 18)
@@ -414,7 +414,7 @@ struct NPVariant {
 private:
 };
 
-#ifdef Q_WS_X11
+#ifdef Q_OS_X11
 extern "C" {
 #endif
 
@@ -548,7 +548,7 @@ struct NPNetscapeFuncs {
     FUNCTION_POINTER(NPN_SetExceptionFP) setexception;
 };
 
-#ifdef Q_WS_X11
+#ifdef Q_OS_X11
 }
 #endif
 

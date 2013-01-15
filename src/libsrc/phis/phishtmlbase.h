@@ -112,9 +112,9 @@ protected:
     inline QByteArray heightStyle() const { return QByteArray( "height:"
         +QByteArray::number(static_cast<int>(_it->height()) )+"px;" ); }
     inline QByteArray colorStyle() const { return _it->color().isValid() ?
-        QByteArray( "color:"+_it->color().name().toAscii()+';' ) : QByteArray(); }
+        QByteArray( "color:"+_it->color().name().toLatin1()+';' ) : QByteArray(); }
     inline QByteArray outlineColorStyle() const { return _it->outlineColor().isValid() ?
-        QByteArray( "background-color:"+_it->outlineColor().name().toAscii()+';' ) : QByteArray(); }
+        QByteArray( "background-color:"+_it->outlineColor().name().toLatin1()+';' ) : QByteArray(); }
 
     virtual QByteArray effectStyle() const=0;
     virtual QByteArray effectJS() const=0;

@@ -17,7 +17,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QTcpSocket>
-#include <QHttpResponseHeader>
 #include <QSslSocket>
 #include <QFile>
 #include <QFileInfo>
@@ -59,7 +58,7 @@ PHIHttp::~PHIHttp()
     //qDebug( "PHIHttp::~PHIHttp()" );
 }
 
-PHIRC PHIHttp::init( int socketDesc, bool usessl, QString &err )
+PHIRC PHIHttp::init( qintptr socketDesc, bool usessl, QString &err )
 {
     Q_UNUSED( err );
     //qDebug( "PHIHttp::init()" );
@@ -302,7 +301,7 @@ void PHIHttp::readyRead()
                     return;
                 }
                 _content=MultipartEncoded;
-                _boundary="--"+_req->contentType().mid( _req->contentType().indexOf( '=' )+1 ).toAscii();
+                _boundary="--"+_req->contentType().mid( _req->contentType().indexOf( '=' )+1 ).toLatin1();
                 _addPart=_readPart=false;
                 _tmpFile=0;
             } else if ( _req->contentType().startsWith( "application/x-www-form-urlencoded" ) ) {

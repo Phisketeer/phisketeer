@@ -63,8 +63,7 @@ PHIASettingsDlg::PHIASettingsDlg( QWidget *parent )
     _downloadDir->setText( s.value( PHIA::configName( PHIA::DownloadDirectory ) ).toString() );
     _downloadDir->setReadOnly( true );
     if ( _downloadDir->text().isEmpty() ) {
-        QString dload=QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
-        dload+=QDir::separator()+tr( "Downloads" );
+        QString dload=QStandardPaths::writableLocation( QStandardPaths::DownloadLocation );
         _downloadDir->setText( dload );
     }
     _languages->insertItems( 0, c->languages() );

@@ -20,6 +20,7 @@
 #define PHIATOOLS_H
 
 #include <QNetworkCookieJar>
+#include <QNetworkCookie>
 #include <QUrl>
 #include <QNetworkDiskCache>
 #include <QMutex>

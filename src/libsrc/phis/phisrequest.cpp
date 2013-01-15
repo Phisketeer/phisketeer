@@ -186,7 +186,7 @@ void PHISRequest::init() // should be executed AFTER all GET and POST var extrac
         }
     }
     // Extract languages (excluding qualifier ie. ';q=0.8')
-    list=QString::fromAscii( _headers.value( "Accept-Language" ) ).split( ',', QString::SkipEmptyParts );
+    list=QString::fromLatin1( _headers.value( "Accept-Language" ) ).split( ',', QString::SkipEmptyParts );
     foreach ( str, list ) {
         pos=str.indexOf( ';' );
         if( pos>0 ) str=str.left( pos ); // remove qualifier
@@ -219,11 +219,11 @@ void PHISRequest::init() // should be executed AFTER all GET and POST var extrac
         _lang=_postData.value( "philang" );
         _philang=true;
     }
-    if ( !_url.queryItemValue( "philang" ).isEmpty() ) {
-        _lang=_url.queryItemValue( "philang" );
+    if ( ! QUrlQuery( _url ).queryItemValue( "philang" ).isEmpty() ) {
+        _lang=QUrlQuery( _url ).queryItemValue( "philang" );
         _philang=true;
     }
-    _langByteArray=_lang.toAscii();
+    _langByteArray=_lang.toLatin1();
 }
 
 QString PHISRequest::serverValue( const QString &key ) const
@@ -244,11 +244,13 @@ QString PHISRequest::serverValue( const QString &key ) const
     if ( key=="postdata" ) {
         QString key, tmp;
         QUrl url;
+        QUrlQuery query;
         QStringList list;
         foreach( key, _postData.uniqueKeys() ) {
             list=_postData.values( key );
-            foreach( tmp, list ) url.addQueryItem( key, tmp );
+            foreach( tmp, list ) query.addQueryItem( key, tmp );
         }
+        url.setQuery( query );
         return url.toString();
     }
     if ( key=="lang" ) return _lang;

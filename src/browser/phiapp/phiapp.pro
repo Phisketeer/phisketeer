@@ -21,7 +21,7 @@ TEMPLATE = app
 TARGET = phiapp
 DESTDIR = ../../../bin
 CONFIG += qt $$[PHICONF]
-QT = core gui network svg script
+QT = core gui widgets network svg script printsupport
 
 VERSION = $$[PHIRELEASE]
 INCLUDEPATH = ../../libsrc/phi ../../libsrc/phia

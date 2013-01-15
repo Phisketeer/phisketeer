@@ -153,7 +153,7 @@ void PHILogWriter::log( int type, const char* file, int line,
     _out << " UTC, " << dt.toString( "hh:mm:ss" );
     _out << ' ' << tr( "localtime" ) << " (" << t << ')' << PHI::nl();
     _out << "RC=" << rc << " (" << PHIError::instance()->shortDesc( rc );
-    _out << ")" << PHI::nl() << tr( PHIError::instance()->longDesc( rc ).toAscii() );
+    _out << ")" << PHI::nl() << tr( PHIError::instance()->longDesc( rc ).toLatin1() );
     _out << PHI::nl() << PHI::nl() << tr( "Details:" ) << PHI::nl() << action;
     _out << PHI::nl() << PHI::nl();
     _out.flush();

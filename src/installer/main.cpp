@@ -23,9 +23,9 @@ int main ( int argc, char **argv )
 {
     QApplication app( argc, argv );
     app.setApplicationName( "PhiInstaller" );
-    app.setApplicationVersion( QString::fromAscii( PHIVERSION ) );
-    app.setOrganizationDomain( QString::fromAscii( PHIDOM ) );
-    app.setOrganizationName( QString::fromAscii( PHIORG ) );
+    app.setApplicationVersion( QString::fromLatin1( PHIVERSION ) );
+    app.setOrganizationDomain( QString::fromLatin1( PHIDOM ) );
+    app.setOrganizationName( QString::fromLatin1( PHIORG ) );
     PHIWizard w;
     w.show();
     return app.exec();

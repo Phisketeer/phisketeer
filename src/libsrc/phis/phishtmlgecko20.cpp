@@ -30,7 +30,7 @@ PHISHtmlGecko20::~PHISHtmlGecko20()
 
 QByteArray PHISHtmlGecko20::phisEngine() const
 {
-    static QByteArray arr="Phis "+PHIS::libVersion().toAscii()+"/Gecko 20";
+    static QByteArray arr="Phis "+PHIS::libVersion().toLatin1()+"/Gecko 20";
     return arr;
 }
 

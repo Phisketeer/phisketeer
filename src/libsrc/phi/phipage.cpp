@@ -83,7 +83,7 @@ QDataStream& operator<<( QDataStream &ds, const PHIPage *p )
 {
     QByteArray id=p->_id;
     if ( id.isEmpty() ) {
-        id=QUuid::createUuid().toString().toAscii();
+        id=QUuid::createUuid().toString().toLatin1();
         id.replace( '-', "" );
         id.chop( 23 );
         id.remove( 0, 1 );

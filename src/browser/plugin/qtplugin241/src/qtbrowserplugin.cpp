@@ -44,14 +44,14 @@
 #include "qtbrowserplugin_p.h"
 
 #ifndef WINAPI
-# ifdef Q_WS_WIN
+# ifdef Q_OS_WIN
 #  define WINAPI __stdcall
 # else
 #  define WINAPI
 # endif
 #endif
 
-#ifdef Q_WS_X11
+#ifdef Q_OS_X11
 #  ifdef Bool
 #    undef Bool
 #  endif
@@ -390,13 +390,13 @@ static bool NPClass_Invoke(NPObject *npobj, NPIdentifier name, const NPVariant *
         QVariant::Type type = QVariant::nameToType(parameterTypes.at(p));
         if (type == QVariant::Invalid && parameterTypes.at(p) != "QVariant") {
             NPN_SetException(npobj, QString("Parameter %1 in method '%2' has invalid type")
-                .arg(p).arg(QString::fromUtf8(slotName)).toAscii().constData());
+                .arg(p).arg(QString::fromUtf8(slotName)).toLatin1().constData());
             return false;
         }
         QVariant qvar = args[p];
         if (type != QVariant::Invalid && !qvar.convert(type)) {
             NPN_SetException(npobj, QString("Parameter %1 to method '%2' needs to be convertable to '%3'")
-                .arg(p).arg(QString::fromUtf8(slotName)).arg(QString::fromAscii(parameterTypes.at(p))).toAscii().constData());
+                .arg(p).arg(QString::fromUtf8(slotName)).arg(QString::fromLatin1(parameterTypes.at(p))).toLatin1().constData());
             return false;
         }
 
@@ -801,7 +801,7 @@ NPP_GetValue(NPP instance, NPPVariable variable, void *value)
         }
         break;
 
-#ifdef Q_WS_X11
+#ifdef Q_OS_X11
     case NPPVpluginNeedsXEmbed:
         *(int*)value = true; // PRBool = int
         break;
@@ -869,7 +869,7 @@ extern "C" int16 NPP_Event(NPP instance, NPEvent* event)
     return qtns_event(This, event) ? 1 : 0;
 }
 
-#ifdef Q_WS_X11
+#ifdef Q_OS_X11
 // Instance state information about the plugin.
 extern "C" char*
 NP_GetMIMEDescription(void)
@@ -933,7 +933,7 @@ NPP_New(NPMIMEType pluginType,
     This->fMode = mode; // NP_EMBED, NP_FULL, or NP_BACKGROUND (see npapi.h)
     This->window = 0;
     This->qt.object = 0;
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     This->rootWidget = 0;
 #endif
     This->pendingStream = 0; // stream might be created before instance
@@ -958,7 +958,7 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 
     QtNPInstance* This = (QtNPInstance*) instance->pdata;
 
-#ifdef Q_WS_X11
+#ifdef Q_OS_X11
     //This->widget->destroy(false, false); // X has destroyed all windows
 #endif
     delete This->qt.object;
@@ -1007,7 +1007,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     }
 
     This->window = (QtNPInstance::Widget)window->window;
-#ifdef Q_WS_X11
+#ifdef Q_OS_X11
     //This->display = ((NPSetWindowCallbackStruct *)window->ws_info)->display;
 #endif
 
@@ -1151,7 +1151,7 @@ NPP_StreamAsFile(NPP instance, NPStream *stream, const char* fname)
         return;
 
     QString path = QString::fromLocal8Bit(fname);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     path = "/" + path.section(':', 1).replace(':', '/');
 #endif
 
@@ -1250,7 +1250,7 @@ enum NPNToolkitType
     NPNVGtk2
 };
 
-#ifndef Q_WS_X11
+#ifndef Q_OS_X11
 extern "C" NPError WINAPI NP_Initialize(NPNetscapeFuncs* pFuncs)
 {
     if(!pFuncs)

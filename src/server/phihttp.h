@@ -40,7 +40,7 @@ public:
     explicit PHIHttp( PHIObject *parent=0 );
     virtual ~PHIHttp();
 
-    PHIRC init( int socketDesc, bool usessl, QString &err );
+    PHIRC init( qintptr socketDesc, bool usessl, QString &err );
 
 protected:
     PHIRC sendResponse( QString &err );

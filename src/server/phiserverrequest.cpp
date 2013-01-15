@@ -43,7 +43,7 @@ PHIServerRequest::~PHIServerRequest()
 
 void PHIServerRequest::setPostEncodedUrl( const QByteArray &query )
 {
-    QList <QPair <QString, QString> > list=QUrl::fromEncoded( query ).queryItems();
+    QList <QPair <QString, QString> > list=QUrlQuery( QUrl::fromEncoded( query ) ).queryItems();
     QPair <QString, QString> pair;
     foreach ( pair, list ) _postData.insertMulti( pair.first, pair.second );
 }
@@ -80,7 +80,7 @@ PHIRC PHIServerRequest::setupHttpHeader( const QString &headerStr, QString &err 
         return PHIRC_HTTP_BAD_REQUEST;
     }
     int start;
-    _keywords.insert( KMethod, headerStr.left( start=headerStr.indexOf( ' ' ) ).toUpper().toAscii() );
+    _keywords.insert( KMethod, headerStr.left( start=headerStr.indexOf( ' ' ) ).toUpper().toLatin1() );
     if ( !value.contains( ' '+method()+' ' ) ) {
         err=tr( "Unknown method." );
         return PHIRC_HTTP_METHOD_NOT_ALLOWED;
@@ -92,8 +92,7 @@ PHIRC PHIServerRequest::setupHttpHeader( const QString &headerStr, QString &err 
         err=tr( "Unknown HTTP protocol version (%1.%2)." ).arg( _httpMajor ).arg( _httpMinor );
         return PHIRC_HTTP_VERSION_NOT_SUPPORTED;
     }
-    _url.clear();
-    _url.setEncodedUrl( lines.at(0).mid( start+1,
+    _url=QUrl::fromEncoded( lines.at(0).mid( start+1,
         lines.at(0).indexOf( ' ', start+1 )-start-1 ).toUtf8(), QUrl::StrictMode );
     _url.setScheme( _server->_scheme );
     _url.setPort( _server->_port );

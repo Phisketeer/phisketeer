@@ -62,7 +62,7 @@ QNetworkReply* PHIAFormProcessor::process( const PHIAPage *page, const QString &
     }
     // Add session, lang
     _tmpFile->write( "--"+_boundary+"\r\n"+_disposition+"\"philang\"\r\n\r\n" );
-    _tmpFile->write( page->lang().toAscii() );
+    _tmpFile->write( page->lang().toLatin1() );
     _tmpFile->write( "\r\n" );
 
     if ( !page->session().isEmpty() ) {

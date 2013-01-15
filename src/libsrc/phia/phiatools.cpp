@@ -23,7 +23,8 @@
 #include <QDir>
 #include <QApplication>
 #include <QMessageBox>
-#include <QDesktopServices>
+#include <QStandardPaths>
+#include <QNetworkCookie>
 #include "phiatools.h"
 #include "phia.h"
 #include "phi.h"
@@ -43,7 +44,7 @@ PHIACookies::PHIACookies( QObject *parent )
     qDebug( "PHIACookies::PHIACookies()" );
     QSettings s;
     QString dir=s.value( PHIA::configName( PHIA::CacheDirectory ), QString() ).toString();
-    if ( dir.isEmpty() ) dir=QDesktopServices::storageLocation( QDesktopServices::CacheLocation )
+    if ( dir.isEmpty() ) dir=QStandardPaths::writableLocation( QStandardPaths::CacheLocation )
         +QDir::separator()+PHIA::browserName();
     QDir mkdir( dir );
     if ( !mkdir.exists() ) mkdir.mkpath( dir );
@@ -68,7 +69,7 @@ PHIACookies::~PHIACookies()
 {
     QSettings s;
     QString dir=s.value( PHIA::configName( PHIA::CacheDirectory ), QString() ).toString();
-    if ( dir.isEmpty() ) dir=QDesktopServices::storageLocation( QDesktopServices::CacheLocation )
+    if ( dir.isEmpty() ) dir=QStandardPaths::writableLocation( QStandardPaths::CacheLocation )
         +QDir::separator()+PHIA::browserName();
     QDir mkdir( dir );
     if ( !mkdir.exists() ) mkdir.mkpath( dir );
@@ -125,7 +126,7 @@ PHIADiskCache::PHIADiskCache( QObject *parent )
     qDebug( "PHIADiskCache::PHIADiskCache()" );
     QSettings s;
     QString dir=s.value( PHIA::configName( PHIA::CacheDirectory ), QString() ).toString();
-    if ( dir.isEmpty() ) dir=QDesktopServices::storageLocation( QDesktopServices::CacheLocation )
+    if ( dir.isEmpty() ) dir=QStandardPaths::writableLocation( QStandardPaths::CacheLocation )
         +QDir::separator()+PHIA::browserName();
     QDir mkdir( dir );
     if ( !mkdir.exists() ) mkdir.mkpath( dir );

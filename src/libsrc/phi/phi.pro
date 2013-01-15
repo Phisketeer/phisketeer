@@ -53,7 +53,7 @@ isEmpty( PHIORG ):error( PHIORG is not specified )
 TEMPLATE = lib
 TARGET = phi
 CONFIG += qt thread $$[PHICONF]
-QT = core gui network script
+QT = core gui network script widgets
 INCLUDEPATH += .
 DEFINES += QT_NO_CAST_TO_ASCII PHILIB
 DEFINES += PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
