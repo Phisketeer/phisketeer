@@ -390,7 +390,7 @@ void PHI::setupApplication( QApplication *app )
 #elif defined Q_OS_WIN
     pluginPath=s->value( "PluginsPath", PHI::compiledPrefix()+"\\bin\\plugins" ).toString();
 #else
-#error Could not determin pluginPath
+#error Could not determine pluginPath
 #endif
     app->addLibraryPath( pluginPath );
     qDebug( "Adding PluginPath %s", qPrintable( pluginPath ) );

@@ -1,6 +1,6 @@
 #    Copyright (C) 2010-2012  Marius B. Schumacher
 #    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@
 PHIDOM = phisketeer.org
 PHIORG = Phisketeer
 PHICONF = warn_on
-PHIRELEASE = 1.4.1
+PHIRELEASE = 1.5.0
 PHIMINMACV = 10.5
 PHIMACSDK = /Developer/SDKs/MacOSX10.7.sdk
 #mac: PHICONF += x86_64 appstore

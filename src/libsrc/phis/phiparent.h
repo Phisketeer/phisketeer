@@ -55,6 +55,7 @@ public:
     inline const PHILicense* license( const QString &domain ) const
         { QReadLocker l( &_lock ); return _licenses.value( domain, 0 ); }
 */
+    inline QString modulePath() const { return _modulePath; }
 
 protected:
     PHIParent( QObject *parent=0 );
@@ -77,12 +78,7 @@ private:
     QHash <QString, DBSettings> _dbSettings;
     QDateTime _invalidateTouch;
     //QHash <QString, PHILicense*> _licenses;
-/*
-    QStringList _argList;
-    int _argc;
-    QVector<char *> _argv;
-    QList<QByteArray> _argvData;
-*/
+    QString _modulePath;
 };
 
 #endif // PHIPARENT_H

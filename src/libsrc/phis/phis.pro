@@ -10,9 +10,9 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 HEADERS += phidatasources.h \
@@ -46,7 +46,8 @@ HEADERS += phidatasources.h \
     phishtmlwebkit534.h \
     phishtmltrident5.h \
     phishtmltrident6.h \
-    phishtmlgecko100.h
+    phishtmlgecko100.h \
+    phismodule.h
 SOURCES += \
     phidatasources.cpp \
     phiresponserec.cpp \
@@ -80,7 +81,8 @@ SOURCES += \
     phishtmlwebkit534.cpp \
     phishtmltrident5.cpp \
     phishtmltrident6.cpp \
-    phishtmlgecko100.cpp
+    phishtmlgecko100.cpp \
+    phismodule.cpp
 VERSION = $$[PHIRELEASE]
 TEMPLATE = lib
 TARGET = phis
