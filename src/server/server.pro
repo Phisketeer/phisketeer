@@ -47,7 +47,7 @@ VERSION = $$[PHIRELEASE]
 TEMPLATE = app
 TARGET = phis
 CONFIG += qt console thread $$[PHICONF]
-QT = core gui network sql script
+QT = core gui widgets network sql script
 INCLUDEPATH = ../libsrc/phi ../libsrc/phis
 DEFINES += QT_NO_CAST_TO_ASCII PHIVERSION=\\\"$$VERSION\\\"
 

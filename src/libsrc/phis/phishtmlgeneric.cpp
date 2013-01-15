@@ -33,7 +33,7 @@ PHISHtmlGeneric::~PHISHtmlGeneric()
 
 QByteArray PHISHtmlGeneric::phisEngine() const
 {
-    static QByteArray arr="Phis "+PHIS::libVersion().toAscii()+"/Generic 4.01";
+    static QByteArray arr="Phis "+PHIS::libVersion().toLatin1()+"/Generic 4.01";
     return arr;
 }
 
@@ -110,7 +110,7 @@ QByteArray PHISHtmlGeneric::effectStyle() const
                 arr+=boxShadowKeyword()+':'+QByteArray::number( static_cast<int>(xOff) )+"px ";
                 arr+=QByteArray::number( static_cast<int>(yOff) )+"px ";
                 arr+=QByteArray::number( static_cast<int>(radius) )+"px ";
-                arr+=c.name().toAscii()+';';
+                arr+=c.name().toLatin1()+';';
             }
         }
     }
@@ -165,14 +165,14 @@ void PHISHtmlGeneric::menuLink() const
     if ( _it->rolloverTextColor().isValid() || _it->rolloverBackgroundColor().isValid() ) {
         _out+=" onmouseover=\"this.style.cursor='default';";
         if ( _it->rolloverTextColor().isValid() )
-            _out+="this.style.color='"+_it->rolloverTextColor().name().toAscii()+"';";
+            _out+="this.style.color='"+_it->rolloverTextColor().name().toLatin1()+"';";
         if ( _it->rolloverBackgroundColor().isValid() )
-            _out+="this.style.backgroundColor='"+_it->rolloverBackgroundColor().name().toAscii()+"';";
+            _out+="this.style.backgroundColor='"+_it->rolloverBackgroundColor().name().toLatin1()+"';";
         _out+='"';
         QColor tc=_it->color().isValid() ? _it->color() : _p->palette().color( QPalette::WindowText );
-        _out+=" onmouseout=\"this.style.color='"+tc.name().toAscii()+"';";
+        _out+=" onmouseout=\"this.style.color='"+tc.name().toLatin1()+"';";
         if ( _it->outlineColor().isValid() )
-            _out+="this.style.backgroundColor='"+_it->outlineColor().name().toAscii()+"';";
+            _out+="this.style.backgroundColor='"+_it->outlineColor().name().toLatin1()+"';";
         _out+='"';
     }
     _out+='>'+_it->valueData();
@@ -395,7 +395,7 @@ void PHISHtmlGeneric::calendar() const
     if ( !end.isValid() ) end=QDate( 9999, 12, 31 );
 
     _out+=_indent+"<input type=\"hidden\" name=\""+_it->id()+"\" id=\""+_it->id()+"_phical\" value=\""
-        +now.toString( PHI::isoDateFormat() ).toAscii()+_endtag;
+        +now.toString( PHI::isoDateFormat() ).toLatin1()+_endtag;
     _out+=_indent+"<div class=\"phical\" "+id()+accessKey()+tabIndex()
         +startStyle( QRect( 0, 0, -6, -4 ) )+fontStyle()+effectStyle()+"\"></div>\n";
     _jquery+="\t$('#"+_it->id()+"').datepicker({minDate:new Date("
@@ -527,7 +527,7 @@ void PHISHtmlGeneric::table() const
     int colCount=0, r;
     bool hasHeader=false, isChecked;
     QString col, row, v;
-    QByteArray highlight=_p->palette().color( QPalette::Highlight ).name().toAscii();
+    QByteArray highlight=_p->palette().color( QPalette::Highlight ).name().toLatin1();
 
     QStringList rows=_it->value().split( _it->delimiter(), QString::SkipEmptyParts );
     for ( r=0; r<rows.count(); r++ ) {
@@ -683,8 +683,10 @@ void PHISHtmlGeneric::langSelector() const
         +startStyle( adjustSelectSize() )+fontStyle()+effectStyle()+"\">\n";
     _out+=selectOptions( langs.split( '\n' ) );
     if ( _it->id()=="philangselector" ) {
-        QUrl url=_req->url();
-        url.removeQueryItem( "philang" );
+        QUrlQuery query( _req->url() );
+        query.removeQueryItem( "philang" );
+        QUrl url( _req->url() );
+        url.setQuery( query );
         QByteArray u=url.toEncoded();
         if ( url.hasQuery() ) u.endsWith( '&' ) ? u+="philang=" : u+="&philang=";
         else u+="?philang=";
@@ -876,10 +878,10 @@ QByteArray PHISHtmlGeneric::rect() const
         if ( _it->line()<4 && _it->pattern()<2 ) {
             arr+="<div "+id()+style+visibilityStyle()
     out="\t<div "+_id+" style=\""+_vis+genPosition( it, QPoint( -penWidth, -penWidth ) )+_height+_width;
-    if ( it->pattern() ) out+=" background-color: "+it->color().name().toAscii()+';';
+    if ( it->pattern() ) out+=" background-color: "+it->color().name().toLatin1()+';';
     if ( it->line() ) {
         out+=" border: "+line+' '+QByteArray::number( penWidth )
-            +"px; border-color: "+it->outlineColor().name().toAscii();
+            +"px; border-color: "+it->outlineColor().name().toLatin1();
     }
     out+="\"></div>\n";
         }

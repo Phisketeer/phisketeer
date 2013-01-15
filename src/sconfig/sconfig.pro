@@ -22,7 +22,7 @@ VERSION = 1.2.3
 TEMPLATE = app
 TARGET = phisconf
 CONFIG += qt thread $$[PHICONF]
-QT = core gui network
+QT = core gui widgets network
 INCLUDEPATH = ../libsrc/phi ../libsrc/phis
 DEFINES += QT_NO_CAST_TO_ASCII PHIVERSION=\\\"$$VERSION\\\"
 FORMS += sconfigdlg.ui

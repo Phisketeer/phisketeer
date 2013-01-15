@@ -138,8 +138,8 @@ QScriptValue PHIAScriptItem::opacity( qreal opac )
 
 QScriptValue PHIAScriptItem::cursor( const QString &c )
 {
-    if ( c.isNull() ) return QString::fromAscii( _it->cursor() );
-    _it->setCursor( c.toAscii() );
+    if ( c.isNull() ) return QString::fromLatin1( _it->cursor() );
+    _it->setCursor( c.toLatin1() );
     return self();
 }
 

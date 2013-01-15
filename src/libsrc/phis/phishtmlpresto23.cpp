@@ -29,7 +29,7 @@ PHISHtmlPresto23::~PHISHtmlPresto23()
 
 QByteArray PHISHtmlPresto23::phisEngine() const
 {
-    static QByteArray arr="Phis "+PHIS::libVersion().toAscii()+"/Presto 23";
+    static QByteArray arr="Phis "+PHIS::libVersion().toLatin1()+"/Presto 23";
     return arr;
 }
 

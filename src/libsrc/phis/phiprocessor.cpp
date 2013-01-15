@@ -74,7 +74,7 @@ void PHIProcessor::run()
     QFile f( _req->canonicalFilename() );
 #endif
     QFileInfo fi( f );
-    if ( fi.suffix()!=QString::fromAscii( "phis" ) ) {
+    if ( fi.suffix()!=QString::fromLatin1( "phis" ) ) {
         // not used in Apache (other file types are handled by Apache itself)
         if ( !fi.isReadable() )
             return _resp->error( PHILOGERR, PHIRC_HTTP_NOT_FOUND, QObject::tr( "File not found on server." ) );
@@ -296,8 +296,8 @@ void PHIProcessor::genLicense() const
     _resp->_contentType="text/plain";
     _resp->_body="ID: "+l->id()+"\r\nProcessors: "+QByteArray::number( l->processors() )
         +"\r\nDomain: "+l->domain()+"\r\nRegistrar: "+l->registrar()
-        +"\r\nValidity: "+l->validDate().toString( "yyyy-MM-dd" ).toAscii()
-        +"\r\nCreation: "+l->created().toString( "yyyy-MM-dd hh:mm:ss" ).toAscii();
+        +"\r\nValidity: "+l->validDate().toString( "yyyy-MM-dd" ).toLatin1()
+        +"\r\nCreation: "+l->created().toString( "yyyy-MM-dd hh:mm:ss" ).toLatin1();
     _resp->_contentLength=_resp->_body.size();
     */
 }
@@ -553,7 +553,7 @@ void PHIProcessor::createJS( const QString &name ) const
         return;
     }
     if ( name=="phibase.js" ) {
-        QString str=QString::fromAscii( src.readAll() );
+        QString str=QString::fromLatin1( src.readAll() );
 
         str.replace( QRegExp( " {2,}"), "" );
         str.replace( " (", "(" );
@@ -568,7 +568,7 @@ void PHIProcessor::createJS( const QString &name ) const
 #ifndef PHIDEBUG
         str.replace( QRegExp( "\n{1,1}" ), "" );
 #endif
-        f.write( str.toAscii() );
+        f.write( str.toLatin1() );
     } else f.write( src.readAll() );
     f.close();
     src.close();
@@ -616,27 +616,27 @@ void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
         //} else {
         //    out+="\tmargin:0;top:0px;left:0px";
         //}
-        out+="\tbackground-color:"+p->palette().window().color().name().toAscii()+";\n";
+        out+="\tbackground-color:"+p->palette().window().color().name().toLatin1()+";\n";
             //p->palette().window() is set to p->bgColor()
         out+="\t"+font+'\n';
-        out+="\tcolor:"+p->palette().windowText().color().name().toAscii()+";\n"
+        out+="\tcolor:"+p->palette().windowText().color().name().toLatin1()+";\n"
             "}\na:link {text-decoration:none;color:"
-            +p->palette().link().color().name().toAscii()+"; }\n"
+            +p->palette().link().color().name().toLatin1()+"; }\n"
             "a:visited {text-decoration:none;color:"
-            +p->palette().linkVisited().color().name().toAscii()+";}\n";
+            +p->palette().linkVisited().color().name().toLatin1()+";}\n";
         if ( p->attributes() & PHIPage::ANoUnderlineLinks ) out+="a:hover {text-decoration:none;}\n";
         else out+="a:hover {text-decoration:underline;}\n";
         out+="input {"+font+"} select {"+font+"}\n";
         out+="button {"+font+"} textarea {"+font+"}\n";
         out+="img {position:absolute;border:none;}\n";
         out+="table {border:none;border-spacing:0;margin:0;padding:0;}\n";
-        out+=".phibuttontext {color:"+p->palette().buttonText().color().name().toAscii()+";}\n";
-        out+=".phibutton {background-color:"+p->palette().button().color().name().toAscii()+";}\n";
-        out+=".phihighlight {background-color:"+p->palette().highlight().color().name().toAscii()+";}\n";
-        out+=".phihighlightedtext {color:"+p->palette().highlightedText().color().name().toAscii()+";}\n";
-        out+=".phibase {background-color:"+p->palette().base().color().name().toAscii()+"; }\n";
-        out+=".phitext {color:"+p->palette().text().color().name().toAscii()+";}\n";
-        out+=".phiwindowtext {color:"+p->palette().windowText().color().name().toAscii()+";}\n";
+        out+=".phibuttontext {color:"+p->palette().buttonText().color().name().toLatin1()+";}\n";
+        out+=".phibutton {background-color:"+p->palette().button().color().name().toLatin1()+";}\n";
+        out+=".phihighlight {background-color:"+p->palette().highlight().color().name().toLatin1()+";}\n";
+        out+=".phihighlightedtext {color:"+p->palette().highlightedText().color().name().toLatin1()+";}\n";
+        out+=".phibase {background-color:"+p->palette().base().color().name().toLatin1()+"; }\n";
+        out+=".phitext {color:"+p->palette().text().color().name().toLatin1()+";}\n";
+        out+=".phiwindowtext {color:"+p->palette().windowText().color().name().toLatin1()+";}\n";
         out+=".phiwindow {background-color:transparent;}\n";
         out+=".phichklistitem {margin-top:auto;margin-bottom:auto;width:20px;}\n";
         out+=".phiradioitem {width:20px;margin-top:auto;margin-bottom:auto;overflow:visible;}\n";
@@ -654,7 +654,7 @@ void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
 
         out+=".phitableth {padding:4px;text-align:left;white-space:nowrap;}\n";
         out+=".phitabletd {padding-left:4px;white-space:nowrap;padding-top:2px;padding-bottom:2px;color:"
-            +p->palette().text().color().name().toAscii()+";}\n";
+            +p->palette().text().color().name().toLatin1()+";}\n";
     }
     // User defined global page CSS
     if ( p->attributes() & PHIPage::AStyleSheet ) {
@@ -732,7 +732,7 @@ QByteArray PHIProcessor::createjQueryTheme( const PHIBasePage* const p ) const
     QString theme;
     QFile f( ":/ui-theme.css" ); //jquery ui theme CSS
     if ( f.open( QIODevice::ReadOnly ) ) {
-        theme=QString::fromAscii( f.readAll() );
+        theme=QString::fromLatin1( f.readAll() );
         f.close();
         /*
         theme.replace( QRegExp( _phireg( "ffDefault" ) ), ": "+fontarr );
@@ -776,7 +776,7 @@ QByteArray PHIProcessor::createjQueryTheme( const PHIBasePage* const p ) const
         theme.replace( QRegExp( _phireg( "bgColorError" ) ),
             " "+p->additionalColor( PHIPage::DColorBgError ).name() );
 
-        out+=theme.toAscii();
+        out+=theme.toLatin1();
     }
     if ( p->attributes() & PHIPage::AHasCalendar ) {
         f.setFileName( ":/ui-datepicker.css" ); //jquery ui datepicker CSS

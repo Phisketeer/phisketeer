@@ -11,7 +11,7 @@ PHISHtmlGecko100::~PHISHtmlGecko100()
 
 QByteArray PHISHtmlGecko100::phisEngine() const
 {
-    static QByteArray arr="Phis "+PHIS::libVersion().toAscii()+"/Gecko 100";
+    static QByteArray arr="Phis "+PHIS::libVersion().toLatin1()+"/Gecko 100";
     return arr;
 }
 
@@ -35,7 +35,7 @@ QByteArray PHISHtmlGecko100::effectStyle() const
                 arr+="box-shadow:"+QByteArray::number( static_cast<int>(xOff) )+"px ";
                 arr+=QByteArray::number( static_cast<int>(yOff) )+"px ";
                 arr+=QByteArray::number( static_cast<int>(radius) )+"px ";
-                arr+=c.name().toAscii()+';';
+                arr+=c.name().toLatin1()+';';
             }
         }
     }

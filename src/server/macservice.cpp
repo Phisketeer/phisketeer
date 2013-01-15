@@ -30,7 +30,7 @@ MACService::MACService( int argc, char **argv, const QString &name )
     : QObject( 0 ), _name( name )
 {
     qDebug( "MACService::MACService" );
-    _app=new QApplication( argc, argv, false );
+    _app=new QGuiApplication( argc, argv, false );
     _app->setApplicationVersion( PHIS::libVersion() );
     _app->setApplicationName( "Phis" );
     PHI::setupApplication( _app );

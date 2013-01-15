@@ -29,7 +29,7 @@ PHISHtmlWebKit534::~PHISHtmlWebKit534()
 
 QByteArray PHISHtmlWebKit534::phisEngine() const
 {
-    static QByteArray arr="Phis "+PHIS::libVersion().toAscii()+"/WebKit 534";
+    static QByteArray arr="Phis "+PHIS::libVersion().toLatin1()+"/WebKit 534";
     return arr;
 }
 

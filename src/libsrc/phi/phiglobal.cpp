@@ -40,6 +40,7 @@
 #include <QDir>
 #include <QProcess>
 #include <QApplication>
+#include <QUrlQuery>
 
 #ifdef Q_OS_MAC
 #include <QNetworkAccessManager>
@@ -368,15 +369,15 @@ QStringList PHI::properties( const QObject *obj )
     return properties;
 }
 
-void PHI::setupApplication( QApplication *app )
+void PHI::setupApplication( QGuiApplication *app )
 {
     if ( !app ) return;
 #ifdef Q_OS_MAC // needed for app store
     app->setOrganizationDomain( "phisys.com" );
     app->setOrganizationName( "Phisys AG" );
 #else
-    app->setOrganizationDomain( QString::fromAscii( PHI::domain() ) );
-    app->setOrganizationName( QString::fromAscii( PHI::organisation() ) );
+    app->setOrganizationDomain( QString::fromLatin1( PHI::domain() ) );
+    app->setOrganizationName( QString::fromLatin1( PHI::organisation() ) );
 #endif
     QSettings *s=PHI::globalSettings();
 
@@ -491,9 +492,10 @@ bool PHI::stopPhisService()
     if ( rep->error()!=QNetworkReply::NoError ) {
         // phis responses with "access denied" to phi.phis?stop=1
         if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
-        qDebug( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
+        qWarning( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
         return 0;
     }
+    qWarning( "service stopped" );
     return 0;
 #else
     QProcess proc;
@@ -686,7 +688,7 @@ QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )
         if ( path.startsWith( '/' ) || path.startsWith( '\\' ) ) path.remove( 0, 1 );
         url.setPath( path );
     }
-    url.setQueryItems( link.queryItems() );
+    url.setQuery( QUrlQuery( link ) );
     qDebug( "createUrlForLink <%s>", url.toEncoded().data() );
     return url;
 }
@@ -1041,7 +1043,7 @@ QByteArray PHI::toEasingCurveByteArray( quint8 ease )
     case QEasingCurve::OutBounce: s="easeOutBounce"; break;
     case QEasingCurve::InOutBounce: s="easeInOutBounce"; break;
     default:
-        s=PHI::defaultEasingCurve().toAscii();
+        s=PHI::defaultEasingCurve().toLatin1();
     }
     return s;
 }

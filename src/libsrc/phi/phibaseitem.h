@@ -324,8 +324,8 @@ public slots:
     inline void setBorderRadius( const QString &r ) {
         QString rr=r; _it->setBorderRadius( rr.replace( "px", "" ).toShort() ); }
     inline QString borderRadius() const { return QString::number( _it->borderRadius() )+"px"; }
-    inline QString cursor() const { return QString::fromAscii( _it->cursor() ); }
-    inline void setCursor( const QString &c ) { _it->setCursor( c.toAscii() ); }
+    inline QString cursor() const { return QString::fromLatin1( _it->cursor() ); }
+    inline void setCursor( const QString &c ) { _it->setCursor( c.toLatin1() ); }
 
     // PHI extensions
     inline qreal opacity() const { return _it->opacity(); }

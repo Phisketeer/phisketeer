@@ -77,7 +77,7 @@ TRANSLATIONS =  phia_de.ts \
 TEMPLATE = lib
 TARGET = phia
 CONFIG += qt thread $$[PHICONF]
-QT = core gui network svg script webkit
+QT = core gui network svg script webkitwidgets widgets printsupport
 INCLUDEPATH = ../phi
 OBJECTS_DIR = .tmp
 MOC_DIR = .tmp
@@ -101,7 +101,7 @@ win32 {
     QMAKE_CLEAN += phia_resource.rc phiad_resource.rc
     QMAKE_DISTCLEAN += phia_resource.rc phiad_resource.rc
 }
-unix { 
+unix {
     DESTDIR = ../../../lib
     LIBS = -L../../../lib -lphi
     QMAKE_LFLAGS_RPATH =

@@ -20,7 +20,7 @@
 #include "phierr.h"
 #include "phihttp.h"
 
-PHIConnThread::PHIConnThread( QObject *parent, int sockdesc, bool usessl )
+PHIConnThread::PHIConnThread(QObject *parent, qintptr sockdesc, bool usessl )
     : QThread( parent ), _socketDesc( sockdesc ), _usessl( usessl )
 {
     //qDebug( "PHIConnThread::PHIConnThread()" );

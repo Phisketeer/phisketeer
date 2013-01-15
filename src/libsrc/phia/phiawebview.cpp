@@ -26,6 +26,7 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QPrintDialog>
+#include <QNetworkCookie>
 #include "phiawebview.h"
 #include "phiaitem.h"
 #include "phi.h"
@@ -159,7 +160,7 @@ void PHIAWebView::slotMetaDataChanged()
     QNetworkReply *reply=qobject_cast<QNetworkReply*>(_ioDev);
     if ( !reply ) return;
     _sslConfig=reply->sslConfiguration();
-    qDebug( "HTTP code %s", reply->attribute( QNetworkRequest::RedirectionTargetAttribute ).toUrl().toString().toAscii().data() );
+    qDebug( "HTTP code %s", reply->attribute( QNetworkRequest::RedirectionTargetAttribute ).toUrl().toString().toLatin1().data() );
     qDebug( "HTTP code %d", reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt() );
 }
 

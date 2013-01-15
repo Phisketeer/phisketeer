@@ -26,7 +26,7 @@ class PHIConnThread : public QThread
     Q_OBJECT
 
 public:
-    explicit PHIConnThread( QObject *parent, int sockdesc, bool usessl );
+    explicit PHIConnThread( QObject *parent, qintptr sockdesc, bool usessl );
     virtual ~PHIConnThread();
 
 protected slots:
@@ -36,7 +36,7 @@ signals:
     void processServiceCommand( int code ); // needed for Mac OS X
 
 private:
-    int _socketDesc;
+    qintptr _socketDesc;
     bool _usessl;
 };
 

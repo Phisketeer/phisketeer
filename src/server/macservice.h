@@ -20,7 +20,7 @@
 #define MACSERVICE_H
 #include <QObject>
 class PHIManager;
-class QApplication;
+class QGuiApplication;
 
 class MACService : public QObject
 {
@@ -38,7 +38,7 @@ protected slots:
 
 protected:
     QString _name;
-    QApplication *_app;
+    QGuiApplication *_app;
     PHIManager *_manager;
 };
 

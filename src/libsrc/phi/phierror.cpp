@@ -49,6 +49,6 @@ void PHIError::print( PHIRC rc, const QString &todo ) const
     QTextStream t( stderr, QIODevice::WriteOnly );
     t << QString( "RC=%1 (%2)" ).arg( rc )
        .arg( QObject::tr( shortDesc( rc ) ) );
-    t << endl << QObject::tr( longDesc( rc ).toAscii().data() );
-    t << endl << QObject::tr( todo.toAscii().data() ) << endl;
+    t << endl << QObject::tr( longDesc( rc ).toLatin1().data() );
+    t << endl << QObject::tr( todo.toLatin1().data() ) << endl;
 }

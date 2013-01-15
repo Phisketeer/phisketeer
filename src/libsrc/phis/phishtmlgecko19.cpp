@@ -70,7 +70,7 @@ QRect PHISHtmlGecko19::adjustSelectSize() const
 
 QByteArray PHISHtmlGecko19::phisEngine() const
 {
-    static QByteArray arr="Phis "+PHIS::libVersion().toAscii()+"/Gecko 19";
+    static QByteArray arr="Phis "+PHIS::libVersion().toLatin1()+"/Gecko 19";
     return arr;
 }
 
@@ -100,7 +100,7 @@ QByteArray PHISHtmlGecko19::effectStyle() const
                 arr+="-moz-box-shadow:"+QByteArray::number( static_cast<int>(xOff) )+"px ";
                 arr+=QByteArray::number( static_cast<int>(yOff) )+"px ";
                 arr+=QByteArray::number( static_cast<int>(radius) )+"px ";
-                arr+=c.name().toAscii()+';';
+                arr+=c.name().toLatin1()+';';
             }
         }
     }

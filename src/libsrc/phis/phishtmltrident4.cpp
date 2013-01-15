@@ -30,7 +30,7 @@ PHISHtmlTrident4::~PHISHtmlTrident4()
 
 QByteArray PHISHtmlTrident4::phisEngine() const
 {
-    static QByteArray arr="Phis "+PHIS::libVersion().toAscii()+"/Trident 4";
+    static QByteArray arr="Phis "+PHIS::libVersion().toLatin1()+"/Trident 4";
     return arr;
 }
 

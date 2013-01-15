@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QRegExpValidator>
+#include <QStandardPaths>
 #include "gwidgetitems.h"
 #include "phi.h"
 #include "phia.h"
@@ -420,7 +421,7 @@ GEmailItem::GEmailItem( qreal w, qreal h, const PHIAItem *it, QGraphicsItem *par
 {
     qDebug( "GEmailItem::~GEmailItem()" );
     _e->setValidator( new QRegExpValidator(
-        QRegExp( QString::fromAscii( PHI::emailRegExp() ), Qt::CaseInsensitive ), this ) );
+        QRegExp( QString::fromLatin1( PHI::emailRegExp() ), Qt::CaseInsensitive ), this ) );
 }
 
 GEmailItem::~GEmailItem()
@@ -433,7 +434,7 @@ GPhoneNumberItem::GPhoneNumberItem( qreal w, qreal h, const PHIAItem *it, QGraph
 {
     qDebug( "GPhoneNumberItem::~GPhoneNumberItem()" );
     _e->setValidator( new QRegExpValidator(
-        QRegExp( QString::fromAscii( PHI::phoneNumberRegExp() ), Qt::CaseSensitive ), this ) );
+        QRegExp( QString::fromLatin1( PHI::phoneNumberRegExp() ), Qt::CaseSensitive ), this ) );
 }
 
 GPhoneNumberItem::~GPhoneNumberItem()
@@ -766,8 +767,10 @@ void GLangSelectorItem::slotCurrentIndexChanged( int index )
         return;
     }
     QUrl url=_item->view()->url();
-    url.removeQueryItem( "philang" );
-    url.addQueryItem( "philang", _cb->itemData( index ).toString() );
+    QUrlQuery query( url );
+    query.removeQueryItem( "philang" );
+    query.addQueryItem( "philang", _cb->itemData( index ).toString() );
+    url.setQuery( query );
     emit langActivated( url.toString() );
 }
 
@@ -1109,7 +1112,7 @@ GFileItem::~GFileItem()
 void GFileItem::slotButtonClicked()
 {
     QString oldText=_e->text();
-    QString dir=QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
+    QString dir=QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
     QString f=QFileDialog::getOpenFileName( view(), tr( "File to send" ), dir,
         tr( "Images (*.png *.jpg *.gif *.tif);;Text (*.txt *.doc *.html *.xml *.svg);; All (*.*)" ) );
     if ( oldText==f ) return;

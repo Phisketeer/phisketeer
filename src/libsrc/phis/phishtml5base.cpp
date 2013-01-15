@@ -188,7 +188,7 @@ void PHISHtml5Base::menuLink() const
     if ( _it->rolloverTextColor().isValid() || _it->rolloverBackgroundColor().isValid() ) {
         _out+=" onmouseover=\"this.style.cursor='default';";
         if ( _it->rolloverTextColor().isValid() )
-            _out+="this.style.color='"+_it->rolloverTextColor().name().toAscii()+"';";
+            _out+="this.style.color='"+_it->rolloverTextColor().name().toLatin1()+"';";
         if ( _it->rolloverBackgroundColor().isValid() ) {
             QColor rc=_it->rolloverBackgroundColor();
             _out+="this.style.backgroundColor='"+rgba( rc )+"';";
@@ -197,7 +197,7 @@ void PHISHtml5Base::menuLink() const
         _out+=" onmouseout=\"";
         QColor windowText=_it->color();
         if ( !windowText.isValid() ) windowText=_p->palette().color( QPalette::WindowText );
-        _out+="this.style.color='"+windowText.name().toAscii()+"';";
+        _out+="this.style.color='"+windowText.name().toLatin1()+"';";
         _out+="this.style.backgroundColor='"+rgba( c )+"';";
         _out+='"';
     }
@@ -225,7 +225,7 @@ void PHISHtml5Base::table() const
     int colCount=0, r;
     bool hasHeader=false, isChecked;
     QString col, row, v;
-    QByteArray highlight=_p->palette().color( QPalette::Highlight ).name().toAscii();
+    QByteArray highlight=_p->palette().color( QPalette::Highlight ).name().toLatin1();
 
     QStringList rows=_it->value().split( _it->delimiter(), QString::SkipEmptyParts );
     for ( r=0; r<rows.count(); r++ ) {
@@ -409,7 +409,7 @@ void PHISHtml5Base::rect() const
     if ( !transformation().isAffine() ) return PHISHtmlGeneric::rect();
     QByteArray c="background-color:"+rgba( _it->color().isValid() ? _it->color() : QColor( Qt::black ) )+';';
     if ( _it->pattern()==0 ) c="background-color:transparent;";
-    QByteArray bc=QByteArray( _it->outlineColor().isValid() ? _it->outlineColor().name().toAscii()+' ' : "black " );
+    QByteArray bc=QByteArray( _it->outlineColor().isValid() ? _it->outlineColor().name().toLatin1()+' ' : "black " );
     QByteArray border;
     if ( _it->line()==1 ) border="border:"+bc+QByteArray::number( pw )+"px solid;";
     else if ( _it->line()==2 ) border="border:"+bc+QByteArray::number( pw )+"px dashed;";
@@ -430,7 +430,7 @@ void PHISHtml5Base::roundedRect() const
     if ( !transformation().isAffine() ) return PHISHtmlGeneric::roundedRect();
     QByteArray c="background-color:"+rgba( _it->color().isValid() ? _it->color() : QColor( Qt::black ) )+';';
     if ( _it->pattern()==0 ) c="background-color:transparent;";
-    QByteArray bc=QByteArray( _it->outlineColor().isValid() ? _it->outlineColor().name().toAscii()+' ' : "black " );
+    QByteArray bc=QByteArray( _it->outlineColor().isValid() ? _it->outlineColor().name().toLatin1()+' ' : "black " );
     QByteArray border;
     if ( _it->line()==1 ) border="border:"+bc+QByteArray::number( pw )+"px solid;";
     else if ( _it->line()==2 ) border="border:"+bc+QByteArray::number( pw )+"px dashed;";

@@ -24,6 +24,7 @@
 #include <QHash>
 #include <QHostAddress>
 #include <QUrl>
+#include <QUrlQuery>
 #include <QDateTime>
 #include <QTemporaryFile>
 #include <QHostAddress>
@@ -53,7 +54,7 @@ public:
     inline qint32 engineMinorVersion() const { return _engineMinorVersion; }
     inline void setEngineMinorVersion( qint32 minor ) const { _engineMinorVersion=minor; }
     inline QString currentLang() const { return _lang; }
-    inline void setCurrentLang( const QString &l ) const { _lang=l; _langByteArray=_lang.toAscii(); }
+    inline void setCurrentLang( const QString &l ) const { _lang=l; _langByteArray=_lang.toLatin1(); }
 
     inline QByteArray currentLangByteArray() const { return _langByteArray; }
     inline qint8 httpServerMajorVersion() const { return _httpMajor; }
@@ -79,8 +80,8 @@ public:
     inline QString hostname() const { return _url.host(); }
     inline QString user() const { return _url.userName(); }
     inline QString password() const { return _url.password(); }
-    inline QString method() const { return QString::fromAscii( _keywords.value( KMethod ) ); }
-    inline QString contentType() const { return QString::fromAscii( _keywords.value( KContentType ) ); }
+    inline QString method() const { return QString::fromLatin1( _keywords.value( KMethod ) ); }
+    inline QString contentType() const { return QString::fromLatin1( _keywords.value( KContentType ) ); }
     inline QString admin() const { return QString::fromUtf8( _keywords.value( KAdmin ) ); }
     inline QString serverDefname() const { return QString::fromUtf8( _keywords.value( KDefName ) ); }
     inline QString scheme() const { return _url.scheme(); }
@@ -94,13 +95,13 @@ public:
     inline QString version() const { return PHIS::libVersion(); }
 
     inline QString cookieValue( const QString &key ) const {  return _cookies.value( key ); }
-    inline QString getValue( const QString &key ) const { return _url.queryItemValue( key ); }
+    inline QString getValue( const QString &key ) const { return QUrlQuery( _url ).queryItemValue( key ); }
     inline QString postValue( const QString &key ) const { return _postData.value( key ); }
     inline QString headerValue( const QString &key ) const { return _headers.value( key.toUtf8() ); }
     inline QStringList postKeys() const { return _postData.uniqueKeys(); }
     inline QStringList cookieKeys() const { return _cookies.uniqueKeys(); }
     inline QStringList requestKeys() const { return cookieKeys()+postKeys()+getKeys(); }
-    inline QStringList getValues( const QString &key ) const { return _url.allQueryItemValues( key ); }
+    inline QStringList getValues( const QString &key ) const { return QUrlQuery( _url ).allQueryItemValues( key ); }
     inline QStringList postValues( const QString &key ) const { return _postData.values( key ); }
     inline QStringList cookieValues( const QString &key ) const {  return _cookies.values( key ); }
 
@@ -167,7 +168,7 @@ inline QDateTime PHISRequest::ifModifiedSince() const
 
 inline QStringList PHISRequest::getKeys() const
 {
-    QList <QPair <QString, QString> > list=_url.queryItems();
+    QList <QPair <QString, QString> > list=QUrlQuery( _url ).queryItems();
     QPair <QString, QString> pair;
     QStringList keys;
     foreach ( pair, list ) keys.append( pair.first );
@@ -206,14 +207,14 @@ inline QString PHISRequest::requestValue( const QString &key ) const
 {
     if ( _cookies.contains( key ) ) return _cookies.value( key );
     if ( _postData.contains( key ) ) return _postData.value( key );
-    return _url.queryItemValue( key );
+    return QUrlQuery( _url ).queryItemValue( key );
 }
 
 inline QStringList PHISRequest::requestValues( const QString &key ) const
 {
     if ( _cookies.contains( key ) ) return _cookies.values( key );
     if ( _postData.contains( key ) ) return _postData.values( key );
-    return _url.allQueryItemValues( key );
+    return QUrlQuery( _url ).allQueryItemValues( key );
 }
 
 #endif // PHISREQUEST_H

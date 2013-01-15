@@ -19,7 +19,7 @@
 #ifndef GWIDGETITEM_H
 #define GWIDGETITEM_H
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QGraphicsProxyWidget>
 #include <QObject>
 #include "phi.h"

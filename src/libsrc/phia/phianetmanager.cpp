@@ -32,7 +32,7 @@ PHIANetworkAccessManager::PHIANetworkAccessManager( QObject *parent )
 {
     qDebug( "PHIANetworkAccessManager::PHIANetworkAccessManager()" );
     _agent="Mozilla/5.0 ("+PHISysInfo::systemString().toUtf8()+") "
-        +"AppleWebKit/"+QString( qWebKitVersion() ).toAscii()+" (KHTML, like Gecko) "
+        +"AppleWebKit/"+QString( qWebKitVersion() ).toLatin1()+" (KHTML, like Gecko) "
         +PHIA::browserName().toUtf8()+"/"+PHIA::libVersion().toUtf8();
     _accept=PHI::mimeType()+",text/html,application/xml;q=0.9,application/xhtml+xml;q=0.8,"
         "text/plain;q=0.8,image/png,image/*;q=0.6,*/*;q=0.5";

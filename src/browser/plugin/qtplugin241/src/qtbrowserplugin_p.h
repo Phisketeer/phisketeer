@@ -40,13 +40,13 @@
 #include <QtCore/QMutexLocker>
 #include <QtGui/QWidget>
 
-#ifdef Q_WS_X11
+#ifdef Q_OS_X11
 #   include <X11/Xlib.h>
 
 class QtNPStream;
 class QtNPBindable;
 #endif
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 class QtNPStream;
 class QtNPBindable;
 #endif
@@ -57,14 +57,14 @@ struct QtNPInstance
 
     short fMode;
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     typedef HWND Widget;
 #endif
-#ifdef Q_WS_X11
+#ifdef Q_OS_X11
     typedef Window Widget;
     Display *display;
 #endif
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     typedef NPPort* Widget;
     QWidget *rootWidget;
 #endif

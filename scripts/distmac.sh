@@ -9,10 +9,8 @@ QTTS=$5
 PHIMAS=$6
 MYSQLC=libmysqlclient.18.dylib
 MYSQLDIR=/usr/local/mysql
-#USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtXml QtXmlPatterns QtWebKit phonon"
-USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtXml QtOpenGL QtWebKit phonon"
-#PLUGINPATH="sqldrivers codecs imageformats iconengines phonon_backend bearer graphicssystems"
-PLUGINPATH="sqldrivers codecs imageformats iconengines phonon_backend"
+USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtQml QtOpenGL QtWidgets QtWebKit QtWebKitWidgets QtQuick QtPrintSupport"
+PLUGINPATH="sqldrivers imageformats iconengines platforms printsupport mediaservice accessible playlistformats"
 PHILIBS="libphi.1.dylib libphis.1.dylib libphia.1.dylib"
 PHIAPPS="Artephis Amphibia"
 PHIBINS="phis phiapp phisconf"
@@ -49,7 +47,7 @@ for A in $PHIAPPS ; do
     done
     rm -f $DESTDIR/$A.app/Contents/Frameworks/*/Headers
     #rm -rf $DESTDIR/$A.app/Contents/Frameworks/*/Qt*
-    rm -rf $DESTDIR/$A.app/Contents/Frameworks/*/Versions/4/Headers
+    rm -rf $DESTDIR/$A.app/Contents/Frameworks/*/Versions/5/Headers
     #rm -f $DESTDIR/Frameworks/*/Versions/Current
     #rm -f $DESTDIR/Frameworks/QtGui.framework/Resources
     DISTPLUGINS=`cd $DESTDIR/$A.app/Contents/PlugIns; ls -1 */*`
@@ -99,7 +97,7 @@ chmod u+w $DESTDIR/Artephis.app/Contents/Resources/ts/*
 echo Stripping libs
 for A in $PHIAPPS ; do
     #strip -u -r $DESTDIR/$A.app/Contents/MacOS/*
-    strip -x $DESTDIR/$A.app/Contents/Frameworks/*/Versions/4/Qt*
+    strip -x $DESTDIR/$A.app/Contents/Frameworks/*/Versions/5/Qt*
     strip -x $DESTDIR/$A.app/Contents/PlugIns/*/*
     chmod -R go-w $DESTDIR/$A.app/Contents/Plugins/*
     chmod -R go-w $DESTDIR/$A.app/Contents/Frameworks/*
@@ -157,69 +155,69 @@ done
 
 for A in $PHIAPPS; do
     for I in $USEQT ; do
-        install_name_tool -id @executable_path/../Frameworks/$I.framework/Versions/4/$I\
-            $DESTDIR/$A.app/Contents/Frameworks/$I.framework/Versions/4/$I
+        install_name_tool -id @executable_path/../Frameworks/$I.framework/Versions/5/$I\
+            $DESTDIR/$A.app/Contents/Frameworks/$I.framework/Versions/5/$I
     done
 done
 
 for I in $USEQT; do
     # if rpath was set in the Qt configure script:
-    install_name_tool -change $QTLIBS/$I.framework/Versions/4/$I\
-        @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+    install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+        @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Artephis.app/Contents/MacOS/phis
-    install_name_tool -change $QTLIBS/$I.framework/Versions/4/$I\
-        @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+    install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+        @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Artephis.app/Contents/MacOS/phisconf
-    install_name_tool -change $QTLIBS/$I.framework/Versions/4/$I\
-        @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+    install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+        @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Artephis.app/Contents/MacOS/phiapp
-    install_name_tool -change $QTLIBS/$I.framework/Versions/4/$I\
-        @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+    install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+        @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Amphibia.app/Contents/MacOS/phiapp
     # if rpath was not set:
-    install_name_tool -change $I.framework/Versions/4/$I\
-        @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+    install_name_tool -change $I.framework/Versions/5/$I\
+        @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Artephis.app/Contents/MacOS/phis
-    install_name_tool -change $I.framework/Versions/4/$I\
-        @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+    install_name_tool -change $I.framework/Versions/5/$I\
+        @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Artephis.app/Contents/MacOS/phisconf
-    install_name_tool -change $I.framework/Versions/4/$I\
-        @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+    install_name_tool -change $I.framework/Versions/5/$I\
+        @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Artephis.app/Contents/MacOS/phiapp
-    install_name_tool -change $I.framework/Versions/4/$I\
-        @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+    install_name_tool -change $I.framework/Versions/5/$I\
+        @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Amphibia.app/Contents/MacOS/phiapp
 
     for A in $PHIAPPS ; do
-        install_name_tool -change $QTLIBS/$I.framework/Versions/4/$I\
-            @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+        install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+            @executable_path/../Frameworks/$I.framework/Versions/5/$I\
             $DESTDIR/$A.app/Contents/MacOS/$A
-        install_name_tool -change $I.framework/Versions/4/$I\
-            @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+        install_name_tool -change $I.framework/Versions/5/$I\
+            @executable_path/../Frameworks/$I.framework/Versions/5/$I\
             $DESTDIR/$A.app/Contents/MacOS/$A
         for L in $USEQT ; do
             if [ $L = $I ] ; then continue; fi
-            install_name_tool -change $QTLIBS/$I.framework/Versions/4/$I\
-                @executable_path/../Frameworks/$I.framework/Versions/4/$I\
-                $DESTDIR/$A.app/Contents/Frameworks/$L.framework/Versions/4/$L
-            install_name_tool -change $I.framework/Versions/4/$I\
-                @executable_path/../Frameworks/$I.framework/Versions/4/$I\
-                $DESTDIR/$A.app/Contents/Frameworks/$L.framework/Versions/4/$L
+            install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+                @executable_path/../Frameworks/$I.framework/Versions/5/$I\
+                $DESTDIR/$A.app/Contents/Frameworks/$L.framework/Versions/5/$L
+            install_name_tool -change $I.framework/Versions/5/$I\
+                @executable_path/../Frameworks/$I.framework/Versions/5/$I\
+                $DESTDIR/$A.app/Contents/Frameworks/$L.framework/Versions/5/$L
         done
         for L in $PHILIBS ; do
-            install_name_tool -change $QTLIBS/$I.framework/Versions/4/$I\
-                @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+            install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+                @executable_path/../Frameworks/$I.framework/Versions/5/$I\
                 $DESTDIR/$A.app/Contents/PlugIns/phi/$L
-            install_name_tool -change $I.framework/Versions/4/$I\
-                @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+            install_name_tool -change $I.framework/Versions/5/$I\
+                @executable_path/../Frameworks/$I.framework/Versions/5/$I\
                 $DESTDIR/$A.app/Contents/PlugIns/phi/$L
         done
         for P in $DISTPLUGINS ; do
-            install_name_tool -change $QTLIBS/$I.framework/Versions/4/$I\
-                @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+            install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+                @executable_path/../Frameworks/$I.framework/Versions/5/$I\
                 $DESTDIR/$A.app/Contents/PlugIns/$P
-            install_name_tool -change $I.framework/Versions/4/$I\
-                @executable_path/../Frameworks/$I.framework/Versions/4/$I\
+            install_name_tool -change $I.framework/Versions/5/$I\
+                @executable_path/../Frameworks/$I.framework/Versions/5/$I\
                 $DESTDIR/$A.app/Contents/PlugIns/$P
         done
     done

@@ -91,7 +91,7 @@ PHIBaseItem* PHIBasePage::createElementById( quint16 type, const QString &id, qr
     qreal width, qreal height )
 {
     PHI::Widget wid=static_cast<PHI::Widget>(type);
-    QByteArray newid=id.toAscii();
+    QByteArray newid=id.toLatin1();
     PHIBaseItem *it( 0 );
     try {
         it=new PHIBaseItem( wid, newid );

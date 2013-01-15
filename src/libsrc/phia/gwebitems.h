@@ -19,7 +19,7 @@
 #ifndef GWEBITEMS_H
 #define GWEBITEMS_H
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QWebView>
 #include <QGraphicsWebView>
 #include "gwidgetitem.h"

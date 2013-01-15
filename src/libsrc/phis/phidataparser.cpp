@@ -117,9 +117,9 @@ QByteArray PHIDataParser::matchingLanguage( const PHIData *data ) const
     if ( data->keys().contains( _req->currentLangByteArray() ) ) return _req->currentLangByteArray();
     QString lang;
     foreach ( lang, _req->acceptedLanguages() )
-        if ( data->keys().contains( lang.toAscii() ) ) return lang.toAscii();
+        if ( data->keys().contains( lang.toLatin1() ) ) return lang.toLatin1();
     foreach ( lang, _req->acceptedLanguages() ) {
-        if ( data->keys().contains( lang.left( 2 ).toAscii() ) ) return lang.left( 2 ).toAscii();
+        if ( data->keys().contains( lang.left( 2 ).toLatin1() ) ) return lang.left( 2 ).toLatin1();
     }
     return PHIData::c();
 }
@@ -513,7 +513,7 @@ QStringList PHIDataParser::genImageBookIds( const QString &itemId, const PHIImag
             PHISImageCache cache( _req->responseRec(), _req->tmpDir() );
             id=cache.createId();
         } else {
-            id="phi"+_pageId+'_'+itemId+'_'+QString::fromAscii( lang )+"_"+QString::number( i )+".png";
+            id="phi"+_pageId+'_'+itemId+'_'+QString::fromLatin1( lang )+"_"+QString::number( i )+".png";
             if ( QFile::exists( _req->imgDir()+QDir::separator()+id ) ) {
                 QDateTime pageModified=QFileInfo( _req->canonicalFilename() ).lastModified();
                 QFileInfo fi( _req->imgDir()+QDir::separator()+id );
@@ -661,7 +661,7 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
         PHISImageCache cache( _req->responseRec(), _req->tmpDir() );
         id=cache.createId();
     } else {
-        id="phi"+_pageId+'_'+itId+'_'+QString::fromAscii( lang )+".png";
+        id="phi"+_pageId+'_'+itId+'_'+QString::fromLatin1( lang )+".png";
         if ( QFile::exists( _req->imgDir()+QDir::separator()+id ) ) {
             QDateTime pageModified=QFileInfo( _req->canonicalFilename() ).lastModified();
             QFileInfo fi( _req->imgDir()+QDir::separator()+id );

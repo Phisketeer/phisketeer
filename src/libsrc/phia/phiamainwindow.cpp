@@ -29,6 +29,7 @@
 #include <QPrintPreviewDialog>
 #include <QPrintDialog>
 #include <QDate>
+#include <QNetworkCookie>
 #include "phiamainwindow.h"
 #include "phianetmanager.h"
 #include "phiawebview.h"
@@ -77,7 +78,7 @@ PHIAMainWindow::PHIAMainWindow( const QString &url, QWidget *parent )
     setWindowTitle( PHIA::viewerName() );
 
     QString path=s.value( PHIA::configName( PHIA::CacheDirectory ) ).toString();
-    if ( path.isEmpty() ) path=QDesktopServices::storageLocation( QDesktopServices::CacheLocation )
+    if ( path.isEmpty() ) path=QStandardPaths::writableLocation( QStandardPaths::CacheLocation )
         +QDir::separator()+PHIA::phiaDir();
     QDir cacheDir( path );
     if ( !cacheDir.exists() ) cacheDir.mkpath( path );
@@ -292,7 +293,7 @@ void PHIAMainWindow::slotLoading( bool loading )
 {
     _progressBar->setVisible( loading );
     QSslConfiguration sslConfig=_view->sslConfiguration();
-    if ( !sslConfig.peerCertificate().isValid() ) _sslTool->setIcon( QPixmap( ":/gnome/unsecure" ) );
+    if ( sslConfig.peerCertificate().isNull() ) _sslTool->setIcon( QPixmap( ":/gnome/unsecure" ) );
     else _sslTool->setIcon( QPixmap( ":/gnome/secure" ) );
 }
 

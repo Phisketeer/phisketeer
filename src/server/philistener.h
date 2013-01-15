@@ -37,7 +37,7 @@ public:
 protected:
     explicit PHIListener( QObject *parent=0 );
     virtual ~PHIListener();
-    virtual void incomingConnection( int );
+    virtual void incomingConnection( qintptr );
 
 private:
     static PHIListener *_instance;
@@ -61,7 +61,7 @@ public:
 protected:
     PHISslListener( QObject *parent=0 );
     virtual ~PHISslListener();
-    virtual void incomingConnection( int );
+    virtual void incomingConnection( qintptr );
 
 private:
     static PHISslListener *_instance;

@@ -741,7 +741,7 @@ void GSvgItem::scale( qreal sx, qreal sy )
     prepareGeometryChange();
     _rect.setWidth( _rect.width()*sx );
     _rect.setHeight( _rect.height()*sy );
-    QGraphicsSvgItem::scale( sx, sy );
+    //QGraphicsSvgItem::scale( sx, sy );
 }
 
 void GSvgItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget )

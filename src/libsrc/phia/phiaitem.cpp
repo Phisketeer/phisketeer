@@ -578,14 +578,16 @@ void PHIAItem::slotLinkHovered( const QString &s )
 QUrl PHIAItem::createLocalUrl( const QUrl &link )
 {
     QUrl url=link;
+    QUrlQuery query( url );
     //if ( view()->url().host()==link.host() ) { // same host so add session and lang
         QString sid=view()->page()->session();
         QString philang=view()->page()->lang();
         if ( !sid.isEmpty() )
-            if ( !url.hasQueryItem( "phisid" ) ) url.addQueryItem( "phisid", sid );
+            if ( !query.hasQueryItem( "phisid" ) ) query.addQueryItem( "phisid", sid );
         if ( !philang.isEmpty() )
-            if ( !url.hasQueryItem( "philang" ) ) url.addQueryItem( "philang", philang );
+            if ( !query.hasQueryItem( "philang" ) ) query.addQueryItem( "philang", philang );
     //}
+    url.setQuery( query );
     return url;
 }
 
@@ -1041,15 +1043,15 @@ void PHIAItem::requestImage( int number )
 {
     _setupFinished=false;
     QUrl url=view()->url();
-    url.setEncodedPath( "phi.phis" );
+    url.setPath( "phi.phis" );
     //url.setScheme( QString( "http" ) ); // use unsecure connection
 
-    QList <QPair <QByteArray, QByteArray> > list;
-    QPair <QByteArray, QByteArray> pair;
+    QList <QPair <QString, QString> > list;
+    QPair <QString, QString> pair;
     pair.first="phiimg";
     if ( number==-1 ) {
         QUuid uid( imageId() );
-        pair.second=imageId().toUtf8();
+        pair.second=imageId();
         list << pair;
         if ( imageId().startsWith( "phi" ) || !uid.isNull() ) {
             pair.first="phitmp";
@@ -1060,7 +1062,7 @@ void PHIAItem::requestImage( int number )
         QString pbid=pictureBookIds().at( number );
         qDebug( "REQUEST %s (%s#%d)", qPrintable( this->name() ), qPrintable( pbid ), number );
         QUuid uid( pbid );
-        pair.second=pbid.toUtf8();
+        pair.second=pbid;
         list << pair;
         if ( pbid.startsWith( "phi" ) || !uid.isNull() ) {
             pair.first="phitmp";
@@ -1068,7 +1070,9 @@ void PHIAItem::requestImage( int number )
             list << pair;
         }
     }
-    url.setEncodedQueryItems( list );
+    QUrlQuery query;
+    query.setQueryItems( list );
+    url.setQuery( query );
 
     QNetworkRequest request;
     request.setUrl( url );
