@@ -1,4 +1,4 @@
-#    Copyright (C) 2010-2012  Marius B. Schumacher
+#    Copyright (C) 2010-2013  Marius B. Schumacher
 #    Copyright (C) 2011-2012  Phisys AG, Switzerland
 #    Copyright (C) 2012  Phisketeer.org team
 #
