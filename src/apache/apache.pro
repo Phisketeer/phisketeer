@@ -19,7 +19,7 @@ HEADERS = apacherequest.h
 SOURCES = mod_phi.cpp \
     apacherequest.cpp
 
-VERSION = 1.1.7
+VERSION = 1.1.8
 PHIDOM = $$[PHIDOM]
 PHIORG = $$[PHIORG]
 
@@ -29,7 +29,7 @@ TARGET = mod_phi
 CONFIG += qt thread largefile $$[PHICONF]
 #CONFIG += create_prl link_prl
 
-QT = core gui network sql script
+QT = core gui network sql script widgets
 INCLUDEPATH += ../libsrc/phi ../libsrc/phis
 OBJECTS_DIR = .tmp
 MOC_DIR = .tmp

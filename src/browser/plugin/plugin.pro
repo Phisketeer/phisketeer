@@ -17,10 +17,10 @@
 
 SOURCES += phiplugin.cpp
 HEADERS += phiplugin.h
-VERSION = 1.3.3
+VERSION = 1.3.4
 TARGET = phiplugin
 CONFIG += qt $$[PHICONF]
-QT = core gui network svg script webkit
+QT = core gui widgets network svg script webkitwidgets printsupport
 INCLUDEPATH = ../../libsrc/phi ../../libsrc/phia ./qtplugin241/src
 OBJECTS_DIR = .tmp
 MOC_DIR = .tmp
@@ -34,7 +34,7 @@ OTHER_FILES = phiplugin.r phiplugin.rc Info.plist
 win32 { 
     LIBS = -L../../../bin phi1.lib phia1.lib urlmon.lib
     DESTDIR = ../../../bin
-    CONFIG += qaxserver
+    CONFIG += axserver
     CONFIG(debug,debug|release) {
         LIBS = -L../../../bin phid1.lib phiad1.lib
         TARGET = phiplugind

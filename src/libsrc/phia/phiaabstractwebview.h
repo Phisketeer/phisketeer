@@ -26,13 +26,14 @@
 #include <QIcon>
 #include <QUrl>
 #include <QPainter>
-#include <QPrinter>
 #include <QSslConfiguration>
 #include <QAuthenticator>
 #include <QNetworkProxy>
 #include <QScriptEngine>
 #include "phiahistory.h"
 #include "phia.h"
+
+class QPrinter;
 
 class PHIAEXPORT PHIAExtractWindowOpts
 {

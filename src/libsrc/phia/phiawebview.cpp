@@ -25,6 +25,7 @@
 #include <QLocale>
 #include <QFileDialog>
 #include <QSettings>
+#include <QPrinter>
 #include <QPrintDialog>
 #include <QNetworkCookie>
 #include "phiawebview.h"
