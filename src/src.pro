@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 PHICONF = $$[PHICONF]
+CONFIG += ordered
 SUBDIRS += libsrc apache server sconfig installer browser
 win32: SUBDIRS -= installer
 mac: SUBDIRS -= installer apache

@@ -12,16 +12,18 @@
 #include <QIcon>
 #include <QDesktopServices>
 #include <QWebSettings>
+#include <QStandardPaths>
 #include "phiplugin.h"
 #include "phianetmanager.h"
 #include "phia.h"
 #include "phiaconfig.h"
 
 #ifdef PHIDEBUG
-void redirectMsg( QtMsgType type, const char *msg )
+void redirectMsg( QtMsgType type, const QMessageLogContext &context, const QString &msg )
 {
     Q_UNUSED( type );
-    AMMsg::instance()->sendMsg( QString::fromUtf8( msg ) );
+    Q_UNUSED( context );
+    AMMsg::instance()->sendMsg( msg );
 }
 
 AMMsg* AMMsg::_instance=0;
@@ -66,7 +68,7 @@ PhiPlugIn::PhiPlugIn( QWidget *parent )
     //setWindowTitle( PHIA::browserName() );
 
     QString path=s.value( PHIA::configName( PHIA::CacheDirectory ) ).toString();
-    if ( path.isEmpty() ) path=QDesktopServices::storageLocation( QDesktopServices::CacheLocation )
+    if ( path.isEmpty() ) path=QStandardPaths::writableLocation( QStandardPaths::CacheLocation )
         +QDir::separator()+PHIA::phiaDir();
     QDir cacheDir( path );
     if ( !cacheDir.exists() ) cacheDir.mkpath( path );
@@ -124,7 +126,7 @@ PhiPlugIn::PhiPlugIn( QWidget *parent )
 PhiPlugIn::~PhiPlugIn()
 {
 #ifdef PHIDEBUG
-    qInstallMsgHandler( 0 );
+    qInstallMessageHandler( 0 );
     delete _edit;
     _edit=0;
 #endif
@@ -208,10 +210,10 @@ void PhiPlugIn::setSource( const QString &src )
     QUrl url( src );
     _src=url.toString();
 #ifdef PHIDEBUG
-    if ( !url.queryItemValue( "phidebug" ).isEmpty() ) {
+    if ( !QUrlQuery( url ).queryItemValue( "phidebug" ).isEmpty() ) {
         _edit->show();
-        qInstallMsgHandler( redirectMsg );
-    } else qInstallMsgHandler( 0 );
+        qInstallMessageHandler( redirectMsg );
+    } else qInstallMessageHandler( 0 );
 #endif
     /*
     if ( url.queryItemValue( "phi" ).isEmpty() ) {

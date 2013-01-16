@@ -16,5 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 PHICONF = $$[PHICONF]
+CONFIG += ordered
 SUBDIRS += phi phis phia
 TEMPLATE = subdirs

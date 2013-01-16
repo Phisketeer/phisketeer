@@ -49,7 +49,7 @@ ApacheRequest::ApacheRequest( request_rec *r, PHIResponseRec *resp )
     _contentLength=_headers.value( "Content-Length", 0 ).toLongLong();
 
     _keywords.insert( KMethod, QByteArray::fromRawData( r->method, qstrlen( r->method ) ) );
-    _url.setEncodedHost( QByteArray::fromRawData( r->hostname, qstrlen( r->hostname ) ));
+    _url.setHost( QString::fromUtf8( QByteArray::fromRawData( r->hostname, qstrlen( r->hostname ) ) ) );
     if ( _url.userName().isEmpty() )
         _url.setUserName( QString::fromUtf8( QByteArray::fromRawData( r->user, qstrlen( r->user ) ) ) );
     if ( _url.password().isEmpty() )
@@ -91,7 +91,7 @@ ApacheRequest::~ApacheRequest()
 
 void ApacheRequest::setPostEncodedUrl( const QByteArray &query )
 {
-    QList <QPair <QString, QString> > list=QUrl::fromEncoded( query ).queryItems();
+    QList <QPair <QString, QString> > list=QUrlQuery( QUrl::fromEncoded( query ) ).queryItems();
     QPair <QString, QString> pair;
     foreach ( pair, list ) _postData.insertMulti( pair.first, pair.second );
 }
