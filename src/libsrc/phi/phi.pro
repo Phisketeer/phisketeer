@@ -1,5 +1,5 @@
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
 #    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
@@ -45,50 +45,26 @@ SOURCES += phierror.cpp \
     phiapplication.cpp \
     phipixlabel.cpp \
     phiupdateinfo.cpp
-VERSION = 1.1.4
-PHIDOM = $$[PHIDOM]
-PHIORG = $$[PHIORG]
-isEmpty( PHIDOM ):error( PHIDOM is not specified )
-isEmpty( PHIORG ):error( PHIORG is not specified )
+VERSION = 1.1.5
+include( ../../../scripts/phiconf.pri )
+isEmpty( PHIDOM ): error( PHIDOM is not specified )
+isEmpty( PHIORG ): error( PHIORG is not specified )
 TEMPLATE = lib
 TARGET = phi
-CONFIG += qt thread $$[PHICONF]
 QT = core gui network script widgets
-INCLUDEPATH += .
-DEFINES += QT_NO_CAST_TO_ASCII PHILIB
-DEFINES += PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
+DEFINES += PHILIB PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
 
-#exists( images/own ): RESOURCES = phi.qrc
-OBJECTS_DIR = .tmp
-MOC_DIR = .tmp
-RCC_DIR = .tmp
 unix { 
     DESTDIR = ../../../lib
-    QMAKE_LFLAGS_RPATH =
     SOURCES += phisysinfo_unix.cpp
-    CONFIG(debug,debug|release) { 
-        TARGET = phi_debug
-        DEFINES += PHIDEBUG
-    } else: DEFINES += QT_NO_DEBUG_OUTPUT
+    CONFIG(debug,debug|release): TARGET = phi_debug
     mac {
-        contains( CONFIG, appstore ){
-            DEFINES += PHIAPPSTORE
-            QMAKE_CFLAGS += -gdwarf-2
-            QMAKE_CXXFLAGS += -gdwarf-2
-            QMAKE_CFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
-            QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO
-            QMAKE_OBJECTIVE_CFLAGS_RELEASE = $$QMAKE_OBJECTIVE_CFLAGS_RELEASE_WITH_DEBUGINFO
-            QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
+        contains( CONFIG, macappstore ){
             OBJECTIVE_SOURCES += macfilebookmark.mm
             OBJECTIVE_HEADERS += macfilebookmark.h
             LIBS = -framework AppKit
         }
-        QMAKE_MAC_SDK=$$[PHIMACSDK]
-        QMAKE_MACOSX_DEPLOYMENT_TARGET = $$[PHIMACDEPLOY]
-        QMAKE_INFO_PLIST = Info.plist
-        DEFINES += PHIMACFONT
         TARGET = phi
-        OTHER_FILES = Info.plist
     } else {
         QMAKE_LFLAGS +=-Wl,-rpath,\'\$$ORIGIN\'
     }
@@ -96,10 +72,7 @@ unix {
 win32 {
     DESTDIR = ../../../bin
     SOURCES += phisysinfo_win32.cpp
-    CONFIG(debug,debug|release) { 
-        TARGET = phid
-        DEFINES += PHIDEBUG
-    } else: DEFINES += QT_NO_DEBUG_OUTPUT
+    CONFIG(debug,debug|release): TARGET = phid
     QMAKE_CLEAN += phi_resource.rc phid_resource.rc
     QMAKE_DISTCLEAN += phi_resource.rc phid_resource.rc
 }

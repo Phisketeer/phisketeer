@@ -4,9 +4,9 @@ The focal point of Phi is on fast application development. Integrated database c
 
 Phi is far more than just another HTML editor. It simplifies the creation and modification of layouts. Page element can be comfortably inserted by drag-and-drop. Create amazing visual effects - as fading, transparency and animations - at the click of your mouse. The PhiPlugin extends the range of effects by perspective presentation of all page elements. Those effects leads to a completely new Web experience.
 
-Copyright (C) 2010,2011  Marius B. Schumacher
-Copyright (C) 2011,2012  Phisys AG, Switzerland
-Copyright (C) 2012  Phisketeer.org team
+Copyright 2010-2013  Marius B. Schumacher
+Copyright 2011-2013  Phisys AG, Switzerland
+Copyright 2012-2013  Phisketeer.org team
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 

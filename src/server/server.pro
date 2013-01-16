@@ -1,6 +1,6 @@
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -43,57 +43,38 @@ mac {
     HEADERS +=phiservice.h
     SOURCES +=phiservice.cpp
 }
-VERSION = $$[PHIRELEASE]
+
+include( ../../scripts/phiconf.pri )
+VERSION = $$PHIRELEASE
 TEMPLATE = app
 TARGET = phis
-CONFIG += qt console thread $$[PHICONF]
+CONFIG += console
 QT = core gui widgets network sql script
-INCLUDEPATH = ../libsrc/phi ../libsrc/phis
-DEFINES += QT_NO_CAST_TO_ASCII PHIVERSION=\\\"$$VERSION\\\"
-
-OBJECTS_DIR = .tmp
-MOC_DIR = .tmp
-RCC_DIR = .tmp
+INCLUDEPATH += ../libsrc/phi ../libsrc/phis
+DEFINES += PHIVERSION=\\\"$$VERSION\\\"
 
 win32 { 
     DESTDIR = ../../bin
-    # LIBS = -L../../bin -lphi0 -lphis0 -l"C:\Program Files\Microsoft SDKs\Windows\V6.0A\lib\advapi32"
+    # LIBS = -L../../bin -lphi1 -lphis1 -l"C:\Program Files\Microsoft SDKs\Windows\V6.0A\lib\advapi32"
     LIBS = -L../../bin phi1.lib phis1.lib
     CONFIG(debug,debug|release) { 
         LIBS = -L../../bin phid1.lib phisd1.lib
         TARGET = phisd
-        DEFINES += PHIDEBUG
-    } else {
-        DEFINES += QT_NO_DEBUG_OUTPUT
     }
     QMAKE_CLEAN += phis_resource.rc phisd_resource.rc
     QMAKE_DISTCLEAN += phis_resource.rc phisd_resource.rc
     include( qtservice-2.6/src/qtservice.pri )
 }
-
 unix {
     LIBS = -L../../lib -lphi -lphis
-    QMAKE_LFLAGS_RPATH =
     DESTDIR = ../../bin
     CONFIG(debug,debug|release) { 
         LIBS = -L../../lib -lphi_debug -lphis_debug
         TARGET = phis_debug
-        DEFINES += PHIDEBUG
-    } else: DEFINES += QT_NO_DEBUG_OUTPUT
+    }
     mac {
         LIBS = -L../../lib -lphi -lphis
-        contains( CONFIG, appstore ){
-            DEFINES += PHIAPPSTORE
-            QMAKE_CFLAGS += -gdwarf-2
-            QMAKE_CXXFLAGS += -gdwarf-2
-            QMAKE_CFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
-            QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO
-            QMAKE_OBJECTIVE_CFLAGS_RELEASE = $$QMAKE_OBJECTIVE_CFLAGS_RELEASE_WITH_DEBUGINFO
-            QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
-        }
-        QMAKE_MAC_SDK=$$[PHIMACSDK]
         QMAKE_INFO_PLIST = Info.plist
-        QMAKE_MACOSX_DEPLOYMENT_TARGET = $$[PHIMACDEPLOY]
         CONFIG -= app_bundle
         ICON = phis.icns
         TARGET = phis

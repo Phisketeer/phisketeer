@@ -1,6 +1,6 @@
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,12 +18,13 @@
 HEADERS += sconfig.h
 SOURCES += sconfig.cpp \
     main.cpp
+
+include( ../../scripts/phiconf.pri )
 VERSION = 1.2.3
 TEMPLATE = app
 TARGET = phisconf
-CONFIG += qt thread $$[PHICONF]
 QT = core gui widgets network
-INCLUDEPATH = ../libsrc/phi ../libsrc/phis
+INCLUDEPATH += ../libsrc/phi ../libsrc/phis
 DEFINES += QT_NO_CAST_TO_ASCII PHIVERSION=\\\"$$VERSION\\\"
 FORMS += sconfigdlg.ui
 TRANSLATIONS =  phisconf_de.ts \
