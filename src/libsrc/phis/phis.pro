@@ -47,7 +47,8 @@ HEADERS += phidatasources.h \
     phishtmltrident5.h \
     phishtmltrident6.h \
     phishtmlgecko100.h \
-    phismodule.h
+    phismodule.h \
+    phismodulefactory.h
 SOURCES += \
     phidatasources.cpp \
     phiresponserec.cpp \
@@ -82,7 +83,8 @@ SOURCES += \
     phishtmltrident5.cpp \
     phishtmltrident6.cpp \
     phishtmlgecko100.cpp \
-    phismodule.cpp
+    phismodule.cpp \
+    phismodulefactory.cpp
 
 include( ../../../scripts/phiconf.pri )
 VERSION = $$PHIRELEASE
@@ -102,7 +104,6 @@ win32 {
         TARGET = phisd
     }
     LIBS += -L../../../3rdparty/win32 libeay32.lib ssleay32.lib
-    QMAKE_CLEAN += phis_resource.rc phisd_resource.rc
     QMAKE_DISTCLEAN += phis_resource.rc phisd_resource.rc
 }
 unix { 

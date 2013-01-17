@@ -27,7 +27,7 @@ TARGET = phiinstaller
 CONFIG += qt thread $$[PHICONF]
 QT = core gui
 
-INCLUDEPATH = ./include
+INCLUDEPATH += .
 DEFINES += QT_NO_CAST_TO_ASCII
 DEFINES += PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
 OBJECTS_DIR = .tmp

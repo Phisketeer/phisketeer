@@ -24,6 +24,7 @@
 #include "phierror.h"
 #include "phispagecache.h"
 #include "phisitemcache.h"
+#include "phismodulefactory.h"
 
 PHIParent* PHIParent::_instance=0;
 //QHash <QString, QString> PHIParent::_tmpDirs=QHash <QString, QString>();
@@ -64,6 +65,7 @@ PHIParent::PHIParent( QObject *parent )
     PHIError::instance( this );
     //PHISPageCache::instance( this );
     PHISItemCache::instance( this );
+    PHISModuleFactory::instance( this );
 
     //_licenses.insert( "localhost", new PHILicense() );
     //_validLicenses.insert( "localhost", true );
@@ -248,6 +250,7 @@ void PHIParent::invalidate( const QString &domain )
     _lock.unlock();
     PHISPageCache::invalidate();
     // PHISItemCache::instance()->invalidate(); // done by PHISPageCache::invalidate()
+    PHISModuleFactory::instance()->invalidate();
 }
 
 void PHIParent::clearTmpDir( const QString &tmp )

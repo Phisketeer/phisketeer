@@ -2,8 +2,8 @@
 #include "phismodule.h"
 #include "phisrequest.h"
 
-PHISInterface::PHISInterface()
-    : QObject( 0 )
+PHISInterface::PHISInterface( PHISRequest *req, QScriptEngine *engine )
+    : _req( req ), _engine( engine )
 {
     qWarning( "PHISInterface::PHISInterface()" );
 }

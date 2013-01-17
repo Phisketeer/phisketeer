@@ -73,6 +73,5 @@ win32 {
     DESTDIR = ../../../bin
     SOURCES += phisysinfo_win32.cpp
     CONFIG(debug,debug|release): TARGET = phid
-    QMAKE_CLEAN += phi_resource.rc phid_resource.rc
     QMAKE_DISTCLEAN += phi_resource.rc phid_resource.rc
 }
