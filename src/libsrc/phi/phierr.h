@@ -119,6 +119,14 @@ const PHIRC PHIRC_PROT_UNKNOWN_CMD=30;
 /** The command produced an error. */
 const PHIRC PHIRC_PROT_CMD_ERROR=31;
 
+/* modules */
+/** Could not load a phis module. */
+const PHIRC PHIRC_MODULE_LOAD_ERROR=35;
+/** Log message from a module. */
+const PHIRC PHIRC_MODULE_LOG=36;
+/** Old static module style. */
+const PHIRC PHIRC_MODULE_DEPRECATED=37;
+
 /* message related */
 /** Queue is empty or no message matches any criteria. */
 const PHIRC PHIRC_MSG_NOT_FOUND=50;

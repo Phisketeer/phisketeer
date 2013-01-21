@@ -42,20 +42,17 @@ PHIParent::PHIParent( QObject *parent )
     qDebug( "PHIParent::PHIParent()" );
     if ( !qApp ) { // not set in apache module so instanciate QApplication here
         QStringList argList;
-        argList << "mod_phi";
+        argList << QStringLiteral( "mod_phi" );
         int argc=argList.size();
         QVector<char *> argv( argc );
         QList<QByteArray> argvData;
         for ( int i=0; i<argc; ++i ) argvData.append( argList.at(i).toLocal8Bit() );
         for ( int i=0; i<argc; ++i ) argv[i]=argvData[i].data();
-        //qWarning( "PHIParent::PHIParent()" );
-        _app=new QApplication( argc, argv.data(), false );
-        //_app=new QApplication( argc, argv.data(), true );
+        //_app=new QApplication( argc, argv.data(), false );
+        _app=new QGuiApplication( argc, argv.data() );
         _app->setApplicationName( "mod_phi" );
         _app->setApplicationVersion( PHIS::libVersion() );
-        qDebug( "PHI::setupApp()" );
         PHI::setupApplication( _app );
-        //qWarning( "PHI::setupApp() after" );
         _internalApp=true;
     } else {
         _app=qApp;
@@ -65,7 +62,8 @@ PHIParent::PHIParent( QObject *parent )
     PHIError::instance( this );
     //PHISPageCache::instance( this );
     PHISItemCache::instance( this );
-    PHISModuleFactory::instance( this );
+    _loadedModules=PHISModuleFactory::instance( this )->loadedModules();
+    _moduleLoadErrors=PHISModuleFactory::instance( this )->loadErrors();
 
     //_licenses.insert( "localhost", new PHILicense() );
     //_validLicenses.insert( "localhost", true );
@@ -77,12 +75,10 @@ PHIParent::~PHIParent()
     _lock.lockForWrite();
     _instance=0;
     PHISPageCache::invalidate();
-
 /*
     PHILicense *l;
     foreach ( l, _licenses ) delete l;
 */
-
     if ( _internalApp ) delete _app;
     _app=0;
     _lock.unlock();
@@ -97,7 +93,7 @@ QString PHIParent::tempDir( const QString &domain, const QString &def )
         tmp=_tmpDirs.value( domain );
         _lock.unlock();
         if ( _internalApp ) {
-            QFileInfo info( tmp+QDir::separator()+".invalidate" );
+            QFileInfo info( tmp+QDir::separator()+QLatin1String( ".invalidate" ) );
             if ( info.exists() ) {
                 if ( _invalidateTouch < info.lastModified() ) {
                    invalidate( domain );
@@ -109,8 +105,6 @@ QString PHIParent::tempDir( const QString &domain, const QString &def )
     }
     _lock.unlock();
     QWriteLocker l( &_lock );
-    //tmp="phis";
-    //if ( isApacheModule() ) tmp="phi";
     QSettings *s=PHI::globalSettings();
     s->beginGroup( def );
     s->beginGroup( domain );
@@ -122,18 +116,14 @@ QString PHIParent::tempDir( const QString &domain, const QString &def )
     if ( !tmp.isEmpty() ) _tmpDirs.insert( domain, tmp );
     else return tmp;
 
-    QDir imgDir( tmp+QDir::separator()+"img" );
-    //if ( !imgDir.exists() ) imgDir.mkpath( tmp+QDir::separator()+"img" );
-    imgDir.mkpath( tmp+QDir::separator()+"img" );
-    QDir cssDir( tmp+QDir::separator()+"css" );
-    //if ( !cssDir.exists() ) cssDir.mkpath( tmp+QDir::separator()+"css" );
-    cssDir.mkpath( tmp+QDir::separator()+"css" );
-    QDir dbDir( tmp+QDir::separator()+"db" );
-    //if ( !dbDir.exists() ) dbDir.mkpath( tmp+QDir::separator()+"db" );
-    dbDir.mkpath( tmp+QDir::separator()+"db" );
-    QDir jsDir( tmp+QDir::separator()+"js" );
-    //if ( !jsDir.exists() ) jsDir.mkpath( tmp+QDir::separator()+"js" );
-    jsDir.mkpath( tmp+QDir::separator()+"js" );
+    QDir imgDir( tmp+QDir::separator()+QLatin1String( "img" ) );
+    imgDir.mkpath( tmp+QDir::separator()+QLatin1String( "img" ) );
+    QDir cssDir( tmp+QDir::separator()+QLatin1String( "css" ) );
+    cssDir.mkpath( tmp+QDir::separator()+QLatin1String( "css" ) );
+    QDir dbDir( tmp+QDir::separator()+QLatin1String( "db" ) );
+    dbDir.mkpath( tmp+QDir::separator()+QLatin1String( "db" ) );
+    QDir jsDir( tmp+QDir::separator()+QLatin1String( "js" ) );
+    jsDir.mkpath( tmp+QDir::separator()+QLatin1String( "js" ) );
     return tmp;
 }
 
@@ -219,7 +209,10 @@ void PHIParent::database( QString &db, QString &name, QString &host, QString &us
 void PHIParent::invalidate( const QString &domain )
 {
     qDebug( "invalidate '%s'", qPrintable( domain.isEmpty() ? QString( "all" ) : domain ) );
+    PHISModuleFactory::instance( this )->invalidate();
     _lock.lockForWrite();
+    _loadedModules=PHISModuleFactory::instance( this )->loadedModules();
+    _moduleLoadErrors=PHISModuleFactory::instance( this )->loadErrors();
     if ( domain.isEmpty() ) {
         QString tmpDir;
         foreach( tmpDir, _tmpDirs ) clearTmpDir( tmpDir );
@@ -250,7 +243,6 @@ void PHIParent::invalidate( const QString &domain )
     _lock.unlock();
     PHISPageCache::invalidate();
     // PHISItemCache::instance()->invalidate(); // done by PHISPageCache::invalidate()
-    PHISModuleFactory::instance()->invalidate();
 }
 
 void PHIParent::clearTmpDir( const QString &tmp )

@@ -86,7 +86,7 @@ PHILogWriter::PHILogWriter( QObject *parent, const QString &mgrName )
     if ( !_file.open( QFile::WriteOnly | QFile::Append ) ){
         PHIError::instance()->print( PHIRC_LOG_INIT_ERROR,
             tr( "Check if '%1' is writable." ).arg( _logFile )
-            +PHI::nl()+tr( "Disabling error log." ) );
+            +PHI::nl()+tr( "Disabling error log file." ) );
         _file.open( stderr, QIODevice::WriteOnly );
     }
     _out.setDevice( &_file );

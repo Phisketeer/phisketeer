@@ -15,11 +15,11 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-QT += script core gui network
+QT += script core gui network widgets
 TEMPLATE = lib
 CONFIG += qt plugin thread largefile
 INCLUDEPATH += ../../../libsrc/phi ../../../libsrc/phis
-DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
+DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QT_NO_CAST_FROM_BYTEARRAY
 OBJECTS_DIR = .tmp
 MOC_DIR = .tmp
 RCC_DIR = .tmp

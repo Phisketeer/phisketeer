@@ -154,10 +154,10 @@ public:
 #else
     static inline QByteArray nl() { return QByteArray::fromRawData( "\n", 1 ); }
 #endif
-    static inline QString errorText() { return QString( ' ' )+QObject::tr( "Error: %1"); }
+    static inline QString errorText() { return QStringLiteral( ' ' )+QObject::tr( "Error: %1"); }
     static inline quint16 maxLength() { return static_cast<quint16>(100); }
     static inline QString stdTmpPath() {
-        return QStandardPaths::writableLocation( QStandardPaths::TempLocation )+QDir::separator()+"phi"; }
+        return QStandardPaths::writableLocation( QStandardPaths::TempLocation )+QDir::separator()+QStringLiteral( "phi" ); }
     static inline quint8 maxPatternStyle() { return static_cast<quint8>(15); }
     static inline quint8 maxLineStyle() { return static_cast<quint8>(5); }
     static inline int maxZValue() { return 1000; }
@@ -168,7 +168,7 @@ public:
     static inline QByteArray organisation() { return QByteArray::fromRawData( _phiOrg, qstrlen( _phiOrg ) ); }
     static inline QByteArray stdMimeTypes() { return QByteArray::fromRawData( _phiStdMimeTypes, qstrlen( _phiStdMimeTypes ) ); }
     static inline QByteArray mimeType( const QByteArray &ext ) { return _mimeTypes.value( ext ); }
-    static inline QString idValidator() { return QString( "[A-Za-z][-_A-Za-z0-9]*" ); }
+    static inline QString idValidator() { return QStringLiteral( "[A-Za-z][-_A-Za-z0-9]*" ); }
     static inline qreal minimumHeightForImageButton() { return 30.; }
     static inline qreal minimumHeight() { return 22.; }
     static inline qreal minimumWidth() { return 20.; }
@@ -191,8 +191,8 @@ public:
     static inline qreal fontSizeFactor() { return static_cast<qreal>(1.3333333); }
     //static inline qreal youtubeFactor() { return static_cast<qreal>(0.6); }
     static inline int defaultFontSize() { return 10; }
-    static inline QFont invalidFont() { static QFont f( "phi", 3 ); return f; }
-    static inline QFont defaultFont() { static QFont f( "Arial", 11 ); return f; }
+    static inline QFont invalidFont() { static QFont f( QStringLiteral( "phi" ), 3 ); return f; }
+    static inline QFont defaultFont() { static QFont f( QStringLiteral( "Arial" ), 11 ); return f; }
     static inline QByteArray emailRegExp() { return QByteArray::fromRawData(
         "[A-Z0-9._%-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}", 37 ); }
     static inline QByteArray phoneNumberRegExp() { return QByteArray::fromRawData(
@@ -240,7 +240,7 @@ public:
         return QString::fromLatin1( toEasingCurveByteArray( ease ) ); }
     static QByteArray toEasingCurveByteArray( quint8 ease );
     static QStringList availableEasingCurves();
-    static QString defaultEasingCurve() { static QString s( "easeOutQuad" ); return s; }
+    static QString defaultEasingCurve() { return QStringLiteral( "easeOutQuad" ); }
     static quint8 defaultEasingCurveType() {
         return static_cast<quint8>(toEasingCurveType(defaultEasingCurve())); }
     static QPoint defaultHotSpot() { return QPoint( 5, 5 ); }

@@ -38,6 +38,8 @@
 #include "phisession.h"
 #include "phiparent.h"
 #include "philicense.h"
+#include "phismodulefactory.h"
+#include "phismodule.h"
 
 #ifdef PHIAPPSTORE
 #include "macfilebookmark.h"
@@ -795,27 +797,53 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
 {
     Q_ASSERT( _resp->body().isEmpty() );
     Q_ASSERT( _resp->contentLength()==0 );
-    QScriptEngine engine;
+    QScriptEngine engine( p );
     qScriptRegisterMetaType( &engine, baseItemToScriptValue, baseItemFromScriptValue );
+    new PHISGlobalScriptObj( _req, &engine );
     QScriptValue doc=engine.newQObject( p, QScriptEngine::QtOwnership,
         QScriptEngine::PreferExistingWrapperObject |
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
     engine.globalObject().setProperty( "document", doc );
-    PHISServerObj *serverObj(0);
-    PHISSystemObj *systemObj(0);
-    PHISFileObj *fileObj(0);
-    PHISRequestObj *requestObj(0);
-    PHISSqlObj *sqlObj(0);
-    PHISEmailObj *emailObj(0);
     PHISReplyObj *replyObj(0);
-    if ( p->scriptModules() & PHIPage::SServer ) serverObj=new PHISServerObj( _req, &engine, _resp );
-    if ( p->scriptModules() & PHIPage::SSystem ) systemObj=new PHISSystemObj( &engine, _resp );
-    if ( p->scriptModules() & PHIPage::SFile ) fileObj=new PHISFileObj( &engine, _resp );
-    if ( p->scriptModules() & PHIPage::SRequest ) requestObj=new PHISRequestObj( _req, &engine, _resp );
-    if ( p->scriptModules() & PHIPage::SDatabase ) sqlObj=new PHISSqlObj( _db, &engine, _resp, p->attributes() & PHIPage::ADatabase );
-    if ( p->scriptModules() & PHIPage::SEmail ) emailObj=new PHISEmailObj( _req, &engine, _resp );
-    if ( p->scriptModules() & PHIPage::SReply ) replyObj=new PHISReplyObj( &engine, _resp );
-
+    if ( p->scriptModules()!=PHIPage::SNone ) {
+        PHISServerObj *serverObj(0);
+        PHISSystemObj *systemObj(0);
+        PHISFileObj *fileObj(0);
+        PHISRequestObj *requestObj(0);
+        PHISSqlObj *sqlObj(0);
+        //PHISEmailObj *emailObj(0);
+        if ( p->scriptModules() & PHIPage::SServer ) serverObj=new PHISServerObj( _req, &engine, _resp );
+        if ( p->scriptModules() & PHIPage::SSystem ) systemObj=new PHISSystemObj( &engine, _resp );
+        if ( p->scriptModules() & PHIPage::SFile ) fileObj=new PHISFileObj( &engine, _resp );
+        if ( p->scriptModules() & PHIPage::SRequest ) requestObj=new PHISRequestObj( _req, &engine, _resp );
+        if ( p->scriptModules() & PHIPage::SDatabase ) sqlObj=new PHISSqlObj( _db, &engine, _resp, p->attributes() & PHIPage::ADatabase );
+        if ( p->scriptModules() & PHIPage::SReply ) replyObj=new PHISReplyObj( &engine, _resp );
+        //if ( p->scriptModules() & PHIPage::SEmail ) emailObj=new PHISEmailObj( _req, &engine, _resp );
+        PHISModuleFactory *factory=PHISModuleFactory::instance();
+        QMap <PHIPage::ScriptModule, QString> smmap;
+        smmap.insert( PHIPage::SEmail, QStringLiteral( "email" ) );
+        factory->lock(); //locking for read
+        foreach( PHIPage::ScriptModule sm, smmap.keys() ) {
+            PHISModule *mod(0);
+            if ( p->scriptModules() & sm ) mod=factory->module( smmap.value( sm ) );
+            if ( !mod ) continue;
+            QObject *obj=mod->create( smmap.value( sm ), new PHISInterface( _req, &engine ) );
+            if ( obj && !obj->objectName().isEmpty() ) {
+                doc=engine.newQObject( obj, QScriptEngine::QtOwnership,
+                    QScriptEngine::PreferExistingWrapperObject |
+                    QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
+                engine.globalObject().setProperty( obj->objectName(), doc );
+                _resp->log( PHILOGWARN, PHIRC_MODULE_DEPRECATED,
+                    QObject::tr( "The page '%1' is using the old module interface.\n"
+                    "Please switch to the dynamic module loading by using\n\"loadModule('%2');\""
+                    "\nin your server script." ).arg( p->id() ).arg( smmap.value( sm ) ) );
+            } else {
+                QString tmp=QObject::tr( "Could not load module '%1'." ).arg( smmap.value( sm ) );
+                _resp->log( PHILOGCRIT, PHIRC_MODULE_LOAD_ERROR, tmp );
+            }
+        }
+        factory->unlock();
+    }
     //if ( engine.canEvaluate( script ) ) {
         doc=engine.evaluate( script );
         if ( doc.isError() ) {

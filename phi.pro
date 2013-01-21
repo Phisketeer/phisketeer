@@ -104,7 +104,8 @@ win32 {
     QMAKE_EXTRA_TARGETS += distwin mysqlwin
     OTHER_FILES += scripts/distwin.bat scripts/mysqlwin.bat
     QMAKE_CLEAN += bin/* lib/* distwin/*
-    QMAKE_DISTCLEAN += "/S /F /Q bin lib distwin && rd /S /Q bin lib distwin"
+    QMAKE_DISTCLEAN += bin/* lib/* distwin/*
+    QMAKE_DEL_FILE = del /S /F /Q
 }
 
 TEMPLATE = subdirs

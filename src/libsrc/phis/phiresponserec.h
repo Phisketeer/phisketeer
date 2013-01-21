@@ -85,8 +85,8 @@ public:
     inline void notModified() { _error._rc=PHIRC_HTTP_NOT_MODIFIED; }
 
     void setCookie( const QString &name, const QString &value, const QDateTime &expires,
-        const QString &path=QChar( '/' ), const QString &domain=QString(), bool secure=false, bool discard=false );
-    void setCookie( const QString &name, const QString &value, int maxage, const QString &path=QChar( '/' ),
+        const QString &path=QLatin1String( "/" ), const QString &domain=QString(), bool secure=false, bool discard=false );
+    void setCookie( const QString &name, const QString &value, int maxage, const QString &path=QLatin1String( "/" ),
         const QString &domain=QString(), bool secure=false, bool discard=false );
     void log( int type, const char* file, int line, const QDateTime&, PHIRC rc, const QString &desc );
     void clear();

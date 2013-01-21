@@ -70,15 +70,21 @@ PHIManager::~PHIManager()
 void PHIManager::start()
 {
     if ( !_logWriterStart ) return;
-    PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_OK, tr( "Using mime type file <%1>." )
+    PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_OK, tr( "Using mime types file <%1>." )
         .arg( PHIConfig::instance()->mimeTypesFile() ) );
+    foreach ( QString merr, PHIParent::instance()->moduleLoadErrors() ) {
+        PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_MODULE_LOAD_ERROR, merr );
+    }
+    foreach ( QString module, PHIParent::instance()->loadedModules() ) {
+        PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_MODULE_LOG, module );
+    }
 
     PHIRC rc=PHIListener::instance()->init( this );
     if ( rc==PHIRC_OK ) {
-        PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_MGR_START,
-            tr( "Phi manager '%1' ready for service." ).arg( objectName() ) );
         connect( PHIListener::instance(), SIGNAL( processServiceCommand( int ) ),
             this, SIGNAL( processServiceCommand( int ) ) );
+        PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_MGR_START,
+            tr( "Phi manager '%1' ready for service." ).arg( objectName() ) );
     }
     if ( PHIConfig::instance()->configValue( "SSLEnabled", false ).toBool() ) {
         rc=PHISslListener::instance()->init( this );
@@ -88,6 +94,7 @@ void PHIManager::start()
 
 void PHIManager::updateConfig()
 {
+    qWarning( "UPDATECONF" );
     PHIConfig::instance()->updateConfig();
     PHIParent::instance()->invalidate();
 }

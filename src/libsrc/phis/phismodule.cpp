@@ -1,26 +1,25 @@
 #include <QScriptEngine>
 #include "phismodule.h"
-#include "phisrequest.h"
+#include "phierror.h"
 
-PHISInterface::PHISInterface( PHISRequest *req, QScriptEngine *engine )
-    : _req( req ), _engine( engine )
+PHISInterface::PHISInterface( const PHISRequest *req, QScriptEngine *engine )
+    : QObject( engine ), _req( req )
 {
-    qWarning( "PHISInterface::PHISInterface()" );
+    qDebug( "PHISInterface::PHISInterface()" );
 }
 
 PHISInterface::~PHISInterface()
 {
-    qWarning( "PHISInterface::~PHISInterface()" );
+    qDebug( "PHISInterface::~PHISInterface()" );
 }
 
-/*
-PHISModule::PHISModule( PHISInterface* )
+void PHISInterface::log( LogType lt, const char *file, int line, const QDateTime &dt, const QString &m )
 {
-    qWarning( "PHISModule::PHISModule()" );
+    switch( lt ) {
+    case LTWarning: return _req->responseRec()->log( 0x04, file, line, dt, PHIRC_MODULE_LOG, m );
+    case LTCritical: return _req->responseRec()->log( 0x08, file, line, dt, PHIRC_MODULE_LOG, m );
+    case LTTrace: return _req->responseRec()->log( 0x01, file, line, dt, PHIRC_MODULE_LOG, m );
+    case LTDebug: return _req->responseRec()->log( 0x10, file, line, dt, PHIRC_MODULE_LOG, m );
+    case LTUser: return _req->responseRec()->log( 0x20, file, line, dt, PHIRC_MODULE_LOG, m );
+    }
 }
-
-PHISModule::~PHISModule()
-{
-    qWarning( "PHISModule::~PHISModule()" );
-}
-*/

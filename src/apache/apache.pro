@@ -20,13 +20,14 @@ SOURCES = mod_phi.cpp \
     apacherequest.cpp
 
 include( ../../scripts/phiconf.pri )
-VERSION = 1.1.8
+VERSION = 1.1.9
 
 DEFINES += PHIVERSION=\\\"$$VERSION\\\"
 TEMPLATE = lib
 TARGET = mod_phi
 QT = core gui network sql script widgets
 INCLUDEPATH += ../libsrc/phi ../libsrc/phis
+//DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
 
 unix {
     INCLUDEPATH += /usr/include/apr-1.0 /usr/include/apr-1 /usr/include/openssl /usr/include/xmltok /usr/include/apache2

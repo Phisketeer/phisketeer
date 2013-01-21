@@ -20,50 +20,100 @@
 #define PHISMODULE_H
 #include <QObject>
 #include <QScriptEngine>
+#include <QByteArray>
+#include <QString>
 #include <QStringList>
-
-class QSqlDatabase;
-class PHISRequest;
+#include <QDateTime>
+#include "phisrequest.h"
 
 #ifdef PHISLIB
-#define PHISEXPORT Q_DECL_EXPORT
+#define PHIS_EXPORT Q_DECL_EXPORT
 #else
-#define PHISEXPORT Q_DECL_IMPORT
+#define PHIS_EXPORT Q_DECL_IMPORT
 #endif
+#define PHIS_DEPRECATED(msg) interface()->deprecated(__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
+#define PHIS_LOG(type,msg) interface()->log((type),__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
+#define PHIS_ERROR(msg) interface()->log(PHISInterface::LTError,__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
+#define PHIS_WARN(msg) interface()->log(PHISInterface::LTWarning,__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
 
-class PHISEXPORT PHISInterface
+class PHISInterface;
+
+class PHIS_EXPORT PHISScriptObj : public QObject
 {
-    friend class PHIProcessor;
+    Q_OBJECT
+
+public:
+    explicit PHISScriptObj( PHISInterface *interface ) : _if( interface ) {}
+    inline virtual quint32 version() const { return 0x00010000; }
 
 protected:
-    explicit PHISInterface( PHISRequest*, QScriptEngine* );
-    virtual ~PHISInterface();
+    inline PHISInterface* interface() const { return _if; }
 
 private:
-    PHISRequest *_req;
-    QScriptEngine *_engine;
-
-public:
-    inline QScriptEngine* scriptEngine() const { return _engine; }
+    PHISInterface *_if;
 };
 
-class PHISModuleIF
+class PHIS_EXPORT PHISModuleIF
 {
 public:
-    virtual QObject* create( const QString &key, PHISInterface* ) const=0;
+    virtual PHISScriptObj* create( const QString &key, PHISInterface* ) const=0;
     virtual QStringList keys() const=0;
 };
 
 Q_DECLARE_INTERFACE( PHISModuleIF, "org.phisketeer.phis.module/1.0" )
 
-class PHISEXPORT PHISModule : public QObject, PHISModuleIF
+class PHIS_EXPORT PHISModule : public QObject, public PHISModuleIF
 {
     Q_OBJECT
     Q_INTERFACES( PHISModuleIF )
 
 public:
-    virtual QObject* create( const QString &key, PHISInterface* ) const=0;
+    virtual PHISScriptObj* create( const QString &key, PHISInterface* ) const=0;
     virtual QStringList keys() const=0;
 };
+
+class PHIS_EXPORT PHISInterface : public QObject
+{
+    Q_OBJECT
+    Q_DISABLE_COPY( PHISInterface )
+    friend class PHIProcessor;
+    friend class PHISGlobalScriptObj;
+
+protected:
+    explicit PHISInterface( const PHISRequest *, QScriptEngine* );
+    virtual ~PHISInterface();
+
+private:
+    const PHISRequest *_req;
+
+public:
+    enum LogType { LTWarning, LTError, LTCritical, LTUser, LTDebug, LTTrace };
+    inline QScriptEngine* scriptEngine() const { return qobject_cast<QScriptEngine*>(parent()); }
+    inline quint8 version() const { return 0x01; }
+
+    void log( LogType, const char *file, int line, const QDateTime &dt, const QString &message );
+    void deprecated( const char *file, int line, const QDateTime &dt, const QString &message );
+    void setContentType( const QByteArray &contenttype );
+    void setContent( const QByteArray &content );
+    inline QString pageLanguage() const { return _req->currentLang(); }
+    inline void setPageLanguage( const QString &l ) { _req->setCurrentLang( l ); }
+    inline QString admin() const { return _req->admin(); }
+    inline QString hostname() const { return _req->hostname(); }
+
+};
+
+
+inline void PHISInterface::setContent( const QByteArray &content ) {
+    _req->responseRec()->setBody( content );
+    _req->responseRec()->setContentLength( content.size() );
+}
+
+inline void PHISInterface::setContentType( const QByteArray &contenttype ) {
+    _req->responseRec()->setContentType( contenttype );
+}
+
+inline void PHISInterface::deprecated(const char* file, int line, const QDateTime &dt, const QString &m ) {
+    _req->responseRec()->log( 0x04, file, line, dt, PHIRC_MODULE_DEPRECATED, m );
+}
 
 #endif // PHISMODULE_H

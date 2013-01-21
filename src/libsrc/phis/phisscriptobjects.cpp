@@ -26,9 +26,67 @@
 #include "phisscriptobjects.h"
 #include "phi.h"
 #include "phierror.h"
+#include "phibaseitem.h"
+#include "phibasepage.h"
+#include "phismodule.h"
+#include "phismodulefactory.h"
 
 #define PHISSCRIPTEXTENSION QScriptEngine::QtOwnership, QScriptEngine::PreferExistingWrapperObject |\
     QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater
+
+static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
+{
+    QScriptValue id=ctx->argument( 0 );
+    if ( id.isString() ) {
+        PHIBasePage *page=qobject_cast<PHIBasePage*>(engine->parent());
+        Q_ASSERT( page );
+        PHIBaseItem *it=page->getElementById( id.toString() );
+        if ( !it ) return QScriptValue( QScriptValue::UndefinedValue );
+        return baseItemToScriptValue( engine, it );
+    } else if ( id.isObject() ) return id;
+    return QScriptValue( QScriptValue::UndefinedValue );
+}
+
+PHISGlobalScriptObj::PHISGlobalScriptObj( const PHISRequest *req, QScriptEngine *engine )
+    : QObject( engine ), _req( req )
+{
+    qWarning( "PHISGlobalScriptObj::PHISGlobalScriptObj()" );
+    QScriptValue sv=engine->newQObject( this, PHISSCRIPTEXTENSION );
+    engine->setGlobalObject( sv );
+    sv=engine->newFunction( getItemFunc );
+    engine->globalObject().setProperty( "$", sv );
+}
+
+PHISGlobalScriptObj::~PHISGlobalScriptObj()
+{
+    qWarning( "PHISGlobalScriptObj::~PHISGlobalScriptObj()" );
+}
+
+void PHISGlobalScriptObj::loadModule( const QString &m )
+{
+    QScriptEngine *engine=qobject_cast<QScriptEngine*>(parent());
+    Q_ASSERT( engine );
+    PHISModuleFactory *factory=PHISModuleFactory::instance();
+    factory->lock(); //locking for read
+    PHISModule *mod=factory->module( m );
+    if ( !mod ) {
+        factory->unlock();
+        _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_NOT_FOUND_ERROR,
+            tr( "Could not find requested module '%1'." ).arg( m ) );
+        return;
+    }
+    QObject *obj=mod->create( m, new PHISInterface( _req, engine ) );
+    if ( obj ) {
+        QScriptValue sv=engine->newQObject( obj, QScriptEngine::QtOwnership,
+            QScriptEngine::PreferExistingWrapperObject |
+            QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
+        engine->globalObject().setProperty( m, sv );
+    } else {
+        QString tmp=QObject::tr( "Could not create module '%1'." ).arg( m );
+        _req->responseRec()->log( PHILOGERR, PHIRC_MODULE_LOAD_ERROR, tmp );
+    }
+    factory->unlock();
+}
 
 PHISServerObj::PHISServerObj( const PHISRequest *req, QScriptEngine *engine, PHIResponseRec *resp )
     : QObject( engine ), _req( req ), _resp( resp )
@@ -439,286 +497,6 @@ bool PHISSqlObj::query( const QString &q ) const
         tr( "SQL query '%1' failed. DB error: [%2] %3" ).arg( q )
         .arg( _query.lastError().number() ).arg( _query.lastError().text() ) );
     return res;
-}
-
-PHISEmailObj::PHISEmailObj( const PHISRequest *req, QScriptEngine *engine, PHIResponseRec *resp )
-    : QObject( engine ), _timeout( 20000 ), _port( 25 ), _resp( resp ),
-    _req( req ), _socket( 0 )
-{
-    qDebug( "PHISEmailObj::PHISEmailObj()" );
-    setObjectName( "email" );
-    QScriptValue email=engine->newQObject( this, PHISSCRIPTEXTENSION );
-    engine->globalObject().setProperty( "email", email );
-    _from=_req->admin();
-    _contentType="text/plain; charset=utf-8\n";
-    _socket=new QTcpSocket( this );
-}
-
-PHISEmailObj::~PHISEmailObj()
-{
-    if ( _socket->state()==QTcpSocket::ConnectedState ) {
-        QTextStream t( _socket );
-        t.setCodec( "utf-8" );
-        disconnectFromServer( 0, t );
-    }
-    qDebug( "PHISEmailObj::~PHISEmailObj()" );
-}
-
-qint16 PHISEmailObj::disconnectFromServer( qint16 err, QTextStream &t )
-{
-    if ( _socket->state()!=QTcpSocket::ConnectedState ) return 0;
-    if ( err ) {
-        QString string=tr( "Could not send email: <%1>." ).arg( _lastError );
-        _resp->log( PHILOGERR, PHIRC_PROT_CMD_ERROR, string );
-    }
-    waitForDataWritten( QString( "QUIT" ), t );
-    if ( !_socket->waitForDisconnected( _timeout ) ) {
-        _lastError=tr( "Could not cleanly disconnect from SMTP server '%1': <%2>." ).arg( _server )
-            .arg( _socket->errorString() );
-        _resp->log( PHILOGERR, PHI::socketError( _socket->error() ), _lastError );
-        if ( err==0 ) err=1;
-    }
-    _socket->close();
-    return err;
-}
-
-qint16 PHISEmailObj::disconnect()
-{
-    QTextStream t( _socket );
-    t.setCodec( "utf-8" );
-    return disconnectFromServer( 0, t );
-}
-
-qint16 PHISEmailObj::connect()
-{
-    if ( _socket->isOpen() ) {
-        _lastError=tr( "Connection to SMTP server '%1' already established." ).arg( _server );
-        _resp->log( PHILOGWARN, PHIRC_ARGUMENT_ERROR, _lastError );
-        return 0;
-    }
-    QHostInfo info=QHostInfo::fromName( _server );
-    if ( info.addresses().isEmpty() ) {
-        _lastError=tr( "DNS lookup error for SMTP server '%1': <%2>." )
-            .arg( _server ).arg( info.errorString() );
-        _resp->log( PHILOGERR, PHIRC_TCP_HOST_NOT_FOUND_ERROR, _lastError );
-        return 1;
-    }
-    QHostAddress server=info.addresses().first();
-    _socket->connectToHost( server, _port );
-    if ( !_socket->waitForConnected( _timeout ) ) {
-        _lastError=tr( "Could not connect to SMTP server '%1': <%2>." ).arg( _server )
-            .arg( _socket->errorString() );
-        _resp->log( PHILOGERR, PHI::socketError( _socket->error() ), _lastError );
-        return 1;
-    }
-    QTextStream t( _socket );
-    t.setCodec( "utf-8" );
-    bool moreLines;
-    qint16 res=waitForResponseLine();
-    //qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-    QString data="EHLO "+_req->hostname();
-    if ( res!=220 ) return disconnectFromServer( res, t );
-    res=waitForDataWritten( data, t );
-    if ( res ) return disconnectFromServer( res, t );
-    moreLines=true;
-    while( moreLines ) {
-        res=waitForResponseLine( &moreLines );
-        if ( res!=250 ) return disconnectFromServer( res, t );
-    }
-    if ( !_user.isEmpty() && !_password.isEmpty() ) {
-        res=waitForDataWritten( QString( "AUTH LOGIN" ), t );
-        if ( res ) return disconnectFromServer( res, t );
-        res=waitForResponseLine();
-        if ( res!=334 ) return disconnectFromServer( res, t );
-        data=QString::fromLatin1( _user.toLatin1().toBase64() );
-        res=waitForDataWritten( data, t );
-        if ( res ) return disconnectFromServer( res, t );
-        res=waitForResponseLine();
-        if ( res!=334 ) return disconnectFromServer( res, t );
-        data=QString::fromLatin1( _password.toLatin1().toBase64() );
-        res=waitForDataWritten( data, t );
-        if ( res ) return disconnectFromServer( res, t );
-        res=waitForResponseLine();
-        if ( res!=235 ) return disconnectFromServer( res, t );
-    }
-    return 0;
-}
-
-qint16 PHISEmailObj::send()
-{
-    if ( _to.isEmpty() && _recipients.isEmpty() ) {
-        _lastError=tr( "No email recipient(s) specified." );
-        _resp->log( PHILOGERR, PHIRC_ARGUMENT_ERROR, _lastError );
-        return 1;
-    }
-    qint16 res;
-    res=connect();
-    if ( res ) return res;
-    QTextStream t( _socket );
-    t.setCodec( "utf-8" );
-
-    qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-    QString data="MAIL FROM: <"+_from+'>';
-    res=waitForDataWritten( data, t );
-    if ( res ) return disconnectFromServer( res, t );
-    res=waitForResponseLine();
-    qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-    if ( res!=250 ) return disconnectFromServer( res, t );
-    if ( _recipients.count() ) {
-        QString rcp;
-        foreach ( rcp, _recipients ) {
-            data="RCPT TO: <"+rcp+'>';
-            res=waitForDataWritten( data, t );
-            if ( res ) return disconnectFromServer( res, t );
-            qDebug( "EMAIL %s %s", qPrintable( rcp ), qPrintable( _lastError ) );
-            res=waitForResponseLine();
-            if ( res!=250 ) {
-                data=tr( "SMTP error for recipient '%1': <%2>." ).arg( rcp ).arg( _lastError );
-                _resp->log( PHILOGWARN, PHIRC_PROT_CMD_ERROR, data );
-            }
-        }
-    } else {
-        data="RCPT TO: "+_to;
-        res=waitForDataWritten( data, t );
-        if ( res ) return disconnectFromServer( res, t );
-        res=waitForResponseLine();
-        qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-        if ( res!=250 ) return disconnectFromServer( res, t );
-    }
-    res=waitForDataWritten( QString( "DATA" ), t );
-    if ( res ) return disconnectFromServer( res, t );
-    res=waitForResponseLine();
-    qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-    if ( res!=354 ) return disconnectFromServer( res, t );
-    res=waitForMessageWritten( t );
-    if ( res ) return disconnectFromServer( res, t );
-    res=waitForResponseLine();
-    qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-    if ( res!=250 ) return disconnectFromServer( res, t );
-    return disconnectFromServer( 0, t );
-}
-
-qint16 PHISEmailObj::sendTo( const QString &to, const QString &subject, const QString &body )
-{
-    if ( !_socket->isOpen() ) {
-        _lastError=tr( "Could not sendTo(): not connected to SMTP server '%1'." ).arg( _server );
-        _resp->log( PHILOGERR, PHIRC_TCP_NETWORK_ERROR, _lastError );
-        return 1;
-    }
-    if ( to.isEmpty() ) {
-        _lastError=tr( "No email recipient specified." );
-        _resp->log( PHILOGERR, PHIRC_ARGUMENT_ERROR, _lastError );
-        return 1;
-    }
-    QString fromEnvelope=_from;
-    if ( fromEnvelope.isEmpty() ) {
-        _lastError=tr( "No sender (FROM) specified." );
-        _resp->log( PHILOGERR, PHIRC_ARGUMENT_ERROR, _lastError );
-        return 1;
-    }
-    qint16 res;
-    QTextStream t( _socket );
-    t.setCodec( "utf-8" );
-
-    QString data="MAIL FROM: <"+fromEnvelope+'>';
-    res=waitForDataWritten( data, t );
-    if ( res ) return res;
-    res=waitForResponseLine();
-    qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-    if ( res!=250 ) return res;
-    data="RCPT TO: "+to;
-    res=waitForDataWritten( data, t );
-    if ( res ) return res;
-    res=waitForResponseLine();
-    qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-    if ( res!=250 ) return res;
-    res=waitForDataWritten( QString( "DATA" ), t );
-    if ( res ) return res;
-    res=waitForResponseLine();
-    qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-    if ( res!=354 ) return res;
-    res=waitForMessageWritten( t, to, subject, body );
-    if ( res ) return res;
-    res=waitForResponseLine();
-    qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-    if ( res!=250 ) return res;
-    return 0;
-}
-
-qint16 PHISEmailObj::waitForResponseLine( bool *moreLines )
-{
-    Q_ASSERT( _socket );
-    while ( 1 ) {
-        if ( !_socket->canReadLine() && !_socket->waitForReadyRead( _timeout ) ) {
-            _lastError=tr( "Could not read from SMTP server '%1': <%2>." )
-                .arg( _server ).arg( _socket->errorString() );
-            _resp->log( PHILOGERR, PHI::socketError( _socket->error() ), _lastError );
-            if ( moreLines ) *moreLines=false;
-            return 1;
-        }
-        if ( _socket->canReadLine() ) {
-            _lastError=QString::fromLatin1( _socket->readLine( 1024 ) );
-            _lastError.chop( 2 );
-            //qDebug( "readLine %s", qPrintable( _lastError ) );
-            if ( moreLines ) {
-                if ( _lastError.at( 3 )=='-' ) *moreLines=true;
-                else *moreLines=false;
-            }
-            return _lastError.left( 3 ).toInt();
-        }
-    }
-    return 1;
-}
-
-qint16 PHISEmailObj::waitForDataWritten( const QString &data, QTextStream &t )
-{
-    Q_ASSERT( _socket );
-    t << data << "\r\n";
-    t.flush();
-    if ( !_socket->waitForBytesWritten( _timeout ) ) {
-        _lastError=tr( "Could not write data to SMTP server '%1': <%2>." )
-            .arg( _server ).arg( _socket->errorString() );
-        _resp->log( PHILOGERR, PHI::socketError( _socket->error() ), _lastError );
-        return 1;
-    }
-    return 0;
-}
-
-qint16 PHISEmailObj::waitForMessageWritten( QTextStream &t, const QString &to,
-    const QString &subject, const QString &data )
-{
-    Q_ASSERT( _socket );
-    QString toHeader=to;
-    if ( toHeader.isEmpty() ) {
-        if ( _to.isEmpty() && _recipients.count() ) toHeader=_recipients.first();
-        else toHeader=_to;
-    }
-    QString fromHeader=_from;
-    QString subjectHeader=subject;
-    if ( subjectHeader.isEmpty() ) subjectHeader=_subject;
-    QString body=data;
-    if ( body.isEmpty() ) body=_data;
-
-    QString d;
-    d.reserve( body.size()+200 );
-    d.append( "To: "+toHeader+"\r\nFrom: "+fromHeader+"\r\n" );
-    if ( !subjectHeader.isEmpty() ) d.append( "Subject: "+subjectHeader+"\r\n" );
-    d.append( "MIME-Version: 1.0\r\n" );
-    d.append( "Content-type: "+_contentType+"\r\n" );
-    d.append( "\r\n"+body );
-    //d.replace( QChar::fromLatin1( '\n' ), QString::fromLatin1( "\r\n" ) );
-    //d.replace( QString::fromLatin1( "\r\n.\r\n" ), QString::fromLatin1( "\r\n..\r\n" ) );
-    //d.replace( QChar::fromLatin1( '\n' ), QString::fromLatin1( "\r\n" ) );
-    d.replace( QString::fromLatin1( "\r\n.\r\n" ), QString::fromLatin1( "\r\n..\r\n" ) );
-    t << d << "\r\n.\r\n";
-    t.flush();
-    if ( !_socket->waitForBytesWritten( _timeout ) ) {
-        _lastError=tr( "Could not write data to email server '%1': <%2>." )
-            .arg( _server ).arg( _socket->errorString() );
-        _resp->log( PHILOGERR, PHI::socketError( _socket->error() ), _lastError );
-        return 1;
-    }
-    return 0;
 }
 
 #undef PHISSCRIPTEXTENSION

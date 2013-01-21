@@ -81,6 +81,9 @@ void PHIError::initShortDesc()
     _sl[PHIRC_TRANSACTION_ERROR]="TRANSACTION_ERROR";
     _sl[PHIRC_QUERY_ERROR]="QUERY_ERROR";
 
+    _sl[PHIRC_MODULE_LOAD_ERROR]="MODULE_LOAD_ERROR";
+    _sl[PHIRC_MODULE_LOG]="MODULE_LOG";
+    _sl[PHIRC_MODULE_DEPRECATED]="MODULE_DEPRECATED";
     _sl[PHIRC_HTTP_CONTINUE]="HTTP_CONTINUE";
     _sl[PHIRC_HTTP_SWITCH_PROTOCOL]="HTTP_SWITCH_PROTOCO";
 
@@ -188,6 +191,10 @@ void PHIError::initLongDesc()
     _ll[PHIRC_DB_ERROR]=QT_TR_NOOP( "The underlying DBMS returned an error." );
     _ll[PHIRC_TRANSACTION_ERROR]=QT_TR_NOOP( "A transaction could not be started or finished." );
     _ll[PHIRC_QUERY_ERROR]=QT_TR_NOOP( "A database query returned an error." );
+
+    _ll[PHIRC_MODULE_LOAD_ERROR]=QT_TR_NOOP( "A server module could not be loaded." );
+    _ll[PHIRC_MODULE_LOG]=QT_TR_NOOP( "Module log message." );
+    _ll[PHIRC_MODULE_DEPRECATED]=QT_TR_NOOP( "A module is deprecated or an old interface is used." );
 
     _ll[PHIRC_HTTP_CONTINUE]=QT_TR_NOOP( "Continue with request." );
     _ll[PHIRC_HTTP_SWITCH_PROTOCOL]=QT_TR_NOOP( "Switch to another protocol." );

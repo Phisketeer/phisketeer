@@ -45,7 +45,8 @@ public:
 
     //void database( QString &db, QString &name, QString &host, QString &user,
     //    QString &pwd, QString &connOpts, int &port, const QString &domain );
-
+    inline QStringList loadedModules() const { return _loadedModules; }
+    inline QStringList moduleLoadErrors() const { return _moduleLoadErrors; }
     void invalidate( const QString &domain=QString() );
 /*
     void readLicenseFile( const QString &documentRoot, const QString &domain );
@@ -55,7 +56,6 @@ public:
     inline const PHILicense* license( const QString &domain ) const
         { QReadLocker l( &_lock ); return _licenses.value( domain, 0 ); }
 */
-    inline QString modulePath() const { return _modulePath; }
 
 protected:
     PHIParent( QObject *parent=0 );
@@ -71,14 +71,15 @@ protected:
 private:
     static PHIParent *_instance;
     mutable QReadWriteLock _lock;
-    QApplication *_app;
+    //QApplication *_app;
+    QGuiApplication *_app;
     bool _internalApp;
     //QHash <QString, bool> _validLicenses;
     QHash <QString, QString> _tmpDirs;
     QHash <QString, DBSettings> _dbSettings;
     QDateTime _invalidateTouch;
     //QHash <QString, PHILicense*> _licenses;
-    QString _modulePath;
+    QStringList _loadedModules, _moduleLoadErrors;
 };
 
 #endif // PHIPARENT_H

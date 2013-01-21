@@ -35,10 +35,12 @@ class PHISModuleFactory : public QObject
 public:
     static PHISModuleFactory* instance( QObject *parent=0 );
     inline QStringList keys() const { return _keys; }
-    inline void lock() { _lock.lockForRead(); }
-    inline void unlock() { _lock.unlock(); }
+    inline QStringList loadErrors() const { QReadLocker l(&_lock); return _loadErorrs; }
+    inline void lock() const { _lock.lockForRead(); }
+    inline void unlock() const { _lock.unlock(); }
     inline PHISModule* module( const QString &key  ) const { return _modules.value( key, 0 ); }
     void invalidate();
+    QStringList loadedModules() const;
 
 protected:
     explicit PHISModuleFactory( QObject *parent=0 );
@@ -46,9 +48,10 @@ protected:
     
 private:
     static PHISModuleFactory *_instance;
-    QStringList _keys;
+    QStringList _keys, _loadErorrs;
     QHash <QString, PHISModule*> _modules;
-    QReadWriteLock _lock;
+    QHash <QString, QString> _libNames;
+    mutable QReadWriteLock _lock;
 };
 
 inline PHISModuleFactory* PHISModuleFactory::instance( QObject *parent )

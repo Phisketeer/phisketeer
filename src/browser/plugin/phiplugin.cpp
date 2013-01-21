@@ -280,7 +280,7 @@ void PhiPlugIn::slotUnsupportedContent( PHIAAbstractWebView*, QNetworkReply *rep
     if ( i==-1 ) QDesktopServices::openUrl( url );
 }
 
-QTNPFACTORY_BEGIN( "Phi Plug-In (" PHIVERSION ")", "Plug-In for displaying Phi based content" );
+QTNPFACTORY_BEGIN( "Phi Plug-In (" PHIVERSION ")", "Plug-In for displaying Phi based content" )
     QTNPCLASS(PhiPlugIn)
 QTNPFACTORY_END()
 

@@ -203,7 +203,7 @@ public slots: //useable by script engine
     inline virtual void setAccessKey( const QString &s ) { _variants.insert( DShortCut, s.left(1).toUtf8() ); }
     inline quint16 maxLength() const { return _variants.value( DMaxSize, PHI::maxLength() ).value<quint16>(); }
     inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxSize, max ); }
-    inline QString delimiter() const { return _variants.value( DDelimiter, QString( "\n" ) ).toString(); }
+    inline QString delimiter() const { return _variants.value( DDelimiter, QStringLiteral( "\n" ) ).toString(); }
     inline virtual void setDelimiter( const QString &d ) { _variants.insert( DDelimiter, d ); }
     inline quint16 tabIndex() const { return _variants.value( DTabOrder, 0 ).value<quint16>(); }
     inline virtual void setTabIndex( quint16 tab ) { _variants.insert( DTabOrder, tab ); }
@@ -254,8 +254,8 @@ protected:
     QByteArray _pageId;
 };
 
-Q_DECLARE_METATYPE( PHIBaseItem* );
-Q_DECLARE_METATYPE( const PHIBaseItem* );
+Q_DECLARE_METATYPE( PHIBaseItem* )
+Q_DECLARE_METATYPE( const PHIBaseItem* )
 
 PHIEXPORT QScriptValue baseItemToScriptValue( QScriptEngine*, PHIBaseItem* const &in );
 PHIEXPORT void baseItemFromScriptValue( const QScriptValue&, PHIBaseItem* &out );
@@ -305,8 +305,8 @@ public:
 
 public slots:
     // offered by CSS 2.1 / 3.0
-    inline QString left() const { return QString::number( _it->x() )+"px"; }
-    inline void setLeft( const QString &x ) { QString xx=x; _it->setX( xx.replace( "px", "" ).toDouble() ); }
+    inline QString left() const { return QString::number( _it->x() )+QStringLiteral( "px" ); }
+    inline void setLeft( const QString &x ) { QString xx=x; _it->setX( xx.replace( QStringLiteral( "px" ), "" ).toDouble() ); }
     inline QString top() const { return QString::number( _it->y() )+"px"; }
     inline void setTop( const QString &y ) { QString yy=y; _it->setY( yy.replace( "px", "" ).toDouble() ); }
     inline qint16 zIndex() const { return _it->zValue(); }

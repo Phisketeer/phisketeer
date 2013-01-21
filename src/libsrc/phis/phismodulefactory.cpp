@@ -20,9 +20,11 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QPluginLoader>
+#include <QMetaClassInfo>
 #include "phismodulefactory.h"
 #include "phismodule.h"
 #include "phi.h"
+#include "phierror.h"
 
 PHISModuleFactory* PHISModuleFactory::_instance=0;
 
@@ -57,7 +59,7 @@ void PHISModuleFactory::invalidate()
 #endif
 #endif
         if ( !dir.exists() ) {
-            qDebug( "Did not find modules path (%s)", qPrintable( dir.path() ) );
+            qWarning( "Did not find modules path (%s)", qPrintable( dir.path() ) );
             return;
         }
     }
@@ -67,15 +69,46 @@ void PHISModuleFactory::invalidate()
     _lock.lockForWrite();
     _modules.clear();
     foreach ( file, files ) {
-        QPluginLoader loader( file );
+        QPluginLoader loader( dir.absoluteFilePath( file ) );
         if ( loader.isLoaded() ) loader.unload();
         mod=qobject_cast<PHISModule*>(loader.instance());
+        if ( !loader.isLoaded() ) {
+            _loadErorrs << tr( "Could not load module '%1': %2" ).arg( file ).arg( loader.errorString() );
+            continue;
+        }
         if ( mod ) {
             QStringList keys=mod->keys();
             foreach ( QString key, keys ) {
                 _modules.insert( key, mod );
+                _libNames.insert( key, file );
+                _keys << key;
             }
         }
     }
     _lock.unlock();
+}
+
+QStringList PHISModuleFactory::loadedModules() const
+{
+    _lock.lockForRead();
+    QStringList list;
+    PHISModule *mod;
+    foreach ( QString key, _keys ) {
+        mod=_modules.value( key );
+        Q_ASSERT( mod );
+        const QMetaObject *obj=mod->metaObject();
+        QString na=tr( "n/a" );
+        QString author=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "Author" ) ).value() );
+        QString url=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "Url" ) ).value() );
+        QString cr=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "Copyright" ) ).value() );
+        QString v=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "Version" ) ).value() );
+        QString lic=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "License" ) ).value() );
+        list << tr( "Library file '%1' provides module '%2' (%3).\nAuthor:\t  %4\nUrl:\t  %5"
+                    "\nLicense:  %6\nCopyright %7" )
+            .arg( _libNames.value( key ) ).arg( key ).arg( v )
+            .arg( author.isEmpty() ? na : author ).arg( url.isEmpty() ? na : url )
+            .arg( lic.isEmpty() ? na : lic ).arg( cr.isEmpty() ? na : cr );
+    }
+    _lock.unlock();
+    return list;
 }
