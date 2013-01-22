@@ -66,6 +66,17 @@
 extern "C" {
 #endif
 
+#define PHI_RLOG_RC(rc) ap_log_rerror(APLOG_MARK,APLOG_INFO,0,r,"EC=%d [%s]: %s",static_cast<int>((rc)),\
+    PHIError::instance()->shortDesc((rc)),PHIError::instance()->longDesc((rc)).toUtf8().constData());
+#define PHI_RLOG_ERR(rc,file,line,str) ap_log_rerror(APLOG_MARK,APLOG_ERR,0,r,"RC=%d <%s:%d> %s",\
+    static_cast<int>((rc)),(file),(line),cleanString((str)));
+#define PHI_SLOG_RC(rc) ap_log_error(APLOG_MARK,APLOG_INFO,0,s,"EC=%d [%s]: %s",static_cast<int>((rc)),\
+    PHIError::instance()->shortDesc((rc)),PHIError::instance()->longDesc((rc)).toUtf8().constData());
+#define PHI_SLOG_ERR(rc,file,line,str) ap_log_error(APLOG_MARK,APLOG_ERR,0,s,"RC=%d <%s:%d> %s",\
+    static_cast<int>((rc)),(file),(line),cleanString((str)));
+#define PHI_SLOG_NOTICE(rc,file,line,str) ap_log_error(APLOG_MARK,APLOG_NOTICE,0,s,"RC=%d <%s:%d> %s",\
+    static_cast<int>((rc)),(file),(line),cleanString((str)));
+
 static int cleanupResponseRec( void *ptr ) { delete static_cast<PHIResponseRec*>(ptr); return 0; }
 static int cleanupPHIParent( void *ptr ) { delete static_cast<PHIParent*>(ptr); return 0; }
 
@@ -77,12 +88,21 @@ static int translateReturnCode( PHIRC rc )
     return HTTP_INTERNAL_SERVER_ERROR;
 }
 
+static const char* cleanString( const QString &s )
+{
+    static QByteArray arr;
+    arr=s.toUtf8();
+    arr.replace( '\n', ' ' );
+    return arr.constData();
+}
+
 static int parseMultipartPostData( request_rec *r, ApacheRequest *req )
 {
     qDebug( "parsing POST data" );
     if ( !req->keyword( PHISRequest::KContentType ).contains( "boundary=" ) ) {
-        ap_log_rerror( APLOG_MARK, APLOG_WARNING, 0, r, "%s",
-            QObject::tr( "Missing boundary for media type (multipart/form-data)" ).toUtf8().constData() );
+        QString err=QObject::tr( "Missing boundary for media type (multipart/form-data)." );
+        PHI_RLOG_ERR(PHIRC_HTTP_BAD_REQUEST,__FILE__,__LINE__,err);
+        PHI_RLOG_RC(PHIRC_HTTP_BAD_REQUEST);
         return HTTP_BAD_REQUEST;
     }
     QByteArray boundary="--"+req->keyword( PHISRequest::KContentType )
@@ -101,8 +121,9 @@ static int parseMultipartPostData( request_rec *r, ApacheRequest *req )
     do {
         rv=ap_get_brigade( r->input_filters, bb, AP_MODE_GETLINE, APR_BLOCK_READ, BUFLEN );
         if ( rv!=APR_SUCCESS ) {
-            ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "%s",
-                QObject::tr( "Could not read POST input data" ).toUtf8().constData() );
+            QString err=QObject::tr( "Could not read POST input data." );
+            PHI_RLOG_ERR(PHIRC_HTTP_INTERNAL_SERVER_ERROR,__FILE__,__LINE__,err);
+            PHI_RLOG_RC(PHIRC_HTTP_INTERNAL_SERVER_ERROR);
             return HTTP_INTERNAL_SERVER_ERROR;
         }
         for ( b=APR_BRIGADE_FIRST(bb); b!=APR_BRIGADE_SENTINEL(bb); b=APR_BUCKET_NEXT(b) ) {
@@ -113,8 +134,9 @@ static int parseMultipartPostData( request_rec *r, ApacheRequest *req )
             if ( APR_BUCKET_IS_METADATA(b) ) continue;
             rv=apr_bucket_read( b, &buf, &bytes, APR_BLOCK_READ );
             if ( rv!=APR_SUCCESS ) {
-                ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "%s",
-                    QObject::tr( "Could not read POST input data from bucket" ).toUtf8().constData() );
+                QString err=QObject::tr( "Could not read POST input data from bucket." );
+                PHI_RLOG_ERR(PHIRC_HTTP_INTERNAL_SERVER_ERROR,__FILE__,__LINE__,err);
+                PHI_RLOG_RC(PHIRC_HTTP_INTERNAL_SERVER_ERROR);
                 return HTTP_INTERNAL_SERVER_ERROR;
             }
 
@@ -167,9 +189,11 @@ static int parseMultipartPostData( request_rec *r, ApacheRequest *req )
                             // tmpFile->setAutoRemove( false );
                             tmpFile->setObjectName( filename );
                             if ( !tmpFile->open() ) {
-                                ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "%s",
-                                    QObject::tr( "Could not open tmp file %1" ).arg( tmpFile->fileName() ).toUtf8().data() );
                                 delete tmpFile;
+                                tmpFile=0;
+                                QString err=QObject::tr( "Could not open tmporary file '%1'." ).arg( tmpFile->fileName() );
+                                PHI_RLOG_ERR(PHIRC_HTTP_INTERNAL_SERVER_ERROR,__FILE__,__LINE__,err);
+                                PHI_RLOG_RC(PHIRC_HTTP_INTERNAL_SERVER_ERROR);
                                 return HTTP_INTERNAL_SERVER_ERROR;
                             }
                         }
@@ -197,8 +221,9 @@ static int parseMultipartPostData( request_rec *r, ApacheRequest *req )
 static int parseUrlEncodedPostData( request_rec *r, ApacheRequest *req )
 {
     if ( req->contentLength() > static_cast<qint64>(MAX_SIZE) ) {
-        ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "%s",
-            QObject::tr( "POST url-encoded data is limited to %d bytes" ).arg( MAX_SIZE ).toUtf8().constData() );
+        QString err=QObject::tr( "POST url-encoded data is limited to %d bytes." ).arg( MAX_SIZE );
+        PHI_RLOG_ERR(PHIRC_HTTP_REQUEST_ENTITY_TOO_LARGE,__FILE__,__LINE__,err);
+        PHI_RLOG_RC(PHIRC_HTTP_REQUEST_ENTITY_TOO_LARGE);
         return HTTP_REQUEST_ENTITY_TOO_LARGE;
     }
     apr_status_t rv;
@@ -213,8 +238,9 @@ static int parseUrlEncodedPostData( request_rec *r, ApacheRequest *req )
     do {
         rv=ap_get_brigade( r->input_filters, bb, AP_MODE_READBYTES, APR_BLOCK_READ, BUFLEN );
         if ( rv!=APR_SUCCESS ) {
-            ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "%s",
-                QObject::tr( "Could not read POST input data" ).toUtf8().constData() );
+            QString err=QObject::tr( "Could not read POST input data." );
+            PHI_RLOG_ERR(PHIRC_HTTP_INTERNAL_SERVER_ERROR,__FILE__,__LINE__,err);
+            PHI_RLOG_RC(PHIRC_HTTP_INTERNAL_SERVER_ERROR);
             return HTTP_INTERNAL_SERVER_ERROR;
         }
         for ( b=APR_BRIGADE_FIRST(bb); b!=APR_BRIGADE_SENTINEL(bb); b=APR_BUCKET_NEXT(b) ) {
@@ -226,15 +252,16 @@ static int parseUrlEncodedPostData( request_rec *r, ApacheRequest *req )
             bytes=BUFLEN;
             rv=apr_bucket_read( b, &buf, &bytes, APR_BLOCK_READ );
             if ( rv!=APR_SUCCESS ) {
-                ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "%s",
-                    QObject::tr( "Could not read POST input data from bucket" ).toUtf8().constData() );
+                QString err=QObject::tr( "Could not read POST input data from bucket." );
+                PHI_RLOG_ERR(PHIRC_HTTP_INTERNAL_SERVER_ERROR,__FILE__,__LINE__,err);
+                PHI_RLOG_RC(PHIRC_HTTP_INTERNAL_SERVER_ERROR);
                 return HTTP_INTERNAL_SERVER_ERROR;
             }
             arr+=QByteArray( buf, bytes );
         }
         apr_brigade_cleanup( bb );
     } while ( !eos );
-    ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "Adding <%s>", arr.constData() );
+    //ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "Adding <%s>", arr.constData() );
     req->setPostEncodedUrl( arr );
     /*
     if ( !req->postUrlIsValid() ) {
@@ -280,11 +307,8 @@ static int phi_handler( request_rec *r )
     // Print out any occured log entries
     PHIResponseRecLogEntry entry;
     foreach ( entry, resp->logEntries() ) {
-        ap_log_rerror( APLOG_MARK, APLOG_WARNING, 0, r, "EC=%d <%s:%d> %s", static_cast<int>(entry._rc),
-            entry._file, entry._line, entry._desc.toUtf8().constData() );
-        ap_log_rerror( APLOG_MARK, APLOG_INFO, 0, r, "EC=%d [%s]: %s", static_cast<int>(entry._rc),
-            PHIError::instance()->shortDesc( entry._rc ), PHIError::instance()->longDesc( entry._rc )
-            .toUtf8().constData() );
+        PHI_RLOG_ERR(entry._rc,entry._file,entry._line,entry._desc);
+        PHI_RLOG_RC(entry._rc);
     }
     if ( resp->options() & PHIResponseRec::Redirect ) {
         if ( !areq.setRedirectedFile( resp->fileName() ) ) {
@@ -295,11 +319,8 @@ static int phi_handler( request_rec *r )
             phiproc2.run();
             // Print out any occured log entries
             foreach ( entry, resp->logEntries() ) {
-                ap_log_rerror( APLOG_MARK, APLOG_WARNING, 0, r, "EC=%d <%s:%d> %s", static_cast<int>(entry._rc),
-                    entry._file, entry._line, entry._desc.toUtf8().constData() );
-                ap_log_rerror( APLOG_MARK, APLOG_INFO, 0, r, "EC=%d [%s]: %s", static_cast<int>(entry._rc),
-                    PHIError::instance()->shortDesc( entry._rc ), PHIError::instance()->longDesc( entry._rc )
-                    .toUtf8().constData() );
+                PHI_RLOG_ERR(entry._rc,entry._file,entry._line,entry._desc);
+                PHI_RLOG_RC(entry._rc);
             }
         }
     }
@@ -347,22 +368,17 @@ static int phi_handler( request_rec *r )
                 QByteArray type=PHI::mimeType( fi.suffix().toUtf8() );
                 if ( type.isEmpty() ) {
                     PHIRC rcm=PHIRC_HTTP_UNSUPPORTED_MEDIA_TYPE;
-                    ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "RC=%d <%s:%d> Unknown media type '%s'.",
-                        static_cast<int>(rcm), __FILE__, __LINE__, fi.suffix().toUtf8().constData() );
-                    ap_log_rerror( APLOG_MARK, APLOG_INFO, 0, r, "RC=%d [%s]: %s", static_cast<int>(rcm),
-                        PHIError::instance()->shortDesc( rcm ), PHIError::instance()->longDesc( rcm )
-                        .toUtf8().constData() );
+                    QString err=QObject::tr( "Unknown media type '%1'." ).arg( fi.suffix() );
+                    PHI_RLOG_ERR(rcm,__FILE__,__LINE__,err);
+                    PHI_RLOG_RC(rcm);
                     return translateReturnCode( rcm );
                 }
                 ap_set_content_type( r, type );
             }
             return HTTP_NOT_MODIFIED;
         }
-        ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "RC=%d <%s:%d> %s",
-            static_cast<int>(resp->rc()), resp->errorFile(), resp->errorLine(), resp->errorDesc().toUtf8().constData() );
-        ap_log_rerror( APLOG_MARK, APLOG_INFO, 0, r, "RC=%d [%s]: %s", static_cast<int>(resp->rc()),
-            PHIError::instance()->shortDesc( resp->rc() ), PHIError::instance()->longDesc( resp->rc() )
-            .toUtf8().constData() );
+        PHI_RLOG_ERR(resp->rc(),resp->errorFile(),resp->errorLine(),resp->errorDesc());
+        PHI_RLOG_RC(resp->rc());
         return rc;
     }
     if ( resp->options() & PHIResponseRec::HeaderOnly ) return OK;
@@ -371,12 +387,10 @@ static int phi_handler( request_rec *r )
         QByteArray type=PHI::mimeType( fi.suffix().toUtf8() );
         if ( type.isEmpty() ) {
             PHIRC rcm=PHIRC_HTTP_UNSUPPORTED_MEDIA_TYPE;
-            ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "RC=%d <%s:%d> Unknown media type '%s'.",
-                static_cast<int>(rcm), __FILE__, __LINE__, fi.suffix().toUtf8().constData() );
-            ap_log_rerror( APLOG_MARK, APLOG_INFO, 0, r, "RC=%d [%s]: %s",
-                static_cast<int>(rcm), PHIError::instance()->shortDesc( rcm ),
-                PHIError::instance()->longDesc( rcm ).toUtf8().constData() );
-            return translateReturnCode(rcm);
+            QString err=QObject::tr( "Unknown media type '%1'." ).arg( fi.suffix() );
+            PHI_RLOG_ERR(rcm,__FILE__,__LINE__,err);
+            PHI_RLOG_RC(rcm);
+            return translateReturnCode( rcm );
         }
         ap_set_content_type( r, type.constData() );
         apr_file_t *fd;
@@ -385,29 +399,25 @@ static int phi_handler( request_rec *r )
             APR_READ | APR_SHARELOCK | APR_SENDFILE_ENABLED, APR_OS_DEFAULT, r->pool );
         if ( rv!=APR_SUCCESS ) {
             PHIRC rcm=PHIRC_HTTP_NOT_FOUND;
-            ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "RC=%d <%s:%d> Can not open '%s'.",
-                static_cast<int>(rcm), __FILE__, __LINE__, resp->fileName().toUtf8().constData() );
-            ap_log_rerror( APLOG_MARK, APLOG_INFO, 0, r, "RC=%d [%s]: %s", static_cast<int>(rcm),
-                PHIError::instance()->shortDesc( rcm ),
-                PHIError::instance()->longDesc( rcm ).toUtf8().constData() );
-            return translateReturnCode(rcm);
+            QString err=QObject::tr( "Can not open '%1'." ).arg( resp->fileName() );
+            PHI_RLOG_ERR(rcm,__FILE__,__LINE__,err);
+            PHI_RLOG_RC(rcm);
+            return translateReturnCode( rcm );
         }
         apr_size_t size=static_cast<apr_size_t>(resp->contentLength());
-        apr_size_t offset(0), bytes_written(0);
+        apr_size_t offset(0), bytes_written;
         forever {
-            rv=ap_send_fd( fd, r, offset, size, &bytes_written );
-            offset+=bytes_written;
-            if ( size==bytes_written ) break;
+            rv=ap_send_fd( fd, r, offset, size-offset, &bytes_written );
             if ( rv!=APR_SUCCESS ) {
                 PHIRC rcm=PHIRC_HTTP_INTERNAL_SERVER_ERROR;
-                ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "RC=%d <%s:%d> Could not send '%s'.",
-                    static_cast<int>(rcm), __FILE__, __LINE__, resp->fileName().toUtf8().constData() );
-                ap_log_rerror( APLOG_MARK, APLOG_INFO, 0, r, "RC=%d [%s]: %s", static_cast<int>(rcm),
-                    PHIError::instance()->shortDesc( rcm ),
-                    PHIError::instance()->longDesc( rcm ).toUtf8().constData() );
+                QString err=QObject::tr( "Could not send file '%1'." ).arg( resp->fileName() );
+                PHI_RLOG_ERR(rcm,__FILE__,__LINE__,err);
+                PHI_RLOG_RC(rcm);
                 apr_file_close( fd );
                 return translateReturnCode( rcm );
             }
+            offset+=bytes_written;
+            if ( size==offset ) break;
         }
         apr_file_close( fd );
     } else {
@@ -418,11 +428,9 @@ static int phi_handler( request_rec *r )
             bytes_written=ap_rwrite( body.constData(), size, r );
             if ( bytes_written==-1 ) {
                 PHIRC rcm=PHIRC_HTTP_INTERNAL_SERVER_ERROR;
-                ap_log_rerror( APLOG_MARK, APLOG_ERR, 0, r, "RC=%d <%s:%d> Could not send data to the client.",
-                    static_cast<int>(rcm), __FILE__, __LINE__);
-                ap_log_rerror( APLOG_MARK, APLOG_INFO, 0, r, "RC=%d [%s]: %s", static_cast<int>(rcm),
-                    PHIError::instance()->shortDesc( rcm ),
-                    PHIError::instance()->longDesc( rcm ).toUtf8().constData() );
+                QString err=QObject::tr( "Could not send data to the client." );
+                PHI_RLOG_ERR(rcm,__FILE__,__LINE__,err);
+                PHI_RLOG_RC(rcm);
                 ap_rflush( r );
                 return HTTP_RESET_CONTENT;
             }
@@ -438,10 +446,8 @@ static int phi_handler( request_rec *r )
 /*  // Used for ap_hook_child_init
 static void global_init( apr_pool_t *p, server_rec* )
 {
-    //qWarning( "--- phi --- global_init" );
+    qWarning( "--- phi --- child_init" );
     PHIParent *parent=PHIParent::instance();
-    QString fileName="dummy";
-    PHI::createMimeTypes( fileName );
     apr_pool_cleanup_register( p, static_cast<void*>(parent), cleanupPHIParent, apr_pool_cleanup_null );
 }
 */
@@ -450,18 +456,23 @@ static int global_init( apr_pool_t *p, apr_pool_t *plog, apr_pool_t *ptemp, serv
 {
     Q_UNUSED( plog );
     Q_UNUSED( ptemp );
-    Q_UNUSED( s );
-    //qWarning( "--- phi --- global_init" );
-
     PHIParent *parent=PHIParent::instance();
+    apr_pool_cleanup_register( p, static_cast<void*>(parent), cleanupPHIParent, apr_pool_cleanup_null );
     /** @todo Make mime type filename configurable. */
     PHI::createMimeTypes( QStringLiteral( "dummy" ) );
-    apr_pool_cleanup_register( p, static_cast<void*>(parent), cleanupPHIParent, apr_pool_cleanup_null );
-    QString err;
-    foreach ( err, parent->moduleLoadErrors() ) {
-        err.replace( '\n', ' ' );
+    QString tmp=QObject::tr( "Apache mod_phi v%1 loaded (libphis v%2)." )
+        .arg( PHIVERSION ).arg( PHIS::libVersion() );
+    PHI_SLOG_NOTICE(PHIRC_SUCCESS,__FILE__,__LINE__,tmp);
+    PHIRC rc=PHIRC_MODULE_LOAD_ERROR;
+    foreach ( tmp, parent->moduleLoadErrors() ) {
+        PHI_SLOG_ERR(rc,__FILE__,__LINE__,tmp);
+        PHI_SLOG_RC(rc);
     }
-
+    rc=PHIRC_MODULE_LOG;
+    foreach ( tmp, parent->loadedModules() ) {
+        PHI_SLOG_NOTICE(rc,__FILE__,__LINE__,tmp);
+        PHI_SLOG_RC(rc);
+    }
     return 0;
 }
 
