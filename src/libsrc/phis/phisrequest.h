@@ -89,6 +89,8 @@ public:
     inline QString serverHostname() const { return QString::fromUtf8( _keywords.value( KServerHostname ) ); }
     inline QString remoteIP() const { return _remoteIP.toString(); }
     inline QString localIP() const { return _localIP.toString(); }
+    inline QHostAddress localHostAddress() const { return _localIP; }
+    inline QHostAddress remoteHostAddress() const { return _remoteIP; }
     inline QString referer() const { return QString::fromUtf8( _headers.value( QByteArrayLiteral( "Referer" ) ) ); }
     inline QString agent() const { return QString::fromUtf8( _headers.value( QByteArrayLiteral( "User-Agent" ) ) ); }
     inline QString accept() const { return QString::fromUtf8( _headers.value( QByteArrayLiteral( "Accept" ) ) ); }

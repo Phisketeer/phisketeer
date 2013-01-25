@@ -1,4 +1,3 @@
-/*
 #    Copyright (C) 2010-2013  Marius B. Schumacher
 #    Copyright (C) 2011-2013  Phisys AG, Switzerland
 #    Copyright (C) 2012-2013  Phisketeer.org team
@@ -15,16 +14,9 @@
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-#include "phismodule.h"
 
-void PHISInterface::log( LogType lt, const char *file, int line, const QDateTime &dt, const QString &m ) const
-{
-    switch( lt ) {
-    case LTWarning: return _req->responseRec()->log( 0x04, file, line, dt, PHIRC_MODULE_LOG, m );
-    case LTCritical: return _req->responseRec()->log( 0x08, file, line, dt, PHIRC_MODULE_LOG, m );
-    case LTTrace: return _req->responseRec()->log( 0x01, file, line, dt, PHIRC_MODULE_LOG, m );
-    case LTDebug: return _req->responseRec()->log( 0x10, file, line, dt, PHIRC_MODULE_LOG, m );
-    case LTUser: return _req->responseRec()->log( 0x20, file, line, dt, PHIRC_MODULE_LOG, m );
-    }
-}
+include( ../module.pri )
+HEADERS += phissystem.h
+SOURCES += phissystem.cpp
+TARGET = phissystem
+OTHER_FILES = phissystem.json

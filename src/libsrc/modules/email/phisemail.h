@@ -11,10 +11,10 @@ class PHISEmailModule : public PHISModule
     Q_CLASSINFO( "Url", "http://www.phisketeer.org" )
     Q_CLASSINFO( "Version", "1.0" )
     Q_CLASSINFO( "License", "LGPL" )
-    Q_CLASSINFO( "Copyright", "2013 Phisys AG" )
+    Q_CLASSINFO( "Copyright", "2013 Phisys AG, 2013 Phisketeer Team" )
 
 public:
-    virtual PHISScriptObj* create( const QString &key, PHISInterface* ) const;
+    virtual PHISScriptObj* create( const QString &key, const PHISInterface* ) const;
     virtual QStringList keys() const;
 };
 
@@ -31,9 +31,11 @@ class PHISEmailObj : public PHISScriptObj
     Q_PROPERTY( QString lasterror READ lastError )
     Q_PROPERTY( QString data READ data WRITE setData )
     Q_PROPERTY( QString contenttype READ contentType WRITE setContentType )
+    Q_PROPERTY( quint16 port READ port WRITE setPort )
+    Q_PROPERTY( qint32 timeout READ timeout WRITE setTimeout )
 
 public:
-    explicit PHISEmailObj( PHISInterface* );
+    explicit PHISEmailObj( const PHISInterface* );
     virtual ~PHISEmailObj();
 
 public slots:
@@ -85,15 +87,22 @@ private:
     QTcpSocket *_socket;
 };
 
-inline PHISScriptObj* PHISEmailModule::create( const QString &key, PHISInterface *interface ) const
+inline PHISScriptObj* PHISEmailModule::create( const QString &key, const PHISInterface *interface ) const
 {
-    if ( key==QStringLiteral( "email" ) ) return new PHISEmailObj( interface );
+    if ( key==QLatin1String( "email" ) ) return new PHISEmailObj( interface );
     return 0;
 }
 
 inline QStringList PHISEmailModule::keys() const
 {
     return QStringList() << QStringLiteral( "email" );
+}
+
+inline qint16 PHISEmailObj::disconnect()
+{
+    QTextStream t( _socket );
+    t.setCodec( "utf-8" );
+    return disconnectFromServer( 0, t );
 }
 
 #endif // PHISEMAIL_H

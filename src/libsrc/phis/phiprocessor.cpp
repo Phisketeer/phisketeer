@@ -805,16 +805,16 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
     engine.globalObject().setProperty( "document", doc );
     PHISReplyObj *replyObj(0);
-    if ( p->scriptModules()!=PHIPage::SNone ) {
-        PHISServerObj *serverObj(0);
-        PHISSystemObj *systemObj(0);
-        PHISFileObj *fileObj(0);
+    if ( p->scriptModules()!=PHIPage::SNone ) { // keep old module style working
+        //PHISServerObj *serverObj(0);
+        //PHISSystemObj *systemObj(0);
+        //PHISFileObj *fileObj(0);
         PHISRequestObj *requestObj(0);
         PHISSqlObj *sqlObj(0);
         //PHISEmailObj *emailObj(0);
-        if ( p->scriptModules() & PHIPage::SServer ) serverObj=new PHISServerObj( _req, &engine, _resp );
-        if ( p->scriptModules() & PHIPage::SSystem ) systemObj=new PHISSystemObj( &engine, _resp );
-        if ( p->scriptModules() & PHIPage::SFile ) fileObj=new PHISFileObj( &engine, _resp );
+        //if ( p->scriptModules() & PHIPage::SServer ) serverObj=new PHISServerObj( _req, &engine );
+        //if ( p->scriptModules() & PHIPage::SSystem ) systemObj=new PHISSystemObj( &engine, _resp );
+        //if ( p->scriptModules() & PHIPage::SFile ) fileObj=new PHISFileObj( &engine, _resp );
         if ( p->scriptModules() & PHIPage::SRequest ) requestObj=new PHISRequestObj( _req, &engine, _resp );
         if ( p->scriptModules() & PHIPage::SDatabase ) sqlObj=new PHISSqlObj( _db, &engine, _resp, p->attributes() & PHIPage::ADatabase );
         if ( p->scriptModules() & PHIPage::SReply ) replyObj=new PHISReplyObj( &engine, _resp );
@@ -822,17 +822,20 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
         PHISModuleFactory *factory=PHISModuleFactory::instance();
         QMap <PHIPage::ScriptModule, QString> smmap;
         smmap.insert( PHIPage::SEmail, QStringLiteral( "email" ) );
+        smmap.insert( PHIPage::SSystem, QStringLiteral( "system" ) );
+        smmap.insert( PHIPage::SServer, QStringLiteral( "server" ) );
+        smmap.insert( PHIPage::SFile, QStringLiteral( "file" ) );
         factory->lock(); //locking for read
         foreach( PHIPage::ScriptModule sm, smmap.keys() ) {
             PHISModule *mod(0);
             if ( p->scriptModules() & sm ) mod=factory->module( smmap.value( sm ) );
             if ( !mod ) continue;
             QObject *obj=mod->create( smmap.value( sm ), new PHISInterface( _req, &engine ) );
-            if ( obj && !obj->objectName().isEmpty() ) {
-                doc=engine.newQObject( obj, QScriptEngine::QtOwnership,
+            if ( obj ) {
+                doc=engine.newQObject( obj, QScriptEngine::ScriptOwnership,
                     QScriptEngine::PreferExistingWrapperObject |
-                    QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
-                engine.globalObject().setProperty( obj->objectName(), doc );
+                    QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater );
+                engine.globalObject().setProperty( smmap.value( sm ), doc );
                 _resp->log( PHILOGWARN, PHIRC_MODULE_DEPRECATED,
                     QObject::tr( "The page '%1' is using the old module interface.\n"
                     "Please switch to the dynamic module loading by using\n\"loadModule('%2');\""

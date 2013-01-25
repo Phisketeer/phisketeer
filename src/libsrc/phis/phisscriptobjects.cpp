@@ -31,8 +31,8 @@
 #include "phismodule.h"
 #include "phismodulefactory.h"
 
-#define PHISSCRIPTEXTENSION QScriptEngine::QtOwnership, QScriptEngine::PreferExistingWrapperObject |\
-    QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater
+#define PHISSCRIPTEXTENSION QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject |\
+    QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater
 
 static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
 {
@@ -77,34 +77,13 @@ void PHISGlobalScriptObj::loadModule( const QString &m )
     }
     QObject *obj=mod->create( m, new PHISInterface( _req, engine ) );
     if ( obj ) {
-        QScriptValue sv=engine->newQObject( obj, QScriptEngine::QtOwnership,
-            QScriptEngine::PreferExistingWrapperObject |
-            QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
+        QScriptValue sv=engine->newQObject( obj, PHISSCRIPTEXTENSION );
         engine->globalObject().setProperty( m, sv );
     } else {
         QString tmp=QObject::tr( "Could not create module '%1'." ).arg( m );
         _req->responseRec()->log( PHILOGERR, PHIRC_MODULE_LOAD_ERROR, tmp );
     }
     factory->unlock();
-}
-
-PHISServerObj::PHISServerObj( const PHISRequest *req, QScriptEngine *engine, PHIResponseRec *resp )
-    : QObject( engine ), _req( req ), _resp( resp )
-{
-    qDebug( "PHISServerObj::PHISServerObj()" );
-    setObjectName( "server" );
-    QScriptValue server=engine->newQObject( this, PHISSCRIPTEXTENSION );
-    engine->globalObject().setProperty( "server", server );
-}
-
-PHISServerObj::~PHISServerObj()
-{
-    qDebug( "PHISServerObj::~PHISServerObj()" );
-}
-
-void PHISServerObj::log( const QString &t )
-{
-    _resp->log( PHILOGUSER, PHIRC_USER, t );
 }
 
 PHISRequestObj::PHISRequestObj( const PHISRequest *req, QScriptEngine *engine, PHIResponseRec *resp )
@@ -293,152 +272,6 @@ void PHISReplyObj::setCookie( const QString &name, const QString &value, int max
     const QString &path, const QString &domain, bool secure, bool discard )
 {
     _resp->setCookie( name, value, maxage, path, domain, secure, discard );
-}
-
-PHISSystemObj::PHISSystemObj( QScriptEngine *engine, PHIResponseRec *resp )
-    : QObject( engine ), _resp( resp ), _exitCode( 0 )
-{
-    qDebug( "PHISSystemObj::PHISSystemObj()" );
-    setObjectName( "system" );
-    QScriptValue system=engine->newQObject( this, PHISSCRIPTEXTENSION );
-    engine->globalObject().setProperty( "system", system );
-}
-
-PHISSystemObj::~PHISSystemObj()
-{
-    qDebug( "PHISSystemObj::~PHISSystemObj()" );
-}
-
-void PHISSystemObj::log( const QString &t )
-{
-    _resp->log( PHILOGUSER, PHIRC_USER, t );
-}
-
-QString PHISSystemObj::toLocaleFormat( const QString &s )
-{
-    // translate de-de -> de_DE
-    if ( s.size()==2 ) return s;
-    if ( s.size()==5 ) {
-        QString n=s.left( 3 );
-        n.replace( 2, 1, '_' );
-        n.append( s.right( 2 ).toUpper() );
-        return n;
-    }
-    return s.left( 2 );
-}
-
-QString PHISSystemObj::exec( const QString &name, const QString &a, const QString &codec )
-{
-    QStringList args=a.split( QRegExp( "\\s" ), QString::SkipEmptyParts );
-    return PHISSystemObj::exec( name, args, codec );
-}
-
-QString PHISSystemObj::exec(const QString &name, const QStringList &args, const QString &codecName )
-{
-    QProcess proc;
-    _lastError="";
-    proc.start( name, args, QIODevice::ReadOnly );
-    if ( !proc.waitForStarted() ) {
-        _resp->log( PHILOGERR, PHIRC_OBJ_ACCESS_ERROR,
-            tr( "Could not start process '%1' with arguments '%2'." )
-            .arg( name ).arg( args.join( " " ) )
-            +PHI::errorText().arg( proc.errorString() ) );
-        _lastError=proc.errorString();
-        _exitCode=proc.exitCode();
-        return QString();
-    }
-    if ( !proc.waitForFinished() ) {
-        _resp->log( PHILOGERR, PHIRC_OBJ_ACCESS_ERROR,
-            tr( "Could not finish process '%1' with arguments '%2'.")
-            .arg( name ).arg( args.join( " " ) )
-            +PHI::errorText().arg( proc.errorString() ) );
-        _lastError=proc.errorString();
-        _exitCode=proc.exitCode();
-        return QString();
-    }
-    if ( proc.exitCode() ) {
-        _resp->log( PHILOGWARN, PHIRC_OBJ_ACCESS_ERROR,
-            tr( "Process '%1' exit code is '%2'.")
-            .arg( name ).arg( proc.exitCode() )
-            +PHI::errorText().arg( QString::fromUtf8( proc.readAllStandardError() ) ) );
-        _lastError=proc.errorString();
-        _exitCode=proc.exitCode();
-    }
-    QTextCodec *codec=QTextCodec::codecForName( codecName.toUtf8() );
-    if ( !codec ) codec=QTextCodec::codecForLocale();
-    return codec->toUnicode( proc.readAllStandardOutput() );
-}
-
-PHISFileObj::PHISFileObj( QScriptEngine *engine, PHIResponseRec *resp )
-    : QObject( engine ), _resp( resp ), _handle( 0 )
-{
-    qDebug( "PHISFileObj::PHISFileObj()" );
-    setObjectName( "file" );
-    QScriptValue file=engine->newQObject( this, PHISSCRIPTEXTENSION );
-    engine->globalObject().setProperty( "file", file );
-}
-
-PHISFileObj::~PHISFileObj()
-{
-    QFile *f;
-    foreach( f, _files ) delete f;
-    // _files.clear();
-    qDebug( "PHISFileObj::~PHISFileObj()" );
-}
-
-int PHISFileObj::open( const QString &fn, int mode ) {
-    QFile *f=new QFile( fn );
-    f->setPermissions( QFile::ReadUser | QFile::WriteUser | QFile::ReadOwner
-        | QFile::WriteOwner | QFile::ReadGroup );
-    if ( !f->open( static_cast<QIODevice::OpenMode>(mode) ) ) {
-        _error=f->errorString();
-        _resp->log( PHILOGWARN, PHIRC_IO_FILE_ACCESS_ERROR, _error );
-        delete f;
-        return 0;
-    }
-    _files.insert( ++_handle, f );
-    return _handle;
-}
-
-QString PHISFileObj::read( int handle, const QString &codecName ) const
-{
-    if ( !_files.contains( handle ) ) {
-        _error=tr( "File handle '%1' not found." ).arg( handle );
-        return QString();
-    }
-    QTextCodec *codec=QTextCodec::codecForName( codecName.toUtf8() );
-    if ( !codec ) codec=QTextCodec::codecForLocale();
-    try {
-        QByteArray data=_files.value( handle )->readAll();
-        QString tmp=codec->toUnicode( data );
-        return tmp;
-    } catch ( std::bad_alloc& ) {
-        _error=tr( "Could not read data for handle '%1' - out of memory." ).arg( handle );
-        _resp->log( PHILOGERR, PHIRC_OUT_OF_MEMORY, _error );
-    }
-    return QString();
-}
-
-bool PHISFileObj::write( int handle, const QString &data, const QString &codecName )
-{
-    if ( !_files.contains( handle ) ) {
-        _error=tr( "File handle '%1' not found." ).arg( handle );
-        return false;
-    }
-    QTextCodec *codec=QTextCodec::codecForName( codecName.toUtf8() );
-    if ( !codec ) codec=QTextCodec::codecForLocale();
-    try {
-        QByteArray arr=codec->fromUnicode( data );
-        if ( _files.value( handle )->write( arr )==-1 ) {
-            _resp->log( PHILOGWARN, PHIRC_IO_FILE_ACCESS_ERROR, error( handle ) );
-            return false;
-        }
-    } catch ( std::bad_alloc& ) {
-        _resp->log( PHILOGERR, PHIRC_OUT_OF_MEMORY, _error );
-        _error=tr( "Could not write data for handle '%1' - out of memory." ).arg( handle );
-        return false;
-    }
-    return true;
 }
 
 PHISSqlObj::PHISSqlObj( const QSqlDatabase &db, QScriptEngine *engine, PHIResponseRec *resp,

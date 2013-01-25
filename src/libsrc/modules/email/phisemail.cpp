@@ -1,11 +1,10 @@
 #include <QHostInfo>
 #include "phisemail.h"
 
-PHISEmailObj::PHISEmailObj( PHISInterface *phisif )
+PHISEmailObj::PHISEmailObj( const PHISInterface *phisif )
     : PHISScriptObj( phisif ), _timeout( 20000 ), _port( 25 ), _socket( 0 )
 {
     qDebug( "PHISEmailObj::PHISEmailObj()" );
-    setObjectName( QStringLiteral( "email" ) );
     _from=interface()->admin();
     _contentType=QStringLiteral( "text/plain; charset=utf-8" );
     _socket=new QTcpSocket( this );
@@ -34,13 +33,6 @@ qint16 PHISEmailObj::disconnectFromServer( qint16 err, QTextStream &t )
     }
     _socket->close();
     return err;
-}
-
-qint16 PHISEmailObj::disconnect()
-{
-    QTextStream t( _socket );
-    t.setCodec( "utf-8" );
-    return disconnectFromServer( 0, t );
 }
 
 qint16 PHISEmailObj::connect()
@@ -155,7 +147,7 @@ qint16 PHISEmailObj::send()
 qint16 PHISEmailObj::sendTo( const QString &to, const QString &subject, const QString &body )
 {
     if ( !_socket->isOpen() ) {
-        _lastError=tr( "Could not sendTo(): not connected to SMTP server '%1'." ).arg( _server );
+        _lastError=tr( "Could not execute sendTo(): not connected to SMTP server '%1'." ).arg( _server );
         PHIS_ERROR( _lastError );
         return 1;
     }
@@ -252,9 +244,8 @@ qint16 PHISEmailObj::waitForMessageWritten( QTextStream &t, const QString &to,
     if ( subjectHeader.isEmpty() ) subjectHeader=_subject;
     QString body=data;
     if ( body.isEmpty() ) body=_data;
-
-    QString d;
     QString nl=QStringLiteral( "\r\n" );
+    QString d;
     d.reserve( body.size()+200 );
     d.append( QStringLiteral( "To: " )+toHeader+nl+QStringLiteral( "From: " )+fromHeader+nl );
     if ( !subjectHeader.isEmpty() ) d.append( QStringLiteral( "Subject: " )+subjectHeader+nl );

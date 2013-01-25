@@ -60,6 +60,5 @@ win32 {
     LIBS += "C:/Program Files (x86)/Apache Software Foundation/Apache2.2/lib/libhttpd.lib"
     LIBS += "C:/Program Files (x86)/Apache Software Foundation/Apache2.2/lib/libapr-1.lib"
     LIBS += "C:/Program Files (x86)/Apache Software Foundation/Apache2.2/lib/libaprutil-1.lib"
-    QMAKE_CLEAN += mod_phi_resource.rc mod_phid_resource.rc
     QMAKE_DISTCLEAN += mod_phi_resource.rc mod_phid_resource.rc
 }
