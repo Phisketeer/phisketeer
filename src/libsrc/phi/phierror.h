@@ -56,6 +56,7 @@ public:
         return QT_TR_NOOP( "Unknown reason code." );
     }
     inline QString longDesc( PHIRC rc ) const { return _ll[rc]; }
+    static void printConsole( const QString &s );
 
 protected:
     /** Initializes the error strings.

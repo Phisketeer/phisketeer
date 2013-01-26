@@ -804,20 +804,20 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
         QScriptEngine::PreferExistingWrapperObject |
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
     engine.globalObject().setProperty( "document", doc );
-    PHISReplyObj *replyObj(0);
+    //PHISReplyObj *replyObj(0);
     if ( p->scriptModules()!=PHIPage::SNone ) { // keep old module style working
         //PHISServerObj *serverObj(0);
         //PHISSystemObj *systemObj(0);
         //PHISFileObj *fileObj(0);
-        PHISRequestObj *requestObj(0);
+        //PHISRequestObj *requestObj(0);
         PHISSqlObj *sqlObj(0);
         //PHISEmailObj *emailObj(0);
         //if ( p->scriptModules() & PHIPage::SServer ) serverObj=new PHISServerObj( _req, &engine );
         //if ( p->scriptModules() & PHIPage::SSystem ) systemObj=new PHISSystemObj( &engine, _resp );
         //if ( p->scriptModules() & PHIPage::SFile ) fileObj=new PHISFileObj( &engine, _resp );
-        if ( p->scriptModules() & PHIPage::SRequest ) requestObj=new PHISRequestObj( _req, &engine, _resp );
+        //if ( p->scriptModules() & PHIPage::SRequest ) requestObj=new PHISRequestObj( _req, &engine, _resp );
         if ( p->scriptModules() & PHIPage::SDatabase ) sqlObj=new PHISSqlObj( _db, &engine, _resp, p->attributes() & PHIPage::ADatabase );
-        if ( p->scriptModules() & PHIPage::SReply ) replyObj=new PHISReplyObj( &engine, _resp );
+        //if ( p->scriptModules() & PHIPage::SReply ) replyObj=new PHISReplyObj( &engine, _resp );
         //if ( p->scriptModules() & PHIPage::SEmail ) emailObj=new PHISEmailObj( _req, &engine, _resp );
         PHISModuleFactory *factory=PHISModuleFactory::instance();
         QMap <PHIPage::ScriptModule, QString> smmap;
@@ -825,21 +825,22 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
         smmap.insert( PHIPage::SSystem, QStringLiteral( "system" ) );
         smmap.insert( PHIPage::SServer, QStringLiteral( "server" ) );
         smmap.insert( PHIPage::SFile, QStringLiteral( "file" ) );
+        smmap.insert( PHIPage::SRequest, QStringLiteral( "request" ) );
+        smmap.insert( PHIPage::SReply, QStringLiteral( "reply" ) );
+        QString key;
         factory->lock(); //locking for read
         foreach( PHIPage::ScriptModule sm, smmap.keys() ) {
             PHISModule *mod(0);
-            if ( p->scriptModules() & sm ) mod=factory->module( smmap.value( sm ) );
+            key=smmap.value( sm );
+            if ( p->scriptModules() & sm ) mod=factory->module( key );
             if ( !mod ) continue;
-            QObject *obj=mod->create( smmap.value( sm ), new PHISInterface( _req, &engine ) );
+            PHISScriptObj *obj=mod->create( key, new PHISInterface( _req, &engine ) );
             if ( obj ) {
-                doc=engine.newQObject( obj, QScriptEngine::ScriptOwnership,
-                    QScriptEngine::PreferExistingWrapperObject |
-                    QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater );
-                engine.globalObject().setProperty( smmap.value( sm ), doc );
+                obj->initObject( key );
                 _resp->log( PHILOGWARN, PHIRC_MODULE_DEPRECATED,
                     QObject::tr( "The page '%1' is using the old module interface.\n"
                     "Please switch to the dynamic module loading by using\n\"loadModule('%2');\""
-                    "\nin your server script." ).arg( p->id() ).arg( smmap.value( sm ) ) );
+                    " in your server script." ).arg( p->id() ).arg( key ) );
             } else {
                 QString tmp=QObject::tr( "Could not load module '%1'." ).arg( smmap.value( sm ) );
                 _resp->log( PHILOGCRIT, PHIRC_MODULE_LOAD_ERROR, tmp );
@@ -853,13 +854,13 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
             QStringList list=engine.uncaughtExceptionBacktrace();
             QString tmp=QObject::tr( "Line: %1" ).arg( engine.uncaughtExceptionLineNumber() )+PHI::nl()+doc.toString();
             tmp+=PHI::nl()+PHI::nl()+list.join( PHI::nl() );
-            _resp->log( PHILOGWARN, PHIRC_SCRIPT_PARSE_ERROR, tmp );
+            _resp->log( PHILOGERR, PHIRC_SCRIPT_PARSE_ERROR, tmp );
         }
     //} else {
     //    _resp->log( PHILOGWARN, PHIRC_SCRIPT_PARSE_ERROR, QObject::tr( "Could not evaluate serverscript." ) );
     //}
-    if ( replyObj ) {
-        if ( replyObj->hasOwnContent() ) {
+    if ( _resp->contentLength() ) {
+        //if ( replyObj->hasOwnContent() ) {
             qDebug( "%s %s %lld", _resp->body().data(), _resp->contentType().data(), _resp->contentLength() );
             if ( _resp->contentType().isEmpty() ) {
                 QString tmp=QObject::tr( "Reply content type not set." );
@@ -867,7 +868,7 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
                 _resp->error( PHILOGERR, PHIRC_HTTP_INTERNAL_SERVER_ERROR, tmp );
             }
             return true; // user sets own content to send back to the client
-        }
+        //}
     }
     return false; // normal processing of the page
 }

@@ -34,6 +34,13 @@
 #define PHISSCRIPTEXTENSION QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject |\
     QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater
 
+static QScriptValue print( QScriptContext *ctx, QScriptEngine* )
+{
+    QScriptValue s=ctx->argument( 0 );
+    PHIError::printConsole( s.toString() );
+    return QScriptValue();
+}
+
 static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
 {
     QScriptValue id=ctx->argument( 0 );
@@ -47,231 +54,47 @@ static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
     return QScriptValue( QScriptValue::UndefinedValue );
 }
 
-PHISGlobalScriptObj::PHISGlobalScriptObj( const PHISRequest *req, QScriptEngine *engine )
-    : QObject( engine ), _req( req )
+static QScriptValue loadModule( QScriptContext *ctx, QScriptEngine *engine, void *req )
 {
-    qWarning( "PHISGlobalScriptObj::PHISGlobalScriptObj()" );
-    QScriptValue sv=engine->newQObject( this, PHISSCRIPTEXTENSION );
-    engine->setGlobalObject( sv );
-    sv=engine->newFunction( getItemFunc );
-    engine->globalObject().setProperty( "$", sv );
-}
-
-PHISGlobalScriptObj::~PHISGlobalScriptObj()
-{
-    qWarning( "PHISGlobalScriptObj::~PHISGlobalScriptObj()" );
-}
-
-void PHISGlobalScriptObj::loadModule( const QString &m )
-{
-    QScriptEngine *engine=qobject_cast<QScriptEngine*>(parent());
-    Q_ASSERT( engine );
+    if ( !ctx->argument( 0 ).isString() ) return QScriptValue( false );
+    const PHISRequest *_req=static_cast<const PHISRequest*>(req);
+    Q_ASSERT(_req);
+    QString m=ctx->argument( 0 ).toString();
     PHISModuleFactory *factory=PHISModuleFactory::instance();
     factory->lock(); //locking for read
     PHISModule *mod=factory->module( m );
     if ( !mod ) {
         factory->unlock();
         _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_NOT_FOUND_ERROR,
-            tr( "Could not find requested module '%1'." ).arg( m ) );
-        return;
+            QObject::tr( "Could not find requested module '%1'." ).arg( m ) );
+        return QScriptValue( false );
     }
-    QObject *obj=mod->create( m, new PHISInterface( _req, engine ) );
+    PHISScriptObj *obj=mod->create( m, new PHISInterface( _req, engine ) );
     if ( obj ) {
-        QScriptValue sv=engine->newQObject( obj, PHISSCRIPTEXTENSION );
-        engine->globalObject().setProperty( m, sv );
+        obj->initObject( m );
+        factory->unlock();
+        return QScriptValue( true );
     } else {
         QString tmp=QObject::tr( "Could not create module '%1'." ).arg( m );
         _req->responseRec()->log( PHILOGERR, PHIRC_MODULE_LOAD_ERROR, tmp );
     }
     factory->unlock();
+    return QScriptValue( false );
 }
 
-PHISRequestObj::PHISRequestObj( const PHISRequest *req, QScriptEngine *engine, PHIResponseRec *resp )
-    : QObject( engine ), _req( req ), _resp( resp )
+PHISGlobalScriptObj::PHISGlobalScriptObj( const PHISRequest *req, QScriptEngine *engine )
+    : QObject( engine )
 {
-    qDebug( "PHISRequestObj::PHISRequestObj()" );
-    setObjectName( "request" );
-    QScriptValue request=engine->newQObject( this, PHISSCRIPTEXTENSION );
-    engine->globalObject().setProperty( "request", request );
-
-    QScriptValue arr=engine->newArray();
-    QStringList values, keys;
-    QString value, key;
-    int i=0, l;
-
-    QScriptValue post=engine->newObject();
-    QScriptValue subarr;
-    request.setProperty( "post", post );
-    keys=_req->postKeys();
-    foreach( key, keys ) {
-        values=req->postValues( key );
-        subarr=engine->newArray();
-        l=0;
-        /*
-        foreach ( value, values ) subarr.setProperty( l++, value, QScriptValue::ReadOnly );
-        post.setProperty( QString::fromUtf8( key ), subarr, QScriptValue::ReadOnly );
-        arr.setProperty( i++, QString::fromUtf8( key ), QScriptValue::ReadOnly );
-        */
-        foreach ( value, values ) subarr.setProperty( l++, value );
-        post.setProperty( key, subarr );
-        arr.setProperty( i++, key );
-    }
-    //post.setProperty( "properties", arr, QScriptValue::ReadOnly );
-    post.setProperty( "properties", arr );
-
-    QScriptValue get=engine->newObject();
-    request.setProperty( "get", get );
-    arr=engine->newArray();
-    i=0;
-    keys=_req->getKeys();
-    foreach( key, keys ) {
-        values=_req->getValues( key );
-        subarr=engine->newArray();
-        l=0;
-        /*
-        foreach ( value, values ) subarr.setProperty( l++, value, QScriptValue::ReadOnly );
-        get.setProperty( QString::fromUtf8( key ), subarr, QScriptValue::ReadOnly );
-        arr.setProperty( i++, QString::fromUtf8( key ), QScriptValue::ReadOnly );
-        */
-        foreach ( value, values ) subarr.setProperty( l++, value );
-        get.setProperty( key, subarr );
-        arr.setProperty( i++, key );
-    }
-    //get.setProperty( "properties", arr, QScriptValue::ReadOnly );
-    get.setProperty( "properties", arr );
-
-    QScriptValue cookie=engine->newObject();
-    request.setProperty( "cookie", cookie );
-    arr=engine->newArray();
-    i=0;
-    keys=_req->cookieKeys();
-    foreach( key, keys ) {
-        value=_req->cookieValue( key );
-        //cookie.setProperty( QString::fromUtf8( key ), value, QScriptValue::ReadOnly );
-        //arr.setProperty( i++, QString::fromUtf8( key ), QScriptValue::ReadOnly );
-        cookie.setProperty( key, value );
-        arr.setProperty( i++, key );
-    }
-    //cookie.setProperty( "properties", arr, QScriptValue::ReadOnly );
-    cookie.setProperty( "properties", arr );
-
-    QScriptValue file=engine->newObject();
-    request.setProperty( "file", file );
-    arr=engine->newArray();
-    i=0;
-    keys=_req->fileKeys();
-    foreach( key, keys ) {
-        const QString fileName=_req->fileName( key );
-        const QString tmpFile=_req->tmpFile( key );
-        int size=_req->fileSize( key ).toInt();
-        QScriptValue id=engine->newObject();
-        file.setProperty( key, id );
-        /*
-        id.setProperty( "filename", fileName, QScriptValue::ReadOnly );
-        id.setProperty( "tmpfile", tmpFile, QScriptValue::ReadOnly );
-        id.setProperty( "size", size, QScriptValue::ReadOnly );
-        arr.setProperty( i++, QString::fromUtf8( key ), QScriptValue::ReadOnly );
-        */
-        id.setProperty( "filename", fileName );
-        id.setProperty( "tmpfile", tmpFile );
-        id.setProperty( "size", size );
-        arr.setProperty( i++, key );
-    }
-    //file.setProperty( "properties", arr, QScriptValue::ReadOnly );
-    file.setProperty( "properties", arr );
-
-    QScriptValue header=engine->newObject();
-    request.setProperty( "header", header );
-    arr=engine->newArray();
-    i=0;
-    keys=_req->headerKeys();
-    foreach( key, keys ) {
-        value=_req->headerValue( key );
-        //header.setProperty( QString::fromUtf8( key ), value, QScriptValue::ReadOnly );
-        //arr.setProperty( i++, QString::fromUtf8( key ), QScriptValue::ReadOnly );
-        header.setProperty( key, value );
-        arr.setProperty( i++, key );
-    }
-    //header.setProperty( "properties", arr, QScriptValue::ReadOnly );
-    header.setProperty( "properties", arr );
+    qWarning( "PHISGlobalScriptObj::PHISGlobalScriptObj()" );
+    QScriptValue go=engine->globalObject();
+    go.setProperty( "$", engine->newFunction( getItemFunc, 1 ) );
+    go.setProperty( "loadModule", engine->newFunction( loadModule, (void*)req ) );
+    go.setProperty( "print", engine->newFunction( print, 1 ) );
 }
 
-PHISRequestObj::~PHISRequestObj()
+PHISGlobalScriptObj::~PHISGlobalScriptObj()
 {
-    qDebug( "PHISRequestObj::~PHISRequestObj()" );
-}
-
-PHISReplyObj::PHISReplyObj( QScriptEngine *engine, PHIResponseRec *resp )
-    : QObject( engine ), _ownContent( false ), _charset( "utf-8" ), _resp( resp )
-{
-    qDebug( "PHISReplyObj::PHISReplyObj()" );
-    _contentType=QString::fromLatin1( _resp->contentType() );
-    setObjectName( "reply" );
-    QScriptValue reply=engine->newQObject( this, PHISSCRIPTEXTENSION );
-    engine->globalObject().setProperty( "reply", reply );
-}
-
-PHISReplyObj::~PHISReplyObj()
-{
-    qDebug( "PHISReplyObj::~PHISReplyObj()" );
-}
-
-void PHISReplyObj::setContent( const QString &c )
-{
-    if ( c.isEmpty() ) {
-        _ownContent=false;
-        _resp->setContentLength( 0 );
-        _resp->setBody( QByteArray() );
-        return;
-    }
-    QTextCodec *codec=QTextCodec::codecForName( _charset.toUtf8() );
-    if ( !codec ) {
-        _resp->log( PHILOGWARN, PHIRC_LOCALE_ERROR,
-            tr( "Unknown codec '%1' - using standard locale." ).arg( _charset ) );
-        codec=QTextCodec::codecForLocale();
-    }
-    _resp->setBody( codec->fromUnicode( c ) );
-    _resp->setContentLength( _resp->body().length() );
-    _ownContent=true;
-    _content=c;
-    _resp->setFileName( QString() );
-}
-
-void PHISReplyObj::setContentType( const QString &t )
-{
-    _resp->setContentType( t.toLatin1() );
-    _contentType=t;
-}
-
-void PHISReplyObj::setCharset( const QString &charset )
-{
-    QTextCodec *codec=QTextCodec::codecForName( charset.toUtf8() );
-    if ( !codec ) {
-        _resp->log( PHILOGWARN, PHIRC_LOCALE_ERROR,
-            tr( "Unknown codec '%1' - using standard locale." ).arg( charset ) );
-        codec=QTextCodec::codecForLocale();
-    }
-    _resp->setBody( codec->fromUnicode( _content ) );
-    _resp->setContentLength( _resp->body().length() );
-    _charset=charset;
-}
-
-void PHISReplyObj::setFileName( const QString &f )
-{
-    _resp->setFileName( f );
-    _fileName=f;
-}
-
-void PHISReplyObj::setCookie( const QString &name, const QString &value, const QDateTime &expires,
-    const QString &path, const QString &domain, bool secure, bool discard )
-{
-    _resp->setCookie( name, value, expires, path, domain, secure, discard );
-}
-
-void PHISReplyObj::setCookie( const QString &name, const QString &value, int maxage,
-    const QString &path, const QString &domain, bool secure, bool discard )
-{
-    _resp->setCookie( name, value, maxage, path, domain, secure, discard );
+    qWarning( "PHISGlobalScriptObj::~PHISGlobalScriptObj()" );
 }
 
 PHISSqlObj::PHISSqlObj( const QSqlDatabase &db, QScriptEngine *engine, PHIResponseRec *resp,

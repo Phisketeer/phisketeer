@@ -37,7 +37,7 @@ class PHIEXPORT PHIPageMenuEntry
 public:
     enum Option { None=0x0, SubMenu=0x1, Checkable=0x2, Checked=0x4, Disabled=0x8 };
 #ifdef PHIDEBUG
-    Q_DECLARE_FLAGS( Options, Option ); // quint8
+    Q_DECLARE_FLAGS( Options, Option ) // quint8
 #else
     typedef quint8 Options;
 #endif

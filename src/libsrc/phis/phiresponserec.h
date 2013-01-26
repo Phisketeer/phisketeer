@@ -105,4 +105,10 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS( PHIResponseRec::Options )
 
+inline void PHIResponseRec::setCookie( const QString &name, const QString &value, const QDateTime &expires,
+    const QString &path, const QString &domain, bool secure, bool discard )
+{
+    setCookie( name, value, QDateTime::currentDateTime().secsTo( expires ), path, domain, secure, discard );
+}
+
 #endif // PHIRESPONSEREC_H

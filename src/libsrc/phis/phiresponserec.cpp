@@ -61,16 +61,11 @@ QByteArray PHIResponseRec::timeEncoded( const QDateTime &dt ) const
 {
     QLocale locale( QLocale::C );
     QByteArray arr=locale.dayName( dt.toUTC().date().dayOfWeek(),
-        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( ", dd " ).toLatin1()
+        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( QStringLiteral( ", dd " ) ).toLatin1()
         +locale.monthName( dt.toUTC().date().month(),
-        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( " yyyy HH:mm:ss" ).toLatin1()+" GMT";
+        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( QStringLiteral( " yyyy HH:mm:ss" ) )
+        .toLatin1()+" GMT";
     return arr;
-}
-
-void PHIResponseRec::setCookie( const QString &name, const QString &value, const QDateTime &expires,
-    const QString &path, const QString &domain, bool secure, bool discard )
-{
-    setCookie( name, value, QDateTime::currentDateTime().secsTo( expires ), path, domain, secure, discard );
 }
 
 void PHIResponseRec::setCookie( const QString &name, const QString &value, int maxage, const QString &path,

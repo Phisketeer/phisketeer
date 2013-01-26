@@ -49,6 +49,7 @@ class PHIS_EXPORT PHISScriptObj : public QObject
 public:
     explicit PHISScriptObj( const PHISInterface *interface ) : _if( interface ) {}
     inline virtual quint32 version() const { return 0x00010000; }
+    virtual QScriptValue initObject( const QString &key );
 
 public slots:
     inline QStringList properties() const { return PHI::properties( this ); }
@@ -79,25 +80,29 @@ public:
     virtual QStringList keys() const=0;
 };
 
+class PHISInterfacePrivate
+{
+};
+
 class PHIS_EXPORT PHISInterface : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY( PHISInterface )
     friend class PHIProcessor;
     friend class PHISGlobalScriptObj;
+    friend QScriptValue loadModule( QScriptContext*, QScriptEngine*, void* );
 
 protected:
     explicit PHISInterface( const PHISRequest *req, QScriptEngine *engine )
-        : QObject( engine ), _req( req ) {}
+        : QObject( engine ), _req( req ), _d(0) {}
 
 private:
     const PHISRequest *_req;
+    PHISInterfacePrivate *_d;
 
 public:
     enum LogType { LTWarning, LTError, LTCritical, LTUser, LTDebug, LTTrace };
     inline QScriptEngine* scriptEngine() const { return qobject_cast<QScriptEngine*>(parent()); }
-    inline quint8 interfaceVersion() const { return 0x01; }
-
     void log( LogType, const char *file, int line, const QDateTime &dt, const QString &message ) const;
     void deprecated( const char *file, int line, const QDateTime &dt, const QString &message ) const;
     void setContentType( const QByteArray &contenttype ) const;
@@ -134,17 +139,41 @@ public:
     inline QDateTime started() const { return _req->started(); }
     inline QDateTime modified() const { return _req->lastModified(); }
     inline qint64 contentLength() const { return _req->contentLength(); }
-    inline QStringList languages() const { return _req->acceptedLanguages();  } // without qualifier ';q=x.x'
+    inline QStringList acceptedLanguages() const { return _req->acceptedLanguages();  } // without qualifier ';q=x.x'
     inline quint8 osType() const { return _req->osType(); }
-    inline void setOsType( quint8 type ) { _req->setOSType( type ); }
+    inline void setOsType( quint8 type ) const { _req->setOSType( type ); }
     inline quint8 agentId() const { return _req->agentId(); }
-    inline void setAgentId( quint8 aid ) { _req->setAgentId( aid ); }
+    inline void setAgentId( quint8 aid ) const { _req->setAgentId( aid ); }
     inline quint8 agentEngine() const { return _req->agentEngine(); }
-    inline void setAgentEngine( quint8 ae ) { _req->setAgentEngine( ae ); }
+    inline void setAgentEngine( quint8 ae ) const { _req->setAgentEngine( ae ); }
     inline qint32 engineMajorVersion() const { return _req->engineMajorVersion(); }
-    inline void setEngineMajorVersion( qint32 emv ) { _req->setEngineMajorVersion( emv ); }
+    inline void setEngineMajorVersion( qint32 emv ) const { _req->setEngineMajorVersion( emv ); }
     inline qint32 engineMinorVersion() const { return _req->engineMinorVersion(); }
-    inline void setEngineMinorVersion( qint32 emv ) { _req->setEngineMinorVersion( emv ); }
+    inline void setEngineMinorVersion( qint32 emv ) const { _req->setEngineMinorVersion( emv ); }
+    inline QStringList postKeys() const { return _req->postKeys(); }
+    inline QStringList postValues( const QString &key ) const { return _req->postValues( key ); }
+    inline QStringList getKeys() const { return _req->getKeys(); }
+    inline QStringList getValues( const QString &key ) const { return _req->getValues( key ); }
+    inline QStringList cookieKeys() const { return _req->cookieKeys(); }
+    inline QString cookieValue( const QString &key ) const { return _req->cookieValue( key ); }
+    inline QStringList uploadFileKeys() const { return _req->fileKeys(); }
+    inline QString uploadFileName( const QString &key ) const { return _req->fileName( key ); }
+    inline QString uploadTmpFile( const QString &key ) const { return _req->tmpFile( key ); }
+    inline qint64 uploadFileSize( const QString &key ) const { return _req->fileSize( key ).toLongLong(); }
+    inline QStringList headerKeys() const { return _req->headerKeys(); }
+    inline QString headerValue( const QString &key ) const { return _req->headerValue( key ); }
+    inline void setFileName( const QString &p ) const { _req->responseRec()->setFileName( p ); }
+    inline void setCookie( const QString &name, const QString &value, int maxage,
+        const QString &path, const QString &domain, bool secure, bool discard ) const {
+        _req->responseRec()->setCookie( name, value, maxage, path, domain, secure, discard );
+    }
+    inline void setCookie( const QString &name, const QString &value, const QDateTime &expires,
+        const QString &path, const QString &domain, bool secure, bool discard ) const {
+        _req->responseRec()->setCookie( name, value, expires, path, domain, secure, discard );
+    }
+    inline void setHttpHeader( const QString &name, const QString &value ) const {
+        _req->responseRec()->setHeader( name, value );
+    }
 };
 
 inline void PHISInterface::setContent( const QByteArray &content ) const {
@@ -158,6 +187,15 @@ inline void PHISInterface::setContentType( const QByteArray &contenttype ) const
 
 inline void PHISInterface::deprecated( const char* file, int line, const QDateTime &dt, const QString &m ) const {
     _req->responseRec()->log( 0x04, file, line, dt, PHIRC_MODULE_DEPRECATED, m );
+}
+
+inline QScriptValue PHISScriptObj::initObject( const QString &key )
+{
+    QScriptValue sv=interface()->scriptEngine()->newQObject( this,
+        QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject |
+        QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater );
+    interface()->scriptEngine()->globalObject().setProperty( key, sv );
+    return sv;
 }
 
 #endif // PHISMODULE_H

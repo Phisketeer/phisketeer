@@ -47,8 +47,14 @@ void PHIError::print( PHIRC rc, const QString &todo ) const
 {
     // QTextStream uses default codec
     QTextStream t( stderr, QIODevice::WriteOnly );
-    t << QString( "RC=%1 (%2)" ).arg( rc )
+    t << QString( "RC=%1 (%2) " ).arg( rc )
        .arg( QObject::tr( shortDesc( rc ) ) );
-    t << endl << QObject::tr( longDesc( rc ).toLatin1().data() );
+    t << QObject::tr( longDesc( rc ).toLatin1().data() );
     t << endl << QObject::tr( todo.toLatin1().data() ) << endl;
+}
+
+void PHIError::printConsole( const QString &s )
+{
+    QTextStream t( stderr, QIODevice::WriteOnly );
+    t << s << endl;
 }
