@@ -55,7 +55,6 @@ class PHISRequestObj : public PHISScriptObj
     Q_PROPERTY( QDateTime started READ started )
     Q_PROPERTY( QDateTime modified READ modified )
     Q_PROPERTY( QStringList languages READ languages )
-    Q_PROPERTY( QStringList properties READ properties )
     Q_PROPERTY( quint8 ostype WRITE setOsType READ osType )
     Q_PROPERTY( quint8 agentid WRITE setAgentId READ agentId )
     Q_PROPERTY( quint8 agentengine WRITE setAgentEngine READ agentEngine )

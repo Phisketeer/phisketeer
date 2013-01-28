@@ -24,6 +24,7 @@
 #include <QString>
 #include <QStringList>
 #include <QDateTime>
+#include <QSqlDatabase>
 #include "phisrequest.h"
 #include "phi.h"
 
@@ -93,16 +94,18 @@ class PHIS_EXPORT PHISInterface : public QObject
     friend QScriptValue loadModule( QScriptContext*, QScriptEngine*, void* );
 
 protected:
-    explicit PHISInterface( const PHISRequest *req, QScriptEngine *engine )
-        : QObject( engine ), _req( req ), _d(0) {}
+    explicit PHISInterface( const PHISRequest *req, QScriptEngine *engine, const QSqlDatabase &db )
+        : QObject( engine ), _req( req ), _db( db ), _d(0) {}
 
 private:
     const PHISRequest *_req;
-    PHISInterfacePrivate *_d;
+    QSqlDatabase _db;
+    PHISInterfacePrivate *_d; // reserved
 
 public:
     enum LogType { LTWarning, LTError, LTCritical, LTUser, LTDebug, LTTrace };
     inline QScriptEngine* scriptEngine() const { return qobject_cast<QScriptEngine*>(parent()); }
+    inline QSqlDatabase database() const { return _db; }
     void log( LogType, const char *file, int line, const QDateTime &dt, const QString &message ) const;
     void deprecated( const char *file, int line, const QDateTime &dt, const QString &message ) const;
     void setContentType( const QByteArray &contenttype ) const;

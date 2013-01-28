@@ -799,7 +799,7 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
     Q_ASSERT( _resp->contentLength()==0 );
     QScriptEngine engine( p );
     qScriptRegisterMetaType( &engine, baseItemToScriptValue, baseItemFromScriptValue );
-    new PHISGlobalScriptObj( _req, &engine );
+    new PHISGlobalScriptObj( _req, &engine, _db );
     QScriptValue doc=engine.newQObject( p, QScriptEngine::QtOwnership,
         QScriptEngine::PreferExistingWrapperObject |
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
@@ -810,13 +810,13 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
         //PHISSystemObj *systemObj(0);
         //PHISFileObj *fileObj(0);
         //PHISRequestObj *requestObj(0);
-        PHISSqlObj *sqlObj(0);
+        //PHISSqlObj *sqlObj(0);
         //PHISEmailObj *emailObj(0);
         //if ( p->scriptModules() & PHIPage::SServer ) serverObj=new PHISServerObj( _req, &engine );
         //if ( p->scriptModules() & PHIPage::SSystem ) systemObj=new PHISSystemObj( &engine, _resp );
         //if ( p->scriptModules() & PHIPage::SFile ) fileObj=new PHISFileObj( &engine, _resp );
         //if ( p->scriptModules() & PHIPage::SRequest ) requestObj=new PHISRequestObj( _req, &engine, _resp );
-        if ( p->scriptModules() & PHIPage::SDatabase ) sqlObj=new PHISSqlObj( _db, &engine, _resp, p->attributes() & PHIPage::ADatabase );
+        //if ( p->scriptModules() & PHIPage::SDatabase ) sqlObj=new PHISSqlObj( _db, &engine, _resp, p->attributes() & PHIPage::ADatabase );
         //if ( p->scriptModules() & PHIPage::SReply ) replyObj=new PHISReplyObj( &engine, _resp );
         //if ( p->scriptModules() & PHIPage::SEmail ) emailObj=new PHISEmailObj( _req, &engine, _resp );
         PHISModuleFactory *factory=PHISModuleFactory::instance();
@@ -827,6 +827,7 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
         smmap.insert( PHIPage::SFile, QStringLiteral( "file" ) );
         smmap.insert( PHIPage::SRequest, QStringLiteral( "request" ) );
         smmap.insert( PHIPage::SReply, QStringLiteral( "reply" ) );
+        smmap.insert( PHIPage::SDatabase, QStringLiteral( "sql" ) );
         QString key;
         factory->lock(); //locking for read
         foreach( PHIPage::ScriptModule sm, smmap.keys() ) {
@@ -834,7 +835,7 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
             key=smmap.value( sm );
             if ( p->scriptModules() & sm ) mod=factory->module( key );
             if ( !mod ) continue;
-            PHISScriptObj *obj=mod->create( key, new PHISInterface( _req, &engine ) );
+            PHISScriptObj *obj=mod->create( key, new PHISInterface( _req, &engine, _db ) );
             if ( obj ) {
                 obj->initObject( key );
                 _resp->log( PHILOGWARN, PHIRC_MODULE_DEPRECATED,
