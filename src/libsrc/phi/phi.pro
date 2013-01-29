@@ -29,7 +29,9 @@ HEADERS += phi.h \
     philicense.h \
     phiapplication.h \
     phipixlabel.h \
-    phiupdateinfo.h
+    phiupdateinfo.h \
+    phicontext2d.h \
+    phidomimage.h
 SOURCES += phierror.cpp \
     phierrordesc.cpp \
     phiglobal.cpp \
@@ -44,8 +46,10 @@ SOURCES += phierror.cpp \
     philicense.cpp \
     phiapplication.cpp \
     phipixlabel.cpp \
-    phiupdateinfo.cpp
-VERSION = 1.1.5
+    phiupdateinfo.cpp \
+    phicontext2d.cpp \
+    phidomimage.cpp
+VERSION = 1.2.0
 include( ../../../scripts/phiconf.pri )
 isEmpty( PHIDOM ): error( PHIDOM is not specified )
 isEmpty( PHIORG ): error( PHIORG is not specified )

@@ -28,6 +28,7 @@
 #include "phierror.h"
 #include "phibaseitem.h"
 #include "phibasepage.h"
+#include "phidomimage.h"
 #include "phismodule.h"
 #include "phismodulefactory.h"
 
@@ -44,7 +45,7 @@ public:
 static QScriptValue print( QScriptContext *ctx, QScriptEngine* )
 {
     QScriptValue s=ctx->argument( 0 );
-    PHIError::printConsole( s.toString() );
+    qWarning( qPrintable( s.toString() ) );
     return QScriptValue();
 }
 
@@ -58,7 +59,14 @@ static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
         if ( !it ) return QScriptValue( QScriptValue::UndefinedValue );
         return baseItemToScriptValue( engine, it );
     } else if ( id.isObject() ) return id;
-    return QScriptValue( QScriptValue::UndefinedValue );
+    return engine->undefinedValue();
+}
+
+static QScriptValue newImage( QScriptContext*, QScriptEngine *engine )
+{
+    return engine->newQObject( new PHIDomImage(), QScriptEngine::ScriptOwnership,
+        QScriptEngine::PreferExistingWrapperObject |
+        QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater );
 }
 
 static QScriptValue loadModule( QScriptContext *ctx, QScriptEngine *engine, void *args )
@@ -94,7 +102,7 @@ static QScriptValue loadModule( QScriptContext *ctx, QScriptEngine *engine, void
 PHISGlobalScriptObj::PHISGlobalScriptObj( const PHISRequest *req, QScriptEngine *engine, const QSqlDatabase &db )
     : QObject( engine )
 {
-    qWarning( "PHISGlobalScriptObj::PHISGlobalScriptObj()" );
+    qDebug( "PHISGlobalScriptObj::PHISGlobalScriptObj()" );
     _args=new PHISPrivateArgs();
     _args->_req=req;
     _args->_db=db;
@@ -102,13 +110,13 @@ PHISGlobalScriptObj::PHISGlobalScriptObj( const PHISRequest *req, QScriptEngine 
     go.setProperty( QStringLiteral( "$" ), engine->newFunction( getItemFunc, 1 ) );
     go.setProperty( QStringLiteral( "loadModule" ), engine->newFunction( loadModule, (void*)_args ) );
     go.setProperty( QStringLiteral( "print" ), engine->newFunction( print, 1 ) );
-    qWarning( "-" );
+    go.setProperty( QStringLiteral( "Image" ), engine->newFunction( newImage, 0 ) );
 }
 
 PHISGlobalScriptObj::~PHISGlobalScriptObj()
 {
     delete _args;
-    qWarning( "PHISGlobalScriptObj::~PHISGlobalScriptObj()" );
+    qDebug( "PHISGlobalScriptObj::~PHISGlobalScriptObj()" );
 }
 
 #undef PHISSCRIPTEXTENSION

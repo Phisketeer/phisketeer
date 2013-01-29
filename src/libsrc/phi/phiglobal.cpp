@@ -1401,16 +1401,16 @@ bool PHI::isLayoutContainer( PHI::Widget wid )
 bool PHI::isDisplayItem( PHI::Widget wid )
 {
     switch ( wid ) {
-    case PHI::ELLIPSE:
-    case PHI::RECT:
-    case PHI::ROUNDED_RECT:
-    case PHI::LINE:
-    case PHI::IMAGE:
-    case PHI::GRAPH_TEXT:
-    case PHI::TEXT:
-    case PHI::SVG:
-    case PHI::DIA_SHOW:
-        return true;
+    case PHI::ELLIPSE: return true;
+    case PHI::RECT: return true;
+    case PHI::ROUNDED_RECT: return true;
+    case PHI::LINE: return true;
+    case PHI::IMAGE: return true;
+    case PHI::GRAPH_TEXT: return true;
+    case PHI::TEXT: return true;
+    case PHI::SVG: return true;
+    case PHI::DIA_SHOW: return true;
+    case PHI::CANVAS: return true;
     default: ;
     }
     return false;
