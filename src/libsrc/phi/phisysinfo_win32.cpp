@@ -11,9 +11,9 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QSysInfo>
@@ -25,27 +25,24 @@ PHISysInfo::PHISysInfo()
     qDebug( "PHISysInfo::PHISysInfo()" );
 }
 
-quint8 PHISysInfo::systemType() {
-	return static_cast<quint8>(PHI_SYS_TYPE_WIN32);
-}
-
 QString PHISysInfo::systemString() {
 	static QString ver;
 	if ( !ver.isNull() ) return ver;
 	switch ( QSysInfo::windowsVersion() ) {
-	case QSysInfo::WV_NT: ver="Windows NT/4.0"; break;
-	case QSysInfo::WV_2000: ver="Windows 2000/5.0"; break;
-	case QSysInfo::WV_XP: ver="Windows XP/5.1"; break;
-	case QSysInfo::WV_2003: ver="Windows 2003/5.2"; break;
-	case QSysInfo::WV_VISTA: ver="Windows Vista/6.0"; break;
-    case QSysInfo::WV_WINDOWS7: ver="Windows 7/6.1"; break;
-    case QSysInfo::WV_WINDOWS8: ver="Windows 8/6.2"; break;
-	default: ver="Windows";
+    case QSysInfo::WV_NT: ver=QStringLiteral( "Windows NT/4.0" ); break;
+    case QSysInfo::WV_2000: ver=QStringLiteral( "Windows 2000/5.0" ); break;
+    case QSysInfo::WV_XP: ver=QStringLiteral( "Windows XP/5.1" ); break;
+    case QSysInfo::WV_2003: ver=QStringLiteral( "Windows 2003/5.2" ); break;
+    case QSysInfo::WV_VISTA: ver=QStringLiteral( "Windows Vista/6.0" ); break;
+    case QSysInfo::WV_WINDOWS7: ver=QStringLiteral( "Windows 7/6.1" ); break;
+    case QSysInfo::WV_WINDOWS8: ver=QStringLiteral( "Windows 8/6.2" ); break;
+    default: ver=QStringLiteral( "Windows" );
 	}
-	ver+="; I386";
+    ver+=QStringLiteral( "; I686" );
 	return ver;
 }
 
+/* todo: get real ids */
 quint32 PHISysInfo::realUserId() {
     return static_cast<quint32>(0);
 }

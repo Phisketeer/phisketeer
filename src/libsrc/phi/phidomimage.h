@@ -35,7 +35,7 @@ class PHIEXPORT PHIDomImage : public QObject
 
 public:
     explicit PHIDomImage() {}
-    //static void setup( QScriptEngine *e );
+    explicit PHIDomImage( const QString &src, const QString &img ) : _image( img ), _src( src ) {}
     inline const QImage& image() const { return _image; }
 
 public slots:
@@ -44,22 +44,20 @@ public slots:
     inline QString src() const { return _src; }
     inline void setSrc( const QString &src ) { _image=QImage( src ); _src=src; }
     inline QString name() const { return _src; }
-    //static QScriptValue _self;
 
 private:
     QImage  _image;
     QString _src;
-    //attribute boolean         isMap;
-    //attribute DOMString       longDesc;
-    //attribute DOMString       useMap;
-    //attribute DOMString       align;
-    //attribute DOMString       alt;
-    //attribute DOMString       border;
-    //attribute long            vspace;
-    //attribute long            hspace;
+    /* Not yet implemented:
+        DOMString       align;
+        DOMString       alt;
+        DOMString       longDesc;
+        DOMString       useMap;
+        DOMString       border;
+        long            vspace;
+        long            hspace;
+        boolean         isMap;
+    */
 };
-
-//Q_DECLARE_METATYPE( PHIDomImage )
-//Q_DECLARE_METATYPE( PHIDomImage* )
 
 #endif // PHIDOMIMAGE_H

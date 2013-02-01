@@ -11,9 +11,9 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QMetaType>
@@ -52,7 +52,7 @@ PHIBaseItem::PHIBaseItem( const PHIItem &it, QObject *parent )
     _effect->load( _effectData );
 }
 
-PHIBaseItem::PHIBaseItem( PHI::Widget wid, const QByteArray &id, QObject *parent )
+PHIBaseItem::PHIBaseItem( quint16 wid, const QByteArray &id, QObject *parent )
     : QObject( parent ), PHIItem()
 {
     _properties |= PHIItem::PNoCache;
@@ -72,7 +72,6 @@ PHIBaseItem::~PHIBaseItem()
 QGradient PHIBaseItem::gradient() const
 {
     QGradient g;
-
     QGradient::Type type=static_cast<QGradient::Type>(_variants.value(
         PHIItem::DGradientType, 0 ).value<quint8>());
     if ( type==QGradient::ConicalGradient ) {
@@ -196,10 +195,6 @@ void PHIBaseItem::setSpanAngle( qint16 a )
 
 QDataStream& operator<<( QDataStream &out, const PHIBaseItem *it )
 {
-    //qRegisterMetaTypeStreamOperators<PHIRectHash>("PHIRectHash");
-    //qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
-    //qRegisterMetaTypeStreamOperators<PHIImageHash>("PHIImageHash");
-    //qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
 /*
     quint8 vid;
     foreach ( vid, it->_variants.keys() ) {
@@ -215,10 +210,6 @@ QDataStream& operator<<( QDataStream &out, const PHIBaseItem *it )
 
 QDataStream& operator>>( QDataStream &in, PHIBaseItem *it )
 {
-    //qRegisterMetaTypeStreamOperators<PHIRectHash>("PHIRectHash");
-    //qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
-    //qRegisterMetaTypeStreamOperators<PHIImageHash>("PHIImageHash");
-    //qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
     in >> dynamic_cast<PHIItem*>(it) >> it->_variants;
     //qDebug( ">> VARIANT count %d", it->_variants.count() );
     if ( it->attributes() & PHIItem::AEffectData ) it->_effect->load( it->_effectData );
@@ -229,29 +220,25 @@ QDataStream& operator>>( QDataStream &in, PHIBaseItem *it )
 PHIBaseStyle::PHIBaseStyle( PHIBaseItem *it )
     : QObject( it ), _it( it )
 {
-    setObjectName( "style" );
-}
-
-PHIBaseStyle::~PHIBaseStyle()
-{
+    setObjectName( QStringLiteral( "style" ) );
 }
 
 void PHIBaseStyle::setVisibility( const QString &s )
 {
-    if ( s.toLower()==QString( "hidden" ) ) _it->setVisible( false );
+    if ( s.toLower()==QLatin1String( "hidden" ) ) _it->setVisible( false );
     else _it->setVisible( true );
 }
 
 QString PHIBaseStyle::visibility() const
 {
-    if ( _it->visible() ) return QString( "visible" );
-    else return QString( "hidden" );
+    if ( _it->visible() ) return QStringLiteral( "visible" );
+    else return QStringLiteral( "hidden" );
 }
 
 PHIBaseEffect::PHIBaseEffect( PHIBaseItem *it )
     : QObject( it ), _it( it )
 {
-    setObjectName( "effect" );
+    setObjectName( QStringLiteral( "effect" ) );
 }
 
 PHIBaseEffect::~PHIBaseEffect()

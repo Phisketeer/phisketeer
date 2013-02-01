@@ -1,4 +1,5 @@
 /*
+#    Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 #    Copyright (C) 2010-2013  Marius B. Schumacher
 #    Copyright (C) 2011-2013  Phisys AG, Switzerland
 #    Copyright (C) 2012-2013  Phisketeer.org team
@@ -204,5 +205,73 @@ private:
     State _state;
     QStack<State> _stateStack;
 };
+
+inline void PHIContext2D::save()
+{
+    _stateStack.push( _state );
+}
+
+inline void PHIContext2D::restore()
+{
+    if ( !_stateStack.isEmpty() ) {
+        _state=_stateStack.pop();
+        _state.flags=AllIsFullOfDirt;
+    }
+}
+
+inline void PHIContext2D::scale( qreal x, qreal y )
+{
+    _state.matrix.scale( x, y );
+    _state.flags |= DirtyTransformationMatrix;
+}
+
+inline qreal PHIContext2D::miterLimit() const
+{
+    return _state.miterLimit;
+}
+
+inline void PHIContext2D::setMiterLimit( qreal m )
+{
+    _state.miterLimit=m;
+    _state.flags |= DirtyMiterLimit;
+}
+
+inline void PHIContext2D::setShadowOffsetX( qreal x )
+{
+    _state.shadowOffsetX = x;
+    _state.flags |= DirtyShadowOffsetX;
+}
+
+inline void PHIContext2D::setShadowOffsetY( qreal y )
+{
+    _state.shadowOffsetY = y;
+    _state.flags |= DirtyShadowOffsetY;
+}
+
+inline void PHIContext2D::setShadowBlur( qreal b )
+{
+    _state.shadowBlur = b;
+    _state.flags |= DirtyShadowBlur;
+}
+
+inline qreal PHIContext2D::shadowOffsetX() const
+{
+    return _state.shadowOffsetX;
+}
+
+inline qreal PHIContext2D::shadowOffsetY() const
+{
+    return _state.shadowOffsetY;
+}
+
+inline qreal PHIContext2D::shadowBlur() const
+{
+    return _state.shadowBlur;
+}
+
+inline QString PHIContext2D::shadowColor() const
+{
+    return _state.shadowColor.name();
+}
 
 #endif // PHICONTEXT2D_H

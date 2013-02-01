@@ -16,39 +16,41 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 HEADERS += phi.h \
-    phisysinfo.h \
-    phierr.h \
-    phierror.h \
     phiitem.h \
-    phipage.h \
-    phibaseitem.h \
-    phibasepage.h \
+    phierror.h \
+    phisysinfo.h \
+    phimemrotate.h \
+    phicontext2d.h \
+    phidomimage.h \
     phieffect.h \
     phieffects.h \
-    phimemrotate.h \
-    philicense.h \
+    phibaseitem.h \
+    phiitemfactory.h \
+    phipage.h \
+    phibasepage.h \
     phiapplication.h \
     phipixlabel.h \
-    phiupdateinfo.h \
-    phicontext2d.h \
-    phidomimage.h
-SOURCES += phierror.cpp \
-    phierrordesc.cpp \
-    phiglobal.cpp \
+    phiupdateinfo.h
+#    philicense.h \
+SOURCES += phi.cpp \
     phiitem.cpp \
-    phipage.cpp \
-    phibaseitem.cpp \
-    phibasepage.cpp \
-    phimimetypes.cpp \
+    phierror.cpp \
+    phierrordesc.cpp \
+    phimemrotate.cpp \
+    phicontext2d.cpp \
+    phidomimage.cpp \
     phieffect.cpp \
     phieffects.cpp \
-    phimemrotate.cpp \
-    philicense.cpp \
+    phibaseitem.cpp \
+    phiitemfactory.cpp \
+    phipage.cpp \
+    phibasepage.cpp \
     phiapplication.cpp \
     phipixlabel.cpp \
-    phiupdateinfo.cpp \
-    phicontext2d.cpp \
-    phidomimage.cpp
+    phiupdateinfo.cpp
+#    phimimetypes.cpp \
+#    philicense.cpp \
+
 VERSION = 1.2.0
 include( ../../../scripts/phiconf.pri )
 isEmpty( PHIDOM ): error( PHIDOM is not specified )

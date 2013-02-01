@@ -16,32 +16,4 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PHISYSINFO_H
-#define PHISYSINFO_H
-#include <QString>
-#include <QMutex>
-#include "phi.h"
-
-class PHIEXPORT PHISysInfo
-{
-    friend class PHI;
-    Q_DISABLE_COPY( PHISysInfo )
-
-public:
-    // inline QString application() const { return _application; }
-    static QString systemString();
-    static QString realUserName();
-    static QString realGroupName();
-    static quint32 realUserId();
-    static quint32 realGroupId();
-    static quint32 effUserId();
-    static quint32 effGroupId();
-    static quint32 pProcessId();
-    static quint32 processId();
-
-private:
-    PHISysInfo();
-    static QMutex _mutex;
-};
-
-#endif // PHISYSINFO_H
+#include "phiitemfactory.h"

@@ -1,4 +1,5 @@
 /*
+#    Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 #    Copyright (C) 2010-2013  Marius B. Schumacher
 #    Copyright (C) 2011-2013  Phisys AG, Switzerland
 #    Copyright (C) 2012-2013  Phisketeer.org team
@@ -31,15 +32,16 @@ static QList<qreal> parseNumbersList( QString::const_iterator &itr )
     QList<qreal> points;
     QString temp;
     while ( (*itr).isSpace() ) ++itr;
-    while ( (*itr).isNumber() || (*itr) == '-' || (*itr) == '+' || (*itr) == '.' ) {
+    while ( (*itr).isNumber() || (*itr) == QLatin1Char( '-' )
+        || (*itr) == QLatin1Char( '+' ) || (*itr) == QLatin1Char( '.' ) ) {
         temp=QString();
-        if ( (*itr)=='-' ) temp+=*itr++;
-        else if ( (*itr)=='+' ) temp+=*itr++;
+        if ( (*itr)==QLatin1Char( '-' ) ) temp+=*itr++;
+        else if ( (*itr)==QLatin1Char( '+' ) ) temp+=*itr++;
         while ( (*itr).isDigit() ) temp+=*itr++;
-        if ( (*itr)=='.' ) temp+=*itr++;
+        if ( (*itr)==QLatin1Char( '.' ) ) temp+=*itr++;
         while ( (*itr).isDigit() ) temp+=*itr++;
         while ( (*itr).isSpace() ) ++itr;
-        if ( (*itr)==',' ) ++itr;
+        if ( (*itr)==QLatin1Char( ',' ) ) ++itr;
         points.append( temp.toDouble() );
         //eat spaces
         while ( (*itr).isSpace() ) ++itr;
@@ -78,29 +80,29 @@ QColor colorFromString( const QString &name )
 
 static QPainter::CompositionMode compositeOperatorFromString( const QString &compositeOperator )
 {
-    if ( compositeOperator=="source-over" ) {
+    if ( compositeOperator==QLatin1String( "source-over" ) ) {
         return QPainter::CompositionMode_SourceOver;
-    } else if ( compositeOperator=="source-out" ) {
+    } else if ( compositeOperator==QLatin1String( "source-out" ) ) {
         return QPainter::CompositionMode_SourceOut;
-    } else if ( compositeOperator=="source-in" ) {
+    } else if ( compositeOperator==QLatin1String( "source-in" ) ) {
         return QPainter::CompositionMode_SourceIn;
-    } else if ( compositeOperator=="source-atop" ) {
+    } else if ( compositeOperator==QLatin1String( "source-atop" ) ) {
         return QPainter::CompositionMode_SourceAtop;
-    } else if ( compositeOperator=="destination-atop" ) {
+    } else if ( compositeOperator==QLatin1String( "destination-atop" ) ) {
         return QPainter::CompositionMode_DestinationAtop;
-    } else if ( compositeOperator=="destination-in" ) {
+    } else if ( compositeOperator==QLatin1String( "destination-in" ) ) {
         return QPainter::CompositionMode_DestinationIn;
-    } else if ( compositeOperator=="destination-out" ) {
+    } else if ( compositeOperator==QLatin1String( "destination-out" ) ) {
         return QPainter::CompositionMode_DestinationOut;
-    } else if ( compositeOperator=="destination-over" ) {
+    } else if ( compositeOperator==QLatin1String( "destination-over" ) ) {
         return QPainter::CompositionMode_DestinationOver;
-    } else if ( compositeOperator=="darker" ) {
+    } else if ( compositeOperator==QLatin1String( "darker" ) ) {
         return QPainter::CompositionMode_SourceOver;
-    } else if ( compositeOperator=="lighter" ) {
+    } else if ( compositeOperator==QLatin1String( "lighter" ) ) {
         return QPainter::CompositionMode_SourceOver;
-    } else if ( compositeOperator=="copy" ) {
+    } else if ( compositeOperator==QLatin1String( "copy" ) ) {
         return QPainter::CompositionMode_Source;
-    } else if ( compositeOperator=="xor" ) {
+    } else if ( compositeOperator==QLatin1String( "xor" ) ) {
         return QPainter::CompositionMode_Xor;
     }
     return QPainter::CompositionMode_SourceOver;
@@ -110,77 +112,65 @@ static QString compositeOperatorToString( QPainter::CompositionMode op )
 {
     switch (op) {
     case QPainter::CompositionMode_SourceOver:
-        return "source-over";
+        return QStringLiteral( "source-over" );
     case QPainter::CompositionMode_DestinationOver:
-        return "destination-over";
+        return QStringLiteral( "destination-over" );
     case QPainter::CompositionMode_Clear:
-        return "clear";
+        return QStringLiteral( "clear" );
     case QPainter::CompositionMode_Source:
-        return "source";
+        return QStringLiteral( "source" );
     case QPainter::CompositionMode_Destination:
-        return "destination";
+        return QStringLiteral( "destination" );
     case QPainter::CompositionMode_SourceIn:
-        return "source-in";
+        return QStringLiteral( "source-in" );
     case QPainter::CompositionMode_DestinationIn:
-        return "destination-in";
+        return QStringLiteral( "destination-in" );
     case QPainter::CompositionMode_SourceOut:
-        return "source-out";
+        return QStringLiteral( "source-out" );
     case QPainter::CompositionMode_DestinationOut:
-        return "destination-out";
+        return QStringLiteral( "destination-out" );
     case QPainter::CompositionMode_SourceAtop:
-        return "source-atop";
+        return QStringLiteral( "source-atop" );
     case QPainter::CompositionMode_DestinationAtop:
-        return "destination-atop";
+        return QStringLiteral( "destination-atop" );
     case QPainter::CompositionMode_Xor:
-        return "xor";
+        return QStringLiteral( "xor" );
     case QPainter::CompositionMode_Plus:
-        return "plus";
+        return QStringLiteral( "plus" );
     case QPainter::CompositionMode_Multiply:
-        return "multiply";
+        return QStringLiteral( "multiply" );
     case QPainter::CompositionMode_Screen:
-        return "screen";
+        return QStringLiteral( "screen" );
     case QPainter::CompositionMode_Overlay:
-        return "overlay";
+        return QStringLiteral( "overlay" );
     case QPainter::CompositionMode_Darken:
-        return "darken";
+        return QStringLiteral( "darken" );
     case QPainter::CompositionMode_Lighten:
-        return "lighten";
+        return QStringLiteral( "lighten" );
     case QPainter::CompositionMode_ColorDodge:
-        return "color-dodge";
+        return QStringLiteral( "color-dodge" );
     case QPainter::CompositionMode_ColorBurn:
-        return "color-burn";
+        return QStringLiteral( "color-burn" );
     case QPainter::CompositionMode_HardLight:
-        return "hard-light";
+        return QStringLiteral( "hard-light" );
     case QPainter::CompositionMode_SoftLight:
-        return "soft-light";
+        return QStringLiteral( "soft-light" );
     case QPainter::CompositionMode_Difference:
-        return "difference";
+        return QStringLiteral( "difference" );
     case QPainter::CompositionMode_Exclusion:
-        return "exclusion";
+        return QStringLiteral( "exclusion" );
     default:
         break;
     }
     return QString();
 }
 
-void PHIContext2D::save()
+void PHIContext2D::setShadowColor( const QString &str )
 {
-    _stateStack.push( _state );
+    _state.shadowColor=colorFromString( str );
+    _state.flags |= DirtyShadowColor;
 }
 
-void PHIContext2D::restore()
-{
-    if ( !_stateStack.isEmpty() ) {
-        _state=_stateStack.pop();
-        _state.flags=AllIsFullOfDirt;
-    }
-}
-
-void PHIContext2D::scale( qreal x, qreal y )
-{
-    _state.matrix.scale( x, y );
-    _state.flags |= DirtyTransformationMatrix;
-}
 
 void PHIContext2D::rotate( qreal angle )
 {
@@ -292,11 +282,11 @@ QString PHIContext2D::lineCap() const
 {
     switch (_state.lineCap) {
     case Qt::FlatCap:
-        return "butt";
+        return QStringLiteral( "butt" );
     case Qt::SquareCap:
-        return "square";
+        return QStringLiteral( "square" );
     case Qt::RoundCap:
-        return "round";
+        return QStringLiteral( "round" );
     default:;
     }
     return QString();
@@ -305,8 +295,8 @@ QString PHIContext2D::lineCap() const
 void PHIContext2D::setLineCap( const QString &capString )
 {
     Qt::PenCapStyle style;
-    if ( capString=="round" ) style=Qt::RoundCap;
-    else if ( capString=="square" ) style=Qt::SquareCap;
+    if ( capString==QLatin1String( "round" ) ) style=Qt::RoundCap;
+    else if ( capString==QLatin1String( "square" ) ) style=Qt::SquareCap;
     else style=Qt::FlatCap;
     _state.lineCap=style;
     _state.flags |= DirtyLineCap;
@@ -315,9 +305,9 @@ void PHIContext2D::setLineCap( const QString &capString )
 QString PHIContext2D::lineJoin() const
 {
     switch ( _state.lineJoin ) {
-    case Qt::RoundJoin: return "round";
-    case Qt::BevelJoin: return "bevel";
-    case Qt::MiterJoin: return "miter";
+    case Qt::RoundJoin: return QStringLiteral( "round" );
+    case Qt::BevelJoin: return QStringLiteral( "bevel" );
+    case Qt::MiterJoin: return QStringLiteral( "miter" );
     default:;
     }
     return QString();
@@ -326,67 +316,13 @@ QString PHIContext2D::lineJoin() const
 void PHIContext2D::setLineJoin( const QString &joinString )
 {
     Qt::PenJoinStyle style;
-    if ( joinString=="round" ) style=Qt::RoundJoin;
-    else if ( joinString=="bevel" ) style=Qt::BevelJoin;
+    if ( joinString==QLatin1String( "round" ) ) style=Qt::RoundJoin;
+    else if ( joinString==QLatin1String( "bevel" ) ) style=Qt::BevelJoin;
     else style=Qt::MiterJoin;
     _state.lineJoin=style;
     _state.flags |= DirtyLineJoin;
 }
 
-qreal PHIContext2D::miterLimit() const
-{
-    return _state.miterLimit;
-}
-
-void PHIContext2D::setMiterLimit( qreal m )
-{
-    _state.miterLimit=m;
-    _state.flags |= DirtyMiterLimit;
-}
-
-void PHIContext2D::setShadowOffsetX( qreal x )
-{
-    _state.shadowOffsetX = x;
-    _state.flags |= DirtyShadowOffsetX;
-}
-
-void PHIContext2D::setShadowOffsetY( qreal y )
-{
-    _state.shadowOffsetY = y;
-    _state.flags |= DirtyShadowOffsetY;
-}
-
-void PHIContext2D::setShadowBlur( qreal b )
-{
-    _state.shadowBlur = b;
-    _state.flags |= DirtyShadowBlur;
-}
-
-void PHIContext2D::setShadowColor( const QString &str )
-{
-    _state.shadowColor=colorFromString( str );
-    _state.flags |= DirtyShadowColor;
-}
-
-qreal PHIContext2D::shadowOffsetX() const
-{
-    return _state.shadowOffsetX;
-}
-
-qreal PHIContext2D::shadowOffsetY() const
-{
-    return _state.shadowOffsetY;
-}
-
-qreal PHIContext2D::shadowBlur() const
-{
-    return _state.shadowBlur;
-}
-
-QString PHIContext2D::shadowColor() const
-{
-    return _state.shadowColor.name();
-}
 
 void PHIContext2D::clearRect( qreal x, qreal y, qreal w, qreal h )
 {

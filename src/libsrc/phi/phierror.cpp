@@ -11,9 +11,9 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QTextStream>
@@ -47,7 +47,7 @@ void PHIError::print( PHIRC rc, const QString &todo ) const
 {
     // QTextStream uses default codec
     QTextStream t( stderr, QIODevice::WriteOnly );
-    t << QString( "RC=%1 (%2) " ).arg( rc )
+    t << QStringLiteral( "RC=%1 (%2) " ).arg( rc )
        .arg( QObject::tr( shortDesc( rc ) ) );
     t << QObject::tr( longDesc( rc ).toLatin1().data() );
     t << endl << QObject::tr( todo.toLatin1().data() ) << endl;
