@@ -39,7 +39,7 @@ PHIS::~PHIS()
 
 QString PHIS::libVersion()
 {
-    return QString( PHIVERSION );
+    return QStringLiteral( PHIVERSION );
 }
 
 QByteArray PHIS::textForHttpCode( PHIRC rc )

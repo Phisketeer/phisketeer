@@ -159,7 +159,7 @@ QImage PHIImageData::image( const QByteArray &l ) const
     QImage img;
     if ( v.isValid() && v.canConvert<QImage>() ) img=v.value<QImage>();
     else {
-        QPixmap pix( ":/gnome/brokenimage" );
+        QPixmap pix( QStringLiteral( ":/gnome/brokenimage" ) );
         img=pix.toImage();
     }
     return img;

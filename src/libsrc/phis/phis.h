@@ -22,7 +22,7 @@
 #include <QByteArray>
 #include <QString>
 #include <QVariant>
-#include "phierr.h"
+#include "phierror.h"
 
 #ifdef PHISLIB
 #define PHISEXPORT Q_DECL_EXPORT

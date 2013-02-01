@@ -20,8 +20,8 @@
 #define PHISESSION_H
 
 #include <QObject>
-#include "phiresponserec.h"
-#include "phierr.h"
+
+class PHIResponseRec;
 
 class PHISession : public QObject
 {

@@ -29,6 +29,7 @@
 #include <QVector>
 //#include "philicense.h"
 #include "phis.h"
+#include "phi.h"
 
 /** Parent class of all classes with long term lifetime over threads.
   * Use this class as parent for other classes and protect them by a mutex for thread safety. */
@@ -41,7 +42,7 @@ public:
     static PHIParent* instance( QObject *parent=0 );
     virtual ~PHIParent();
     inline bool isApacheModule() const { return _internalApp; }
-    QString tempDir( const QString &domain, const QString &def=QString( "default" ) );
+    QString tempDir( const QString &domain, const QString &def=PHI::defaultString() );
 
     //void database( QString &db, QString &name, QString &host, QString &user,
     //    QString &pwd, QString &connOpts, int &port, const QString &domain );

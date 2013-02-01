@@ -65,7 +65,7 @@ public:
 
     inline const PHITextData *textData() const { return _textData; }
     inline PHIPageMenuEntry parse( const PHIDataParser *parser ) const {
-        QString text=parser->text( "#-", _textData );
+        QString text=parser->text( QStringLiteral( "#-" ), _textData );
         return PHIPageMenuEntry( _id, _parent, _img, text.toUtf8(), _options );
     }
 

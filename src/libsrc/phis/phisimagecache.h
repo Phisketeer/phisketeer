@@ -21,7 +21,6 @@
 
 #include <QObject>
 #include "phiresponserec.h"
-#include "phierr.h"
 
 class PHISImageCache : public QObject
 {

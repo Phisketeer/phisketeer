@@ -105,8 +105,8 @@ QByteArray PHIResponseRec::createResponseHeader( PHIRC rc, const QString &server
     QByteArray tmp="HTTP/1."+QByteArray::number( _minorHttpVer )+' '+QByteArray::number( static_cast<int>(rc) )
         +' '+PHIS::textForHttpCode( rc )+"\r\n";
     tmp+="Date: "+locale.dayName( dt.toUTC().date().dayOfWeek(), QLocale::ShortFormat ).toLatin1()
-        +dt.toUTC().toString( ", dd " ).toLatin1()+locale.monthName( dt.toUTC().date().month(),
-        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( " yyyy HH:mm:ss" ).toLatin1()+" GMT\r\n";
+        +dt.toUTC().toString( QStringLiteral( ", dd " ) ).toLatin1()+locale.monthName( dt.toUTC().date().month(),
+        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( QStringLiteral( " yyyy HH:mm:ss" ) ).toLatin1()+" GMT\r\n";
     tmp+="Server: "+serverString.toUtf8()+"\r\n";
     qDebug( "PHIResponseRec::createResponseHeader(rc=%d)", rc );
     tmp+="Content-Type: "+_contentType+"\r\n";

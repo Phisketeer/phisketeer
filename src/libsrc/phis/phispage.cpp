@@ -97,7 +97,7 @@ PHISPage::PHISPage() : PHIPage()
     _sessionRedirect=new PHITextData();
     _description=new PHITextData();
     _opengraph=new PHITextData();
-    _languages << QString( "C" );
+    _languages << QStringLiteral( "C" );
     _sessionTimeout=60;
     _geometry=PHIPage::G4_3;
     _dbPort=3306;

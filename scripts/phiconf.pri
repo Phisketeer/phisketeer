@@ -21,7 +21,7 @@
 PHIDOM = phisketeer.org
 PHIORG = Phisketeer
 PHICONF = warn_on
-PHIRELEASE = 1.5.0
+PHIRELEASE = 2.0.0
 PHIMACDEPLOY = 10.6
 PHIMACSDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
 #mac: PHICONF += x86_64 macappstore
@@ -29,7 +29,7 @@ mac: PHICONF += x86_64
 
 CONFIG += qt thread largefile ordered $$[PHICONF]
 INCLUDEPATH += .
-DEFINES += QT_NO_CAST_TO_ASCII
+DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QT_NO_CAST_FROM_BYTEARRAY QT_NO_URL_CAST_FROM_STRING
 OBJECTS_DIR = .tmp
 MOC_DIR = .tmp
 RCC_DIR = .tmp
