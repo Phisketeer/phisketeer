@@ -54,7 +54,7 @@ QNetworkReply* PHIAFormProcessor::process( const PHIAPage *page, const QString &
     PHIBaseItem *it;
     foreach ( it, items ) {
         PHIAItem *pit=qobject_cast<PHIAItem*>(it);
-        if ( !PHI::isInputItem( it->wid() ) ) continue;
+        if ( !PHI::isInputItem( static_cast<PHI::Widget>(it->wid()) ) ) continue;
         if ( it->wid()==PHI::SUBMIT_BUTTON ) {
             if ( it->name()!=buttonid ) continue; // only add submit button which caused the request
         }

@@ -70,8 +70,6 @@ PHIManager::~PHIManager()
 void PHIManager::start()
 {
     if ( !_logWriterStart ) return;
-    PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_OK, tr( "Using mime types file <%1>." )
-        .arg( PHIConfig::instance()->mimeTypesFile() ) );
     foreach ( QString merr, PHIParent::instance()->moduleLoadErrors() ) {
         PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_MODULE_LOAD_ERROR, merr );
     }
@@ -86,7 +84,7 @@ void PHIManager::start()
         PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_MGR_START,
             tr( "Phi manager '%1' ready for service." ).arg( objectName() ) );
     }
-    if ( PHIConfig::instance()->configValue( "SSLEnabled", false ).toBool() ) {
+    if ( PHIConfig::instance()->configValue( QStringLiteral( "SSLEnabled" ), false ).toBool() ) {
         rc=PHISslListener::instance()->init( this );
         _sslListenerStart=true;
     }

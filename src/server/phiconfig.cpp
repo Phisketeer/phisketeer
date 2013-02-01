@@ -97,51 +97,52 @@ PHIRC PHIConfig::init( QObject *mgr )
         return PHIRC_IO_FILE_ACCESS_ERROR;
     }
     */
-    _rootDir=PHI::compiledRoot();
-    s->setValue( "RootDir", s->value( "RootDir", _rootDir ) );
-    _rootDir=s->value( "RootDir" ).toString();
+    _rootDir=PHI::applicationRoot();
+    s->setValue( QStringLiteral( "RootDir" ), s->value( QStringLiteral( "RootDir" ), _rootDir ) );
+    _rootDir=s->value( QStringLiteral( "RootDir" ) ).toString();
     qDebug( "RootDir=%s", qPrintable( _rootDir ) );
 
     s->beginGroup( _mgrName );
-    s->setValue( "BaseDir", s->value( "BaseDir", _rootDir+QDir::separator()+_mgrName ) );
-    _baseDir=s->value( "BaseDir" ).toString();
+    s->setValue( QStringLiteral( "BaseDir" ), s->value( QStringLiteral( "BaseDir" ),
+        _rootDir+QDir::separator()+_mgrName ) );
+    _baseDir=s->value( QStringLiteral( "BaseDir" ) ).toString();
     qDebug( "BaseDir=%s", qPrintable( _baseDir ) );
 #ifdef PHIAPPSTORE
     PHISecFile::loadSecurityBookmarkForDir( _baseDir+"/localhost" );
 #endif
-    s->setValue( "ListenerPort", s->value( "ListenerPort", 8080 ) );
-    s->setValue( "ListenerIF", s->value( "ListenerIF", "Any" ) );
-    s->setValue( "SSLEnabled", s->value( "SSLEnabled", false ) );
-    s->setValue( "SSLListenerPort", s->value( "SSLListenerPort", 443 ) );
-    s->setValue( "SSLListenerIF", s->value( "SSLListenerIF", "Any" ) );
-    s->setValue( "SSLCertificate", s->value( "SSLCertificate",
-        _baseDir+QDir::separator()+"ssl"+QDir::separator()+"localhost.crt" ) );
-    s->setValue( "SSLPrivateKey", s->value( "SSLPrivateKey", _baseDir+QDir::separator()
-        +"ssl"+QDir::separator()+"localhost.key" ) );
-    s->setValue( "MimeTypesFile", s->value( "MimeTypesFile", _rootDir+QDir::separator()+"mimetypes.txt" ) );
-    s->setValue( "KeepAlive", s->value( "KeepAlive", 60000 ) );
-    s->setValue( "Admin", s->value( "Admin", "webmaster@localhost" ) );
-    s->setValue( "LogDir", s->value( "LogDir", _rootDir+QDir::separator()+"log" ) );
-    s->setValue( "LogFilter", s->value( "LogFilter", 0 ) );
-    s->setValue( "Index", s->value( "Index", "index.phis,index.html,index.htm") );
-    s->setValue( "MimeTypesFile", s->value( "MimeTypesFile",
-        _rootDir+QDir::separator()+"mimetypes.txt" ) );
+    s->setValue( QStringLiteral( "ListenerPort" ), s->value( QStringLiteral( "ListenerPort" ), 8080 ) );
+    s->setValue( QStringLiteral( "ListenerIF" ), s->value( QStringLiteral( "ListenerIF" ), QStringLiteral( "Any" ) ) );
+    s->setValue( QStringLiteral( "SSLEnabled" ), s->value( QStringLiteral( "SSLEnabled" ), false ) );
+    s->setValue( QStringLiteral( "SSLListenerPort" ), s->value( QStringLiteral( "SSLListenerPort" ), 443 ) );
+    s->setValue( QStringLiteral( "SSLListenerIF" ), s->value( QStringLiteral( "SSLListenerIF" ), QStringLiteral( "Any" ) ) );
+    s->setValue( QStringLiteral( "SSLCertificate" ), s->value( QStringLiteral( "SSLCertificate" ),
+        _baseDir+QDir::separator()+QLatin1String( "ssl" )+QDir::separator()+QLatin1String( "localhost.crt" ) ) );
+    s->setValue( QStringLiteral( "SSLPrivateKey" ), s->value( QStringLiteral( "SSLPrivateKey" ), _baseDir+QDir::separator()
+        +QLatin1String( "ssl" )+QDir::separator()+QLatin1String( "localhost.key" ) ) );
+    s->setValue( QStringLiteral( "KeepAlive" ), s->value( QStringLiteral( "KeepAlive" ), 60000 ) );
+    s->setValue( QStringLiteral( "Admin" ), s->value( QStringLiteral( "Admin" ), QStringLiteral( "webmaster@localhost" ) ) );
+    s->setValue( QStringLiteral( "LogDir" ), s->value( QStringLiteral( "LogDir" ), _rootDir+QDir::separator()+QLatin1String( "log" ) ) );
+    s->setValue( QStringLiteral( "LogFilter" ), s->value( QStringLiteral( "LogFilter" ), 0 ) );
+    s->setValue( QStringLiteral( "Index" ), s->value( QStringLiteral( "Index" ), QStringLiteral( "index.phis,index.html,index.htm" ) ) );
+    s->setValue( QStringLiteral( "MimeTypesFile" ), s->value( QStringLiteral( "MimeTypesFile" ),
+        _rootDir+QDir::separator()+QLatin1String( "mimetypes.txt" ) ) );
 
 #ifdef Q_OS_WIN
-    int autostart=s->value( "StartMode", 2 ).toInt();
-    QSettings mode( "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\phis",
+    int autostart=s->value( QStringLiteral( "StartMode" ), 2 ).toInt();
+    QSettings mode( QStringLiteral( "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\phis" ),
         QSettings::NativeFormat );
-    if ( mode.contains( "Start" ) ) {
-        mode.setValue( "Start", autostart );
-        s->setValue( "StartMode", autostart );
+    if ( mode.contains( QStringLiteral( "Start" ) ) ) {
+        mode.setValue( QStringLiteral( "Start" ), autostart );
+        s->setValue( QStringLiteral( "StartMode" ), autostart );
     }
 #endif
 
-    s->beginGroup( "localhost" );
-    s->setValue( "DocumentRoot", s->value( "DocumentRoot", _baseDir+QDir::separator()+"localhost" ) );
-    s->setValue( "TempDir", s->value( "TempDir", PHI::stdTmpPath()+QDir::separator()
-        +_mgrName+QDir::separator()+"localhost" ) );
-    qDebug( "DocumentRoot=%s", qPrintable( s->value( "DocumentRoot" ).toString() ) );
+    s->beginGroup( QStringLiteral( "localhost" ) );
+    s->setValue( QStringLiteral( "DocumentRoot" ), s->value( QStringLiteral( "DocumentRoot" ),
+        _baseDir+QDir::separator()+QLatin1String( "localhost" ) ) );
+    s->setValue( QStringLiteral( "TempDir" ), s->value( QStringLiteral( "TempDir" ), PHI::stdTmpPath()+QDir::separator()
+        +_mgrName+QDir::separator()+QLatin1String( "localhost" ) ) );
+    qDebug( "DocumentRoot=%s", qPrintable( s->value( QStringLiteral( "DocumentRoot" ) ).toString() ) );
     s->endGroup();
     s->endGroup();
 
@@ -162,7 +163,7 @@ QString PHIConfig::documentRoot( const QString &host ) const
     QSettings *s=_settings;
     s->beginGroup( _mgrName );
     s->beginGroup( host );
-    tmp=s->value( "DocumentRoot", "" ).toString();
+    tmp=s->value( QStringLiteral( "DocumentRoot" ), QString() ).toString();
     s->endGroup();
     s->endGroup();
     if ( !tmp.isEmpty() ) _docRoots.insert( host, tmp );
@@ -175,26 +176,15 @@ PHIRC PHIConfig::updateConfig()
     QSettings *s=_settings;
     s->sync();
     _docRoots.clear();
-    _rootDir=s->value( "RootDir" ).toString();
+    _rootDir=s->value( QStringLiteral( "RootDir" ) ).toString();
     s->beginGroup( _mgrName );
-    _baseDir=s->value( "BaseDir" ).toString();
-    _logDir=s->value( "LogDir" ).toString();
-    _admin=s->value( "Admin" ).toString();
-    _keepAlive=s->value( "KeepAlive" ).toInt();
-    _logFilter=static_cast<quint8>(s->value( "LogFilter" ).toUInt());
-    _index=s->value( "Index" ).toString();
+    _baseDir=s->value( QStringLiteral( "BaseDir" ) ).toString();
+    _logDir=s->value( QStringLiteral( "LogDir" ) ).toString();
+    _admin=s->value( QStringLiteral( "Admin" ) ).toString();
+    _keepAlive=s->value( QStringLiteral( "KeepAlive" ) ).toInt();
+    _logFilter=static_cast<quint8>(s->value( QStringLiteral( "LogFilter" ) ).toUInt());
+    _index=s->value( QStringLiteral( "Index" ) ).toString();
     s->endGroup();
-    PHIRC rc=loadMimeTypes();
     qDebug( "Configuration updated." );
-    return rc;
-}
-
-PHIRC PHIConfig::loadMimeTypes()
-{
-    _settings->beginGroup( _mgrName );
-    _mimeTypesFile=_settings->value( "MimeTypesFile" ).toString();
-    _settings->endGroup();
-    qDebug( "loadMimeTypes %s", qPrintable( _mimeTypesFile ) );
-    PHI::createMimeTypes( _mimeTypesFile );
     return PHIRC_OK;
 }

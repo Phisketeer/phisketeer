@@ -33,7 +33,7 @@ PHILogWriterThread::PHILogWriterThread( QObject *parent )
     : QThread( parent )
 {
     qDebug( "PHILogWriterThread::PHILogWriterThread()" );
-    setObjectName( "LogWriterThread" );
+    setObjectName( QStringLiteral( "LogWriterThread" ) );
     _sem.release( 1 );
 }
 
@@ -76,17 +76,17 @@ PHILogWriter::PHILogWriter( QObject *parent, const QString &mgrName )
     : QObject( parent )
 {
     qDebug( "PHILogWriter::PHILogWriter()" );
-    setObjectName( "LogWriter" );
+    setObjectName( QStringLiteral( "LogWriter" ) );
     Q_UNUSED( mgrName );
     _filter=All;
     _filter&= ~(static_cast<PHILogWriter::Filter>(PHIConfig::instance()->logFilter()));
-    _logFile=PHIConfig::instance()->logDir()+QDir::separator()+"error.log";
+    _logFile=PHIConfig::instance()->logDir()+QDir::separator()+QLatin1String( "error.log" );
     _file.setFileName( _logFile );
     qDebug( "Using log file '%s'", qPrintable( _logFile ) );
     if ( !_file.open( QFile::WriteOnly | QFile::Append ) ){
         PHIError::instance()->print( PHIRC_LOG_INIT_ERROR,
             tr( "Check if '%1' is writable." ).arg( _logFile )
-            +PHI::nl()+tr( "Disabling error log file." ) );
+            +QLatin1Char( ' ' )+tr( "Disabling error log file." ) );
         _file.open( stderr, QIODevice::WriteOnly );
     }
     _out.setDevice( &_file );
@@ -139,22 +139,23 @@ void PHILogWriter::log( int type, const char* file, int line,
     /* Serialize output: _out could be invoked simultaniously
      * by more than one thread if called directly, however
      * calling by a SLOT queues this request (but we are safe to use a _mutex) */
-    QChar t( 'U' );
+    QChar t( QLatin1Char( 'U' ) );
     switch( type ){
-    case 0x02: t='E'; break;
-    case 0x04: t='W'; break;
-    case 0x01: t='T'; break;
-    case 0x08: t='C'; break;
-    case 0x10: t='D'; break;
+    case 0x02: t=QLatin1Char( 'E' ); break;
+    case 0x04: t=QLatin1Char( 'W' ); break;
+    case 0x01: t=QLatin1Char( 'T' ); break;
+    case 0x08: t=QLatin1Char( 'C' ); break;
+    case 0x10: t=QLatin1Char( 'D' ); break;
     }
     QMutexLocker l( &_mutex );
     if ( !(type & _filter) ) return;
-    _out << sep << PHI::nl() << dt.toUTC().toString( "yyyy-MM-dd hh:mm:ss.zzz" );
-    _out << " UTC, " << dt.toString( "hh:mm:ss" );
-    _out << ' ' << tr( "localtime" ) << " (" << t << ')' << PHI::nl();
-    _out << "RC=" << rc << " (" << PHIError::instance()->shortDesc( rc );
-    _out << ")" << PHI::nl() << tr( PHIError::instance()->longDesc( rc ).toLatin1() );
-    _out << PHI::nl() << PHI::nl() << tr( "Details:" ) << PHI::nl() << action;
-    _out << PHI::nl() << PHI::nl();
+    _out << sep << PHI::nl()
+         << dt.toUTC().toString( QStringLiteral( "yyyy-MM-dd hh:mm:ss.zzz" ) )
+         << " UTC, " << dt.toString( QStringLiteral( "hh:mm:ss" ) )
+         << ' ' << tr( "localtime" ) << " (" << t << ')' << PHI::nl()
+         << "RC=" << rc << " (" << PHIError::instance()->shortDesc( rc )
+         << ")" << PHI::nl() << tr( PHIError::instance()->longDesc( rc ).toLatin1().constData() )
+         << PHI::nl() << PHI::nl() << tr( "Details:" ) << PHI::nl() << action
+         << PHI::nl() << PHI::nl();
     _out.flush();
 }

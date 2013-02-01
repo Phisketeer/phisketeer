@@ -3,6 +3,7 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 !win32:QT += network
 win32:LIBS += -luser32
+DEFINES -= QT_NO_CAST_FROM_ASCII
 
 qtservice-uselib:!qtservice-buildlib {
     LIBS += -L$$QTSERVICE_LIBDIR -l$$QTSERVICE_LIBNAME

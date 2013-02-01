@@ -43,26 +43,24 @@ QString PHISSystemObj::exec( const QString &name, const QStringList &args, const
     _lastError=QString();
     proc.start( name, args, QIODevice::ReadOnly );
     if ( !proc.waitForStarted() ) {
-        QString err=tr( "Could not start process '%1' with arguments '%2'." )
-            .arg( name ).arg( args.join( QStringLiteral( " " ) ) )
-            +PHI::errorText().arg( proc.errorString() );
+        QString err=tr( "Could not start process '%1' with arguments '%2': %3" )
+            .arg( name ).arg( args.join( QStringLiteral( " " ) ) ).arg( proc.errorString() );
         PHIS_ERROR(err);
         _lastError=proc.errorString();
         _exitCode=proc.exitCode();
         return QString();
     }
     if ( !proc.waitForFinished() ) {
-        QString err=tr( "Could not finish process '%1' with arguments '%2'.")
-            .arg( name ).arg( args.join( QStringLiteral( " " ) ) )
-            +PHI::errorText().arg( proc.errorString() );
+        QString err=tr( "Could not finish process '%1' with arguments '%2': %3" )
+            .arg( name ).arg( args.join( QStringLiteral( " " ) ) ).arg( proc.errorString() );
         PHIS_ERROR(err);
         _lastError=proc.errorString();
         _exitCode=proc.exitCode();
         return QString();
     }
     if ( proc.exitCode() ) {
-        QString err=tr( "Process '%1' exit code is '%2'.")
-            .arg( name ).arg( proc.exitCode() )+PHI::errorText()
+        QString err=tr( "Process '%1' exit code is '%2': %3" )
+            .arg( name ).arg( proc.exitCode() )
             .arg( QString::fromUtf8( proc.readAllStandardError() ) );
         PHIS_WARN(err);
         _lastError=proc.errorString();

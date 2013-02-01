@@ -33,21 +33,21 @@ SConfig::SConfig( QWidget *parent )
 {
     qDebug( "SConfig::SConfig()" );
     setupUi( this );
-    setWindowTitle( qApp->applicationName()+" V"+QString( PHIVERSION ) );
+    setWindowTitle( qApp->applicationName()+QStringLiteral( " V" )+QStringLiteral( PHIVERSION ) );
     //_addTool->setIcon( QPixmap( ":/gnome/add" ) );
     //_delTool->setIcon( QPixmap( ":/gnome/cancel" ) );
-    _configCombo->insertItem( 0, "default" );
+    _configCombo->insertItem( 0, PHI::defaultString() );
     _virtualTree->setIndentation( 0 );
     _tab->setCurrentIndex( 0 );
     resize( 600, 300 );
 
-    _base=PHI::compiledRoot()+QDir::separator()+"default";
+    _base=PHI::applicationRoot()+QDir::separator()+PHI::defaultString();
 
     QSettings *s=PHI::globalSettings();
-    s->beginGroup( "default" );
+    s->beginGroup( PHI::defaultString() );
 
 #ifdef Q_OS_WIN
-    int mode=s->value( "StartMode", 3 ).toInt();
+    int mode=s->value( QStringLiteral( "StartMode" ), 3 ).toInt();
     if ( mode==2 ) _winStartupCheck->setChecked( true );
     else _winStartupCheck->setChecked( false );
 #else
@@ -66,18 +66,18 @@ SConfig::SConfig( QWidget *parent )
     _tempTool->hide();
 #endif
 
-    _base=s->value( "BaseDir", _base ).toString();
-    _email->setText( s->value( "Admin", "admin@localhost" ).toString() );
-    _index->setText( s->value( "Index", "index.phis,index.html,index.html" ).toString() );
+    _base=s->value( QStringLiteral( "BaseDir" ), _base ).toString();
+    _email->setText( s->value( QStringLiteral( "Admin" ), QStringLiteral( "admin@localhost" ) ).toString() );
+    _index->setText( s->value( QStringLiteral( "Index" ), QStringLiteral( "index.phis,index.html,index.html" ) ).toString() );
     _baseDir->setText( _base );
-    _mime->setText( s->value( "MimeTypesFile", _base+QDir::separator()+"mimetypes->txt" ).toString() );
+    _mime->setText( s->value( QStringLiteral( "MimeTypesFile" ), _base+QDir::separator()+QLatin1String( "mimetypes->txt" ) ).toString() );
 
-    _port->setValue( s->value( "ListenerPort", 8080 ).toInt() );
-    _interface->setText( s->value( "ListenerIF", "Any" ).toString() );
-    _keepAlive->setValue( s->value( "KeepAlive", 60000 ).toInt() );
+    _port->setValue( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
+    _interface->setText( s->value( QStringLiteral( "ListenerIF" ), QStringLiteral( "Any" ) ).toString() );
+    _keepAlive->setValue( s->value( QStringLiteral( "KeepAlive" ), 60000 ).toInt() );
 
-    _logDir->setText( s->value( "LogDir", _base+QDir::separator()+"log" ).toString() );
-    qint32 filter=s->value( "LogFilter", 0 ).value<qint32>();
+    _logDir->setText( s->value( QStringLiteral( "LogDir" ), _base+QDir::separator()+QLatin1String( "log" ) ).toString() );
+    qint32 filter=s->value( QStringLiteral( "LogFilter" ), 0 ).value<qint32>();
     _logCritical->setChecked( filter & PHI_LOG_FILTER_CRIT );
     _logWarn->setChecked( filter & PHI_LOG_FILTER_WARN );
     _logError->setChecked( filter & PHI_LOG_FILTER_ERROR );
@@ -85,11 +85,11 @@ SConfig::SConfig( QWidget *parent )
     _logTrace->setChecked( filter & PHI_LOG_FILTER_TRACE );
     _logUser->setChecked( filter & PHI_LOG_FILTER_USER );
 
-    _sslBox->setChecked( s->value( "SSLEnabled", false ).toBool() );
-    _sslCert->setText( s->value( "SSLCertificate" ).toString() );
-    _sslKey->setText( s->value( "SSLPrivateKey" ).toString() );
-    _sslInterface->setText( s->value( "SSLListenerIF", "Any" ).toString() );
-    _sslPort->setValue( s->value( "SSLListenerPort", 443 ).toInt() );
+    _sslBox->setChecked( s->value( QStringLiteral( "SSLEnabled" ), false ).toBool() );
+    _sslCert->setText( s->value( QStringLiteral( "SSLCertificate" ) ).toString() );
+    _sslKey->setText( s->value( QStringLiteral( "SSLPrivateKey" ) ).toString() );
+    _sslInterface->setText( s->value( QStringLiteral( "SSLListenerIF" ), QStringLiteral( "Any" ) ).toString() );
+    _sslPort->setValue( s->value( QStringLiteral( "SSLListenerPort" ), 443 ).toInt() );
 
     QStringList hosts=s->childGroups();
     QString host;
@@ -97,22 +97,22 @@ SConfig::SConfig( QWidget *parent )
         s->beginGroup( host );
         QTreeWidgetItem *it=new QTreeWidgetItem();
         it->setText( 0, host );
-        it->setText( 1, s->value( "DocumentRoot" ).toString() );
-        it->setText( 2, s->value( "TempDir" ).toString() );
+        it->setText( 1, s->value( QStringLiteral( "DocumentRoot" ) ).toString() );
+        it->setText( 2, s->value( QStringLiteral( "TempDir" ) ).toString() );
         it->setFlags( Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable );
         _virtualTree->addTopLevelItem( it );
         s->endGroup();
     }
     s->endGroup();
     QSettings geo;
-    restoreGeometry( geo.value( "GeometryPhisconf" ).toByteArray() );
+    restoreGeometry( geo.value( QStringLiteral( "GeometryPhisconf" ) ).toByteArray() );
     QTimer::singleShot( 0, this, SLOT( slotInit() ) );
 }
 
 SConfig::~SConfig()
 {
     QSettings geo;
-    geo.setValue( "GeometryPhisconf", saveGeometry() );
+    geo.setValue( QStringLiteral( "GeometryPhisconf" ), saveGeometry() );
     qDebug( "SConfig::~SConfig()" );
 }
 
@@ -125,14 +125,14 @@ void SConfig::slotInit()
         reject();
         return;
     }
-    _bin=s->value( "BinDir", qApp->applicationDirPath() ).toString();
-    if ( !QFile::exists( _bin ) ) _bin="";
+    _bin=s->value( QStringLiteral( "BinDir" ), qApp->applicationDirPath() ).toString();
+    if ( !QFile::exists( _bin ) ) _bin=QString();
     if ( _bin.isEmpty() ) {
         _bin=QFileDialog::getExistingDirectory( this,
             tr( "Please select the binary directory of the Phisketeer installation." ),
-            PHI::compiledPrefix() );
+            PHI::applicationRoot() );
         if ( _bin.isEmpty() ) return;
-        s->setValue( "BinDir", _bin );
+        s->setValue( QStringLiteral( "BinDir" ), _bin );
         s->sync();
     }
     slotCheckService();
@@ -149,7 +149,7 @@ void SConfig::slotCheckService()
         _keepAlive->setEnabled( false );
         _clearCache->setEnabled( true );
         _start->setEnabled( false );
-        _icon->setPixmap( QPixmap( ":/gnome/ok" ) );
+        _icon->setPixmap( QPixmap( QStringLiteral( ":/gnome/ok" ) ) );
     } else {
         _stop->setEnabled( false );
         _interface->setEnabled( true );
@@ -157,7 +157,7 @@ void SConfig::slotCheckService()
         _keepAlive->setEnabled( true );
         _clearCache->setEnabled( false );
         _start->setEnabled( true );
-        _icon->setPixmap( QPixmap( ":/gnome/del" ) );
+        _icon->setPixmap( QPixmap( QStringLiteral( ":/gnome/del" ) ) );
     }
 }
 
@@ -170,27 +170,27 @@ void SConfig::accept()
 void SConfig::save()
 {
     QSettings *s=PHI::globalSettings();
-    s->beginGroup( "default" );
-    s->setValue( "Admin", _email->text() );
-    s->setValue( "Index", _index->text() );
-    s->setValue( "BaseDir", _baseDir->text() );
-    s->setValue( "MimeTypesFile", _mime->text() );
-    s->setValue( "ListenerPort", _port->value() );
-    s->setValue( "ListenerIF", _interface->text() );
-    s->setValue( "KeepAlive", _keepAlive->value() );
+    s->beginGroup( PHI::defaultString() );
+    s->setValue( QStringLiteral( "Admin" ), _email->text() );
+    s->setValue( QStringLiteral( "Index" ), _index->text() );
+    s->setValue( QStringLiteral( "BaseDir" ), _baseDir->text() );
+    s->setValue( QStringLiteral( "MimeTypesFile" ), _mime->text() );
+    s->setValue( QStringLiteral( "ListenerPort" ), _port->value() );
+    s->setValue( QStringLiteral( "ListenerIF" ), _interface->text() );
+    s->setValue( QStringLiteral( "KeepAlive" ), _keepAlive->value() );
 
 #ifdef Q_OS_WIN
-    QSettings set( "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\phis", QSettings::NativeFormat );
+    QSettings set( QStringLiteral( "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\phis" ), QSettings::NativeFormat );
     if ( _winStartupCheck->isChecked() ) {
-        s->setValue( "StartMode", 2 );
-        set.setValue( "Start", 2 );
+        s->setValue( QStringLiteral( "StartMode" ), 2 );
+        set.setValue( QStringLiteral( "Start" ), 2 );
     } else {
-        s->setValue( "StartMode", 3 );
-        set.setValue( "Start", 3 );
+        s->setValue( QStringLiteral( "StartMode" ), 3 );
+        set.setValue( QStringLiteral( "Start" ), 3 );
     }
 #endif
 
-    s->setValue( "LogDir", _logDir->text() );
+    s->setValue( QStringLiteral( "LogDir" ), _logDir->text() );
     qint32 filter=0;
     if ( _logCritical->isChecked() ) filter |= PHI_LOG_FILTER_CRIT;
     if ( _logWarn->isChecked() ) filter |= PHI_LOG_FILTER_WARN;
@@ -198,13 +198,13 @@ void SConfig::save()
     if ( _logTrace->isChecked() ) filter |= PHI_LOG_FILTER_TRACE;
     if ( _logDebug->isChecked() ) filter |= PHI_LOG_FILTER_DEBUG;
     if ( _logUser->isChecked() ) filter |= PHI_LOG_FILTER_USER;
-    s->setValue( "LogFilter", filter );
+    s->setValue( QStringLiteral( "LogFilter" ), filter );
 
-    s->setValue( "SSLEnabled", _sslBox->isChecked() );
-    s->setValue( "SSLCertificate", _sslCert->text() );
-    s->setValue( "SSLPrivateKey", _sslKey->text() );
-    s->setValue( "SSLListenerPort", _sslPort->value() );
-    s->setValue( "SSLListenerIF", _sslInterface->text() );
+    s->setValue( QStringLiteral( "SSLEnabled" ), _sslBox->isChecked() );
+    s->setValue( QStringLiteral( "SSLCertificate" ), _sslCert->text() );
+    s->setValue( QStringLiteral( "SSLPrivateKey" ), _sslKey->text() );
+    s->setValue( QStringLiteral( "SSLListenerPort" ), _sslPort->value() );
+    s->setValue( QStringLiteral( "SSLListenerIF" ), _sslInterface->text() );
 
     QStringList domains=s->childGroups();
     QString domain;
@@ -217,8 +217,8 @@ void SConfig::save()
         it=_virtualTree->topLevelItem( i );
         if ( it->text( 0 ).isEmpty() ) continue;
         s->beginGroup( it->text( 0 ) );
-        s->setValue( "DocumentRoot", it->text( 1 ) );
-        s->setValue( "TempDir", it->text( 2 ) );
+        s->setValue( QStringLiteral( "DocumentRoot" ), it->text( 1 ) );
+        s->setValue( QStringLiteral( "TempDir" ), it->text( 2 ) );
         s->endGroup();
     }
     s->endGroup();
@@ -227,7 +227,7 @@ void SConfig::save()
 void SConfig::on__start_clicked()
 {
     QMessageBox::Button res=QMessageBox::warning( this, tr( "Overwrite config" ),
-        tr( "This will store your current configuration." )+'\n'
+        tr( "This will store your current configuration." )+QLatin1Char( '\n' )
         +tr( "Are you sure you want to continue?" ),
         QMessageBox::Yes | QMessageBox::Abort, QMessageBox::Abort );
     if ( res==QMessageBox::Abort ) return;

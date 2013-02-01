@@ -50,7 +50,7 @@ PHIParent::PHIParent( QObject *parent )
         for ( int i=0; i<argc; ++i ) argv[i]=argvData[i].data();
         //_app=new QApplication( argc, argv.data(), false );
         _app=new QGuiApplication( argc, argv.data() );
-        _app->setApplicationName( "mod_phi" );
+        _app->setApplicationName( QStringLiteral( "mod_phi" ) );
         _app->setApplicationVersion( PHIS::libVersion() );
         PHI::setupApplication( _app );
         _internalApp=true;
@@ -109,8 +109,8 @@ QString PHIParent::tempDir( const QString &domain, const QString &def )
     s->beginGroup( def );
     s->beginGroup( domain );
     tmp=PHI::stdTmpPath()+QDir::separator()+domain;
-    tmp=s->value( "TempDir", tmp ).toString();
-    s->setValue( "TempDir", tmp );
+    tmp=s->value( QStringLiteral( "TempDir" ), tmp ).toString();
+    s->setValue( QStringLiteral( "TempDir" ), tmp );
     s->endGroup();
     s->endGroup();
     if ( !tmp.isEmpty() ) _tmpDirs.insert( domain, tmp );
@@ -208,7 +208,7 @@ void PHIParent::database( QString &db, QString &name, QString &host, QString &us
 
 void PHIParent::invalidate( const QString &domain )
 {
-    qDebug( "invalidate '%s'", qPrintable( domain.isEmpty() ? QString( "all" ) : domain ) );
+    qDebug( "invalidate '%s'", qPrintable( domain.isEmpty() ? QLatin1String( "all" ) : domain ) );
     PHISModuleFactory::instance( this )->invalidate();
     _lock.lockForWrite();
     _loadedModules=PHISModuleFactory::instance( this )->loadedModules();
@@ -250,7 +250,7 @@ void PHIParent::clearTmpDir( const QString &tmp )
     qDebug( "clearTmpDir '%s'", qPrintable( tmp ) );
     // _lock should be locked for write
     QString entry;
-    QDir imgDir( tmp+QDir::separator()+"img" );
+    QDir imgDir( tmp+QDir::separator()+QLatin1String( "img" ) );
     QStringList entries=imgDir.entryList( QDir::Files );
     foreach ( entry, entries ) {
         QString fn( imgDir.absolutePath()+QDir::separator()+entry );
@@ -265,7 +265,7 @@ void PHIParent::clearTmpDir( const QString &tmp )
             }
         } else QFile::remove( fn );
     }
-    QDir cssDir( tmp+QDir::separator()+"css" );
+    QDir cssDir( tmp+QDir::separator()+QLatin1String( "css" ) );
     entries=cssDir.entryList( QDir::Files );
     foreach ( entry, entries )  {
         QString fn( cssDir.absolutePath()+QDir::separator()+entry );
@@ -278,7 +278,7 @@ void PHIParent::clearTmpDir( const QString &tmp )
     //entries=dbDir.entryList( QDir::Files );
     //foreach ( entry, entries ) QFile::remove( dbDir.absolutePath()
     //    +QDir::separator()+entry );
-    QDir jsDir( tmp+QDir::separator()+"js" );
+    QDir jsDir( tmp+QDir::separator()+QLatin1String( "js" ) );
     entries=jsDir.entryList( QDir::Files );
     foreach ( entry, entries ) {
         QString fn( imgDir.absolutePath()+QDir::separator()+entry );

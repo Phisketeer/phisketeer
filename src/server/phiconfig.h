@@ -68,8 +68,6 @@ public:
 
     inline quint8 logFilter() const { QReadLocker lock( &_lock ); return _logFilter; }
 
-    inline QString mimeTypesFile() const {
-        QReadLocker lock( &_lock ); return _mimeTypesFile; }
     inline QString rootDir() const {
         QReadLocker lock( &_lock ); return _rootDir; }
     inline QString baseDir() const {
@@ -98,10 +96,8 @@ public:
     PHIRC updateConfig();
 
 protected:
-    PHIConfig();
+    explicit PHIConfig();
     virtual ~PHIConfig();
-
-    PHIRC loadMimeTypes();
 
 private:
     static PHIConfig *_instance;
@@ -111,7 +107,6 @@ private:
     qint32 _maxConnections, _keepAlive;
     quint8 _logFilter;
     mutable QHash <QString, QString> _docRoots;
-    QString _mimeTypesFile;
 };
 
 #endif // PHICONFIG_H

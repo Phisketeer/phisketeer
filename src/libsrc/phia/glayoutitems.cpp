@@ -45,8 +45,7 @@ void GAbstractLayoutItem::prepareSlideEffect()
     int i;
     for ( i=0; i<l->count(); i++ ) {
         it=dynamic_cast<GWidgetItem*>(l->itemAt( i ));
-        if ( PHI::isLayoutContainer( it->item()->wid() ) ) {
-            qDebug( "----------" );
+        if ( PHI::isLayoutContainer( static_cast<PHI::Widget>(it->item()->wid()) ) ) {
             GAbstractLayoutItem *lit=dynamic_cast<GAbstractLayoutItem*>(it);
             Q_ASSERT( lit );
             lit->prepareSlideEffect();
@@ -70,7 +69,7 @@ void GAbstractLayoutItem::restoreSlideEffect()
     int i;
     for ( i=0; i<l->count(); i++ ) {
         it=dynamic_cast<GWidgetItem*>(l->itemAt( i ));
-        if ( PHI::isLayoutContainer( it->item()->wid() ) ) {
+        if ( PHI::isLayoutContainer( static_cast<PHI::Widget>(it->item()->wid()) ) ) {
             GAbstractLayoutItem *lit=dynamic_cast<GAbstractLayoutItem*>(it);
             Q_ASSERT( lit );
             lit->restoreSlideEffect();

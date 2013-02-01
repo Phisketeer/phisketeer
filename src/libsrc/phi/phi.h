@@ -118,6 +118,7 @@ public:
     static inline int maxZValue() { return 1000; }
     static QByteArray nl();
     static QByteArray dtFormat();
+    static QString dtFormatString();
     static QByteArray isoDateFormat();
     static QByteArray domain();
     static QByteArray organisation();
@@ -129,6 +130,7 @@ public:
     static inline qreal minimumWidth() { return 20.; }
     static inline qreal defaultWidth() { return 80.; }
     static inline qreal defaultHeight() { return 24.; }
+    static inline QRect defaultWindowSize() { return QRect( 0, 0, 400, 400 ); }
     static inline qreal minimumWidthForDateEdit() { return 130.; }
     static inline qreal minimumWidthForFileUpload() { return 278.; }
     static inline qreal minimumHeightForFileUpload() { return 26.; }
@@ -168,6 +170,7 @@ public:
     static QByteArray emailRegExp();
     static QByteArray phoneNumberRegExp();
     static QByteArray mimeType();
+    static QByteArray mimeType( const QFileInfo &info );
     static QString stdTmpPath();
     static QString getLocalFilePath( const QString &docroot, const QString &referer, const QString &filename );
     static QString getRelativeFilePath( const QString &referer, const QString &filename );
@@ -204,6 +207,7 @@ public:
     static bool clearPhisServiceCache();
     static QString defaultString();
     static QString serverBin();
+    static QUrl createUrlForLink( const QUrl &ref, const QString &link );
 
 protected:
     PHI() {}
@@ -215,6 +219,11 @@ private:
     static const char* _phoneNumberRegExp;
     static const char* _phiMimeType;
 };
+
+inline QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )
+{
+    return ref.resolved( QUrl( l ) );
+}
 
 inline QString PHI::defaultString()
 {
@@ -232,6 +241,12 @@ inline QString PHI::stdTmpPath()
 inline QByteArray PHI::dtFormat()
 {
     static QByteArray dt=QByteArray::fromRawData( _phiDT, qstrlen( _phiDT )-1 );
+    return dt;
+}
+
+inline QString PHI::dtFormatString()
+{
+    static QString dt=QString::fromLatin1( dtFormat() );
     return dt;
 }
 

@@ -54,20 +54,20 @@ PHIRC PHIListener::init( QObject *parent )
     QHostAddress host;
     QString todo=tr( "Check '%1' in your PHI manager configuration." );
     QString address=PHIConfig::instance()->configValue(
-            "ListenerIF", "Any" ).toString();
-    if ( address.toUpper()==QString( "ANY" ) )
+        QStringLiteral( "ListenerIF" ), QStringLiteral( "Any" ) ).toString();
+    if ( address.toUpper()==QLatin1String( "ANY" ) )
         host.setAddress( QHostAddress::Null );
-    else if ( address.toUpper()==QString( "LOCALHOST" ) )
+    else if ( address.toUpper()==QLatin1String( "LOCALHOST" ) )
         host.setAddress( QHostAddress::LocalHost );
     else if ( !host.setAddress( address ) ){
-        todo=todo.arg( "ListenerIF" );
+        todo=todo.arg( QStringLiteral( "ListenerIF" ) );
         emit log( PHILOGERR, PHIRC_TCP_IP_ADDRESS_ERROR, todo );
         return PHIRC_TCP_IP_ADDRESS_ERROR;
     }
-    qint16 port=PHIConfig::instance()->configValue( "ListenerPort", 80 ).toInt();
+    qint16 port=PHIConfig::instance()->configValue( QStringLiteral( "ListenerPort" ), 80 ).toInt();
     if ( !listen( host, port ) ){
         todo=tr( "Could not bind port. Check '%1' in your PHI manager configuration." )
-            .arg( "ListenerPort" );
+            .arg( QStringLiteral( "ListenerPort" ) );
         emit log( PHILOGERR, PHIRC_TCP_IP_ADDRESS_ERROR, todo );
         return PHIRC_TCP_IP_ADDRESS_ERROR;
     }
@@ -122,20 +122,20 @@ PHIRC PHISslListener::init( QObject *parent )
     QHostAddress host;
     QString todo=tr( "Check '%1' in your PHI manager configuration." );
     QString address=PHIConfig::instance()->configValue(
-            "SSLListenerIF", "Any" ).toString();
-    if ( address.toUpper()==QString( "ANY" ) )
+        QStringLiteral( "SSLListenerIF" ), QStringLiteral( "Any" ) ).toString();
+    if ( address.toUpper()==QLatin1String( "ANY" ) )
         host.setAddress( QHostAddress::Null );
-    else if ( address.toUpper()==QString( "LOCALHOST" ) )
+    else if ( address.toUpper()==QLatin1String( "LOCALHOST" ) )
         host.setAddress( QHostAddress::LocalHost );
     else if ( !host.setAddress( address ) ){
-        todo=todo.arg( "SSLListenerIF" );
+        todo=todo.arg( QStringLiteral( "SSLListenerIF" ) );
         emit log( PHILOGERR, PHIRC_TCP_IP_ADDRESS_ERROR, todo );
         return PHIRC_TCP_IP_ADDRESS_ERROR;
     }
-    qint16 port=PHIConfig::instance()->configValue( "SSLListenerPort", 443 ).toInt();
+    qint16 port=PHIConfig::instance()->configValue( QStringLiteral( "SSLListenerPort" ), 443 ).toInt();
     if ( !listen( host, port ) ){
         todo=tr( "Could not bind port. Check '%1' in your PHI manager configuration." )
-            .arg( "SSLListenerPort" );
+            .arg( QStringLiteral( "SSLListenerPort" ) );
         emit log( PHILOGERR, PHIRC_TCP_IP_ADDRESS_ERROR, todo );
         return PHIRC_TCP_IP_ADDRESS_ERROR;
     }

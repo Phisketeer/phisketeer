@@ -44,12 +44,13 @@ void PHISModuleFactory::invalidate()
 {
     qDebug( "PHISModuleFactory::invalidate()" );
     QSettings *s=PHI::globalSettings();
-    QString path=s->value( "PluginsPath", QString() ).toString();
-    QDir dir ( path+QDir::separator()+"modules" );
+    QString path=s->value( QStringLiteral( "PluginsPath" ), QString() ).toString();
+    QDir dir ( path+QDir::separator()+QLatin1String( "modules" ) );
     if ( !dir.exists() ) {
         path=QCoreApplication::instance()->applicationDirPath();
 #ifdef Q_OS_WIN
-        dir.setPath( path+QDir::separator()+"plugins"+QDir::separator()+"modules" );
+        dir.setPath( path+QDir::separator()+QLatin1String( "plugins" )
+            +QDir::separator()+QLatin1String( "modules" ) );
 #elif defined Q_OS_UNIX
 #ifdef Q_OS_MAC
         dir.setPath( path ); // MacOS

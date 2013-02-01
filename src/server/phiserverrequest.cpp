@@ -69,23 +69,23 @@ void PHIServerRequest::clear()
 
 PHIRC PHIServerRequest::setupHttpHeader( const QString &headerStr, QString &err )
 {
-    QStringList lines=headerStr.split( '\n', QString::SkipEmptyParts );
+    QStringList lines=headerStr.split( QLatin1Char( '\n' ), QString::SkipEmptyParts );
     if ( lines.count()==0 ) {
         err=tr( "Empty HTTP header." );
         return PHIRC_HTTP_BAD_REQUEST;
     }
-    QString line, key, value=" GET POST HEAD PUT CREATE ";
-    if ( !lines.at(0).contains( "HTTP/" ) ) {
+    QString line, key, value=QStringLiteral( " GET POST HEAD PUT CREATE " );
+    if ( !lines.at(0).contains( QStringLiteral( "HTTP/" ) ) ) {
         err=tr( "Missing HTTP header." );
         return PHIRC_HTTP_BAD_REQUEST;
     }
     int start;
-    _keywords.insert( KMethod, headerStr.left( start=headerStr.indexOf( ' ' ) ).toUpper().toLatin1() );
-    if ( !value.contains( ' '+method()+' ' ) ) {
+    _keywords.insert( KMethod, headerStr.left( start=headerStr.indexOf( QLatin1Char( ' ' ) ) ).toUpper().toLatin1() );
+    if ( !value.contains( QLatin1Char( ' ' )+method()+QLatin1Char( ' ' ) ) ) {
         err=tr( "Unknown method." );
         return PHIRC_HTTP_METHOD_NOT_ALLOWED;
     }
-    key=headerStr.mid( lines.at(0).indexOf( "HTTP/" )+5, 3 );
+    key=headerStr.mid( lines.at(0).indexOf( QLatin1String( "HTTP/" ) )+5, 3 );
     _httpMajor=key.left(1).toUShort();
     _httpMinor=key.right(1).toUShort();
     if ( _httpMajor!=1 || _httpMinor>2 ) {
@@ -93,17 +93,17 @@ PHIRC PHIServerRequest::setupHttpHeader( const QString &headerStr, QString &err 
         return PHIRC_HTTP_VERSION_NOT_SUPPORTED;
     }
     _url=QUrl::fromEncoded( lines.at(0).mid( start+1,
-        lines.at(0).indexOf( ' ', start+1 )-start-1 ).toUtf8(), QUrl::StrictMode );
+        lines.at(0).indexOf( QLatin1Char( ' ' ), start+1 )-start-1 ).toUtf8(), QUrl::StrictMode );
     _url.setScheme( _server->_scheme );
     _url.setPort( _server->_port );
     lines.removeFirst();
     foreach ( line, lines ) {
         key=value=line.trimmed();
-        if ( !key.contains( ':' ) ) {
+        if ( !key.contains( QLatin1Char( ':' ) ) ) {
             err=tr( "Bad header entry (%1)." ).arg( key );
             return PHIRC_HTTP_BAD_REQUEST;
         }
-        key=key.left( start=key.indexOf( ':' ) );
+        key=key.left( start=key.indexOf( QLatin1Char( ':' ) ) );
         if ( key.size()>200 ) {
             err=tr( "Too large header entry (%1)" ).arg( key );
             return PHIRC_HTTP_BAD_REQUEST;
@@ -119,7 +119,7 @@ PHIRC PHIServerRequest::setupHttpHeader( const QString &headerStr, QString &err 
     _contentLength=_headers.value( "Content-Length", 0 ).toLongLong();
 
     key=QString::fromUtf8( _headers.value( "Host" ) );
-    if ( key.contains( ':' ) ) key=key.left( key.indexOf( ':' ) ); // remove port if any
+    if ( key.contains( QLatin1Char( ':' ) ) ) key=key.left( key.indexOf( QLatin1Char( ':' ) ) ); // remove port if any
     if ( _httpMinor>0 ) {
         if ( key.isEmpty() ) {
             err=tr( "Missing Host header field." );
@@ -146,20 +146,21 @@ PHIRC PHIServerRequest::setupHttpHeader( const QString &headerStr, QString &err 
     _documentRoot=value;
     //PHIParent::instance()->readLicenseFile( value, key );
     _tmpDir=PHIParent::instance()->tempDir( key );
-    _imgDir=_tmpDir+QDir::separator()+"img";
+    _imgDir=_tmpDir+QDir::separator()+QLatin1String( "img" );
     _canonicalFilename=_documentRoot+_url.path();
     //qDebug( "FILE %s %s", qPrintable( _canonicalFilename ), qPrintable( _url.toString() ) );
 
-    if ( _canonicalFilename.endsWith( "/phi.phis" ) ) {
+    if ( _canonicalFilename.endsWith( QLatin1String( "/phi.phis" ) ) ) {
         _modified=QDateTime::currentDateTime();
     } else {
         QFileInfo fi( _canonicalFilename );
         if ( fi.isDir() ) {
-            if ( _canonicalFilename.endsWith( '/' ) || _canonicalFilename.endsWith( '\\' ) )
+            if ( _canonicalFilename.endsWith( QLatin1Char( '/' ) )
+                || _canonicalFilename.endsWith( QLatin1Char( '\\' ) ) )
                 _canonicalFilename.chop( 1 );
             QString index=PHIConfig::instance()->index();
-            index.replace( QRegExp( "\\s" ), "" );
-            QStringList indexList=index.split( ',', QString::SkipEmptyParts );
+            index.replace( QRegExp( QStringLiteral( "\\s" ) ), QString() );
+            QStringList indexList=index.split( QLatin1Char( ',' ), QString::SkipEmptyParts );
             foreach ( index, indexList ) {
                 fi.setFile( _canonicalFilename+QDir::separator()+index );
                 if ( fi.exists() ) break;

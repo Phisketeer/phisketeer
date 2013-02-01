@@ -21,7 +21,7 @@
 PHIDOM = phisketeer.org
 PHIORG = Phisketeer
 PHICONF = warn_on
-PHIRELEASE = 2.0.0
+PHIRELEASE = 1.5.0
 PHIMACDEPLOY = 10.6
 PHIMACSDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
 #mac: PHICONF += x86_64 macappstore

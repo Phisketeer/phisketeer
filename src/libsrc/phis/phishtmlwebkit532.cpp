@@ -165,7 +165,7 @@ void PHISHtmlWebKit532::imageButton() const
         +onClickUrl()+startStyle( adjustButtonSize() )+effectStyle();
     _out+="padding:0px;-webkit-appearance:button;\">\n";
     QByteArray url;
-    if ( _it->imageId().startsWith( "phi" ) )
+    if ( _it->imageId().startsWith( QLatin1String( "phi" ) ) )
         url="/phi.phis?phiimg="+_it->imageIdData()+"&amp;phitmp=1";
     else url="/phi.phis?phiimg="+_it->imageIdData();
     QByteArray style=" style=\"position:relative;vertical-align:middle;";

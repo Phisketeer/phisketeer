@@ -233,7 +233,7 @@ void PHISHtmlGeneric::rolloverButton() const
         if ( i==0 ) first=imageId;
         else second=imageId;
     }
-    if ( first.startsWith( "phi" ) || _it->itemProperties() & PHIItem::PNoCache ) {
+    if ( first.startsWith( QLatin1String( "phi" ) ) || _it->itemProperties() & PHIItem::PNoCache ) {
         url1="/phi.phis?phiimg="+first.toUtf8()+"&amp;phitmp=1";
         if ( !second.isNull() ) url2="/phi.phis?phiimg="
             +second.toUtf8()+"&amp;phitmp=1";
@@ -259,7 +259,7 @@ void PHISHtmlGeneric::diaShow() const
     for ( i=0; i<_it->pictureBookIds().count(); i++ ) {
         imageId=_it->pictureBookIds().at( i );
         // check if we have a graphical changed picture
-        if ( !postfix.isNull() || imageId.startsWith( "phi" )
+        if ( !postfix.isNull() || imageId.startsWith( QLatin1String( "phi" ) )
                 || (_it->itemProperties() & PHIItem::PNoCache) ) {
             imageId=checkForImageId( postfix, i ); // image already cached?
             useTmp=true;
@@ -340,12 +340,13 @@ void PHISHtmlGeneric::phisysLink() const
 void PHISHtmlGeneric::dateEdit() const
 {
     QDate now, start, end;
-    QStringList dates=_it->value().split( ':', QString::SkipEmptyParts );
-    if ( dates.count()>0 ) now=QDate::fromString( dates[0], PHI::isoDateFormat() );
+    static QString isoFmt=QString::fromLatin1( PHI::isoDateFormat() );
+    QStringList dates=_it->value().split( QLatin1Char( ':' ), QString::SkipEmptyParts );
+    if ( dates.count()>0 ) now=QDate::fromString( dates[0], isoFmt );
     if ( !now.isValid() ) now=QDate::currentDate();
-    if ( dates.count()>1 ) start=QDate::fromString( dates[1], PHI::isoDateFormat() );
+    if ( dates.count()>1 ) start=QDate::fromString( dates[1], isoFmt );
     if ( !start.isValid() ) start=now;
-    if ( dates.count()>2 ) end=QDate::fromString( dates[2], PHI::isoDateFormat() );
+    if ( dates.count()>2 ) end=QDate::fromString( dates[2], isoFmt );
     if ( !end.isValid() ) end=QDate( 9999, 12, 31 );
 
     QRect r=adjustLineEditSize();
@@ -386,16 +387,17 @@ void PHISHtmlGeneric::dateEdit() const
 void PHISHtmlGeneric::calendar() const
 {
     QDate now, start, end;
-    QStringList dates=_it->value().split( ':', QString::SkipEmptyParts );
-    if ( dates.count()>0 ) now=QDate::fromString( dates[0], PHI::isoDateFormat() );
+    static QString isoFmt=QString::fromLatin1( PHI::isoDateFormat() );
+    QStringList dates=_it->value().split( QLatin1Char( ':' ), QString::SkipEmptyParts );
+    if ( dates.count()>0 ) now=QDate::fromString( dates[0], isoFmt );
     if ( !now.isValid() ) now=QDate::currentDate();
-    if ( dates.count()>1 ) start=QDate::fromString( dates[1], PHI::isoDateFormat() );
+    if ( dates.count()>1 ) start=QDate::fromString( dates[1], isoFmt );
     if ( !start.isValid() ) start=now;
-    if ( dates.count()>2 ) end=QDate::fromString( dates[2], PHI::isoDateFormat() );
+    if ( dates.count()>2 ) end=QDate::fromString( dates[2], isoFmt );
     if ( !end.isValid() ) end=QDate( 9999, 12, 31 );
 
     _out+=_indent+"<input type=\"hidden\" name=\""+_it->id()+"\" id=\""+_it->id()+"_phical\" value=\""
-        +now.toString( PHI::isoDateFormat() ).toLatin1()+_endtag;
+        +now.toString( isoFmt ).toLatin1()+_endtag;
     _out+=_indent+"<div class=\"phical\" "+id()+accessKey()+tabIndex()
         +startStyle( QRect( 0, 0, -6, -4 ) )+fontStyle()+effectStyle()+"\"></div>\n";
     _jquery+="\t$('#"+_it->id()+"').datepicker({minDate:new Date("
@@ -424,7 +426,7 @@ void PHISHtmlGeneric::imageButton() const
         +onClickUrl()+startStyle( adjustButtonSize() )+effectStyle();
     _out+="padding:0;\">\n";
     QByteArray url;
-    if ( _it->imageId().startsWith( "phi" ) )
+    if ( _it->imageId().startsWith( QStringLiteral( "phi" ) ) )
         url="/phi.phis?phiimg="+_it->imageIdData()+"&amp;phitmp=1";
     else url="/phi.phis?phiimg="+_it->imageIdData();
     QByteArray style=" style=\"position:relative;vertical-align:middle;left:-2px;";
@@ -532,7 +534,7 @@ void PHISHtmlGeneric::table() const
     QStringList rows=_it->value().split( _it->delimiter(), QString::SkipEmptyParts );
     for ( r=0; r<rows.count(); r++ ) {
         row=rows.at( r );
-        QStringList cols=row.split( "|", QString::KeepEmptyParts );
+        QStringList cols=row.split( QLatin1Char( '|' ), QString::KeepEmptyParts );
         if ( r==0 ) {
             colCount=cols.count();
             //_out+=_indent+"\t<thead><tr class=\"phibutton phibuttontext\">";
@@ -549,7 +551,7 @@ void PHISHtmlGeneric::table() const
         else _out+=_indent+"\t<tr onclick=\"phitbl_"+_it->id()+'('+QByteArray::number( r )+");\">";
         for ( int c=0; c<colCount; c++ ) {
             if ( c < cols.count() ) col=cols.at( c );
-            else col="";
+            else col=QString();
             _out+="<td class=\"phitabletd\"";
             if ( c==0 ) {
                 PHI::getItemCheckData( col, v, isChecked );
@@ -607,7 +609,7 @@ void PHISHtmlGeneric::checkBoxList() const
     QStringList rows=_it->value().split( _it->delimiter(), QString::SkipEmptyParts );
     for ( int r=0; r<rows.count(); r++ ) {
         row=rows.at( r );
-        QStringList cols=row.split( "|", QString::KeepEmptyParts );
+        QStringList cols=row.split( QLatin1Char( '|' ), QString::KeepEmptyParts );
         if ( r==0 ) {
             colCount=cols.count();
             _out+=_indent+"\t<thead><tr class=\"phibuttontext\">";
@@ -624,7 +626,7 @@ void PHISHtmlGeneric::checkBoxList() const
         _out+=_indent+"\t<tr>";
         for ( int c=0; c<colCount; c++ ) {
             if ( c < cols.count() ) col=cols.at( c );
-            else col="";
+            else col=QString();
             qDebug( "col=%s", qPrintable( col ) );
             if ( c==0 ) {
                 PHI::getItemCheckData( col, v, isChecked );
@@ -658,33 +660,34 @@ void PHISHtmlGeneric::selectBox() const
 
 void PHISHtmlGeneric::langSelector() const
 {
-    QString lang, langs, localeLang( _lang );
+    QString lang, langs, localeLang( QString::fromLatin1( _lang ) );
     langs.reserve( 400 );
-    if ( _lang.size()==5 ) localeLang=_lang.left(2)+'_'+_lang.right(2).toUpper(); // de-de -> de_DE
+    if ( _lang.size()==5 ) localeLang=QString::fromLatin1( _lang.left(2) )+QLatin1Char( '_' )
+        +QString::fromLatin1( _lang.right(2).toUpper() ); // de-de -> de_DE
     QLocale current( localeLang );
 
     foreach( lang, _p->languages() ) {
         localeLang=lang;
-        if ( lang.size()==5 ) localeLang=lang.left(2)+'_'+lang.right(2).toUpper();
-        if ( lang==_lang ) {
+        if ( lang.size()==5 ) localeLang=lang.left(2)+QLatin1Char( '_' )+lang.right(2).toUpper();
+        if ( lang==QLatin1String( _lang ) ) {
             langs.append( current.languageToString( current.language() ) );
-            if ( lang.size()==5 ) langs.append( " ("+current.countryToString( current.country() )+')' );
-            langs.append( '['+lang+"][1]\n" );
+            if ( lang.size()==5 ) langs.append( QLatin1String( " (" )+current.countryToString( current.country() )+QLatin1Char( ')' ) );
+            langs.append( QLatin1Char( '[' )+lang+QLatin1String( "][1]\n" ) );
         } else {
             QLocale locale( localeLang );
             langs.append( current.languageToString( locale.language() ) );
-            if ( lang.size()==5 ) langs.append( " ("+current.countryToString( locale.country() )+')' );
-            langs.append( '['+lang+"]\n" );
+            if ( lang.size()==5 ) langs.append( QLatin1String( " (" )+current.countryToString( locale.country() )+QLatin1Char( ')' ) );
+            langs.append( QLatin1Char( '[' )+lang+QLatin1String( "]\n" ) );
         }
     }
     langs.chop( 1 ); // remove last '\n'
 
     _out+=_indent+"<select class=\"phitext\""+name()+readOnly()+disabled()+title()
         +startStyle( adjustSelectSize() )+fontStyle()+effectStyle()+"\">\n";
-    _out+=selectOptions( langs.split( '\n' ) );
+    _out+=selectOptions( langs.split( QLatin1Char( '\n' ) ) );
     if ( _it->id()=="philangselector" ) {
         QUrlQuery query( _req->url() );
-        query.removeQueryItem( "philang" );
+        query.removeQueryItem( QStringLiteral( "philang" ) );
         QUrl url( _req->url() );
         url.setQuery( query );
         QByteArray u=url.toEncoded();
@@ -782,7 +785,7 @@ void PHISHtmlGeneric::image() const
     // inline stored image:
     if ( _it->hasGraphicEffect() ) return createGraphicsImage( GTImage );
     if ( _it->itemProperties() & PHIItem::PNoCache ) return createGraphicsImage( GTImage );
-    if ( _it->imageId().startsWith( "phi" ) ) return createGraphicsImage( GTImage );
+    if ( _it->imageId().startsWith( QLatin1String( "phi" ) ) ) return createGraphicsImage( GTImage );
     QTransform t=transformation();
     if ( !t.isIdentity() ) return createGraphicsImage( GTImage );
     // seems we have an image on local disk
@@ -856,13 +859,13 @@ void PHISHtmlGeneric::facebookLikeButton() const
 
 void PHISHtmlGeneric::googlePlusButton() const
 {
-    QStringList list=_it->value().split( '&', QString::SkipEmptyParts );
+    QStringList list=_it->value().split( QLatin1Char( '&' ), QString::SkipEmptyParts );
     QString tmp, size, href, cb, annotation;
     foreach ( tmp, list ) {
-        if ( tmp.startsWith( "href=" ) ) href=tmp.mid( 5 );
-        else if ( tmp.startsWith( "size=") ) size=tmp.mid( 5 );
-        else if ( tmp.startsWith( "callback=" ) ) cb=tmp.mid( 9 );
-        else if ( tmp.startsWith( "annotation=" ) ) annotation=tmp.mid( 11 );
+        if ( tmp.startsWith( QLatin1String( "href=" ) ) ) href=tmp.mid( 5 );
+        else if ( tmp.startsWith( QLatin1String( "size=" ) ) ) size=tmp.mid( 5 );
+        else if ( tmp.startsWith( QLatin1String( "callback=" ) ) ) cb=tmp.mid( 9 );
+        else if ( tmp.startsWith( QLatin1String( "annotation=" ) ) ) annotation=tmp.mid( 11 );
     }
     _out+=_indent+"<div"+id()+startStyle()+effectStyle()+"border:none;overflow:hidden;\">"
         "<g:plusone href=\""+href.toUtf8()+"\" size=\""+size.toUtf8()+"\" callback=\""

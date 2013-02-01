@@ -144,10 +144,10 @@ void PHIAVSlideAnimation::startExclusive()
 {
     stopRunningAnimations(); // restoreSlideEffect and remove other "height" animations
     _orgHeight=_item->height();
-    if ( PHI::isLayoutContainer( _item->wid() ) ) {
+    if ( PHI::isLayoutContainer( static_cast<PHI::Widget>(_item->wid()) ) ) {
         GAbstractLayoutItem *l=qgraphicsitem_cast<GAbstractLayoutItem*>(_item->graphicsItem());
         l->prepareSlideEffect();
-    } else if ( PHI::isWidgetItem( _item->wid() ) ) {
+    } else if ( PHI::isWidgetItem( static_cast<PHI::Widget>(_item->wid()) ) ) {
         GWidgetItem *git=qgraphicsitem_cast<GWidgetItem*>(_item->graphicsItem());
         _sizePolicy=git->sizePolicy();
         _minimumSize=git->minimumSize();
@@ -177,10 +177,10 @@ void PHIAVSlideAnimation::slotStateChanged( QAbstractAnimation::State newState,
     if ( _direction==SUp ) {
         _item->setVisible( false );
     }
-    if ( PHI::isLayoutContainer( _item->wid() ) ) {
+    if ( PHI::isLayoutContainer( static_cast<PHI::Widget>(_item->wid()) ) ) {
         GAbstractLayoutItem *l=qgraphicsitem_cast<GAbstractLayoutItem*>(_item->graphicsItem());
         l->restoreSlideEffect();
-    } else if ( PHI::isWidgetItem( _item->wid() ) ) {
+    } else if ( PHI::isWidgetItem( static_cast<PHI::Widget>(_item->wid()) ) ) {
         GWidgetItem *git=qgraphicsitem_cast<GWidgetItem*>(_item->graphicsItem());
         git->setSizePolicy( _sizePolicy );
         git->setMinimumSize( _minimumSize );

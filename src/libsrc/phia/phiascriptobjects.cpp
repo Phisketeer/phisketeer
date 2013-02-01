@@ -651,7 +651,7 @@ void PHIAScriptPhiObj::href( const QString &l )
     if ( link.startsWith( "mailto:" ) ) {
         //QString mail=link;
         //mail.remove( 0, 7 );
-        QDesktopServices::openUrl( link );
+        QDesktopServices::openUrl( QUrl( link ) );
         return;
     }
     qDebug( "----------------------- %s %s", qPrintable( link ), qPrintable( _view->url().toString( ) ) );

@@ -79,6 +79,7 @@ TARGET = phia
 QT = core gui network svg script webkitwidgets widgets printsupport
 INCLUDEPATH += ../phi
 DEFINES += PHIALIB PHIVERSION=\\\"$$VERSION\\\"
+DEFINES -= QT_NO_CAST_FROM_ASCII QT_NO_CAST_FROM_BYTEARRAY
 OTHER_FILES = vars.txt
 RESOURCES += phia.qrc
 

@@ -35,8 +35,8 @@ PHISession::PHISession( PHIResponseRec *resp, const QString &path, QObject *pare
     qDebug( "PHISession::PHISession()" );
     Q_ASSERT( resp );
     _id=PHISPageCache::getDbId();
-    QSqlDatabase db=QSqlDatabase::addDatabase( "QSQLITE", QString::number( _id ) );
-    db.setDatabaseName( path+QDir::separator()+"phisid.db" );
+    QSqlDatabase db=QSqlDatabase::addDatabase( QStringLiteral( "QSQLITE" ), QString::number( _id ) );
+    db.setDatabaseName( path+QDir::separator()+QLatin1String( "phisid.db" ) );
     QDir dbdir( path );
     if ( !dbdir.exists() ) dbdir.mkpath( path );
     if ( !db.open() ) {
@@ -48,10 +48,10 @@ PHISession::PHISession( PHIResponseRec *resp, const QString &path, QObject *pare
     QStringList tables=db.tables();
     if ( tables.isEmpty() ) {
         QSqlQuery query( db );
-        if ( !query.exec( PHICREATETABLE ) ) {
+        if ( !query.exec( QString::fromLatin1( PHICREATETABLE ) ) ) {
             _resp->log( PHILOGERR, PHIRC_QUERY_ERROR,
-                QObject::tr( "Could not create session table." )
-                + PHI::errorText().arg( query.lastError().text() ) );
+                QObject::tr( "Could not create session table: %1" )
+                .arg( query.lastError().text() ) );
         }
     }
 }
@@ -89,30 +89,28 @@ QString PHISession::createSession( qint32 timeout, const QString &sid )
     qDebug( "SESSION create %s (%d)", qPrintable( uid ), timeout );
     QSqlQuery query( db );
     QDateTime cdt=QDateTime::currentDateTime();
-    QString sql=QString( "INSERT INTO sess ( sid, dtime, tout ) VALUES( '%1', '%2', %3 )" )
-        .arg( uid ).arg( cdt.toString( PHI::dtFormat() ) ).arg( timeout );
+    QString sql=QString( QStringLiteral( "INSERT INTO sess ( sid, dtime, tout ) VALUES( '%1', '%2', %3 )" ) )
+        .arg( uid ).arg( cdt.toString( PHI::dtFormatString() ) ).arg( timeout );
     if ( !query.exec( sql ) ) {
         _resp->log( PHILOGERR, PHIRC_QUERY_ERROR,
-            QObject::tr( "Could not insert session key into DB." )
-            + PHI::errorText().arg( query.lastError().text() ) );
+            QObject::tr( "Could not insert session key into DB: %1" ).arg( query.lastError().text() ) );
         return QString();
     }
-    sql=QString( "SELECT sid, dtime, tout FROM sess" );
+    sql=QStringLiteral( "SELECT sid, dtime, tout FROM sess" );
     if ( !query.exec( sql ) ) {
         _resp->log( PHILOGERR, PHIRC_QUERY_ERROR,
-            QObject::tr( "Could not cleanup session DB." )
-            + PHI::errorText().arg( query.lastError().text() ) );
+            QObject::tr( "Could not cleanup session DB: %1" ).arg( query.lastError().text() ) );
         return uid;
     }
     QDateTime dt;
     QStringList timeoutIds;
     while ( query.next() ) {
-        dt=QDateTime::fromString( query.value( 1 ).toString(), PHI::dtFormat() );
+        dt=QDateTime::fromString( query.value( 1 ).toString(), PHI::dtFormatString() );
         if ( dt.addSecs( query.value( 2 ).toInt()*60 ) < cdt )
             timeoutIds.append( query.value( 0 ).toString() );
     }
     foreach ( sql, timeoutIds ) {
-        query.exec( "DELETE FROM sess WHERE sid='"+sql+"'" );
+        query.exec( QStringLiteral( "DELETE FROM sess WHERE sid='" )+sql+QLatin1Char( '\'' ) );
         qDebug( "Deleting %s", qPrintable( sql ) );
     }
     return uid;
@@ -127,33 +125,32 @@ bool PHISession::validateSession( const QString &uid, qint32 timeout )
         return false;
     }
     QSqlQuery query( db );
-    QString sql=QString( "SELECT dtime, tout FROM sess WHERE sid='%1'" ).arg( uid );
+    QString sql=QStringLiteral( "SELECT dtime, tout FROM sess WHERE sid='" )+uid+QLatin1Char( '\'' );
     if ( !query.exec( sql ) ) {
         _resp->log( PHILOGERR, PHIRC_QUERY_ERROR,
-            QObject::tr( "Could not get session key from DB." )
-            + PHI::errorText().arg( query.lastError().text() ) );
+            QObject::tr( "Could not get session key from DB: %1" ).arg( query.lastError().text() ) );
         return false;
     }
     if ( !query.next() ) {
         qDebug( "uid=%s (invalid)", qPrintable( uid ) );
         return false;
     }
-    QDateTime dt=QDateTime::fromString( query.value( 0 ).toString(), PHI::dtFormat() );
+    QDateTime dt=QDateTime::fromString( query.value( 0 ).toString(), PHI::dtFormatString() );
     QDateTime cdt=QDateTime::currentDateTime();
     qDebug( "SESSION ADD secs %d (%d)", query.value( 1 ).toInt()*60, timeout );
     if ( dt.addSecs( query.value( 1 ).toInt()*60 ) < cdt ) {
         qDebug( "SESSION timedout %s %s",
-                qPrintable( dt.toString("hh:mm:ss:zzz")), qPrintable( cdt.toString("hh:mm:ss:zzz") ) );
+                qPrintable( dt.toString( QStringLiteral( "hh:mm:ss:zzz" ) ) ),
+                qPrintable( cdt.toString( QStringLiteral( "hh:mm:ss:zzz" ) ) ) );
         // session timedout
         return false;
     }
-    qDebug( "SESSION valid %s %s", qPrintable( dt.toString("hh:mm:ss:zzz")), qPrintable( cdt.toString("hh:mm:ss:zzz") ) );
-    sql=QString( "UPDATE sess SET dtime='%1' WHERE sid='%2'" )
-        .arg( cdt.toString( PHI::dtFormat() ) ).arg( uid );
+    sql=QString::fromLatin1( "UPDATE sess SET dtime='%1' WHERE sid='%2'" )
+        .arg( cdt.toString( PHI::dtFormatString() ) ).arg( uid );
     if ( !query.exec( sql ) ) {
         _resp->log( PHILOGERR, PHIRC_QUERY_ERROR,
-            QObject::tr( "Could not update session key in DB." )
-            + PHI::errorText().arg( query.lastError().text() ) );
+            QObject::tr( "Could not update session key in DB: %1" )
+            .arg( query.lastError().text() ) );
         return false;
     }
     return true;

@@ -45,7 +45,6 @@
 
 #include "phiprocessor.h"
 #include "phiresponserec.h"
-#include "phierr.h"
 #include "phiparent.h"
 #include "phierror.h"
 #include "phispagecache.h"
@@ -185,9 +184,10 @@ static int parseMultipartPostData( request_rec *r, ApacheRequest *req )
                         QByteArray filename=arr.left( arr.indexOf( '"' ) );
                         if ( !filename.isEmpty() ) {
                             // qDebug( "filename=<%s>", filename.data() );
-                            tmpFile=new QTemporaryFile( req->tmpDir()+QDir::separator()+"phiXXXXXX" );
+                            tmpFile=new QTemporaryFile( req->tmpDir()+QDir::separator()
+                                +QLatin1String( "phiXXXXXX" ) );
                             // tmpFile->setAutoRemove( false );
-                            tmpFile->setObjectName( filename );
+                            tmpFile->setObjectName( QString::fromUtf8( filename ) );
                             if ( !tmpFile->open() ) {
                                 delete tmpFile;
                                 tmpFile=0;
@@ -365,7 +365,7 @@ static int phi_handler( request_rec *r )
         if ( rc==HTTP_NOT_MODIFIED ) {
             if ( resp->options() & PHIResponseRec::SendFile ) {
                 QFileInfo fi( resp->fileName() );
-                QByteArray type=PHI::mimeType( fi.suffix().toUtf8() );
+                QByteArray type=PHI::mimeType( fi );
                 if ( type.isEmpty() ) {
                     PHIRC rcm=PHIRC_HTTP_UNSUPPORTED_MEDIA_TYPE;
                     QString err=QObject::tr( "Unknown media type '%1'." ).arg( fi.suffix() );
@@ -373,7 +373,7 @@ static int phi_handler( request_rec *r )
                     PHI_RLOG_RC(rcm);
                     return translateReturnCode( rcm );
                 }
-                ap_set_content_type( r, type );
+                ap_set_content_type( r, type.constData() );
             }
             return HTTP_NOT_MODIFIED;
         }
@@ -384,7 +384,7 @@ static int phi_handler( request_rec *r )
     if ( resp->options() & PHIResponseRec::HeaderOnly ) return OK;
     if ( resp->options() & PHIResponseRec::SendFile ) {
         QFileInfo fi( resp->fileName() );
-        QByteArray type=PHI::mimeType( fi.suffix().toUtf8() );
+        QByteArray type=PHI::mimeType( fi );
         if ( type.isEmpty() ) {
             PHIRC rcm=PHIRC_HTTP_UNSUPPORTED_MEDIA_TYPE;
             QString err=QObject::tr( "Unknown media type '%1'." ).arg( fi.suffix() );
@@ -459,9 +459,8 @@ static int global_init( apr_pool_t *p, apr_pool_t *plog, apr_pool_t *ptemp, serv
     PHIParent *parent=PHIParent::instance();
     apr_pool_cleanup_register( p, static_cast<void*>(parent), cleanupPHIParent, apr_pool_cleanup_null );
     /** @todo Make mime type filename configurable. */
-    PHI::createMimeTypes( QStringLiteral( "dummy" ) );
     QString tmp=QObject::tr( "Apache mod_phi v%1 loaded (libphis v%2)." )
-        .arg( PHIVERSION ).arg( PHIS::libVersion() );
+        .arg( QString::fromLatin1( PHIVERSION ) ).arg( PHIS::libVersion() );
     PHI_SLOG_NOTICE(PHIRC_SUCCESS,__FILE__,__LINE__,tmp);
     PHIRC rc=PHIRC_MODULE_LOAD_ERROR;
     foreach ( tmp, parent->moduleLoadErrors() ) {

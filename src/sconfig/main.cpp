@@ -24,8 +24,8 @@ int main ( int argc, char **argv )
 {
     //QApplication::setDesktopSettingsAware( false );
     QApplication app( argc, argv );
-    app.setApplicationName( "Phisconf" );
-    app.setApplicationVersion( PHIVERSION );
+    app.setApplicationName( QStringLiteral( "Phisconf" ) );
+    app.setApplicationVersion( QStringLiteral( PHIVERSION ) );
     PHI::setupApplication( &app );
 
     SConfig dlg;

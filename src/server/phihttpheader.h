@@ -22,7 +22,7 @@
 #include <QHash>
 #include <QUrl>
 #include <QLocale>
-#include "phierr.h"
+#include "phierror.h"
 #include "phiobject.h"
 
 class PHIHttpHeader : public PHIObject

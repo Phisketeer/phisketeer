@@ -96,9 +96,9 @@ QImage PHISHtmlBase::createStaticGoogleMapImage() const
     PHINetRequestThread request( _req->responseRec() );
     QString url;
     url.reserve( 200 );
-    url+="http://maps.google.com/maps/api/staticmap?size=";
-    url+=QString::number( static_cast<int>(_it->width()) )+'x';
-    url+=QString::number( static_cast<int>(_it->height()) )+'&';
+    url+=QLatin1String( "http://maps.google.com/maps/api/staticmap?size=" );
+    url+=QString::number( static_cast<int>(_it->width()) )+QLatin1Char( 'x' );
+    url+=QString::number( static_cast<int>(_it->height()) )+QLatin1Char( '&' );
     url+=_it->value();
     return request.getImage( url );
 }
@@ -106,7 +106,7 @@ QImage PHISHtmlBase::createStaticGoogleMapImage() const
 QImage PHISHtmlBase::createImageImage( const QString &imageId ) const
 {
     QImage img;
-    if ( imageId.startsWith( "phi" ) ) img.load( _req->imgDir()+QDir::separator()+imageId );
+    if ( imageId.startsWith( QLatin1String( "phi" ) ) ) img.load( _req->imgDir()+QDir::separator()+imageId );
     else {
         img.load( _req->documentRoot()+imageId );
         img=img.scaled( static_cast<int>(_it->width()), static_cast<int>(_it->height()),
@@ -444,7 +444,7 @@ QRect PHISHtmlBase::transformationPosition( const QTransform &t ) const
         blur=static_cast<qint8>(radius);
     }
     QRect r;
-    if ( PHI::isShapeItem( _it->wid() ) ) {
+    if ( PHI::isShapeItem( static_cast<PHI::Widget>(_it->wid()) ) ) {
         if ( _it->itemProperties() & PHIItem::PLine) {
             int off=static_cast<int>(_it->penWidth()/2.);
             if ( static_cast<int>(_it->penWidth()) % 2 ) off++;
@@ -496,9 +496,9 @@ QString PHISHtmlBase::storeImage( const QImage &img, const QByteArray &postfix, 
         QFile f( _req->imgDir()+QDir::separator()+id );
         if ( !f.open( QIODevice::WriteOnly ) ) {
             _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
-                QObject::tr( "Could not save image '%1'." )
+                QObject::tr( "Could not save image '%1': %2" )
                 .arg( _req->imgDir()+QDir::separator()+id )
-                +PHI::errorText().arg( f.errorString() ) );
+                .arg( f.errorString() ) );
             return QString();
         } else {
             img.save( &f, "PNG" );
@@ -513,18 +513,18 @@ QString PHISHtmlBase::storeImage( const QImage &img, const QByteArray &postfix, 
     if ( number>-1 && number<_it->pictureBookIds().count() ) id=_it->pictureBookIds().at( number );
     else id=_it->imageId();
     if ( id.isEmpty() ) { // not a picture book image nor an image path
-        id="phi"+_it->pageId()+'_'+_it->id();
-        if ( _it->wid()==PHI::GRAPH_TEXT ) id+='_'+_lang;
-        if ( _it->wid()==PHI::ROLLOVER_BUTTON ) id+='_'+QByteArray::number( number )+'_'+_lang;
-        id+=postfix+".png";
+        id=QString::fromLatin1( "phi"+_it->pageId()+'_'+_it->id() );
+        if ( _it->wid()==static_cast<quint16>(PHI::GRAPH_TEXT) ) id+=QLatin1Char( '_' )+QString::fromLatin1( _lang );
+        if ( _it->wid()==static_cast<quint16>(PHI::ROLLOVER_BUTTON) ) id+=QLatin1Char( '_' )+QString::number( number )+QLatin1Char( '_' )+QString::fromLatin1( _lang );
+        id+=QString::fromLatin1( postfix+".png" );
     } else { // file already saved before on system
-        if ( !id.startsWith( "phi" ) ) {
-            id.prepend( "phi" );
-            id.replace( '\\', '_' );
-            id.replace( '/', '_' );
+        if ( !id.startsWith( QLatin1String( "phi" ) ) ) {
+            id.prepend( QLatin1String( "phi" ) );
+            id.replace( QLatin1Char( '\\' ), QLatin1Char( '_' ) );
+            id.replace( QLatin1Char( '/' ), QLatin1Char( '_' ) );
         }
         id.chop( 4 );
-        id.append( postfix+".png" );
+        id.append( QString::fromLatin1( postfix+".png" ) );
     }
     QFile sf( _req->imgDir()+QDir::separator()+id );
     if ( sf.exists() ) {
@@ -540,8 +540,8 @@ QString PHISHtmlBase::storeImage( const QImage &img, const QByteArray &postfix, 
     }
     if ( !sf.open( QIODevice::WriteOnly ) ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
-            QObject::tr( "Could not save image '%1'." )
-            .arg( _req->imgDir()+QDir::separator()+id )+PHI::errorText().arg( sf.errorString() ) );
+            QObject::tr( "Could not save image '%1': %2" )
+            .arg( _req->imgDir()+QDir::separator()+id ).arg( sf.errorString() ) );
         return QString();
     }
     img.save( &sf, "PNG" );

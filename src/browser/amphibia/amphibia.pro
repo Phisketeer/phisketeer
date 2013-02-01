@@ -36,7 +36,7 @@ DESTDIR = ../../../bin
 QT = core gui widgets network webkitwidgets svg script printsupport
 INCLUDEPATH += ../../libsrc/phi ../../libsrc/phia
 DEFINES += PHIVERSION=\\\"$$VERSION\\\"
-
+DEFINES -= QT_NO_CAST_FROM_ASCII
 OTHER_FILES = Info.plist amphibia.rc
 
 win32 {

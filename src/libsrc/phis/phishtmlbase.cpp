@@ -209,7 +209,7 @@ void PHISHtmlBase::jQueryItemSetup() const
         _jquery+="\t$('#"+_it->id()+"').droppable({";
         QByteArray arr;
         if ( !_it->dropAcceptedIds().isEmpty() ) {
-            arr=_it->dropAcceptedIds().join( ",#" ).toLatin1();
+            arr=_it->dropAcceptedIds().join( QStringLiteral( ",#" ) ).toLatin1();
             arr.prepend( "#" );
             //arr.append( "'" );
         }
@@ -246,29 +246,30 @@ QByteArray PHISHtmlBase::phiGooglePlusScript() const
 QByteArray PHISHtmlBase::phiCalendarScript() const
 {
     static QByteArray arr="\t<script type=\"text/javascript\" src=\"/phi.phis?phijs=ui-datepicker\"></script>\n";
-    QLocale locale( toLocaleFormat( _lang ) );
+    QLocale locale( QString::fromLatin1( toLocaleFormat( _lang ) ) );
     QString monthnames, shortmonthnames, shortdaynames, daynames;
     monthnames.reserve( 200 );
     shortmonthnames.reserve( 100 );
     daynames.reserve( 200 );
     shortdaynames.reserve( 100 );
-
+    QLatin1String sep=QLatin1String( "'," );
+    QLatin1Char s=QLatin1Char( '\'' );
     int i;
-    for( i=1; i<13; i++ ) monthnames+='\''+locale.monthName( i, QLocale::LongFormat )+"',";
+    for( i=1; i<13; i++ ) monthnames+=s+locale.monthName( i, QLocale::LongFormat )+sep;
     monthnames.chop( 1 );
-    for( i=1; i<13; i++ ) shortmonthnames+='\''+locale.monthName( i, QLocale::ShortFormat )+"',";
+    for( i=1; i<13; i++ ) shortmonthnames+=s+locale.monthName( i, QLocale::ShortFormat )+sep;
     shortmonthnames.chop( 1 );
-    shortdaynames+='\''+locale.dayName( 7, QLocale::ShortFormat )+"',";
-    for ( i=1; i<7; i++ ) shortdaynames+='\''+locale.dayName( i, QLocale::ShortFormat )+"',";
+    shortdaynames+=s+locale.dayName( 7, QLocale::ShortFormat )+sep;
+    for ( i=1; i<7; i++ ) shortdaynames+=s+locale.dayName( i, QLocale::ShortFormat )+sep;
     shortdaynames.chop( 1 );
-    daynames+='\''+locale.dayName( 7, QLocale::LongFormat )+"',";
-    for ( i=1; i<7; i++ ) daynames+='\''+locale.dayName( i, QLocale::LongFormat )+"',";
+    daynames+=s+locale.dayName( 7, QLocale::LongFormat )+sep;
+    for ( i=1; i<7; i++ ) daynames+=s+locale.dayName( i, QLocale::LongFormat )+sep;
     daynames.chop( 1 );
 
     QString format=locale.dateFormat( QLocale::ShortFormat );
-    format.replace( "yyyy", "yy" );
-    format.replace( "MMM", "M" );
-    format.replace( "MM", "M" );
+    format.replace( QStringLiteral( "yyyy" ), QStringLiteral( "yy" ) );
+    format.replace( QStringLiteral( "MMM" ), QStringLiteral( "M" ) );
+    format.replace( QStringLiteral( "MM" ), QStringLiteral( "M" ) );
     QByteArray dayOfWeek;
 
 #if QT_VERSION >= 0x040800
@@ -433,7 +434,7 @@ QByteArray PHISHtmlBase::textShadowStyle() const
 {
     QByteArray arr;
     if ( _it->effect()->graphicsType()!=PHIEffect::GTShadow ) return arr;
-    if ( !PHI::isTextItem( _it->wid() ) ) return arr;
+    if ( !PHI::isTextItem( static_cast<PHI::Widget>(_it->wid() ) ) ) return arr;
     arr.reserve( 300 );
     QColor c;
     qreal xOff, yOff, radius;
@@ -466,11 +467,11 @@ QByteArray PHISHtmlBase::createOpenGraph() const
 {
     QByteArray arr;
     arr.reserve( 300 );
-    QStringList list=_p->openGraph().split( '\n', QString::SkipEmptyParts );
+    QStringList list=_p->openGraph().split( QLatin1Char( '\n' ), QString::SkipEmptyParts );
     QString entry;
     int pos;
     foreach ( entry, list ) {
-        pos=entry.indexOf( '=' );
+        pos=entry.indexOf( QLatin1Char( '=' ) );
         if ( pos==-1 ) continue;
         arr+="\t<meta property=\""+entry.mid( 0, pos ).toUtf8()+"\" content=\"";
         arr+=entry.mid( ++pos ).toUtf8()+_endtag;
@@ -515,9 +516,9 @@ QByteArray PHISHtmlBase::createHtmlCode()
 
     qint8 useObjTag=1;
     if ( !(_p->attributes() & PHIPage::APhiNoObjectTag) ) {
-        if ( _req->requestKeys().contains( "phis" ) ) {
-            qDebug( "found phis=%d in PHISRequest", _req->requestValue( "phis" ).toInt() );
-            useObjTag=_req->requestValue( "phis" ).toInt();
+        if ( _req->requestKeys().contains( QStringLiteral( "phis" ) ) ) {
+            qDebug( "found phis=%d in PHISRequest", _req->requestValue( QStringLiteral( "phis" ) ).toInt() );
+            useObjTag=_req->requestValue( QStringLiteral( "phis" ) ).toInt();
         } else {
             // prevent WebKit in Amphibia to load the Phi plug-in
             if ( _req->agentId()==PHISRequest::Amphibia ) useObjTag=0;
@@ -533,7 +534,7 @@ QByteArray PHISHtmlBase::createHtmlCode()
                 _out+="\t\t<input type=\"hidden\" name=\"phisid\" id=\"phisid\" value=\""
                     +_p->variant( PHIBasePage::DSession ).toByteArray()+_endtag;
             }
-            if ( !_p->itemIds().contains( "philang", Qt::CaseSensitive ) ) {
+            if ( !_p->itemIds().contains( QStringLiteral( "philang" ), Qt::CaseSensitive ) ) {
                 _out+="\t\t<input type=\"hidden\" name=\"philang\" id=\"philang\" value=\""+_lang+_endtag;
             }
             _out+="\t\t<input type=\"hidden\" name=\"phis\" id=\"phis\" value=\"0"+_endtag;
@@ -551,18 +552,18 @@ QByteArray PHISHtmlBase::createHtmlCode()
     }
 
     if ( useObjTag>0 ) {
-        static QByteArray phisid=QByteArray::fromRawData( "phisid", 6 );
+        static QString phisid=QStringLiteral( "phisid" );
         QUrl url( _req->url() );
         QUrlQuery query( _req->url() );
-        query.removeQueryItem( "phis" );
-        query.addQueryItem( "phis", "1" );
+        query.removeQueryItem( QStringLiteral( "phis" ) );
+        query.addQueryItem( QStringLiteral( "phis" ), QStringLiteral( "1" ) );
         if ( _p->attributes() & PHIPage::ARequiresSession ) {
             if ( !query.hasQueryItem( phisid ) )
                 query.addQueryItem( phisid, _p->variant( PHIBasePage::DSession ).toString() );
         }
         if ( _p->attributes() & PHIPage::AApplication ) {
-            static QByteArray phiapp=QByteArray::fromRawData( "phiapp", 6 );
-            if ( !query.hasQueryItem( phiapp ) ) query.addQueryItem( phiapp, "1" );
+            static QString phiapp=QStringLiteral( "phiapp" );
+            if ( !query.hasQueryItem( phiapp ) ) query.addQueryItem( phiapp, QStringLiteral( "1" ) );
         }
         QByteArray path;
         path.reserve( 60 );
@@ -692,7 +693,7 @@ const PHIBaseItem* PHISHtmlBase::createPhisysLinkItem() const
     PHISImageCache cache( _req->responseRec(), _req->tmpDir() );
     ids << cache.createId();
 
-    QImage img( ":/phi/poweredby" );
+    QImage img( QStringLiteral( ":/phi/poweredby" ) );
     img.save( _req->imgDir()+QDir::separator()+ids.at( 0 ), "PNG" );
     it.setPictureBookIds( ids );
     it.setX( 10. );
@@ -700,8 +701,8 @@ const PHIBaseItem* PHISHtmlBase::createPhisysLinkItem() const
     it.setWidth( 110. );
     it.setHeight( 48. );
     it.setZValue( PHI::maxZValue()+1 );
-    it.setUrl( "http://www.phisys.com" );
-    it.setToolTip( "http://www.phisys.com" );
+    it.setUrl( QStringLiteral( "http://www.phisys.com" ) );
+    it.setToolTip( QStringLiteral( "http://www.phisys.com" ) );
     it.setVisible( true );
     it.setDisabled( false );
     return &it;

@@ -84,7 +84,8 @@ PHINetRequest::PHINetRequest( const QString &url, Type type, QSemaphore *sem, QO
     Q_ASSERT( _sem );
     _codec="utf-8";
     _req.setUrl( QUrl( url ) );
-    QString tmp="Mozilla/5.0 ("+PHISysInfo::systemString()+") phis/"+PHIS::libVersion();
+    QString tmp=QStringLiteral( "Mozilla/5.0 (" )+PHISysInfo::systemString()
+        +QStringLiteral( ") phis/" )+PHIS::libVersion();
     _req.setRawHeader( "User-Agent", tmp.toUtf8() );
     if ( type==Text ) _req.setRawHeader( "Accept", "text/*,*/*;q=0.5" );
     else _req.setRawHeader( "Accept", "image/png,image/*;q=0.7" ),
@@ -119,9 +120,9 @@ void PHINetRequest::requestFinished( QNetworkReply *reply )
     else {
         qDebug( "error %s", qPrintable( reply->errorString() ) );
         _rc=PHIRC_OBJ_ACCESS_ERROR;
-        _error=QObject::tr( "Could not get data from url '%1'. " )
-            .arg( reply->request().url().toString() )+
-            PHI::errorText().arg( reply->errorString() );
+        _error=QObject::tr( "Could not get data from url '%1': %2" )
+            .arg( reply->request().url().toString() )
+            .arg( reply->errorString() );
     }
     if ( reply->hasRawHeader( "Charset" ) ) _codec=reply->rawHeader( "Charset" );
     else if ( reply->hasRawHeader( "Content-Type") ) {

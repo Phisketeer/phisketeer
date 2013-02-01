@@ -71,24 +71,24 @@ PHIRC PHIHttp::init( qintptr socketDesc, bool usessl, QString &err )
         connect( s, SIGNAL( sslErrors( const QList<QSslError>& ) ), this,
             SLOT( slotSslErrors( const QList<QSslError>& ) ) );
         qDebug( "Starting SSL connection" );
-        QString file=config()->configValue( "SSLCertificate" ).toString();
+        QString file=config()->configValue( QStringLiteral( "SSLCertificate" ) ).toString();
         if ( !QFile::exists( file ) ) {
             emit log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
                 err=tr( "Could not open certificate file '%1'.").arg( file ) );
             return PHIRC_IO_FILE_ACCESS_ERROR;
         } else s->setLocalCertificate( file );
-        file=config()->configValue( "SSLPrivateKey" ).toString();
+        file=config()->configValue( QStringLiteral( "SSLPrivateKey" ) ).toString();
         if ( !QFile::exists( file ) ) {
             emit log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
                 err=tr( "Could not open private key file '%1'.").arg( file ) );
             return PHIRC_IO_FILE_ACCESS_ERROR;
         } else s->setPrivateKey( file );
         s->startServerEncryption();
-        _server._scheme="https";
+        _server._scheme=QStringLiteral( "https" );
     } else {
         _socket=new QTcpSocket( this );
         _socket->setSocketDescriptor( socketDesc );
-        _server._scheme="http";
+        _server._scheme=QStringLiteral( "http" );
     }
     //qDebug( "PHIHttp::init() after socket creation" );
     connect( _socket, SIGNAL( readyRead() ), this, SLOT( readyRead() ) );
@@ -96,7 +96,7 @@ PHIRC PHIHttp::init( qintptr socketDesc, bool usessl, QString &err )
     _server._localAddr=_socket->localAddress();
     _server._remoteAddr=_socket->peerAddress();
     //_server._name=QString( "phis/" )+config()->version()+'/'+PHISysInfo::systemString();
-    _server._name=QString( "phis/" )+config()->version();
+    _server._name=QStringLiteral( "phis/" )+config()->version();
     _server._keepAlive=config()->keepAlive();
     _server._defName=config()->mgrName();
     _server._admin=config()->admin();
@@ -117,7 +117,7 @@ void PHIHttp::slotSslErrors( const QList<QSslError> &errors )
     qDebug( "PHIHttp::slotSslErrors()" );
     QString tmp;
     QSslError err;
-    foreach( err, errors ) tmp+=err.errorString()+PHI::nl();
+    foreach( err, errors ) tmp+=err.errorString()+QString::fromLatin1( PHI::nl() );
     emit log( PHILOGERR, PHIRC_TCP_UNKNOWN_SOCKET_ERROR, tmp );
     emit close();
 }
@@ -182,7 +182,7 @@ PHIRC PHIHttp::sendResponse( QString &err )
             if ( _resp.options() & PHIResponseRec::SendFile ) {
                 QFileInfo fi( _resp.fileName() );
                 if ( _resp.contentType().startsWith( "text/html" ) ) {
-                    QByteArray type=PHI::mimeType( fi.suffix().toUtf8() );
+                    QByteArray type=PHI::mimeType( fi );
                     if ( type.isEmpty() ) {
                         err=tr( "Could not identify mime type of requested resource '%1'." )
                             .arg( fi.suffix() );
@@ -222,7 +222,7 @@ PHIRC PHIHttp::sendResponse( QString &err )
         }
         QFileInfo fi( f );
         if ( _resp.contentType().startsWith( "text/html" ) ) {
-            QByteArray type=PHI::mimeType( fi.suffix().toUtf8() );
+            QByteArray type=PHI::mimeType( fi );
             if ( type.isEmpty() ) {
                 err=tr( "Could not identify mime type of requested resource '%1'." )
                     .arg( fi.suffix() );
@@ -259,7 +259,7 @@ void PHIHttp::readyRead()
         _timer->stop();
         _state=Reading;
         _readHeader=false;
-        _headerStr="";
+        _headerStr=QString();
         _bytesDone=0;
         _contentEntity="";
         _content=Empty;
@@ -270,7 +270,7 @@ void PHIHttp::readyRead()
     while ( !_readHeader ) {
         while ( !end && _socket->canReadLine() ) {
             tmp=QString::fromLatin1( _socket->readLine() );
-            if ( tmp=="\r\n" || tmp=="\n" || tmp.isEmpty() ) end=true;
+            if ( tmp==QLatin1String( "\r\n" ) || tmp==QLatin1String( "\n" ) || tmp.isEmpty() ) end=true;
             else _headerStr+=tmp;
             if ( _headerStr.size()>1024*10 ) {
                 tmp=tr( "HTTP header is too large." );
@@ -284,27 +284,27 @@ void PHIHttp::readyRead()
             return;
         }
         _readHeader=true;
-        emit log( PHILOGDBUG, PHIRC_OK, QString( "HTTP header ---<\n" )+_headerStr+QString( ">---" ) );
+        emit log( PHILOGDBUG, PHIRC_OK, QStringLiteral( "HTTP header ---<\n" )+_headerStr+QStringLiteral( ">---" ) );
         rc=parseRequestHeader( _headerStr, tmp );
         if ( rc!=PHIRC_OK ) {
             sendError( rc, tmp );
             return;
         }
         end=false;
-        _headerStr="";
+        _headerStr=QString();
         if ( _req->contentLength()>0 ) {
-            if ( _req->contentType().startsWith( "multipart/form-data" ) ) {
-                if ( !_req->contentType().contains( "boundary=" ) ) {
-                    tmp=tr( "Missing boundary for media type (%1)." ).arg( "multipart/form-data" );
+            if ( _req->contentType().startsWith( QLatin1String( "multipart/form-data" ) ) ) {
+                if ( !_req->contentType().contains( QStringLiteral( "boundary=" ) ) ) {
+                    tmp=tr( "Missing boundary for media type (%1)." ).arg( QStringLiteral( "multipart/form-data" ) );
                     emit log( PHILOGERR, PHIRC_HTTP_BAD_REQUEST, tmp );
                     sendError( PHIRC_HTTP_BAD_REQUEST, tmp );
                     return;
                 }
                 _content=MultipartEncoded;
-                _boundary="--"+_req->contentType().mid( _req->contentType().indexOf( '=' )+1 ).toLatin1();
+                _boundary="--"+_req->contentType().mid( _req->contentType().indexOf( QLatin1Char( '=' ) )+1 ).toLatin1();
                 _addPart=_readPart=false;
                 _tmpFile=0;
-            } else if ( _req->contentType().startsWith( "application/x-www-form-urlencoded" ) ) {
+            } else if ( _req->contentType().startsWith( QLatin1String( "application/x-www-form-urlencoded" ) ) ) {
                 if ( _req->contentLength() > static_cast<qint64>(1024*1024) ) {
                     tmp=tr( "Content length too large (%1)." ).arg( _req->contentLength() );
                     emit log( PHILOGERR, PHIRC_HTTP_BAD_REQUEST, tmp );
@@ -312,7 +312,7 @@ void PHIHttp::readyRead()
                     return;
                 }
                 _content=UrlEncoded;
-            } else if ( _req->contentType().startsWith( "application/x-phi" ) ) _content=PhiEncoded;
+            } else if ( _req->contentType().startsWith( QLatin1String( "application/x-phi" ) ) ) _content=PhiEncoded;
             else {
                 tmp=tr( "Unsupported content type in POST (%1)." ).arg( _req->contentType() );
                 emit log( PHILOGERR, PHIRC_HTTP_UNSUPPORTED_MEDIA_TYPE, tmp );
@@ -374,7 +374,7 @@ PHIRC PHIHttp::readMultipartEncoded( QString &err )
 {
     // qDebug( "readMultipartEncoded %lld\n<%s>", _requestInfo.contentLength(), _boundary.constData() );
     QByteArray arr;
-    _headerStr="";
+    _headerStr=QString();
 
     while ( _socket->canReadLine() ) {
         arr=_socket->readLine();
@@ -408,7 +408,7 @@ PHIRC PHIHttp::readMultipartEncoded( QString &err )
                     QByteArray filename=arr.left( arr.indexOf( '"' ) );
                     if ( !filename.isEmpty() ) {
                         qDebug( "filename=<%s>", filename.constData() );
-                        _tmpFile=new QTemporaryFile( QDir::tempPath()+"/phiXXXXXX", this );
+                        _tmpFile=new QTemporaryFile( PHI::stdTmpPath()+QLatin1String( "/phiXXXXXX" ), this );
                         // _tmpFile->setAutoRemove( false );
                         _tmpFile->setObjectName( QString::fromUtf8( filename ) );
                         if ( !_tmpFile->open() ) {

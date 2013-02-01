@@ -407,7 +407,7 @@ void PHIAItem::slotOnKeyUp( QKeyEvent *e )
 void PHIAItem::slotOnChange()
 {
     qDebug( "Item onchange %s", id().data() );
-    if ( !PHI::isWidgetItem( wid() ) ) return;
+    if ( !PHI::isWidgetItem( static_cast<PHI::Widget>(wid()) ) ) return;
     qDebug( "Item onchange handler activated %s", id().data() );
     QScriptEngine *engine=view()->scriptEngine();
     if ( !engine ) return;
@@ -452,7 +452,7 @@ void PHIAItem::checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e ) const
     QStyleOptionGraphicsItem opt;
     QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_git);
     _git->paint( &p, &opt, 0 );
-    if ( proxy && !PHI::isLayoutContainer( this->wid() ) ) proxy->widget()->render( &p );
+    if ( proxy && !PHI::isLayoutContainer( static_cast<PHI::Widget>(this->wid()) ) ) proxy->widget()->render( &p );
     p.end();
 
     QPixmap pix=QPixmap::fromImage( img, Qt::ColorOnly );

@@ -250,7 +250,7 @@ void GGooglePlusItem::setValue( const QString &v )
 GExternalView::GExternalView( qreal w, qreal h, const PHIAItem *it, QGraphicsItem *parent )
     : QGraphicsWebView( parent ), _item( it ), _page( 0 )
 {
-    if ( PHI::isTabOrderItem( it->wid() ) ) setFlag( ItemIsFocusable, true );
+    if ( PHI::isTabOrderItem( static_cast<PHI::Widget>(it->wid()) ) ) setFlag( ItemIsFocusable, true );
     else setFlag( ItemIsFocusable, false );
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     setPreferredSize( w, h );

@@ -30,6 +30,7 @@
 #include <QHostAddress>
 #include "phis.h"
 #include "phiresponserec.h"
+#include "phi.h"
 
 class PHISEXPORT PHISRequest
 {

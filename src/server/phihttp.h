@@ -28,7 +28,7 @@
 #include "phiresponserec.h"
 #include "phiserverrequest.h"
 #include "phiserverrec.h"
-#include "phierr.h"
+#include "phierror.h"
 
 class PHIHttp : public PHIObject
 {

@@ -48,7 +48,7 @@ void PHIObject::print( int type, const char *file, int line,
 
 QString PHIObject::formatObjectName( const QString &name ) const
 {
-    QString buffer='\n'+tr( "Object name: '%1'." )
+    QString buffer=QLatin1Char( '\n' )+tr( "Object name: '%1'." )
         .arg( name.isEmpty() ? objectName() : name  );
     return buffer;
 }

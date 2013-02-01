@@ -28,6 +28,7 @@
 #include <QUuid>
 #include <QPainter>
 #include <QPalette>
+#include <QMimeDatabase>
 #include "qmath.h"
 #include "phi.h"
 #include "phierror.h"
@@ -243,6 +244,12 @@ QString PHI::applicationRoot()
     return path;
 }
 
+QString PHI::libVersion()
+{
+    static QString ver=QString::fromLatin1( PHIVERSION );
+    return ver;
+}
+
 QString PHI::libPath()
 {
     static QString path;
@@ -353,6 +360,15 @@ void PHI::setupApplication( QGuiApplication *app )
     qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
     qRegisterMetaTypeStreamOperators<PHIImageHash>("PHIImageHash");
     qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
+}
+
+QByteArray PHI::mimeType( const QFileInfo &file )
+{
+    static QMimeDatabase db;
+    static QString phis=QString::fromLatin1( "phis" );
+    static QByteArray phismime="application/x-phis";
+    if ( file.suffix()==phis ) return phismime;
+    return db.mimeTypeForFile( file ).name().toUtf8();
 }
 
 // returns -1 on error, 0 not running, 1 running

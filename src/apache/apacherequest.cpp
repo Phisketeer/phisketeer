@@ -70,18 +70,18 @@ ApacheRequest::ApacheRequest( request_rec *r, PHIResponseRec *resp )
     if ( s->port>0 ) _url.setPort( s->port );
 
     /** @todo implement SSL stuff properly */
-    if ( s->port==443 ) _url.setScheme( "https" );
-    else _url.setScheme( "http" );
+    if ( s->port==443 ) _url.setScheme( QStringLiteral( "https" ) );
+    else _url.setScheme( QStringLiteral( "http" ) );
 
     _keepAlive=static_cast<qint32>( s->keep_alive_timeout/1000 );
     _tmpDir=PHIParent::instance()->tempDir( _url.host() );
-    _imgDir=_tmpDir+QDir::separator()+"img";
+    _imgDir=_tmpDir+QDir::separator()+QLatin1String( "img" );
     //qDebug( "_tmpDir=%s", qPrintable( _tmpDir ) );
 
     conn_rec *c=r->connection;
     Q_ASSERT( c );
-    _localIP=QHostAddress( c->local_ip );
-    _remoteIP=QHostAddress( c->remote_ip );
+    _localIP=QHostAddress( QString::fromLatin1( c->local_ip ) );
+    _remoteIP=QHostAddress( QString::fromLatin1( c->remote_ip ) );
 }
 
 ApacheRequest::~ApacheRequest()

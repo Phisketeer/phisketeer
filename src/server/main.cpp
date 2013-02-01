@@ -27,9 +27,9 @@ int main( int argc, char **argv )
 {
 #ifdef Q_OS_MAC
     // Unfortunately Mac OS X sandboxing requires special handling
-    MACService service( argc, argv, "phis" );
+    MACService service( argc, argv, QStringLiteral( "phis" ) );
 #else
-    PHIService service( argc, argv, "phis" );
+    PHIService service( argc, argv, QStringLiteral( "phis" ) );
 #endif
     return service.exec();
 }
