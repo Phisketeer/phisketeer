@@ -240,7 +240,7 @@ inline QString PHI::stdTmpPath()
 
 inline QByteArray PHI::dtFormat()
 {
-    static QByteArray dt=QByteArray::fromRawData( _phiDT, qstrlen( _phiDT )-1 );
+    static QByteArray dt=QByteArray::fromRawData( _phiDT, qstrlen( _phiDT ) );
     return dt;
 }
 
@@ -252,25 +252,24 @@ inline QString PHI::dtFormatString()
 
 inline QByteArray PHI::isoDateFormat()
 {
-    static QByteArray isoDate=QByteArray::fromRawData( _phiDate, qstrlen( _phiDate )-1 );
+    static QByteArray isoDate=QByteArray::fromRawData( _phiDate, qstrlen( _phiDate ) );
     return isoDate;
 }
 
 inline QByteArray PHI::emailRegExp() {
-    static QByteArray email=QByteArray::fromRawData( _emailRegExp, qstrlen( _emailRegExp )-1 );
+    static QByteArray email=QByteArray::fromRawData( _emailRegExp, qstrlen( _emailRegExp ) );
     return email;
 }
 
 inline QByteArray PHI::phoneNumberRegExp()
 {
-    static QByteArray phone=QByteArray::fromRawData( _phoneNumberRegExp,
-        qstrlen( _phoneNumberRegExp )-1 );
+    static QByteArray phone=QByteArray::fromRawData( _phoneNumberRegExp, qstrlen( _phoneNumberRegExp ) );
     return phone;
 }
 
 inline QByteArray PHI::mimeType()
 {
-    static QByteArray mime=QByteArray::fromRawData( _phiMimeType, qstrlen( _phiMimeType )-1 );
+    static QByteArray mime=QByteArray::fromRawData( _phiMimeType, qstrlen( _phiMimeType ) );
     return mime;
 }
 

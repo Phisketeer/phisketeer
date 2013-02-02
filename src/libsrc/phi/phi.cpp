@@ -206,7 +206,7 @@ QSettings* PHI::globalSettings()
 #ifdef Q_OS_MAC
     s=new QSettings( QStringLiteral( "phisys.com" ), name, qApp ); // required for Mac app store
 #elif defined Q_OS_WIN
-    s=new QSettings( QSettings::SystemScope, QString::fromLatin1( PHI::domain() ), name, qApp );
+    s=new QSettings( QSettings::SystemScope, QString::fromLatin1( PHI::organisation() ), name, qApp );
     s->setFallbacksEnabled( false );
 #else
     s=new QSettings( QString::fromLatin1( PHI::domain() ), name, qApp );
@@ -1100,13 +1100,13 @@ QString PHI::toLocale( const QString &lang )
 
 QByteArray PHI::domain()
 {
-    static QByteArray dom=QByteArray::fromRawData( PHIDOM, qstrlen( PHIDOM )-1 );
+    static QByteArray dom=QByteArray::fromRawData( PHIDOM, qstrlen( PHIDOM ) );
     return dom;
 }
 
 QByteArray PHI::organisation()
 {
-    static QByteArray org=QByteArray::fromRawData( PHIORG, qstrlen( PHIORG )-1 );
+    static QByteArray org=QByteArray::fromRawData( PHIORG, qstrlen( PHIORG ) );
     return org;
 }
 
