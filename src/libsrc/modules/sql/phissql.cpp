@@ -34,9 +34,9 @@ PHISSqlObj::PHISSqlObj( const PHISInterface *interf )
 
 QScriptValue PHISSqlObj::clone() const
 {
-    QScriptEngine *engine=interface()->scriptEngine();
+    QScriptEngine *engine=PHIS_IF()->scriptEngine();
     Q_ASSERT( engine );
-    PHISSqlObj *clone=new PHISSqlObj( interface() );
+    PHISSqlObj *clone=new PHISSqlObj( PHIS_IF() );
     return engine->newQObject( clone, QScriptEngine::ScriptOwnership,
         QScriptEngine::PreferExistingWrapperObject
         | QScriptEngine::ExcludeSuperClassMethods

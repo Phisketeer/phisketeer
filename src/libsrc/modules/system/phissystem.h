@@ -111,19 +111,19 @@ public:
     explicit PHISServerObj( const PHISInterface *interface ) : PHISScriptObj( interface ) {}
 
 public slots:
-    inline QString documentRoot() const { return interface()->documentRoot(); }
-    inline QString serverName() const { return interface()->serverName(); }
-    inline QString serverHost() const { return interface()->serverHost(); }
-    inline QString serverDef() const { return interface()->serverDef(); }
-    inline QString admin() const { return interface()->admin(); }
-    inline QString localAddress() const { return interface()->localIP(); }
-    inline QString remoteAddress() const { return interface()->remoteIP(); }
-    inline QString tempDir() const { return interface()->tempDir(); }
-    inline QString today() const { return interface()->today(); }
-    inline QString nowUtc() const { return interface()->nowUtc(); }
-    inline QDateTime utc() const { return interface()->utc(); }
-    inline qint32 port() const { return interface()->port(); }
-    inline qint32 keepAlive() const { return interface()->keepAlive(); }
+    inline QString documentRoot() const { return PHIS_IF()->documentRoot(); }
+    inline QString serverName() const { return PHIS_IF()->serverName(); }
+    inline QString serverHost() const { return PHIS_IF()->serverHost(); }
+    inline QString serverDef() const { return PHIS_IF()->serverDef(); }
+    inline QString admin() const { return PHIS_IF()->admin(); }
+    inline QString localAddress() const { return PHIS_IF()->localIP(); }
+    inline QString remoteAddress() const { return PHIS_IF()->remoteIP(); }
+    inline QString tempDir() const { return PHIS_IF()->tempDir(); }
+    inline QString today() const { return PHIS_IF()->today(); }
+    inline QString nowUtc() const { return PHIS_IF()->nowUtc(); }
+    inline QDateTime utc() const { return PHIS_IF()->utc(); }
+    inline qint32 port() const { return PHIS_IF()->port(); }
+    inline qint32 keepAlive() const { return PHIS_IF()->keepAlive(); }
     void log( const QString &t );
 };
 

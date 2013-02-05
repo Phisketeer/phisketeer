@@ -24,7 +24,7 @@ QString PHISReplyObj::_slash=QStringLiteral( "/" );
 QScriptValue PHISRequestObj::initObject( const QString &mod )
 {
     QScriptValue request=PHISScriptObj::initObject( mod );
-    QScriptEngine *engine=interface()->scriptEngine();
+    QScriptEngine *engine=PHIS_IF()->scriptEngine();
     QScriptValue arr=engine->newArray();
     QStringList values, keys;
     QString value, key, props=QStringLiteral( "properties" );
@@ -33,9 +33,9 @@ QScriptValue PHISRequestObj::initObject( const QString &mod )
     QScriptValue sv=engine->newObject();
     QScriptValue subarr;
     request.setProperty( QStringLiteral( "post" ), sv );
-    keys=interface()->postKeys();
+    keys=PHIS_IF()->postKeys();
     foreach( key, keys ) {
-        values=interface()->postValues( key );
+        values=PHIS_IF()->postValues( key );
         subarr=engine->newArray();
         l=0;
         foreach ( value, values ) subarr.setProperty( l++, value );
@@ -48,9 +48,9 @@ QScriptValue PHISRequestObj::initObject( const QString &mod )
     request.setProperty( QStringLiteral( "get" ), sv );
     arr=engine->newArray();
     i=0;
-    keys=interface()->getKeys();
+    keys=PHIS_IF()->getKeys();
     foreach( key, keys ) {
-        values=interface()->getValues( key );
+        values=PHIS_IF()->getValues( key );
         subarr=engine->newArray();
         l=0;
         foreach ( value, values ) subarr.setProperty( l++, value );
@@ -63,9 +63,9 @@ QScriptValue PHISRequestObj::initObject( const QString &mod )
     request.setProperty( QStringLiteral( "cookie" ), cookie );
     arr=engine->newArray();
     i=0;
-    keys=interface()->cookieKeys();
+    keys=PHIS_IF()->cookieKeys();
     foreach( key, keys ) {
-        value=interface()->cookieValue( key );
+        value=PHIS_IF()->cookieValue( key );
         cookie.setProperty( key, value );
         arr.setProperty( i++, key );
     }
@@ -75,11 +75,11 @@ QScriptValue PHISRequestObj::initObject( const QString &mod )
     request.setProperty( QStringLiteral( "file" ), file );
     arr=engine->newArray();
     i=0;
-    keys=interface()->uploadFileKeys();
+    keys=PHIS_IF()->uploadFileKeys();
     foreach( key, keys ) {
-        const QString fileName=interface()->uploadFileName( key );
-        const QString tmpFile=interface()->uploadTmpFile( key );
-        int size=interface()->uploadFileSize( key );
+        const QString fileName=PHIS_IF()->uploadFileName( key );
+        const QString tmpFile=PHIS_IF()->uploadTmpFile( key );
+        int size=PHIS_IF()->uploadFileSize( key );
         QScriptValue id=engine->newObject();
         file.setProperty( key, id );
         id.setProperty( QStringLiteral( "filename" ), fileName );
@@ -93,9 +93,9 @@ QScriptValue PHISRequestObj::initObject( const QString &mod )
     request.setProperty( QStringLiteral( "header" ), sv );
     arr=engine->newArray();
     i=0;
-    keys=interface()->headerKeys();
+    keys=PHIS_IF()->headerKeys();
     foreach( key, keys ) {
-        value=interface()->headerValue( key );
+        value=PHIS_IF()->headerValue( key );
         sv.setProperty( key, value );
         arr.setProperty( i++, key );
     }
@@ -113,7 +113,7 @@ PHISReplyObj::PHISReplyObj( const PHISInterface *interf )
 void PHISReplyObj::setContent( const QString &c )
 {
     if ( c.isEmpty() ) {
-        interface()->setContent( QByteArray() );
+        PHIS_IF()->setContent( QByteArray() );
         return;
     }
     QTextCodec *codec=QTextCodec::codecForName( _charset.toUtf8() );
@@ -121,9 +121,9 @@ void PHISReplyObj::setContent( const QString &c )
         PHIS_ERROR( tr( "Unknown codec '%1' - using standard locale." ).arg( _charset ) );
         codec=QTextCodec::codecForLocale();
     }
-    interface()->setContent( codec->fromUnicode( c ) );
+    PHIS_IF()->setContent( codec->fromUnicode( c ) );
     _content=c;
-    interface()->setFileName( QString() );
+    PHIS_IF()->setFileName( QString() );
 }
 
 void PHISReplyObj::setCharset( const QString &charset )
@@ -133,6 +133,6 @@ void PHISReplyObj::setCharset( const QString &charset )
         PHIS_ERROR( tr( "Unknown codec '%1' - using standard locale." ).arg( charset ) );
         codec=QTextCodec::codecForLocale();
     }
-    interface()->setContent( codec->fromUnicode( _content ) );
+    PHIS_IF()->setContent( codec->fromUnicode( _content ) );
     _charset=charset;
 }
