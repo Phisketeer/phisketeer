@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -11,7 +11,7 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -25,7 +25,7 @@
 #include <QHash>
 #include <QFlags>
 #include <QDateTime>
-#include "phierr.h"
+#include "phierror.h"
 #include "phis.h"
 
 class PHISEXPORT PHIResponseRecLogEntry
@@ -85,8 +85,8 @@ public:
     inline void notModified() { _error._rc=PHIRC_HTTP_NOT_MODIFIED; }
 
     void setCookie( const QString &name, const QString &value, const QDateTime &expires,
-        const QString &path=QChar( '/' ), const QString &domain=QString(), bool secure=false, bool discard=false );
-    void setCookie( const QString &name, const QString &value, int maxage, const QString &path=QChar( '/' ),
+        const QString &path=QLatin1String( "/" ), const QString &domain=QString(), bool secure=false, bool discard=false );
+    void setCookie( const QString &name, const QString &value, int maxage, const QString &path=QLatin1String( "/" ),
         const QString &domain=QString(), bool secure=false, bool discard=false );
     void log( int type, const char* file, int line, const QDateTime&, PHIRC rc, const QString &desc );
     void clear();
@@ -104,5 +104,11 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS( PHIResponseRec::Options )
+
+inline void PHIResponseRec::setCookie( const QString &name, const QString &value, const QDateTime &expires,
+    const QString &path, const QString &domain, bool secure, bool discard )
+{
+    setCookie( name, value, QDateTime::currentDateTime().secsTo( expires ), path, domain, secure, discard );
+}
 
 #endif // PHIRESPONSEREC_H

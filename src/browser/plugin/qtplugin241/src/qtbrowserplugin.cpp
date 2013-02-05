@@ -36,7 +36,7 @@
 **
 ****************************************************************************/
 
-#include <QtGui>
+#include <QtWidgets>
 
 #include "qtnpapi.h"
 
@@ -348,7 +348,8 @@ static int publicMethodIndex(NPObject *npobj, const QByteArray &slotName, int ar
         const QMetaMethod slot = qobject->metaObject()->method(slotIndex);
         if (slot.access() != QMetaMethod::Public || slot.methodType() == QMetaMethod::Signal)
             continue;
-        QByteArray signature = slot.signature();
+//        QByteArray signature = slot.signature();
+        QByteArray signature = slot.methodSignature();
         if (signature.left(signature.indexOf('(')) == slotName) {
             if (argCount == -1 || slot.parameterTypes().count() == argCount)
                 return slotIndex;
@@ -736,7 +737,8 @@ int QtSignalForwarder::qt_metacall(QMetaObject::Call call, int index, void **arg
             const QMetaMethod method = metaObject->method(index);
             Q_ASSERT(method.methodType() == QMetaMethod::Signal);
 
-            QByteArray signalSignature = method.signature();
+//            QByteArray signalSignature = method.signature();
+            QByteArray signalSignature = method.methodSignature();
             QByteArray scriptFunction = signalSignature.left(signalSignature.indexOf('('));
             NPIdentifier id = NPN_GetStringIdentifier(scriptFunction.constData());
             if (NPN_HasMethod(This->npp, domNode, id)) {
@@ -1025,7 +1027,8 @@ NPP_SetWindow(NPP instance, NPWindow* window)
         This->qt.object->setObjectName(QLatin1String(This->htmlID));
 
     This->filter = new QtSignalForwarder(This);
-    QStatusBar *statusbar = qFindChild<QStatusBar*>(This->qt.object);
+//    QStatusBar *statusbar = qFindChild<QStatusBar*>(This->qt.object);
+    QStatusBar *statusbar = This->qt.object->findChild<QStatusBar*>();
     if (statusbar) {
         int statusSignal = statusbar->metaObject()->indexOfSignal("messageChanged(QString)");
         if (statusSignal != -1) {

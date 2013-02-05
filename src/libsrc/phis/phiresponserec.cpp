@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -61,16 +61,11 @@ QByteArray PHIResponseRec::timeEncoded( const QDateTime &dt ) const
 {
     QLocale locale( QLocale::C );
     QByteArray arr=locale.dayName( dt.toUTC().date().dayOfWeek(),
-        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( ", dd " ).toLatin1()
+        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( QStringLiteral( ", dd " ) ).toLatin1()
         +locale.monthName( dt.toUTC().date().month(),
-        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( " yyyy HH:mm:ss" ).toLatin1()+" GMT";
+        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( QStringLiteral( " yyyy HH:mm:ss" ) )
+        .toLatin1()+" GMT";
     return arr;
-}
-
-void PHIResponseRec::setCookie( const QString &name, const QString &value, const QDateTime &expires,
-    const QString &path, const QString &domain, bool secure, bool discard )
-{
-    setCookie( name, value, QDateTime::currentDateTime().secsTo( expires ), path, domain, secure, discard );
 }
 
 void PHIResponseRec::setCookie( const QString &name, const QString &value, int maxage, const QString &path,
@@ -110,8 +105,8 @@ QByteArray PHIResponseRec::createResponseHeader( PHIRC rc, const QString &server
     QByteArray tmp="HTTP/1."+QByteArray::number( _minorHttpVer )+' '+QByteArray::number( static_cast<int>(rc) )
         +' '+PHIS::textForHttpCode( rc )+"\r\n";
     tmp+="Date: "+locale.dayName( dt.toUTC().date().dayOfWeek(), QLocale::ShortFormat ).toLatin1()
-        +dt.toUTC().toString( ", dd " ).toLatin1()+locale.monthName( dt.toUTC().date().month(),
-        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( " yyyy HH:mm:ss" ).toLatin1()+" GMT\r\n";
+        +dt.toUTC().toString( QStringLiteral( ", dd " ) ).toLatin1()+locale.monthName( dt.toUTC().date().month(),
+        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( QStringLiteral( " yyyy HH:mm:ss" ) ).toLatin1()+" GMT\r\n";
     tmp+="Server: "+serverString.toUtf8()+"\r\n";
     qDebug( "PHIResponseRec::createResponseHeader(rc=%d)", rc );
     tmp+="Content-Type: "+_contentType+"\r\n";

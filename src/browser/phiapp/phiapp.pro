@@ -1,6 +1,6 @@
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,29 +17,21 @@
 
 SOURCES = main.cpp
 HEADERS = 
+include( ../../../scripts/phiconf.pri )
 TEMPLATE = app
 TARGET = phiapp
 DESTDIR = ../../../bin
-CONFIG += qt $$[PHICONF]
-QT = core gui widgets network svg script printsupport
-
-VERSION = $$[PHIRELEASE]
+QT = core gui widgets network svg script webkitwidgets printsupport
+VERSION = $$PHIRELEASE
 INCLUDEPATH = ../../libsrc/phi ../../libsrc/phia
-MOC_DIR = .tmp
-OBJECTS_DIR = .tmp
-RCC_DIR = .tmp
-DEFINES += QT_NO_CAST_TO_ASCII PHIVERSION=\\\"$$VERSION\\\"
+DEFINES += PHIVERSION=\\\"$$VERSION\\\"
 
 win32 {
     LIBS = -L../../../bin phi1.lib phia1.lib
-    CONFIG(debug,debug|release) {
+    CONFIG(debug,debug|release){
         CONFIG += console
         LIBS = -L../../../bin phid1.lib phiad1.lib
-        TARGET = phiappd
-        DEFINES += PHIDEBUG
-    } else: {
-        DEFINES += QT_NO_DEBUG_OUTPUT
-        CONFIG += embed_manifest_exe
+        TARGET = amphibiad
     }
     RC_FILE=phiapp.rc
     OTHER_FILES +=phiapp.rc
@@ -51,21 +43,10 @@ unix {
     CONFIG(debug,debug|release) {
         LIBS = -L../../../lib -lphi_debug -lphia_debug
         TARGET = phiapp_debug
-        DEFINES += PHIDEBUG
-    } else: DEFINES += QT_NO_DEBUG_OUTPUT
+    }
     mac {
-        contains( CONFIG, appstore ){
-            DEFINES += PHIAPPSTORE
-            QMAKE_CXXFLAGS += -gdwarf-2
-            QMAKE_CFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
-            QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO
-            QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
-        }
         LIBS = -L../../../lib -lphi -lphia
-        QMAKE_MAC_SDK=$$[PHIMACSDK]
-        #QMAKE_INFO_PLIST = Info.plist
         OTHER_FILES += Info.plist
-        QMAKE_MACOSX_DEPLOYMENT_TARGET = $$[PHIMACDEPLOY]
         CONFIG -= app_bundle
         ICON = phiapp.icns
         TARGET = phiapp

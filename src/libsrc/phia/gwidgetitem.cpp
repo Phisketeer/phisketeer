@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,7 @@ GWidgetItem::GWidgetItem( qreal w, qreal h, const PHIAItem *it, QGraphicsItem *p
     setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
     setMinimumSize( 0, 0 );
     //setAcceptHoverEvents( true );
-    if ( PHI::isTabOrderItem( it->wid() ) ) setFlag( ItemIsFocusable, true );
+    if ( PHI::isTabOrderItem( static_cast<PHI::Widget>(it->wid()) ) ) setFlag( ItemIsFocusable, true );
     else setFlag( ItemIsFocusable, false );
     resize( w, h );
     connect( this, SIGNAL( onClick( QGraphicsSceneMouseEvent* ) ),
@@ -232,5 +232,5 @@ QSizeF GWidgetItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) con
 {
     QSizeF size=QGraphicsProxyWidget::sizeHint( which, constraint );
     if ( which!=Qt::PreferredSize ) return size;
-    return PHI::sizeHint( size, _item->wid(), font() );
+    return PHI::sizeHint( size, static_cast<PHI::Widget>(_item->wid()), font() );
 }

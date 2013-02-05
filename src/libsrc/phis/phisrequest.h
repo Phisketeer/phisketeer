@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -30,6 +30,7 @@
 #include <QHostAddress>
 #include "phis.h"
 #include "phiresponserec.h"
+#include "phi.h"
 
 class PHISEXPORT PHISRequest
 {
@@ -89,15 +90,17 @@ public:
     inline QString serverHostname() const { return QString::fromUtf8( _keywords.value( KServerHostname ) ); }
     inline QString remoteIP() const { return _remoteIP.toString(); }
     inline QString localIP() const { return _localIP.toString(); }
-    inline QString referer() const { return QString::fromUtf8( _headers.value( "Referer" ) ); }
-    inline QString agent() const { return QString::fromUtf8( _headers.value( "User-Agent" ) ); }
-    inline QString accept() const { return QString::fromUtf8( _headers.value( "Accept" ) ); }
+    inline QHostAddress localHostAddress() const { return _localIP; }
+    inline QHostAddress remoteHostAddress() const { return _remoteIP; }
+    inline QString referer() const { return QString::fromUtf8( _headers.value( QByteArrayLiteral( "Referer" ) ) ); }
+    inline QString agent() const { return QString::fromUtf8( _headers.value( QByteArrayLiteral( "User-Agent" ) ) ); }
+    inline QString accept() const { return QString::fromUtf8( _headers.value( QByteArrayLiteral( "Accept" ) ) ); }
     inline QString version() const { return PHIS::libVersion(); }
 
     inline QString cookieValue( const QString &key ) const {  return _cookies.value( key ); }
     inline QString getValue( const QString &key ) const { return QUrlQuery( _url ).queryItemValue( key ); }
     inline QString postValue( const QString &key ) const { return _postData.value( key ); }
-    inline QString headerValue( const QString &key ) const { return _headers.value( key.toUtf8() ); }
+    inline QString headerValue( const QString &key ) const { return QString::fromUtf8( _headers.value( key.toUtf8() ) ); }
     inline QStringList postKeys() const { return _postData.uniqueKeys(); }
     inline QStringList cookieKeys() const { return _cookies.uniqueKeys(); }
     inline QStringList requestKeys() const { return cookieKeys()+postKeys()+getKeys(); }
@@ -161,7 +164,7 @@ protected:
 
 inline QDateTime PHISRequest::ifModifiedSince() const
 {
-    QByteArray s=_headers.value( "If-Modified-Since" );
+    QByteArray s=_headers.value( QByteArrayLiteral( "If-Modified-Since" ) );
     if ( s.isEmpty() ) return QDateTime( QDate( 1970, 1, 1 ) );
     return PHI::dateTimeFromHeader( s );
 }
@@ -194,12 +197,18 @@ inline QStringList PHISRequest::fileKeys() const
 
 inline QStringList PHISRequest::serverKeys() const
 {
-    static QStringList list=QStringList() << "documentroot" << "self" << "url" << "filename"
-        << "hostname" << "tempdir" << "contentlength" << "contentType" << "postdata" << "agent"
-        << "started" << "today" << "nowutc" << "modified" << "user" << "password" << "accept"
-        << "scheme" << "method" << "servername" << "serverdef" << "admin" << "serverhost"
-        << "port" << "keepalive" << "localaddress" << "remoteaddress" << "version"
-        << "userengine" << "useragent" << "useros";
+    static QStringList list=QStringList() << QStringLiteral( "documentroot" )
+        << QStringLiteral( "self" ) << QStringLiteral( "url" ) << QStringLiteral( "filename" )
+        << QStringLiteral( "hostname" ) << QStringLiteral( "tempdir" ) << QStringLiteral( "contentlength" )
+        << QStringLiteral( "contentType" ) << QStringLiteral( "postdata" ) << QStringLiteral( "agent" )
+        << QStringLiteral( "started" ) << QStringLiteral( "today" ) << QStringLiteral( "nowutc" )
+        << QStringLiteral( "modified" ) << QStringLiteral( "user" ) << QStringLiteral( "password" )
+        << QStringLiteral( "accept" ) << QStringLiteral( "scheme" ) << QStringLiteral( "method" )
+        << QStringLiteral( "servername" ) << QStringLiteral( "serverdef" ) << QStringLiteral( "admin" )
+        << QStringLiteral( "serverhost" ) << QStringLiteral( "port" ) << QStringLiteral( "keepalive" )
+        << QStringLiteral( "localaddress" ) << QStringLiteral( "remoteaddress" )
+        << QStringLiteral( "version" ) << QStringLiteral( "userengine" )
+        << QStringLiteral( "useragent" ) << QStringLiteral( "useros" );
     return list;
 }
 

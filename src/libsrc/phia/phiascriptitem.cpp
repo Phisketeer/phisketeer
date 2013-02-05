@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -62,7 +62,7 @@ QScriptValue PHIAScriptItem::checked( const QScriptValue &v, const QScriptValue 
     if ( !v.isValid() && !c.isValid() ) return _it->checked();
     if ( v.isBool() ) { _it->setChecked( v.toBool() ); return self(); }
     if ( !v.isString() ) return self();
-    if ( PHI::isLayoutContainer( _it->wid() ) ) { // we check the children of the layout
+    if ( PHI::isLayoutContainer( static_cast<PHI::Widget>(_it->wid()) ) ) { // we check the children of the layout
         QList <PHIBaseItem*> list=_it->view()->page()->childrenOf( _it->name() );
         PHIBaseItem *it;
         foreach ( it, list ) {
@@ -116,7 +116,7 @@ QScriptValue PHIAScriptItem::html( const QString &html )
 
 QScriptValue PHIAScriptItem::val( const QScriptValue &v )
 {
-    if ( !PHI::isInputItem( _it->wid() ) ) return self();
+    if ( !PHI::isInputItem( static_cast<PHI::Widget>(_it->wid()) ) ) return self();
     if ( _it->wid()==PHI::PROGRESSBAR ) return self();
     if ( !v.isValid() ) return _it->value();
     _it->setValue( v.toString() ); return self();

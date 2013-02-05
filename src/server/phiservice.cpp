@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ void PHIService::createApplication( int &argc, char **argv )
     _app=new QApplication( argc, argv, false );
     //_app=new QApplication( argc, argv, true );
     _app->setApplicationVersion( PHIS::libVersion() );
-    _app->setApplicationName( "Phis" );
+    _app->setApplicationName( QStringLiteral( "Phis" ) );
     PHI::setupApplication( _app );
 }
 
@@ -49,7 +49,7 @@ int PHIService::executeApplication()
 
 void PHIService::start()
 {
-    QString name="default";
+    QString name=PHI::defaultString();
     _manager=new PHIManager( 0, name );
     _manager->start();
 }
@@ -81,11 +81,11 @@ void PHIService::processCommand( int code )
 #ifdef Q_OS_WIN
     QSettings *cs=PHI::globalSettings();
     cs->beginGroup( _manager->objectName() ); // "default"
-    cs->setValue( "StartMode", code );
+    cs->setValue( QStringLiteral( "StartMode" ), code );
     cs->endGroup();
 
-    QSettings s( "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\phis",
+    QSettings s( QStringLiteral( "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\phis" ),
         QSettings::NativeFormat );
-    s.setValue( "Start", code );
+    s.setValue( QStringLiteral( "Start" ), code );
 #endif
 }

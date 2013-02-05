@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -29,6 +29,7 @@
 #include <QVector>
 //#include "philicense.h"
 #include "phis.h"
+#include "phi.h"
 
 /** Parent class of all classes with long term lifetime over threads.
   * Use this class as parent for other classes and protect them by a mutex for thread safety. */
@@ -41,11 +42,12 @@ public:
     static PHIParent* instance( QObject *parent=0 );
     virtual ~PHIParent();
     inline bool isApacheModule() const { return _internalApp; }
-    QString tempDir( const QString &domain, const QString &def=QString( "default" ) );
+    QString tempDir( const QString &domain, const QString &def=PHI::defaultString() );
 
     //void database( QString &db, QString &name, QString &host, QString &user,
     //    QString &pwd, QString &connOpts, int &port, const QString &domain );
-
+    inline QStringList loadedModules() const { return _loadedModules; }
+    inline QStringList moduleLoadErrors() const { return _moduleLoadErrors; }
     void invalidate( const QString &domain=QString() );
 /*
     void readLicenseFile( const QString &documentRoot, const QString &domain );
@@ -70,19 +72,15 @@ protected:
 private:
     static PHIParent *_instance;
     mutable QReadWriteLock _lock;
-    QApplication *_app;
+    //QApplication *_app;
+    QGuiApplication *_app;
     bool _internalApp;
     //QHash <QString, bool> _validLicenses;
     QHash <QString, QString> _tmpDirs;
     QHash <QString, DBSettings> _dbSettings;
     QDateTime _invalidateTouch;
     //QHash <QString, PHILicense*> _licenses;
-/*
-    QStringList _argList;
-    int _argc;
-    QVector<char *> _argv;
-    QList<QByteArray> _argvData;
-*/
+    QStringList _loadedModules, _moduleLoadErrors;
 };
 
 #endif // PHIPARENT_H

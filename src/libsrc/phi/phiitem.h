@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -11,9 +11,9 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef PHIITEM_H
@@ -94,7 +94,7 @@ public:
     inline virtual void setParentId( const QByteArray &pid ) { _parent=pid; }
     inline Attributes attributes() const { return _attributes; }
     inline Properties itemProperties() const { return _properties; }
-    inline PHI::Widget wid() const { return _wid; }
+    inline quint16 wid() const { return _wid; }
     inline QVariant data( DataType dt ) const { return _variants.value( static_cast<quint8>(dt) ); }
     inline QVariant data( DataType dt, const QVariant &def ) const {
         return _variants.value( static_cast<quint8>(dt), def ); }
@@ -132,7 +132,7 @@ public:
     inline qreal yTranslation() const { return _yTranslate; }
 
 protected:
-    PHI::Widget _wid;
+    quint16 _wid;
     QByteArray _id, _parent;
     qreal _x, _y, _width, _height;
     QTransform _transform;

@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -186,41 +186,42 @@ void PHISRequest::init() // should be executed AFTER all GET and POST var extrac
         }
     }
     // Extract languages (excluding qualifier ie. ';q=0.8')
-    list=QString::fromLatin1( _headers.value( "Accept-Language" ) ).split( ',', QString::SkipEmptyParts );
+    list=QString::fromLatin1( _headers.value( "Accept-Language" ) ).split( QLatin1Char( ',' ), QString::SkipEmptyParts );
     foreach ( str, list ) {
-        pos=str.indexOf( ';' );
+        pos=str.indexOf( QLatin1Char( ';' ) );
         if( pos>0 ) str=str.left( pos ); // remove qualifier
         _acceptedLangs.append( str.toLower() );
     }
-    if ( _acceptedLangs.isEmpty() ) _lang="C";
+    if ( _acceptedLangs.isEmpty() ) _lang=QStringLiteral( "C" );
     else _lang=_acceptedLangs.first();
 
     // Extract cookies
-    list=QString::fromUtf8( _headers.value( "Cookie" ) ).split( ';', QString::SkipEmptyParts );
+    QString philang=QStringLiteral( "philang" );
+    list=QString::fromUtf8( _headers.value( "Cookie" ) ).split( QLatin1Char( ';' ), QString::SkipEmptyParts );
     if ( list.count()>0 ) {
         _cookies.clear();
         QString value, cookie;
         int start;
         foreach ( cookie, list ) {
-            if ( cookie.startsWith( ' ' ) ) cookie.remove( 0, 1 );
-            if ( cookie.startsWith( '$' ) ) continue;
-            start=cookie.indexOf( '=' );
+            if ( cookie.startsWith( QLatin1Char( ' ' ) ) ) cookie.remove( 0, 1 );
+            if ( cookie.startsWith( QLatin1Char( '$' ) ) ) continue;
+            start=cookie.indexOf( QLatin1Char( '=' ) );
             value=cookie.mid( start+1 );
-            if ( value.startsWith( '"' ) ) value.remove( 0, 1 );
-            if ( value.endsWith( '"' ) ) value.chop( 1 );
+            if ( value.startsWith( QLatin1Char( '"' ) ) ) value.remove( 0, 1 );
+            if ( value.endsWith( QLatin1Char( '"' ) ) ) value.chop( 1 );
             _cookies.insert( cookie.left( start ), value );
         }
-        if ( _cookies.contains( "philang" ) ) {
-            _lang=_cookies.value( "philang" );
+        if ( _cookies.contains( philang ) ) {
+            _lang=_cookies.value( philang );
             _philang=true;
         }
     }
-    if ( _postData.contains( "philang" ) ) {
-        _lang=_postData.value( "philang" );
+    if ( _postData.contains( philang ) ) {
+        _lang=_postData.value( philang );
         _philang=true;
     }
-    if ( ! QUrlQuery( _url ).queryItemValue( "philang" ).isEmpty() ) {
-        _lang=QUrlQuery( _url ).queryItemValue( "philang" );
+    if ( ! QUrlQuery( _url ).queryItemValue( philang ).isEmpty() ) {
+        _lang=QUrlQuery( _url ).queryItemValue( philang );
         _philang=true;
     }
     _langByteArray=_lang.toLatin1();
@@ -228,20 +229,20 @@ void PHISRequest::init() // should be executed AFTER all GET and POST var extrac
 
 QString PHISRequest::serverValue( const QString &key ) const
 {
-    if ( key=="documentroot" ) return documentRoot();
-    if ( key=="self" ) return _url.path();
-    if ( key=="url" ) return _url.toString();
-    if ( key=="filename" ) return canonicalFilename();
-    if ( key=="hostname" ) return hostname();
-    if ( key=="tempdir" ) return tmpDir();
-    if ( key=="contentlength" ) return QString::number( _contentLength );
-    if ( key=="contenttype" ) {
+    if ( key==QLatin1String( "documentroot" ) ) return documentRoot();
+    if ( key==QLatin1String( "self" ) ) return _url.path();
+    if ( key==QLatin1String( "url" ) ) return _url.toString();
+    if ( key==QLatin1String( "filename" ) ) return canonicalFilename();
+    if ( key==QLatin1String( "hostname" ) ) return hostname();
+    if ( key==QLatin1String( "tempdir" ) ) return tmpDir();
+    if ( key==QLatin1String( "contentlength" ) ) return QString::number( _contentLength );
+    if ( key==QLatin1String( "contenttype" ) ) {
         QString tmp=contentType();
-        int pos=tmp.indexOf( "; boundary" );
+        int pos=tmp.indexOf( QLatin1String( "; boundary" ) );
         if ( pos>0 ) tmp=tmp.left( pos ); // removing boundary=...
         return tmp;
     }
-    if ( key=="postdata" ) {
+    if ( key==QLatin1String( "postdata" ) ) {
         QString key, tmp;
         QUrl url;
         QUrlQuery query;
@@ -253,83 +254,83 @@ QString PHISRequest::serverValue( const QString &key ) const
         url.setQuery( query );
         return url.toString();
     }
-    if ( key=="lang" ) return _lang;
-    if ( key=="agent" ) return QString::fromUtf8( _headers.value( "User-Agent" ) );
-    if ( key=="started" ) return _started.toLocalTime().toString( PHI::dtFormat() );
-    if ( key=="today" ) return QDate::currentDate().toString( PHI::isoDateFormat() );
-    if ( key=="nowutc" ) return QDateTime::currentDateTime().toUTC().toString( PHI::dtFormat() );
-    if ( key=="modified" ) return _modified.toLocalTime().toString( PHI::dtFormat() );
-    if ( key=="user" ) return user();
-    if ( key=="password" ) return password();
-    if ( key=="accept" ) return QString::fromUtf8( _headers.value( "Accept" ) );
-    if ( key=="referer" ) return QString::fromUtf8( _headers.value( "Referer" ) );
-    if ( key=="scheme" ) return scheme();
-    if ( key=="method" ) return method();
-    if ( key=="servername" ) return serverDescription();
-    if ( key=="serverdef" ) return serverDefname();
-    if ( key=="admin" ) return admin();
-    if ( key=="serverhost" ) return serverHostname();
-    if ( key=="port" ) return QString::number( _url.port() );
-    if ( key=="keepalive" ) return QString::number( _keepAlive );
-    if ( key=="localaddress" ) return _localIP.toString();
-    if ( key=="remoteaddress" ) return _remoteIP.toString();
-    if ( key=="version" ) return version();
-    if ( key=="useragent" ) return userAgent();
-    if ( key=="userengine" ) return userEngine();
-    if ( key=="useros" ) return userOS();
+    if ( key==QLatin1String( "lang" ) ) return _lang;
+    if ( key==QLatin1String( "agent" ) ) return QString::fromUtf8( _headers.value( "User-Agent" ) );
+    if ( key==QLatin1String( "started" ) ) return _started.toLocalTime().toString( PHI::dtFormatString() );
+    if ( key==QLatin1String( "today" ) ) return QDate::currentDate().toString( QString::fromLatin1( PHI::isoDateFormat() ) );
+    if ( key==QLatin1String( "nowutc" ) ) return QDateTime::currentDateTime().toUTC().toString( PHI::dtFormatString() );
+    if ( key==QLatin1String( "modified" ) ) return _modified.toLocalTime().toString( PHI::dtFormatString() );
+    if ( key==QLatin1String( "user" ) ) return user();
+    if ( key==QLatin1String( "password" ) ) return password();
+    if ( key==QLatin1String( "accept" ) ) return QString::fromUtf8( _headers.value( "Accept" ) );
+    if ( key==QLatin1String( "referer" ) ) return QString::fromUtf8( _headers.value( "Referer" ) );
+    if ( key==QLatin1String( "scheme" ) ) return scheme();
+    if ( key==QLatin1String( "method" ) ) return method();
+    if ( key==QLatin1String( "servername" ) ) return serverDescription();
+    if ( key==QLatin1String( "serverdef" ) ) return serverDefname();
+    if ( key==QLatin1String( "admin" ) ) return admin();
+    if ( key==QLatin1String( "serverhost" ) ) return serverHostname();
+    if ( key==QLatin1String( "port" ) ) return QString::number( _url.port() );
+    if ( key==QLatin1String( "keepalive" ) ) return QString::number( _keepAlive );
+    if ( key==QLatin1String( "localaddress" ) ) return _localIP.toString();
+    if ( key==QLatin1String( "remoteaddress" ) ) return _remoteIP.toString();
+    if ( key==QLatin1String( "version" ) ) return version();
+    if ( key==QLatin1String( "useragent" ) ) return userAgent();
+    if ( key==QLatin1String( "userengine" ) ) return userEngine();
+    if ( key==QLatin1String( "useros" ) ) return userOS();
     return QString();
 }
 
 QString PHISRequest::userEngine() const
 {
     switch ( _agentEngine ) {
-    case Trident: return QString( "Trident" );
-    case WebKit: return QString( "WebKit" );
-    case Gecko: return QString( "Gecko" );
-    case Presto: return QString( "Presto" );
+    case Trident: return QStringLiteral( "Trident" );
+    case WebKit: return QStringLiteral( "WebKit" );
+    case Gecko: return QStringLiteral( "Gecko" );
+    case Presto: return QStringLiteral( "Presto" );
     default:;
     }
-    return QString( "Unknown" );
+    return QStringLiteral( "Unknown" );
 }
 
 QString PHISRequest::userAgent() const
 {
     switch( _agentId ) {
-    case IE: return QString( "MSIE" );
-    case Safari: return QString( "Safari" );
-    case Firefox: return QString( "Firefox" );
-    case Chrome: return QString( "Chrome" );
-    case Konqueror: return QString( "Konqueror" );
-    case Opera: return QString( "Opera" );
-    case SeaMonkey: return QString( "SeaMonkey" );
-    case Amphibia: return QString( "Amphibia" );
+    case IE: return QStringLiteral( "MSIE" );
+    case Safari: return QStringLiteral( "Safari" );
+    case Firefox: return QStringLiteral( "Firefox" );
+    case Chrome: return QStringLiteral( "Chrome" );
+    case Konqueror: return QStringLiteral( "Konqueror" );
+    case Opera: return QStringLiteral( "Opera" );
+    case SeaMonkey: return QStringLiteral( "SeaMonkey" );
+    case Amphibia: return QStringLiteral( "Amphibia" );
     default:;
     }
-    return QString( "Unknown" );
+    return QStringLiteral( "Unknown" );
 }
 
 QString PHISRequest::userOS() const
 {
     switch( osType() ) {
-    case PHISRequest::Windows: return QString( "Windows" );
-    case PHISRequest::MacOS: return QString( "MacOSX" );
-    case PHISRequest::iOS: return QString( "iOS" );
-    case PHISRequest::Android: return QString( "Android" );
-    case PHISRequest::WindowsMobile: return QString( "WindowsMobile" );
-    case PHISRequest::Linux: return QString( "Linux" );
-    case PHISRequest::Symbian: return QString( "Symbian" );
-    case PHISRequest::Solaris: return QString( "Solaris" );
-    case PHISRequest::HPUX: return QString( "HPUX" );
-    case PHISRequest::AIX: return QString( "AIX" );
+    case PHISRequest::Windows: return QStringLiteral( "Windows" );
+    case PHISRequest::MacOS: return QStringLiteral( "MacOSX" );
+    case PHISRequest::iOS: return QStringLiteral( "iOS" );
+    case PHISRequest::Android: return QStringLiteral( "Android" );
+    case PHISRequest::WindowsMobile: return QStringLiteral( "WindowsMobile" );
+    case PHISRequest::Linux: return QStringLiteral( "Linux" );
+    case PHISRequest::Symbian: return QStringLiteral( "Symbian" );
+    case PHISRequest::Solaris: return QStringLiteral( "Solaris" );
+    case PHISRequest::HPUX: return QStringLiteral( "HPUX" );
+    case PHISRequest::AIX: return QStringLiteral( "AIX" );
     default:;
     }
-    return QString( "Unknown" );
+    return QStringLiteral( "Unknown" );
 }
 
 bool PHISRequest::setRedirectedFile( const QString &file )
 {
     QFileInfo info( _canonicalFilename );
-    if ( file.startsWith( '/' ) || file.startsWith( '\\' ) ) {
+    if ( file.startsWith( QLatin1Char( '/' ) ) || file.startsWith( QLatin1Char( '\\' ) ) ) {
         info.setFile( _documentRoot+file );
         if ( !info.exists() ) return false;
     } else {
@@ -340,7 +341,7 @@ bool PHISRequest::setRedirectedFile( const QString &file )
     _modified=info.lastModified();
     QString path=_canonicalFilename;
     qDebug( "path=%s (%s)", qPrintable( path ), qPrintable( _documentRoot ) );
-    path.replace( _documentRoot, "" );
+    path.replace( _documentRoot, QString() );
     _url.setPath( path );
     qDebug( "REDIRECTED: %s", qPrintable( _url.toString() ) );
     return true;
@@ -352,28 +353,31 @@ void PHISRequest::dump() const
     QString str, key;
     quint8 id;
     qWarning( "[Config]" );
-    qWarning( "Started: %s", qPrintable( _started.toLocalTime().toString( PHI::dtFormat() ) ) );
-    qWarning( "UTC: %s", qPrintable( serverValue( "nowutc" ) ) );
+    qWarning( "Started: %s", qPrintable( _started.toLocalTime().toString( PHI::dtFormatString() ) ) );
+    qWarning( "UTC: %s", qPrintable( serverValue( QStringLiteral( "nowutc" ) ) ) );
     qWarning( "Filename: %s", qPrintable( _canonicalFilename ) );
     qWarning( "TmpDir: %s", qPrintable( _tmpDir ) );
     qWarning( "ImgDir: %s", qPrintable( _imgDir ) );
     qWarning( "Keep-Alive: %d", _keepAlive );
     qWarning( "DocumentRoot: %s", qPrintable( _documentRoot ) );
     qWarning( "URL: %s", _url.toEncoded().data() );
-    qWarning( "POST data: %s", qPrintable( serverValue( "postdata" ) ) );
+    qWarning( "POST data: %s", qPrintable( serverValue( QStringLiteral( "postdata" ) ) ) );
     qWarning( "HTTP major: %d", _httpMajor );
     qWarning( "HTTP minor: %d", _httpMinor );
     qWarning( "Content length: %lld", _contentLength );
     qWarning( "Current language: %s", qPrintable( _lang ) );
-    QStringList engines=QStringList() << "Unknown" << "Trident" << "Gecko" << "WebKit" << "Presto";
-    qWarning( "Engine: %s", qPrintable( engines.at( agentEngine() ) ) );
+    //QStringList engines=QStringList() << "Unknown" << "Trident" << "Gecko" << "WebKit" << "Presto";
+    //qWarning( "Engine: %s", qPrintable( engines.at( agentEngine() ) ) );
+    qWarning( "Engine: %d", agentEngine() );
     qWarning( "Engine version: %d.%d", _engineMajorVersion, _engineMinorVersion );
-    QStringList agents=QStringList() << "Unknown" << "InternetExplorer" << "Firefox" << "Konqueror"
-        << "Safari" << "Chrome" << "Opera" << "Amphibia";
-    qWarning( "Agent: %s", qPrintable( agents.at( agentId() ) ) );
-    QStringList ostypes=QStringList() << "Unknown" << "Windows" << "Linux" << "Mac OS" << "iOS" << "Symbian"
-        << "WindowsMobile" << "Android";
-    qWarning( "OS type: %s", qPrintable( ostypes.at( osType() ) ) );
+    //QStringList agents=QStringList() << "Unknown" << "InternetExplorer" << "Firefox" << "Konqueror"
+    //    << "Safari" << "Chrome" << "Opera" << "Amphibia";
+    //qWarning( "Agent: %s", qPrintable( agents.at( agentId() ) ) );
+    qWarning( "Agent: %d", agentId() );
+    //QStringList ostypes=QStringList() << "Unknown" << "Windows" << "Linux" << "Mac OS" << "iOS" << "Symbian"
+    //    << "WindowsMobile" << "Android";
+    //qWarning( "OS type: %s", qPrintable( ostypes.at( osType() ) ) );
+    qWarning( "OS type: %d", osType() );
     qWarning( "User: %s", qPrintable( user() ) );
     qWarning( "Password: %s", qPrintable( password() ) );
     qWarning( "[Keywords]" );

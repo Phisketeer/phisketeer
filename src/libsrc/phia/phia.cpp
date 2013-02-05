@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -83,7 +83,7 @@ QString PHIA::configName( PHIA::Config config )
 
 void PHIA::setContainerLineEdit( const PHIAItem *it, int row, const QString &text )
 {
-    if ( !PHI::isWidgetContainer( it->wid() ) ) return;
+    if ( !PHI::isWidgetContainer( static_cast<PHI::Widget>(it->wid()) ) ) return;
     // get the layout
     GAbstractLayoutItem *l=qgraphicsitem_cast<GAbstractLayoutItem*>(it->graphicsItem());
     Q_ASSERT( l );
@@ -94,7 +94,7 @@ void PHIA::setContainerLineEdit( const PHIAItem *it, int row, const QString &tex
 
 QLineEdit* PHIA::containerLineEdit( const PHIAItem *it, int row )
 {
-    if ( !PHI::isWidgetContainer( it->wid() ) ) return 0;
+    if ( !PHI::isWidgetContainer( static_cast<PHI::Widget>(it->wid()) ) ) return 0;
     // get the layout
     GAbstractLayoutItem *l=qgraphicsitem_cast<GAbstractLayoutItem*>(it->graphicsItem());
     Q_ASSERT( l );
@@ -105,7 +105,7 @@ QLineEdit* PHIA::containerLineEdit( const PHIAItem *it, int row )
 
 void PHIA::setContainerComboBox( const PHIAItem *it, int row, const QString &text )
 {
-    if ( !PHI::isWidgetContainer( it->wid() ) ) return;
+    if ( !PHI::isWidgetContainer( static_cast<PHI::Widget>(it->wid()) ) ) return;
     // get the layout
     GAbstractLayoutItem *l=qgraphicsitem_cast<GAbstractLayoutItem*>(it->graphicsItem());
     Q_ASSERT( l );
@@ -120,7 +120,7 @@ void PHIA::setContainerComboBox( const PHIAItem *it, int row, const QString &tex
 
 void PHIA::setContainerComboBoxData( const PHIAItem *it, int row, const QString &text )
 {
-    if ( !PHI::isWidgetContainer( it->wid() ) ) return;
+    if ( !PHI::isWidgetContainer( static_cast<PHI::Widget>(it->wid()) ) ) return;
     // get the layout
     GAbstractLayoutItem *l=qgraphicsitem_cast<GAbstractLayoutItem*>(it->graphicsItem());
     Q_ASSERT( l );
@@ -137,7 +137,7 @@ void PHIA::setContainerComboBoxData( const PHIAItem *it, int row, const QString 
 
 QComboBox* PHIA::containerComboBox( const PHIAItem *it, int row )
 {
-    if ( !PHI::isWidgetContainer( it->wid() ) ) return 0;
+    if ( !PHI::isWidgetContainer( static_cast<PHI::Widget>(it->wid()) ) ) return 0;
     // get the layout
     GAbstractLayoutItem *l=qgraphicsitem_cast<GAbstractLayoutItem*>(it->graphicsItem());
     Q_ASSERT( l );

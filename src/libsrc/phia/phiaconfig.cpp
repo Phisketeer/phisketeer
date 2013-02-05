@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -376,7 +376,7 @@ void PHIAConfig::slotCheckForUpdate( QWidget *parent )
     QSettings *s=PHI::globalSettings();
     QString url=s->value( "PhiUpdateXML",
         QString( "http://www.phisketeer.org/downloads/phiupdate.xml" ) ).toString();
-    req.setUrl( url );
+    req.setUrl( QUrl( url, QUrl::StrictMode ) );
     _updateReply=PHIANetManager::instance()->networkAccessManager()->get( req );
     connect( _updateReply, SIGNAL( finished() ), this, SLOT( slotGetUpdateInfoFinished() ) );
 }
@@ -453,7 +453,7 @@ void PHIAConfig::slotGetUpdateInfoFinished()
     }
     _updateInProgress=true;
     QNetworkRequest req;
-    req.setUrl( info.downloadUrl( product ) );
+    req.setUrl( QUrl( info.downloadUrl( product ), QUrl::StrictMode ) );
     _updateReply=PHIANetManager::instance()->networkAccessManager()->get( req );
     if ( _updateWidgetParent ) { // visible download
         // warning: _updateReply becomes controlled by PHIADownloadEntry

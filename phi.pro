@@ -1,6 +1,6 @@
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -37,19 +37,7 @@
 #
 #  Note: if you use Qt Creator do not enable shadow builds!
 
-PHIDOM = phisketeer.org
-PHIORG = Phisketeer
-PHICONF = warn_on
-PHIRELEASE = 1.4.1
-PHIMINMACV = 10.5
-PHIMACSDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
-#mac: PHICONF += x86_64 appstore
-mac: PHICONF += x86_64
-
-system( $$[QT_INSTALL_BINS]/qmake -set PHIDOM $$PHIDOM )
-system( $$[QT_INSTALL_BINS]/qmake -set PHIORG $$PHIORG )
-system( $$[QT_INSTALL_BINS]/qmake -set PHICONF \"$$PHICONF\" )
-system( $$[QT_INSTALL_BINS]/qmake -set PHIRELEASE $$PHIRELEASE )
+include( scripts/phiconf.pri )
 message( Phi configuration: $$PHICONF )
 OTHER_FILES = doc/license.txt doc/readme.txt scripts/phiupdate.xml doc/LGPLv3 doc/GPLv3
 
@@ -63,8 +51,6 @@ unix {
     QMAKE_DISTCLEAN += -r bin/* lib/*
 
     mac {
-        system( $$[QT_INSTALL_BINS]/qmake -set PHIMACDEPLOY $$PHIMINMACV )
-        system( $$[QT_INSTALL_BINS]/qmake -set PHIMACSDK $$PHIMACSDK )
         message( "run 'make distmac' to create a Mac OSX packaged distribution in 'distmac'" )
         distmac.target = distmac
         distmac.commands = scripts/distmac.sh $$PHIRELEASE $$[QT_INSTALL_LIBS] $$[QT_INSTALL_BINS] \
@@ -117,8 +103,9 @@ win32 {
 
     QMAKE_EXTRA_TARGETS += distwin mysqlwin
     OTHER_FILES += scripts/distwin.bat scripts/mysqlwin.bat
-    QMAKE_CLEAN += bin\\* lib\\* distwin\\*
-    QMAKE_DISTCLEAN += /S /F /Q bin lib distwin && rd /S /Q bin lib distwin
+    QMAKE_CLEAN += bin/* lib/* distwin/*
+    QMAKE_DISTCLEAN += bin/* lib/* distwin/*
+    QMAKE_DEL_FILE = del /S /F /Q
 }
 
 TEMPLATE = subdirs

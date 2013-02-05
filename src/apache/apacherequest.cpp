@@ -1,7 +1,7 @@
 /*
 #    Copyright (C) 2010-2012  Marius Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -49,7 +49,7 @@ ApacheRequest::ApacheRequest( request_rec *r, PHIResponseRec *resp )
     _contentLength=_headers.value( "Content-Length", 0 ).toLongLong();
 
     _keywords.insert( KMethod, QByteArray::fromRawData( r->method, qstrlen( r->method ) ) );
-    _url.setEncodedHost( QByteArray::fromRawData( r->hostname, qstrlen( r->hostname ) ));
+    _url.setHost( QString::fromUtf8( QByteArray::fromRawData( r->hostname, qstrlen( r->hostname ) ) ) );
     if ( _url.userName().isEmpty() )
         _url.setUserName( QString::fromUtf8( QByteArray::fromRawData( r->user, qstrlen( r->user ) ) ) );
     if ( _url.password().isEmpty() )
@@ -70,18 +70,18 @@ ApacheRequest::ApacheRequest( request_rec *r, PHIResponseRec *resp )
     if ( s->port>0 ) _url.setPort( s->port );
 
     /** @todo implement SSL stuff properly */
-    if ( s->port==443 ) _url.setScheme( "https" );
-    else _url.setScheme( "http" );
+    if ( s->port==443 ) _url.setScheme( QStringLiteral( "https" ) );
+    else _url.setScheme( QStringLiteral( "http" ) );
 
     _keepAlive=static_cast<qint32>( s->keep_alive_timeout/1000 );
     _tmpDir=PHIParent::instance()->tempDir( _url.host() );
-    _imgDir=_tmpDir+QDir::separator()+"img";
+    _imgDir=_tmpDir+QDir::separator()+QLatin1String( "img" );
     //qDebug( "_tmpDir=%s", qPrintable( _tmpDir ) );
 
     conn_rec *c=r->connection;
     Q_ASSERT( c );
-    _localIP=QHostAddress( c->local_ip );
-    _remoteIP=QHostAddress( c->remote_ip );
+    _localIP=QHostAddress( QString::fromLatin1( c->local_ip ) );
+    _remoteIP=QHostAddress( QString::fromLatin1( c->remote_ip ) );
 }
 
 ApacheRequest::~ApacheRequest()
@@ -91,7 +91,7 @@ ApacheRequest::~ApacheRequest()
 
 void ApacheRequest::setPostEncodedUrl( const QByteArray &query )
 {
-    QList <QPair <QString, QString> > list=QUrl::fromEncoded( query ).queryItems();
+    QList <QPair <QString, QString> > list=QUrlQuery( QUrl::fromEncoded( query ) ).queryItems();
     QPair <QString, QString> pair;
     foreach ( pair, list ) _postData.insertMulti( pair.first, pair.second );
 }

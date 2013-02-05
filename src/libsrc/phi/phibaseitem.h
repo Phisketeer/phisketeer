@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -11,9 +11,9 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef PHIBASEITEM_H
@@ -68,9 +68,9 @@ class PHIEXPORT PHIBaseItem : public QObject, public PHIItem
     friend PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBaseItem* );
 
 public: //not useable by script engine
-    PHIBaseItem( QObject *parent=0 );
-    PHIBaseItem( const PHIItem&, QObject *parent=0 );
-    PHIBaseItem( PHI::Widget wid, const QByteArray &id, QObject *parent=0 );
+    explicit PHIBaseItem( QObject *parent=0 );
+    explicit PHIBaseItem( const PHIItem&, QObject *parent=0 );
+    explicit PHIBaseItem( quint16 wid, const QByteArray &id, QObject *parent=0 );
     virtual ~PHIBaseItem();
     virtual QGradient gradient() const;
 
@@ -203,7 +203,7 @@ public slots: //useable by script engine
     inline virtual void setAccessKey( const QString &s ) { _variants.insert( DShortCut, s.left(1).toUtf8() ); }
     inline quint16 maxLength() const { return _variants.value( DMaxSize, PHI::maxLength() ).value<quint16>(); }
     inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxSize, max ); }
-    inline QString delimiter() const { return _variants.value( DDelimiter, QString( "\n" ) ).toString(); }
+    inline QString delimiter() const { return _variants.value( DDelimiter, QStringLiteral( "\n" ) ).toString(); }
     inline virtual void setDelimiter( const QString &d ) { _variants.insert( DDelimiter, d ); }
     inline quint16 tabIndex() const { return _variants.value( DTabOrder, 0 ).value<quint16>(); }
     inline virtual void setTabIndex( quint16 tab ) { _variants.insert( DTabOrder, tab ); }
@@ -254,8 +254,8 @@ protected:
     QByteArray _pageId;
 };
 
-Q_DECLARE_METATYPE( PHIBaseItem* );
-Q_DECLARE_METATYPE( const PHIBaseItem* );
+Q_DECLARE_METATYPE( PHIBaseItem* )
+Q_DECLARE_METATYPE( const PHIBaseItem* )
 
 PHIEXPORT QScriptValue baseItemToScriptValue( QScriptEngine*, PHIBaseItem* const &in );
 PHIEXPORT void baseItemFromScriptValue( const QScriptValue&, PHIBaseItem* &out );
@@ -301,20 +301,19 @@ class PHIBaseStyle : public QObject
 
 public:
     PHIBaseStyle( PHIBaseItem* );
-    virtual ~PHIBaseStyle();
 
 public slots:
     // offered by CSS 2.1 / 3.0
-    inline QString left() const { return QString::number( _it->x() )+"px"; }
-    inline void setLeft( const QString &x ) { QString xx=x; _it->setX( xx.replace( "px", "" ).toDouble() ); }
-    inline QString top() const { return QString::number( _it->y() )+"px"; }
-    inline void setTop( const QString &y ) { QString yy=y; _it->setY( yy.replace( "px", "" ).toDouble() ); }
+    inline QString left() const { return QString::number( _it->x() )+QLatin1String( "px" ); }
+    inline void setLeft( const QString &x ) { QString xx=x; _it->setX( xx.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
+    inline QString top() const { return QString::number( _it->y() )+QLatin1String( "px" ); }
+    inline void setTop( const QString &y ) { QString yy=y; _it->setY( yy.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
     inline qint16 zIndex() const { return _it->zValue(); }
     inline void setZIndex( qint16 z ) { if ( z <= PHI::maxZValue() ) _it->setZValue( z ); }
-    inline QString height() const { return QString::number( _it->height() )+"px"; }
-    inline void setHeight( const QString &h ) { QString hh=h; _it->setHeight( hh.replace( "px", "" ).toDouble() ); }
-    inline QString width() const { return QString::number( _it->width() )+"px"; }
-    inline void setWidth( const QString &w ) { QString ww=w; _it->setWidth( ww.replace( "px", "" ).toDouble() ); }
+    inline QString height() const { return QString::number( _it->height() )+QLatin1String( "px" ); }
+    inline void setHeight( const QString &h ) { QString hh=h; _it->setHeight( hh.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
+    inline QString width() const { return QString::number( _it->width() )+QLatin1String( "px" ); }
+    inline void setWidth( const QString &w ) { QString ww=w; _it->setWidth( ww.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
     inline void setColor( const QString &c ) { _it->setColor( c ); }
     inline QString color() const { return _it->color().name(); }
     inline void setBackgroundColor( const QString &c ) { _it->setOutlineColor( c ); }
@@ -322,8 +321,8 @@ public slots:
     QString visibility() const;
     void setVisibility( const QString& );
     inline void setBorderRadius( const QString &r ) {
-        QString rr=r; _it->setBorderRadius( rr.replace( "px", "" ).toShort() ); }
-    inline QString borderRadius() const { return QString::number( _it->borderRadius() )+"px"; }
+        QString rr=r; _it->setBorderRadius( rr.replace( QStringLiteral( "px" ), QString() ).toShort() ); }
+    inline QString borderRadius() const { return QString::number( _it->borderRadius() )+QLatin1String( "px" ); }
     inline QString cursor() const { return QString::fromLatin1( _it->cursor() ); }
     inline void setCursor( const QString &c ) { _it->setCursor( c.toLatin1() ); }
 
@@ -397,11 +396,11 @@ public slots:
     inline void fadeOut( qint32 start=0, qint32 duration=1000, qreal minOpac=0.,
         const QString &ease=PHI::defaultEasingCurve() )
         { _it->setFadeOut( start, duration, minOpac, ease ); }
-    void shadow( const QString &color=QString( "#3F3F3F" ), qreal opac=.7, qreal xOff=8.,
+    void shadow( const QString &color=QString::fromLatin1( "#3F3F3F" ), qreal opac=.7, qreal xOff=8.,
         qreal yOff=8., qreal radius=1. );
     inline void surface( qreal yOff=0., qreal size=30. ) { _it->setSurface( yOff, size ); }
     inline void blur( qreal radius=5. ) { _it->setBlur( radius ); }
-    inline void colorize( const QString &c=QString( "#0000C0" ), qreal strength=1. ) {
+    inline void colorize( const QString &c=QString::fromLatin1( "#0000C0" ), qreal strength=1. ) {
         _it->setColorize( QColor( c ), strength ); }
     inline void moveTo( qint32 left, qint32 top, qint32 start=0, qint32 duration=1000,
         const QString &ease=PHI::defaultEasingCurve() )

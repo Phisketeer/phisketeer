@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -37,7 +37,9 @@
 #include "phigenerator.h"
 #include "phisession.h"
 #include "phiparent.h"
-#include "philicense.h"
+//#include "philicense.h"
+#include "phismodulefactory.h"
+#include "phismodule.h"
 
 #ifdef PHIAPPSTORE
 #include "macfilebookmark.h"
@@ -67,7 +69,7 @@ void PHIProcessor::run()
     _resp->clear();
     _resp->_minorHttpVer=_req->httpServerMinorVersion();
     if ( _req->keyword( PHISRequest::KMethod )=="HEAD" ) _resp->_options|=PHIResponseRec::HeaderOnly;
-    if ( _req->canonicalFilename().endsWith( "/phi.phis" ) ) return genSysItem();
+    if ( _req->canonicalFilename().endsWith( QStringLiteral( "/phi.phis" ) ) ) return genSysItem();
 #ifdef PHIAPPSTORE
     PHISecFile f( _req->canonicalFilename() );
 #else
@@ -97,8 +99,8 @@ void PHIProcessor::run()
     if ( !page ) {
         if ( !f.open( QIODevice::ReadOnly ) ) {
             _resp->log( PHILOGWARN, PHIRC_IO_FILE_ACCESS_ERROR,
-                QObject::tr( "Could not open '%1' for reading." )
-                .arg( _req->canonicalFilename() )+PHI::errorText().arg( f.errorString() ) );
+                QObject::tr( "Could not open '%1' for reading: %2" )
+                .arg( _req->canonicalFilename() ).arg( f.errorString() ) );
             return _resp->error( PHILOGERR, PHIRC_HTTP_NOT_FOUND,
                 QObject::tr( "Could not open '%1' page." ).arg( _req->url().toString() ) );
         }
@@ -115,7 +117,7 @@ void PHIProcessor::run()
             QFile dbfile( page->dbFileName() );
             if ( dbfile.open( QIODevice::ReadOnly ) ) {
                 QString entry=QString::fromUtf8( dbfile.readAll() );
-                QStringList list=entry.split( ':' );
+                QStringList list=entry.split( QLatin1Char( ':' ) );
                 if ( list.count()<7 ) {
                     _resp->log( PHILOGWARN, PHIRC_ARGUMENT_ERROR, QObject::tr(
                         "There are not enough fields to extract the database settings from the file '%1'. "
@@ -188,18 +190,19 @@ void PHIProcessor::run()
 void PHIProcessor::genSysItem() const
 {
     QStringList list=_req->getKeys();
-    if ( list.contains( "phiimg" ) ) return genImage();
-    else if ( list.contains( "phicss" ) ) return genCSS();
-    else if ( list.contains( "phijs" ) ) return genJS();
-    else if ( list.contains( "philicense" ) ) return genLicense();
+    if ( list.contains( QStringLiteral( "phiimg" ) ) ) return genImage();
+    else if ( list.contains( QStringLiteral( "phicss" ) ) ) return genCSS();
+    else if ( list.contains( QStringLiteral( "phijs" ) ) ) return genJS();
+    else if ( list.contains( QStringLiteral( "philicense" ) ) ) return genLicense();
     return _resp->error( PHILOGERR, PHIRC_HTTP_NOT_FOUND,
         QObject::tr( "Could not access requested system item.") );
 }
 
 void PHIProcessor::genCSS() const
 {
-    QString file=_req->getValue( "phicss" );
-    QString path=_req->tmpDir()+QDir::separator()+"css"+QDir::separator()+file+".css";
+    QString file=_req->getValue( QStringLiteral( "phicss" ) );
+    QString path=_req->tmpDir()+QDir::separator()+QLatin1String( "css" )+QDir::separator()
+        +file+QLatin1String( ".css" );
     if ( !QFile::exists( path ) ) {
         _resp->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
             QObject::tr( "Could not access CSS file '%1'." ).arg( path ) );
@@ -223,8 +226,9 @@ void PHIProcessor::genCSS() const
 
 void PHIProcessor::genJS() const
 {
-    QString file=_req->getValue( "phijs" );
-    QString path=_req->tmpDir()+QDir::separator()+"js"+QDir::separator()+file+".js";
+    QString file=_req->getValue( QStringLiteral( "phijs" ) );
+    QString path=_req->tmpDir()+QDir::separator()+QLatin1String( "js" )+QDir::separator()
+        +file+QLatin1String( ".js" );
     if ( !QFile::exists( path ) ) {
         _resp->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
             QObject::tr( "Could not access JavaScript file '%1'." ).arg( path ) );
@@ -249,11 +253,11 @@ void PHIProcessor::genJS() const
 void PHIProcessor::genImage() const
 {
     try {
-        QString path=_req->getValue( "phitmp" );
+        QString path=_req->getValue( QStringLiteral( "phitmp" ) );
         bool useTmp=path.isEmpty() ? false : true;
-        QString imgId=_req->getValue( "phiimg" );
+        QString imgId=_req->getValue( QStringLiteral( "phiimg" ) );
         if ( !useTmp ) {
-            if ( imgId.startsWith( '/' || imgId.startsWith( '\\' ) ) ) {
+            if ( imgId.startsWith( QLatin1Char( '/' ) ) || imgId.startsWith( QLatin1Char( '\\' ) ) ) {
                 path=_req->documentRoot()+imgId;
             } else {
                 path=_req->documentRoot()+QDir::separator()+imgId;
@@ -280,9 +284,9 @@ void PHIProcessor::genImage() const
         _resp->_options &= ~PHIResponseRec::SendFile;
         _resp->_body.clear();
         _resp->_contentLength=0;
-        _resp->log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, QObject::tr( _allocError ) );
+        _resp->log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, QObject::tr( _allocError.constData() ) );
         return _resp->error( PHILOGWARN, PHIRC_HTTP_SERVICE_UNAVAILABLE,
-            QObject::tr( _resourceError ) );
+            QObject::tr( _resourceError.constData() ) );
     }
 }
 
@@ -290,8 +294,8 @@ void PHIProcessor::genLicense() const
 {
     //disabled for security issues:
     //const PHILicense *l=PHIParent::instance()->license( _req->hostname() );
-    const PHILicense *l(0);
-    if ( !l ) return _resp->error( PHILOGERR, PHIRC_HTTP_FORBIDDEN, QObject::tr( "Access denied" ) );
+    //const PHILicense *l(0);
+    return _resp->error( PHILOGERR, PHIRC_HTTP_FORBIDDEN, QObject::tr( "Access denied" ) );
     /*
     _resp->_contentType="text/plain";
     _resp->_body="ID: "+l->id()+"\r\nProcessors: "+QByteArray::number( l->processors() )
@@ -333,7 +337,7 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
                     }
                 }
             }
-            if ( !found ) _req->setCurrentLang( "C" );
+            if ( !found ) _req->setCurrentLang( QStringLiteral( "C" ) );
             script.clear();
         //}
     }
@@ -372,13 +376,13 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
                     if ( page.keywords().isEmpty() ) page.setKeywords( parser.text( pId, master->keysData() ) );
                 }
                 if ( master->attributes() & PHIPage::AJavascript )
-                    page.setJavascript( parser.text( pId, master->javascriptData() )+'\n'+page.javascript() );
+                    page.setJavascript( parser.text( pId, master->javascriptData() )+QLatin1Char( '\n' )+page.javascript() );
                 if ( master->attributes() & PHIPage::AStyleSheet )
-                    page.setStyleSheet( parser.text( pId, master->styleSheetData() )+'\n'+page.styleSheet() );
+                    page.setStyleSheet( parser.text( pId, master->styleSheetData() )+QLatin1Char( '\n' )+page.styleSheet() );
                 if ( master->attributes() & PHIPage::AFormAction && page.action().isEmpty() )
                     page.setAction( parser.text( pId, master->actionData() ) );
                 if ( master->attributes() & PHIPage::AServerscript ) {
-                    script=parser.text( pId, master->serverscriptData() )+'\n'+script;
+                    script=parser.text( pId, master->serverscriptData() )+QLatin1Char( '\n' )+script;
                     page.joinScriptModules( master->scriptModules() );
                 }
                 if ( !(page.attributes() & PHIPage::AUseOpenGraph) && (master->attributes() & PHIPage::AUseOpenGraph) ) {
@@ -415,15 +419,15 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
                 */
             }
         }
-        QString sessPath=_req->tmpDir()+QDir::separator()+"db";
+        QString sessPath=_req->tmpDir()+QDir::separator()+QLatin1String( "db" );
         if ( page.attributes() & PHIPage::ARequiresSession ) {
             qDebug( "requires SESSION" );
             PHISession ses( _resp, sessPath );
-            QString sid=_req->requestValue( "phisid" );
+            QString sid=_req->requestValue( QStringLiteral( "phisid" ) );
             if ( ses.validateSession( sid, p->sessionTimeout() ) ) {
                 page.setSession( sid );
                 if ( page.attributes() & PHIPage::ASetCookie )
-                    _resp->setCookie( "phisid", page.session(), p->sessionTimeout() );
+                    _resp->setCookie( QStringLiteral( "phisid" ), page.session(), p->sessionTimeout() );
             } else {
                 page.setSessionRedirect( parser.text( pId, p->sessionRedirectData() ) );
                 if ( master && page.sessionRedirect().isEmpty() )
@@ -482,10 +486,10 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
             PHISession sess( _resp, sessPath );
             page.setSession( sess.createSession( p->sessionTimeout(), page.session() ) );
             if ( page.attributes() & PHIPage::ASetCookie )
-                _resp->setCookie( "phisid", page.session(), p->sessionTimeout() );
+                _resp->setCookie( QStringLiteral( "phisid" ), page.session(), p->sessionTimeout() );
         }
     } catch( std::bad_alloc& ) {
-        _resp->error( PHILOGCRIT, PHIRC_HTTP_SERVICE_UNAVAILABLE, QObject::tr( _resourceError ) );
+        _resp->error( PHILOGCRIT, PHIRC_HTTP_SERVICE_UNAVAILABLE, QObject::tr( _resourceError.constData() ) );
         return QByteArray();
     }
     // Now we are safe to unlock - Do NOT use 'master' and 'p' after this point!!
@@ -506,9 +510,9 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
 
     bool genPhi=false;
     //qDebug( "-------%s", qPrintable( _vars.value( "accept", PHIVars::Server ) ) );
-    if ( _req->requestKeys().contains( "phis" ) ) {
-        if ( _req->requestValue( "phis" ).toInt()==1 ) genPhi=true;
-    } else if ( _req->serverValue( "accept" ).contains( "application/x-phi", Qt::CaseSensitive ) ) {
+    if ( _req->requestKeys().contains( QStringLiteral( "phis" ) ) ) {
+        if ( _req->requestValue( QStringLiteral( "phis" ) ).toInt()==1 ) genPhi=true;
+    } else if ( _req->serverValue( QStringLiteral( "accept" ) ).contains( QString::fromLatin1( PHI::mimeType() ), Qt::CaseSensitive ) ) {
         genPhi=true;
         if ( page.attributes() & PHIPage::AForceHtmlOutput ) genPhi=false;
     }
@@ -517,7 +521,8 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
         arr=phiGenerator.genPhi( &page );
     } else {
         //if ( !(page.attributes() & PHIPage::ANoSystemCSS) ) {
-            QFileInfo cssinfo( _req->tmpDir()+QDir::separator()+"css"+QDir::separator()+page.id()+".css" );
+            QFileInfo cssinfo( _req->tmpDir()+QDir::separator()+QLatin1String( "css" )
+                +QDir::separator()+page.id()+QLatin1String( ".css" ) );
             if ( cssinfo.exists() ) {
                 if ( _req->lastModified() > cssinfo.lastModified() ) createSystemCSS( &page );
             } else createSystemCSS( &page );
@@ -531,7 +536,7 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
 
 void PHIProcessor::createJS( const QString &name ) const
 {
-    QString file=_req->tmpDir()+QDir::separator()+"js";
+    QString file=_req->tmpDir()+QDir::separator()+QLatin1String( "js" );
     QDir dir( file );
     if ( !dir.exists( file ) ) {
         if ( !dir.mkpath( file ) ) {
@@ -540,7 +545,7 @@ void PHIProcessor::createJS( const QString &name ) const
             return;
         }
     }
-    QFile src( ":/"+name );
+    QFile src( QLatin1String( ":/" )+name );
     if ( !src.open( QIODevice::ReadOnly ) ) {
         _resp->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
             QObject::tr( "Could not read JavaScript file '%1'.").arg( name ) );
@@ -552,21 +557,21 @@ void PHIProcessor::createJS( const QString &name ) const
             QObject::tr( "Could not write JavaScript file '%1'.").arg( file+QDir::separator()+name ) );
         return;
     }
-    if ( name=="phibase.js" ) {
+    if ( name==QLatin1String( "phibase.js" ) ) {
         QString str=QString::fromLatin1( src.readAll() );
 
-        str.replace( QRegExp( " {2,}"), "" );
-        str.replace( " (", "(" );
-        str.replace( "( ", "(" );
-        str.replace( " )", ")" );
-        str.replace( ") ", ")" );
-        str.replace( ", ", "," );
-        str.replace( " {", "{" );
-        str.replace( "{ ", "{" );
-        str.replace( " }", "}" );
-        str.replace( "} ", "}" );
+        str.replace( QRegExp( QStringLiteral( " {2,}" ) ), QString() );
+        str.replace( QStringLiteral( " (" ), QStringLiteral( "(" ) );
+        str.replace( QStringLiteral( "( " ), QStringLiteral( "(" ) );
+        str.replace( QStringLiteral( " )" ), QStringLiteral( ")" ) );
+        str.replace( QStringLiteral( ") " ), QStringLiteral( ")" ) );
+        str.replace( QStringLiteral( ", " ), QStringLiteral( "," ) );
+        str.replace( QStringLiteral( " {" ), QStringLiteral( "{" ) );
+        str.replace( QStringLiteral( "{ " ), QStringLiteral( "{" ) );
+        str.replace( QStringLiteral( " }" ), QStringLiteral( "}" ) );
+        str.replace( QStringLiteral( "} " ), QStringLiteral( "}" ) );
 #ifndef PHIDEBUG
-        str.replace( QRegExp( "\n{1,1}" ), "" );
+        str.replace( QRegExp( QStringLiteral( "\n{1,1}" ) ), QString() );
 #endif
         f.write( str.toLatin1() );
     } else f.write( src.readAll() );
@@ -576,7 +581,7 @@ void PHIProcessor::createJS( const QString &name ) const
 
 void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
 {
-    QString file=_req->tmpDir()+QDir::separator()+"css";
+    QString file=_req->tmpDir()+QDir::separator()+QLatin1String( "css" );
     QDir dir( file );
     if ( !dir.exists( file ) ) {
         if ( !dir.mkpath( file ) ) {
@@ -585,7 +590,7 @@ void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
             return;
         }
     }
-    file+=QDir::separator()+p->id()+".css";
+    file+=QDir::separator()+p->id()+QLatin1String( ".css" );
     QFile css( file );
     if ( !css.open( QIODevice::WriteOnly ) ) {
         _resp->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
@@ -663,7 +668,7 @@ void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
 
     if ( !(p->attributes() & PHIPage::ANoUiCSS) ) {
         // jQuery
-        QFile f( ":/ui-core.css" ); //jquery ui core CSS
+        QFile f( QStringLiteral( ":/ui-core.css" ) ); //jquery ui core CSS
         if ( f.open( QIODevice::ReadOnly ) ) { out+='\n'+f.readAll(); f.close(); }
         out+=createjQueryTheme( p );
     }
@@ -674,9 +679,9 @@ void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
     foreach ( it, p->items() ) {
         if ( !(it->itemProperties() & PHIItem::PStyleSheet) ) continue;
         QString el=it->styleSheet().simplified();
-        QStringList list=el.split( '}', QString::SkipEmptyParts );
+        QStringList list=el.split( QLatin1Char( '}' ), QString::SkipEmptyParts );
         if ( list.count()==1 ) {
-            if ( el.contains( '{' ) ) out+='#'+it->id()+' '+el.toUtf8()+'\n';
+            if ( el.contains( QLatin1Char( '{' ) ) ) out+='#'+it->id()+' '+el.toUtf8()+'\n';
             else out+='#'+it->id()+" { "+el.toUtf8()+" }\n";
         } else {
             foreach( el, list ) {
@@ -688,8 +693,10 @@ void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
     css.close();
 }
 
-static QString _phireg( const QByteArray &s ) { return QString( " [^ ]*/\\*\\{"+s+"\\}\\*/" ); }
-static QString _phiurl( const QByteArray &s ) { return QString( " url(phi.phis?phiimg="+s+"&phitmp=1)" ); }
+static QString _phireg( const QByteArray &s ) { return QLatin1String( " [^ ]*/\\*\\{" )
+    +QString::fromLatin1( s )+QLatin1String( "\\}\\*/" ); }
+static QString _phiurl( const QByteArray &s ) { return QLatin1String( " url(phi.phis?phiimg=" )
+    +QString::fromLatin1( s )+QLatin1String( "&phitmp=1)" ); }
 
 QByteArray PHIProcessor::createjQueryTheme( const PHIBasePage* const p ) const
 {
@@ -698,39 +705,39 @@ QByteArray PHIProcessor::createjQueryTheme( const PHIBasePage* const p ) const
     QByteArray fontarr="'"+font.family().toUtf8();
     if ( !font.lastResortFamily().isEmpty() ) fontarr+="','"+font.lastResortFamily().toUtf8();
     fontarr+="'";
-
-    if ( !QFile::exists( _req->imgDir()+QDir::separator()+"uiiconscontent.png" ) ) {
-        QImage icons( ":/iconsContent" ); //Indexed8
-        icons.save( _req->imgDir()+QDir::separator()+"uiiconscontent.png", "PNG" );
-        icons.save( _req->imgDir()+QDir::separator()+"uiiconsheader.png", "PNG" );
-        icons.load( ":/iconsActive");
-        icons.save( _req->imgDir()+QDir::separator()+"uiiconsactive.png", "PNG" );
-        icons.load( ":/iconsDefault");
-        icons.save( _req->imgDir()+QDir::separator()+"uiiconsdefault.png", "PNG" );
-        icons.load( ":/iconsError");
-        icons.save( _req->imgDir()+QDir::separator()+"uiiconserror.png", "PNG" );
-        icons.load( ":/iconsHighlight");
-        icons.save( _req->imgDir()+QDir::separator()+"uiiconshighlight.png", "PNG" );
-        icons.load( ":/bgImgUrlHover");
+    const char* png="PNG";
+    if ( !QFile::exists( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconscontent.png" ) ) ) {
+        QImage icons( QStringLiteral( ":/iconsContent" ) ); //Indexed8
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconscontent.png" ), png );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconsheader.png" ), png );
+        icons.load( QStringLiteral( ":/iconsActive" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconsactive.png" ), png );
+        icons.load( QStringLiteral( ":/iconsDefault" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconsdefault.png" ), png );
+        icons.load( QStringLiteral( ":/iconsError" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconserror.png" ), png );
+        icons.load( QStringLiteral( ":/iconsHighlight" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconshighlight.png" ), png );
+        icons.load( QStringLiteral( ":/bgImgUrlHover" ) );
         /** @todo colorize background images to respect palette. */
-        icons.save( _req->imgDir()+QDir::separator()+"uibgimgurlhover.png", "PNG" );
-        icons.load( ":/bgImgUrlActive");
-        icons.save( _req->imgDir()+QDir::separator()+"uibgimgurlactive.png", "PNG" );
-        icons.load( ":/bgImgUrlHeader");
-        icons.save( _req->imgDir()+QDir::separator()+"uibgimgurlheader.png", "PNG" );
-        icons.load( ":/bgImgUrlError");
-        icons.save( _req->imgDir()+QDir::separator()+"uibgimgurlerror.png", "PNG" );
-        icons.load( ":/bgImgUrlContent");
-        icons.save( _req->imgDir()+QDir::separator()+"uibgimgurlcontent.png", "PNG" );
-        icons.load( ":/bgImgUrlDefault");
-        icons.save( _req->imgDir()+QDir::separator()+"uibgimgurldefault.png", "PNG" );
-        icons.load( ":/bgImgUrlOverlay");
-        icons.save( _req->imgDir()+QDir::separator()+"uibgimgurloverlay.png", "PNG" );
-        icons.load( ":/bgImgUrlHighlight");
-        icons.save( _req->imgDir()+QDir::separator()+"uibgimgurlhighlight.png", "PNG" );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlhover.png" ), png );
+        icons.load( QStringLiteral( ":/bgImgUrlActive" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlactive.png" ), png );
+        icons.load( QStringLiteral( ":/bgImgUrlHeader" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlheader.png" ), png );
+        icons.load( QStringLiteral( ":/bgImgUrlError" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlerror.png" ), png );
+        icons.load( QStringLiteral( ":/bgImgUrlContent" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlcontent.png" ), png );
+        icons.load( QStringLiteral( ":/bgImgUrlDefault" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurldefault.png" ), png );
+        icons.load( QStringLiteral( ":/bgImgUrlOverlay" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurloverlay.png" ), png );
+        icons.load( QStringLiteral( ":/bgImgUrlHighlight" ) );
+        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlhighlight.png" ), png );
     }
     QString theme;
-    QFile f( ":/ui-theme.css" ); //jquery ui theme CSS
+    QFile f( QStringLiteral( ":/ui-theme.css" ) ); //jquery ui theme CSS
     if ( f.open( QIODevice::ReadOnly ) ) {
         theme=QString::fromLatin1( f.readAll() );
         f.close();
@@ -758,34 +765,34 @@ QByteArray PHIProcessor::createjQueryTheme( const PHIBasePage* const p ) const
         theme.replace( QRegExp( _phireg( "bgImgUrlHighlight" ) ), _phiurl( "uibgimgurlhighlight.png" ) );
 
         theme.replace( QRegExp( _phireg( "fcDefault" ) ),
-            " "+p->palette().windowText().color().name() );
+            QLatin1Char( ' ' )+p->palette().windowText().color().name() );
         theme.replace( QRegExp( _phireg( "fcActive" ) ),
-            " "+p->palette().link().color().name() );
+            QLatin1Char( ' ' )+p->palette().link().color().name() );
         theme.replace( QRegExp( _phireg( "fcHover" ) ),
-            " "+p->additionalColor( PHIPage::DColorHover ).name() );
+            QLatin1Char( ' ' )+p->additionalColor( PHIPage::DColorHover ).name() );
         theme.replace( QRegExp( _phireg( "fcHighlight" ) ),
-            " "+p->palette().highlightedText().color().name() );
+            QLatin1Char( ' ' )+p->palette().highlightedText().color().name() );
         theme.replace( QRegExp( _phireg( "bgColorHighlight" ) ),
-            " "+p->palette().highlight().color().name() );
+            QLatin1Char( ' ' )+p->palette().highlight().color().name() );
         theme.replace( QRegExp( _phireg( "fcHeader" ) ),
-            " "+p->palette().buttonText().color().name() );
+            QLatin1Char( ' ' )+p->palette().buttonText().color().name() );
         theme.replace( QRegExp( _phireg( "bgColorHeader" ) ),
-            " "+p->palette().button().color().name() );
+            QLatin1Char( ' ' )+p->palette().button().color().name() );
         theme.replace( QRegExp( _phireg( "fcError" ) ),
-            " "+p->additionalColor( PHIPage::DColorError ).name() );
+            QLatin1Char( ' ' )+p->additionalColor( PHIPage::DColorError ).name() );
         theme.replace( QRegExp( _phireg( "bgColorError" ) ),
-            " "+p->additionalColor( PHIPage::DColorBgError ).name() );
+            QLatin1Char( ' ' )+p->additionalColor( PHIPage::DColorBgError ).name() );
 
         out+=theme.toLatin1();
     }
     if ( p->attributes() & PHIPage::AHasCalendar ) {
-        f.setFileName( ":/ui-datepicker.css" ); //jquery ui datepicker CSS
+        f.setFileName( QStringLiteral( ":/ui-datepicker.css" ) ); //jquery ui datepicker CSS
         if ( f.open( QIODevice::ReadOnly ) ) { out+='\n'+f.readAll(); f.close(); }
         out+=( "\n.phical .ui-datepicker {left:0px;width:100%;height:100%;padding:.2em "
             ".2em 0;display:none;}\n.ui-datepicker {font-size:90%;min-width:240px;}\n" );
     }
     if ( p->extensions() & PHIPage::EProgressBar ) {
-        f.setFileName( ":/ui-progressbar.css" ); //jquery ui progressbar CSS
+        f.setFileName( QStringLiteral( ":/ui-progressbar.css" ) ); //jquery ui progressbar CSS
         if ( f.open( QIODevice::ReadOnly ) ) { out+='\n'+f.readAll(); f.close(); }
     }
     return out;
@@ -795,40 +802,72 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
 {
     Q_ASSERT( _resp->body().isEmpty() );
     Q_ASSERT( _resp->contentLength()==0 );
-    QScriptEngine engine;
+    QScriptEngine engine( p );
     qScriptRegisterMetaType( &engine, baseItemToScriptValue, baseItemFromScriptValue );
+    new PHISGlobalScriptObj( _req, &engine, _db );
     QScriptValue doc=engine.newQObject( p, QScriptEngine::QtOwnership,
         QScriptEngine::PreferExistingWrapperObject |
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
-    engine.globalObject().setProperty( "document", doc );
-    PHISServerObj *serverObj(0);
-    PHISSystemObj *systemObj(0);
-    PHISFileObj *fileObj(0);
-    PHISRequestObj *requestObj(0);
-    PHISSqlObj *sqlObj(0);
-    PHISEmailObj *emailObj(0);
-    PHISReplyObj *replyObj(0);
-    if ( p->scriptModules() & PHIPage::SServer ) serverObj=new PHISServerObj( _req, &engine, _resp );
-    if ( p->scriptModules() & PHIPage::SSystem ) systemObj=new PHISSystemObj( &engine, _resp );
-    if ( p->scriptModules() & PHIPage::SFile ) fileObj=new PHISFileObj( &engine, _resp );
-    if ( p->scriptModules() & PHIPage::SRequest ) requestObj=new PHISRequestObj( _req, &engine, _resp );
-    if ( p->scriptModules() & PHIPage::SDatabase ) sqlObj=new PHISSqlObj( _db, &engine, _resp, p->attributes() & PHIPage::ADatabase );
-    if ( p->scriptModules() & PHIPage::SEmail ) emailObj=new PHISEmailObj( _req, &engine, _resp );
-    if ( p->scriptModules() & PHIPage::SReply ) replyObj=new PHISReplyObj( &engine, _resp );
-
+    engine.globalObject().setProperty( QStringLiteral( "document" ), doc );
+    //PHISReplyObj *replyObj(0);
+    if ( p->scriptModules()!=PHIPage::SNone ) { // keep old module style working
+        //PHISServerObj *serverObj(0);
+        //PHISSystemObj *systemObj(0);
+        //PHISFileObj *fileObj(0);
+        //PHISRequestObj *requestObj(0);
+        //PHISSqlObj *sqlObj(0);
+        //PHISEmailObj *emailObj(0);
+        //if ( p->scriptModules() & PHIPage::SServer ) serverObj=new PHISServerObj( _req, &engine );
+        //if ( p->scriptModules() & PHIPage::SSystem ) systemObj=new PHISSystemObj( &engine, _resp );
+        //if ( p->scriptModules() & PHIPage::SFile ) fileObj=new PHISFileObj( &engine, _resp );
+        //if ( p->scriptModules() & PHIPage::SRequest ) requestObj=new PHISRequestObj( _req, &engine, _resp );
+        //if ( p->scriptModules() & PHIPage::SDatabase ) sqlObj=new PHISSqlObj( _db, &engine, _resp, p->attributes() & PHIPage::ADatabase );
+        //if ( p->scriptModules() & PHIPage::SReply ) replyObj=new PHISReplyObj( &engine, _resp );
+        //if ( p->scriptModules() & PHIPage::SEmail ) emailObj=new PHISEmailObj( _req, &engine, _resp );
+        PHISModuleFactory *factory=PHISModuleFactory::instance();
+        QMap <PHIPage::ScriptModule, QString> smmap;
+        smmap.insert( PHIPage::SEmail, QStringLiteral( "email" ) );
+        smmap.insert( PHIPage::SSystem, QStringLiteral( "system" ) );
+        smmap.insert( PHIPage::SServer, QStringLiteral( "server" ) );
+        smmap.insert( PHIPage::SFile, QStringLiteral( "file" ) );
+        smmap.insert( PHIPage::SRequest, QStringLiteral( "request" ) );
+        smmap.insert( PHIPage::SReply, QStringLiteral( "reply" ) );
+        smmap.insert( PHIPage::SDatabase, QStringLiteral( "sql" ) );
+        QString key;
+        factory->lock(); //locking for read
+        foreach( PHIPage::ScriptModule sm, smmap.keys() ) {
+            PHISModule *mod(0);
+            key=smmap.value( sm );
+            if ( p->scriptModules() & sm ) mod=factory->module( key );
+            if ( !mod ) continue;
+            PHISScriptObj *obj=mod->create( key, new PHISInterface( _req, &engine, _db ) );
+            if ( obj ) {
+                obj->initObject( key );
+                _resp->log( PHILOGWARN, PHIRC_MODULE_DEPRECATED,
+                    QObject::tr( "The page '%1' is using the old module interface.\n"
+                    "Please switch to the dynamic module loading by using\n\"loadModule('%2');\""
+                    " in your server script." ).arg( p->id() ).arg( key ) );
+            } else {
+                QString tmp=QObject::tr( "Could not load module '%1'." ).arg( smmap.value( sm ) );
+                _resp->log( PHILOGCRIT, PHIRC_MODULE_LOAD_ERROR, tmp );
+            }
+        }
+        factory->unlock();
+    }
     //if ( engine.canEvaluate( script ) ) {
         doc=engine.evaluate( script );
         if ( doc.isError() ) {
             QStringList list=engine.uncaughtExceptionBacktrace();
-            QString tmp=QObject::tr( "Line: %1" ).arg( engine.uncaughtExceptionLineNumber() )+PHI::nl()+doc.toString();
-            tmp+=PHI::nl()+PHI::nl()+list.join( PHI::nl() );
-            _resp->log( PHILOGWARN, PHIRC_SCRIPT_PARSE_ERROR, tmp );
+            QString tmp=QObject::tr( "Line: %1" ).arg( engine.uncaughtExceptionLineNumber() )+
+                QString::fromLatin1( PHI::nl() )+doc.toString();
+            tmp+=QString::fromLatin1( PHI::nl()+PHI::nl() )+list.join( QString::fromLatin1( PHI::nl() ) );
+            _resp->log( PHILOGERR, PHIRC_SCRIPT_PARSE_ERROR, tmp );
         }
     //} else {
     //    _resp->log( PHILOGWARN, PHIRC_SCRIPT_PARSE_ERROR, QObject::tr( "Could not evaluate serverscript." ) );
     //}
-    if ( replyObj ) {
-        if ( replyObj->hasOwnContent() ) {
+    if ( _resp->contentLength() ) {
+        //if ( replyObj->hasOwnContent() ) {
             qDebug( "%s %s %lld", _resp->body().data(), _resp->contentType().data(), _resp->contentLength() );
             if ( _resp->contentType().isEmpty() ) {
                 QString tmp=QObject::tr( "Reply content type not set." );
@@ -836,7 +875,7 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
                 _resp->error( PHILOGERR, PHIRC_HTTP_INTERNAL_SERVER_ERROR, tmp );
             }
             return true; // user sets own content to send back to the client
-        }
+        //}
     }
     return false; // normal processing of the page
 }
@@ -851,7 +890,7 @@ PHISPage* PHIProcessor::loadMasterPage( const QString &relfilename )
     }
     QFileInfo basedir( _req->canonicalFilename() );
     QString filename=basedir.absolutePath();
-    if ( relfilename.startsWith( '/' ) || relfilename.startsWith( '\\' ) ) {
+    if ( relfilename.startsWith( QLatin1Char( '/' ) ) || relfilename.startsWith( QLatin1Char( '\\' ) ) ) {
         filename=_req->documentRoot()+relfilename;
     } else {
         filename+=QDir::separator()+relfilename;
@@ -870,8 +909,8 @@ PHISPage* PHIProcessor::loadMasterPage( const QString &relfilename )
 #endif
         if ( !f.open( QIODevice::ReadOnly ) ) {
             _resp->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
-                QObject::tr( "Could not open master template page '%1' for reading." )
-                    .arg( filename )+PHI::errorText().arg( f.errorString() ) );
+                QObject::tr( "Could not open master template page '%1' for reading: %2" )
+                    .arg( filename ).arg( f.errorString() ) );
             return 0;
         }
         loadPage( page, &f, true );
@@ -939,7 +978,7 @@ void PHIProcessor::loadPage( PHISPage *&page, QFile *f, bool isMasterPage )
 
         if ( page->attributes() & PHIPage::AIcon ) {
             QImage icon=page->image();
-            QString path=_req->imgDir()+QDir::separator()+page->id()+".ico";
+            QString path=_req->imgDir()+QDir::separator()+page->id()+QLatin1String( ".ico" );
             icon.save( path, "ICO" );
             QFile iconFile( path );
             iconFile.setPermissions( iconFile.permissions()
@@ -958,7 +997,7 @@ void PHIProcessor::loadPage( PHISPage *&page, QFile *f, bool isMasterPage )
                 _resp->log( PHILOGERR, PHIRC_OBJ_EXISTS_ERROR,
                     QObject::tr( "Item IDs must be unique within the same page! "
                     "Item '%1' already exists. The second item will not be displayed." )
-                    .arg( QString::fromUtf8( id ) )+PHI::nl()+QObject::tr(
+                    .arg( QString::fromUtf8( id ) )+QString::fromLatin1( PHI::nl() )+QObject::tr(
                     "Check also if two pages have the same page ID." ) );
             } else {
                 try {
@@ -982,24 +1021,25 @@ void PHIProcessor::loadPage( PHISPage *&page, QFile *f, bool isMasterPage )
                     delete page;
                     page=0;
                     lock->unlock();
-                    _resp->log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, _allocError );
-                    return _resp->error( PHILOGWARN, PHIRC_HTTP_SERVICE_UNAVAILABLE, _resourceError );
+                    _resp->log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, QString::fromLatin1( _allocError ) );
+                    return _resp->error( PHILOGWARN, PHIRC_HTTP_SERVICE_UNAVAILABLE, QString::fromLatin1( _resourceError ) );
                 }
             }
         }
         // Check if JavaScript files are already created
-        QString file=_req->tmpDir()+QDir::separator()+"js"+QDir::separator()+"phibase.js";
+        QString file=_req->tmpDir()+QDir::separator()+QLatin1String( "js" )
+            +QDir::separator()+QLatin1String( "phibase.js" );
         if ( !QFile::exists( file ) ) {
-            createJS( "phibase.js" );
-            createJS( "jquery.js" );
-            createJS( "ui-core.js" );
-            createJS( "ui-widget.js" );
-            createJS( "ui-datepicker.js" );
-            createJS( "ui-progressbar.js" );
-            createJS( "ui-effects.js" );
-            createJS( "ui-mouse.js" );
-            createJS( "ui-draggable.js" );
-            createJS( "ui-droppable.js" );
+            createJS( QStringLiteral( "phibase.js" ) );
+            createJS( QStringLiteral( "jquery.js" ) );
+            createJS( QStringLiteral( "ui-core.js" ) );
+            createJS( QStringLiteral( "ui-widget.js" ) );
+            createJS( QStringLiteral( "ui-datepicker.js" ) );
+            createJS( QStringLiteral( "ui-progressbar.js" ) );
+            createJS( QStringLiteral( "ui-effects.js" ) );
+            createJS( QStringLiteral( "ui-mouse.js" ) );
+            createJS( QStringLiteral( "ui-draggable.js" ) );
+            createJS( QStringLiteral( "ui-droppable.js" ) );
         }
 
         lock->unlock();
@@ -1008,74 +1048,7 @@ void PHIProcessor::loadPage( PHISPage *&page, QFile *f, bool isMasterPage )
         //}
     } catch ( std::bad_alloc& ) {
         page=0;
-        _resp->log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, _allocError );
-        return _resp->error( PHILOGWARN, PHIRC_HTTP_SERVICE_UNAVAILABLE, _resourceError );
+        _resp->log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, QString::fromLatin1( _allocError ) );
+        return _resp->error( PHILOGWARN, PHIRC_HTTP_SERVICE_UNAVAILABLE, QString::fromLatin1( _resourceError ) );
     }
 }
-
-/*
-void PHIProcessor::extractPhiVars()
-{
-    QString tmp;
-    int pos;
-    tmp=_req->_contentType;
-    pos=tmp.indexOf( "; boundary" );
-    if ( pos>0 ) tmp=tmp.left( pos ); // removing boundary=...
-
-    // setting server properties
-    _vars.insert( "contenttype", tmp );
-    _vars.insert( "method", _req->_method );
-    _vars.insert( "hostname", _req->_hostname );
-    _vars.insert( "contentlength", QString::number( _req->_contentLength ) );
-    _vars.insert( "postdata", _req->_postUrl.toString() );
-    _vars.insert( "url", _req->_url.toString() );
-    _vars.insert( "filename", _req->_filename );
-    _vars.insert( "self", _req->_url.toLocalFile() );
-    _vars.insert( "agent", _req->_agent );
-    _vars.insert( "started", _req->_started.toLocalTime().toString( PHI::dtFormat() ) );
-    _vars.insert( "today", _req->_started.toLocalTime().toString( PHI::isoDateFormat() ) );
-    _vars.insert( "nowutc", _req->_started.toUTC().toString( PHI::dtFormat() ) );
-    _vars.insert( "modified", _req->_modified.toLocalTime().toString( PHI::dtFormat() ) );
-    _vars.insert( "user", _req->_user );
-    _vars.insert( "password", _req->_passwd );
-    _vars.insert( "accept", _req->_accept );
-    _vars.insert( "scheme", _req->_scheme );
-    PHIServerRec *s=_req->_serverRec;
-    _vars.insert( "servername", s->_name );
-    _vars.insert( "serverdef", s->_defName );
-    _vars.insert( "admin", s->_admin );
-    _vars.insert( "documentroot", s->_documentRoot );
-    _vars.insert( "tempdir", s->_tmpDir );
-    _vars.insert( "serverhost", s->_hostname );
-    _vars.insert( "port", QString::number( s->_port ) );
-    _vars.insert( "keepalive", QString::number( s->_keepAlive ) );
-    PHIConnRec *c=_req->_connRec;
-    _vars.insert( "localaddress", c->_localAddr.toString() );
-    _vars.insert( "remoteaddress", c->_remoteAddr.toString() );
-
-    // setting GET variables
-    QList <QPair <QString, QString> > list=_req->_url.queryItems();
-    QPair <QString, QString> pair;
-    foreach ( pair, list ) _vars.insert( pair.first.toUtf8(), pair.second, PHIVars::Get );
-
-    // setting POST variables
-    list=_req->_postUrl.queryItems();
-    foreach ( pair, list ) _vars.insert( pair.first.toUtf8(), pair.second, PHIVars::Post );
-
-    // other variables
-    _vars.insertFiles( _req->_tmpFiles );
-    _vars.insertCookies( _req->_cookies );
-    _vars.insertHeaders( _req->_headersIn );
-    foreach ( tmp, _req->_languages ) {
-        pos=tmp.indexOf( ';' );
-        if( pos>0 ) tmp=tmp.left( pos );
-        _vars.insert( "lang", tmp, PHIVars::Lang );
-    }
-    if ( _vars.contains( "philang", PHIVars::Request ) )
-        _vars.insert( "lang", _vars.value( "philang", PHIVars::Request ), PHIVars::Server );
-
-#ifdef PHIDEBUG
-    _vars.dump();
-#endif
-}
-*/

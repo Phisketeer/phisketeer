@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -121,7 +121,7 @@ void PHISHtmlTrident4::diaShow() const
     for ( i=0; i<_it->pictureBookIds().count(); i++ ) {
         imageId=_it->pictureBookIds().at( i );
         // check if we have a graphical changed picture
-        if ( !postfix.isNull() || imageId.startsWith( "phi" )
+        if ( !postfix.isNull() || imageId.startsWith( QLatin1String( "phi" ) )
                 || (_it->itemProperties() & PHIItem::PNoCache) ) {
             imageId=checkForImageId( postfix, i ); // image already cached?
             useTmp=true;
@@ -195,7 +195,7 @@ void PHISHtmlTrident4::imageButton() const
         +onClickUrl()+startStyle( adjustButtonSize() )+effectStyle();
     _out+="padding:0;\">\n";
     QByteArray url;
-    if ( _it->imageId().startsWith( "phi" ) )
+    if ( _it->imageId().startsWith( QLatin1String( "phi" ) ) )
         url="/phi.phis?phiimg="+_it->imageIdData()+"&amp;phitmp=1";
     else url="/phi.phis?phiimg="+_it->imageIdData();
     _out+=_indent+"\t<span style=\"display:inline-block;vertical-align:middle;width:"

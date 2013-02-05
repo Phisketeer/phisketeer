@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -250,7 +250,7 @@ void GGooglePlusItem::setValue( const QString &v )
 GExternalView::GExternalView( qreal w, qreal h, const PHIAItem *it, QGraphicsItem *parent )
     : QGraphicsWebView( parent ), _item( it ), _page( 0 )
 {
-    if ( PHI::isTabOrderItem( it->wid() ) ) setFlag( ItemIsFocusable, true );
+    if ( PHI::isTabOrderItem( static_cast<PHI::Widget>(it->wid()) ) ) setFlag( ItemIsFocusable, true );
     else setFlag( ItemIsFocusable, false );
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     setPreferredSize( w, h );

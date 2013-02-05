@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -11,9 +11,9 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <unistd.h>
@@ -79,14 +79,6 @@ QString PHISysInfo::realGroupName()
     _realGroupName=QString::fromLocal8Bit( grp->gr_name );
     _mutex.unlock();
     return _realGroupName;
-}
-
-quint8 PHISysInfo::systemType() {
-#ifdef Q_OS_MAC
-    return static_cast<quint8>(PHI_SYS_TYPE_MACOSX);
-#else
-    return static_cast<quint8>(PHI_SYS_TYPE_LINUX);
-#endif
 }
 
 quint32 PHISysInfo::realUserId() {

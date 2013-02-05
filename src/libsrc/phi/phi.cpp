@@ -1,8 +1,9 @@
 /*
 #    Copyright (C) 2008  Trolltech AS
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2012  Digia Plc and/or its subsidiary(-ies).
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -14,62 +15,36 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#    Note: some parts are based on code provided by the Qt source.
 */
-#include <QObject>
-#include <QMutex>
-#include <QMetaObject>
+#include <QSysInfo>
+#include <QSettings>
+#include <QTranslator>
 #include <QMetaProperty>
-#include <QFileInfo>
-#include <QFile>
-#include <QBuffer>
+#include <QProcess>
 #include <QUuid>
 #include <QPainter>
 #include <QPalette>
-#include <QTransform>
-#include <QLinearGradient>
-#include <QSettings>
-#include <QTranslator>
-#include <QMetaType>
-#include <QLocale>
-#include <QGraphicsBlurEffect>
-#include <QGraphicsColorizeEffect>
-#include <QGraphicsDropShadowEffect>
-#include <QThread>
-#include <QDir>
-#include <QProcess>
-#include <QApplication>
-#include <QUrlQuery>
-
-#ifdef Q_OS_MAC
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#endif
-
+#include <QMimeDatabase>
 #include "qmath.h"
 #include "phi.h"
-#include "phierr.h"
+#include "phierror.h"
 #include "phisysinfo.h"
+#include "phimemrotate.h"
+// remove in V2
 #include "phieffect.h"
 #include "phieffects.h"
-#include "phimemrotate.h"
+#include <QGraphicsItem>
+// end remove
 
 const char* PHI::_phiDT="yyyyMMddHHmmsszzz";
 const char* PHI::_phiDate="yyyy-MM-dd";
 const char* PHI::_phiMimeType="application/x-phi";
-const char* PHI::_phiDom=PHIDOM;
-const char* PHI::_phiOrg=PHIORG;
-QHash <QByteArray, QByteArray> PHI::_mimeTypes;
-//QTranslator PHI::_translator;
-
-QMutex PHISysInfo::_mutex;
-
-PHISysInfo::~PHISysInfo()
-{
-    qDebug( "PHISysInfo::~PHISysInfo()" );
-}
+const char* PHI::_emailRegExp="[A-Z0-9._%-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}";
+const char* PHI::_phoneNumberRegExp="[0-9+][0-9 ]{3,25}[0-9]";
 
 // Code of the templates are based on Qt's image rendering algorithm
 template <int shift>
@@ -83,10 +58,10 @@ inline int phi_static_shift(int value)
         return value >> (uint(-shift) & 0x1f);
 }
 
-const int phi_alphaIndex = (QSysInfo::ByteOrder == QSysInfo::BigEndian ? 0 : 3);
+const int phi_alphaIndex=(QSysInfo::ByteOrder==QSysInfo::BigEndian ? 0 : 3);
 
 template<int aprec, int zprec>
-inline void phi_blurinner_alphaOnly(uchar *bptr, int &z, int alpha)
+inline void phi_blurinner_alphaOnly( uchar *bptr, int &z, int alpha )
 {
     const int A_zprec = int(*(bptr)) << zprec;
     const int z_zprec = z >> aprec;
@@ -95,16 +70,16 @@ inline void phi_blurinner_alphaOnly(uchar *bptr, int &z, int alpha)
 }
 
 template<int aprec, int zprec>
-inline void phi_blurinner(uchar *bptr, int &zR, int &zG, int &zB, int &zA, int alpha)
+inline void phi_blurinner( uchar *bptr, int &zR, int &zG, int &zB, int &zA, int alpha )
 {
-    QRgb *pixel = (QRgb *)bptr;
+    QRgb *pixel = (QRgb*)bptr;
 
-#define Z_MASK (0xff << zprec)
-    const int A_zprec = phi_static_shift<zprec - 24>(*pixel) & Z_MASK;
-    const int R_zprec = phi_static_shift<zprec - 16>(*pixel) & Z_MASK;
-    const int G_zprec = phi_static_shift<zprec - 8>(*pixel)  & Z_MASK;
-    const int B_zprec = phi_static_shift<zprec>(*pixel)      & Z_MASK;
-#undef Z_MASK
+#define PHI_Z_MASK (0xff << zprec)
+    const int A_zprec = phi_static_shift<zprec - 24>(*pixel) & PHI_Z_MASK;
+    const int R_zprec = phi_static_shift<zprec - 16>(*pixel) & PHI_Z_MASK;
+    const int G_zprec = phi_static_shift<zprec - 8>(*pixel)  & PHI_Z_MASK;
+    const int B_zprec = phi_static_shift<zprec>(*pixel)      & PHI_Z_MASK;
+#undef PHI_Z_MASK
 
     const int zR_zprec = zR >> aprec;
     const int zG_zprec = zG >> aprec;
@@ -116,40 +91,35 @@ inline void phi_blurinner(uchar *bptr, int &zR, int &zG, int &zB, int &zA, int a
     zB += alpha * (B_zprec - zB_zprec);
     zA += alpha * (A_zprec - zA_zprec);
 
-#define ZA_MASK (0xff << (zprec + aprec))
+#define PHI_ZA_MASK (0xff << (zprec + aprec))
     *pixel =
-        phi_static_shift<24 - zprec - aprec>(zA & ZA_MASK)
-        | phi_static_shift<16 - zprec - aprec>(zR & ZA_MASK)
-        | phi_static_shift<8 - zprec - aprec>(zG & ZA_MASK)
-        | phi_static_shift<-zprec - aprec>(zB & ZA_MASK);
-#undef ZA_MASK
+        phi_static_shift<24 - zprec - aprec>(zA & PHI_ZA_MASK)
+        | phi_static_shift<16 - zprec - aprec>(zR & PHI_ZA_MASK)
+        | phi_static_shift<8 - zprec - aprec>(zG & PHI_ZA_MASK)
+        | phi_static_shift<-zprec - aprec>(zB & PHI_ZA_MASK);
+#undef PHI_ZA_MASK
 }
 
 template<int aprec, int zprec, bool alphaOnly>
-inline void phi_blurrow(QImage & im, int line, int alpha)
+inline void phi_blurrow( QImage &im, int line, int alpha )
 {
     uchar *bptr = im.scanLine(line);
-
     int zR = 0, zG = 0, zB = 0, zA = 0;
-
-    if (alphaOnly && im.format() != QImage::Format_Indexed8)
+    if ( alphaOnly && im.format() != QImage::Format_Indexed8 )
         bptr += phi_alphaIndex;
-
     const int stride = im.depth() >> 3;
     const int im_width = im.width();
-    for (int index = 0; index < im_width; ++index) {
-        if (alphaOnly)
+    for ( int index = 0; index < im_width; ++index ) {
+        if ( alphaOnly )
             phi_blurinner_alphaOnly<aprec, zprec>(bptr, zA, alpha);
         else
             phi_blurinner<aprec, zprec>(bptr, zR, zG, zB, zA, alpha);
         bptr += stride;
     }
-
     bptr -= stride;
-
-    for (int index = im_width - 2; index >= 0; --index) {
+    for ( int index = im_width - 2; index >= 0; --index ) {
         bptr -= stride;
-        if (alphaOnly)
+        if ( alphaOnly )
             phi_blurinner_alphaOnly<aprec, zprec>(bptr, zA, alpha);
         else
             phi_blurinner<aprec, zprec>(bptr, zR, zG, zB, zA, alpha);
@@ -157,15 +127,14 @@ inline void phi_blurrow(QImage & im, int line, int alpha)
 }
 
 template <int aprec, int zprec, bool alphaOnly>
-void phi_expblur(QImage &img, qreal radius, bool improvedQuality = false, int transposed = 0)
+void phi_expblur( QImage &img, qreal radius, bool improvedQuality=false, int transposed=0 )
 {
     // half the radius if we're using two passes
-    if (improvedQuality)
-        radius *= qreal(0.5);
+    if ( improvedQuality ) radius *= qreal(0.5);
 
-    Q_ASSERT(img.format() == QImage::Format_ARGB32_Premultiplied
+    Q_ASSERT( img.format() == QImage::Format_ARGB32_Premultiplied
              || img.format() == QImage::Format_RGB32
-             || img.format() == QImage::Format_Indexed8);
+             || img.format() == QImage::Format_Indexed8 );
 
     // choose the alpha such that pixels at radius distance from a fully
     // saturated pixel will have an alpha component of no greater than
@@ -174,13 +143,11 @@ void phi_expblur(QImage &img, qreal radius, bool improvedQuality = false, int tr
     int alpha = radius <= qreal(1e-5)
         ? ((1 << aprec)-1)
         : qRound((1<<aprec)*(1 - qPow(cutOffIntensity * (1 / qreal(255)), 1 / radius)));
-
     int img_height = img.height();
     for (int row = 0; row < img_height; ++row) {
         for (int i = 0; i <= static_cast<int>(improvedQuality); ++i)
             phi_blurrow<aprec, zprec, alphaOnly>(img, row, alpha);
     }
-
     QImage temp(img.height(), img.width(), img.format());
     if (transposed >= 0) {
         if (img.depth() == 8) {
@@ -207,7 +174,6 @@ void phi_expblur(QImage &img, qreal radius, bool improvedQuality = false, int tr
                            temp.bytesPerLine());
         }
     }
-
     img_height = temp.height();
     for (int row = 0; row < img_height; ++row) {
         for (int i = 0; i <= static_cast<int>(improvedQuality); ++i)
@@ -232,87 +198,102 @@ void phi_blurImage( QImage &blurImage, qreal radius, bool quality, int transpose
         phi_expblur<12, 10, false>( blurImage, radius, quality, transposed );
 }
 
-PHI::PHI()
-{
-    qDebug( "PHI::PHI()" );
-}
-
-PHI::~PHI()
-{
-    qDebug( "PHI::~PHI()" );
-}
-
-QString PHI::libVersion()
-{
-    return QString( PHIVERSION );
-}
-
 QSettings* PHI::globalSettings()
 {
     static QSettings *s=0;
     if ( s ) return s;
+    QString name=QStringLiteral( "phis" );
 #ifdef Q_OS_MAC
-    s=new QSettings( "phisys.com", "phis", qApp ); // required for Mac app store
+    s=new QSettings( QStringLiteral( "phisys.com" ), name, qApp ); // required for Mac app store
+#elif defined Q_OS_WIN
+    s=new QSettings( QSettings::SystemScope, QString::fromLatin1( PHI::organisation() ), name, qApp );
+    s->setFallbacksEnabled( false );
+#else
+    s=new QSettings( QString::fromLatin1( PHI::domain() ), name, qApp );
+#endif
     qDebug( "Application name %s", qPrintable( qApp->applicationName() ) );
     qDebug( "Application domain %s", qPrintable( qApp->organizationDomain() ) );
     qDebug( "Application organisation %s", qPrintable( qApp->organizationName() ) );
-#else
-    s=new QSettings( QSettings::SystemScope, PHI::organisation(), "phis", qApp );
-    s->setFallbacksEnabled( false );
-#endif
     qDebug( "Global settings file name: %s", qPrintable( s->fileName() ) );
     return s;
 }
 
-// returns the (compiled) root directory for the application
-QString PHI::compiledPrefix()
+// returns the root directory for the application
+QString PHI::applicationRoot()
 {
+    static QString path;
+    if ( !path.isNull() ) return path;
+    Q_ASSERT( qApp );
+    QDir appdir( QCoreApplication::applicationDirPath() );
 #ifdef Q_OS_WIN
-    if ( QFile::exists( "C:\\Program Files (x86)" ) ) {
-        return QString( "C:\\Program Files (x86)\\" )+QString( PHIORG );
-    }
-    return QString( "C:\\Program Files\\" )+QString( PHIORG );
+    // bundleID/bin
+    appdir.cdUp();
 #elif defined Q_OS_UNIX
 #ifdef Q_OS_MAC
-    QDir appdir( QCoreApplication::applicationDirPath() ); // bundleID/Contents/MacOS
-    qDebug( "PATH:%s", qPrintable( appdir.canonicalPath() ) );
+    // bundleID/Contents/MacOS
     appdir.cdUp(); // bundleID/Contents/
     appdir.cdUp(); // bundleID/
-    return appdir.canonicalPath();
 #else
-    return QString( "/opt/"+QString( PHIORG ).toLower() );
+    // bundleID/bin
+    appdir.cdUp();
 #endif
 #else
-#error Could not determine compiledPrefix
+#error Could not determine application root path
 #endif
+    path=appdir.canonicalPath();
+    return path;
 }
 
-// Documents root directory for Phis server
-QString PHI::compiledRoot()
+QString PHI::libVersion()
 {
-#ifdef Q_OS_WIN
-    return compiledPrefix()+QDir::separator()+QString( "phis" );
-#elif defined Q_OS_MAC
-    return QString( QDir::homePath()+"/Library/Artephis/phis" ); // required for the app store
-#else
-    return QString( "/var/phis" );
-#endif
+    static QString ver=QString::fromLatin1( PHIVERSION );
+    return ver;
 }
 
-// Binary directory
-QString PHI::compiledBin()
+QString PHI::libPath()
 {
-#ifdef Q_OS_WIN
-    return compiledPrefix()+QDir::separator()+QString( "bin" );
-#elif defined Q_OS_UNIX
+    static QString path;
+    if ( !path.isNull() ) return path;
 #ifdef Q_OS_MAC
-    return QCoreApplication::applicationDirPath();
+    path=applicationRoot()+QLatin1String( "/Contents/PlugIns/phi" );
+#elif defined Q_OS_WIN
+    path=applicationRoot()+QLatin1String( "\\bin" );
+#elif defined Q_OS_UNIX
+    path=applicationRoot()+QLatin1String( "/lib" );
 #else
-    return compiledPrefix()+QString( "/bin" );
+#error Could not determine library path
 #endif
+    return path;
+}
+
+QString PHI::serverBin()
+{
+    static QString bin;
+    if ( !bin.isNull() ) return bin;
+#ifdef Q_OS_MAC
+    bin=applicationRoot()+QLatin1String( "/Contents/MacOS/phis" );
+#elif defined Q_OS_WIN
+    bin=applicationRoot()+QLatin1String( "\\bin\\phis.exe" );
 #else
-#error Could not determine compiledBin
+    bin=applicationRoot()+QLatin1String( "/bin/phis" );
 #endif
+    return bin;
+}
+
+QString PHI::pluginPath()
+{
+    static QString path;
+    if ( !path.isNull() ) return path;
+#ifdef Q_OS_MAC
+    path=applicationRoot()+QLatin1String( "/Contents/PlugIns" );
+#elif defined Q_OS_WIN
+    path=applicationRoot()+QLatin1String( "\\bin\\plugins" );
+#elif defined Q_OS_UNIX
+    path=applicationRoot()+QLatin1String( "/plugins" );
+#else
+#error Could not determine plug-in path
+#endif
+    return path;
 }
 
 void PHI::updateTranslations()
@@ -321,39 +302,32 @@ void PHI::updateTranslations()
     if ( !app ) return;
     QString lang=QLocale::system().name();
     QSettings s;
-    lang=s.value( "Language", lang ).toString();
+    lang=s.value( QStringLiteral( "Language" ), lang ).toString();
     QLocale::setDefault( QLocale( lang ) );
     qDebug( "SETTING LOCALE %s", qPrintable( lang ) );
-
-    QString dir=app->applicationDirPath()+QDir::separator()+".."+QDir::separator()+"ts";
-    if ( !QFile::exists( dir ) ) {
+    QString dir;
 #ifdef Q_OS_MAC
-        dir=compiledPrefix()+"/Contents/Resources/ts";
+    dir=applicationRoot()+QLatin1String( "/Contents/Resources/ts" );
 #else
-        dir=compiledPrefix()+QDir::separator()+"ts";
+    dir=applicationRoot()+QDir::separator()+QLatin1String( "ts" );
 #endif
-        if ( !QFile::exists( dir ) ) {
-            QSettings *gs=PHI::globalSettings();
-            dir=gs->value( "BinDir", compiledBin() ).toString()+QDir::separator()+".."+QDir::separator()+"ts";
-        }
-    }
     QTranslator *tr=new QTranslator( app );
-    if ( !tr->load( "qt_"+lang, dir ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( "qt_"+lang ), qPrintable( dir ) );
+    if ( !tr->load( QLatin1String( "qt_" )+lang, dir ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qt_" )+lang ), qPrintable( dir ) );
         delete tr;
     } else {
         app->installTranslator( tr );
     }
     tr=new QTranslator( app );
-    if ( !tr->load( "phia_"+lang, dir ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( "phia_"+lang ), qPrintable( dir ) );
+    if ( !tr->load( QLatin1String( "phia_" )+lang, dir ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "phia_" )+lang ), qPrintable( dir ) );
         delete tr;
     } else {
         app->installTranslator( tr );
     }
     tr=new QTranslator( app );
-    if ( !tr->load( app->applicationName().toLower()+"_"+lang, dir ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( app->applicationName().toLower()+"_"+lang ), qPrintable( dir ) );
+    if ( !tr->load( app->applicationName().toLower()+QLatin1Char( '_' )+lang, dir ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( app->applicationName().toLower()+QLatin1Char( '_' )+lang ), qPrintable( dir ) );
     } else {
         app->installTranslator( tr );
     }
@@ -372,48 +346,42 @@ QStringList PHI::properties( const QObject *obj )
 void PHI::setupApplication( QGuiApplication *app )
 {
     if ( !app ) return;
-#ifdef Q_OS_MAC // needed for app store
+#ifdef Q_OS_MAC // needed for AppStore
     app->setOrganizationDomain( "phisys.com" );
     app->setOrganizationName( "Phisys AG" );
 #else
     app->setOrganizationDomain( QString::fromLatin1( PHI::domain() ) );
     app->setOrganizationName( QString::fromLatin1( PHI::organisation() ) );
 #endif
-    QSettings *s=PHI::globalSettings();
-
-    QString pluginPath;
-#ifdef Q_OS_UNIX
-#ifdef Q_OS_MAC
-    pluginPath=s->value( "PluginsPath", PHI::compiledPrefix()+"/Contents/PlugIns" ).toString();
-#else
-    pluginPath=s->value( "PluginsPath", PHI::compiledPrefix()+"/plugins" ).toString();
-#endif
-#elif defined Q_OS_WIN
-    pluginPath=s->value( "PluginsPath", PHI::compiledPrefix()+"\\bin\\plugins" ).toString();
-#else
-#error Could not determin pluginPath
-#endif
-    app->addLibraryPath( pluginPath );
-    qDebug( "Adding PluginPath %s", qPrintable( pluginPath ) );
-
+    app->addLibraryPath( pluginPath() );
+    qDebug( "Adding Plug-inPath %s", qPrintable( pluginPath() ) );
     updateTranslations();
-
     qRegisterMetaTypeStreamOperators<PHIRectHash>("PHIRectHash");
     qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
     qRegisterMetaTypeStreamOperators<PHIImageHash>("PHIImageHash");
     qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
 }
 
+QByteArray PHI::mimeType( const QFileInfo &file )
+{
+    static QMimeDatabase db;
+    static QString phis=QString::fromLatin1( "phis" );
+    static QByteArray phismime="application/x-phis";
+    if ( file.suffix()==phis ) return phismime;
+    return db.mimeTypeForFile( file ).name().toUtf8();
+}
+
 // returns -1 on error, 0 not running, 1 running
 int PHI::checkService()
 {
-    QSettings *s=PHI::globalSettings();
+    Q_ASSERT( qApp );
 #ifdef Q_OS_MAC
+    QSettings *s=PHI::globalSettings();
     // Sandboxing in Mac OS X requires a little hack: we check if the server responds
     // to a QNetworkRequest to determine if the phis service is running
-    s->beginGroup( "default" );
-    QUrl url( "http://localhost/phi.phis?ping=1" );
-    url.setPort( s->value( "ListenerPort", 8080 ).toInt() );
+    s->beginGroup( defaultString() );
+    QUrl url( QStringLiteral( "http://localhost/phi.phis?ping=1" ) );
+    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
     s->endGroup();
     QNetworkRequest req;
     req.setUrl( url );
@@ -432,21 +400,16 @@ int PHI::checkService()
     }
     return 0;
 #else // Linux and Windows
-    QString bin;
-#ifdef Q_OS_WIN
-    bin=s->value( "BinDir", qApp->applicationDirPath() ).toString()+"\\phis.exe";
-#else
-    bin=s->value( "BinDir", qApp->applicationDirPath() ).toString()+"/phis";
-#endif
+    QString bin=serverBin();
     if ( !QFile::exists( bin ) ) return -1;
     qDebug( "Starting process %s", qPrintable( bin ) );
     QProcess proc;
     proc.setProcessChannelMode( QProcess::MergedChannels );
-    proc.start( bin, QStringList() << "-v" );
+    proc.start( bin, QStringList() << QStringLiteral( "-v" ) );
     if ( !proc.waitForStarted() ) return -1;
     if ( !proc.waitForFinished() ) return -1;
     QByteArray arr=proc.readAll();
-    qDebug( "arr=%s", arr.data() );
+    qDebug( "start process read all=%s", arr.data() );
     if ( arr.contains( "not running" ) ) return 0;
     return 1;
 #endif
@@ -454,14 +417,14 @@ int PHI::checkService()
 
 bool PHI::startPhisService()
 {
-    QString bin=PHI::globalSettings()->value( "BinDir", qApp->applicationDirPath() ).toString()
-        +QDir::separator()+"phis";
+    QString bin=serverBin();
+    if ( !QFile::exists( bin ) ) return false;
 #ifdef Q_OS_MAC
     return QProcess::startDetached( bin );
 #else
     QProcess proc;
 #ifdef Q_OS_WIN
-    proc.execute( bin, QStringList() << "-i" );
+    proc.execute( bin, QStringList() << QStringLiteral( "-i" ) );
 #endif
     proc.start( bin );
     if ( !proc.waitForStarted() ) return false;
@@ -477,9 +440,9 @@ bool PHI::stopPhisService()
     // Sandboxing in Mac OS X requires a little hack: we send
     // a QNetworkRequest to stop the phis service
     QSettings *s=PHI::globalSettings();
-    s->beginGroup( "default" );
-    QUrl url( "http://localhost/phi.phis?stop=1" );
-    url.setPort( s->value( "ListenerPort", 8080 ).toInt() );
+    s->beginGroup( QStringLiteral( "default" ) );
+    QUrl url( QStringLiteral( "http://localhost/phi.phis?stop=1" ) );
+    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
     s->endGroup();
     QNetworkRequest req;
     req.setUrl( url );
@@ -492,16 +455,14 @@ bool PHI::stopPhisService()
     if ( rep->error()!=QNetworkReply::NoError ) {
         // phis responses with "access denied" to phi.phis?stop=1
         if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
-        qWarning( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
+        qDebug( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
         return 0;
     }
-    qWarning( "service stopped" );
     return 0;
 #else
     QProcess proc;
-    QString bin=PHI::globalSettings()->value( "BinDir", qApp->applicationDirPath() ).toString()
-        +QDir::separator()+"phis";
-    int res=proc.execute( bin, QStringList() << "-t" );
+    QString bin=serverBin();
+    int res=proc.execute( bin, QStringList() << QStringLiteral( "-t" ) );
     if ( res ) return false;
     return true;
 #endif
@@ -513,7 +474,7 @@ bool PHI::clearPhisServiceCache()
     // sandboxing in Mac OS X requires a little hack: we send
     // a QNetworkRequest to invalidate the phis cache
     QSettings *s=PHI::globalSettings();
-    s->beginGroup( "default" );
+    s->beginGroup( defaultString() );
     QUrl url( "http://localhost/phi.phis?invalidate=1" );
     url.setPort( s->value( "ListenerPort", 8080 ).toInt() );
     s->endGroup();
@@ -534,24 +495,18 @@ bool PHI::clearPhisServiceCache()
     return 0;
 #else
     QProcess proc;
-    QString bin=PHI::globalSettings()->value( "BinDir", qApp->applicationDirPath() ).toString()
-        +QDir::separator()+"phis";
-    int res=proc.execute( bin, QStringList() << "-c" );
+    QString bin=serverBin();
+    int res=proc.execute( bin, QStringList() << QStringLiteral( "-c" ) );
     if ( res ) return false;
     return true;
 #endif
 }
 
-QSize PHI::defaultPageSize()
-{
-    return QSize( 1000, 750 );
-}
-
 QString PHI::tag( const QString &tag, const QString &msg )
 {
     // note: QRegExp is too slow!!
-    QString startTag( '<'+tag+'>' );
-    QString endTag( "</"+tag+'>' );
+    QString startTag( QLatin1Char( '<' )+tag+QLatin1Char( '>' ) );
+    QString endTag( QLatin1String( "</" )+tag+QLatin1Char( '>' ) );
     qint32 start( msg.indexOf( startTag ) );
     if ( start==-1 ) return msg;
     qint32 end( msg.lastIndexOf( endTag ) );
@@ -564,7 +519,7 @@ QString PHI::createPngUuid()
     QString id=QUuid::createUuid().toString();
     id.remove( 0, 1 );
     id.chop( 1 );
-    id+=".png";
+    id+=QLatin1String( ".png" );
     return id;
 }
 
@@ -634,7 +589,7 @@ QDateTime PHI::dateTimeFromHeader( const QByteArray &modified )
     if ( tmp.endsWith( " GMT" ) ) arr=tmp.left( tmp.length()-4 );
     else arr=tmp;
     tmp=arr.right( 8 );
-    QTime time=QTime::fromString( tmp, "hh:mm:ss" ).addMSecs( 999 );
+    QTime time=QTime::fromString( QString::fromLatin1( tmp ), QStringLiteral( "hh:mm:ss" ) ).addMSecs( 999 );
     if ( !time.isValid() ) {
         qDebug( "------------------>>>> If-Modified-Since is invalid" );
         return QDateTime( QDate( 1970, 1, 1 ) );
@@ -666,6 +621,7 @@ QDateTime PHI::dateTimeFromHeader( const QByteArray &modified )
     return QDateTime( QDate ( y, m, d ), time, Qt::UTC );
 }
 
+/*
 QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )
 {
     QUrl url=ref;
@@ -692,11 +648,12 @@ QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )
     qDebug( "createUrlForLink <%s>", url.toEncoded().data() );
     return url;
 }
+*/
 
 QString PHI::getLocalFilePath( const QString &docroot, const QString &referer, const QString &filename )
 {
     // we have an absolute file path related to documentroot:
-    if ( filename.startsWith( '/' ) || filename.startsWith( '\\' ) )
+    if ( filename.startsWith( QLatin1Char( '/' ) ) || filename.startsWith( QLatin1Char( '\\' ) ) )
         return QFileInfo( docroot+filename ).canonicalFilePath();
     QString path=QFileInfo( referer ).canonicalPath();
     return QFileInfo( path+QDir::separator()+filename ).canonicalFilePath();
@@ -706,39 +663,40 @@ QString PHI::getRelativeFilePath( const QString &referer, const QString &filenam
 {
     QString path=QFileInfo( referer ).canonicalPath();
     QString file=QFileInfo( filename ).canonicalFilePath();
-    file.replace( path, "" );
-    if ( file.startsWith( '/' ) || file.startsWith( '\\' ) ) file.remove( 0, 1 );
+    file.replace( path, QString() );
+    if ( file.startsWith( QLatin1Char( '/' ) ) || file.startsWith( QLatin1Char( '\\' ) ) )
+        file.remove( 0, 1 );
     return file;
 }
 
 QString PHI::linkStyleSheet( const QPalette &pal, bool underline )
 {
-    QString a=QString( "a:link { text-decoration: none; color: %1; }\n"
+    QString a=QString::fromLatin1( "a:link { text-decoration: none; color: %1; }\n"
         "a:visited { text-decoration: none; color: %2; }\na:hover { text-decoration: %3; }\n" )
         .arg( pal.color( QPalette::Link ).name() ).arg( pal.color( QPalette::LinkVisited ).name() )
-        .arg( underline ? QString( "underline" ) : QString( "none" ) );
+        .arg( underline ? QStringLiteral( "underline" ) : QStringLiteral( "none" ) );
     return a;
 }
 
 void PHI::getItemCheckData( QString &data, QString &opt, bool &isChecked )
 {
     isChecked=false;
-    opt="";
+    opt=QString();
     int start, startsel, end;
-    start=data.indexOf( '[' );
+    start=data.indexOf( QLatin1Char ( '[' ) );
     if ( start==-1 ) {
         opt=data;
         return;
     }
-    end=data.indexOf( ']' );
+    end=data.indexOf( QLatin1Char( ']' ) );
     if ( end>0 ) {
         opt=data.mid( start+1, end-start-1 );
-        startsel=data.indexOf( '[', start+1 );
+        startsel=data.indexOf( QLatin1Char( '[' ), start+1 );
         if ( startsel!=-1 ) {
-            end=data.indexOf( ']', startsel );
+            end=data.indexOf( QLatin1Char( ']' ), startsel );
             if ( end>0 ) {
                 QString selected=data.mid( startsel+1, end-startsel-1 ).toLower();
-                if ( selected.toInt() || selected=="true" ) isChecked=true;
+                if ( selected.toInt() || selected==QLatin1String( "true" ) ) isChecked=true;
             }
         }
         data.truncate( start );
@@ -894,39 +852,6 @@ QImage PHI::getSurfacedImage( const QImage &img, qreal off, qreal size )
     return newimg;
 }
 
-void PHI::createMimeTypes( QString &filename )
-{
-    QBuffer buf;
-    QIODevice *io;
-    qDebug( "PHI::createMimeTpyes: filename=%s", qPrintable( filename ) );
-    QFile f( filename );
-    if ( !f.open( QIODevice::ReadOnly ) ) {
-        buf.setData( PHI::stdMimeTypes() );
-        buf.open( QIODevice::ReadOnly );
-        io=&buf;
-        filename=QObject::tr( "build in mime types" );
-    } else io=&f;
-    _mimeTypes.clear();
-    QByteArray tmp, key, value;
-    int start, end;
-    while ( !io->atEnd() ) {
-        tmp=io->readLine().simplified();
-        if ( tmp.isEmpty() || tmp.startsWith( '#' ) ) continue;
-        value=tmp.left( start=tmp.indexOf( ' ' ) );
-        if ( start==-1 ) continue;
-        end=tmp.indexOf( ' ', start+1 );
-        while ( end!=-1 ) {
-            key=tmp.mid( start+1, end-start-1 );
-            _mimeTypes.insert( key, value );
-            start=end;
-            end=tmp.indexOf( ' ', start+1 );
-        }
-        key=tmp.mid( start+1 );
-        _mimeTypes.insert( key, value );
-    }
-    io->close();
-}
-
 Qt::Alignment PHI::toQtAlignment( quint8 align )
 {
     switch ( static_cast<PHI::Alignment>(align) ) {
@@ -945,6 +870,7 @@ Qt::Alignment PHI::toQtAlignment( quint8 align )
     }
 }
 
+// remove in V2
 void PHI::setEffect( QGraphicsItem *it, const PHIEffect &e )
 {
     Q_ASSERT( it );
@@ -990,6 +916,7 @@ void PHI::setEffect( QGraphicsItem *it, const PHIEffect &e )
         }
     } else it->setGraphicsEffect( 0 );
 }
+// end remove
 
 QByteArray PHI::emptyHtmlDoc()
 {
@@ -1050,75 +977,76 @@ QByteArray PHI::toEasingCurveByteArray( quint8 ease )
 
 QEasingCurve::Type PHI::toEasingCurveType( const QString &name )
 {
-    if ( name=="linear" ) return QEasingCurve::Linear;
-    if ( name=="easeInQuad" ) return QEasingCurve::InQuad;
-    if ( name=="easeOutQuad" ) return QEasingCurve::OutQuad;
-    if ( name=="easeInOutQuad" ) return QEasingCurve::InOutQuad;
-    if ( name=="easeInCubic" ) return QEasingCurve::InCubic;
-    if ( name=="easeOutCubic" ) return QEasingCurve::OutCubic;
-    if ( name=="easeInOutCubic" ) return QEasingCurve::InOutCubic;
-    if ( name=="easeInQuart" ) return QEasingCurve::InQuart;
-    if ( name=="easeOutQuart" ) return QEasingCurve::OutQuart;
-    if ( name=="easeInOutQuart" ) return QEasingCurve::InOutQuart;
-    if ( name=="easeInQuint" ) return QEasingCurve::InQuint;
-    if ( name=="easeOutQuint" ) return QEasingCurve::OutQuint;
-    if ( name=="easeInOutQuint" ) return QEasingCurve::InOutQuint;
-    if ( name=="easeInSine" ) return QEasingCurve::InSine;
-    if ( name=="easeOutSine" ) return QEasingCurve::OutSine;
-    if ( name=="easeInOutSine" ) return QEasingCurve::InOutSine;
-    if ( name=="easeInExpo" ) return QEasingCurve::InExpo;
-    if ( name=="easeOutExpo" ) return QEasingCurve::OutExpo;
-    if ( name=="easeInOutExpo" ) return QEasingCurve::InOutExpo;
-    if ( name=="easeInCirc" ) return QEasingCurve::InCirc;
-    if ( name=="easeOutCirc" ) return QEasingCurve::OutCirc;
-    if ( name=="easeInOutCirc" ) return QEasingCurve::InOutCirc;
-    if ( name=="easeInElastic" ) return QEasingCurve::InElastic;
-    if ( name=="easeOutElastic" ) return QEasingCurve::OutElastic;
-    if ( name=="easeInOutElastic" ) return QEasingCurve::InOutElastic;
-    if ( name=="easeInBack" ) return QEasingCurve::InBack;
-    if ( name=="easeOutBack" ) return QEasingCurve::OutBack;
-    if ( name=="easeInOutBack" ) return QEasingCurve::InOutBack;
-    if ( name=="easeInBounce" ) return QEasingCurve::InBounce;
-    if ( name=="easeOutBounce" ) return QEasingCurve::OutBounce;
-    if ( name=="easeInOutBounce" ) return QEasingCurve::InOutBounce;
+    if ( name==QLatin1String( "linear" ) ) return QEasingCurve::Linear;
+    if ( name==QLatin1String( "easeInQuad" ) ) return QEasingCurve::InQuad;
+    if ( name==QLatin1String( "easeOutQuad" ) ) return QEasingCurve::OutQuad;
+    if ( name==QLatin1String( "easeInOutQuad" ) ) return QEasingCurve::InOutQuad;
+    if ( name==QLatin1String( "easeInCubic" ) ) return QEasingCurve::InCubic;
+    if ( name==QLatin1String( "easeOutCubic" ) ) return QEasingCurve::OutCubic;
+    if ( name==QLatin1String( "easeInOutCubic" ) ) return QEasingCurve::InOutCubic;
+    if ( name==QLatin1String( "easeInQuart" ) ) return QEasingCurve::InQuart;
+    if ( name==QLatin1String( "easeOutQuart" ) ) return QEasingCurve::OutQuart;
+    if ( name==QLatin1String( "easeInOutQuart" ) ) return QEasingCurve::InOutQuart;
+    if ( name==QLatin1String( "easeInQuint" ) ) return QEasingCurve::InQuint;
+    if ( name==QLatin1String( "easeOutQuint" ) ) return QEasingCurve::OutQuint;
+    if ( name==QLatin1String( "easeInOutQuint" ) ) return QEasingCurve::InOutQuint;
+    if ( name==QLatin1String( "easeInSine" ) ) return QEasingCurve::InSine;
+    if ( name==QLatin1String( "easeOutSine" ) ) return QEasingCurve::OutSine;
+    if ( name==QLatin1String( "easeInOutSine" ) ) return QEasingCurve::InOutSine;
+    if ( name==QLatin1String( "easeInExpo" ) ) return QEasingCurve::InExpo;
+    if ( name==QLatin1String( "easeOutExpo" ) ) return QEasingCurve::OutExpo;
+    if ( name==QLatin1String( "easeInOutExpo" ) ) return QEasingCurve::InOutExpo;
+    if ( name==QLatin1String( "easeInCirc" ) ) return QEasingCurve::InCirc;
+    if ( name==QLatin1String( "easeOutCirc" ) ) return QEasingCurve::OutCirc;
+    if ( name==QLatin1String( "easeInOutCirc" ) ) return QEasingCurve::InOutCirc;
+    if ( name==QLatin1String( "easeInElastic" ) ) return QEasingCurve::InElastic;
+    if ( name==QLatin1String( "easeOutElastic" ) ) return QEasingCurve::OutElastic;
+    if ( name==QLatin1String( "easeInOutElastic" ) ) return QEasingCurve::InOutElastic;
+    if ( name==QLatin1String( "easeInBack" ) ) return QEasingCurve::InBack;
+    if ( name==QLatin1String( "easeOutBack" ) ) return QEasingCurve::OutBack;
+    if ( name==QLatin1String( "easeInOutBack" ) ) return QEasingCurve::InOutBack;
+    if ( name==QLatin1String( "easeInBounce" ) ) return QEasingCurve::InBounce;
+    if ( name==QLatin1String( "easeOutBounce" ) ) return QEasingCurve::OutBounce;
+    if ( name==QLatin1String( "easeInOutBounce" ) ) return QEasingCurve::InOutBounce;
     return QEasingCurve::OutQuad;
 }
 
 QStringList PHI::availableEasingCurves()
 {
-    QStringList list;
+    static QStringList list;
+    if ( list.count() ) return list;
     list
-    << "linear"
-    << "easeInQuad"
-    << "easeOutQuad"
-    << "easeInOutQuad"
-    << "easeInCubic"
-    << "easeOutCubic"
-    << "easeInOutCubic"
-    << "easeInQuart"
-    << "easeOutQuart"
-    << "easeInOutQuart"
-    << "easeInQuint"
-    << "easeOutQuint"
-    << "easeInOutQuint"
-    << "easeInSine"
-    << "easeOutSine"
-    << "easeInOutSine"
-    << "easeInExpo"
-    << "easeOutExpo"
-    << "easeInOutExpo"
-    << "easeInCirc"
-    << "easeOutCirc"
-    << "easeInOutCirc"
-    << "easeInElastic"
-    << "easeOutElastic"
-    << "easeInOutElastic"
-    << "easeInBack"
-    << "easeOutBack"
-    << "easeInOutBack"
-    << "easeInBounce"
-    << "easeOutBounce"
-    << "easeInOutBounce";
+    << QStringLiteral( "linear" )
+    << QStringLiteral( "easeInQuad" )
+    << QStringLiteral( "easeOutQuad" )
+    << QStringLiteral( "easeInOutQuad" )
+    << QStringLiteral( "easeInCubic" )
+    << QStringLiteral( "easeOutCubic" )
+    << QStringLiteral( "easeInOutCubic" )
+    << QStringLiteral( "easeInQuart" )
+    << QStringLiteral( "easeOutQuart" )
+    << QStringLiteral( "easeInOutQuart" )
+    << QStringLiteral( "easeInQuint" )
+    << QStringLiteral( "easeOutQuint" )
+    << QStringLiteral( "easeInOutQuint" )
+    << QStringLiteral( "easeInSine" )
+    << QStringLiteral( "easeOutSine" )
+    << QStringLiteral( "easeInOutSine" )
+    << QStringLiteral( "easeInExpo" )
+    << QStringLiteral( "easeOutExpo" )
+    << QStringLiteral( "easeInOutExpo" )
+    << QStringLiteral( "easeInCirc" )
+    << QStringLiteral( "easeOutCirc" )
+    << QStringLiteral( "easeInOutCirc" )
+    << QStringLiteral( "easeInElastic" )
+    << QStringLiteral( "easeOutElastic" )
+    << QStringLiteral( "easeInOutElastic" )
+    << QStringLiteral( "easeInBack" )
+    << QStringLiteral( "easeOutBack" )
+    << QStringLiteral( "easeInOutBack" )
+    << QStringLiteral( "easeInBounce" )
+    << QStringLiteral( "easeOutBounce" )
+    << QStringLiteral( "easeInOutBounce" );
     return list;
 }
 
@@ -1147,27 +1075,39 @@ bool PHI::isUpToDate( const QString &localV, const QString &serverV )
 {
     QString l=localV;
     QString s=serverV;
-    int lm=l.replace( QRegExp( "\\..*" ), "" ).toInt();
-    int sm=s.replace( QRegExp( "\\..*" ), "" ).toInt();
+    int lm=l.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
+    int sm=s.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
     if ( lm > sm ) return true;
     if ( lm < sm ) return false;
     l=localV.mid( l.length()+1 );
     s=serverV.mid( s.length()+1 );
-    lm=l.replace( QRegExp( "\\..*" ), "" ).toInt();
-    sm=s.replace( QRegExp( "\\..*" ), "" ).toInt();
+    lm=l.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
+    sm=s.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
     if ( lm > sm ) return true;
     if ( lm < sm ) return false;
-    lm=localV.mid( localV.lastIndexOf( '.' )+1 ).toInt();
-    sm=serverV.mid( serverV.lastIndexOf( '.')+1 ).toInt();
+    lm=localV.mid( localV.lastIndexOf( QLatin1Char( '.' ) )+1 ).toInt();
+    sm=serverV.mid( serverV.lastIndexOf( QLatin1Char( '.' ) )+1 ).toInt();
     return lm >= sm;
 }
 
 QString PHI::toLocale( const QString &lang )
 {
     if ( lang.length()==2 ) return lang.left( 2 ).toLower();
-    if ( lang.length()==5 ) return lang.left( 2 ).toLower()+'_'+lang.right( 2 ).toUpper();
-    if ( lang.length()==6 ) return lang.left( 2 ).toLower()+'_'+lang.right( 3 ).toUpper();
+    if ( lang.length()==5 ) return lang.left( 2 ).toLower()+QLatin1Char( '_' )+lang.right( 2 ).toUpper();
+    if ( lang.length()==6 ) return lang.left( 2 ).toLower()+QLatin1Char( '_' )+lang.right( 3 ).toUpper();
     return lang.left( 2 ).toLower();
+}
+
+QByteArray PHI::domain()
+{
+    static QByteArray dom=QByteArray::fromRawData( PHIDOM, qstrlen( PHIDOM ) );
+    return dom;
+}
+
+QByteArray PHI::organisation()
+{
+    static QByteArray org=QByteArray::fromRawData( PHIORG, qstrlen( PHIORG ) );
+    return org;
 }
 
 PHIRC PHI::socketError( QAbstractSocket::SocketError err )
@@ -1187,6 +1127,8 @@ PHIRC PHI::socketError( QAbstractSocket::SocketError err )
     }
     return PHIRC_TCP_UNKNOWN_SOCKET_ERROR;
 }
+
+// Remove in V2
 QSizeF PHI::sizeHint( const QSizeF &size, PHI::Widget wid, const QFont &font )
 {
     bool isCombo( false ), change( false );
@@ -1401,16 +1343,16 @@ bool PHI::isLayoutContainer( PHI::Widget wid )
 bool PHI::isDisplayItem( PHI::Widget wid )
 {
     switch ( wid ) {
-    case PHI::ELLIPSE:
-    case PHI::RECT:
-    case PHI::ROUNDED_RECT:
-    case PHI::LINE:
-    case PHI::IMAGE:
-    case PHI::GRAPH_TEXT:
-    case PHI::TEXT:
-    case PHI::SVG:
-    case PHI::DIA_SHOW:
-        return true;
+    case PHI::ELLIPSE: return true;
+    case PHI::RECT: return true;
+    case PHI::ROUNDED_RECT: return true;
+    case PHI::LINE: return true;
+    case PHI::IMAGE: return true;
+    case PHI::GRAPH_TEXT: return true;
+    case PHI::TEXT: return true;
+    case PHI::SVG: return true;
+    case PHI::DIA_SHOW: return true;
+    case PHI::CANVAS: return true;
     default: ;
     }
     return false;
@@ -1453,3 +1395,4 @@ bool PHI::isShapeItem( PHI::Widget wid )
     }
     return false;
 }
+// end remove

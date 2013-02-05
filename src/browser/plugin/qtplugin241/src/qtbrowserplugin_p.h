@@ -36,9 +36,9 @@
 **
 ****************************************************************************/
 
-#include <QtCore/QVariant>
-#include <QtCore/QMutexLocker>
-#include <QtGui/QWidget>
+#include <QVariant>
+#include <QMutexLocker>
+#include <QWidget>
 
 #ifdef Q_OS_X11
 #   include <X11/Xlib.h>

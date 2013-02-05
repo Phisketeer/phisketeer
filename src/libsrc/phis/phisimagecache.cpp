@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -35,8 +35,9 @@ PHISImageCache::PHISImageCache( PHIResponseRec *resp, const QString &path, QObje
     qDebug( "PHISImageCache::PHISImageCache()" );
     Q_ASSERT( resp );
     _id=PHISPageCache::getDbId();
-    QSqlDatabase db=QSqlDatabase::addDatabase( "QSQLITE", QString::number( _id ) );
-    db.setDatabaseName( path+QDir::separator()+"db"+QDir::separator()+"phiimgcache.db" );
+    QSqlDatabase db=QSqlDatabase::addDatabase( QStringLiteral( "QSQLITE" ), QString::number( _id ) );
+    db.setDatabaseName( path+QDir::separator()+QLatin1String( "db" )+QDir::separator()
+        +QLatin1String( "phiimgcache.db" ) );
     QDir dbdir( path );
     if ( !dbdir.exists() ) dbdir.mkpath( path );
     if ( !db.open() ) {
@@ -48,10 +49,10 @@ PHISImageCache::PHISImageCache( PHIResponseRec *resp, const QString &path, QObje
     QStringList tables=db.tables();
     if ( tables.isEmpty() ) {
         QSqlQuery query( db );
-        if ( !query.exec( PHICREATETABLE ) ) {
+        if ( !query.exec( QString::fromLatin1( PHICREATETABLE ) ) ) {
             _resp->log( PHILOGERR, PHIRC_QUERY_ERROR,
-                QObject::tr( "Could not create image cache table." )
-                + PHI::errorText().arg( query.lastError().text() ) );
+                QObject::tr( "Could not create image cache table: %1" )
+                .arg( query.lastError().text() ) );
         }
     }
 }
@@ -84,32 +85,32 @@ QString PHISImageCache::createId()
     QSqlQuery query( db );
     int timeout=60;
     QDateTime cdt=QDateTime::currentDateTime();
-    QString sql=QString( "INSERT INTO imgcache ( cid, dtime, tout ) VALUES( '%1', '%2', %3 )" )
-        .arg( uid ).arg( cdt.toString( PHI::dtFormat() ) ).arg( timeout );
+    QString sql=QStringLiteral( "INSERT INTO imgcache ( cid, dtime, tout ) VALUES( '" )
+        +QString::fromLatin1( "%1', '%2', %3 )" )
+        .arg( uid ).arg( cdt.toString( PHI::dtFormatString() ) ).arg( timeout );
     if ( !query.exec( sql ) ) {
         _resp->log( PHILOGERR, PHIRC_QUERY_ERROR,
-            QObject::tr( "Could not insert image cache key into DB. Image will not be removed automatically." )
-            + PHI::errorText().arg( query.lastError().text() ) );
+            QObject::tr( "Could not insert image cache key into DB. Image will not be removed automatically: %1" )
+            .arg( query.lastError().text() ) );
         return uid;
     }
-    sql=QString( "SELECT cid, dtime, tout FROM imgcache" );
+    sql=QStringLiteral( "SELECT cid, dtime, tout FROM imgcache" );
     if ( !query.exec( sql ) ) {
         _resp->log( PHILOGERR, PHIRC_QUERY_ERROR,
-            QObject::tr( "Could not cleanup image cache DB." )
-            + PHI::errorText().arg( query.lastError().text() ) );
+            QObject::tr( "Could not cleanup image cache DB: %1" ).arg( query.lastError().text() ) );
         return uid;
     }
     QDateTime dt;
     QStringList timeoutIds;
     while ( query.next() ) {
-        dt=QDateTime::fromString( query.value( 1 ).toString(), PHI::dtFormat() );
+        dt=QDateTime::fromString( query.value( 1 ).toString(), PHI::dtFormatString() );
         if ( dt.addSecs( query.value( 2 ).toInt() ) < cdt )
             timeoutIds.append( query.value( 0 ).toString() );
     }
     foreach ( sql, timeoutIds ) {
-        query.exec( "DELETE FROM imgcache WHERE cid='"+sql+"'" );
+        query.exec( QStringLiteral( "DELETE FROM imgcache WHERE cid='" )+sql+QLatin1Char( '\'' ) );
         qDebug( "Deleting %s", qPrintable( sql ) );
-        QFile::remove( _path+QDir::separator()+"img"+QDir::separator()+sql );
+        QFile::remove( _path+QDir::separator()+QLatin1String( "img" )+QDir::separator()+sql );
     }
     return uid;
 }

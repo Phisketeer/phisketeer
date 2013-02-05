@@ -46,23 +46,24 @@
 
 #include "qtservice.h"
 #include "qtservice_p.h"
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDateTime>
-#include <QtCore/QFile>
-#include <QtCore/QLibrary>
-#include <QtCore/QMutex>
-#include <QtCore/QSemaphore>
-#include <QtCore/QProcess>
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
+#include <QApplication>
+#include <QDateTime>
+#include <QFile>
+#include <QLibrary>
+#include <QMutex>
+#include <QSemaphore>
+#include <QProcess>
+#include <QSettings>
+#include <QTextStream>
 #include <qt_windows.h>
-#include <QtCore/QWaitCondition>
-#include <QtCore/QAbstractEventDispatcher>
-#include <QtCore/QVector>
-#include <QtCore/QThread>
+#include <QWaitCondition>
+#include <QAbstractEventDispatcher>
+#include <QAbstractNativeEventFilter>
+#include <QVector>
+#include <QThread>
 #include <stdio.h>
 #if defined(QTSERVICE_DEBUG)
-#include <QtCore/QDebug>
+#include <QDebug>
 #endif
 
 typedef SERVICE_STATUS_HANDLE(WINAPI*PRegisterServiceCtrlHandler)(const wchar_t*,LPHANDLER_FUNCTION);
@@ -493,7 +494,7 @@ public:
     QStringList serviceArgs;
 
     static QtServiceSysPrivate *instance;
-    static QCoreApplication::EventFilter nextFilter;
+//    static QApplication::EventFilter nextFilter;
 
     QWaitCondition condition;
     QMutex mutex;
@@ -518,7 +519,7 @@ void QtServiceControllerHandler::customEvent(QEvent *e)
 
 
 QtServiceSysPrivate *QtServiceSysPrivate::instance = 0;
-QCoreApplication::EventFilter QtServiceSysPrivate::nextFilter = 0;
+//QCorApplication::EventFilter QtServiceSysPrivate::nextFilter = 0;
 
 QtServiceSysPrivate::QtServiceSysPrivate()
 {
@@ -712,6 +713,7 @@ protected:
 /*
   Ignore WM_ENDSESSION system events, since they make the Qt kernel quit
 */
+/*
 bool myEventFilter(void* message, long* result)
 {
     MSG* msg = reinterpret_cast<MSG*>(message);
@@ -724,6 +726,23 @@ bool myEventFilter(void* message, long* result)
         *result = TRUE;
     return true;
 }
+*/
+class MyEventFilter : public QAbstractNativeEventFilter
+{
+public:
+    virtual bool nativeEventFilter( const QByteArray &eventType, void *message, long *lresult ) Q_DECL_OVERRIDE
+    {
+        if ( eventType=="windows_generic_MSG" || eventType=="windows_dispatcher_MSG" ) {
+            MSG* msg = reinterpret_cast<MSG*>(message);
+            if ( !msg ) return false;
+            if ( msg->message==WM_ENDSESSION || (msg->lParam & ENDSESSION_LOGOFF) ) {
+                if ( lresult ) *lresult=TRUE;
+                return true;
+            }
+        }
+        return false;
+    }
+};
 
 /* There are three ways we can be started:
 
@@ -783,8 +802,8 @@ bool QtServiceBasePrivate::start()
     QCoreApplication *app = QCoreApplication::instance();
     if (!app)
         return false;
-    QtServiceSysPrivate::nextFilter = app->setEventFilter(myEventFilter);
-
+//    QtServiceSysPrivate::nextFilter = app->setEventFilter(myEventFilter);
+    app->installNativeEventFilter( new MyEventFilter() );
     sys->controllerHandler = new QtServiceControllerHandler(sys);
 
     sys->startSemaphore2.release(); // let serviceMain continue (and end)

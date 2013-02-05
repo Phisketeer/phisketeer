@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -27,9 +27,9 @@ int main( int argc, char **argv )
 {
 #ifdef Q_OS_MAC
     // Unfortunately Mac OS X sandboxing requires special handling
-    MACService service( argc, argv, "phis" );
+    MACService service( argc, argv, QStringLiteral( "phis" ) );
 #else
-    PHIService service( argc, argv, "phis" );
+    PHIService service( argc, argv, QStringLiteral( "phis" ) );
 #endif
     return service.exec();
 }

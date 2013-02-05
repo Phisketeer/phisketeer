@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -11,16 +11,16 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QMetaType>
 #include "phiitem.h"
 
 PHIItem::PHIItem()
-    : _wid( PHI::NO_ITEM ), _x( 0. ), _y( 0. ), _width( 0. ), _height( 0. ),
+    : _wid( 0 ), _x( 0. ), _y( 0. ), _width( 0. ), _height( 0. ),
     _transform( QTransform() ), _attributes( PHIItem::ADynamicData ),
     _sh( 0. ), _sv( 0. ), _xRotate( 0. ), _yRotate( 0. ), _zRotate( 0. ), _xTranslate( 0. ),
     _yTranslate( 0. ), _opacity( 1. ), _transformPos( 1 ), _zValue( 0 ), _properties( PNone ),
@@ -138,7 +138,7 @@ void PHIItem::loadFromByteArray( quint16 wid, const QByteArray &id, const QByteA
     qint32 flags;
     _id=id;
     QByteArray arr=array;
-    _wid=static_cast<PHI::Widget>(wid);
+    _wid=wid;
 
     QDataStream ds( &arr, QIODevice::ReadOnly );
     ds.setVersion( PHI_DSV );

@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -69,21 +69,21 @@ public:
     inline QVariant variant( const QByteArray &l=_c ) const { return _data.value( l ); }
     inline QString libraryName() const { return _data.value( "#I" ).toString(); }
     inline void setLibraryName( const QString &s ) {
-        _data.insert( _c, "LIB" ); _data.insert( "#I", s );
+        _data.insert( _c, QByteArrayLiteral( "LIB" ) ); _data.insert( "#I", s );
     }
     inline QString processName() const { return _data.value( "#P" ).toString(); }
     inline void setProcessName( const QString &s ) {
-        _data.insert( _c, "EXE" ); _data.insert( "#P", s );
+        _data.insert( _c, QByteArrayLiteral( "EXE" ) ); _data.insert( "#P", s );
     }
     inline QString attributes() const { return _data.value( "#A" ).toString(); }
     inline void setAttributes( const QString &s ) { _data.insert( "#A", s ); }
     inline QString fileName() const { return _data.value( "#N" ).toString(); }
     inline void setFileName( const QString &s ) {
-        if ( type()==Text ) _data.insert( _c, "FIL" ); _data.insert( "#N", s );
+        if ( type()==Text ) _data.insert( _c, QByteArrayLiteral( "FIL" ) ); _data.insert( "#N", s );
     }
     inline QString sqlStatement() const { return _data.value( "#S" ).toString(); }
     inline void setSqlStatement( const QString &s ) {
-        _data.insert( _c, "SQL" ); _data.insert( "#S", s );
+        _data.insert( _c, QByteArrayLiteral( "SQL" ) ); _data.insert( "#S", s );
     }
     inline QString templateText() const { return _data.value( "#T" ).toString(); }
     inline void setTemplateText( const QString &s ) { _data.insert( "#T", s ); }
@@ -97,7 +97,7 @@ public:
     inline void setDelimiter( const QString &s ) { _data.insert( "#D", s ); }
     inline QString url() const { return _data.value( "#U" ).toString(); }
     inline void setUrl( const QString &s ) {
-        _data.insert( _c, "URL" ), _data.insert( "#U", s );
+        _data.insert( _c, QByteArrayLiteral( "URL" ) ), _data.insert( "#U", s );
     }
     inline QString value() const { return _data.value( "#V" ).toString(); }
     inline void setValue( const QString &s ) { _data.insert( "#V", s ); }
@@ -120,7 +120,7 @@ protected:
 };
 
 #ifdef PHIDEBUG
-    Q_DECLARE_OPERATORS_FOR_FLAGS( PHIData::Options );
+    Q_DECLARE_OPERATORS_FOR_FLAGS( PHIData::Options )
 #endif
 
 PHISEXPORT QDataStream& operator>>( QDataStream&, PHIData*& );

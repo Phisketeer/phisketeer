@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -61,7 +61,8 @@ PHIBaseItem* PHIDataParser::parseItem( const QByteArray &name ) const
         //}
     } catch ( std::bad_alloc& ) {
         _req->responseRec()->log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY,
-            QObject::tr( "Could not create item instance for page '%1'. Out of memory." ).arg( _pageId.data() ) );
+            QObject::tr( "Could not create item instance for page '%1'. Out of memory." )
+           .arg( QString::fromLatin1( _pageId ) ) );
         //_pageId=tmpPageId;
         return 0;
     }
@@ -74,11 +75,11 @@ PHIBaseItem* PHIDataParser::parseItem( const QByteArray &name ) const
     }
     if ( p & PHIItem::PStyleSheet ) {
         //qDebug( "stylesheet %s", qPrintable( id ) );
-        bit->setStyleSheet( text( "phis_"+id, it->stylesheetData() ) );
+        bit->setStyleSheet( text( QStringLiteral( "phis_" )+id, it->stylesheetData() ) );
     }
     if ( p & PHIItem::PToolTip ) {
         //qDebug( "tooltip %s", qPrintable( id ) );
-        bit->setToolTip( text( "phit_"+id, it->toolTipData() ) );
+        bit->setToolTip( text( QStringLiteral( "phit_" )+id, it->toolTipData() ) );
     }
     if ( p & PHIItem::PImageBook ) {
         //qDebug( "imagebook %s", qPrintable( id ) );
@@ -127,36 +128,35 @@ QByteArray PHIDataParser::matchingLanguage( const PHIData *data ) const
 QString PHIDataParser::parseVariables( const QString &s ) const
 {
     QString t=s, type, key, sub, replace;
-    QStringList list;
     int pos=0, start, end;
-    pos=t.indexOf( "$PHI", pos );
+    pos=t.indexOf( QLatin1String( "$PHI" ), pos );
     while ( pos!=-1 ) {
-        start=t.indexOf( '[', pos );
-        end=t.indexOf( ']', start );
+        start=t.indexOf( QLatin1Char( '[' ), pos );
+        end=t.indexOf( QLatin1Char( ']' ), start );
         if ( start==-1 || end==-1 ) break;
         type=t.mid( pos+4, start-pos-4 );
         key=t.mid( start+1, end-start-1 );
-        start=t.indexOf( '[', ++start );
+        start=t.indexOf( QLatin1Char( '[' ), ++start );
         if ( start==end+1 ) {
-            end=t.indexOf( ']', start );
+            end=t.indexOf( QLatin1Char( ']' ), start );
             if ( end==-1 ) break;
             sub=t.mid( start+1, end-start-1 );
-        } else sub="0";
-        replace="";
-        if ( type=="SERVER" ) replace=findValue( key, sub.toInt(), Server );
-        else if ( type=="SQL" ) replace=sqlValue( key.toInt() );
-        else if ( type=="POST" ) replace=findValue( key, sub.toInt(), Post );
-        else if ( type=="GET" ) replace=findValue( key, sub.toInt(), Get );
-        else if ( type=="REQUEST" ) replace=findValue( key, sub.toInt(), Request );
-        else if ( type=="HEADER" ) replace=findValue( key, sub.toInt(), Header );
-        else if ( type=="FILE" ) {
-            if ( sub=="size" ) replace=_req->fileSize( key.toUtf8() );
-            else if ( sub=="filename" ) replace=_req->fileName( key );
-            else if ( sub=="tmpfile" ) replace=_req->tmpFile( key );
-        } else if ( type=="COOKIE" ) replace=_req->cookieValue( key );
-        else if ( type=="ALL" ) replace=findValue( key, sub.toInt(), All );
+        } else sub=QStringLiteral( "0" );
+        replace=QString();
+        if ( type==QLatin1String( "SERVER" ) ) replace=findValue( key, sub.toInt(), Server );
+        else if ( type==QLatin1String( "SQL" ) ) replace=sqlValue( key.toInt() );
+        else if ( type==QLatin1String( "POST" ) ) replace=findValue( key, sub.toInt(), Post );
+        else if ( type==QLatin1String( "GET" ) ) replace=findValue( key, sub.toInt(), Get );
+        else if ( type==QLatin1String( "REQUEST" ) ) replace=findValue( key, sub.toInt(), Request );
+        else if ( type==QLatin1String( "HEADER" ) ) replace=findValue( key, sub.toInt(), Header );
+        else if ( type==QLatin1String( "FILE" ) ) {
+            if ( sub==QLatin1String( "size" ) ) replace=_req->fileSize( key );
+            else if ( sub==QLatin1String( "filename" ) ) replace=_req->fileName( key );
+            else if ( sub==QLatin1String( "tmpfile" ) ) replace=_req->tmpFile( key );
+        } else if ( type==QLatin1String( "COOKIE" ) ) replace=_req->cookieValue( key );
+        else if ( type==QLatin1String( "ALL" ) ) replace=findValue( key, sub.toInt(), All );
         t.replace( pos, end-pos+1, replace );
-        pos=t.indexOf( "$PHI", ++pos );
+        pos=t.indexOf( QLatin1String( "$PHI" ), ++pos );
     }
     return t;
 }
@@ -166,37 +166,37 @@ QString PHIDataParser::findValue( const QString &key, int index, Type type ) con
     QStringList list;
     switch ( type ) {
     case Server:
-        if ( key=="today" ) {
-            return QDate::currentDate().addDays( index ).toString( PHI::isoDateFormat() );
-        } else if ( key=="monthlist" ) {
+        if ( key==QLatin1String( "today" ) ) {
+            return QDate::currentDate().addDays( index ).toString( QString::fromLatin1( PHI::isoDateFormat() ) );
+        } else if ( key==QLatin1String( "monthlist" ) ) {
             QLocale locale( _req->currentLang() );
             QString monthnames;
             for( int i=1; i<13; i++ ) {
                 monthnames+=locale.monthName( i, QLocale::LongFormat )
-                    +'['+QString::number(i)+"]\n";
+                    +QLatin1Char( '[' )+QString::number(i)+QLatin1String( "]\n" );
             }
             return monthnames;
-        } else if ( key=="month" ) {
+        } else if ( key==QLatin1String( "month" ) ) {
             QLocale locale( _req->currentLang() );
             if ( index>12 || index<0 ) index=0;
             if ( index==0 ) return locale.monthName( QDate::currentDate().month(), QLocale::LongFormat );
             return locale.monthName( index, QLocale::LongFormat );
-        } else if ( key=="year" ) {
+        } else if ( key==QLatin1String( "year" ) ) {
             int year=QDate::currentDate().year();
             return QString::number( year+index );
-        } else if ( key=="yearlist" ) {
+        } else if ( key==QLatin1String( "yearlist" ) ) {
             if ( index>1000 || index<0 ) index=0;
-            if ( index==0 ) return QDate::currentDate().toString( "yyyy" );
+            if ( index==0 ) return QDate::currentDate().toString( QStringLiteral( "yyyy" ) );
             int year=QDate::currentDate().year();
             QString years=QString::number( year );
             for ( int i=1; i<index; i++ ) {
-                years+='\n'+QString::number( year+i );
+                years+=QLatin1Char( '\n' )+QString::number( year+i );
             }
             return years;
-        } else if ( key=="version" ) return _req->version();
-        else if ( key=="userengine" ) return _req->userEngine();
-        else if ( key=="useragent" ) return _req->userAgent();
-        else if ( key=="useros" ) return _req->userOS();
+        } else if ( key==QLatin1String( "version" ) ) return _req->version();
+        else if ( key==QLatin1String( "userengine" ) ) return _req->userEngine();
+        else if ( key==QLatin1String( "useragent" ) ) return _req->userAgent();
+        else if ( key==QLatin1String( "useros" ) ) return _req->userOS();
         return _req->serverValue( key );
     case Header:
         return _req->headerValue( key );
@@ -226,29 +226,29 @@ QString PHIDataParser::replaceDefaultLangC( const QString &fileName, bool useRoo
     if ( useRoot ) {
         fn=PHI::getLocalFilePath( _req->documentRoot(), _req->canonicalFilename(), fileName );
     }
-    QString cmatch="/C/";
+    QString cmatch=QStringLiteral( "/C/" );
     if ( fileName.contains( cmatch ) ) {
         QString testfn;
         testfn=fn;
-        testfn.replace( cmatch, '/'+_req->currentLang()+'/' );
+        testfn.replace( cmatch, QLatin1Char( '/' )+_req->currentLang()+QLatin1Char( '/' ) );
         if ( QFile::exists( testfn ) ) return testfn;
         QString lang;
         foreach ( lang, _req->acceptedLanguages() ) {
             testfn=fn;
-            testfn.replace( cmatch, '/'+lang+'/' );
+            testfn.replace( cmatch, QLatin1Char( '/' )+lang+QLatin1Char( '/' ) );
             if ( QFile::exists( testfn ) ) return testfn;
         }
     }
-    cmatch="\\C\\";
+    cmatch=QStringLiteral( "\\C\\" );
     if ( fileName.contains( cmatch ) ) {
         QString testfn;
         testfn=fn;
-        testfn.replace( cmatch, '\\'+_req->currentLang()+'\\' );
+        testfn.replace( cmatch, QLatin1Char( '\\' )+_req->currentLang()+QLatin1Char( '\\' ) );
         if ( QFile::exists( testfn ) ) return testfn;
         QString lang;
         foreach ( lang, _req->acceptedLanguages() ) {
             testfn=fn;
-            testfn.replace( cmatch, '\\'+lang+'\\' );
+            testfn.replace( cmatch, QLatin1Char( '\\' )+lang+QLatin1Char( '\\' ) );
             if ( QFile::exists( testfn ) ) return testfn;
         }
     }
@@ -261,12 +261,12 @@ QString PHIDataParser::loadTextFromFile( const QString &fileName, const QString 
     QFile f( tmp );
     if ( !f.open( QIODevice::ReadOnly ) ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
-            QObject::tr( "Could not open file '%1' for reading in page '%2'." )
-            .arg( tmp ).arg( _pageId.data() )+PHI::errorText().arg( f.errorString() ) );
+            QObject::tr( "Could not open file '%1' for reading in page '%2': %3" )
+            .arg( tmp ).arg( QString::fromLatin1( _pageId ) ).arg( f.errorString() ) );
         return QString();
     }
     QTextStream t( &f );
-    if ( !codec.isEmpty() ) t.setCodec( codec.toUtf8() );
+    if ( !codec.isEmpty() ) t.setCodec( codec.toUtf8().constData() );
     tmp=t.readAll();
     f.close();
     return tmp;
@@ -276,15 +276,15 @@ QString PHIDataParser::loadTextFromDatabase( const QString &statement, const QSt
 {
     if ( !_query.exec( parseVariables( statement ) ) ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_QUERY_ERROR,
-            QObject::tr( "Could not execute query '%1' for page '%2'." )
-            .arg( parseVariables( statement ) ).arg( _pageId.data() )+
-            PHI::errorText().arg( _query.lastError().text() ) );
+            QObject::tr( "Could not execute query '%1' for page '%2': %3" )
+            .arg( parseVariables( statement ) ).arg( QString::fromLatin1( _pageId ) )
+            .arg( _query.lastError().text() ) );
         return templateText;
     }
     QString tmp;
     if ( _query.size() < 1 ) {
         tmp=statement;
-        tmp.replace( "$PHISERVER[lang]", "C" );
+        tmp.replace( QStringLiteral( "$PHISERVER[lang]" ), QStringLiteral( "C" ) );
         _query.exec( parseVariables( tmp ) );
         tmp.clear();
     }
@@ -310,10 +310,10 @@ QString PHIDataParser::text( const QString &itemId, const PHIData *data ) const
         if ( noCache )
             text=loadTextFromFile( data->fileName(), data->textCodec() );
         else {
-            text=cache->text( _pageId+itemId );
+            text=cache->text( QLatin1String( _pageId )+itemId );
             if ( text.isEmpty() ) {
                 text=loadTextFromFile( data->fileName(), data->textCodec() );
-                cache->insertText( _pageId+itemId, text );
+                cache->insertText( QLatin1String( _pageId )+itemId, text );
             }
         }
     } else if ( data->source()==PHIData::Database ) {
@@ -322,50 +322,50 @@ QString PHIDataParser::text( const QString &itemId, const PHIData *data ) const
                 loadTextFromDatabase( data->sqlStatement(), data->templateText() )
                 +data->footer();
         } else {
-            text=cache->text( _pageId+itemId );
+            text=cache->text( QLatin1String( _pageId )+itemId );
             if ( text.isEmpty() ) {
                 text=data->header()+
                     loadTextFromDatabase( data->sqlStatement(), data->templateText() )
                     +data->footer();
-                cache->insertText( _pageId+itemId, text );
+                cache->insertText( QLatin1String( _pageId )+itemId, text );
             }
         }
     } else if ( data->source()==PHIData::Process ) {
         if ( noCache ) {
             text=QString::fromUtf8( loadFromProcess( data->processName(), data->attributes() ) );
         } else {
-            text=cache->text( _pageId+itemId );
+            text=cache->text( QLatin1String( _pageId )+itemId );
             if ( text.isEmpty() ) {
                 text=QString::fromUtf8( loadFromProcess( data->processName(), data->attributes() ) );
-                cache->insertText( _pageId+itemId, text );
+                cache->insertText( QLatin1String( _pageId )+itemId, text );
             }
         }
     } else if ( data->source()==PHIData::Library ) {
         if ( noCache ) {
             text=QString::fromUtf8( loadFromLibrary( data->libraryName() ) );
         } else {
-            text=cache->text( _pageId+itemId );
+            text=cache->text( QLatin1String( _pageId )+itemId );
             if ( text.isEmpty() ) {
                 text=QString::fromUtf8( loadFromLibrary( data->libraryName() ) );
-                cache->insertText( _pageId+itemId, text );
+                cache->insertText( QLatin1String( _pageId )+itemId, text );
             }
         }
     } else if ( data->source()==PHIData::Url ) {
         if ( noCache ) {
             text=loadTextFromUrl( data->url() );
         } else {
-            text=cache->text( _pageId+itemId );
+            text=cache->text( QLatin1String( _pageId )+itemId );
             if ( text.isEmpty() ) {
                 text=loadTextFromUrl( data->url() );
-                cache->insertText( _pageId+itemId, text );
+                cache->insertText( QLatin1String( _pageId )+itemId, text );
             }
         }
     } else {
         text=itemId;
-        text.replace( QRegExp( _phiregid ), "" );
+        text.replace( QRegExp( QString::fromLatin1( _phiregid ) ), QString() );
         _req->responseRec()->log( PHILOGERR, PHIRC_ARGUMENT_ERROR,
             QObject::tr( "Unregistered data source for item '%1' in page '%2'." )
-            .arg( text ).arg( _pageId.data() ) );
+            .arg( text ).arg( QLatin1String( _pageId ) ) );
         return QString();
     }
     if ( data->options() & PHIData::Parse ) text=parseVariables( text );
@@ -376,9 +376,9 @@ QImage PHIDataParser::loadImageFromDatabase( const QString &query ) const
 {
     if ( !_query.exec( parseVariables( query ) ) ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_QUERY_ERROR,
-            QObject::tr( "Could not load raw image data from DB for query '%1' in page '%2'." )
-            .arg( parseVariables( query ) ).arg( _pageId.data() )+
-            PHI::errorText().arg( _query.lastError().text() ) );
+            QObject::tr( "Could not load raw image data from DB for query '%1' in page '%2': %3" )
+            .arg( parseVariables( query ) ).arg( QLatin1String( _pageId ) )
+            .arg( _query.lastError().text() ) );
         return QImage();
     }
     if ( _query.isValid() && _query.next() ) {
@@ -386,13 +386,13 @@ QImage PHIDataParser::loadImageFromDatabase( const QString &query ) const
         if ( img.isNull() ) {
             _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_TYPE_ERROR,
                 QObject::tr( "Could not convert data from DB to image data for query '%1'"
-                " in page '%2'." ).arg( parseVariables( query ) ).arg( _pageId.data() ) );
+                " in page '%2'." ).arg( parseVariables( query ) ).arg( QLatin1String( _pageId ) ) );
         } else return img;
     } else {
         _req->responseRec()->log( PHILOGERR, PHIRC_QUERY_ERROR,
-            QObject::tr( "No result set for DB query '%1' in page '%2'.")
-            .arg( parseVariables( query ).arg( _pageId.data() ) )+
-            PHI::errorText().arg( _query.lastError().text() ) );
+            QObject::tr( "No result set for DB query '%1' in page '%2': %3" )
+            .arg( parseVariables( query ).arg( QLatin1String( _pageId ) ) )
+            .arg( _query.lastError().text() ) );
     }
     return QImage();
 }
@@ -411,27 +411,27 @@ QByteArray PHIDataParser::loadFromProcess( const QString &procName, const QStrin
     QString name=parseVariables( procName );
     QProcess proc;
     QString arg=parseVariables( a );
-    QStringList args=arg.split( QRegExp( "\\s" ), QString::SkipEmptyParts );
+    QStringList args=arg.split( QRegExp( QStringLiteral( "\\s" ) ), QString::SkipEmptyParts );
     proc.start( name, args, QIODevice::ReadOnly );
     if ( !proc.waitForStarted() ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_ACCESS_ERROR,
-            QObject::tr( "Could not start process '%1' with arguments '%2' for page '%3'." )
-            .arg( name ).arg( args.join( " " ) )
-            .arg( _pageId.data() )+PHI::errorText().arg( proc.errorString() ) );
+            QObject::tr( "Could not start process '%1' with arguments '%2' for page '%3': %4" )
+            .arg( name ).arg( args.join( QStringLiteral( " " ) ) )
+            .arg( QLatin1String( _pageId ) ).arg( proc.errorString() ) );
         return QByteArray();
     }
     if ( !proc.waitForFinished() ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_ACCESS_ERROR,
-            QObject::tr( "Could not finish process '%1' with arguments '%2' for page '%3'.")
-            .arg( name ).arg( args.join( " " ) )
-            .arg( _pageId.data() )+PHI::errorText().arg( proc.errorString() ) );
+            QObject::tr( "Could not finish process '%1' with arguments '%2' for page '%3': %4" )
+            .arg( name ).arg( args.join( QStringLiteral( " " ) ) )
+            .arg( QLatin1String( _pageId ) ).arg( proc.errorString() ) );
         return QByteArray();
     }
     if ( proc.exitCode() ) {
         _req->responseRec()->log( PHILOGWARN, PHIRC_OBJ_ACCESS_ERROR,
-            QObject::tr( "Process '%1' exit code is '%2' for page '%3'.")
-            .arg( name ).arg( proc.exitCode() ).arg( _pageId.data() )
-            +PHI::errorText().arg( QString::fromUtf8( proc.readAllStandardError() ) ) );
+            QObject::tr( "Process '%1' exit code is '%2' for page '%3': %4")
+            .arg( name ).arg( proc.exitCode() ).arg( QLatin1String( _pageId ) )
+            .arg( QString::fromUtf8( proc.readAllStandardError() ) ) );
     }
     return proc.readAllStandardOutput();
 }
@@ -466,17 +466,17 @@ QStringList PHIDataParser::genImageBookIds( const QString &itemId, const PHIImag
         QString root;
         QStringList chkIds=data->fileNames();
         foreach ( id, chkIds ) {
-            if ( !id.startsWith( '/' ) && !id.startsWith( '\\' ) ) {
+            if ( !id.startsWith( QLatin1Char( '/' ) ) && !id.startsWith( QLatin1Char( '\\' ) ) ) {
                 QFileInfo info( _req->canonicalFilename() );
                 QFileInfo ri( _req->documentRoot() );
                 root=info.canonicalPath()+QDir::separator()+id;
                 id=root;
-                id.replace( ri.canonicalFilePath(), "" );
+                id.replace( ri.canonicalFilePath(), QString() );
             } else root=_req->documentRoot()+id;
             if ( !QFile::exists( root ) ) {
                 _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_NOT_FOUND_ERROR,
                     QObject::tr( "Image file '%1' for item '%2' in page '%3' not found." )
-                    .arg( root ).arg( itemId ).arg( _pageId.data() ) );
+                    .arg( root ).arg( itemId ).arg( QLatin1String( _pageId ) ) );
                 continue;
             }
             ids.append( id );
@@ -486,19 +486,19 @@ QStringList PHIDataParser::genImageBookIds( const QString &itemId, const PHIImag
     default: {
         QString root;
         id=text( itemId, data );
-        QStringList chkIds=id.split( QRegExp( "\\s" ), QString::SkipEmptyParts );
+        QStringList chkIds=id.split( QRegExp( QStringLiteral( "\\s" ) ), QString::SkipEmptyParts );
         foreach ( id, chkIds ) {
-            if ( !id.startsWith( '/' ) && !id.startsWith( '\\' ) ) {
+            if ( !id.startsWith( QLatin1Char( '/' ) ) && !id.startsWith( QLatin1Char( '\\' ) ) ) {
                 QFileInfo info( _req->canonicalFilename() );
                 QFileInfo ri( _req->documentRoot() );
                 root=info.canonicalPath()+QDir::separator()+id;
                 id=root;
-                id.replace( ri.canonicalFilePath(), "" );
+                id.replace( ri.canonicalFilePath(), QString() );
             } else root=_req->documentRoot()+id;
             if ( !QFile::exists( root ) ) {
                 _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_NOT_FOUND_ERROR,
                     QObject::tr( "Image file '%1' for item '%2' in page '%3' not found." )
-                    .arg( root ).arg( itemId ).arg( _pageId.data() ) );
+                    .arg( root ).arg( itemId ).arg( QLatin1String( _pageId ) ) );
                 continue;
             }
             ids.append( id );
@@ -513,7 +513,8 @@ QStringList PHIDataParser::genImageBookIds( const QString &itemId, const PHIImag
             PHISImageCache cache( _req->responseRec(), _req->tmpDir() );
             id=cache.createId();
         } else {
-            id="phi"+_pageId+'_'+itemId+'_'+QString::fromLatin1( lang )+"_"+QString::number( i )+".png";
+            id=QLatin1String( "phi" )+QString::fromLatin1( _pageId )+QLatin1Char( '_' )+itemId
+                    +QLatin1Char( '_' )+QString::fromLatin1( lang )+QLatin1Char( '_' )+QString::number( i )+QLatin1String( ".png" );
             if ( QFile::exists( _req->imgDir()+QDir::separator()+id ) ) {
                 QDateTime pageModified=QFileInfo( _req->canonicalFilename() ).lastModified();
                 QFileInfo fi( _req->imgDir()+QDir::separator()+id );
@@ -528,7 +529,7 @@ QStringList PHIDataParser::genImageBookIds( const QString &itemId, const PHIImag
         if ( img.isNull() ) {
             _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_NOT_FOUND_ERROR,
                 QObject::tr( "Invalid image data for item '%1' in page '%2', image #%3." )
-                .arg( itemId ).arg( _pageId.data() ).arg( i ) );
+                .arg( itemId ).arg( QLatin1String( _pageId ) ).arg( i ) );
             continue;
         }
         if ( img.width()!=static_cast<int>(it->width()) || img.height()!=static_cast<int>(it->height()) ) {
@@ -536,7 +537,7 @@ QStringList PHIDataParser::genImageBookIds( const QString &itemId, const PHIImag
             static_cast<int>(it->height()), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
         }
         QDir dir( _req->imgDir() );
-        QFileInfoList imglist=dir.entryInfoList( QStringList() << id+'*', QDir::Files );
+        QFileInfoList imglist=dir.entryInfoList( QStringList() << id+QLatin1Char( '*' ), QDir::Files );
         QFileInfo info;
         foreach ( info, imglist ) {  // removing existing transformed images
             qDebug( "deleting %s", qPrintable( info.canonicalFilePath() ) );
@@ -560,16 +561,16 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
     if ( data->options() & PHIData::FileName ) {
         qDebug( "image is filename");
         PHISItemCache *cache=PHISItemCache::instance();
-        itemId="phii_"+itId; //new cache id (otherwise conflicts with textData)
+        itemId=QStringLiteral( "phii_" )+itId; //new cache id (otherwise conflicts with textData)
         switch ( data->source() ) {
         case PHIData::File:
             if ( data->options() & PHIData::NoCache ) {
                 id=replaceDefaultLangC( parseVariables( data->fileName() ) );
             } else {
-                id=cache->text( _pageId+itemId );
+                id=cache->text( QLatin1String( _pageId )+itemId );
                 if ( id.isEmpty() ) {
                     id=replaceDefaultLangC( parseVariables( data->fileName() ) );
-                    cache->insertText( _pageId+itemId, id );
+                    cache->insertText( QLatin1String( _pageId )+itemId, id );
                 }
             }
             break;
@@ -579,12 +580,12 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
                     data->sqlStatement(), data->templateText() ) );
                 if ( id==data->templateText() ) id=QString(); // DB query error
             } else {
-                id=cache->text( _pageId+itemId );
+                id=cache->text( QLatin1String( _pageId )+itemId );
                 if ( id.isEmpty() ) {
                     id=replaceDefaultLangC( loadTextFromDatabase(
                         data->sqlStatement(), data->templateText() ) );
                     if ( id==data->templateText() ) id=QString(); // DB query error
-                    cache->insertText( _pageId+itemId, id );
+                    cache->insertText( QLatin1String( _pageId )+itemId, id );
                 }
             }
             break;
@@ -593,11 +594,11 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
                 id=replaceDefaultLangC( QString::fromUtf8(
                     loadFromProcess( data->processName(), data->attributes() ) ) );
             } else {
-                id=cache->text( _pageId+itemId );
+                id=cache->text( QLatin1String( _pageId )+itemId );
                 if ( id.isEmpty() ) {
                     id=replaceDefaultLangC( QString::fromUtf8(
                         loadFromProcess( data->processName(), data->attributes() ) ) );
-                    cache->insertText( _pageId+itemId, id );
+                    cache->insertText( QLatin1String( _pageId )+itemId, id );
                 }
             }
             break;
@@ -605,10 +606,10 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
             if ( data->options() & PHIData::NoCache )
                 id=replaceDefaultLangC( QString::fromUtf8( loadFromLibrary( data->libraryName() ) ) );
             else {
-                id=cache->text( _pageId+itemId );
+                id=cache->text( QLatin1String( _pageId )+itemId );
                 if ( id.isEmpty() ) {
                     id=replaceDefaultLangC( QString::fromUtf8( loadFromLibrary( data->libraryName() ) ) );
-                    cache->insertText( _pageId+itemId, id );
+                    cache->insertText( QLatin1String( _pageId )+itemId, id );
                 }
             }
             break;
@@ -616,17 +617,17 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
             if ( data->options() & PHIData::NoCache )
                 id=replaceDefaultLangC( loadTextFromUrl( data->url() ) );
             else {
-                id=cache->text( _pageId+itemId );
+                id=cache->text( QLatin1String( _pageId )+itemId );
                 if ( id.isEmpty() ) {
                     id=replaceDefaultLangC( loadTextFromUrl( data->url() ) );
-                    cache->insertText( _pageId+itemId, id );
+                    cache->insertText( QLatin1String( _pageId )+itemId, id );
                 }
             }
             break;
         default:
             _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_TYPE_ERROR,
                 QObject::tr( "Option 'FileName' is set on raw image data for item '%1' "
-                "in page '%2'." ).arg( itId ).arg( _pageId.data() ) );
+                "in page '%2'." ).arg( itId ).arg( QLatin1String( _pageId ) ) );
             return QString();
         }
 
@@ -637,19 +638,19 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
             return QString();
         }
         QString root;
-        if ( !id.startsWith( '/' ) && !id.startsWith( '\\' ) ) {
+        if ( !id.startsWith( QLatin1Char( '/' ) ) && !id.startsWith( QLatin1Char( '\\' ) ) ) {
             QFileInfo info( _req->canonicalFilename() );
             QFileInfo ri( _req->documentRoot() );
             root=info.canonicalPath()+QDir::separator()+id;
             //qDebug( "PATH id %s", qPrintable( root ) );
             id=root;
-            id.replace( ri.canonicalFilePath(), "" );
+            id.replace( ri.canonicalFilePath(), QString() );
             //qDebug( "PATH id %s", qPrintable( id ) );
         } else root=_req->documentRoot()+id;
         if ( !QFile::exists( root ) ) {
             _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_NOT_FOUND_ERROR,
                 QObject::tr( "Image file '%1' for item '%2' in page '%3' not found." )
-                .arg( root ).arg( itId ).arg( _pageId.data() ) );
+                .arg( root ).arg( itId ).arg( QLatin1String( _pageId ) ) );
             return QString();
         }
         return id;
@@ -661,7 +662,8 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
         PHISImageCache cache( _req->responseRec(), _req->tmpDir() );
         id=cache.createId();
     } else {
-        id="phi"+_pageId+'_'+itId+'_'+QString::fromLatin1( lang )+".png";
+        id=QLatin1String( "phi"+_pageId+'_' )+itId+QLatin1Char( '_' )+QString::fromLatin1( lang )
+            +QLatin1String( ".png" );
         if ( QFile::exists( _req->imgDir()+QDir::separator()+id ) ) {
             QDateTime pageModified=QFileInfo( _req->canonicalFilename() ).lastModified();
             QFileInfo fi( _req->imgDir()+QDir::separator()+id );
@@ -686,13 +688,13 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
     else {
         _req->responseRec()->log( PHILOGERR, PHIRC_ARGUMENT_ERROR,
             QObject::tr( "Unregistered image data source for item '%1' in page '%2'." )
-            .arg( itId ).arg( _pageId.data() ) );
+            .arg( itId ).arg( QLatin1String( _pageId ) ) );
         return QString();
     }
     if ( img.isNull() ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_NOT_FOUND_ERROR,
             QObject::tr( "Invalid image data for item '%1' in page '%2'." )
-            .arg( itId ).arg( _pageId.data() ) );
+            .arg( itId ).arg( QLatin1String( _pageId ) ) );
         return QString();
     }
     if ( img.width()!=static_cast<int>(it->width()) || img.height()!=static_cast<int>(it->height()) ) {
@@ -705,7 +707,7 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
         }
     }
     QDir dir( _req->imgDir() );
-    QFileInfoList imglist=dir.entryInfoList( QStringList() << id+'*', QDir::Files );
+    QFileInfoList imglist=dir.entryInfoList( QStringList() << id+QLatin1Char( '*' ), QDir::Files );
     QFileInfo info;
     foreach ( info, imglist ) { // removing existing transformed images
         qDebug( "deleting %s", qPrintable( info.canonicalFilePath() ) );

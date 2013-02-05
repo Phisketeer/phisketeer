@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -725,17 +725,17 @@ GLangSelectorItem::GLangSelectorItem( const QString &v, qreal w, qreal h, const 
     QString lang, value;
     foreach( lang, languages ) {
         if ( lang==curLang ) {
-            value+=tr( curLocale.languageToString( curLocale.language() ).toUtf8() );
+            value+=tr( curLocale.languageToString( curLocale.language() ).toUtf8().constData() );
             if ( lang.size()==5 ) value+=" ("
-                +tr( curLocale.countryToString( curLocale.country() ).toUtf8() )+')';
+                +tr( curLocale.countryToString( curLocale.country() ).toUtf8().constData() )+')';
             value+='['+lang+"][1]:";
         } else {
             curLangLocale=lang;
             if ( curLangLocale.size()==5 ) curLangLocale=lang.left( 2 )+'_'+lang.right( 2 ).toUpper();
             QLocale loc( curLangLocale );
-            value+=tr( curLocale.languageToString( loc.language() ).toUtf8() );
+            value+=tr( curLocale.languageToString( loc.language() ).toUtf8().constData() );
             if ( lang.size()==5 ) value+=" ("
-                +tr( curLocale.countryToString( loc.country() ).toUtf8() )+')';
+                +tr( curLocale.countryToString( loc.country() ).toUtf8().constData() )+')';
             value+='['+lang+"]:";
         }
     }

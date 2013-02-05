@@ -1,7 +1,21 @@
-/***************************************************************************
- *   $Id: omqconfig.cpp,v 1.3 2007/02/06 19:14:40 linuxprofi Exp $
- *   Copyright (c) 2008-2009 Phi Technologies, Bernd Schumacher
- ***************************************************************************/
+/*
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
+#
+#    This plug-in is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Lesser General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <QApplication>
 #include <QVBoxLayout>
 #include <QMessageBox>
@@ -12,16 +26,18 @@
 #include <QIcon>
 #include <QDesktopServices>
 #include <QWebSettings>
+#include <QStandardPaths>
 #include "phiplugin.h"
 #include "phianetmanager.h"
 #include "phia.h"
 #include "phiaconfig.h"
 
 #ifdef PHIDEBUG
-void redirectMsg( QtMsgType type, const char *msg )
+void redirectMsg( QtMsgType type, const QMessageLogContext &context, const QString &msg )
 {
     Q_UNUSED( type );
-    AMMsg::instance()->sendMsg( QString::fromUtf8( msg ) );
+    Q_UNUSED( context );
+    AMMsg::instance()->sendMsg( msg );
 }
 
 AMMsg* AMMsg::_instance=0;
@@ -53,7 +69,7 @@ PhiPlugIn::PhiPlugIn( QWidget *parent )
     : QWidget( parent ), _phi( 0 )
 {
 #ifdef PHIDEBUG
-    _edit=new QPlainTextEdit( "Start" );
+    _edit=new QPlainTextEdit( QStringLiteral( "Start" ) );
     connect( AMMsg::instance(), SIGNAL( error( const QString& ) ), this,
         SLOT( slotError( const QString& ) ) );
 #endif
@@ -66,7 +82,7 @@ PhiPlugIn::PhiPlugIn( QWidget *parent )
     //setWindowTitle( PHIA::browserName() );
 
     QString path=s.value( PHIA::configName( PHIA::CacheDirectory ) ).toString();
-    if ( path.isEmpty() ) path=QDesktopServices::storageLocation( QDesktopServices::CacheLocation )
+    if ( path.isEmpty() ) path=QStandardPaths::writableLocation( QStandardPaths::CacheLocation )
         +QDir::separator()+PHIA::phiaDir();
     QDir cacheDir( path );
     if ( !cacheDir.exists() ) cacheDir.mkpath( path );
@@ -99,7 +115,7 @@ PhiPlugIn::PhiPlugIn( QWidget *parent )
     PHIAAbstractWebView::setMissingIcon( ws->webGraphic( QWebSettings::MissingImageGraphic ) );
     qDebug( "PhiPlugIn::new PHIAWebView" );
     _view=new PHIAWebView( 0, this );
-    _view->setWindowIcon( QIcon( QPixmap( ":/phi/logo" ) ) );
+    _view->setWindowIcon( QIcon( QPixmap( QStringLiteral( ":/phi/logo" ) ) ) );
 
     QVBoxLayout *l=new QVBoxLayout();
     l->setContentsMargins( 0, 0, 0, 0 );
@@ -124,7 +140,7 @@ PhiPlugIn::PhiPlugIn( QWidget *parent )
 PhiPlugIn::~PhiPlugIn()
 {
 #ifdef PHIDEBUG
-    qInstallMsgHandler( 0 );
+    qInstallMessageHandler( 0 );
     delete _edit;
     _edit=0;
 #endif
@@ -173,8 +189,8 @@ void PhiPlugIn::slotIconChanged( PHIAAbstractWebView *view )
     if ( view->icon().isNull() ) return;
     view->setWindowIcon( view->icon() );
     QUrl url=view->url();
-    QString pageId=QFileInfo( url.path() ).baseName()+".ico";
-    QString path=QString( "/phi.phis?phiimg=%1&phitmp=1" ).arg( pageId );
+    QString pageId=QFileInfo( url.path() ).baseName()+QLatin1String( ".ico" );
+    QString path=QStringLiteral( "/phi.phis?phiimg=%1&phitmp=1" ).arg( pageId );
     qWarning( "iconPathChanged(%s)", qPrintable( path ) );
     emit iconPathChanged( path );
 }
@@ -208,10 +224,10 @@ void PhiPlugIn::setSource( const QString &src )
     QUrl url( src );
     _src=url.toString();
 #ifdef PHIDEBUG
-    if ( !url.queryItemValue( "phidebug" ).isEmpty() ) {
+    if ( !QUrlQuery( url ).queryItemValue( QStringLiteral( "phidebug" ) ).isEmpty() ) {
         _edit->show();
-        qInstallMsgHandler( redirectMsg );
-    } else qInstallMsgHandler( 0 );
+        qInstallMessageHandler( redirectMsg );
+    } else qInstallMessageHandler( 0 );
 #endif
     /*
     if ( url.queryItemValue( "phi" ).isEmpty() ) {
@@ -255,7 +271,7 @@ bool PhiPlugIn::readData( QIODevice*, const QString &format )
 
 void PhiPlugIn::slotJavaScriptConsoleMessage( const QString &msg, int lineNumber, const QString &sourceId )
 {
-    QString tmp=msg+'\n'+tr( "Line:" )+' '+QString::number( lineNumber );
+    QString tmp=msg+QLatin1Char( '\n' )+tr( "Line:" )+QLatin1Char( ' ' )+QString::number( lineNumber );
 #ifdef PHIDEBUG
     if ( _edit->isVisible() ) _edit->appendPlainText( tmp );
     else QMessageBox::warning( this, sourceId, tmp, QMessageBox::Ok );
@@ -274,11 +290,11 @@ void PhiPlugIn::slotUnsupportedContent( PHIAAbstractWebView*, QNetworkReply *rep
     qDebug( "slotUnsupportedContent()" );
     QUrl url=reply->request().url();
     reply->deleteLater();
-    int i=openUrl( url.toString(), "_top" );
+    int i=openUrl( url.toString(), QStringLiteral( "_top" ) );
     if ( i==-1 ) QDesktopServices::openUrl( url );
 }
 
-QTNPFACTORY_BEGIN( "Phi Plug-In (" PHIVERSION ")", "Plug-In for displaying Phi based content" );
+QTNPFACTORY_BEGIN( "Phi Plug-In (" PHIVERSION ")", "Plug-In for displaying Phi based content" )
     QTNPCLASS(PhiPlugIn)
 QTNPFACTORY_END()
 

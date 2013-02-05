@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -90,7 +90,7 @@ QByteArray PHISHtml5Base::textShadowStyle() const
 {
     QByteArray arr;
     if ( _it->effect()->graphicsType()!=PHIEffect::GTShadow ) return arr;
-    if ( !PHI::isTextItem( _it->wid() ) ) return arr;
+    if ( !PHI::isTextItem( static_cast<PHI::Widget>(_it->wid()) ) ) return arr;
     arr.reserve( 300 );
     QColor c;
     qreal xOff, yOff, radius;
@@ -230,7 +230,7 @@ void PHISHtml5Base::table() const
     QStringList rows=_it->value().split( _it->delimiter(), QString::SkipEmptyParts );
     for ( r=0; r<rows.count(); r++ ) {
         row=rows.at( r );
-        QStringList cols=row.split( "|", QString::KeepEmptyParts );
+        QStringList cols=row.split( QLatin1Char( '|' ), QString::KeepEmptyParts );
         if ( r==0 ) {
             colCount=cols.count();
             //arr+=_indent+"\t<thead><tr class=\"phibutton phibuttontext\">";
@@ -247,7 +247,7 @@ void PHISHtml5Base::table() const
         else _out+=_indent+"\t<tr onclick=\"phitbl_"+_it->id()+'('+QByteArray::number( r )+");\">";
         for ( int c=0; c<colCount; c++ ) {
             if ( c < cols.count() ) col=cols.at( c );
-            else col="";
+            else col=QString();
             _out+="<td class=\"phitabletd\"";
             if ( c==0 ) {
                 PHI::getItemCheckData( col, v, isChecked );
@@ -304,7 +304,7 @@ void PHISHtml5Base::checkBoxList() const
     QStringList rows=_it->value().split( _it->delimiter(), QString::SkipEmptyParts );
     for ( int r=0; r<rows.count(); r++ ) {
         row=rows.at( r );
-        QStringList cols=row.split( "|", QString::KeepEmptyParts );
+        QStringList cols=row.split( QLatin1Char( '|' ), QString::KeepEmptyParts );
         if ( r==0 ) {
             colCount=cols.count();
             _out+=_indent+"\t<thead><tr class=\"phibuttontext\">";
@@ -321,7 +321,7 @@ void PHISHtml5Base::checkBoxList() const
         _out+=_indent+"\t<tr>";
         for ( int c=0; c<colCount; c++ ) {
             if ( c < cols.count() ) col=cols.at( c );
-            else col="";
+            else col=QString();
             qDebug( "col=%s", qPrintable( col ) );
             if ( c==0 ) {
                 PHI::getItemCheckData( col, v, isChecked );

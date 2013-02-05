@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -54,7 +54,7 @@ QNetworkReply* PHIAFormProcessor::process( const PHIAPage *page, const QString &
     PHIBaseItem *it;
     foreach ( it, items ) {
         PHIAItem *pit=qobject_cast<PHIAItem*>(it);
-        if ( !PHI::isInputItem( it->wid() ) ) continue;
+        if ( !PHI::isInputItem( static_cast<PHI::Widget>(it->wid()) ) ) continue;
         if ( it->wid()==PHI::SUBMIT_BUTTON ) {
             if ( it->name()!=buttonid ) continue; // only add submit button which caused the request
         }

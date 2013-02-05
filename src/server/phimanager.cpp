@@ -1,7 +1,7 @@
 /*
-#    Copyright (C) 2010-2012  Marius B. Schumacher
-#    Copyright (C) 2011-2012  Phisys AG, Switzerland
-#    Copyright (C) 2012  Phisketeer.org team
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -70,17 +70,21 @@ PHIManager::~PHIManager()
 void PHIManager::start()
 {
     if ( !_logWriterStart ) return;
-    PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_OK, tr( "Using mime type file <%1>." )
-        .arg( PHIConfig::instance()->mimeTypesFile() ) );
+    foreach ( QString merr, PHIParent::instance()->moduleLoadErrors() ) {
+        PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_MODULE_LOAD_ERROR, merr );
+    }
+    foreach ( QString module, PHIParent::instance()->loadedModules() ) {
+        PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_MODULE_LOG, module );
+    }
 
     PHIRC rc=PHIListener::instance()->init( this );
     if ( rc==PHIRC_OK ) {
-        PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_MGR_START,
-            tr( "Phi manager '%1' ready for service." ).arg( objectName() ) );
         connect( PHIListener::instance(), SIGNAL( processServiceCommand( int ) ),
             this, SIGNAL( processServiceCommand( int ) ) );
+        PHILogWriter::instance()->log( PHILOGTRACE, PHIRC_MGR_START,
+            tr( "Phi manager '%1' ready for service." ).arg( objectName() ) );
     }
-    if ( PHIConfig::instance()->configValue( "SSLEnabled", false ).toBool() ) {
+    if ( PHIConfig::instance()->configValue( QStringLiteral( "SSLEnabled" ), false ).toBool() ) {
         rc=PHISslListener::instance()->init( this );
         _sslListenerStart=true;
     }
@@ -88,6 +92,7 @@ void PHIManager::start()
 
 void PHIManager::updateConfig()
 {
+    qWarning( "UPDATECONF" );
     PHIConfig::instance()->updateConfig();
     PHIParent::instance()->invalidate();
 }
