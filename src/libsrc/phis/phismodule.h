@@ -33,53 +33,12 @@
 #else
 #define PHIS_EXPORT Q_DECL_IMPORT
 #endif
-#define PHIS_DEPRECATED(msg) interface()->deprecated(__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
-#define PHIS_LOG(type,msg) interface()->log((type),__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
-#define PHIS_ERROR(msg) interface()->log(PHISInterface::LTError,__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
-#define PHIS_WARN(msg) interface()->log(PHISInterface::LTWarning,__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
-#define PHIS_CRIT(msg) interface()->log(PHISInterface::LTCritical,__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
-#define PHIS_DEBUG(msg) interface()->log(PHISInterface::LTDebug,__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
-
-class PHISInterface;
-
-class PHIS_EXPORT PHISScriptObj : public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY( QStringList properties READ properties )
-
-public:
-    explicit PHISScriptObj( const PHISInterface *interface ) : _if( interface ) {}
-    inline virtual quint32 version() const { return 0x00010000; }
-    virtual QScriptValue initObject( const QString &key );
-
-public slots:
-    inline QStringList properties() const { return PHI::properties( this ); }
-
-protected:
-    inline const PHISInterface* const interface() const { return _if; }
-
-private:
-    const PHISInterface *_if;
-};
-
-class PHIS_EXPORT PHISModuleIF
-{
-public:
-    virtual PHISScriptObj* create( const QString &key, const PHISInterface* ) const=0;
-    virtual QStringList keys() const=0;
-};
-
-Q_DECLARE_INTERFACE( PHISModuleIF, "org.phisketeer.phis.module/1.0" )
-
-class PHIS_EXPORT PHISModule : public QObject, public PHISModuleIF
-{
-    Q_OBJECT
-    Q_INTERFACES( PHISModuleIF )
-
-public:
-    virtual PHISScriptObj* create( const QString &key, const PHISInterface* ) const=0;
-    virtual QStringList keys() const=0;
-};
+#define PHIS_DEPRECATED(msg) PHIS_IF()->deprecated(__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
+#define PHIS_LOG(type,msg) PHIS_IF()->log((type),__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
+#define PHIS_ERROR(msg) PHIS_IF()->log(PHISInterface::LTError,__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
+#define PHIS_WARN(msg) PHIS_IF()->log(PHISInterface::LTWarning,__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
+#define PHIS_CRIT(msg) PHIS_IF()->log(PHISInterface::LTCritical,__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
+#define PHIS_DEBUG(msg) PHIS_IF()->log(PHISInterface::LTDebug,__FILE__,__LINE__,QDateTime::currentDateTime(),(msg));
 
 class PHISInterfacePrivate
 {
@@ -179,6 +138,45 @@ public:
     }
 };
 
+class PHIS_EXPORT PHISScriptObj : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY( QStringList properties READ properties )
+
+public:
+    explicit PHISScriptObj( const PHISInterface *interf ) : _if( interf ) {}
+    inline virtual quint32 version() const { return 0x00010000; }
+    virtual QScriptValue initObject( const QString &key );
+
+public slots:
+    inline QStringList properties() const { return PHI::properties( this ); }
+
+protected:
+    inline const PHISInterface* const PHIS_IF() const { return _if; }
+
+private:
+    const PHISInterface *_if;
+};
+
+class PHIS_EXPORT PHISModuleIF
+{
+public:
+    virtual PHISScriptObj* create( const QString &key, const PHISInterface* ) const=0;
+    virtual QStringList keys() const=0;
+};
+
+Q_DECLARE_INTERFACE( PHISModuleIF, "org.phisketeer.phis.module/1.0" )
+
+class PHIS_EXPORT PHISModule : public QObject, public PHISModuleIF
+{
+    Q_OBJECT
+    Q_INTERFACES( PHISModuleIF )
+
+public:
+    virtual PHISScriptObj* create( const QString &key, const PHISInterface* ) const=0;
+    virtual QStringList keys() const=0;
+};
+
 inline void PHISInterface::setContent( const QByteArray &content ) const {
     _req->responseRec()->setBody( content );
     _req->responseRec()->setContentLength( content.size() );
@@ -194,10 +192,10 @@ inline void PHISInterface::deprecated( const char* file, int line, const QDateTi
 
 inline QScriptValue PHISScriptObj::initObject( const QString &key )
 {
-    QScriptValue sv=interface()->scriptEngine()->newQObject( this,
+    QScriptValue sv=PHIS_IF()->scriptEngine()->newQObject( this,
         QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject |
         QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater );
-    interface()->scriptEngine()->globalObject().setProperty( key, sv );
+    PHIS_IF()->scriptEngine()->globalObject().setProperty( key, sv );
     return sv;
 }
 

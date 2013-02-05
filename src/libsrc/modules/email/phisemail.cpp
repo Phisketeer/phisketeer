@@ -23,7 +23,7 @@ PHISEmailObj::PHISEmailObj( const PHISInterface *phisif )
     : PHISScriptObj( phisif ), _timeout( 20000 ), _port( 25 ), _socket( 0 )
 {
     qDebug( "PHISEmailObj::PHISEmailObj()" );
-    _from=interface()->admin();
+    _from=PHIS_IF()->admin();
     _contentType=QStringLiteral( "text/plain; charset=utf-8" );
     _socket=new QTcpSocket( this );
 }
@@ -80,7 +80,7 @@ qint16 PHISEmailObj::connect()
     bool moreLines;
     qint16 res=waitForResponseLine();
     //qDebug( "EMAIL %d %s", res, qPrintable( _lastError ) );
-    QString data=QStringLiteral( "EHLO " )+interface()->hostname();
+    QString data=QStringLiteral( "EHLO " )+PHIS_IF()->hostname();
     if ( res!=220 ) return disconnectFromServer( res, t );
     res=waitForDataWritten( data, t );
     if ( res ) return disconnectFromServer( res, t );

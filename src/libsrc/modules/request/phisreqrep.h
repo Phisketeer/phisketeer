@@ -66,34 +66,34 @@ public:
     virtual QScriptValue initObject( const QString &key );
 
 public slots:
-    inline QString contentType() const { return interface()->contentType(); }
-    inline QString user() const { return interface()->user(); }
-    inline QString password() const { return interface()->password(); }
-    inline QString url() const { return interface()->url().toString(); }
-    inline QString hostName() const { return interface()->hostname(); }
-    inline QString method() const { return interface()->method(); }
-    inline QString postData() const { return interface()->postData(); }
-    inline QString fileName() const { return interface()->fileName(); }
-    inline QString agent() const { return interface()->agent(); }
-    inline QString accept() const { return interface()->accept(); }
-    inline QString lang() const { return interface()->pageLanguage(); }
-    inline QString scheme() const { return interface()->scheme(); }
-    inline QString self() const { return interface()->self(); }
+    inline QString contentType() const { return PHIS_IF()->contentType(); }
+    inline QString user() const { return PHIS_IF()->user(); }
+    inline QString password() const { return PHIS_IF()->password(); }
+    inline QString url() const { return PHIS_IF()->url().toString(); }
+    inline QString hostName() const { return PHIS_IF()->hostname(); }
+    inline QString method() const { return PHIS_IF()->method(); }
+    inline QString postData() const { return PHIS_IF()->postData(); }
+    inline QString fileName() const { return PHIS_IF()->fileName(); }
+    inline QString agent() const { return PHIS_IF()->agent(); }
+    inline QString accept() const { return PHIS_IF()->accept(); }
+    inline QString lang() const { return PHIS_IF()->pageLanguage(); }
+    inline QString scheme() const { return PHIS_IF()->scheme(); }
+    inline QString self() const { return PHIS_IF()->self(); }
 
-    inline QDateTime started() const { return interface()->started(); }
-    inline QDateTime modified() const { return interface()->modified(); }
-    inline qint64 contentLength() const { return interface()->contentLength(); }
-    inline QStringList languages() const { return interface()->acceptedLanguages();  } // without qualifier ';q=x.x'
-    inline quint8 osType() const { return interface()->osType(); }
-    inline void setOsType( quint8 type ) const { interface()->setOsType( type ); }
-    inline quint8 agentId() const { return interface()->agentId(); }
-    inline void setAgentId( quint8 aid ) { interface()->setAgentId( aid ); }
-    inline quint8 agentEngine() const { return interface()->agentEngine(); }
-    inline void setAgentEngine( quint8 ae ) { interface()->setAgentEngine( ae ); }
-    inline qint32 engineMajorVersion() const { return interface()->engineMajorVersion(); }
-    inline void setEngineMajorVersion( qint32 emv ) { interface()->setEngineMajorVersion( emv ); }
-    inline qint32 engineMinorVersion() const { return interface()->engineMinorVersion(); }
-    inline void setEngineMinorVersion( qint32 emv ) const { interface()->setEngineMinorVersion( emv ); }
+    inline QDateTime started() const { return PHIS_IF()->started(); }
+    inline QDateTime modified() const { return PHIS_IF()->modified(); }
+    inline qint64 contentLength() const { return PHIS_IF()->contentLength(); }
+    inline QStringList languages() const { return PHIS_IF()->acceptedLanguages();  } // without qualifier ';q=x.x'
+    inline quint8 osType() const { return PHIS_IF()->osType(); }
+    inline void setOsType( quint8 type ) const { PHIS_IF()->setOsType( type ); }
+    inline quint8 agentId() const { return PHIS_IF()->agentId(); }
+    inline void setAgentId( quint8 aid ) { PHIS_IF()->setAgentId( aid ); }
+    inline quint8 agentEngine() const { return PHIS_IF()->agentEngine(); }
+    inline void setAgentEngine( quint8 ae ) { PHIS_IF()->setAgentEngine( ae ); }
+    inline qint32 engineMajorVersion() const { return PHIS_IF()->engineMajorVersion(); }
+    inline void setEngineMajorVersion( qint32 emv ) { PHIS_IF()->setEngineMajorVersion( emv ); }
+    inline qint32 engineMinorVersion() const { return PHIS_IF()->engineMinorVersion(); }
+    inline void setEngineMinorVersion( qint32 emv ) const { PHIS_IF()->setEngineMinorVersion( emv ); }
 };
 
 class PHISReplyObj : public PHISScriptObj
@@ -125,14 +125,14 @@ public slots:
     inline void setCookie( const QString &name, const QString &value, const QDateTime &expires,
         const QString &path=_slash, const QString &domain=QString(),
         bool secure=false, bool discard=false ) const {
-        interface()->setCookie( name, value, expires, path, domain, secure, discard );
+        PHIS_IF()->setCookie( name, value, expires, path, domain, secure, discard );
     }
     void setCookie( const QString &name, const QString &value, int maxage, const QString &path=_slash,
         const QString &domain=QString(), bool secure=false, bool discard=false ) const {
-        interface()->setCookie( name, value, maxage, path, domain, secure, discard );
+        PHIS_IF()->setCookie( name, value, maxage, path, domain, secure, discard );
     }
     inline void setHttpHeader( const QString &name, const QString &value ) {
-        interface()->setHttpHeader( name, value );
+        PHIS_IF()->setHttpHeader( name, value );
     }
 
 private:
@@ -154,13 +154,13 @@ inline QStringList PHISRequestModule::keys() const
 
 inline void PHISReplyObj::setFileName( const QString &f )
 {
-    interface()->setFileName( f );
+    PHIS_IF()->setFileName( f );
     _fileName=f;
 }
 
 inline void PHISReplyObj::setContentType( const QString &t )
 {
-    interface()->setContentType( t.toUtf8() );
+    PHIS_IF()->setContentType( t.toUtf8() );
     _contentType=t;
 }
 

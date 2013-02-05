@@ -52,18 +52,18 @@ public:
 
 public slots:
     inline QString lastError() const { return _query.lastError().text(); }
-    inline QStringList tables() const { return interface()->database().isOpen() ?
-        interface()->database().tables() : QStringList(); }
+    inline QStringList tables() const { return PHIS_IF()->database().isOpen() ?
+        PHIS_IF()->database().tables() : QStringList(); }
     inline bool next() const { return _query.next(); }
     inline QVariant value( int index ) const { return _query.value( index ); }
     inline int numRowsAffected() const { return _query.numRowsAffected(); }
     inline int rows() const { return _query.isValid() ? _query.size() : 0; }
-    inline bool transaction() { return interface()->database().isOpen() ?
-        interface()->database().transaction() : false; }
-    inline bool commit() { return interface()->database().isOpen() ?
-        interface()->database().commit() : false; }
-    inline bool rollback() { return interface()->database().isOpen() ?
-        interface()->database().rollback() : false; }
+    inline bool transaction() { return PHIS_IF()->database().isOpen() ?
+        PHIS_IF()->database().transaction() : false; }
+    inline bool commit() { return PHIS_IF()->database().isOpen() ?
+        PHIS_IF()->database().commit() : false; }
+    inline bool rollback() { return PHIS_IF()->database().isOpen() ?
+        PHIS_IF()->database().rollback() : false; }
     bool query( const QString& ) const;
     QList<QVariant> values() const;
     QScriptValue clone() const;
