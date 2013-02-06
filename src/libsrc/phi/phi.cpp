@@ -29,6 +29,9 @@
 #include <QPainter>
 #include <QPalette>
 #include <QMimeDatabase>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include "qmath.h"
 #include "phi.h"
 #include "phierror.h"
@@ -221,7 +224,7 @@ QSettings* PHI::globalSettings()
 // returns the root directory for the application
 QString PHI::applicationRoot()
 {
-    static QString path;
+    static QString path; qAppName();
     if ( !path.isNull() ) return path;
     Q_ASSERT( qApp );
     QDir appdir( QCoreApplication::applicationDirPath() );
@@ -347,8 +350,8 @@ void PHI::setupApplication( QGuiApplication *app )
 {
     if ( !app ) return;
 #ifdef Q_OS_MAC // needed for AppStore
-    app->setOrganizationDomain( "phisys.com" );
-    app->setOrganizationName( "Phisys AG" );
+    app->setOrganizationDomain( QStringLiteral( "phisys.com" ) );
+    app->setOrganizationName( QStringLiteral( "Phisys AG" ) );
 #else
     app->setOrganizationDomain( QString::fromLatin1( PHI::domain() ) );
     app->setOrganizationName( QString::fromLatin1( PHI::organisation() ) );
@@ -475,8 +478,8 @@ bool PHI::clearPhisServiceCache()
     // a QNetworkRequest to invalidate the phis cache
     QSettings *s=PHI::globalSettings();
     s->beginGroup( defaultString() );
-    QUrl url( "http://localhost/phi.phis?invalidate=1" );
-    url.setPort( s->value( "ListenerPort", 8080 ).toInt() );
+    QUrl url( QStringLiteral( "http://localhost/phi.phis?invalidate=1" ) );
+    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
     s->endGroup();
     QNetworkRequest req;
     req.setUrl( url );

@@ -165,7 +165,7 @@ public:
     static inline QFont invalidFont() { static QFont f( QStringLiteral( "phi" ), 3 ); return f; }
     static inline QFont defaultFont() { static QFont f( QStringLiteral( "Arial" ), 11 ); return f; }
     static inline int defaultDragDistance() { return 5; }
-    static inline QSize PHI::defaultPageSize() { return QSize( 1000, 750 ); }
+    static inline QSize defaultPageSize() { return QSize( 1000, 750 ); }
 
     static QByteArray emailRegExp();
     static QByteArray phoneNumberRegExp();

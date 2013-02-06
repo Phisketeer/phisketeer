@@ -27,6 +27,8 @@
 #error You need a standardized C/C++ compiler to compile Phi
 #endif
 
+QMutex PHISysInfo::_mutex;
+
 PHISysInfo::PHISysInfo()
 {
     qDebug( "PHISysInfo::PHISysInfo()" );
@@ -41,8 +43,8 @@ QString PHISysInfo::systemString()
     struct utsname utsn;
     uname( &utsn );
 #ifdef Q_OS_MAC
-    _systemString="Macintosh; Intel Mac OS X "+QString::fromLocal8Bit( utsn.sysname );
-    _systemString+=" "+QString::fromLocal8Bit( utsn.release );
+    _systemString=QLatin1String( "Macintosh; Intel Mac OS X " )+QString::fromLocal8Bit( utsn.sysname );
+    _systemString+=QLatin1Char( ' ' )+QString::fromLocal8Bit( utsn.release );
 #else
     _systemString=QString::fromLocal8Bit( utsn.sysname )+';';
     //_systemString+=QString::fromLocal8Bit( utsn.nodename )+';';
