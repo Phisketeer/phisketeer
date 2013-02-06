@@ -56,7 +56,7 @@ void PHISModuleFactory::invalidate()
         dir.setPath( path ); // MacOS
         dir.cdUp(); //
         dir.cdUp(); // Contents
-        dir.setPath( dir.path()+"/PlugIns/modules" );
+        dir.setPath( dir.path()+QLatin1String( "/PlugIns/modules" ) );
 #endif
 #endif
         if ( !dir.exists() ) {

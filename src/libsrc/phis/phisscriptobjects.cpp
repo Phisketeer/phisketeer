@@ -45,7 +45,7 @@ public:
 static QScriptValue print( QScriptContext *ctx, QScriptEngine* )
 {
     QScriptValue s=ctx->argument( 0 );
-    qWarning( qPrintable( s.toString() ) );
+    PHIError::instance()->print( PHIRC_USER, s.toString() );
     return QScriptValue();
 }
 
@@ -69,7 +69,7 @@ static QScriptValue newImage( QScriptContext*, QScriptEngine *engine )
         QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater );
 }
 
-static QScriptValue loadModule( QScriptContext *ctx, QScriptEngine *engine, void *args )
+QScriptValue loadModule( QScriptContext *ctx, QScriptEngine *engine, void *args )
 {
     if ( !ctx->argument( 0 ).isString() ) return QScriptValue( false );
     QString m=ctx->argument( 0 ).toString();

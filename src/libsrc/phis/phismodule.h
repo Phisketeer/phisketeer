@@ -152,7 +152,7 @@ public slots:
     inline QStringList properties() const { return PHI::properties( this ); }
 
 protected:
-    inline const PHISInterface* const PHIS_IF() const { return _if; }
+    inline const PHISInterface* PHIS_IF() const { return _if; }
 
 private:
     const PHISInterface *_if;

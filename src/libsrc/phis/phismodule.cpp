@@ -21,6 +21,7 @@
 void PHISInterface::log( LogType lt, const char *file, int line, const QDateTime &dt, const QString &m ) const
 {
     switch( lt ) {
+    case LTError: return _req->responseRec()->log( 0x02, file , line, dt, PHIRC_MODULE_LOG, m );
     case LTWarning: return _req->responseRec()->log( 0x04, file, line, dt, PHIRC_MODULE_LOG, m );
     case LTCritical: return _req->responseRec()->log( 0x08, file, line, dt, PHIRC_MODULE_LOG, m );
     case LTTrace: return _req->responseRec()->log( 0x01, file, line, dt, PHIRC_MODULE_LOG, m );
