@@ -142,16 +142,16 @@ PHIRC PHIHttp::sendResponse( QString &err )
 #endif
 
 #ifdef Q_OS_MAC
-    if ( _req->canonicalFilename().endsWith( "/phi.phis" ) ) {
-        if ( _req->hostname()=="localhost" ) { // only accepted from localhost
+    if ( _req->canonicalFilename().endsWith( QLatin1String( "/phi.phis" ) ) ) {
+        if ( _req->hostname()==QLatin1String( "localhost" ) ) { // only accepted from localhost
             bool serviceCommand=false;
-            if ( _req->getKeys().contains( "stop" ) ) {
+            if ( _req->getKeys().contains( QStringLiteral( "stop" ) ) ) {
                 emit processServiceCommand( 1 );
                 serviceCommand=true;
-            } else if ( _req->getKeys().contains( "invalidate" ) ) {
+            } else if ( _req->getKeys().contains( QStringLiteral( "invalidate" ) ) ) {
                 emit processServiceCommand( 2 );
                 serviceCommand=true;
-            } else if ( _req->getKeys().contains( "ping" ) ) {
+            } else if ( _req->getKeys().contains( QStringLiteral( "ping" ) ) ) {
                 emit processServiceCommand( 3 );
                 serviceCommand=true;
             }

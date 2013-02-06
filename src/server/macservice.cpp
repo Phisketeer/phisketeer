@@ -33,7 +33,7 @@ MACService::MACService( int argc, char **argv, const QString &name )
     qputenv( "QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "1" );
     _app=new QGuiApplication( argc, argv );
     _app->setApplicationVersion( PHIS::libVersion() );
-    _app->setApplicationName( "Phis" );
+    _app->setApplicationName( QStringLiteral( "Phis" ) );
     PHI::setupApplication( _app );
     QTimer::singleShot( 0, this, SLOT( start() ) );
 }
@@ -60,8 +60,7 @@ int MACService::exec()
 
 void MACService::start()
 {
-    QString n( "default" );
-    _manager=new PHIManager( this, n );
+    _manager=new PHIManager( this, PHI::defaultString() );
     connect( _manager, SIGNAL( processServiceCommand( int ) ), this,
         SLOT( processServiceCommand( int ) ) );
     _manager->start();
