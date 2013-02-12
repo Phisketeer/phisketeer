@@ -68,7 +68,17 @@ PHIAScriptWindowObj::PHIAScriptWindowObj( PHIAWebView *view )
     qScriptRegisterMetaType( _engine, eventToScriptValue, eventFromScriptValue );
     qScriptRegisterMetaType( _engine, scriptItemToScriptValue, scriptItemFromScriptValue );
 
+    QScriptValue global=_engine->globalObject();
     QScriptValue win=_engine->newQObject( this, PHIASCRIPTEXTENSION );
+    {
+        QScriptValueIterator it( global );
+        while ( it.hasNext() ) {
+            it.next();
+            // qWarning( "global: %s", qPrintable( it.name() ) );
+            if ( it.name()=="print" ) continue;
+            win.setProperty( it.name(), it.value(), it.flags() );
+        }
+    }
     _engine->setGlobalObject( win );
     _engine->globalObject().setProperty( "window", win );
     QScriptValue doc=_engine->newQObject( _view->page(), PHIASCRIPTEXTENSION );
