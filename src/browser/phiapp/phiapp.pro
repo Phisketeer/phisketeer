@@ -31,7 +31,7 @@ win32 {
     CONFIG(debug,debug|release){
         CONFIG += console
         LIBS = -L../../../bin phid1.lib phiad1.lib
-        TARGET = amphibiad
+        TARGET = phiappd
     }
     RC_FILE=phiapp.rc
     OTHER_FILES +=phiapp.rc
