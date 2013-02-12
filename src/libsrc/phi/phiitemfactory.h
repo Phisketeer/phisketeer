@@ -27,7 +27,7 @@ class PHIItemFactory : public QObject
     Q_OBJECT
 
 public:
-    explicit PHIItemFactory( QObject *parent=0 ) {}
+    explicit PHIItemFactory( QObject *parent=0 ) : QObject( parent ) {}
     
 signals:
     
