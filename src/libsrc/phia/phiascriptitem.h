@@ -170,6 +170,7 @@ public slots:
     QScriptValue bgColor( const QScriptValue &c=QScriptValue() );
     QScriptValue dragEnabled( const QScriptValue &b=QScriptValue() );
     QScriptValue dropEnabled( const QScriptValue &b=QScriptValue() );
+    QScriptValue getContext( const QString &space );
 
 protected:
     inline QScriptEngine* engine() const { return _it->view()->scriptEngine(); }

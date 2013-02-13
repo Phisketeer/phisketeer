@@ -30,7 +30,8 @@ HEADERS += phi.h \
     phibasepage.h \
     phiapplication.h \
     phipixlabel.h \
-    phiupdateinfo.h
+    phiupdateinfo.h \
+    phictx2dwidget.h
 #    philicense.h \
 SOURCES += phi.cpp \
     phiitem.cpp \
@@ -47,7 +48,8 @@ SOURCES += phi.cpp \
     phibasepage.cpp \
     phiapplication.cpp \
     phipixlabel.cpp \
-    phiupdateinfo.cpp
+    phiupdateinfo.cpp \
+    phictx2dwidget.cpp
 #    phimimetypes.cpp \
 #    philicense.cpp \
 

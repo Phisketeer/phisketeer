@@ -31,6 +31,7 @@
 #include "glayoutitems.h"
 #include "gwebitems.h"
 #include "phiaanimation.h"
+#include "phicontext2d.h"
 
 #define PHIGIT GWidgetItem *git=qgraphicsitem_cast<GWidgetItem*>(_git);
 
@@ -66,6 +67,19 @@ PHIAWebView* PHIAItem::view() const
     PHIAWebView *webView=qobject_cast<PHIAWebView*>(parent());
     Q_ASSERT( webView );
     return webView;
+}
+
+PHIContext2D* PHIAItem::context2D() const
+{
+    PHIGIT
+    if ( git ) return git->context2D();
+    return 0;
+}
+
+PHIContext2D* PHIAItem::getContext( const QString &space )
+{
+    if ( space.toLower()=="2d" ) return context2D();
+    return 0;
 }
 
 void PHIAItem::setCursor( const QByteArray &c )
@@ -773,6 +787,7 @@ void PHIAItem::generateItem()
     case PHI::GOOGLE_PLUS: _git=new GGooglePlusItem( width(), height(), this ); break;
     case PHI::DIA_SHOW: _git=new GDiaShowItem( width(), height(), this ); break;
     case PHI::PROGRESSBAR: _git=new GProgressBarItem( width(), height(), this ); break;
+    case PHI::CANVAS: _git=new GCanvasItem( width(), height(), this ); break;
 
     case PHI::HSPACE: _git=new GHSpacerItem( width(), height(), this ); break;
     case PHI::VSPACE: _git=new GVSpacerItem( width(), height(), this ); break;

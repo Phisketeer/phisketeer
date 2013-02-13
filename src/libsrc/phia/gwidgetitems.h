@@ -22,6 +22,7 @@
 #include "gwidgetitem.h"
 #include "phiacomboboxhack.h"
 #include "phipixlabel.h"
+#include "phictx2dwidget.h"
 
 class GLabelItem : public GWidgetItem
 {
@@ -497,6 +498,18 @@ public:
 
 protected:
     QProgressBar *_bar;
+};
+
+class GCanvasItem : public GWidgetItem
+{
+    Q_OBJECT
+
+public:
+    GCanvasItem( qreal w, qreal h, const PHIAItem*, QGraphicsItem *parent=0 );
+    inline virtual PHIContext2D* context2D() const { return _ctxWidget->context(); }
+
+protected:
+    PHICtx2DWidget *_ctxWidget;
 };
 
 #endif // GWIDGETITEMS_H

@@ -32,6 +32,7 @@
 
 class PHIAWebView;
 class PHIAScriptEvent;
+class PHIContext2D;
 
 class PHIAItem : public PHIBaseItem
 {
@@ -93,6 +94,7 @@ public:
     explicit PHIAItem( PHIAWebView *parent );
     virtual ~PHIAItem();
     PHIAWebView* view() const;
+    virtual PHIContext2D* context2D() const;
 
     virtual void addChild( const PHIAItem* );
     virtual void setPalette( const QPalette& );
@@ -163,6 +165,7 @@ public slots:
     virtual QString toolTip() const;
     virtual void setMaxLength( quint16 l );
     virtual quint16 maxLength() const;
+    virtual PHIContext2D* getContext( const QString &space );
 
     virtual void focus();
     virtual void blur();

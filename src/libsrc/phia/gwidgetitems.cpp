@@ -1320,3 +1320,11 @@ QString GProgressBarItem::value() const
 {
     return QString::number( _bar->value() );
 }
+
+GCanvasItem::GCanvasItem( qreal w, qreal h, const PHIAItem *it, QGraphicsItem *parent )
+    : GWidgetItem( w, h, it, parent )
+{
+    _ctxWidget=new PHICtx2DWidget();
+    setWidget( _ctxWidget );
+    resize( w, h );
+}

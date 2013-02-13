@@ -23,6 +23,7 @@
 #include <QGraphicsProxyWidget>
 #include <QObject>
 #include "phi.h"
+#include "phicontext2d.h"
 
 class PHIAItem;
 
@@ -65,6 +66,7 @@ public:
     inline virtual void overwritePalette( const QPalette& ) {;}
     inline virtual void setValueChecked( const QString&, bool ) {;}
     inline virtual bool valueChecked( const QString& ) const { return false; }
+    inline virtual PHIContext2D* context2D() const { return 0; }
 
     virtual quint16 maxLength() const;
     virtual void setWidth( qreal w );

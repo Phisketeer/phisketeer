@@ -27,23 +27,36 @@
 #include <QGradient>
 #include <QPainter>
 #include <QStack>
+#include <QScriptValue>
 #include "phi.h"
 #include "phidomimage.h"
 
-class PHICanvasGradient
+class QScriptEngine;
+
+class PHIEXPORT PHICanvasGradient : public QObject
 {
+    Q_OBJECT
+
 public:
-    explicit PHICanvasGradient( const QGradient &v ): value( v ) {}
-    explicit PHICanvasGradient() {}
-    QGradient value;
+    explicit PHICanvasGradient( const QGradient &v, QObject *parent=0 )
+        : QObject( parent ), _gradient( v ) {}
+    explicit PHICanvasGradient( QObject *parent=0 ) : QObject( parent ) {}
+    inline QGradient gradient() const { return _gradient; }
+
+public slots:
+    PHICanvasGradient* addColorStop( qreal offset, const QString &color );
+
+protected:
+    QGradient _gradient;
 };
 
-Q_DECLARE_METATYPE(PHICanvasGradient)
-//Q_DECLARE_METATYPE(CanvasGradient*)
+Q_DECLARE_METATYPE( PHICanvasGradient* )
+
+PHIEXPORT QScriptValue canvasGradientToScriptValue( QScriptEngine*, PHICanvasGradient* const &in );
+PHIEXPORT void canvasGradientFromScriptValue( const QScriptValue&, PHICanvasGradient* &out );
 
 //class ImageData {
 //};
-
 
 class PHIEXPORT PHIContext2D : public QObject
 {
@@ -61,6 +74,8 @@ class PHIEXPORT PHIContext2D : public QObject
     Q_PROPERTY( qreal shadowOffsetY READ shadowOffsetY WRITE setShadowOffsetY )
     Q_PROPERTY( qreal shadowBlur READ shadowBlur WRITE setShadowBlur )
     Q_PROPERTY( QString shadowColor READ shadowColor WRITE setShadowColor )
+    Q_PROPERTY( QString textAlign READ textAlign WRITE setTextAlign )
+    Q_PROPERTY( QString font READ font WRITE setFont )
 
 public:
     PHIContext2D( QObject *parent=0 );
@@ -85,11 +100,15 @@ public:
     QString lineCap() const; // "butt", "round", "square" (default "butt")
     QString lineJoin() const; // "round", "bevel", "miter" (default "miter")
     qreal miterLimit() const; // (default 10)
+    QString textAlign() const;
+    QString font() const;
 
     void setLineWidth( qreal w );
     void setLineCap( const QString &s );
     void setLineJoin( const QString &s );
     void setMiterLimit( qreal m );
+    void setTextAlign( const QString &s );
+    void setFont( const QString &f );
 
     qreal shadowOffsetX() const; // (default 0)
     qreal shadowOffsetY() const; // (default 0)
@@ -111,12 +130,17 @@ public slots:
     void transform( qreal m11, qreal m12, qreal m21, qreal m22, qreal dx, qreal dy );
     void setTransform( qreal m11, qreal m12, qreal m21, qreal m22, qreal dx, qreal dy );
 
-    PHICanvasGradient createLinearGradient( qreal x0, qreal y0, qreal x1, qreal y1 );
-    PHICanvasGradient createRadialGradient( qreal x0, qreal y0, qreal r0, qreal x1, qreal y1, qreal r1);
+    PHICanvasGradient* createLinearGradient( qreal x0, qreal y0, qreal x1, qreal y1 );
+    PHICanvasGradient* createRadialGradient( qreal x0, qreal y0, qreal r0, qreal x1, qreal y1, qreal r1);
+    // not part of the W3C specification:
+    PHICanvasGradient* createConicalGradient( qreal x, qreal y, qreal angle );
 
     void clearRect( qreal x, qreal y, qreal w, qreal h);
     void fillRect( qreal x, qreal y, qreal w, qreal h);
     void strokeRect( qreal x, qreal y, qreal w, qreal h);
+
+    void fillText( const QString &t, qreal x, qreal y );
+    void strokeText( const QString &t, qreal x, qreal y );
 
     void beginPath();
     void closePath();
@@ -127,6 +151,7 @@ public slots:
     void arcTo( qreal x1, qreal y1, qreal x2, qreal y2, qreal radius );
     void rect( qreal x, qreal y, qreal w, qreal h );
     void arc( qreal x, qreal y, qreal radius, qreal startAngle, qreal endAngle, bool anticlockwise );
+    void ellipse( qreal x, qreal y, qreal w, qreal h );
     void fill();
     void stroke();
     void clip();
@@ -205,6 +230,11 @@ private:
     State _state;
     QStack<State> _stateStack;
 };
+
+Q_DECLARE_METATYPE( PHIContext2D* )
+
+PHIEXPORT QScriptValue context2DToScriptValue( QScriptEngine*, PHIContext2D* const &in );
+PHIEXPORT void context2DFromScriptValue( const QScriptValue&, PHIContext2D* &out );
 
 inline void PHIContext2D::save()
 {

@@ -19,9 +19,11 @@
 #
 #    Note: The provided classes are based on the Qt example for Context2D.
 */
-#include "phicontext2d.h"
 #include <QVariant>
+#include <QScriptEngine>
 #include <math.h>
+#include "phicontext2d.h"
+
 static const double PHI_PI=3.14159265358979323846;
 
 #define DEGREES(t) ((t) * 180.0 / PHI_PI )
@@ -32,8 +34,8 @@ static QList<qreal> parseNumbersList( QString::const_iterator &itr )
     QList<qreal> points;
     QString temp;
     while ( (*itr).isSpace() ) ++itr;
-    while ( (*itr).isNumber() || (*itr) == QLatin1Char( '-' )
-        || (*itr) == QLatin1Char( '+' ) || (*itr) == QLatin1Char( '.' ) ) {
+    while ( (*itr).isNumber() || (*itr)==QLatin1Char( '-' )
+        || (*itr)==QLatin1Char( '+' ) || (*itr)==QLatin1Char( '.' ) ) {
         temp=QString();
         if ( (*itr)==QLatin1Char( '-' ) ) temp+=*itr++;
         else if ( (*itr)==QLatin1Char( '+' ) ) temp+=*itr++;
@@ -110,7 +112,7 @@ static QPainter::CompositionMode compositeOperatorFromString( const QString &com
 
 static QString compositeOperatorToString( QPainter::CompositionMode op )
 {
-    switch (op) {
+    switch ( op ) {
     case QPainter::CompositionMode_SourceOver:
         return QStringLiteral( "source-over" );
     case QPainter::CompositionMode_DestinationOver:
@@ -165,6 +167,158 @@ static QString compositeOperatorToString( QPainter::CompositionMode op )
     return QString();
 }
 
+static QString textAlignToString( int a )
+{
+    switch ( a ) {
+    case 2: return QStringLiteral( "end" );
+    case 3: return QStringLiteral( "left" );
+    case 4: return QStringLiteral( "right" );
+    case 5: return QStringLiteral( "center" );
+    }
+    return QStringLiteral( "start" );
+}
+
+static int stringToTextAlign( const QString &s )
+{
+    if ( s==QLatin1String( "start" ) ) return 1;
+    if ( s==QLatin1String( "end" ) ) return 2;
+    if ( s==QLatin1String( "left" ) ) return 3;
+    if ( s==QLatin1String( "right" ) ) return 4;
+    if ( s==QLatin1String( "center" ) ) return 5;
+    return 0;
+}
+
+QScriptValue canvasGradientToScriptValue( QScriptEngine *engine, PHICanvasGradient* const &obj )
+{
+    return engine->newQObject( obj, QScriptEngine::QtOwnership,
+        QScriptEngine::PreferExistingWrapperObject | QScriptEngine::SkipMethodsInEnumeration |
+        QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
+}
+
+void canvasGradientFromScriptValue( const QScriptValue &obj, PHICanvasGradient* &it )
+{
+    it=qobject_cast<PHICanvasGradient*>(obj.toQObject());
+}
+
+PHICanvasGradient* PHICanvasGradient::addColorStop( qreal offset, const QString &color )
+{
+    _gradient.setColorAt( offset, colorFromString( color ) );
+    return this;
+}
+
+QScriptValue context2DToScriptValue( QScriptEngine *engine, PHIContext2D* const &obj )
+{
+    return engine->newQObject( obj, QScriptEngine::QtOwnership,
+        QScriptEngine::PreferExistingWrapperObject | QScriptEngine::SkipMethodsInEnumeration |
+        QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
+}
+
+void context2DFromScriptValue( const QScriptValue &obj, PHIContext2D* &it )
+{
+    it=qobject_cast<PHIContext2D*>(obj.toQObject());
+}
+
+QString PHIContext2D::textAlign() const
+{
+    return textAlignToString( _state.textAlign );
+}
+
+void PHIContext2D::setTextAlign( const QString &s )
+{
+    int a=stringToTextAlign( s );
+    if ( a==0 || _state.textAlign==a ) return;
+    _state.textAlign=a;
+    _state.flags |= DirtyTextAlign;
+}
+
+QString PHIContext2D::font() const
+{
+    QString f;
+    if ( _state.font.italic() ) f+=QLatin1String( "italic " );
+    if ( _state.font.weight()==QFont::Light ) f+=QLatin1String( "lighter " );
+    else if ( _state.font.weight()==QFont::Bold ) f+=QLatin1String( "bold " );
+    else if ( _state.font.weight()==QFont::Black ) f+=QLatin1String( "bolder " );
+    if ( _state.font.pixelSize()!=-1 )
+        f+=QString::number( _state.font.pixelSize() )+QLatin1String( "px \"" );
+    else if ( _state.font.pointSize()!=-1 )
+        f+=QString::number( _state.font.pointSize() )+QLatin1String( "pt \"" );
+    else f+=QLatin1String( "\"" );
+    f+=_state.font.family()+QLatin1String( "\"" );
+    if ( _state.font.styleHint()!=QFont::AnyStyle ) {
+        switch ( _state.font.styleHint() ) {
+        case QFont::Helvetica: f+=QLatin1String( ", sans-serif" ); break;
+        case QFont::Monospace: f+=QLatin1String( ", monospace" ); break;
+        case QFont::Cursive: f+=QLatin1String( ", cursive" ); break;
+        case QFont::Fantasy: f+=QLatin1String( ", fantasy" ); break;
+        case QFont::Courier: f+=QLatin1String( ", courier" ); break;
+        case QFont::Serif: f+=QLatin1String( ", serif" ); break;
+        default:
+            f+=QLatin1String( ", system" );
+        }
+    }
+    return f;
+}
+
+void PHIContext2D::setFont( const QString &f )
+{
+    QFont font;
+    QFont::StyleHint hint=QFont::AnyStyle;
+    font.setPixelSize( 10 );
+    QString str=f;
+    str.replace( QRegExp( QStringLiteral( "[1-9]00" ) ), QString() );
+    str.replace( QLatin1Char( '"' ), QString() );
+    if ( str.contains( QLatin1String( "italic" ) ) ) {
+        font.setItalic( true );
+        str.replace( QLatin1String( "italic" ), QString() );
+    }
+    if ( str.contains( QLatin1String( "bold" ) ) ) {
+        font.setWeight( QFont::Bold );
+        str.replace( QLatin1String( "bold" ), QString() );
+    } else if ( str.contains( QLatin1String( "lighter" ) ) ) {
+        font.setWeight( QFont::Light );
+        str.replace( QLatin1String( "lighter" ), QString() );
+    } else if ( str.contains( QLatin1String( "bolder" ) ) ) {
+        font.setWeight( QFont::Black );
+        str.replace( QLatin1String( "bolder" ), QString() );
+    }
+    if ( str.contains( QLatin1String( "sans-serif" ) ) ) {
+        hint=QFont::SansSerif;
+        str.replace( QLatin1String( "sans-serif" ), QString() );
+    } else if ( f.contains( QLatin1String( "monospace" ) ) ) {
+        hint=QFont::Monospace;
+        str.replace( QLatin1String( "monospace" ), QString() );
+    } else if ( f.contains( QLatin1String( "fantasy" ) ) ) {
+        hint=QFont::Fantasy;
+        str.replace( QLatin1String( "fantasy" ), QString() );
+    } else if ( f.contains( QLatin1String( "cursive" ) ) ) {
+        hint=QFont::Cursive;
+        str.replace( QLatin1String( "cursive" ), QString() );
+    }
+    int s;
+    QString size=str;
+    if ( size.contains( QLatin1String( "px" ) ) ) {
+        size.replace( QRegExp( QStringLiteral( "px.*" ) ), QString() );
+        size.replace( QRegExp( QStringLiteral( ".* " ) ), QString() );
+        s=size.toInt();
+        if ( s>0 ) font.setPixelSize( s );
+        str.replace( QRegExp( QStringLiteral( "[0-9]*px" ) ), QString() );
+    }
+    if ( size.contains( QLatin1String( "pt" ) ) ) {
+        size.replace( QRegExp( QStringLiteral( "pt.*" ) ), QString() );
+        size.replace( QRegExp( QStringLiteral( ".* " ) ), QString() );
+        s=size.toInt();
+        if ( s>0 ) font.setPointSize( s );
+        str.replace( QRegExp( QStringLiteral( "[0-9]*pt" ) ), QString() );
+    }
+    str.replace( QRegExp( QStringLiteral( ",.*" ) ), QString() );
+    str=str.trimmed();
+    if ( !str.isEmpty() ) font.setFamily( str );
+    font.setStyleHint( hint );
+    qDebug( "setFont: %s", qPrintable( font.toString() ) );
+    _state.font=font;
+    _state.flags |= DirtyFont;
+}
+
 void PHIContext2D::setShadowColor( const QString &str )
 {
     _state.shadowColor=colorFromString( str );
@@ -217,9 +371,9 @@ QVariant PHIContext2D::strokeStyle() const
 
 void PHIContext2D::setStrokeStyle( const QVariant &style )
 {
-    if ( style.canConvert<PHICanvasGradient>() ) {
-        PHICanvasGradient cg=qvariant_cast<PHICanvasGradient>(style);
-        _state.strokeStyle=cg.value;
+    if ( style.canConvert<PHICanvasGradient*>() ) {
+        PHICanvasGradient *cg=style.value<PHICanvasGradient*>();
+        _state.strokeStyle=cg->gradient();
     } else {
         QColor color=colorFromString( style.toString() );
         _state.strokeStyle=color;
@@ -234,9 +388,9 @@ QVariant PHIContext2D::fillStyle() const
 
 void PHIContext2D::setFillStyle( const QVariant &style )
 {
-    if (style.canConvert<PHICanvasGradient>()) {
-        PHICanvasGradient cg=qvariant_cast<PHICanvasGradient>(style);
-        _state.fillStyle=cg.value;
+    if ( style.canConvert<PHICanvasGradient*>() ) {
+        PHICanvasGradient *cg=style.value<PHICanvasGradient*>();
+        _state.fillStyle=cg->gradient();
     } else {
         QColor color=colorFromString( style.toString() );
         _state.fillStyle=color;
@@ -255,16 +409,22 @@ void PHIContext2D::setGlobalAlpha( qreal alpha )
     _state.flags |= DirtyGlobalAlpha;
 }
 
-PHICanvasGradient PHIContext2D::createLinearGradient( qreal x0, qreal y0, qreal x1, qreal y1 )
+PHICanvasGradient* PHIContext2D::createLinearGradient( qreal x0, qreal y0, qreal x1, qreal y1 )
 {
     QLinearGradient g( x0, y0, x1, y1 );
-    return PHICanvasGradient( g );
+    return new PHICanvasGradient( g, this );
 }
 
-PHICanvasGradient PHIContext2D::createRadialGradient( qreal x0, qreal y0, qreal r0, qreal x1, qreal y1, qreal r1 )
+PHICanvasGradient* PHIContext2D::createRadialGradient( qreal x0, qreal y0, qreal r0, qreal x1, qreal y1, qreal r1 )
 {
     QRadialGradient g( QPointF( x1, y1 ), r0+r1, QPointF( x0, y0 ) );
-    return PHICanvasGradient( g );
+    return new PHICanvasGradient( g, this );
+}
+
+PHICanvasGradient* PHIContext2D::createConicalGradient( qreal x, qreal y, qreal angle )
+{
+    QConicalGradient g( x, y, angle );
+    return new PHICanvasGradient( g, this );
 }
 
 qreal PHIContext2D::lineWidth() const
@@ -357,6 +517,22 @@ void PHIContext2D::strokeRect( qreal x, qreal y, qreal w, qreal h )
     scheduleChange();
 }
 
+void PHIContext2D::fillText( const QString &t, qreal x, qreal y )
+{
+    beginPainting();
+    _painter.save();
+    _painter.setMatrix( _state.matrix, false );
+    _painter.setFont( _state.font );
+    _painter.drawText( QPointF( x, y ), t );
+    _painter.restore();
+    scheduleChange();
+}
+
+void PHIContext2D::strokeText( const QString &t, qreal x, qreal y )
+{
+
+}
+
 void PHIContext2D::beginPath()
 {
     _path=QPainterPath();
@@ -441,6 +617,14 @@ void PHIContext2D::arc( qreal xc, qreal yc, qreal radius, qreal sar, qreal ear, 
     QPainterPath path;
     path.moveTo( QPointF( xc+radius*cos( sar ), yc-radius*sin( sar ) ) );
     path.arcTo( xs, ys, width, height, sa, span );
+    path=_state.matrix.map( path );
+    _path.addPath( path );
+}
+
+void PHIContext2D::ellipse( qreal x, qreal y, qreal w, qreal h )
+{
+    QPainterPath path;
+    path.addEllipse( x, y, w, h );
     path=_state.matrix.map( path );
     _path.addPath( path );
 }
@@ -566,11 +750,14 @@ void PHIContext2D::reset()
     _state.shadowOffsetY=0;
     _state.shadowBlur=0;
     _state.shadowColor=qRgba( 0, 0, 0, 0 );
+    _state.textAlign=1; // "start"
+    _state.font=QFont( QStringLiteral( "Helvetica" ) );
+    _state.font.setPixelSize( 10 );
     _state.flags=AllIsFullOfDirt;
     clear();
 }
 
-void PHIContext2D::setSize(int width, int height)
+void PHIContext2D::setSize( int width, int height )
 {
     endPainting();
     QImage newimg( width, height, QImage::Format_ARGB32_Premultiplied );
@@ -627,7 +814,7 @@ void PHIContext2D::drawImage( PHIDomImage *image, qreal sx, qreal sy, qreal sw, 
 
 void PHIContext2D::scheduleChange()
 {
-    if (_changeTimerId == -1) _changeTimerId = startTimer(0);
+    if ( _changeTimerId==-1 ) _changeTimerId=startTimer( 0 );
 }
 
 void PHIContext2D::timerEvent( QTimerEvent *e )

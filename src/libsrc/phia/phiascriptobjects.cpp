@@ -29,6 +29,7 @@
 #include "phisysinfo.h"
 #include "phiascriptevent.h"
 #include "phiascriptitem.h"
+#include "phicontext2d.h"
 
 static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
 {
@@ -67,6 +68,8 @@ PHIAScriptWindowObj::PHIAScriptWindowObj( PHIAWebView *view )
     qScriptRegisterMetaType( _engine, baseItemToScriptValue, baseItemFromScriptValue );
     qScriptRegisterMetaType( _engine, eventToScriptValue, eventFromScriptValue );
     qScriptRegisterMetaType( _engine, scriptItemToScriptValue, scriptItemFromScriptValue );
+    qScriptRegisterMetaType( _engine, context2DToScriptValue, context2DFromScriptValue );
+    qScriptRegisterMetaType( _engine, canvasGradientToScriptValue, canvasGradientFromScriptValue );
 
     QScriptValue global=_engine->globalObject();
     QScriptValue win=_engine->newQObject( this, PHIASCRIPTEXTENSION );

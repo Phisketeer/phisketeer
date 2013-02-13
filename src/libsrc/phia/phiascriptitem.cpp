@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "phiascriptitem.h"
+#include "phicontext2d.h"
 
 QScriptValue scriptItemToScriptValue( QScriptEngine *engine, PHIAScriptItem* const &obj )
 {
@@ -214,4 +215,11 @@ QScriptValue PHIAScriptItem::dropEnabled( const QScriptValue &b )
 {
     if ( !b.isValid() ) return _it->droppable();
     _it->setDropable( b.toBool() ); return self();
+}
+
+QScriptValue PHIAScriptItem::getContext( const QString &space )
+{
+    if ( space.toLower()!="2d" ) return engine()->undefinedValue();
+    if ( !_it->context2D() ) return engine()->undefinedValue();
+    return context2DToScriptValue( engine(), _it->context2D() );
 }
