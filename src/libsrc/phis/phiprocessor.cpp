@@ -541,20 +541,20 @@ void PHIProcessor::createJS( const QString &name ) const
     if ( !dir.exists( file ) ) {
         if ( !dir.mkpath( file ) ) {
             _resp->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
-                QObject::tr( "Could not create temp direcory '%1'.").arg( file ) );
+                QObject::tr( "Could not create temp direcory '%1'." ).arg( file ) );
             return;
         }
     }
     QFile src( QLatin1String( ":/" )+name );
     if ( !src.open( QIODevice::ReadOnly ) ) {
         _resp->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
-            QObject::tr( "Could not read JavaScript file '%1'.").arg( name ) );
+            QObject::tr( "Could not read JavaScript file '%1'." ).arg( name ) );
         return;
     }
     QFile f( file+QDir::separator()+name );
     if ( !f.open( QIODevice::WriteOnly ) ) {
         _resp->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
-            QObject::tr( "Could not write JavaScript file '%1'.").arg( file+QDir::separator()+name ) );
+            QObject::tr( "Could not write JavaScript file '%1'." ).arg( file+QDir::separator()+name ) );
         return;
     }
     if ( name==QLatin1String( "phibase.js" ) ) {
@@ -1017,6 +1017,7 @@ void PHIProcessor::loadPage( PHISPage *&page, QFile *f, bool isMasterPage )
                     else if ( wid==PHI::FACEBOOK_LIKE ) page->setExtension( PHIPage::EHasFacebookLike, true );
                     else if ( wid==PHI::TWITTER ) page->setExtension( PHIPage::EHasTwitter, true );
                     else if ( wid==PHI::GOOGLE_PLUS ) page->setExtension( PHIPage::EHasGooglePlus, true );
+                    else if ( wid==PHI::CANVAS ) page->setExtension( PHIPage::EHasCanvas, true );
                 } catch ( std::bad_alloc& ) {
                     delete page;
                     page=0;
@@ -1032,6 +1033,7 @@ void PHIProcessor::loadPage( PHISPage *&page, QFile *f, bool isMasterPage )
         if ( !QFile::exists( file ) ) {
             createJS( QStringLiteral( "phibase.js" ) );
             createJS( QStringLiteral( "jquery.js" ) );
+            createJS( QStringLiteral( "excanvas.js" ) );
             createJS( QStringLiteral( "ui-core.js" ) );
             createJS( QStringLiteral( "ui-widget.js" ) );
             createJS( QStringLiteral( "ui-datepicker.js" ) );

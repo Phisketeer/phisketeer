@@ -55,13 +55,32 @@ Q_DECLARE_METATYPE( PHICanvasGradient* )
 PHIEXPORT QScriptValue canvasGradientToScriptValue( QScriptEngine*, PHICanvasGradient* const &in );
 PHIEXPORT void canvasGradientFromScriptValue( const QScriptValue&, PHICanvasGradient* &out );
 
-//class ImageData {
-//};
+class PHIImageData
+{
+};
+
+Q_DECLARE_METATYPE( PHIImageData )
+
+class PHIEXPORT PHIDomRect // used for measureText()
+{
+public:
+    explicit PHIDomRect( const QRect &r ) : _rect( r ) {}
+    explicit PHIDomRect() {}
+    inline int width() const { return _rect.width(); }
+    inline void setWidth( int w ) { _rect.setWidth( w ); }
+
+private:
+    QRect _rect;
+};
+
+Q_DECLARE_METATYPE( PHIDomRect )
+
+PHIEXPORT QScriptValue domRectToScriptValue( QScriptEngine*, const PHIDomRect &in );
+PHIEXPORT void domRectFromScriptValue( const QScriptValue&, PHIDomRect &out );
 
 class PHIEXPORT PHIContext2D : public QObject
 {
     Q_OBJECT
-
     Q_PROPERTY( qreal globalAlpha READ globalAlpha WRITE setGlobalAlpha )
     Q_PROPERTY( QString globalCompositeOperation READ globalCompositeOperation WRITE setGlobalCompositeOperation )
     Q_PROPERTY( QVariant strokeStyle READ strokeStyle WRITE setStrokeStyle )
@@ -139,8 +158,9 @@ public slots:
     void fillRect( qreal x, qreal y, qreal w, qreal h);
     void strokeRect( qreal x, qreal y, qreal w, qreal h);
 
-    void fillText( const QString &t, qreal x, qreal y );
-    void strokeText( const QString &t, qreal x, qreal y );
+    void fillText( const QString &t, qreal x, qreal y, qreal maxwidth=-1. );
+    void strokeText( const QString &t, qreal x, qreal y, qreal maxwidth=-1. );
+    PHIDomRect measureText( const QString &t );
 
     void beginPath();
     void closePath();
@@ -161,8 +181,8 @@ public slots:
     void drawImage( PHIDomImage *image, qreal dx, qreal dy, qreal dw, qreal dh );
     void drawImage( PHIDomImage *image, qreal sx, qreal sy, qreal sw, qreal sh, qreal dx, qreal dy, qreal dw, qreal dh );
 
-    //ImageData getImageData( qreal sx, qreal sy, qreal sw, qreal sh );
-    //void putImageData( ImageData image, qreal dx, qreal dy );
+    PHIImageData getImageData( qreal sx, qreal sy, qreal sw, qreal sh );
+    void putImageData( PHIImageData image, qreal dx, qreal dy );
 
 signals:
     void changed( const QImage &image );

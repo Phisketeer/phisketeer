@@ -86,6 +86,7 @@ protected:
     virtual void youtubeVideo() const;
     virtual void facebookLikeButton() const;
     virtual void googlePlusButton() const;
+    virtual void canvas() const;
 };
 
 #endif // PHISHTMLGENERIC_H

@@ -151,6 +151,7 @@ private:
     virtual QByteArray phiTwitterScript() const;
     virtual QByteArray phiFacebookScript() const;
     virtual QByteArray phiGooglePlusScript() const;
+    virtual QByteArray phiCanvasScript() const;
     virtual QByteArray formAction() const;
 
     virtual QImage blurEffectImage( const QImage &img ) const;
@@ -203,6 +204,7 @@ private:
     virtual void youtubeVideo() const=0;
     virtual void facebookLikeButton() const=0;
     virtual void googlePlusButton() const=0;
+    virtual void canvas() const=0;
 
     void createHtmlForItem();
     void createLayout();

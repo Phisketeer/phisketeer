@@ -70,6 +70,7 @@ PHIAScriptWindowObj::PHIAScriptWindowObj( PHIAWebView *view )
     qScriptRegisterMetaType( _engine, scriptItemToScriptValue, scriptItemFromScriptValue );
     qScriptRegisterMetaType( _engine, context2DToScriptValue, context2DFromScriptValue );
     qScriptRegisterMetaType( _engine, canvasGradientToScriptValue, canvasGradientFromScriptValue );
+    qScriptRegisterMetaType( _engine, domRectToScriptValue, domRectFromScriptValue );
 
     QScriptValue global=_engine->globalObject();
     QScriptValue win=_engine->newQObject( this, PHIASCRIPTEXTENSION );

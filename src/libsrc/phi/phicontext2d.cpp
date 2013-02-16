@@ -21,6 +21,8 @@
 */
 #include <QVariant>
 #include <QScriptEngine>
+#include <QRect>
+#include <QFontMetrics>
 #include <math.h>
 #include "phicontext2d.h"
 
@@ -190,7 +192,7 @@ static int stringToTextAlign( const QString &s )
 
 QScriptValue canvasGradientToScriptValue( QScriptEngine *engine, PHICanvasGradient* const &obj )
 {
-    return engine->newQObject( obj, QScriptEngine::QtOwnership,
+    return engine->newQObject( obj, QScriptEngine::ScriptOwnership,
         QScriptEngine::PreferExistingWrapperObject | QScriptEngine::SkipMethodsInEnumeration |
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
 }
@@ -204,6 +206,18 @@ PHICanvasGradient* PHICanvasGradient::addColorStop( qreal offset, const QString 
 {
     _gradient.setColorAt( offset, colorFromString( color ) );
     return this;
+}
+
+QScriptValue domRectToScriptValue( QScriptEngine *engine, const PHIDomRect &obj )
+{
+    QScriptValue sv=engine->newObject();
+    sv.setProperty( QStringLiteral( "width" ), obj.width() );
+    return sv;
+}
+
+void domRectFromScriptValue( const QScriptValue &obj, PHIDomRect &it )
+{
+    it.setWidth( obj.property( QStringLiteral( "width" ) ).toInt32() );
 }
 
 QScriptValue context2DToScriptValue( QScriptEngine *engine, PHIContext2D* const &obj )
@@ -517,20 +531,83 @@ void PHIContext2D::strokeRect( qreal x, qreal y, qreal w, qreal h )
     scheduleChange();
 }
 
-void PHIContext2D::fillText( const QString &t, qreal x, qreal y )
+void PHIContext2D::fillText( const QString &t, qreal x, qreal y, qreal maxwidth )
 {
+    Q_UNUSED( maxwidth )
+    QFontMetrics fm( _state.font, _painter.device() );
+    int w=fm.boundingRect( t ).width();
+    if ( qApp->isRightToLeft() ) { // locales with text from right to left
+        switch ( _state.textAlign ) {
+        case 1: x=x-w; break; // start
+        case 2: break; // end
+        case 3: break; // left
+        case 4: x=x-w; // right
+        case 5: x=x-w/2; // center
+        }
+    } else { // standard left to right
+        switch( _state.textAlign ) {
+        case 1: break; // start
+        case 2: x=x-w; // end
+        case 3: break; // left
+        case 4: x=x-w; // right
+        case 5: x=x-w/2; // center
+        }
+    }
     beginPainting();
     _painter.save();
+    _painter.setRenderHint( QPainter::Antialiasing, true );
     _painter.setMatrix( _state.matrix, false );
     _painter.setFont( _state.font );
+    QPen pen=_painter.pen();
+    pen.setBrush( _state.fillStyle );
+    _painter.setPen( pen );
     _painter.drawText( QPointF( x, y ), t );
     _painter.restore();
     scheduleChange();
 }
 
-void PHIContext2D::strokeText( const QString &t, qreal x, qreal y )
+void PHIContext2D::strokeText(const QString &t, qreal x, qreal y , qreal maxwidth )
 {
+    Q_UNUSED( maxwidth )
+    QFontMetrics fm( _state.font, _painter.device() );
+    int w=fm.boundingRect( t ).width();
+    if ( qApp->isRightToLeft() ) { // locales with text from right to left
+        switch ( _state.textAlign ) {
+        case 1: x=x-w; break; // start
+        case 2: break; // end
+        case 3: break; // left
+        case 4: x=x-w; // right
+        case 5: x=x-w/2; // center
+        }
+    } else { // standard left to right
+        switch( _state.textAlign ) {
+        case 1: break; // start
+        case 2: x=x-w; // end
+        case 3: break; // left
+        case 4: x=x-w; // right
+        case 5: x=x-w/2; // center
+        }
+    }
+    beginPainting();
+    _painter.save();
+    _painter.setRenderHint( QPainter::Antialiasing, true );
+    _painter.setMatrix( _state.matrix, false );
+    _painter.setBrush( Qt::NoBrush );
+    QPainterPath path;
+    path.addText( x, y, _state.font, t );
+    QPen pen=_painter.pen();
+    pen.setColor( _state.strokeStyle.color() );
+    _painter.setPen( pen );
+    _painter.drawPath( path );
+    _painter.restore();
+    scheduleChange();
+}
 
+PHIDomRect PHIContext2D::measureText( const QString &t )
+{
+    QFontMetrics fm( _state.font, _painter.device() );
+    PHIDomRect rect( fm.boundingRect( t ) );
+    return rect;
 }
 
 void PHIContext2D::beginPath()
@@ -658,23 +735,23 @@ bool PHIContext2D::isPointInPath( qreal x, qreal y ) const
     return _path.contains( QPointF( x, y ) );
 }
 
-/*
-ImageData PHIContext2D::getImageData(qreal sx, qreal sy, qreal sw, qreal sh)
+
+PHIImageData PHIContext2D::getImageData( qreal sx, qreal sy, qreal sw, qreal sh )
 {
- Q_UNUSED(sx);
- Q_UNUSED(sy);
- Q_UNUSED(sw);
- Q_UNUSED(sh);
- return ImageData();
+    // Not yet implemented
+    Q_UNUSED(sx);
+    Q_UNUSED(sy);
+    Q_UNUSED(sw);
+    Q_UNUSED(sh);
+    return PHIImageData();
 }
 
-void PHIContext2D::putImageData(ImageData image, qreal dx, qreal dy)
+void PHIContext2D::putImageData( PHIImageData image, qreal dx, qreal dy )
 {
- Q_UNUSED(image);
- Q_UNUSED(dx);
- Q_UNUSED(dy);
+    Q_UNUSED(image);
+    Q_UNUSED(dx);
+    Q_UNUSED(dy);
 }
-*/
 
 PHIContext2D::PHIContext2D( QObject *parent )
     : QObject( parent ), _changeTimerId(-1)
@@ -708,7 +785,7 @@ void PHIContext2D::beginPainting()
         _painter.setPen( pen );
     } else {
         if ( (_state.flags & DirtyClippingRegion) && !_state.clipPath.isEmpty() )
-            _painter.setClipPath(_state.clipPath);
+            _painter.setClipPath( _state.clipPath );
         if ( _state.flags & DirtyFillStyle ) _painter.setBrush( _state.fillStyle );
         if ( _state.flags & DirtyGlobalAlpha )_painter.setOpacity( _state.globalAlpha );
         if ( _state.flags & DirtyGlobalCompositeOperation )

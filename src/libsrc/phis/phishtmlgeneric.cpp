@@ -833,6 +833,13 @@ void PHISHtmlGeneric::twitterButton() const
     _out+="\" class=\"twitter-share-button\">Tweet</a></div>\n";
 }
 
+void PHISHtmlGeneric::canvas() const
+{
+    _out+=_indent+"<canvas"+id()+startStyle()+effectStyle()
+        +"\" width=\""+QByteArray::number( _it->width() )+"\" height=\""
+        +QByteArray::number( _it->height() )+"\"></canvas>\n";
+}
+
 void PHISHtmlGeneric::youtubeVideo() const
 {
     QByteArray val=_it->valueData();

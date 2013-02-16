@@ -107,6 +107,7 @@ void PHISHtmlBase::createHtmlForItem()
     case PHI::GOOGLE_STATIC_MAP: return staticGoogleMaps();
     case PHI::PROGRESSBAR: return progressBar();
     case PHI::YOUTUBE: return youtubeVideo();
+    case PHI::CANVAS: return canvas();
 
     // unused:
     case PHI::VSPACE:
@@ -217,6 +218,15 @@ void PHISHtmlBase::jQueryItemSetup() const
         if ( _it->dropHighlightItem() ) _jquery+="hoverClass:'ui-state-hover',";
         _jquery+="tolerance:'pointer'});\n";
     }
+}
+
+QByteArray PHISHtmlBase::phiCanvasScript() const
+{
+    static QByteArray arr="\t<script type=\"text/javascript\" src=\"/phi.phis?phijs=excanvas\"></script>\n";
+    if ( _req->agentEngine()==PHISRequest::Trident ) {
+        if ( _req->engineMajorVersion()<5 ) return arr; // Trident 5 = MSIE 9
+    }
+    return QByteArray();
 }
 
 QByteArray PHISHtmlBase::phiProgressBarScript() const
@@ -495,6 +505,7 @@ QByteArray PHISHtmlBase::createHtmlCode()
     if ( !_p->keywords().isEmpty() ) _out+="\t<meta name=\"keywords\" content=\""+_p->keywords().toUtf8()+_endtag;
     if ( !_p->openGraph().isEmpty() ) _out+=createOpenGraph();
     _out+="\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?phicss="+_p->pageId()+_endtag;
+    if ( _p->extensions() & PHIPage::EHasCanvas ) _out+=phiCanvasScript();
     _out+=jQueryScript();
     _out+=phiBaseScript();
     if ( _p->attributes() & PHIPage::AUsejQueryUI ) {
