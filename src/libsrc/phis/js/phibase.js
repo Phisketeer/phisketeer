@@ -25,6 +25,7 @@ function PhiItem( obj ) {
     e.pageY=e.pageY-parseInt(o.top+0.5);
     return e;
   };
+  //this.getContext=function(s){return phi.getElementById(obj.id).getContext(s);};
   this.on=function(e,f){j(id).on(e,f);return this;};
   this.off=function(e,f){j(id).off(e,f);return this;};
   this.trigger=function(f,a){if(typeof(f)!=='string')return this;j(id).trigger(f,a);return this;};
