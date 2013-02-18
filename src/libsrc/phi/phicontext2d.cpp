@@ -22,7 +22,7 @@
 #include <QVariant>
 #include <QScriptEngine>
 #include <QRect>
-#include <QFontMetrics>
+#include <QFontMetricsF>
 #include <math.h>
 #include "phicontext2d.h"
 
@@ -169,7 +169,29 @@ static QString compositeOperatorToString( QPainter::CompositionMode op )
     return QString();
 }
 
-static QString textAlignToString( int a )
+static QString textBaselineToString( qint8 a )
+{
+    switch ( a ) {
+    case 2: return QStringLiteral( "middle" );
+    case 3: return QStringLiteral( "top" );
+    case 4: return QStringLiteral( "bottom" );
+    case 5: return QStringLiteral( "hanging" );
+    case 6: return QStringLiteral( "ideographic" );
+    }
+    return QStringLiteral( "alphabetic" );
+}
+
+static qint8 stringToTextBaseline( const QString &s )
+{
+    if ( s==QLatin1String( "middle" ) ) return 2;
+    if ( s==QLatin1String( "top" ) ) return 3;
+    if ( s==QLatin1String( "bottom" ) ) return 4;
+    if ( s==QLatin1String( "hanging" ) ) return 5;
+    if ( s==QLatin1String( "ideographic" ) ) return 6;
+    return 1;
+}
+
+static QString textAlignToString( qint8 a )
 {
     switch ( a ) {
     case 2: return QStringLiteral( "end" );
@@ -180,14 +202,13 @@ static QString textAlignToString( int a )
     return QStringLiteral( "start" );
 }
 
-static int stringToTextAlign( const QString &s )
+static qint8 stringToTextAlign( const QString &s )
 {
-    if ( s==QLatin1String( "start" ) ) return 1;
     if ( s==QLatin1String( "end" ) ) return 2;
     if ( s==QLatin1String( "left" ) ) return 3;
     if ( s==QLatin1String( "right" ) ) return 4;
     if ( s==QLatin1String( "center" ) ) return 5;
-    return 0;
+    return 1;
 }
 
 QScriptValue canvasGradientToScriptValue( QScriptEngine *engine, PHICanvasGradient* const &obj )
@@ -239,10 +260,23 @@ QString PHIContext2D::textAlign() const
 
 void PHIContext2D::setTextAlign( const QString &s )
 {
-    int a=stringToTextAlign( s );
-    if ( a==0 || _state.textAlign==a ) return;
+    qint8 a=stringToTextAlign( s );
+    if ( _state.textAlign==a ) return;
     _state.textAlign=a;
     _state.flags |= DirtyTextAlign;
+}
+
+QString PHIContext2D::textBaseline() const
+{
+    return textBaselineToString( _state.textBaseline );
+}
+
+void PHIContext2D::setTextBaseline( const QString &s )
+{
+    qint8 a=stringToTextBaseline( s );
+    if ( _state.textBaseline==a ) return;
+    _state.textBaseline=a;
+    _state.flags |= DirtyTextBaseline;
 }
 
 QString PHIContext2D::font() const
@@ -533,16 +567,16 @@ void PHIContext2D::strokeRect( qreal x, qreal y, qreal w, qreal h )
 
 void PHIContext2D::fillText( const QString &t, qreal x, qreal y, qreal maxwidth )
 {
-    Q_UNUSED( maxwidth )
-    QFontMetrics fm( _state.font, _painter.device() );
-    int w=fm.boundingRect( t ).width();
+    Q_UNUSED( maxwidth ) // (FIXME)
+    QFontMetricsF fm( _state.font, _painter.device() );
+    qreal w=fm.boundingRect( t ).width();
     if ( qApp->isRightToLeft() ) { // locales with text from right to left
         switch ( _state.textAlign ) {
         case 1: x=x-w; break; // start
         case 2: break; // end
         case 3: break; // left
         case 4: x=x-w; // right
-        case 5: x=x-w/2; // center
+        case 5: x=x-w/2.; // center
         }
     } else { // standard left to right
         switch( _state.textAlign ) {
@@ -550,8 +584,16 @@ void PHIContext2D::fillText( const QString &t, qreal x, qreal y, qreal maxwidth 
         case 2: x=x-w; // end
         case 3: break; // left
         case 4: x=x-w; // right
-        case 5: x=x-w/2; // center
+        case 5: x=x-w/2.; // center
         }
+    }
+    switch ( _state.textBaseline ) {
+    case 1: break; // alphabetic
+    case 2: y=y-fm.descent()-1+fm.height()/2.; break; // middle
+    case 3: y=y-fm.descent()-1+fm.height(); break; // top
+    case 4: y=y-fm.descent(); break; // bottom
+    case 5: y=y-fm.descent()-3+fm.height(); break; // hanging (FIXME)
+    case 6: y=y+2; break; // ideographic (FIXME)
     }
     beginPainting();
     _painter.save();
@@ -566,18 +608,18 @@ void PHIContext2D::fillText( const QString &t, qreal x, qreal y, qreal maxwidth 
     scheduleChange();
 }
 
-void PHIContext2D::strokeText(const QString &t, qreal x, qreal y , qreal maxwidth )
+void PHIContext2D::strokeText( const QString &t, qreal x, qreal y , qreal maxwidth )
 {
     Q_UNUSED( maxwidth )
-    QFontMetrics fm( _state.font, _painter.device() );
-    int w=fm.boundingRect( t ).width();
+    QFontMetricsF fm( _state.font, _painter.device() );
+    qreal w=fm.boundingRect( t ).width();
     if ( qApp->isRightToLeft() ) { // locales with text from right to left
         switch ( _state.textAlign ) {
         case 1: x=x-w; break; // start
         case 2: break; // end
         case 3: break; // left
         case 4: x=x-w; // right
-        case 5: x=x-w/2; // center
+        case 5: x=x-w/2.; // center
         }
     } else { // standard left to right
         switch( _state.textAlign ) {
@@ -585,8 +627,16 @@ void PHIContext2D::strokeText(const QString &t, qreal x, qreal y , qreal maxwidt
         case 2: x=x-w; // end
         case 3: break; // left
         case 4: x=x-w; // right
-        case 5: x=x-w/2; // center
+        case 5: x=x-w/2.; // center
         }
+    }
+    switch ( _state.textBaseline ) {
+    case 1: break; // alphabetic
+    case 2: y=y-fm.descent()-1+fm.height()/2.; break; // middle
+    case 3: y=y-fm.descent()-1+fm.height(); break; // top
+    case 4: y=y-fm.descent(); break; // bottom
+    case 5: y=y-fm.descent()-3+fm.height(); break; // hanging (FIXME)
+    case 6: y=y+2; break; // ideographic (FIXME)
     }
     beginPainting();
     _painter.save();
@@ -828,6 +878,7 @@ void PHIContext2D::reset()
     _state.shadowBlur=0;
     _state.shadowColor=qRgba( 0, 0, 0, 0 );
     _state.textAlign=1; // "start"
+    _state.textBaseline=1; // "alphabetic"
     _state.font=QFont( QStringLiteral( "Helvetica" ) );
     _state.font.setPixelSize( 10 );
     _state.flags=AllIsFullOfDirt;

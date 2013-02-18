@@ -94,6 +94,7 @@ class PHIEXPORT PHIContext2D : public QObject
     Q_PROPERTY( qreal shadowBlur READ shadowBlur WRITE setShadowBlur )
     Q_PROPERTY( QString shadowColor READ shadowColor WRITE setShadowColor )
     Q_PROPERTY( QString textAlign READ textAlign WRITE setTextAlign )
+    Q_PROPERTY( QString textBaseline READ textBaseline WRITE setTextBaseline )
     Q_PROPERTY( QString font READ font WRITE setFont )
 
 public:
@@ -119,14 +120,16 @@ public:
     QString lineCap() const; // "butt", "round", "square" (default "butt")
     QString lineJoin() const; // "round", "bevel", "miter" (default "miter")
     qreal miterLimit() const; // (default 10)
-    QString textAlign() const;
-    QString font() const;
+    QString textAlign() const; // "start" "left" "end" "right" "center" (default "start")
+    QString textBaseline() const; // "top" "hanging" "middle" "alphabetic" "ideographic" "bottom"
+    QString font() const; // (default "10px Helvetica")
 
     void setLineWidth( qreal w );
     void setLineCap( const QString &s );
     void setLineJoin( const QString &s );
     void setMiterLimit( qreal m );
     void setTextAlign( const QString &s );
+    void setTextBaseline( const QString &s );
     void setFont( const QString &f );
 
     qreal shadowOffsetX() const; // (default 0)
@@ -243,8 +246,8 @@ private:
         QColor shadowColor;
         QPainter::CompositionMode globalCompositeOperation;
         QFont font;
-        int textAlign;
-        int textBaseline;
+        qint8 textAlign;
+        qint8 textBaseline;
         int flags;
     };
     State _state;
