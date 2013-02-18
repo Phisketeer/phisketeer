@@ -94,7 +94,7 @@ QT = gui core network sql svg script
 INCLUDEPATH += ../phi
 DEFINES += PHISLIB PHIVERSION=\\\"$$VERSION\\\"
 RESOURCES += phis.qrc
-OTHER_FILES += js/phibase.js
+OTHER_FILES += js/phibase.js js/excanvas.js
 
 win32 { 
     LIBS = -L../../../bin phi1.lib

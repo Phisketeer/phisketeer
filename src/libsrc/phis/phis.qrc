@@ -27,7 +27,6 @@
         <file alias="ui-mouse.js">js/jquery.ui.mouse.min.js</file>
         <file alias="ui-progressbar.js">js/jquery.ui.progressbar.min.js</file>
         <file alias="ui-effects.js">js/jquery.ui.effect.min.js</file>
-        <file alias="excanvas_r3.js">js/excanvas_r3.js</file>
         <file alias="excanvas.js">js/excanvas.js</file>
     </qresource>
     <qresource prefix="/gnome">

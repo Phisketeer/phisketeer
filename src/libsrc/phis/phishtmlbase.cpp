@@ -505,7 +505,6 @@ QByteArray PHISHtmlBase::createHtmlCode()
     if ( !_p->keywords().isEmpty() ) _out+="\t<meta name=\"keywords\" content=\""+_p->keywords().toUtf8()+_endtag;
     if ( !_p->openGraph().isEmpty() ) _out+=createOpenGraph();
     _out+="\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?phicss="+_p->pageId()+_endtag;
-    if ( _p->extensions() & PHIPage::EHasCanvas ) _out+=phiCanvasScript();
     _out+=jQueryScript();
     _out+=phiBaseScript();
     if ( _p->attributes() & PHIPage::AUsejQueryUI ) {
@@ -515,6 +514,7 @@ QByteArray PHISHtmlBase::createHtmlCode()
     if ( _p->extensions() & PHIPage::EHasFacebookLike ) _out+=phiFacebookScript();
     if ( _p->extensions() & PHIPage::EHasTwitter ) _out+=phiTwitterScript();
     if ( _p->extensions() & PHIPage::EHasGooglePlus ) _out+=phiGooglePlusScript();
+    if ( _p->extensions() & PHIPage::EHasCanvas ) _out+=phiCanvasScript();
     if ( _p->attributes() & PHIPage::AIcon ) _out+="\t<link rel=\"shortcut icon\" href="
         "\"/phi.phis?phiimg="+_p->pageId()+".ico&amp;phitmp=1"+_endtag;
 
@@ -594,7 +594,8 @@ QByteArray PHISHtmlBase::createHtmlCode()
     else if ( useObjTag==1 ) _out+=postProcessPhiObjectJS();
     _out+="jQuery(function($){\n";
     _out+=_jquery;
-    _out+="\tphi.onload();\n";
+    //_out+="\tphi.onload();\n";
+    _out+="\t$(window).on('load',phi.onload);\n";
     _out+="});\n";
     _out+=_js;
     _out+='\n';
