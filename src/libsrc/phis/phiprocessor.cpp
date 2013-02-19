@@ -804,7 +804,7 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
     Q_ASSERT( _resp->contentLength()==0 );
     QScriptEngine engine( p );
     qScriptRegisterMetaType( &engine, baseItemToScriptValue, baseItemFromScriptValue );
-    new PHISGlobalScriptObj( _req, &engine, _db );
+    new PHISGlobalScriptObj( p, _req, _db, &engine );
     QScriptValue doc=engine.newQObject( p, QScriptEngine::QtOwnership,
         QScriptEngine::PreferExistingWrapperObject |
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
@@ -834,15 +834,16 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
         smmap.insert( PHIPage::SReply, QStringLiteral( "reply" ) );
         smmap.insert( PHIPage::SDatabase, QStringLiteral( "sql" ) );
         QString key;
+        PHISInterface *phisif=new PHISInterface( _req, p, _db );
         factory->lock(); //locking for read
         foreach( PHIPage::ScriptModule sm, smmap.keys() ) {
             PHISModule *mod(0);
             key=smmap.value( sm );
             if ( p->scriptModules() & sm ) mod=factory->module( key );
             if ( !mod ) continue;
-            PHISScriptObj *obj=mod->create( key, new PHISInterface( _req, &engine, _db ) );
+            PHISScriptObj *obj=mod->create( key, phisif );
             if ( obj ) {
-                obj->initObject( key );
+                obj->initObject( &engine, key );
                 _resp->log( PHILOGWARN, PHIRC_MODULE_DEPRECATED,
                     QObject::tr( "The page '%1' is using the old module interface.\n"
                     "Please switch to the dynamic module loading by using\n\"loadModule('%2');\""

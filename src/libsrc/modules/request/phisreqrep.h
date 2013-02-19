@@ -63,7 +63,7 @@ class PHISRequestObj : public PHISScriptObj
 
 public:
     explicit PHISRequestObj( const PHISInterface *interface ) : PHISScriptObj( interface ) {}
-    virtual QScriptValue initObject( const QString &key );
+    virtual QScriptValue initObject( QScriptEngine *engine, const QString &key );
 
 public slots:
     inline QString contentType() const { return PHIS_IF()->contentType(); }

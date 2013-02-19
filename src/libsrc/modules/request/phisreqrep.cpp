@@ -21,10 +21,9 @@
 
 QString PHISReplyObj::_slash=QStringLiteral( "/" );
 
-QScriptValue PHISRequestObj::initObject( const QString &mod )
+QScriptValue PHISRequestObj::initObject( QScriptEngine *engine, const QString &mod )
 {
-    QScriptValue request=PHISScriptObj::initObject( mod );
-    QScriptEngine *engine=PHIS_IF()->scriptEngine();
+    QScriptValue request=PHISScriptObj::initObject( engine, mod );
     QScriptValue arr=engine->newArray();
     QStringList values, keys;
     QString value, key, props=QStringLiteral( "properties" );

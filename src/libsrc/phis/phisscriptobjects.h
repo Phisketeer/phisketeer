@@ -23,19 +23,15 @@
 #include <QScriptEngine>
 #include <QSqlDatabase>
 #include "phisrequest.h"
-
-class PHISPrivateArgs;
+#include "phibasepage.h"
 
 class PHISGlobalScriptObj : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit PHISGlobalScriptObj( const PHISRequest *req, QScriptEngine *e, const QSqlDatabase &db );
+    explicit PHISGlobalScriptObj( PHIBasePage*, const PHISRequest *req, const QSqlDatabase &db, QScriptEngine* );
     virtual ~PHISGlobalScriptObj();
-
-private:
-    PHISPrivateArgs *_args;
 };
 
 #endif // PHISSCRIPTOBJECTS_H

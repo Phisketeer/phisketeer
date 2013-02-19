@@ -27,6 +27,7 @@
 #include <QSqlDatabase>
 #include "phisrequest.h"
 #include "phi.h"
+#include "phibasepage.h"
 
 #ifdef PHISLIB
 #define PHIS_EXPORT Q_DECL_EXPORT
@@ -50,11 +51,10 @@ class PHIS_EXPORT PHISInterface : public QObject
     Q_DISABLE_COPY( PHISInterface )
     friend class PHIProcessor;
     friend class PHISGlobalScriptObj;
-    friend QScriptValue loadModule( QScriptContext*, QScriptEngine*, void* );
 
 protected:
-    explicit PHISInterface( const PHISRequest *req, QScriptEngine *engine, const QSqlDatabase &db )
-        : QObject( engine ), _req( req ), _db( db ), _d(0) {}
+    explicit PHISInterface( const PHISRequest *req, PHIBasePage *page, const QSqlDatabase &db,
+        PHISInterfacePrivate *ifp=0 ) : QObject( page ), _req( req ), _db( db ), _d( ifp ) {}
 
 private:
     const PHISRequest *_req;
@@ -63,8 +63,8 @@ private:
 
 public:
     enum LogType { LTWarning, LTError, LTCritical, LTUser, LTDebug, LTTrace };
-    inline QScriptEngine* scriptEngine() const { return qobject_cast<QScriptEngine*>(parent()); }
     inline QSqlDatabase database() const { return _db; }
+    inline PHIBasePage* document() const { return qobject_cast<PHIBasePage*>(parent()); }
     void log( LogType, const char *file, int line, const QDateTime &dt, const QString &message ) const;
     void deprecated( const char *file, int line, const QDateTime &dt, const QString &message ) const;
     void setContentType( const QByteArray &contenttype ) const;
@@ -144,9 +144,10 @@ class PHIS_EXPORT PHISScriptObj : public QObject
     Q_PROPERTY( QStringList properties READ properties )
 
 public:
-    explicit PHISScriptObj( const PHISInterface *interf ) : _if( interf ) {}
+    explicit PHISScriptObj( const PHISInterface *interf )
+        : QObject( interf->document() ), _if( interf ) {}
     inline virtual quint32 version() const { return 0x00010000; }
-    virtual QScriptValue initObject( const QString &key );
+    virtual QScriptValue initObject( QScriptEngine *engine, const QString &key );
 
 public slots:
     inline QStringList properties() const { return PHI::properties( this ); }
@@ -190,12 +191,12 @@ inline void PHISInterface::deprecated( const char* file, int line, const QDateTi
     _req->responseRec()->log( 0x04, file, line, dt, PHIRC_MODULE_DEPRECATED, m );
 }
 
-inline QScriptValue PHISScriptObj::initObject( const QString &key )
+inline QScriptValue PHISScriptObj::initObject( QScriptEngine *engine, const QString &key )
 {
-    QScriptValue sv=PHIS_IF()->scriptEngine()->newQObject( this,
+    QScriptValue sv=engine->newQObject( this,
         QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject |
         QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater );
-    PHIS_IF()->scriptEngine()->globalObject().setProperty( key, sv );
+    engine->globalObject().setProperty( key, sv );
     return sv;
 }
 

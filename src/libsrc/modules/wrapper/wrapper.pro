@@ -15,5 +15,8 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS += email system request sql wrapper
-TEMPLATE = subdirs
+include( ../module.pri )
+HEADERS += phiswrapper.h
+SOURCES += phiswrapper.cpp
+TARGET = phiswrapper
+OTHER_FILES = phiswrapper.json

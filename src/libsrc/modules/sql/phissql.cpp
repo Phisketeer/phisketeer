@@ -20,7 +20,7 @@
 #include "phissql.h"
 
 PHISSqlObj::PHISSqlObj( const PHISInterface *interf )
-    : PHISScriptObj( interf ), _query( interf->database() )
+    : PHISScriptObj( interf ), _query( interf->database() ), _engine( 0 )
 {
     qDebug( "PHISSqlObj::PHISSqlObj()" );
     _query.setForwardOnly( true );
@@ -32,12 +32,17 @@ PHISSqlObj::PHISSqlObj( const PHISInterface *interf )
     }
 }
 
+QScriptValue PHISSqlObj::initObject( QScriptEngine *engine, const QString &key )
+{
+    _engine=engine; // needed for clone()
+    return PHISScriptObj::initObject( engine, key );
+}
+
 QScriptValue PHISSqlObj::clone() const
 {
-    QScriptEngine *engine=PHIS_IF()->scriptEngine();
-    Q_ASSERT( engine );
+    Q_ASSERT( _engine );
     PHISSqlObj *clone=new PHISSqlObj( PHIS_IF() );
-    return engine->newQObject( clone, QScriptEngine::ScriptOwnership,
+    return _engine->newQObject( clone, QScriptEngine::ScriptOwnership,
         QScriptEngine::PreferExistingWrapperObject
         | QScriptEngine::ExcludeSuperClassMethods
         | QScriptEngine::ExcludeDeleteLater );

@@ -68,8 +68,12 @@ public slots:
     QList<QVariant> values() const;
     QScriptValue clone() const;
 
+protected:
+    virtual QScriptValue initObject( QScriptEngine *engine, const QString &key );
+
 private:
     mutable QSqlQuery _query;
+    QScriptEngine *_engine;
 };
 
 inline PHISScriptObj* PHISEmailModule::create( const QString &key, const PHISInterface *interface ) const

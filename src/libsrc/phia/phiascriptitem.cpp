@@ -151,10 +151,10 @@ QScriptValue PHIAScriptItem::title( const QString &t )
     return self();
 }
 
-QScriptValue PHIAScriptItem::pos( const QScriptValue &t, const QScriptValue &l )
+QScriptValue PHIAScriptItem::pos( const QScriptValue &l, const QScriptValue &t )
 {
-    if ( t.isValid() ) {
-        _it->setPos( QPointF( t.toInt32(), l.toInt32() ) );
+    if ( l.isValid() ) {
+        _it->setPos( QPointF( l.toInt32(), t.toInt32() ) );
         return self();
     }
     QScriptValue obj=engine()->newObject();
