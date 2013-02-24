@@ -107,7 +107,7 @@ QDataStream& operator<<( QDataStream &ds, const PHIPage *p )
         qDebug( "writing icon" );
         ds << p->_image;
     }
-    if ( p->_attributes & PHIPage::AExtensions ) {
+    if ( p->_attributes & PHIPage::AExtensions ) { // allways set
         qDebug( "writing extensions" );
         ds << static_cast<qint32>(p->_extensions) << p->_extensionData;
     }
@@ -147,7 +147,7 @@ QDataStream& operator>>( QDataStream &ds, PHIPage *p )
     //qDebug( "image" );
     if ( p->_attributes & PHIPage::AIcon ) ds >> p->_image;
     else p->_image=QImage();
-    if ( p->_attributes & PHIPage::AExtensions ) {
+    if ( p->_attributes & PHIPage::AExtensions ) { // allways set
         ds >> flags >> p->_extensionData;
     } else {
         flags=0;

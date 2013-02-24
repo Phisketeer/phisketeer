@@ -50,10 +50,10 @@ public:
         ANoSystemCSS=0x80000, AHasCalendar=0x100000, APhiNoObjectTag=0x200000,
         ADbSettingsFromFile=0x400000, ANoUiCSS=0x800000, AHasDragDrop=0x1000000,
         AForceHtmlOutput=0x2000000, ADocumentLeft=0x4000000, AUseOpenGraph=0x8000000,
-        ANoUnderlineLinks=0x10000000 }; // qint32
+        ANoUnderlineLinks=0x10000000, ABgImage=0x20000000, AMax=0x40000000 }; // qint32
 
     enum ScriptModule { SNone=0x0, SDatabase=0x1, SFile=0x2, SSystem=0x4, SProcess=0x8,
-        SServer=0x10, SRequest=0x20, SEmail=0x40, SReply=0x80, SAll=0xFFFF }; // qint32
+        SServer=0x10, SRequest=0x20, SEmail=0x40, SReply=0x80, SAll=0xFFFF }; // qint32 (deprecated)
 
     enum Extension { ENone=0x0, EProgressBar=0x1, EHasFacebookLike=0x2, EHasTwitter=0x4,
         EHasGooglePlus=0x8, EHidePhiMenu=0x10, EHasCanvas=0x20 }; // qint32
@@ -63,16 +63,21 @@ public:
     enum DataType { DNone=0, DTemplatePage=1, DTitle=2, DSession=3, DAuthor=4, DCompany=5,
         DVersion=6, DAction=7, DCopyright=8, DSessionRedirect=9, DJavascript=10,
         DStyleSheet=11, DKeys=12, DLanguages=13, DCurrentLang=14, DDescription=15,
-        DColorError=16, DColorBgError=17, DColorHover=18, DOpenGraph=19 }; // quint8
+        DColorError=16, DColorBgError=17, DColorHover=18, DOpenGraph=19, DBGImageUrl=20,
+        DBGImageOptions=21, DBGImageXOff=22, DBGImageYOff=23 }; // quint8
+
+    enum ImageOption { INone=0x00, IFixed=0x01, IRepeatX=0x02, IRepeatY=0x04 };
 
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Attributes, Attribute ) // qint32
-    Q_DECLARE_FLAGS( ScriptModules, ScriptModule )
+    Q_DECLARE_FLAGS( ScriptModules, ScriptModule ) // (deprecated)
     Q_DECLARE_FLAGS( Extensions, Extension )
+    Q_DECLARE_FLAGS( ImageOptions, ImageOption )
 #else
     typedef qint32 Attributes;
-    typedef qint32 ScriptModules;
+    typedef qint32 ScriptModules; // (deprecated)
     typedef qint32 Extensions;
+    typedef qint32 ImageOptions;
 #endif
 
 protected:
@@ -85,7 +90,7 @@ protected:
     QImage _image;
     QFont _font;
     Extensions _extensions; // qint32 in QDataStream
-    ScriptModules _scriptModules; // qint32 in QDataStream
+    ScriptModules _scriptModules; // qint32 in QDataStream (deprecated)
 
 private:
     quint16 _itemCount;
@@ -95,6 +100,7 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS( PHIPage::Attributes )
 Q_DECLARE_OPERATORS_FOR_FLAGS( PHIPage::Extensions )
 Q_DECLARE_OPERATORS_FOR_FLAGS( PHIPage::ScriptModules )
+Q_DECLARE_OPERATORS_FOR_FLAGS( PHIPage::ImageOptions )
 #endif
 
 PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIPage* );

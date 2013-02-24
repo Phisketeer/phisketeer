@@ -1191,15 +1191,6 @@ bool PHI::isWidgetItem( PHI::Widget wid )
     case PHI::LAYOUT_GRID:
     //case PHI::LAYOUT_GROUP_BOX:
     case PHI::LAYOUT_FORM:
-    case PHI::LAYOUT_LOGIN:
-    case PHI::LAYOUT_ADDRESS:
-    case PHI::LAYOUT_DELIVERY:
-    case PHI::LAYOUT_CREDIT_CARD:
-    case PHI::LAYOUT_CONTACT:
-    case PHI::LAYOUT_PERIOD:
-    case PHI::LAYOUT_REGISTER:
-    case PHI::HSPACE:
-    case PHI::VSPACE:
     case PHI::LABEL:
     case PHI::LIST:
     case PHI::DATEEDIT:
@@ -1225,6 +1216,17 @@ bool PHI::isWidgetItem( PHI::Widget wid )
     case PHI::GOOGLE_PLUS:
     case PHI::TWITTER:
     case PHI::YOUTUBE:
+    case PHI::GOOGLE_CALENDAR:
+    case PHI::GOOGLE_MAPS: return true;
+    case PHI::LAYOUT_LOGIN:
+    case PHI::LAYOUT_ADDRESS:
+    case PHI::LAYOUT_DELIVERY:
+    case PHI::LAYOUT_CREDIT_CARD:
+    case PHI::LAYOUT_CONTACT:
+    case PHI::LAYOUT_PERIOD:
+    case PHI::LAYOUT_REGISTER:
+    case PHI::HSPACE:
+    case PHI::VSPACE:
         return true;
     default: ;
     }
@@ -1283,6 +1285,8 @@ bool PHI::isTabOrderItem( PHI::Widget  wid )
     case PHI::GOOGLE_PLUS: return true;
     case PHI::TWITTER: return true;
     case PHI::YOUTUBE: return true;
+    case PHI::GOOGLE_CALENDAR: return true;
+    case PHI::GOOGLE_MAPS: return true;
     default: ;
     }
     return false;

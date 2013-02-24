@@ -129,8 +129,8 @@ public:
 
     inline QFont font() const { return _font; }
     inline void setFont( const QFont &f ) { _font=f; }
-    inline QImage image() const { return _image; }
-    inline void setImage( const QImage &img ) { _image=img; }
+    inline QImage image() const { return _image; } // favicon
+    inline void setImage( const QImage &img ) { _image=img; } // favicon
     inline void setLanguages( const QStringList &langs ) { _variants.insert( DLanguages, langs ); }
     inline ScriptModules scriptModules() const { return _scriptModules; }
     inline void joinScriptModules( ScriptModules s ) { _scriptModules |=s; }
@@ -155,10 +155,10 @@ public slots:
     inline QStringList languages() const { return _variants.value( DLanguages ).toStringList(); }
     inline QString fontFamily() const { return _font.family(); }
     inline void setFontFamily( const QString &f ) { _font.setFamily( f ); }
-    inline QString id() const { return QString::fromUtf8( _id ); }
-    inline void setSession( const QString &s ) { _variants.insert( DSession, s.toUtf8() ); }
+    inline QString id() const { return QString::fromLatin1( _id ); }
+    inline void setSession( const QString &s ) { _variants.insert( DSession, s.toLatin1() ); }
     inline QString session() const {
-        return QString::fromUtf8( _variants.value( DSession ).toByteArray() ); }
+        return QString::fromLatin1( _variants.value( DSession ).toByteArray() ); }
     inline QString templatePage() const {
         return QString::fromUtf8( _variants.value( DTemplatePage ).toByteArray() ); }
 
@@ -203,17 +203,20 @@ public slots:
     inline void setBgColor( const QString &c ) {
         _bgColor=QColor( c ); _attributes |= PHIPage::ABgColor; }
     inline QString bgColor() const { return _bgColor.name(); }
-    inline void setLang( const QString &l ) { _variants.insert( DCurrentLang, l.toUtf8() ); }
+    inline void setLang( const QString &l ) { _variants.insert( DCurrentLang, l.toLatin1() ); }
     inline QString lang() const {
-        return QString::fromUtf8( _variants.value( DCurrentLang ).toByteArray() ); }
+        return QString::fromLatin1( _variants.value( DCurrentLang ).toByteArray() ); }
 
     inline QStringList properties() const { return PHI::properties( this ); }
     inline virtual PHIBaseItem* getElementById( const QString &id ) const
-        { return _items.value( id.toUtf8() ); }
+        { return _items.value( id.toLatin1() ); }
     virtual PHIBaseItem* createElementById( quint16 type, const QString &id, qreal x, qreal y,
         qreal width=0, qreal height=0 );
     inline virtual void removeElementById( const QString &id )
-        { removeElementById( id.toUtf8() ); }
+        { removeElementById( id.toLatin1() ); }
+    inline virtual void setBGImageUrl( const QString &url ) { _variants.insert( DBGImageUrl, url.toLatin1() ); }
+    inline virtual QString bgImageUrl() const {
+        return QString::fromLatin1( _variants.value( DBGImageUrl ).toByteArray() ); }
 
 protected:
     QHash <quint8, QVariant> _variants;

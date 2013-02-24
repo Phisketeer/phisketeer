@@ -933,14 +933,14 @@ void PHIProcessor::loadPage( PHISPage *&page, QFile *f, bool isMasterPage )
         quint8 version;
         in >> magic >> version;
         if ( magic!=static_cast<quint32>(PHI_MAGIC) ) {
-            _resp->log( PHILOGWARN, PHIRC_IO_FORMAT_ERROR,
+            _resp->log( PHILOGERR, PHIRC_IO_FORMAT_ERROR,
                 QObject::tr( "'%1' has unknown file format (magic number mismatch)." )
                     .arg( f->fileName() ) );
             return _resp->error( PHILOGERR, PHIRC_HTTP_INTERNAL_SERVER_ERROR,
                 QObject::tr( "Unknown file format for '%1'." ).arg( _req->url().toString() ) );
         }
         if ( version > static_cast<quint8>(PHI_SFV) ) {
-            _resp->log( PHILOGWARN, PHIRC_IO_FORMAT_ERROR,
+            _resp->log( PHILOGERR, PHIRC_IO_FORMAT_ERROR,
                 QObject::tr( "'%1' has a newer file format that this server can handle." )
                     .arg( f->fileName() ) );
             return _resp->error( PHILOGERR, PHIRC_HTTP_INTERNAL_SERVER_ERROR,
@@ -982,8 +982,7 @@ void PHIProcessor::loadPage( PHISPage *&page, QFile *f, bool isMasterPage )
             QString path=_req->imgDir()+QDir::separator()+page->id()+QLatin1String( ".ico" );
             icon.save( path, "ICO" );
             QFile iconFile( path );
-            iconFile.setPermissions( iconFile.permissions()
-                | QFile::ReadGroup | QFile::ReadOther );
+            iconFile.setPermissions( iconFile.permissions() | QFile::ReadGroup | QFile::ReadOther );
         }
 
         QByteArray id, arr;

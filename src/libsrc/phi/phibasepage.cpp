@@ -115,6 +115,7 @@ PHIBaseItem* PHIBasePage::createElementById( quint16 type, const QString &id, qr
     else if ( wid==PHI::FACEBOOK_LIKE ) _extensions |= PHIPage::EHasFacebookLike;
     else if ( wid==PHI::TWITTER ) _extensions |= PHIPage::EHasTwitter;
     else if ( wid==PHI::GOOGLE_PLUS ) _extensions |= PHIPage::EHasGooglePlus;
+    else if ( wid==PHI::CANVAS ) _extensions |= PHIPage::EHasCanvas;
     return it;
 }
 
@@ -149,14 +150,6 @@ QDataStream& operator<<( QDataStream &out, const PHIBasePage *p )
 {
     out << dynamic_cast<const PHIPage*>(p) << p->_variants;
     if ( p->_attributes & PHIPage::AApplication ) out << p->_menuEntries;
-/*
-        << p->_session
-        << p->_author << p->_company << p->_copyright << p->_version;
-    if ( p->_attributes & PHIPage::AJavascript ) out << p->_javascript;
-    if ( p->_attributes & PHIPage::AFormAction ) out << p->_action;
-    if ( p->_attributes & PHIPage::AStyleSheet ) out << p->_styleSheet;
-    if ( p->_attributes & PHIPage::AKeys ) out << p->_keys;
-*/
     return out;
 }
 
@@ -164,13 +157,5 @@ QDataStream& operator>>( QDataStream &in, PHIBasePage *p )
 {
     in >> dynamic_cast<PHIPage*>(p) >> p->_variants;
     if ( p->_attributes & PHIPage::AApplication ) in >> p->_menuEntries;
-/*
-       >> p->_session
-       >> p->_author >> p->_company >> p->_copyright >> p->_version;
-    if ( p->_attributes & PHIPage::AJavascript ) in >> p->_javascript;
-    if ( p->_attributes & PHIPage::AFormAction ) in >> p->_action;
-    if ( p->_attributes & PHIPage::AStyleSheet ) in >> p->_styleSheet;
-    if ( p->_attributes & PHIPage::AKeys ) in >> p->_keys;
-*/
     return in;
 }

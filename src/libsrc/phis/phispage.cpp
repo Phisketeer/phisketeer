@@ -97,10 +97,14 @@ PHISPage::PHISPage() : PHIPage()
     _sessionRedirect=new PHITextData();
     _description=new PHITextData();
     _opengraph=new PHITextData();
+    _bgImage=new PHIImageData();
     _languages << QStringLiteral( "C" );
     _sessionTimeout=60;
     _geometry=PHIPage::G4_3;
     _dbPort=3306;
+    _bgImageOptions=INone;
+    _bgImageXOff=0;
+    _bgImageYOff=0;
 }
 
 PHISPage::~PHISPage()
@@ -119,6 +123,7 @@ PHISPage::~PHISPage()
     delete _sessionRedirect;
     delete _description;
     delete _opengraph;
+    delete _bgImage;
     qDebug( "PHISPage::~PHISPage()" );
 }
 
@@ -140,6 +145,7 @@ PHISPage::PHISPage( const PHISPage &p )
     _sessionRedirect=new PHITextData();
     _description=new PHITextData();
     _opengraph=new PHITextData();
+    _bgImage=new PHIImageData();
 
     *_title=*p._title;
     *_styleSheet=*p._styleSheet;
@@ -155,6 +161,7 @@ PHISPage::PHISPage( const PHISPage &p )
     *_sessionRedirect=*p._sessionRedirect;
     *_description=*p._description;
     *_opengraph=*p._opengraph;
+    *_bgImage=*p._bgImage;
 
     _languages=p._languages;
     _sessionTimeout=p._sessionTimeout;
@@ -175,6 +182,9 @@ PHISPage::PHISPage( const PHISPage &p )
     _colHash=p._colHash;
     _newItemCount=p._newItemCount;
     _menuEntries=p._menuEntries;
+    _bgImageOptions=p._bgImageOptions;
+    _bgImageXOff=p._bgImageXOff;
+    _bgImageYOff=p._bgImageYOff;
 }
 
 PHISPage& PHISPage::operator=( const PHISPage &p )
@@ -195,6 +205,7 @@ PHISPage& PHISPage::operator=( const PHISPage &p )
     *_sessionRedirect=*p._sessionRedirect;
     *_description=*p._description;
     *_opengraph=*p._opengraph;
+    *_bgImage=*p._bgImage;
 
     _languages=p._languages;
     _sessionTimeout=p._sessionTimeout;
@@ -215,6 +226,9 @@ PHISPage& PHISPage::operator=( const PHISPage &p )
     _colHash=p._colHash;
     _newItemCount=p._newItemCount;
     _menuEntries=p._menuEntries;
+    _bgImageOptions=p._bgImageOptions;
+    _bgImageXOff=p._bgImageXOff;
+    _bgImageYOff=p._bgImageYOff;
     return *this;
 }
 
@@ -236,13 +250,13 @@ QDataStream& PHISPage::save( QDataStream &out ) const
 
     _dynamicData.clear();
     QDataStream dsd( &_dynamicData, QIODevice::WriteOnly );
-    dsd.setVersion( PHI_DSV );
+    dsd.setVersion( out.version() );
     dynamicData( dsd );
     out << _dynamicData << _eventData << reserved;
 
     _editorData.clear();
     QDataStream dse( &_editorData, QIODevice::WriteOnly );
-    dse.setVersion( PHI_DSV );
+    dse.setVersion( out.version() );
     editorData( dse );
     out << _editorData << reserved << reserved;
     return out;
@@ -262,7 +276,10 @@ QDataStream& PHISPage::load( QDataStream &in, bool processEditorData )
         QDataStream dse( &_editorData, QIODevice::ReadOnly );
         dse.setVersion( PHI_DSV );
         setEditorData( dse );
-    } else _editorData.clear();
+    } else {
+        _editorData.clear();
+        _editorData.squeeze();
+    }
     return in;
 }
 
@@ -278,6 +295,8 @@ QDataStream& PHISPage::dynamicData( QDataStream &out ) const
         << _keys << _sessionRedirect << _description << _opengraph << &txtData << &txtData
         << _languages;
     if ( _attributes & PHIPage::AApplication ) out << _menuEntries;
+    if ( _attributes & PHIPage::ABgImage ) out << static_cast<qint16>(_bgImageOptions)
+        << _bgImage << _bgImageXOff << _bgImageYOff;
     return out;
 }
 
@@ -293,6 +312,11 @@ QDataStream& PHISPage::setDynamicData( QDataStream &in )
        >> _keys >> _sessionRedirect >> _description >> _opengraph >> &txtData >> &txtData
        >> _languages;
     if ( _attributes & PHIPage::AApplication ) in >> _menuEntries;
+    if ( _attributes & PHIPage::ABgImage ){
+        qint16 imageOptions;
+        in >> imageOptions >> _bgImage >> _bgImageXOff >> _bgImageYOff;
+        _bgImageOptions=static_cast<ImageOptions>(imageOptions);
+    }
     return in;
 }
 

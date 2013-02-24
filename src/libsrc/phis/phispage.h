@@ -118,9 +118,8 @@ public:
     inline PHITextData* sessionRedirectData() const { return _sessionRedirect; }
     inline PHITextData* descriptionData() const { return _description; }
     inline PHITextData* opengraphData() const { return _opengraph; }
-    //inline PHITextData* shortDayNamesData() const { return _shortDayNames; }
-    //inline PHITextData* monthNamesData() const { return _monthNames; }
-    
+    inline PHIImageData* bgImageData() const { return _bgImage; }
+
     inline qint32 sessionTimeout() const { return _sessionTimeout; }
     inline void setSessionTimeout( qint32 t ) { _sessionTimeout=t; }
     inline quint32 width() const { return _width; }
@@ -156,7 +155,12 @@ public:
     inline void setMenuEntries( const QList <PHISPageMenuEntry> &list ) { _menuEntries=list; }
     inline QIcon icon() const { return QIcon( QPixmap::fromImage( _image ) ); }
     inline void setIcon( const QIcon &icon ) { _image=icon.pixmap( 48, 48 ).toImage(); }
-    inline QImage image() const { return _image; }
+    inline QImage image() const { return _image; } // favicon
+    inline QImage bgImage() const { return _bgImage->image(); } // background image
+    inline ImageOptions bgImageOptions() const { return _bgImageOptions; }
+    inline void setBgImageOptions( PHIPage::ImageOptions opts ) { _bgImageOptions=opts; }
+    inline QPoint bgImageOffset() const { return QPoint( _bgImageXOff, _bgImageYOff ); }
+    inline void setBgImageOffset( const QPoint &off ) { _bgImageXOff=off.x(); _bgImageYOff=off.y(); }
 
 protected:
     QDataStream& dynamicData( QDataStream& ) const;
@@ -167,16 +171,18 @@ protected:
 protected:
     QString _dbName, _dbHost, _dbPasswd, _dbUser, _dbDriver, _dbOptions, _dbFileName;
     PHITextData *_title, *_styleSheet, *_author, *_version, *_company, *_copyright, *_template,
-        *_javascript, *_serverscript, *_action, *_keys, *_sessionRedirect, *_description, *_opengraph;
-    //    , *_shortDayNames, *_monthNames;
+        *_javascript, *_serverscript, *_action, *_keys, *_sessionRedirect, *_description,
+        *_opengraph;
     Geometry _geometry;
     QStringList _languages;
-    qint32 _sessionTimeout, _dbPort;
+    qint32 _sessionTimeout, _dbPort, _bgImageXOff, _bgImageYOff;
     mutable QByteArray _dynamicData, _eventData, _editorData;
     QList <QByteArray> _ids;
     PHIColorHash _colHash;
     quint16 _newItemCount;
     QList <PHISPageMenuEntry> _menuEntries;
+    PHIImageData *_bgImage;
+    ImageOptions _bgImageOptions; // qint16 in QDataStream
 };
 
 #endif // PHISPAGE_H
