@@ -214,9 +214,15 @@ public slots:
         qreal width=0, qreal height=0 );
     inline virtual void removeElementById( const QString &id )
         { removeElementById( id.toLatin1() ); }
-    inline virtual void setBGImageUrl( const QString &url ) { _variants.insert( DBGImageUrl, url.toLatin1() ); }
+    inline virtual void setBgImageUrl( const QString &url ) { _variants.insert( DBgImageUrl, url.toUtf8() ); }
     inline virtual QString bgImageUrl() const {
-        return QString::fromLatin1( _variants.value( DBGImageUrl ).toByteArray() ); }
+        return QString::fromUtf8( _variants.value( DBgImageUrl ).toByteArray() ); }
+    inline virtual void setBgImageXOff( qint32 x ) { _variants.insert( DBgImageXOff, x ); }
+    inline virtual qint32 bgImageXOff() const { return _variants.value( DBgImageXOff ).toInt(); }
+    inline virtual void setBgImageYOff( qint32 y ) { _variants.insert( DBgImageYOff, y ); }
+    inline virtual qint32 bgImageYOff() const { return _variants.value( DBgImageYOff ).toInt(); }
+    inline virtual void setBgImageOptions( qint32 opts ) { _variants.insert( DBgImageOptions, opts ); }
+    inline virtual qint32 bgImageOptions() const { return _variants.value( DBgImageOptions ).toInt(); }
 
 protected:
     QHash <quint8, QVariant> _variants;

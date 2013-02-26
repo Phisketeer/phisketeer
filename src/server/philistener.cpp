@@ -78,7 +78,6 @@ PHIRC PHIListener::init( QObject *parent )
 
 void PHIListener::incomingConnection( qintptr sockdesc )
 {
-    qDebug( "PHIListener::incomingConnection %lld", sockdesc );
     try {
         PHIConnThread *conn=new PHIConnThread( this, sockdesc, false );
 #ifdef Q_OS_MAC

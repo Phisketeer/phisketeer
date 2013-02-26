@@ -551,11 +551,10 @@ QStringList PHIDataParser::genImageBookIds( const QString &itemId, const PHIImag
     return ids;
 }
 
-QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) const
+QString PHIDataParser::genImageId( const QString &itId, const PHIImageData *data,
+    int width, int height, PHI::Widget wid ) const
 {
     QString id, itemId=itId;
-    const PHIImageData *data=it->imageData();
-
     Q_ASSERT( data );
 
     if ( data->options() & PHIData::FileName ) {
@@ -697,13 +696,14 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
             .arg( itId ).arg( QLatin1String( _pageId ) ) );
         return QString();
     }
-    if ( img.width()!=static_cast<int>(it->width()) || img.height()!=static_cast<int>(it->height()) ) {
-        if ( it->wid()==PHI::IMAGE_BUTTON ) {
-            img=img.scaled( static_cast<int>(it->height()/1.5),
-                static_cast<int>(it->height()/1.5), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
-        } else {
-            img=img.scaled( static_cast<int>(it->width()),
-                static_cast<int>(it->height()), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    if ( img.width()!=width || img.height()!=height ) {
+        if ( width>0 && height>0 ) {
+            if ( wid==PHI::IMAGE_BUTTON ) { // square button
+                img=img.scaled( static_cast<int>(height/1.5),
+                    static_cast<int>(height/1.5), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+            } else {
+                img=img.scaled( width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+            }
         }
     }
     QDir dir( _req->imgDir() );
@@ -714,7 +714,7 @@ QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) con
         QFile::remove( info.canonicalFilePath() );
     }
 
-    // saving the untransformed image without any graphics effect on it
+    // saving the untransformed image without any graphics effect on item
     img.save( _req->imgDir()+QDir::separator()+id, "PNG" );
     return id;
 }

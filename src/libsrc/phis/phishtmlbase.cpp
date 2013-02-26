@@ -518,7 +518,22 @@ QByteArray PHISHtmlBase::createHtmlCode()
     if ( _p->attributes() & PHIPage::AIcon ) _out+="\t<link rel=\"shortcut icon\" href="
         "\"/phi.phis?phiimg="+_p->pageId()+".ico&amp;phitmp=1"+_endtag;
 
-    _out+="</head>\n<body>\n";
+    _out+="</head>\n<body";
+    if ( _p->attributes() & PHIPage::ABgImage ) {
+        _out+=" style=\"background-image:url(/phi.phis?phiimg="
+            +_p->variant( PHIPage::DBgImageUrl ).toByteArray()+"&amp;phitmp=1);";
+        PHIPage::ImageOptions opts=static_cast<PHIPage::ImageOptions>(_p->variant( PHIPage::DBgImageOptions ).toInt());
+        if ( opts & PHIPage::IRepeatX ) {
+            if ( opts & PHIPage::IRepeatY ) _out+="background-repeat:repeat;";
+            else _out+="background-repeat:repeat-x;";
+        } else if ( opts & PHIPage::IRepeatY ) {
+            _out+="background-repeat:repeat-y;";
+        } else _out+="background-repeat:no-repeat;";
+        if ( opts & PHIPage::IFixed ) _out+="background-attachment:fixed;";
+        _out+="background-position:"+QByteArray::number( _p->bgImageXOff() )+"px "
+            +QByteArray::number( _p->bgImageXOff() )+"px;\"";
+    }
+    _out+=">\n";
 
     if ( !_p->session().isEmpty() ) _js+="phi.setSession('"
         +_p->variant( PHIBasePage::DSession ).toByteArray()+"');\n";

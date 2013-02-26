@@ -388,8 +388,17 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
                 if ( !(page.attributes() & PHIPage::AUseOpenGraph) && (master->attributes() & PHIPage::AUseOpenGraph) ) {
                     page.setOpenGraph( parser.text( pId, master->opengraphData() ) );
                 }
-                page.setWidth( master->width() );
-                page.setHeight( master->height() );
+                //page.setWidth( master->width() );
+                //page.setHeight( master->height() );
+                if ( master->attributes() & PHIPage::ABgImage ) {
+                    if ( !(page.attributes() & PHIPage::ABgImage) ) {
+                        page.setBgImageUrl( parser.genImageId( pId, master->bgImageData() ) );
+                        page.setBgImageXOff( master->bgImageOffset().x() );
+                        page.setBgImageYOff( master->bgImageOffset().y() );
+                        page.setBgImageOptions( static_cast<qint32>(master->bgImageOptions()) );
+                    }
+                }
+
                 if ( page.attributes() & PHIPage::AUseTemplatePalette ) {
                     if ( master->attributes() & PHIPage::APalette ) {
                         QPalette pal=master->palette();
@@ -409,14 +418,6 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
                 }
                 if ( master->attributes() & PHIPage::AHasCalendar ) page.setPageUsesCalendar();
                 page.addExtensions( master->extensions() );
-                /*
-                if ( page.attributes() & PHIPage::AUseTemplateCalendarNames ) {
-                    page.setShortDayNames( parser.text( pId, master->shortDayNamesData() )
-                        .split( ':', QString::SkipEmptyParts ) );
-                    page.setMonthNames( parser.text( pId, master->monthNamesData() )
-                        .split( ':', QString::SkipEmptyParts ) );
-                }
-                */
             }
         }
         QString sessPath=_req->tmpDir()+QDir::separator()+QLatin1String( "db" );
@@ -437,13 +438,14 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
                 //qDebug( "session %s", QUrl::toPercentEncoding( url.toString() ).data() );
             }
         }
+        if ( page.attributes() & PHIPage::ABgImage ) {
+            page.setBgImageUrl( parser.genImageId( pId, p->bgImageData() ) );
+            page.setBgImageOptions( static_cast<qint32>(p->bgImageOptions()) );
+            page.setBgImageXOff( p->bgImageOffset().x() );
+            page.setBgImageYOff( p->bgImageOffset().y() );
+        }
         page.setLanguages( p->languages() );
-        page.setLang( _req->currentLang() );
-        /*
-        if ( _vars.contains( "philang", PHIVars::Request ) )
-            page.setLang( _vars.value( "philang", PHIVars::Request ));
-        else page.setLang( _vars.value( "lang", PHIVars::Server ) );
-        */
+        page.setLang( _req->currentLang() ); // _req->currentLang() is overwritten by matched language
         QByteArray id;
         PHIBaseItem *it;
         QReadLocker readLocker( PHISItemCache::instance()->readWriteLock() );
@@ -492,14 +494,10 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
         _resp->error( PHILOGCRIT, PHIRC_HTTP_SERVICE_UNAVAILABLE, QObject::tr( _resourceError.constData() ) );
         return QByteArray();
     }
-    // Now we are safe to unlock - Do NOT use 'master' and 'p' after this point!!
-    //qDebug( "before unlock" );
-    //PHISPageCache::readWriteLock()->unlock();
-    //qDebug( "after unlock" );
 
     if ( !script.isEmpty() ) {
         if ( runScriptEngine( &page, script ) ) {
-            // true==content changed by user in reply class module via server scripting
+            // true: content changed by user in reply class module via server scripting
             return _resp->body();
         }
     }
@@ -639,7 +637,7 @@ void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
         out+=".phibutton {background-color:"+p->palette().button().color().name().toLatin1()+";}\n";
         out+=".phihighlight {background-color:"+p->palette().highlight().color().name().toLatin1()+";}\n";
         out+=".phihighlightedtext {color:"+p->palette().highlightedText().color().name().toLatin1()+";}\n";
-        out+=".phibase {background-color:"+p->palette().base().color().name().toLatin1()+"; }\n";
+        out+=".phibase {background-color:"+p->palette().base().color().name().toLatin1()+";}\n";
         out+=".phitext {color:"+p->palette().text().color().name().toLatin1()+";}\n";
         out+=".phiwindowtext {color:"+p->palette().windowText().color().name().toLatin1()+";}\n";
         out+=".phiwindow {background-color:transparent;}\n";

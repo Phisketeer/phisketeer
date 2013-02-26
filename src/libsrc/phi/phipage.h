@@ -63,8 +63,8 @@ public:
     enum DataType { DNone=0, DTemplatePage=1, DTitle=2, DSession=3, DAuthor=4, DCompany=5,
         DVersion=6, DAction=7, DCopyright=8, DSessionRedirect=9, DJavascript=10,
         DStyleSheet=11, DKeys=12, DLanguages=13, DCurrentLang=14, DDescription=15,
-        DColorError=16, DColorBgError=17, DColorHover=18, DOpenGraph=19, DBGImageUrl=20,
-        DBGImageOptions=21, DBGImageXOff=22, DBGImageYOff=23 }; // quint8
+        DColorError=16, DColorBgError=17, DColorHover=18, DOpenGraph=19, DBgImageUrl=20,
+        DBgImageOptions=21, DBgImageXOff=22, DBgImageYOff=23 }; // quint8
 
     enum ImageOption { INone=0x00, IFixed=0x01, IRepeatX=0x02, IRepeatY=0x04 };
 

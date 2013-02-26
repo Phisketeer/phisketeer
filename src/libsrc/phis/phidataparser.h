@@ -41,13 +41,14 @@ public:
     QString text( const QString &itemId, const PHIData* ) const;
     QByteArray matchingLanguage( const PHIData* ) const;
     inline void setPageId( const QByteArray &id ) { _pageId=id; }
+    QString genImageId( const QString &itemId, const PHIImageData *data,
+        int width=-1, int heigth=-1, PHI::Widget wid=PHI::NO_ITEM ) const;
 
 protected:
     QString findValue( const QString &key, int index, Type ) const;
     inline QString sqlValue( int index ) const { return _query.isValid() ?
         _query.value( index ).toString() : QString(); }
     QString replaceDefaultLangC( const QString&, bool useRoot=false ) const;
-    QString genImageId( const QString &itemId, const PHISItem *it ) const;
     QString loadTextFromFile( const QString &fileName, const QString &codec ) const;
     QString loadTextFromDatabase( const QString &query, const QString &pattern ) const;
     QImage loadImageFromDatabase( const QString &query ) const;
@@ -57,11 +58,19 @@ protected:
     QByteArray loadFromLibrary( const QString &libName ) const;
     QStringList genImageBookIds( const QString &itemId, const PHIImageBookData *data,
         const PHISItem *it ) const;
+    QString genImageId( const QString &itemId, const PHISItem *it ) const;
 
 private:
     mutable QSqlQuery _query;
     QByteArray _pageId;
     const PHISRequest *_req;
 };
+
+inline QString PHIDataParser::genImageId( const QString &itId, const PHISItem *it ) const
+{
+    const PHIImageData *data=it->imageData();
+    return genImageId( itId, data, static_cast<int>(it->width()),
+        static_cast<int>(it->height()), static_cast<PHI::Widget>(it->wid()) );
+}
 
 #endif // PHIDATAPARSER_H
