@@ -200,7 +200,7 @@ function PhiBase(){
   this.setSession=function( s ){this.session=new String( s );};
   this.setLang=function( l ){this.lang=new String( l );};
   this.href=function( url ) {
-    var link=new String( url );
+    var link=String( url );
     if ( link.indexOf( 'philang' )===-1 ) {
       if ( link.indexOf( '?' )>-1 ) link=link+'&philang='+this.lang;
       else link=link+'?philang='+this.lang;
