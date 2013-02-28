@@ -35,6 +35,33 @@ PHIAScene::~PHIAScene()
     qDebug( "PHIAScene::~PHIAScene()" );
 }
 
+void PHIAScene::drawBackground( QPainter *painter, const QRectF &r )
+{
+    QGraphicsScene::drawBackground( painter, r );
+    if ( _bgImage.isNull() ) return;
+    QRectF rect=sceneRect();
+    PHIPage::ImageOptions opts=static_cast<PHIPage::ImageOptions>(_bgOptions);
+    QPointF off=_bgOffset;
+    if ( opts & PHIPage::IFixed ) off+=views().first()->mapToScene( QPoint( 0, 0 ) );
+    painter->translate( off );
+    if ( opts & PHIPage::IRepeatX && opts & PHIPage::IRepeatY ) {
+        for ( qreal x=-_bgImage.width(); x<rect.width()+_bgImage.width(); x=x+_bgImage.width() ) {
+            for ( qreal y=-_bgImage.height(); y<rect.height()+_bgImage.height(); y=y+_bgImage.height() ) {
+                painter->drawImage( x, y, _bgImage );
+            }
+        }
+    } else if ( opts & PHIPage::IRepeatX ) {
+        for ( qreal x=-_bgImage.width(); x<rect.width()+_bgImage.width(); x=x+_bgImage.width() ) {
+            painter->drawImage( x, 0, _bgImage );
+        }
+    } else if ( opts & PHIPage::IRepeatY ) {
+        for ( qreal y=-_bgImage.height(); y<rect.height()+_bgImage.height(); y=y+_bgImage.height() ) {
+            painter->drawImage( 0, y, _bgImage );
+        }
+    } else painter->drawImage( 0, 0, _bgImage );
+    painter->translate( -off );
+}
+
 void PHIAScene::contextMenuEvent( QGraphicsSceneContextMenuEvent *event )
 {
     QGraphicsScene::contextMenuEvent( event );

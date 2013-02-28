@@ -129,6 +129,7 @@ void PHIAWebView::setNetworkReply( QNetworkReply *reply )
     QNetworkRequest req=reply->request();
     _sslConfig=reply->sslConfiguration();
     _reqUrl=req.url();
+    qDebug( "setNetworkReply url=%s", qPrintable( _reqUrl.toString() ) );
     if ( reply->error()!=QNetworkReply::NoError ) {
         qDebug( "reply %d %s %s", reply->error(), qPrintable( reply->errorString() ), qPrintable( req.url().toString() ) );
     } else {
@@ -224,7 +225,8 @@ void PHIAWebView::setIODevice( QIODevice *dev, bool callSlotFinished )
     _readingType=RTHeader;
     _isLoading=true;
     _contentTypeChecked=false;
-    _stream.clear();
+    //_stream.clear();
+    _bgReply=0;
 
     slotDataAvailable();
     if ( callSlotFinished ) {
@@ -263,7 +265,8 @@ void PHIAWebView::slotDataAvailable()
             return;
         } else {
             //switchBuffer();
-            qDebug( "_page->clearItems()" );
+            qDebug( "_page->clearItems() reqUrl=%s - replyUrl=%s", qPrintable( _reqUrl.toString() ),
+                    qPrintable( reply->url().toString() ) );
             _page->clearItems();
             _scene->clear();
             if ( _engine ) {
@@ -290,13 +293,15 @@ void PHIAWebView::slotDataAvailable()
                     slotFinished();
                     return;
                 }
-                if ( static_cast<quint8>(1)!=version ) {
+                qDebug( "version check %d", version );
+                if ( static_cast<quint8>(2)<version ) {
                     QMessageBox::critical( this, tr( "Magic number" ),
                         tr( "Content type is '%1' but document contains an unknown version number." )
                         .arg( QString::fromLatin1( PHI::mimeType() ) ), QMessageBox::Abort );
                     slotFinished();
                     return;
                 }
+                qDebug( "version is checked" );
                 _readingType=RTPageSize;
             } else break;
         }
@@ -312,6 +317,7 @@ void PHIAWebView::slotDataAvailable()
         if ( _readingType==RTPage ) {
             size=static_cast<qint64>(_itemSize);
             if ( length >= size ) {
+                qDebug( "reading page %s", qPrintable( _reqUrl.toString() ) );
                 length-=size;
                 in >> _page;
                 //out << _page;
@@ -345,7 +351,7 @@ void PHIAWebView::slotDataAvailable()
 
 void PHIAWebView::slotFinished()
 {
-    //qWarning( "PHIAWebView::slotFinished()" );
+    qWarning( "PHIAWebView::slotFinished()" );
     QNetworkReply *reply=qobject_cast<QNetworkReply*>(_ioDev);
     if ( _ioDev ) _ioDev->deleteLater();
     _ioDev=0;
@@ -381,6 +387,57 @@ void PHIAWebView::slotFinished()
     QTimer::singleShot( 0, this, SLOT( slotCheckContainerItems() ) );
 }
 
+void PHIAWebView::requestBgImage()
+{
+    QUrl u=_reqUrl;
+    u.setPath( "/phi.phis", QUrl::StrictMode );
+    //u.setScheme( QString( "http" ) ); // use unsecure connection
+
+    QList <QPair <QString, QString> > list;
+    QPair <QString, QString> pair;
+    pair.first="phiimg";
+    pair.second=_page->bgImageUrl();
+    list << pair;
+    if ( _page->bgImageUrl().startsWith( "phi" ) ) {
+        pair.first="phitmp";
+        pair.second="1";
+        list << pair;
+    }
+    QUrlQuery query;
+    query.setQueryItems( list );
+    u.setQuery( query );
+
+    QNetworkRequest request;
+    request.setUrl( u );
+    request.setRawHeader( "Accept", "image/png,image/*;q=0.7" );
+    request.setRawHeader( "Referer", url().toEncoded() );
+    request.setAttribute( QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache );
+
+    qDebug( "REQUEST BG IMAGE %s", qPrintable( u.toString() ) );
+    _bgReply=networkAccessManager()->get( request );
+    if ( !_bgReply ) {
+        slotRequestForImageFinished();
+        return;
+    }
+    connect( _bgReply, SIGNAL ( finished() ), this, SLOT( slotRequestForImageFinished() ) );
+}
+
+void PHIAWebView::slotRequestForImageFinished()
+{
+    if ( !_bgReply ) return;
+    if ( _bgReply->error()!=QNetworkReply::NoError ) {
+        qDebug( "Reply error for loading bg image: %s", qPrintable( _bgReply->errorString() ) );
+        _bgReply->deleteLater();
+        _bgReply=0;
+    }
+    QByteArray arr=_bgReply->readAll();
+    QImage img;
+    img.loadFromData( arr );
+    _scene->setBgImage( img );
+    _bgReply->deleteLater();
+    _bgReply=0;
+}
+
 void PHIAWebView::runScript( const QString &script )
 {
     if ( !_engine ) {
@@ -394,6 +451,7 @@ void PHIAWebView::runScript( const QString &script )
             new PHIAScriptMenuObj( this, mainwin->menuBar() );
         }
     }
+    qDebug( "test evaluate script" );
     if ( _engine->canEvaluate( script ) ) {
         QScriptValue doc=_engine->evaluate( script );
         if ( doc.isError() ) throwJavaScriptError( doc );
@@ -426,6 +484,9 @@ void PHIAWebView::setupPage()
     QLocale::setDefault( QLocale( lang ) );
     */
     _scene->setFont( _page->font() );
+    _scene->setBgOffset( QPoint( _page->bgImageXOff(), _page->bgImageYOff() ) );
+    _scene->setBgOptions( _page->bgImageOptions() );
+    if ( !_page->bgImageUrl().isEmpty() ) requestBgImage();
 
     QPalette pal;
     if ( _page->attributes() & PHIPage::APalette ) pal=_page->palette();

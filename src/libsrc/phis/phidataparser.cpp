@@ -661,8 +661,7 @@ QString PHIDataParser::genImageId( const QString &itId, const PHIImageData *data
         PHISImageCache cache( _req->responseRec(), _req->tmpDir() );
         id=cache.createId();
     } else {
-        id=QLatin1String( "phi"+_pageId+'_' )+itId+QLatin1Char( '_' )+QString::fromLatin1( lang )
-            +QLatin1String( ".png" );
+        id=QLatin1String( "phi"+_pageId+'_' )+itId+QLatin1String( '_'+lang+".png" );
         if ( QFile::exists( _req->imgDir()+QDir::separator()+id ) ) {
             QDateTime pageModified=QFileInfo( _req->canonicalFilename() ).lastModified();
             QFileInfo fi( _req->imgDir()+QDir::separator()+id );
@@ -698,7 +697,7 @@ QString PHIDataParser::genImageId( const QString &itId, const PHIImageData *data
     }
     if ( img.width()!=width || img.height()!=height ) {
         if ( width>0 && height>0 ) {
-            if ( wid==PHI::IMAGE_BUTTON ) { // square button
+            if ( wid==PHI::IMAGE_BUTTON ) { // square image on button
                 img=img.scaled( static_cast<int>(height/1.5),
                     static_cast<int>(height/1.5), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
             } else {

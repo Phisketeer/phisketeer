@@ -100,11 +100,13 @@ protected slots:
     virtual void slotCheckContainerItems();
     virtual void slotRequestPrint();
     virtual void slotReturnButtonPressed();
+    virtual void slotRequestForImageFinished();
 
 protected:
     /** Called as soon as a page (without elements) is loaded. */
     void setupPage();
     int selectMenu( const QStringList &items, const QPointF &pos );
+    void requestBgImage();
     //void switchBuffer();
 
 signals:
@@ -126,6 +128,7 @@ protected:
     qreal _zoomFactor;
     QByteArray _stream;
     QHash <QString, QScriptValue> _scriptIdHash;
+    QNetworkReply *_bgReply;
 };
 
 #endif // PHIAWEBVIEW_H

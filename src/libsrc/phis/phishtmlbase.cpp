@@ -517,10 +517,10 @@ QByteArray PHISHtmlBase::createHtmlCode()
     if ( _p->extensions() & PHIPage::EHasCanvas ) _out+=phiCanvasScript();
     if ( _p->attributes() & PHIPage::AIcon ) _out+="\t<link rel=\"shortcut icon\" href="
         "\"/phi.phis?phiimg="+_p->pageId()+".ico&amp;phitmp=1"+_endtag;
-
     _out+="</head>\n<body";
     if ( _p->attributes() & PHIPage::ABgImage ) {
-        _out+=" style=\"background-image:url(/phi.phis?phiimg="
+        _out+=" style=\"top:0;left:0;"
+            "z-index:"+QByteArray::number( -PHI::maxZValue() )+";background-image:url(/phi.phis?phiimg="
             +_p->variant( PHIPage::DBgImageUrl ).toByteArray()+"&amp;phitmp=1);";
         PHIPage::ImageOptions opts=static_cast<PHIPage::ImageOptions>(_p->variant( PHIPage::DBgImageOptions ).toInt());
         if ( opts & PHIPage::IRepeatX ) {
@@ -530,8 +530,14 @@ QByteArray PHISHtmlBase::createHtmlCode()
             _out+="background-repeat:repeat-y;";
         } else _out+="background-repeat:no-repeat;";
         if ( opts & PHIPage::IFixed ) _out+="background-attachment:fixed;";
-        _out+="background-position:"+QByteArray::number( _p->bgImageXOff() )+"px "
-            +QByteArray::number( _p->bgImageXOff() )+"px;\"";
+        _out+="\"";
+        _jquery+="\t$(window).resize(function(){\n"
+            "\t\tvar off=$('#phihtml').offset();\n"
+            "\t\tif(off===undefined){$('body').css('background-image','');return;}\n"
+            "\t\tvar bgx=off.left+"+QByteArray::number( _p->bgImageXOff() )+";"
+            "var bgy=off.top+"+QByteArray::number( _p->bgImageYOff() )+";\n"
+            "\t\t$('body').css('background-position',bgx+'px '+bgy+'px');\n"
+            "\t}).resize();\n";
     }
     _out+=">\n";
 
@@ -552,6 +558,7 @@ QByteArray PHISHtmlBase::createHtmlCode()
     } else useObjTag=0;
     if ( useObjTag!=2 ) {
         _indent="\t";
+
         _out+="<div id=\"phihtml\" class=\"phicontent\">\n";
         if ( _p->attributes() & PHIPage::AFormAction ) {
             _out+=formAction()+"\t<div id=\"phiformdiv\">\n";

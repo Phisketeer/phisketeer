@@ -37,7 +37,9 @@ public:
     inline QPoint screenPos() const { return _screenPos; }
     inline quint8 pressedButtons() const { return _pressedButtons; }
     inline void setWebView( PHIAWebView *v ) { _view=v; }
-
+    inline void setBgImage( const QImage &img ) { _bgImage=img; invalidate(); }
+    inline void setBgOffset( const QPoint &p ) { _bgOffset=p; }
+    inline void setBgOptions( qint32 opts ) { _bgOptions=opts; }
 
 protected:
     virtual void contextMenuEvent( QGraphicsSceneContextMenuEvent *event );
@@ -48,6 +50,7 @@ protected:
     virtual void dragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void drawBackground( QPainter *painter, const QRectF &rect );
 
 signals:
     void xPositionChanged( qreal );
@@ -59,6 +62,9 @@ private:
     QPoint _screenPos;
     quint8 _pressedButtons;
     PHIAWebView *_view;
+    QImage _bgImage;
+    QPoint _bgOffset;
+    qint32 _bgOptions;
 };
 
 class PHIAGraphicsView : public QGraphicsView

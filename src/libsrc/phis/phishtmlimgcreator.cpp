@@ -53,7 +53,7 @@ QImage PHISHtmlBase::createHeaderImage() const
     QColor cmid=PHI::percentColor( c, 0.3 );
     QColor clight=PHI::percentColor( c, 0.9 );
     //clight.setAlphaF( 0.9 );
-    QImage img( 1, height+12, QImage::Format_ARGB32_Premultiplied );
+    QImage img( 1, height+10, QImage::Format_ARGB32_Premultiplied );
     img.fill( 0 );
 
     QLinearGradient gradient( 0., 0., 0., 1. );

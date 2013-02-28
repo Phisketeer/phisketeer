@@ -1058,7 +1058,7 @@ void PHIAItem::requestImage( int number )
 {
     _setupFinished=false;
     QUrl url=view()->url();
-    url.setPath( "phi.phis" );
+    url.setPath( "/phi.phis", QUrl::StrictMode );
     //url.setScheme( QString( "http" ) ); // use unsecure connection
 
     QList <QPair <QString, QString> > list;
