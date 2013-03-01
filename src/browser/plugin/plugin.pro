@@ -35,7 +35,7 @@ win32 {
         LIBS = -L../../../bin phid1.lib phiad1.lib
         TARGET = phiplugind
     }
-    LIBS += -L../../../3rdparty/win32 libeay32.lib ssleay32.lib
+    #LIBS += -L../../../3rdparty/win32 libeay32.lib ssleay32.lib
     RC_FILE = phiplugin.rc
 }
 unix { 

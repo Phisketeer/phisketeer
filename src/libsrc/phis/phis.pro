@@ -103,7 +103,7 @@ win32 {
         LIBS = -L../../../bin phid1.lib
         TARGET = phisd
     }
-    LIBS += -L../../../3rdparty/win32 libeay32.lib ssleay32.lib
+    #LIBS += -L../../../3rdparty/win32 libeay32.lib ssleay32.lib
     QMAKE_DISTCLEAN += phis_resource.rc phisd_resource.rc
 }
 unix { 

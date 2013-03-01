@@ -90,7 +90,7 @@ win32 {
         LIBS = -L../../../bin phid1.lib
         TARGET = phiad
     }
-    LIBS += -L../../../3rdparty/win32 libeay32.lib ssleay32.lib
+    #LIBS += -L../../../3rdparty/win32 libeay32.lib ssleay32.lib
     QMAKE_DISTCLEAN += phia_resource.rc phiad_resource.rc
 }
 unix {
