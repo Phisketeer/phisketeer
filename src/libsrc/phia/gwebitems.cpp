@@ -488,7 +488,7 @@ void GGoogleCalendar::setValue( const QString &s )
     if ( lang=="C" ) lang="en";
     else lang=lang.left( 2 );
     QString src=s;
-    src.append( "&amp;hl="+lang+"&amp;height=\""+QByteArray::number( static_cast<int>(height()) )+"\"" );
+    src.append( "&amp;hl="+lang+"&amp;height="+QByteArray::number( static_cast<int>(height()) )+"\"" );
     QByteArray arr="<html><head><style>body { margin:0; padding:0; }</style></head><body>";
     arr+="<iframe width=\""+QByteArray::number( static_cast<int>(width()) )+"\" height=\""
         +QByteArray::number( static_cast<int>(height()) )+"\" src="
