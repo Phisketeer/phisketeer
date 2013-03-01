@@ -852,6 +852,26 @@ void PHISHtmlGeneric::youtubeVideo() const
     _out+=_indent+"</object>\n";
 }
 
+void PHISHtmlGeneric::googleDynamicMaps() const
+{
+    QByteArray val=_it->valueData();
+    val.replace( "&", "&amp;" );
+    val+="&amp;hl="+(_lang=="C" ? QByteArray::fromRawData( "en", 2 ):_lang.left( 2 ))+"&amp;output=embed";
+    _out+=_indent+"<object type=\"text/html\""+id()+startStyle()+effectStyle()+"border:none;\""
+        " data=\"http://maps.google.com/maps?"+val+"\"></object>\n";
+}
+
+void PHISHtmlGeneric::googleCalendar() const
+{
+    QByteArray val=_it->valueData();
+    val.replace( "&", "&amp;" );
+    val+="&amp;hl="+(_lang=="C" ? QByteArray::fromRawData( "en", 2 ):_lang.left( 2 ))+"&amp;output=embed";
+    _out+=_indent+"<object type=\"text/html\""+id()+startStyle()+effectStyle()+"border:none;\""
+        " data=\"https://www.google.com/calendar/embed?src="
+        +val+"&amp;width="+QByteArray::number( static_cast<int>(_it->width()) )+"&amp;height="
+        +QByteArray::number( static_cast<int>(_it->height()) )+"\"></object>\n";
+}
+
 void PHISHtmlGeneric::facebookLikeButton() const
 {
     QByteArray val=_it->valueData(), lang=_lang;

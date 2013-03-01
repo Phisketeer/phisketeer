@@ -108,6 +108,8 @@ void PHISHtmlBase::createHtmlForItem()
     case PHI::PROGRESSBAR: return progressBar();
     case PHI::YOUTUBE: return youtubeVideo();
     case PHI::CANVAS: return canvas();
+    case PHI::GOOGLE_MAPS: return googleDynamicMaps();
+    case PHI::GOOGLE_CALENDAR: return googleCalendar();
 
     // unused:
     case PHI::VSPACE:

@@ -278,6 +278,28 @@ void PHISHtmlTrident4::externalHtmlDoc() const
         +_it->urlData()+"\" type=\"text/html\"></iframe>\n";
 }
 
+void PHISHtmlTrident4::googleDynamicMaps() const
+{
+    QByteArray val=_it->valueData();
+    val.replace( "&", "&amp;" );
+    val+="&amp;hl="+(_lang=="C" ? QByteArray::fromRawData( "en", 2 ):_lang.left( 2 ))+"&amp;output=embed";
+    _out+=_indent+"<iframe "+id()+startStyle()+effectStyle()+"border:none;\""
+        " src=\"http://maps.google.com/maps?"+val
+        +"\" frameBorder=\"0\" scrolling=\"no\"></iframe>\n";
+}
+
+void PHISHtmlTrident4::googleCalendar() const
+{
+    QByteArray val=_it->valueData();
+    val.replace( "&", "&amp;" );
+    val+="&amp;hl="+(_lang=="C" ? QByteArray::fromRawData( "en", 2 ):_lang.left( 2 ))+"&amp;output=embed";
+    _out+=_indent+"<iframe allowTransparency=\"true\""+id()+startStyle()+effectStyle()+"border:none;\""
+        " src=\"https://www.google.com/calendar/embed?src="
+        +val+"&amp;width="+QByteArray::number( static_cast<int>(_it->width()) )+"&amp;height="
+        +QByteArray::number( static_cast<int>(_it->height()) )
+        +"\" frameBorder=\"0\" scrolling=\"no\"></iframe>\n";
+}
+
 void PHISHtmlTrident4::facebookLikeButton() const
 {
     QByteArray val=_it->valueData(), url, lang=_lang;

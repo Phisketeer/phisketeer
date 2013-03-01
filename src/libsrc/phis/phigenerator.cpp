@@ -42,7 +42,7 @@ QByteArray PHIGenerator::genPhi( const PHIBasePage *p )
     QDataStream ds( &block, QIODevice::WriteOnly );
     ds.setVersion( PHI_DSV );
     // send magic number and version number
-    out << static_cast<quint32>(PHI_MAGIC) << static_cast<quint8>(PHI_SFV)
+    out << static_cast<quint32>(PHI_MAGIC) << static_cast<quint8>(1)
         << static_cast<quint8>(PHI::CDAll);
     ds << p;
     out << block;

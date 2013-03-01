@@ -110,6 +110,26 @@ void PHISHtml5Base::youtubeVideo() const
     _out+=startStyle()+effectStyle()+"border:none;\"></iframe>\n";
 }
 
+void PHISHtml5Base::googleDynamicMaps() const
+{
+    QByteArray val=_it->valueData();
+    val.replace( "&", "&amp;" );
+    val+="&amp;hl="+(_lang=="C" ? QByteArray::fromRawData( "en", 2 ):_lang.left( 2 ))+"&amp;output=embed";
+    _out+=_indent+"<iframe"+id()+startStyle()+effectStyle()+"border:none;\""
+        " src=\"http://maps.google.com/maps?"+val+"\"></iframe>\n";
+}
+
+void PHISHtml5Base::googleCalendar() const
+{
+    QByteArray val=_it->valueData();
+    val.replace( "&", "&amp;" );
+    val+="&amp;hl="+(_lang=="C" ? QByteArray::fromRawData( "en", 2 ):_lang.left( 2 ))+"&amp;output=embed";
+    _out+=_indent+"<iframe"+id()+startStyle()+effectStyle()+"border:none;\""
+        " src=\"https://www.google.com/calendar/embed?src="
+        +val+"&amp;width="+QByteArray::number( static_cast<int>(_it->width()) )+"&amp;height="
+        +QByteArray::number( static_cast<int>(_it->height()) )+"\"></iframe>\n";
+}
+
 void PHISHtml5Base::textEmail() const
 {
     _out+=_indent+"<input type=\"email\" class=\"phitext\""+maxLength()

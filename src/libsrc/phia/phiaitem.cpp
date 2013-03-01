@@ -788,6 +788,8 @@ void PHIAItem::generateItem()
     case PHI::DIA_SHOW: _git=new GDiaShowItem( width(), height(), this ); break;
     case PHI::PROGRESSBAR: _git=new GProgressBarItem( width(), height(), this ); break;
     case PHI::CANVAS: _git=new GCanvasItem( width(), height(), this ); break;
+    case PHI::GOOGLE_MAPS: _git=new GGoogleDynamicMap( width(), height(), this ); break;
+    case PHI::GOOGLE_CALENDAR: _git=new GGoogleCalendar( width(), height(), this ); break;
 
     case PHI::HSPACE: _git=new GHSpacerItem( width(), height(), this ); break;
     case PHI::VSPACE: _git=new GVSpacerItem( width(), height(), this ); break;

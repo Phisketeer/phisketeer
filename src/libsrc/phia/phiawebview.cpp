@@ -293,15 +293,16 @@ void PHIAWebView::slotDataAvailable()
                     slotFinished();
                     return;
                 }
+                /*
                 qDebug( "version check %d", version );
-                if ( static_cast<quint8>(2)<version ) {
+                if ( static_cast<quint8>(1)<version ) {
                     QMessageBox::critical( this, tr( "Magic number" ),
                         tr( "Content type is '%1' but document contains an unknown version number." )
                         .arg( QString::fromLatin1( PHI::mimeType() ) ), QMessageBox::Abort );
                     slotFinished();
                     return;
                 }
-                qDebug( "version is checked" );
+                */
                 _readingType=RTPageSize;
             } else break;
         }
@@ -385,6 +386,7 @@ void PHIAWebView::slotFinished()
     setFocus();
     runScript( _page->javascript() );
     QTimer::singleShot( 0, this, SLOT( slotCheckContainerItems() ) );
+    qDebug( "slotFinished end" );
 }
 
 void PHIAWebView::requestBgImage()
@@ -570,6 +572,7 @@ void PHIAWebView::updateTabOrdering()
 
 void PHIAWebView::slotCheckContainerItems()
 {
+    qDebug( "slotCheckContainerItems" );
     PHIBaseItem *bit;
     PHIAItem *it;
     PHIAConfig *conf=PHIAConfig::instance();
@@ -706,6 +709,7 @@ void PHIAWebView::slotCheckContainerItems()
             /** @todo add autofillout for period */
         }
     }
+    qDebug( "slotCheckContainerItems end" );
 }
 
 void PHIAWebView::slotItemSetupDone( const PHIAItem* )

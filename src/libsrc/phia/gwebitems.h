@@ -194,4 +194,28 @@ public:
     virtual void setValue( const QString& );
 };
 
+class GGoogleDynamicMap : public GExternalView
+{
+    Q_OBJECT
+    Q_DISABLE_COPY( GGoogleDynamicMap )
+
+public:
+    GGoogleDynamicMap( qreal w, qreal h, const PHIAItem *it, QGraphicsItem *parent=0 );
+    virtual ~GGoogleDynamicMap();
+
+    virtual void setValue( const QString& );
+};
+
+class GGoogleCalendar : public GExternalView
+{
+    Q_OBJECT
+    Q_DISABLE_COPY( GGoogleCalendar )
+
+public:
+    GGoogleCalendar( qreal w, qreal h, const PHIAItem *it, QGraphicsItem *parent=0 );
+    virtual ~GGoogleCalendar();
+
+    virtual void setValue( const QString& );
+};
+
 #endif // GWEBITEMS_H

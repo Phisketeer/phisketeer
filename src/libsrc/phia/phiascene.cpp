@@ -19,6 +19,7 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include <QMenu>
 #include <QAction>
+#include <QScrollBar>
 #include "phiascene.h"
 #include "phiawebview.h"
 #include "phiasettingsdlg.h"
@@ -168,9 +169,18 @@ PHIAGraphicsView::PHIAGraphicsView( QWidget *parent )
     setViewportUpdateMode( QGraphicsView::SmartViewportUpdate );
     setCacheMode( CacheNone );
     setAlignment( Qt::AlignHCenter | Qt::AlignTop );
+    connect( horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+        this, SLOT( slotSliderChanged( int ) ) );
+    connect( verticalScrollBar(), SIGNAL( valueChanged( int ) ),
+        this, SLOT( slotSliderChanged( int ) ) );
 }
 
 PHIAGraphicsView::~PHIAGraphicsView()
 {
     qDebug( "PHIAGraphicsView::~PHIAGraphicsView()" );
+}
+
+void PHIAGraphicsView::slotSliderChanged( int )
+{
+    scene()->invalidate();
 }

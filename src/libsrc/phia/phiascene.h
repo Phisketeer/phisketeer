@@ -74,6 +74,9 @@ class PHIAGraphicsView : public QGraphicsView
 public:
     explicit PHIAGraphicsView( QWidget *parent );
     virtual ~PHIAGraphicsView();
+
+protected slots:
+    void slotSliderChanged( int );
 };
 
 #endif // PHIASCENE_H

@@ -53,6 +53,8 @@ private:
     virtual void externalHtmlDoc() const;
     virtual void imageButton() const;
     virtual void diaShow() const;
+    virtual void googleCalendar() const;
+    virtual void googleDynamicMaps() const;
 };
 
 #endif // PHISHTMLTRIDENT4_H

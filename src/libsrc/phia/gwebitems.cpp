@@ -447,3 +447,53 @@ void GYouTubeItem::setValue( const QString &s )
     setContent( arr, "text/html", _item->view()->url() );
     _value=s;
 }
+
+GGoogleDynamicMap::GGoogleDynamicMap( qreal w, qreal h, const PHIAItem *it, QGraphicsItem *parent )
+    : GExternalView( w, h, it, parent )
+{
+}
+
+GGoogleDynamicMap::~GGoogleDynamicMap()
+{
+}
+
+void GGoogleDynamicMap::setValue( const QString &s )
+{
+    QByteArray lang=_item->view()->page()->lang().toLatin1();
+    if ( lang=="C" ) lang="en";
+    else lang=lang.left( 2 );
+    QString src=s;
+    src.append( "&amp;hl="+lang+"&amp;output=embed" );
+    QByteArray arr="<html><head><style>body { margin:0; padding:0; }</style></head><body>";
+    arr+="<iframe width=\""+QByteArray::number( static_cast<int>(width()) )+"\" height=\""
+        +QByteArray::number( static_cast<int>(height()) )+"\" src="
+        "\"http://maps.google.de/maps?"+src.toUtf8()
+        +"\" frameborder=\"0\"></iframe></body></html>";
+    setContent( arr, "text/html", _item->view()->url() );
+    _value=s;
+}
+
+GGoogleCalendar::GGoogleCalendar( qreal w, qreal h, const PHIAItem *it, QGraphicsItem *parent )
+    : GExternalView( w, h, it, parent )
+{
+}
+
+GGoogleCalendar::~GGoogleCalendar()
+{
+}
+
+void GGoogleCalendar::setValue( const QString &s )
+{
+    QByteArray lang=_item->view()->page()->lang().toLatin1();
+    if ( lang=="C" ) lang="en";
+    else lang=lang.left( 2 );
+    QString src=s;
+    src.append( "&amp;hl="+lang+"&amp;height=\""+QByteArray::number( static_cast<int>(height()) )+"\"" );
+    QByteArray arr="<html><head><style>body { margin:0; padding:0; }</style></head><body>";
+    arr+="<iframe width=\""+QByteArray::number( static_cast<int>(width()) )+"\" height=\""
+        +QByteArray::number( static_cast<int>(height()) )+"\" src="
+        "\"https://www.google.com/calendar/embed?src="+src.toUtf8()
+        +"\" frameborder=\"0\"></iframe></body></html>";
+    setContent( arr, "text/html", _item->view()->url() );
+    _value=s;
+}

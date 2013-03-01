@@ -205,6 +205,8 @@ private:
     virtual void facebookLikeButton() const=0;
     virtual void googlePlusButton() const=0;
     virtual void canvas() const=0;
+    virtual void googleDynamicMaps() const=0;
+    virtual void googleCalendar() const=0;
 
     void createHtmlForItem();
     void createLayout();

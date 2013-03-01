@@ -53,6 +53,8 @@ protected:
     virtual void rect() const;
     virtual void roundedRect() const;
     virtual void youtubeVideo() const;
+    virtual void googleCalendar() const;
+    virtual void googleDynamicMaps() const;
 };
 
 #endif // PHISHTML5BASE_H

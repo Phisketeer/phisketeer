@@ -87,6 +87,8 @@ protected:
     virtual void facebookLikeButton() const;
     virtual void googlePlusButton() const;
     virtual void canvas() const;
+    virtual void googleDynamicMaps() const;
+    virtual void googleCalendar() const;
 };
 
 #endif // PHISHTMLGENERIC_H
