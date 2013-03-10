@@ -27,7 +27,7 @@ PHIMACSDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform
 #mac: PHICONF += x86_64 macappstore
 mac: PHICONF += x86_64
 
-CONFIG += qt thread largefile ordered $$[PHICONF]
+CONFIG += qt thread largefile ordered c++11 $$[PHICONF]
 INCLUDEPATH += .
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QT_NO_CAST_FROM_BYTEARRAY QT_NO_URL_CAST_FROM_STRING
 OBJECTS_DIR = .tmp
