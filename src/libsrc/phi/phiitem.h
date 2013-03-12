@@ -59,6 +59,8 @@ public:
     enum DragDropOption { DDNone=0, DDMoveAction=0x1, DDRevertOnIgnore=0x2, DDRevertOnAccept=0x4,
         DDHighlightOnMouseOver=0x8 };
 
+    enum LayoutOption { LNone=0, LHeader=0x1, LHeaderCenter=0x2, LHeaderRight=0x4, LClosable=0x8 };
+
     enum DataType { DNone=0, DPalette=1, DFont=2, DColor=3, DOutlineColor=4, DMaxSize=5,
         DStartAngle=6, DSpanAngle=7, DUrl=8, DPattern=9, DLine=10, DPenWidth=11, DStopPoints=12,
         DText=13, DImage=14, DAlignment=15, DStyleSheet=16, DToolTip=17, DLabel=18, DChildIds=19,
@@ -69,7 +71,7 @@ public:
         DAngle=39, DRadius=40, DSpreadType=41, DGradientType=42, DFadeTime=DStartAngle,
         DFadeInterval=DSpanAngle, DBorderRadius=DStartAngle, DDragStartPos=43, DDragOriginalPos=44,
         DDragHotSpot=45, DDragCursor=46, DDragDistance=47, DDragOpacity=48, DDragDropOptions=49,
-        DDropAcceptedIds=50, DDragHotSpotType=51, DCursor=52
+        DDropAcceptedIds=50, DDragHotSpotType=51, DCursor=52, DLayoutOptions=53, DLayoutTitleHeight=54
     }; //quint8 in DataStream
 
 #ifdef PHIDEBUG
@@ -77,11 +79,13 @@ public:
     Q_DECLARE_FLAGS( Extensions, Extension ) //qint32 in DataStream
     Q_DECLARE_FLAGS( Attributes, Attribute ) //qint32 in DataStream
     Q_DECLARE_FLAGS( DragDropOptions, DragDropOption ) //stored in variant data
+    Q_DECLARE_FLAGS( LayoutOptions, LayoutOption ) // stored in variant data
 #else
     typedef qint32 Properties;
     typedef qint32 Extensions;
     typedef qint32 Attributes;
     typedef qint32 DragDropOptions;
+    typedef qint32 LayoutOptions;
 #endif
 
     virtual QDataStream& load( QDataStream& );
@@ -152,6 +156,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS( PHIItem::Attributes )
 Q_DECLARE_OPERATORS_FOR_FLAGS( PHIItem::Properties )
 Q_DECLARE_OPERATORS_FOR_FLAGS( PHIItem::Extensions )
 Q_DECLARE_OPERATORS_FOR_FLAGS( PHIItem::DragDropOptions )
+Q_DECLARE_OPERATORS_FOR_FLAGS( PHIItem::LayoutOptions )
 #endif
 
 Q_DECLARE_METATYPE( PHIItem::DragDropOptions )
