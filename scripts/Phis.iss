@@ -1,6 +1,6 @@
 [Setup]
 AppName=Phisketeer
-AppVerName=Phisketeer V1.4.1
+AppVerName=Phisketeer V1.5.0
 DefaultDirName={pf}\Phisketeer
 DefaultGroupName=Phisketeer
 UninstallDisplayIcon={app}\artephis.exe
@@ -34,33 +34,48 @@ Source: phi1.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesame
 Source: phia1.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion restartreplace uninsnosharedfileprompt
 Source: npphiplugin1.dll; DestDir: {app}\bin; Components: plugin; Flags: regserver regtypelib replacesameversion 32bit uninsnosharedfileprompt
 
-Source: msvcr90.dll; DestDir: {app}\bin; Components: core; Flags: 32bit uninsnosharedfileprompt
-Source: msvcp90.dll; DestDir: {app}\bin; Components: core; Flags: 32bit uninsnosharedfileprompt
-Source: msvcm90.dll; DestDir: {app}\bin; Components: core; Flags: 32bit uninsnosharedfileprompt
-Source: Microsoft.VC90.CRT.manifest; DestDir: {app}\bin; Components: core; Flags: 32bit uninsnosharedfileprompt
+Source: msvcr100.dll; DestDir: {app}\bin; Components: core; Flags: 32bit uninsnosharedfileprompt
+Source: msvcp100.dll; DestDir: {app}\bin; Components: core; Flags: 32bit uninsnosharedfileprompt
+;Source: msvcm90.dll; DestDir: {app}\bin; Components: core; Flags: 32bit uninsnosharedfileprompt
+;Source: Microsoft.VC90.CRT.manifest; DestDir: {app}\bin; Components: core; Flags: 32bit uninsnosharedfileprompt
 Source: libmysql.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion
 
-Source: QtCore4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: QtGui4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: QtScript4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: QtCore4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: QtNetwork4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: QtSql4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: QtSvg4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: QtWebKit4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: QtXml4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: QtXmlPatterns4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: QtCLucene4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: phonon4.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: libeay32.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: ssleay32.dll; DestDir: {app}\bin; Components: core; Flags: restartreplace uninsnosharedfileprompt
-Source: idc.exe; DestDir: {app}\bin; Components: core; Flags: replacesameversion deleteafterinstall
+Source: Qt5Core.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Gui.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Script.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Widgets.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Network.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Sql.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Svg.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Multimedia.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5WebKit.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5WebKitWidgets.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5V8.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Xml.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5XmlPatterns.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5CLucene.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5PrintSupport.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5OpenGL.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Quick.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Qml.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 
-Source: sqldrivers\*.dll; DestDir: {app}\bin\plugins\sqldrivers; Components: core; Flags: replacesameversion
-Source: imageformats\*.dll; DestDir: {app}\bin\plugins\imageformats; Components: core; Flags: replacesameversion
-Source: codecs\*.dll; DestDir: {app}\bin\plugins\codecs; Components: core; Flags: replacesameversion
-Source: iconengines\*.dll; DestDir: {app}\bin\plugins\iconengines; Components: core; Flags: replacesameversion
-Source: phonon_backend\*.dll; DestDir: {app}\bin\plugins\phonon_backend; Components: core; Flags: replacesameversion
+Source: D3DCompiler_43.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: libEGL.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: libGLESv2.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: libeay32.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: ssleay32.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: icudt49.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion uninsnosharedfileprompt
+Source: icuin49.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion uninsnosharedfileprompt
+Source: icuuc49.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion uninsnosharedfileprompt
+Source: idc.exe; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion deleteafterinstall
+
+Source: sqldrivers\*.dll; DestDir: {app}\bin\plugins\sqldrivers; Components: core; Flags: 32bit replacesameversion
+Source: printsupport\*.dll; DestDir: {app}\bin\plugins\printsupport; Components: core; Flags: 32bit replacesameversion
+Source: imageformats\*.dll; DestDir: {app}\bin\plugins\imageformats; Components: core; Flags: 32bit replacesameversion
+Source: platforms\*.dll; DestDir: {app}\bin\plugins\platforms; Components: core; Flags: 32bit replacesameversion
+Source: iconengines\*.dll; DestDir: {app}\bin\plugins\iconengines; Components: core; Flags: 32bit replacesameversion
+Source: mediaservice\*.dll; DestDir: {app}\bin\plugins\mediaservice; Components: core; Flags: 32bit replacesameversion
+Source: modules\*.dll; DestDir: {app}\bin\plugins\modules; Components: core; Flags: 32bit replacesameversion
 Source: ts\*.qm; DestDir: {app}\ts; Components: core; Flags: replacesameversion
 
 Source: phis.exe; DestDir: {app}\bin; Components: server; Flags: 32bit replacesameversion restartreplace
@@ -117,13 +132,13 @@ Root: HKLM; Subkey: SOFTWARE\Phisketeer\phis\default\{code:GetFQDN}; ValueName: 
 Root: HKLM; Subkey: SOFTWARE\Classes\CLSID\{{F4463E56-F3CA-45E4-93FE-B8F007376088}\Implemented Categories\{{7DD95801-9882-11CF-9FA9-00AA006C42C4}; ValueType: none; Flags: uninsdeletekey; Components: plugin
 Root: HKLM; Subkey: SOFTWARE\Classes\CLSID\{{F4463E56-F3CA-45E4-93FE-B8F007376088}\Implemented Categories\{{7DD95802-9882-11CF-9FA9-00AA006C42C4}; ValueType: none; Flags: uninsdeletekey; Components: plugin
 
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.4.1; ValueType: none; Components: plugin; Flags: uninsdeletekey deletekey
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.4.1; ValueName: Path; ValueType: string; ValueData: {app}\bin\npphiplugin1.dll; Components: plugin
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.4.1; ValueName: Description; ValueType: string; ValueData: Phi plug-in V1.4.1; Components: plugin
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.4.1; ValueName: Vendor; ValueType: string; ValueData: Phisketeer; Components: plugin
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.4.1\MimeTypes\application/x-phi; ValueType: none; Components: plugin; Flags: uninsdeletekey deletekey
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.4.1\MimeTypes\application/x-phi; ValueName: Description; ValueType: string; ValueData: Phi plug-in; Components: plugin
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.4.1\MimeTypes\application/x-phi; ValueName: Suffixes; ValueType: string; ValueData: phi; Components: plugin
+Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueType: none; Components: plugin; Flags: uninsdeletekey deletekey
+Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueName: Path; ValueType: string; ValueData: {app}\bin\npphiplugin1.dll; Components: plugin
+Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueName: Description; ValueType: string; ValueData: Phi plug-in V1.5.0; Components: plugin
+Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueName: Vendor; ValueType: string; ValueData: Phisketeer; Components: plugin
+Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0\MimeTypes\application/x-phi; ValueType: none; Components: plugin; Flags: uninsdeletekey deletekey
+Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0\MimeTypes\application/x-phi; ValueName: Description; ValueType: string; ValueData: Phi plug-in; Components: plugin
+Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0\MimeTypes\application/x-phi; ValueName: Suffixes; ValueType: string; ValueData: phi; Components: plugin
 
 Root: HKCR; Subkey: .phis; ValueType: string; ValueName: ; ValueData: PhisketeerArtephis; Flags: uninsdeletevalue; Components: editor
 Root: HKCR; Subkey: PhisketeerArtephis; ValueType: string; ValueName: ; ValueData: Phi server page; Flags: uninsdeletekey; Components: editor

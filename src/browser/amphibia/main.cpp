@@ -20,9 +20,11 @@
 #include "ampmainwindow.h"
 #include "phi.h"
 #include "phia.h"
+#include "phiqt5fixes.h"
 
 int main ( int argc, char **argv )
 {
+    phiSetPluginPath( argc, argv );
     QApplication app( argc, argv );
 
     app.setApplicationName( PHIA::browserName() );

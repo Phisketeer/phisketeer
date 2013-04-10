@@ -1,4 +1,4 @@
-This is release V1.4.1 of the Phi(sketeer) software suite.
+This is release V1.5.0 of the Phi(sketeer) software suite.
 You find all recent changes at http://wiki.phisketeer.org by clicking on "Change log" in the navigation bar.
 
 Professional installation and compiling support is available through our main sponsor Phisys AG.
@@ -28,31 +28,31 @@ Windows notes:
 
 Mac OS X notes:
 ===============
-- requires Mac OS X 10.5 64bit (Leopard) or higher
+- requires Mac OS X 10.6 64bit (Snow Leopard) or higher
 - due to the restrictions of the AppStore we do not provide multi architecture binaries anymore
 - the PhiPlugin on Mac OS X is currently not available, however Safari (on Mac OS X) supports already real 3D transformations, or use Amphibia to get all the power of Phi
 - an Apache Phi module for Mac OS X is not available
 - Phis is automatically started in the background (usually listening on port 8080) on Artephis launch
-- available on the AppStore since version 1.4.0: look out for 'Artephis'...
+- available in the AppStore since version 1.4.0: look out for 'Artephis'.
 
 Linux notes:
 ===============
-- run 'sudo ./phisketeer-1.4.1.bin' to install Phisketeer
+- run 'sudo ./phisketeer-1.5.0.bin' to install Phisketeer
    (Add 'DISPLAY XAUTHORITY' to '/etc/sudoers' if you get 'Cannot connect to X server')
 - Check the file permissions for the documentroot (default: '/var/phis/default/localhost')
 - the PhiPlugin is experimental:
    to enable the PhiPlugin set the MOZ_PLUGIN_PATH in your .bashrc or copy libphiplugin.so.1 to the plug-in path:
-   $ export MOZ_PLUGIN_PATH=/opt/phisketeer-1.4.1/lib:$MOZ_PLUGIN_PATH
+   $ export MOZ_PLUGIN_PATH=/opt/phisketeer-1.5.0/lib:$MOZ_PLUGIN_PATH
 - for starting the Artephis IDE run:
-   $ /opt/phisketeer-1.4.1/bin/artephis (do NOT run Artephis as root)
+   $ /opt/phisketeer-1.5.0/bin/artephis (do NOT run Artephis as root)
 - for configuring the Phi web service run:
-   $ sudo /opt/phisketeer-1.4.1/bin/phisconf
+   $ sudo /opt/phisketeer-1.5.0/bin/phisconf
 - an Apache module is provided and highly recommended for production environments
 
 Compiling from source:
 ======================
 - Phi(sketeer) sources are freely available on GitHub and Gitorios
-- requires a recent Qt 4.8.x or higher installation freely available at http://qt.digia.com
+- requires a recent Qt 5.0.2 or higher installation freely available at http://qt.digia.com
 - check out the phi.pro file in the source distribution for additional notes
 - run '/path_to_Qt_dir/bin/qmake phi.pro' to start compiling
 - Artephis is precompiled and currently not open source due to included proprietary code and icon sets

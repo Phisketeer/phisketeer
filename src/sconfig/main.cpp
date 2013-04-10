@@ -19,9 +19,11 @@
 #include <QApplication>
 #include "sconfig.h"
 #include "phi.h"
+#include "phiqt5fixes.h"
 
 int main ( int argc, char **argv )
 {
+    phiSetPluginPath( argc, argv );
     //QApplication::setDesktopSettingsAware( false );
     QApplication app( argc, argv );
     app.setApplicationName( QStringLiteral( "Phisconf" ) );
@@ -31,7 +33,7 @@ int main ( int argc, char **argv )
     SConfig dlg;
     dlg.show();
 #ifdef Q_OS_MAC
-    // we need to set LSUIElement to true to prevent the icon of the phis daemon in the panel
+    // we need to set LSUIElement to true to prevent appearing the icon of the phis daemon in the panel
     // in the Info.plist of the editor. However this doesn't bring SConfig automatically to the front
     dlg.raise();
 #endif

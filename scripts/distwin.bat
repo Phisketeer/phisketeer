@@ -10,6 +10,7 @@ copy /y %QTBINS%\*.dll
 REM del *d4.dll
 copy /y %QTBINS%\idc.exe
 if not exist imageformats mkdir imageformats
+if not exist accessible mkdir accessible
 if not exist sqldrivers mkdir sqldrivers
 if not exist platforms mkdir platforms
 if not exist iconengines mkdir iconengines
@@ -17,19 +18,26 @@ if not exist printsupport mkdir printsupport
 if not exist mediaservice mkdir mediaservice
 if not exist pages mkdir pages
 if not exist ts mkdir ts
+if not exist modules mkdir modules
 copy /y %QTPLUGINS%\imageformats\*.dll imageformats
-del imageformats\*d4.dll
+del imageformats\*d.dll
+copy /y %QTPLUGINS%\accessible\*.dll accessible
+del accessible\*d.dll
 copy /y %QTPLUGINS%\sqldrivers\*.dll sqldrivers
-del sqldrivers\*d4.dll
+del sqldrivers\*d.dll
 copy /y %QTPLUGINS%\platforms\*.dll platforms
-del platforms\*d4.dll
+del platforms\*d.dll
 copy /y %QTPLUGINS%\printsupport\*.dll printsupport
-del printsupport\*d4.dll
+del printsupport\*d.dll
 copy /y %QTPLUGINS%\iconengines\*.dll iconengines
-del iconengines\*d4.dll
+del iconengines\*d.dll
 copy /y %QTPLUGINS%\mediaservice\*.dll mediaservice
-del mediaservice\*d4.dll
-copy /y %QTTRANSLATIONS%\qt_*.ts ts
+del mediaservice\*d.dll
+copy /y %QTTRANSLATIONS%\qt_*.qm ts
+copy /y %QTTRANSLATIONS%\qtmultimedia_*.qm ts
+copy /y %QTTRANSLATIONS%\qtbase_*.qm ts
+copy /y %QTTRANSLATIONS%\qtconfig*.qm ts
+copy /y %QTTRANSLATIONS%\qtscript*.qm ts
 del ts\qt_help*
 copy /y ..\src\ts\*.qm ts
 cd ts
@@ -37,8 +45,9 @@ for %%i in (*.ts) do %QTBINS%\lrelease -removeidentical %%i
 del *.ts
 cd ..
 copy /y ..\bin\*.dll
-copy /y ..\3rdparty\win32\artephis.exe bin
+copy /y ..\3rdparty\win32\artephis.exe
 copy /y ..\bin\*.exe
+copy /y ..\bin\plugins\modules\*.dll modules
 copy /y ..\doc\readme.txt README.txt
 copy /y ..\doc\license.txt
 copy /y ..\doc\trademarks.txt
@@ -47,7 +56,7 @@ copy /y ..\scripts\Phis.iss
 copy /y ..\3rdparty\win32\openssl\libeay32.dll
 copy /y ..\3rdparty\win32\openssl\ssleay32.dll
 copy /y ..\3rdparty\win32\redist\msvcr100.dll
-copy /y ..\3rdparty\win32\redits\msvcp100.dll
+copy /y ..\3rdparty\win32\redist\msvcp100.dll
 if exist C:\PROGRA~2\MySQL\MYSQLS~1.5\lib\libmysql.dll copy /y C:\PROGRA~2\MySQL\MYSQLS~1.5\lib\libmysql.dll
 
 REM add type library:
