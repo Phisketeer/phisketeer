@@ -19,7 +19,7 @@ Name: custom; Description: Custom installation; Flags: iscustom
 
 [Components]
 Name: core; Description: Program libraries; Types: full apache custom; Flags: fixed
-Name: plugin; Description: Phi browser plug-in; Types: full custom
+;Name: plugin; Description: Phi browser plug-in; Types: full custom
 Name: server; Description: Phis server; Types: full custom
 Name: apache; Description: Apache module; Types: apache
 Name: browser; Description: Amphibia browser; Types: full apache custom
@@ -32,7 +32,7 @@ Name: editor; Description: Artephis editor; Types: full apache custom
 [Files]
 Source: phi1.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion restartreplace uninsnosharedfileprompt
 Source: phia1.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion restartreplace uninsnosharedfileprompt
-Source: npphiplugin1.dll; DestDir: {app}\bin; Components: plugin; Flags: regserver regtypelib replacesameversion 32bit uninsnosharedfileprompt
+;Source: npphiplugin1.dll; DestDir: {app}\bin; Components: plugin; Flags: regserver regtypelib replacesameversion 32bit uninsnosharedfileprompt
 
 Source: msvcr100.dll; DestDir: {app}\bin; Components: core; Flags: 32bit uninsnosharedfileprompt
 Source: msvcp100.dll; DestDir: {app}\bin; Components: core; Flags: 32bit uninsnosharedfileprompt
@@ -47,13 +47,14 @@ Source: Qt5Widgets.dll; DestDir: {app}\bin; Components: core; Flags: 32bit resta
 Source: Qt5Network.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5Sql.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5Svg.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5MultimediaWidgets.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5Multimedia.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5WebKit.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5WebKitWidgets.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5V8.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
-Source: Qt5Xml.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
-Source: Qt5XmlPatterns.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
-Source: Qt5CLucene.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+;Source: Qt5Xml.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+;Source: Qt5XmlPatterns.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+;Source: Qt5CLucene.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5PrintSupport.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5OpenGL.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5Quick.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
@@ -67,7 +68,7 @@ Source: ssleay32.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restart
 Source: icudt49.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion uninsnosharedfileprompt
 Source: icuin49.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion uninsnosharedfileprompt
 Source: icuuc49.dll; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion uninsnosharedfileprompt
-Source: idc.exe; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion deleteafterinstall
+;Source: idc.exe; DestDir: {app}\bin; Components: core; Flags: 32bit replacesameversion deleteafterinstall
 
 Source: sqldrivers\*.dll; DestDir: {app}\bin\plugins\sqldrivers; Components: core; Flags: 32bit replacesameversion
 Source: printsupport\*.dll; DestDir: {app}\bin\plugins\printsupport; Components: core; Flags: 32bit replacesameversion
@@ -129,16 +130,16 @@ Root: HKLM; Subkey: SOFTWARE\Phisketeer\phis\default; ValueName: SSLEnabled; Val
 Root: HKLM; Subkey: SOFTWARE\Phisketeer\phis\default; ValueName: Admin; ValueType: string; ValueData: {code:GetAdmin}; Components: server
 Root: HKLM; Subkey: SOFTWARE\Phisketeer\phis\default\{code:GetFQDN}; ValueName: DocumentRoot; ValueType: string; ValueData: {code:GetDataDir}\default\{code:GetFQDN}; Components: server
 Root: HKLM; Subkey: SOFTWARE\Phisketeer\phis\default\{code:GetFQDN}; ValueName: TempDir; ValueType: string; ValueData: {code:GetDataDir}\default\temp; Components: server
-Root: HKLM; Subkey: SOFTWARE\Classes\CLSID\{{F4463E56-F3CA-45E4-93FE-B8F007376088}\Implemented Categories\{{7DD95801-9882-11CF-9FA9-00AA006C42C4}; ValueType: none; Flags: uninsdeletekey; Components: plugin
-Root: HKLM; Subkey: SOFTWARE\Classes\CLSID\{{F4463E56-F3CA-45E4-93FE-B8F007376088}\Implemented Categories\{{7DD95802-9882-11CF-9FA9-00AA006C42C4}; ValueType: none; Flags: uninsdeletekey; Components: plugin
+Root: HKLM; Subkey: SOFTWARE\Classes\CLSID\{{F4463E56-F3CA-45E4-93FE-B8F007376088}\Implemented Categories\{{7DD95801-9882-11CF-9FA9-00AA006C42C4}; ValueType: none; Flags: uninsdeletekey; Components: browser
+Root: HKLM; Subkey: SOFTWARE\Classes\CLSID\{{F4463E56-F3CA-45E4-93FE-B8F007376088}\Implemented Categories\{{7DD95802-9882-11CF-9FA9-00AA006C42C4}; ValueType: none; Flags: uninsdeletekey; Components: browser
 
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueType: none; Components: plugin; Flags: uninsdeletekey deletekey
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueName: Path; ValueType: string; ValueData: {app}\bin\npphiplugin1.dll; Components: plugin
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueName: Description; ValueType: string; ValueData: Phi plug-in V1.5.0; Components: plugin
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueName: Vendor; ValueType: string; ValueData: Phisketeer; Components: plugin
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0\MimeTypes\application/x-phi; ValueType: none; Components: plugin; Flags: uninsdeletekey deletekey
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0\MimeTypes\application/x-phi; ValueName: Description; ValueType: string; ValueData: Phi plug-in; Components: plugin
-Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0\MimeTypes\application/x-phi; ValueName: Suffixes; ValueType: string; ValueData: phi; Components: plugin
+;Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueType: none; Components: plugin; Flags: uninsdeletekey deletekey
+;Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueName: Path; ValueType: string; ValueData: {app}\bin\npphiplugin1.dll; Components: plugin
+;Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueName: Description; ValueType: string; ValueData: Phi plug-in V1.5.0; Components: plugin
+;Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0; ValueName: Vendor; ValueType: string; ValueData: Phisketeer; Components: plugin
+;Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0\MimeTypes\application/x-phi; ValueType: none; Components: plugin; Flags: uninsdeletekey deletekey
+;Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0\MimeTypes\application/x-phi; ValueName: Description; ValueType: string; ValueData: Phi plug-in; Components: plugin
+;Root: HKLM; Subkey: SOFTWARE\MozillaPlugins\@phisketeer.org/npphi,version=1.5.0\MimeTypes\application/x-phi; ValueName: Suffixes; ValueType: string; ValueData: phi; Components: plugin
 
 Root: HKCR; Subkey: .phis; ValueType: string; ValueName: ; ValueData: PhisketeerArtephis; Flags: uninsdeletevalue; Components: editor
 Root: HKCR; Subkey: PhisketeerArtephis; ValueType: string; ValueName: ; ValueData: Phi server page; Flags: uninsdeletekey; Components: editor
@@ -150,7 +151,7 @@ Root: HKCR; Subkey: PhisketeerPhiApp; ValueType: string; ValueName: ; ValueData:
 Root: HKCR; Subkey: PhisketeerPhiApp\DefaultIcon; ValueType: string; ValueData: {app}\bin\phiapp.exe,0; Components: core
 Root: HKCR; Subkey: PhisketeerPhiApp\shell\open\command; ValueType: string; ValueName: ; ValueData: """{app}\bin\phiapp.exe"" ""%1%"""; Components: core
 
-Root: HKCU; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\Ext\Stats\{{F4463E56-F3CA-45E4-93FE-B8F007376088}\iexplore\AllowedDomains\*; ValueType: none; Flags: uninsdeletevalue; Components: plugin
+Root: HKCU; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\Ext\Stats\{{F4463E56-F3CA-45E4-93FE-B8F007376088}\iexplore\AllowedDomains\*; ValueType: none; Flags: uninsdeletevalue; Components: browser
 ;Root: HKCU; Subkey: SOFTWARE\Phisketeer\Artephis; ValueType: string; Flags: createvalueifdoesntexist; Components: editor; ValueName: LastFile; ValueData: {code:GetDataDir}\default\{code:GetFQDN}\phitest.phis
 Root: HKCU; Subkey: SOFTWARE\Phisketeer\Artephis; ValueType: string; Flags: createvalueifdoesntexist; Components: editor; ValueName: LastOpenedDir; ValueData: {code:GetDataDir}\default\{code:GetFQDN}
 Root: HKCU; Subkey: SOFTWARE\Phisketeer\Artephis; ValueType: string; Flags: createvalueifdoesntexist; Components: editor; ValueName: RootDir; ValueData: {code:GetDataDir}\default\{code:GetFQDN}
@@ -159,7 +160,7 @@ Root: HKCU; Subkey: SOFTWARE\Phisketeer\Artephis; ValueType: string; Flags: crea
 Filename: {app}\bin\phis.exe; Description: Install Phis server as a service; Parameters: -i; WorkingDir: {app}\bin; StatusMsg: Installing the Phis service; Flags: postinstall runascurrentuser; Components: server
 Filename: {app}\bin\phis.exe; Description: Run Phis server; WorkingDir: {app}\bin; StatusMsg: Starting the Phis service; Flags: postinstall runascurrentuser; Components: server
 ;Filename: {app}\bin\phis.exe; Description: Run Phis server automatically on system startup; WorkingDir: {app}\bin; StatusMsg: Setting up the Phis service; Flags: postinstall runascurrentuser; Components: server; Parameters: -c 2
-Filename: {app}\bin\idc.exe; Description: Register ActiveX control; Parameters: npphiplugin1.dll /regserver; WorkingDir: {app}\bin; StatusMsg: Registering ActiveX control for Phi; Flags: runascurrentuser; Components: core
+;Filename: {app}\bin\idc.exe; Description: Register ActiveX control; Parameters: npphiplugin1.dll /regserver; WorkingDir: {app}\bin; StatusMsg: Registering ActiveX control for Phi; Flags: runascurrentuser; Components: core
 ;Filename: {sys}\setx; Description: Add the Phi library dir to PATH variable; Parameters: "PATH %PATH%;{app}\bin"; WorkingDir: {app}\bin; StatusMsg: Adding PATH variable; Flags: postinstall runascurrentuser skipifdoesntexist; Components: apache
 
 [UninstallRun]

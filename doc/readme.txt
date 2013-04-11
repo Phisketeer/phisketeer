@@ -7,10 +7,10 @@ Please visit: http://www.phisys.com for further information.
 Phi components:
 ===============
 - Artephis is your intuitive editor creating genious Phi pages
-- Phis is the stand alone Web service which processes Phi pages into HTML code
-- Phisconf is the configuration program for the Web service
+- Phis is the stand-alone Web service which processes Phi pages into HTML code
+- Phisconf is the configuration program for the Phis Web service
 - PhiApp is an OS natively running program for displaying Phi content
-- libmod_phi is the Phi module for the Apache web server (MPM worker and prefork are supported)
+- libmod_phi is the Phi module for the Apache Web server (MPM worker and prefork are supported)
 - Amphibia is an open source Web browser including native Phi support
 
 Amphibia notes:
@@ -18,21 +18,20 @@ Amphibia notes:
 - it is not a replacement for other browser, however it contains a ful WebKit implementation
 - the main intention is to test the Phi native mode
 - bookmarks are not yet implemented
-- searching is not working
+- searching is not yet working
 
 Windows notes:
 ===============
-- a 64bit PhiPlugin for any available browser in Windows is currently not supported, however you can still view the HTML output with these browsers
+- the PhiPlugin has been removed (all recent browser versions support now perspective transformations)
 - if you encounter visual problems with the Internet-Explorer displaying Phi content switch between the compatibility modes of the browser
 - an Apache module for serving Phi pages is available and highly recommended for production environments
 
 Mac OS X notes:
 ===============
-- requires Mac OS X 10.6 64bit (Snow Leopard) or higher
-- due to the restrictions of the AppStore we do not provide multi architecture binaries anymore
-- the PhiPlugin on Mac OS X is currently not available, however Safari (on Mac OS X) supports already real 3D transformations, or use Amphibia to get all the power of Phi
-- an Apache Phi module for Mac OS X is not available
-- Phis is automatically started in the background (usually listening on port 8080) on Artephis launch
+- requires Mac OS X 10.7 64bit (Lion) or higher
+- due to the restrictions of the AppStore we can not provide multi architecture binaries anymore
+- an Apache Phi module (libmod_phi) for Mac OS X is currently not available
+- the Phis Web service is automatically started in the background (usually listening on port 8080) on Artephis launch
 - available in the AppStore since version 1.4.0: look out for 'Artephis'.
 
 Linux notes:
@@ -40,12 +39,10 @@ Linux notes:
 - run 'sudo ./phisketeer-1.5.0.bin' to install Phisketeer
    (Add 'DISPLAY XAUTHORITY' to '/etc/sudoers' if you get 'Cannot connect to X server')
 - Check the file permissions for the documentroot (default: '/var/phis/default/localhost')
-- the PhiPlugin is experimental:
-   to enable the PhiPlugin set the MOZ_PLUGIN_PATH in your .bashrc or copy libphiplugin.so.1 to the plug-in path:
-   $ export MOZ_PLUGIN_PATH=/opt/phisketeer-1.5.0/lib:$MOZ_PLUGIN_PATH
+- the PhiPlugin is not longer needed
 - for starting the Artephis IDE run:
    $ /opt/phisketeer-1.5.0/bin/artephis (do NOT run Artephis as root)
-- for configuring the Phi web service run:
+- for configuring the Phis Web service run:
    $ sudo /opt/phisketeer-1.5.0/bin/phisconf
 - an Apache module is provided and highly recommended for production environments
 
