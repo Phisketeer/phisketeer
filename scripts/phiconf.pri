@@ -20,14 +20,13 @@
 
 PHIDOM = phisketeer.org
 PHIORG = Phisketeer
-PHICONF = warn_on
 PHIRELEASE = 1.5.0
-PHIMACDEPLOY = 10.6
+PHIMACDEPLOY = 10.7
 PHIMACSDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
-#mac: PHICONF += x86_64 macappstore
-mac: PHICONF += x86_64
+mac: PHICONF = macappstore
+#PHICONF =
 
-CONFIG += qt thread largefile ordered c++11 $$[PHICONF]
+CONFIG += qt thread largefile ordered c++11 warn_on
 INCLUDEPATH += .
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QT_NO_CAST_FROM_BYTEARRAY QT_NO_URL_CAST_FROM_STRING
 OBJECTS_DIR = .tmp
@@ -38,17 +37,20 @@ else: DEFINES += QT_NO_DEBUG_OUTPUT
 unix {
     QMAKE_LFLAGS_RPATH =
     mac {
-        contains( CONFIG, macappstore ){
+        contains( PHICONF, macappstore ){
             DEFINES += PHIAPPSTORE
-            QMAKE_CFLAGS += -gdwarf-2
+            # QMAKE_CFLAGS += -gdwarf-2 # not needed anymore with Qt5
             QMAKE_CXXFLAGS += -gdwarf-2
             QMAKE_CFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
             QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO
-            QMAKE_OBJECTIVE_CFLAGS_RELEASE = $$QMAKE_OBJECTIVE_CFLAGS_RELEASE_WITH_DEBUGINFO
+            QMAKE_OBJECTIVE_CFLAGS_RELEASE = $$QMAKE_OBJECTIVE_CFLAGS_RELEASE_WITH_DEBUGINFO\
+                -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
             QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
         }
         QMAKE_MAC_SDK = $$[PHIMACSDK]
-        QMAKE_MACOSX_DEPLOYMENT_TARGET = $$[PHIMACDEPLOY]
+        # QMAKE_MACOSX_DEPLOYMENT_TARGET = $$PHIMACDEPLOY
+        QMAKE_CXXFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
+        # QMAKE_CXXFLAGS = -stdlib=libc++
         DEFINES += PHIMACFONT
     }
 }

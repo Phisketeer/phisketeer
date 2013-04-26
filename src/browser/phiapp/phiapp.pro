@@ -21,7 +21,7 @@ include( ../../../scripts/phiconf.pri )
 TEMPLATE = app
 TARGET = phiapp
 DESTDIR = ../../../bin
-QT = core gui widgets network svg script webkitwidgets printsupport
+QT = core gui widgets network svg script webkitwidgets webkit printsupport
 VERSION = $$PHIRELEASE
 INCLUDEPATH = ../../libsrc/phi ../../libsrc/phia
 DEFINES += PHIVERSION=\\\"$$VERSION\\\"

@@ -212,7 +212,7 @@ protected:
     virtual void setOnHandler( const QString &e, const QScriptValue &fn );
     virtual void setOffHandler( const QString &e, const QScriptValue &fn );
 
-    virtual QFont font() const;
+    virtual QFont font( const QFont &f=PHI::invalidFont() ) const;
     virtual qint32 fontSize() const;
     virtual QPalette palette() const;
     virtual QColor color() const;

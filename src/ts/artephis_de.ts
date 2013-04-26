@@ -2,6 +2,14 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="de_DE">
 <context>
+    <name>APHBgImgDialog</name>
+    <message>
+        <location filename="aphbgimgdialog.cpp" line="17"/>
+        <source>Background image</source>
+        <translation>Hintergrund-Bild</translation>
+    </message>
+</context>
+<context>
     <name>APHDragDropWidget</name>
     <message>
         <location filename="aphdragdropwidget.cpp" line="72"/>
@@ -450,7 +458,7 @@
         <translation type="obsolete">Externes HTML-Dokument</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="76"/>
+        <location filename="aphitem.cpp" line="77"/>
         <source>External reference to an embeded HTML document</source>
         <translation>Referenziert oder bettet ein externes HTML-Dokument ein</translation>
     </message>
@@ -536,210 +544,253 @@
     </message>
     <message>
         <location filename="aphitem.cpp" line="73"/>
-        <source>Dia show</source>
+        <source>Slide show</source>
+        <oldsource>Dia show</oldsource>
         <translation>Dia-Show</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="73"/>
         <source>Displays pictures in a DIA show</source>
-        <translation>Zeigt Bilder in einer Dia-Show an</translation>
+        <translation type="obsolete">Zeigt Bilder in einer Dia-Show an</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="75"/>
+        <location filename="aphitem.cpp" line="73"/>
+        <source>Displays pictures in a slide show</source>
+        <translation>Zeigt Bilder in einer Slide-Show an.</translation>
+    </message>
+    <message>
+        <location filename="aphitem.cpp" line="74"/>
+        <source>Canvas</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="aphitem.cpp" line="74"/>
+        <source>Drawing pictures in a canvas.</source>
+        <translation>Zeichnet Bilder in ein Canvas Element.</translation>
+    </message>
+    <message>
+        <location filename="aphitem.cpp" line="76"/>
         <source>External items and documents</source>
         <translation>Externe Elemente</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="76"/>
+        <location filename="aphitem.cpp" line="77"/>
         <source>HTML document</source>
         <translation>HTML Dokument</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="77"/>
+        <location filename="aphitem.cpp" line="78"/>
         <source>Facebook like button</source>
         <translation>Facebook Like-Schalter</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="77"/>
+        <location filename="aphitem.cpp" line="78"/>
         <source>Implements a Facebook like button</source>
         <translation>Implementiert einen Facebook Like-Schalter</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="78"/>
+        <location filename="aphitem.cpp" line="79"/>
         <source>Twitter button</source>
         <translation>Twitter Schalter</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="78"/>
+        <location filename="aphitem.cpp" line="79"/>
         <source>Implements a Twitter button</source>
         <translation>Implementiert einen Twitter Schalter</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="79"/>
+        <location filename="aphitem.cpp" line="80"/>
         <source>Google+ button</source>
         <translation>Google+ Schalter</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="79"/>
+        <location filename="aphitem.cpp" line="80"/>
         <source>Implements a Google+ button</source>
         <translation>Implementiert einen Googe+ Schalter</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="80"/>
+        <location filename="aphitem.cpp" line="81"/>
         <source>Google static map</source>
         <translation>Google statische Karte</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="80"/>
+        <location filename="aphitem.cpp" line="81"/>
         <source>Embed a static Google map</source>
         <translation>Bindet eine statische Google Landkarte ein</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="81"/>
+        <location filename="aphitem.cpp" line="82"/>
         <source>YouTube video</source>
         <translation>YouTube Video</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="81"/>
+        <location filename="aphitem.cpp" line="82"/>
         <source>Embed a YouTube video</source>
         <translation>Bindet ein YouTube Video ein</translation>
     </message>
     <message>
         <location filename="aphitem.cpp" line="83"/>
+        <source>Google calendar</source>
+        <translation>Google Kalender</translation>
+    </message>
+    <message>
+        <location filename="aphitem.cpp" line="83"/>
+        <source>Embed a Google calendar</source>
+        <translation>Bindet ein Google Kalender ein</translation>
+    </message>
+    <message>
+        <location filename="aphitem.cpp" line="84"/>
+        <source>Google maps</source>
+        <translation>Google Maps</translation>
+    </message>
+    <message>
+        <location filename="aphitem.cpp" line="84"/>
+        <source>Embed Google dynamic maps</source>
+        <translation>Bindet dynamische Google Karten ein</translation>
+    </message>
+    <message>
+        <location filename="aphitem.cpp" line="86"/>
         <source>Phi layout container items</source>
         <translation>Phi Layout-Container</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="84"/>
+        <location filename="aphitem.cpp" line="87"/>
         <source>Login</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="84"/>
+        <location filename="aphitem.cpp" line="87"/>
         <source>Login and password container</source>
         <translation>Login- und Paßwort-Container</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="85"/>
+        <location filename="aphitem.cpp" line="88"/>
         <source>Address</source>
         <translation>Adresse</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="85"/>
+        <location filename="aphitem.cpp" line="88"/>
         <source>Address container</source>
         <translation>Adressen-Container</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="86"/>
+        <location filename="aphitem.cpp" line="89"/>
         <source>Credit card</source>
         <translation>Kredit-Karte</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="86"/>
+        <location filename="aphitem.cpp" line="89"/>
         <source>Credit card container</source>
         <translation>Kredit-Karten-Container</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="87"/>
+        <location filename="aphitem.cpp" line="90"/>
         <source>Period</source>
         <translation>Zeitraum</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="87"/>
+        <location filename="aphitem.cpp" line="90"/>
         <source>Start and end date container</source>
         <translation>Container für Zeiräume</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="88"/>
+        <location filename="aphitem.cpp" line="91"/>
         <source>Contact</source>
         <translation>Kontakt</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="88"/>
+        <location filename="aphitem.cpp" line="91"/>
         <source>Contact container</source>
         <translation>Kontakt-Container</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="89"/>
+        <location filename="aphitem.cpp" line="92"/>
         <source>Register user</source>
         <translation>Benutzer-Registration</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="89"/>
+        <location filename="aphitem.cpp" line="92"/>
         <source>Register container</source>
         <translation>Container für Benutzer-Registrierung</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="110"/>
+        <location filename="aphitem.cpp" line="113"/>
         <source>Vertical layout</source>
         <translation>Vertikales Layout</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="110"/>
-        <location filename="aphitem.cpp" line="111"/>
+        <location filename="aphitem.cpp" line="113"/>
+        <location filename="aphitem.cpp" line="114"/>
         <source>Linear layout for alignments</source>
         <translation>Lineares Layout für Ausrichtungen</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="111"/>
+        <location filename="aphitem.cpp" line="114"/>
         <source>Horizontal layout</source>
         <translation>Horizontales Layout</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="112"/>
+        <location filename="aphitem.cpp" line="115"/>
         <source>Form layout</source>
         <translation>Formular-Layout</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="112"/>
+        <location filename="aphitem.cpp" line="115"/>
         <source>Two column layout for alignments</source>
         <translation>Zwei Spalten-Layout für Ausrichtungen</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="113"/>
+        <location filename="aphitem.cpp" line="116"/>
         <source>Grid layout</source>
         <translation>Gitter-Layout</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="113"/>
+        <location filename="aphitem.cpp" line="116"/>
         <source>Grid layout for alignments</source>
         <translation>Layout für Gitter Anordnungen</translation>
     </message>
     <message>
-        <location filename="aphitem.cpp" line="143"/>
+        <location filename="aphitem.cpp" line="146"/>
         <source>unknown WID</source>
         <translation>Unbekannte WID</translation>
     </message>
     <message>
-        <location filename="aphitemwid.cpp" line="120"/>
+        <location filename="aphitemwid.cpp" line="122"/>
         <source>graphical text</source>
         <translation>grafischer Text</translation>
     </message>
     <message>
-        <location filename="aphitemwid.cpp" line="123"/>
+        <location filename="aphitemwid.cpp" line="125"/>
         <source>rich text</source>
         <translation>Rich-Text</translation>
     </message>
     <message>
-        <location filename="aphitemwid.cpp" line="126"/>
+        <location filename="aphitemwid.cpp" line="128"/>
         <source>label</source>
         <translation>Label</translation>
     </message>
     <message>
-        <location filename="aphitemwid.cpp" line="129"/>
+        <location filename="aphitemwid.cpp" line="131"/>
         <source>link</source>
         <translation>Link</translation>
     </message>
     <message>
-        <location filename="aphitemwid.cpp" line="132"/>
+        <location filename="aphitemwid.cpp" line="134"/>
         <source>rich text layouted</source>
         <translation>Rich-Text-Layout</translation>
     </message>
 </context>
 <context>
+    <name>APHLayoutWidget</name>
+    <message>
+        <location filename="aphlayoutwidget.cpp" line="71"/>
+        <source>title</source>
+        <translation>Titel</translation>
+    </message>
+</context>
+<context>
     <name>APHMainWindow</name>
     <message>
-        <location filename="aphmainwindow.cpp" line="145"/>
+        <location filename="aphmainwindow.cpp" line="146"/>
         <source>Starting with Phi</source>
         <translation>Starten mit Phi</translation>
     </message>
@@ -752,22 +803,22 @@
         <translation type="obsolete">Willkommen beim Aphilo Editor. Ziehen Sie einfach per &apos;Drag &amp; Drop&apos; Elemente aus der &apos;Elemente-Liste&apos; in den Arbeitsbereich. Sie können auch die mitgelieferte Datei &apos;phitest.phis&apos; erkunden, um die vielen Möglichkeiten der PhiSuite zu entdecken. Bitte zögern Sie nicht sämtliche Fehler und Verbesserungsvorschläge and feedback@phisys.com zu melden. Wir wünschen Ihnen viel Spaß mit Phi.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="146"/>
+        <location filename="aphmainwindow.cpp" line="147"/>
         <source>Welcome to the Artephis editor. Simply drag and drop items from the &apos;Elements&apos; tool box into the working space. You also may explore the provided &apos;phitest.phis&apos; page to discover the nice possibilities and features Phisketeer comes along with. Please don&apos;t hesitate to report any bugs and suggestions to feedback@phisketeer.org! We wish you a lot of fun with Phi.</source>
         <translation>Willkommen beim Artephis Editor. Ziehen Sie einfach per &apos;Drag &amp; Drop&apos; Elemente aus der &apos;Elemente-Liste&apos; in den Arbeitsbereich. Sie können auch die mitgelieferte Datei &apos;phitest.phis&apos; erkunden, um die vielen Möglichkeiten von Phisketeer zu entdecken. Bitte zögern Sie nicht sämtliche Fehler und Verbesserungsvorschläge and feedback@phisketeer.org zu melden. Wir wünschen Ihnen viel Spaß mit Phi.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="151"/>
+        <location filename="aphmainwindow.cpp" line="152"/>
         <source>Please note:</source>
         <translation>Bitte beachten Sie:</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="151"/>
+        <location filename="aphmainwindow.cpp" line="152"/>
         <source>Phisketeer is free software and we need your help to develop new features and quality. If you like this software you may want to contribute or donate. Find more information on %1.</source>
         <translation>Phisketeer ist freie Software und wir benötigen Ihre Hilfe, um neue Features und höhere Qualität zu entwickeln. Wenn Ihnen diese Software gefällt, möchten Sie uns vielleicht unterstützen oder etwas spenden. Weitere Informationen finden Sie auf %1.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="154"/>
+        <location filename="aphmainwindow.cpp" line="155"/>
         <source>You may also optain a professional license from our main sponsor Phisys AG, please visit %1.</source>
         <translation>Sie können auch eine professionelle Lizenz von unserem Hauptsponsor Phisys AG erwerben, bitte besuchen Sie dazu %1.</translation>
     </message>
@@ -780,10 +831,10 @@
         <translation type="obsolete">Der Phis Webdienst läuft nicht auf &apos;localhost&apos;. Möchten Sie den Dienst auf Port &apos;%1&apos; starten? Sie können den Dienst auch unter &apos;Einstellungen&apos; konfigurieren.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="237"/>
-        <location filename="aphmainwindow.cpp" line="265"/>
-        <location filename="aphmainwindow.cpp" line="365"/>
-        <location filename="aphmainwindow.cpp" line="445"/>
+        <location filename="aphmainwindow.cpp" line="240"/>
+        <location filename="aphmainwindow.cpp" line="268"/>
+        <location filename="aphmainwindow.cpp" line="368"/>
+        <location filename="aphmainwindow.cpp" line="448"/>
         <source>Error</source>
         <oldsource>ERROR</oldsource>
         <translation>Fehler</translation>
@@ -793,177 +844,177 @@
         <translation type="obsolete">Konnte %1 nicht kopieren</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="260"/>
+        <location filename="aphmainwindow.cpp" line="263"/>
         <source>Note</source>
         <translation>Anmerkung</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="261"/>
+        <location filename="aphmainwindow.cpp" line="264"/>
         <source>You can not serve pages if the phis service is not running. You may want to start the service from the &apos;Settings&apos; menu.</source>
         <translation>Es können keine Seiten bereitgestellt werden, solange der Phis Webdienst nicht gestartet wurde. Sie können den Dienst unter &apos;Einstellungen&apos; starten.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="237"/>
+        <location filename="aphmainwindow.cpp" line="240"/>
         <source>Could not copy %1.</source>
         <translation>Konnte %1 nicht kopieren.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="195"/>
+        <location filename="aphmainwindow.cpp" line="196"/>
         <source>Please select the base directory for your &apos;%1&apos; documents</source>
         <translation>Bitte wählen Sie das Basisverzeichnis für Ihre &apos;%1&apos; Dokumente aus</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="266"/>
+        <location filename="aphmainwindow.cpp" line="269"/>
         <source>Could not start the phis web service.</source>
         <translation>Der Phis Webdienst konnte nicht gestartet werden.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="314"/>
+        <location filename="aphmainwindow.cpp" line="317"/>
         <source>Site configuration has changed. Do you want to save it?</source>
         <translation>Die &apos;Site&apos;-Konfiguration wurde geändert. Möchten Sie diese sichern?</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="366"/>
+        <location filename="aphmainwindow.cpp" line="369"/>
         <source>Could not stop the phis web service.</source>
         <translation>Der Phis Webdienst konnte nicht gestoppt werden.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="408"/>
+        <location filename="aphmainwindow.cpp" line="411"/>
         <source>Network response error: %1</source>
         <translation>Netzwerk-Antwort Fehler: %1</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="412"/>
+        <location filename="aphmainwindow.cpp" line="415"/>
         <source>Version %1 is up to date.</source>
         <translation>Version %1 ist aktuell.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="414"/>
+        <location filename="aphmainwindow.cpp" line="417"/>
         <source>A new release %1 is available (current: %2).</source>
         <translation>Eine neue Version %1 ist verfügbar (aktuell: %2).</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="425"/>
+        <location filename="aphmainwindow.cpp" line="428"/>
         <source>Editor update</source>
         <translation>Editor Update</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="446"/>
+        <location filename="aphmainwindow.cpp" line="449"/>
         <source>Could not start the phiapp program using binary directory &apos;%1&apos;.</source>
         <oldsource>Could not start the phiapp program using binary directory &apos;%1&apos;</oldsource>
         <translation>Die &apos;Phiapp&apos; Anwendung konnte nicht im Verzeichnis &apos;%1&apos; gefunden werden.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="486"/>
+        <location filename="aphmainwindow.cpp" line="489"/>
         <source>Open page</source>
         <translation>Seite öffnen</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="487"/>
-        <location filename="aphmainwindow.cpp" line="531"/>
+        <location filename="aphmainwindow.cpp" line="490"/>
+        <location filename="aphmainwindow.cpp" line="534"/>
         <source>PHI server page (*.phis)</source>
         <translation>PHI Server Seite (*.phis)</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="523"/>
+        <location filename="aphmainwindow.cpp" line="526"/>
         <source>File &apos;%1&apos; saved.</source>
         <translation>Datei &apos;%1&apos; wurde gesichert.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="530"/>
+        <location filename="aphmainwindow.cpp" line="533"/>
         <source>Save page</source>
         <translation>Seite speichern</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="547"/>
+        <location filename="aphmainwindow.cpp" line="550"/>
         <source>File saved as &apos;%1&apos;.</source>
         <translation>Datei &apos;%1&apos; wurde gesichert.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="557"/>
+        <location filename="aphmainwindow.cpp" line="560"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="558"/>
+        <location filename="aphmainwindow.cpp" line="561"/>
         <source>Page &apos;%1&apos; has changed. Do you want to save it?</source>
         <translation>Seite &apos;%1&apos; wurde geändert. Möchten Sie diese sichern?</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="683"/>
-        <location filename="aphmainwindow.cpp" line="999"/>
-        <location filename="aphmainwindow.cpp" line="1300"/>
+        <location filename="aphmainwindow.cpp" line="686"/>
+        <location filename="aphmainwindow.cpp" line="1002"/>
+        <location filename="aphmainwindow.cpp" line="1303"/>
         <source>New page</source>
         <translation>Neue Seite</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="739"/>
+        <location filename="aphmainwindow.cpp" line="742"/>
         <source>Loading a site configuration overwrites the palette of all open documents. Continue?</source>
         <translation>Das Laden einer &apos;Site&apos;-Konfiguration überschreibt die Farbpalette aller offenen Dokumente. Möchten Sie fortfahren?</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="745"/>
+        <location filename="aphmainwindow.cpp" line="748"/>
         <source>Open site configuration</source>
         <translation>&apos;Site&apos;-Konfiguration öffnen</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="746"/>
-        <location filename="aphmainwindow.cpp" line="770"/>
+        <location filename="aphmainwindow.cpp" line="749"/>
+        <location filename="aphmainwindow.cpp" line="773"/>
         <source>PHI site configuration (*.phc)</source>
         <translation>PHI &apos;Site&apos;-Konfiguration (*.phc)</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="769"/>
+        <location filename="aphmainwindow.cpp" line="772"/>
         <source>Save site configuration</source>
         <translation>&apos;Site&apos;-Konfiguration sichern</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1064"/>
+        <location filename="aphmainwindow.cpp" line="1067"/>
         <source>Align left</source>
         <translation>Ausrichtung links</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1080"/>
+        <location filename="aphmainwindow.cpp" line="1083"/>
         <source>Align top</source>
         <translation>Ausrichtung oben</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1101"/>
+        <location filename="aphmainwindow.cpp" line="1104"/>
         <source>Align V center</source>
         <translation>Ausrichtung V Mitte</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1122"/>
+        <location filename="aphmainwindow.cpp" line="1125"/>
         <source>Align H center</source>
         <translation>Ausrichtung H Mitte</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1138"/>
+        <location filename="aphmainwindow.cpp" line="1141"/>
         <source>Align right</source>
         <translation>Ausrichtung rechts</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1154"/>
+        <location filename="aphmainwindow.cpp" line="1157"/>
         <source>Align bottom</source>
         <translation>Ausrichtung unten</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1175"/>
+        <location filename="aphmainwindow.cpp" line="1178"/>
         <source>version:</source>
         <translation>Version:</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1176"/>
+        <location filename="aphmainwindow.cpp" line="1179"/>
         <source>Phi library version:</source>
         <translation>Phi Bibliotheksversion:</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1177"/>
+        <location filename="aphmainwindow.cpp" line="1180"/>
         <source>Phis library version:</source>
         <translation>Phis Bibliotheksversion:</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1182"/>
+        <location filename="aphmainwindow.cpp" line="1185"/>
         <source>About %1</source>
         <translation>Über %1</translation>
     </message>
@@ -972,22 +1023,22 @@
         <translation type="obsolete">Über</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1620"/>
+        <location filename="aphmainwindow.cpp" line="1623"/>
         <source>ID</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1620"/>
+        <location filename="aphmainwindow.cpp" line="1623"/>
         <source>L</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1620"/>
+        <location filename="aphmainwindow.cpp" line="1623"/>
         <source>T</source>
         <translation>O</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1620"/>
+        <location filename="aphmainwindow.cpp" line="1623"/>
         <source>Z</source>
         <translation>Z</translation>
     </message>
@@ -1013,8 +1064,8 @@
 <context>
     <name>APHPageDialog</name>
     <message>
-        <location filename="aphpagedialog.cpp" line="287"/>
-        <location filename="aphpagedialog.cpp" line="303"/>
+        <location filename="aphpagedialog.cpp" line="289"/>
+        <location filename="aphpagedialog.cpp" line="305"/>
         <source>Syntax error in script!
 Line %1, column %2.
 Error: %3</source>
@@ -1027,160 +1078,160 @@ Fehler: %3</translation>
         <translation type="obsolete">Datenbank konnte nicht geöffnet werden!</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="453"/>
+        <location filename="aphpagedialog.cpp" line="455"/>
         <source>Redirection</source>
         <translation>Weiterleitung</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="454"/>
+        <location filename="aphpagedialog.cpp" line="456"/>
         <source>A redirection page path must be relative to the document root. A slash &apos;/&apos; is automatically prepended to the path.</source>
         <translation>Eine Weiterleitungsseite muss relativ zum Dokumentwurzel-Verzeichnis sein. Ein &apos;/&apos; wird dem Pfad automatisch vorangestellt.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="623"/>
-        <location filename="aphpagedialog.cpp" line="635"/>
-        <location filename="aphpagedialog.cpp" line="683"/>
+        <location filename="aphpagedialog.cpp" line="625"/>
+        <location filename="aphpagedialog.cpp" line="637"/>
+        <location filename="aphpagedialog.cpp" line="685"/>
         <source>Menu item</source>
         <translation>Menu Element</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="624"/>
+        <location filename="aphpagedialog.cpp" line="626"/>
         <source>Use &apos;Text source&apos; to change non static text.</source>
         <translation>Verwenden Sie &apos;Text Quelle&apos;, um nicht statischen Text zu ändern.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="636"/>
+        <location filename="aphpagedialog.cpp" line="638"/>
         <source>Menu item with ID &apos;%1&apos; already exists!</source>
         <translation>Menu Element mit ID &apos;%1&apos; existiert bereits!</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="695"/>
+        <location filename="aphpagedialog.cpp" line="697"/>
         <source>Menu icon</source>
         <translation>Menu Icon</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="697"/>
-        <location filename="aphpagedialog.cpp" line="707"/>
+        <location filename="aphpagedialog.cpp" line="699"/>
+        <location filename="aphpagedialog.cpp" line="709"/>
         <source>Image</source>
         <translation>Bild</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="705"/>
+        <location filename="aphpagedialog.cpp" line="707"/>
         <source>Application icon</source>
         <translation>Anwendungs-Icon</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="721"/>
+        <location filename="aphpagedialog.cpp" line="723"/>
         <source>Application menus</source>
         <translation>Anwendungsmenus</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="722"/>
+        <location filename="aphpagedialog.cpp" line="724"/>
         <source>Please note: you need to reimplement &apos;phi.menu.activated()&apos; in JavaScript to react on menu entry activations.</source>
         <translation>Anmerkung: Sie müssen &apos;phi.menu.activated()&apos; in JavaScript überschreiben, um auf Menu Ereignisse zu reagieren.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="743"/>
+        <location filename="aphpagedialog.cpp" line="745"/>
         <source>Application mode</source>
         <translation>Anwendungsmodus</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="744"/>
+        <location filename="aphpagedialog.cpp" line="746"/>
         <source>You can not uncheck JavaScript in Phi application mode.</source>
         <translation>Sie können JavaScript im Phi Anwendungsmodus nicht deaktivieren.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="753"/>
+        <location filename="aphpagedialog.cpp" line="755"/>
         <source>menu text</source>
         <translation>Menu Text</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="909"/>
+        <location filename="aphpagedialog.cpp" line="911"/>
         <source>HTML</source>
         <translation>HTML</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="910"/>
+        <location filename="aphpagedialog.cpp" line="912"/>
         <source>If you process POST data, the object tag for the PhiPlugin should be disabled: some browser will reload the content if enabled. In Phi mode this is automatically handled. Enabling the request module will also check the flag on &apos;HTML: Suppress creation of object tag&apos;.</source>
         <translation>Fall Sie POST Daten verarbeiten, sollten Sie das &apos;Object-Tag&apos; für das Phi-Plugin abschalten: einige Browser werden den Inhalt ansonsten erneut laden. Im Phi Modus wird das automatisch berücksichtigt. Die Aktivierung des &apos;Request-Modul&apos; wird auch &apos;HTML: Unterdrücke die Erstellung des Object-Tag&apos; markieren.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="918"/>
+        <location filename="aphpagedialog.cpp" line="920"/>
         <source>DB file</source>
         <translation>Datenbank Datei</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="928"/>
+        <location filename="aphpagedialog.cpp" line="930"/>
         <source>Title</source>
         <translation>Titel</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="935"/>
+        <location filename="aphpagedialog.cpp" line="937"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="942"/>
+        <location filename="aphpagedialog.cpp" line="944"/>
         <source>Company</source>
         <translation>Gesellschaft</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="949"/>
+        <location filename="aphpagedialog.cpp" line="951"/>
         <source>Copyright</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="956"/>
+        <location filename="aphpagedialog.cpp" line="958"/>
         <source>Version</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="963"/>
+        <location filename="aphpagedialog.cpp" line="965"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="970"/>
+        <location filename="aphpagedialog.cpp" line="972"/>
         <source>Keywords</source>
         <translation>Schlüsselworte</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="977"/>
+        <location filename="aphpagedialog.cpp" line="979"/>
         <source>Form action</source>
         <translation>&apos;Form action&apos;</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="984"/>
+        <location filename="aphpagedialog.cpp" line="986"/>
         <source>Style sheet</source>
         <translation>Stil-Beschreibung</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="991"/>
+        <location filename="aphpagedialog.cpp" line="993"/>
         <source>Serverscript</source>
         <translation>Serverskript</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="998"/>
+        <location filename="aphpagedialog.cpp" line="1000"/>
         <source>Javascript</source>
         <translation>JavaScript</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="1005"/>
+        <location filename="aphpagedialog.cpp" line="1007"/>
         <source>Redirect invalid session</source>
         <translation>Ungültige Sitzung weiterleiten</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="1049"/>
+        <location filename="aphpagedialog.cpp" line="1051"/>
         <source>Languages</source>
         <translation>Sprachen</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="1050"/>
+        <location filename="aphpagedialog.cpp" line="1052"/>
         <source>The standard &apos;C&apos; language can not be deleted.</source>
         <translation>Die &apos;C&apos;-Sprache kann nicht gelöscht werden.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="1094"/>
+        <location filename="aphpagedialog.cpp" line="1096"/>
         <source>Template page</source>
         <translation>Mastervorlage</translation>
     </message>
@@ -1196,44 +1247,44 @@ Fehler: %3</translation>
 <context>
     <name>APHPropertyDialog</name>
     <message>
-        <location filename="aphpropertydialog.cpp" line="211"/>
+        <location filename="aphpropertydialog.cpp" line="214"/>
         <source>Radius</source>
         <translation>Radius</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="217"/>
+        <location filename="aphpropertydialog.cpp" line="220"/>
         <source>Fade time</source>
         <translation>Überblendzeit</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="220"/>
-        <location filename="aphpropertydialog.cpp" line="224"/>
+        <location filename="aphpropertydialog.cpp" line="223"/>
+        <location filename="aphpropertydialog.cpp" line="227"/>
         <source>sec</source>
         <translation>Sek</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="221"/>
+        <location filename="aphpropertydialog.cpp" line="224"/>
         <source>Interval</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="300"/>
+        <location filename="aphpropertydialog.cpp" line="303"/>
         <source>Invalid URL</source>
         <translation>Ungültige URL</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="301"/>
+        <location filename="aphpropertydialog.cpp" line="304"/>
         <source>The URL you have entered is invalid. The URL will not be changed.</source>
         <translation>Die eingegebene URL Adresse ist ungültig. Sie wird nicht geändert.</translation>
     </message>
     <message>
         <location filename="aphpropertydialog.cpp" line="30"/>
-        <location filename="aphpropertydialog.cpp" line="311"/>
+        <location filename="aphpropertydialog.cpp" line="314"/>
         <source>Properties</source>
         <translation>Eigenschaften</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="339"/>
+        <location filename="aphpropertydialog.cpp" line="342"/>
         <source>Hyperlink</source>
         <translation>Hyperlink</translation>
     </message>
@@ -1242,92 +1293,92 @@ Fehler: %3</translation>
         <translation type="obsolete">Sie benützen anscheinend einen Hyperlink </translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="339"/>
+        <location filename="aphpropertydialog.cpp" line="342"/>
         <source>It seems you use a hyper link in the &apos;Rich text&apos; element which is a display element. Use the &apos;Rich text layouted&apos; item if you want to use hyper links.</source>
         <translation>Sie benützen anscheinend einen Hyperlink in einem &apos;Richtext&apos; Element, welches ein Anzeigelement ist. Bitte benutzen Sie ein &apos;Richtext Layouted&apos; Element, falls Sie Hyperlinks verwenden möchten.</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="511"/>
+        <location filename="aphpropertydialog.cpp" line="514"/>
         <source>Color</source>
         <translation>Farbe</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="519"/>
+        <location filename="aphpropertydialog.cpp" line="522"/>
         <source>Outline / background color</source>
         <translation>Rahmen- / Hintergrundfarbe</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="528"/>
+        <location filename="aphpropertydialog.cpp" line="531"/>
         <source>Rollover text color</source>
         <translation>Rollover Textfarbe</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="537"/>
+        <location filename="aphpropertydialog.cpp" line="540"/>
         <source>Rollover background color</source>
         <translation>Rollover Hintergrundfarbe</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="547"/>
+        <location filename="aphpropertydialog.cpp" line="550"/>
         <source>Text</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="554"/>
+        <location filename="aphpropertydialog.cpp" line="557"/>
         <source>Title (tool tip)</source>
         <translation>Titel (Tool Tip)</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="562"/>
+        <location filename="aphpropertydialog.cpp" line="565"/>
         <source>Image</source>
         <translation>Bild</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="566"/>
+        <location filename="aphpropertydialog.cpp" line="569"/>
         <source>Images</source>
         <translation>Bilder</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="584"/>
+        <location filename="aphpropertydialog.cpp" line="587"/>
         <source>CSS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="591"/>
+        <location filename="aphpropertydialog.cpp" line="594"/>
         <source>Start angle</source>
         <translation>Startwinkel</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="598"/>
+        <location filename="aphpropertydialog.cpp" line="601"/>
         <source>Span angle</source>
         <translation>Spannwinkel</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="605"/>
+        <location filename="aphpropertydialog.cpp" line="608"/>
         <source>Disable</source>
         <translation>Abschalten</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="612"/>
+        <location filename="aphpropertydialog.cpp" line="615"/>
         <source>Check</source>
         <translation>Markieren</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="619"/>
+        <location filename="aphpropertydialog.cpp" line="622"/>
         <source>Read only</source>
         <translation>Nur lesbar</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="626"/>
+        <location filename="aphpropertydialog.cpp" line="629"/>
         <source>Visibility</source>
         <translation>Sichtbarkeit</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="650"/>
+        <location filename="aphpropertydialog.cpp" line="653"/>
         <source>Disable item caching</source>
         <translation>Zwischenspeicher ausschalten</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="651"/>
+        <location filename="aphpropertydialog.cpp" line="654"/>
         <source>If you disable the cache for the selected item the item will be created newly for each client request. This can be very time consuming especially for image items with graphical effects. Only disable the cache if you want to change the item dynamically via server scripting (changing effects, size, etc. depending on a user request).</source>
         <translation>Wenn Sie den Zwischenspeicher für das ausgewählte Element ausschalten wird das Element jedes Mal bei einer neuen Browser-Anfrage neu generiert. Dies kann sehr Zeit aufwendig sein, insbesondere bei Bildern mit grafischen Effekten. Schalten Sie den Zwischenspeicher nur aus, wenn Sie das Element dynamisch mit Server-Skripten bearbeiten wollen (z.B. Effekte, Größe, usw. werden abhängig von einer Browser-Anfrage verändert).</translation>
     </message>
@@ -1435,7 +1486,7 @@ Lösen Sie das Layout auf und selektieren Sie die Elemente neu.</translation>
     </message>
     <message>
         <location filename="aphscene.cpp" line="585"/>
-        <location filename="aphscene.cpp" line="671"/>
+        <location filename="aphscene.cpp" line="679"/>
         <source>Could not read file format &apos;%1&apos;.</source>
         <translation>Dateiformat &apos;%1&apos; konnte nicht gelesen werden.</translation>
     </message>
@@ -1445,43 +1496,43 @@ Lösen Sie das Layout auf und selektieren Sie die Elemente neu.</translation>
         <translation>Diese Editor-Version kann das neue Dateiformat nicht verarbeiten. Bitte aktualisieren Sie den Editor.</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="649"/>
+        <location filename="aphscene.cpp" line="657"/>
         <source>Please select the directory where the template page &apos;%1&apos; is located.</source>
         <translation>Bitte geben Sie das Verzeichnis an, in dem die Vorlagenseite &apos;%1&apos; gespeichert ist.</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="655"/>
+        <location filename="aphscene.cpp" line="663"/>
         <source>Could not open template file &apos;%1&apos;!</source>
         <translation>Vorlagenseite &apos;%1&apos; konnte nicht geöffnet werden!</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="678"/>
+        <location filename="aphscene.cpp" line="686"/>
         <source>Editor can not handle the new file format version. Update editor.</source>
         <translation>Diese Editor-Version kann das neue Dateiformat nicht verarbeiten. Bitte aktualisieren Sie den Editor.</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="956"/>
+        <location filename="aphscene.cpp" line="964"/>
         <source>L: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="957"/>
+        <location filename="aphscene.cpp" line="965"/>
         <source>T: %1</source>
         <translation>O: %1</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="958"/>
+        <location filename="aphscene.cpp" line="966"/>
         <source>W: %1</source>
         <translation>B: %1</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="959"/>
+        <location filename="aphscene.cpp" line="967"/>
         <source>H: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="960"/>
-        <location filename="aphscene.cpp" line="1018"/>
+        <location filename="aphscene.cpp" line="968"/>
+        <location filename="aphscene.cpp" line="1026"/>
         <source>Total: %1</source>
         <translation></translation>
     </message>
@@ -1490,77 +1541,77 @@ Lösen Sie das Layout auf und selektieren Sie die Elemente neu.</translation>
         <translation type="obsolete">Unbekannte WID</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1199"/>
+        <location filename="aphscene.cpp" line="1207"/>
         <source>Move</source>
         <translation>Verschieben</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1259"/>
+        <location filename="aphscene.cpp" line="1267"/>
         <source>Delete items</source>
         <translation>Elemente löschen</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1282"/>
+        <location filename="aphscene.cpp" line="1290"/>
         <source>Delete layout</source>
         <translation>Layout löschen</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1472"/>
+        <location filename="aphscene.cpp" line="1480"/>
         <source>Button</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1473"/>
+        <location filename="aphscene.cpp" line="1481"/>
         <source>Radiobutton</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1474"/>
+        <location filename="aphscene.cpp" line="1482"/>
         <source>Checkbox</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1475"/>
+        <location filename="aphscene.cpp" line="1483"/>
         <source>Submit</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1476"/>
+        <location filename="aphscene.cpp" line="1484"/>
         <source>Reset</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1490"/>
+        <location filename="aphscene.cpp" line="1498"/>
         <source>label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1491"/>
+        <location filename="aphscene.cpp" line="1499"/>
         <source>hidden</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1497"/>
+        <location filename="aphscene.cpp" line="1505"/>
         <source>link</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1498"/>
+        <location filename="aphscene.cpp" line="1506"/>
         <source>rich text layouted</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1500"/>
+        <location filename="aphscene.cpp" line="1508"/>
         <source>rollover</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1519"/>
+        <location filename="aphscene.cpp" line="1529"/>
         <source>graphic text</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1520"/>
+        <location filename="aphscene.cpp" line="1530"/>
         <source>rich text</source>
         <translation></translation>
     </message>
@@ -2246,6 +2297,86 @@ Lösen Sie das Layout auf und selektieren Sie die Elemente neu.</translation>
     <message>
         <source>Transform</source>
         <translation type="obsolete">Transformation</translation>
+    </message>
+</context>
+<context>
+    <name>BgImageDialog</name>
+    <message>
+        <location filename="bgimgdialog.ui" line="14"/>
+        <source>Dialog</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="26"/>
+        <source>Use &amp;background image</source>
+        <translation>Benütze ein &amp;Hintergrund-Bild</translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="86"/>
+        <source>TextLabel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="144"/>
+        <source>...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="154"/>
+        <source>&amp;Size</source>
+        <translation>&amp;Größe</translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="160"/>
+        <source>Width</source>
+        <translation>Breite</translation>
+    </message>
+    <message utf8="true">
+        <location filename="bgimgdialog.ui" line="176"/>
+        <source>∞</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="183"/>
+        <source>Height</source>
+        <translation>Höhe</translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="204"/>
+        <source>&amp;Offset</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="213"/>
+        <location filename="bgimgdialog.ui" line="275"/>
+        <source>Y</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="229"/>
+        <location filename="bgimgdialog.ui" line="261"/>
+        <source>X</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="245"/>
+        <source>&amp;Repeat</source>
+        <translation>&amp;Wiederholen</translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="251"/>
+        <source>Texture</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="268"/>
+        <source>None</source>
+        <translation>Keine</translation>
+    </message>
+    <message>
+        <location filename="bgimgdialog.ui" line="285"/>
+        <source>&amp;Fixed position</source>
+        <translation>&amp;Fixe Position</translation>
     </message>
 </context>
 <context>
@@ -3171,29 +3302,38 @@ const char* philibtext( const req* )
         <translation></translation>
     </message>
     <message>
-        <location filename="layoutwidget.ui" line="64"/>
+        <location filename="layoutwidget.ui" line="66"/>
+        <source>Title height</source>
+        <translation>Titel-Höhe</translation>
+    </message>
+    <message>
+        <location filename="layoutwidget.ui" line="101"/>
         <source>title placement</source>
         <translation>Titelanordnung</translation>
     </message>
     <message>
-        <location filename="layoutwidget.ui" line="73"/>
+        <location filename="layoutwidget.ui" line="110"/>
         <source>Left</source>
         <translation>Links</translation>
     </message>
     <message>
-        <location filename="layoutwidget.ui" line="83"/>
+        <location filename="layoutwidget.ui" line="120"/>
         <source>Center</source>
         <translation>Zentriert</translation>
     </message>
     <message>
-        <location filename="layoutwidget.ui" line="90"/>
+        <location filename="layoutwidget.ui" line="127"/>
         <source>Right</source>
         <translation>Rechts</translation>
     </message>
     <message>
-        <location filename="layoutwidget.ui" line="116"/>
+        <location filename="layoutwidget.ui" line="150"/>
+        <source>Show closable widget </source>
+        <translation>Zeige Schließ-Schalter</translation>
+    </message>
+    <message>
         <source>Closeble</source>
-        <translation>Schliessbar</translation>
+        <translation type="obsolete">Schliessbar</translation>
     </message>
 </context>
 <context>
@@ -3995,18 +4135,18 @@ const char* philibtext( const req* )
         <location filename="pagedialog.ui" line="202"/>
         <location filename="pagedialog.ui" line="239"/>
         <location filename="pagedialog.ui" line="253"/>
-        <location filename="pagedialog.ui" line="715"/>
-        <location filename="pagedialog.ui" line="782"/>
-        <location filename="pagedialog.ui" line="792"/>
-        <location filename="pagedialog.ui" line="802"/>
-        <location filename="pagedialog.ui" line="812"/>
-        <location filename="pagedialog.ui" line="1001"/>
-        <location filename="pagedialog.ui" line="1049"/>
-        <location filename="pagedialog.ui" line="1209"/>
-        <location filename="pagedialog.ui" line="1293"/>
-        <location filename="pagedialog.ui" line="1341"/>
-        <location filename="pagedialog.ui" line="1451"/>
-        <location filename="pagedialog.ui" line="1513"/>
+        <location filename="pagedialog.ui" line="795"/>
+        <location filename="pagedialog.ui" line="862"/>
+        <location filename="pagedialog.ui" line="872"/>
+        <location filename="pagedialog.ui" line="882"/>
+        <location filename="pagedialog.ui" line="892"/>
+        <location filename="pagedialog.ui" line="1081"/>
+        <location filename="pagedialog.ui" line="1129"/>
+        <location filename="pagedialog.ui" line="1289"/>
+        <location filename="pagedialog.ui" line="1382"/>
+        <location filename="pagedialog.ui" line="1439"/>
+        <location filename="pagedialog.ui" line="1576"/>
+        <location filename="pagedialog.ui" line="1638"/>
         <source>...</source>
         <translation></translation>
     </message>
@@ -4052,288 +4192,293 @@ const char* philibtext( const req* )
     </message>
     <message>
         <location filename="pagedialog.ui" line="308"/>
-        <location filename="pagedialog.ui" line="656"/>
+        <location filename="pagedialog.ui" line="727"/>
         <source>Size</source>
         <translation>Größe</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="332"/>
+        <location filename="pagedialog.ui" line="341"/>
         <source>A4</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="342"/>
+        <location filename="pagedialog.ui" line="351"/>
         <source>4:3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="349"/>
+        <location filename="pagedialog.ui" line="358"/>
         <source>Letter</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="356"/>
+        <location filename="pagedialog.ui" line="365"/>
         <source>iPad</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="363"/>
+        <location filename="pagedialog.ui" line="372"/>
         <source>Phi</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="370"/>
+        <location filename="pagedialog.ui" line="379"/>
         <source>16:9</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="382"/>
+        <location filename="pagedialog.ui" line="391"/>
         <source>Orientation</source>
         <translation>Ausrichtung</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="406"/>
+        <location filename="pagedialog.ui" line="424"/>
         <source>Portrait</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="416"/>
+        <location filename="pagedialog.ui" line="434"/>
         <source>Landscape</source>
         <translation>Landschaft</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="431"/>
+        <location filename="pagedialog.ui" line="449"/>
         <source>Background</source>
         <translation>Hintergrund</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="455"/>
+        <location filename="pagedialog.ui" line="473"/>
         <source>Color</source>
         <translation>Farbe</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="487"/>
+        <location filename="pagedialog.ui" line="489"/>
+        <source>Image</source>
+        <translation>Bild</translation>
+    </message>
+    <message>
+        <location filename="pagedialog.ui" line="531"/>
         <source>Custom size</source>
         <translation>Eigene Größe</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="518"/>
+        <location filename="pagedialog.ui" line="562"/>
         <source>Width</source>
         <translation>Breite</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="535"/>
+        <location filename="pagedialog.ui" line="579"/>
         <source>Height</source>
         <translation>Höhe</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="555"/>
+        <location filename="pagedialog.ui" line="599"/>
         <source>Position</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="564"/>
+        <location filename="pagedialog.ui" line="617"/>
         <source>Left</source>
         <translation>Links</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="574"/>
+        <location filename="pagedialog.ui" line="627"/>
         <source>Center</source>
         <translation>Zentriert</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="584"/>
+        <location filename="pagedialog.ui" line="637"/>
         <source>Mode</source>
         <translation>Modus</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="608"/>
+        <location filename="pagedialog.ui" line="670"/>
         <source>Browser</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="618"/>
+        <location filename="pagedialog.ui" line="680"/>
         <source>Application</source>
         <translation>Anwendung</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="634"/>
+        <location filename="pagedialog.ui" line="696"/>
         <source>Default font</source>
         <translation>Standard Schrift</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="675"/>
-        <location filename="pagedialog.ui" line="841"/>
+        <location filename="pagedialog.ui" line="746"/>
+        <location filename="pagedialog.ui" line="921"/>
         <source>Icon</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="751"/>
+        <location filename="pagedialog.ui" line="831"/>
         <source>Menu</source>
         <translation>Menü</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="757"/>
+        <location filename="pagedialog.ui" line="837"/>
         <source>Hide Phi menu</source>
         <translation>Phi Menu nicht anzeigen</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="767"/>
+        <location filename="pagedialog.ui" line="847"/>
         <source>Text</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="772"/>
+        <location filename="pagedialog.ui" line="852"/>
         <source>Id</source>
         <translation>Id</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="861"/>
+        <location filename="pagedialog.ui" line="941"/>
         <source>Text source</source>
         <translation>Text-Quelle</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="881"/>
+        <location filename="pagedialog.ui" line="961"/>
         <source>Separator</source>
         <translation>Abgrenzer</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="901"/>
+        <location filename="pagedialog.ui" line="981"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="921"/>
+        <location filename="pagedialog.ui" line="1001"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="932"/>
+        <location filename="pagedialog.ui" line="1012"/>
         <source>Checkable</source>
         <translation>ankreuzbar</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="939"/>
+        <location filename="pagedialog.ui" line="1019"/>
         <source>Disabled</source>
         <translation>ausgeschaltet</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="962"/>
+        <location filename="pagedialog.ui" line="1042"/>
         <source>Colors</source>
         <translation>Farben</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="967"/>
+        <location filename="pagedialog.ui" line="1047"/>
         <source>&amp;Meta</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="973"/>
+        <location filename="pagedialog.ui" line="1053"/>
         <source>Use template</source>
         <translation>Benütze Vorlage</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="988"/>
+        <location filename="pagedialog.ui" line="1068"/>
         <source>&amp;Template page</source>
         <translation>&amp;Vorlagenseite</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1011"/>
+        <location filename="pagedialog.ui" line="1091"/>
         <source>Template page overwrites this page palette </source>
         <translation>Vorlagenseite überschreibt die Palette dieser Seite</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1021"/>
+        <location filename="pagedialog.ui" line="1101"/>
         <source>Form action</source>
         <translation>&apos;Form action&apos;</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1036"/>
+        <location filename="pagedialog.ui" line="1116"/>
         <source>URL</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1064"/>
+        <location filename="pagedialog.ui" line="1144"/>
         <source>HTML</source>
         <translation>HTML</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1073"/>
+        <location filename="pagedialog.ui" line="1153"/>
         <source>Suppress creation of the object tag for the Phi plug-in</source>
         <translation>Die Generierung des &lt;object&gt;-Tags für das Phi Plug-In unterdrücken</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1080"/>
+        <location filename="pagedialog.ui" line="1160"/>
         <source>Force HTML output</source>
         <translation>HTML-Ausgabe erzwingen</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1087"/>
+        <location filename="pagedialog.ui" line="1167"/>
         <source>Do not underline links on mouse over</source>
         <translation>Links bei &apos;Mouse over&apos; nicht unterstreichen</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1097"/>
+        <location filename="pagedialog.ui" line="1177"/>
         <source>Open graph</source>
         <translation>&apos;Open graph&apos;</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1106"/>
+        <location filename="pagedialog.ui" line="1186"/>
         <source>(Usually used by Facebook)</source>
         <translation>(wird gewöhnlich von Facebook genutzt)</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1119"/>
+        <location filename="pagedialog.ui" line="1199"/>
         <source>Edit</source>
         <translation>Editieren</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1131"/>
+        <location filename="pagedialog.ui" line="1211"/>
         <source>Session management</source>
         <translation>Sitzungsmanagement</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1140"/>
+        <location filename="pagedialog.ui" line="1220"/>
         <source>Generate new session</source>
         <translation>Neue Sitzung generieren</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1149"/>
+        <location filename="pagedialog.ui" line="1229"/>
         <source>Session timeout</source>
         <translation>Zeitüberschreitung</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1159"/>
+        <location filename="pagedialog.ui" line="1239"/>
         <source>min</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1187"/>
+        <location filename="pagedialog.ui" line="1267"/>
         <source>Requires valid session</source>
         <translation>Benötigt eine gültige Sitzung</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1196"/>
+        <location filename="pagedialog.ui" line="1276"/>
         <source>Redirect</source>
         <translation>Weiterleiten</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1221"/>
+        <location filename="pagedialog.ui" line="1301"/>
         <source>Set session cookie</source>
         <translation>Sitzungs-Cookie setzen</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1228"/>
+        <location filename="pagedialog.ui" line="1308"/>
         <source>Requires login</source>
         <translation>Benötigt Login</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1239"/>
+        <location filename="pagedialog.ui" line="1319"/>
         <source>C&amp;SS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1245"/>
+        <location filename="pagedialog.ui" line="1325"/>
         <source>Generate system style sheet in HTML mode</source>
         <translation>Generiere System-Stilvorlage im HTML-Modus</translation>
     </message>
@@ -4342,132 +4487,142 @@ const char* philibtext( const req* )
         <translation type="obsolete">Benütze eigene Stilvorlage (hat momentan keinen Effekt im Phi-Modus)</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1307"/>
+        <location filename="pagedialog.ui" line="1396"/>
         <source>&amp;Javascript</source>
         <translation>&amp;JavaScript</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1313"/>
+        <location filename="pagedialog.ui" line="1402"/>
         <source>Use Javascript</source>
         <translation>Benütze JavaScript</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1355"/>
+        <location filename="pagedialog.ui" line="1453"/>
         <source>Ser&amp;verscript</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1361"/>
+        <location filename="pagedialog.ui" line="1459"/>
         <source>Use Serverscript</source>
         <translation>Benütze Serverscript</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1378"/>
+        <location filename="pagedialog.ui" line="1506"/>
         <source>Database</source>
         <translation>Datenbank (sql)</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1406"/>
+        <location filename="pagedialog.ui" line="1513"/>
         <source>File</source>
         <translation>Dateioperationen (file)</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1385"/>
+        <location filename="pagedialog.ui" line="1492"/>
         <source>System</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1392"/>
+        <location filename="pagedialog.ui" line="1499"/>
         <source>Email</source>
         <translation>E-Mail (email)</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1399"/>
+        <location filename="pagedialog.ui" line="1534"/>
         <source>Request</source>
         <translation>Anfrage (request)</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1427"/>
+        <location filename="pagedialog.ui" line="1527"/>
         <source>Process</source>
         <translation>Prozess</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1413"/>
+        <location filename="pagedialog.ui" line="1541"/>
         <source>Server</source>
         <translation>Server (server)</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1255"/>
+        <location filename="pagedialog.ui" line="1335"/>
         <source>Generate UI theme style sheet in HTML mode</source>
         <translation>UI-Themenstil im HTML-Modus generieren</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1265"/>
+        <location filename="pagedialog.ui" line="1345"/>
         <source>Add custom style sheet (has currently no effect in Phi mode)</source>
         <translation>Benutzerdefinierte Stilvorlage hinzufügen (hat derzeit keinen Effekt im Phi-Modus)</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1420"/>
+        <location filename="pagedialog.ui" line="1486"/>
+        <source>GroupBox</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="pagedialog.ui" line="1520"/>
         <source>Reply</source>
         <translation>Antwort (reply)</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1467"/>
+        <location filename="pagedialog.ui" line="1551"/>
+        <source>Use &lt;code&gt;loadModule(&apos;mod name&apos;);&lt;/code&gt; to load a server script module like &apos;request&apos;, &apos;wrapper&apos;, &apos;file&apos;, &apos;server&apos;, &apos;sql&apos;, &apos;system&apos;, &apos;process&apos;, &apos;email&apos;, ...</source>
+        <translation>Benütze &lt;code&gt;loadModule(&apos;mod name&apos;);&lt;/code&gt; um ein Server-Modul wie &apos;request&apos;, &apos;wrapper&apos;, &apos;file&apos;, &apos;server&apos;, &apos;sql&apos;, &apos;system&apos;, &apos;process&apos;, &apos;email&apos;, etc. zu laden.</translation>
+    </message>
+    <message>
+        <location filename="pagedialog.ui" line="1592"/>
         <source>&amp;Database</source>
         <translation>&amp;Datenbank</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1473"/>
+        <location filename="pagedialog.ui" line="1598"/>
         <source>Database support</source>
         <translation>Datenbank-Unterstützung</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1488"/>
+        <location filename="pagedialog.ui" line="1613"/>
         <source>Load settings from file</source>
         <translation>Lade Einstellungen aus Datei</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1503"/>
+        <location filename="pagedialog.ui" line="1628"/>
         <source>File name</source>
         <translation>Dateiname</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1526"/>
+        <location filename="pagedialog.ui" line="1651"/>
         <source>Store inside page</source>
         <translation>Innerhalb der Seite speichern</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1535"/>
+        <location filename="pagedialog.ui" line="1660"/>
         <source>Driver</source>
         <translation>Treiber</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1571"/>
+        <location filename="pagedialog.ui" line="1696"/>
         <source>DB name</source>
         <translation>Datenbank-Name</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1584"/>
+        <location filename="pagedialog.ui" line="1709"/>
         <source>Host</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1597"/>
+        <location filename="pagedialog.ui" line="1722"/>
         <source>User</source>
         <translation>Benutzername</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1610"/>
+        <location filename="pagedialog.ui" line="1735"/>
         <source>Password</source>
         <translation>Paßwort</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1627"/>
+        <location filename="pagedialog.ui" line="1752"/>
         <source>Connect options</source>
         <translation>Verbindungsparameter</translation>
     </message>
     <message>
-        <location filename="pagedialog.ui" line="1640"/>
+        <location filename="pagedialog.ui" line="1765"/>
         <source>Port</source>
         <translation></translation>
     </message>
@@ -4794,17 +4949,17 @@ const char* philibtext( const req* )
         <translation>Diesen Hinweis nicht erneut anzeigen</translation>
     </message>
     <message>
-        <location filename="aphgraphicsitems.cpp" line="64"/>
+        <location filename="aphgraphicsitems.cpp" line="99"/>
         <source>Page settings</source>
         <translation>Seiten-Einstellungen</translation>
     </message>
     <message>
-        <location filename="aphgraphicsitems.cpp" line="66"/>
+        <location filename="aphgraphicsitems.cpp" line="101"/>
         <source>Save page</source>
         <translation>Seite speichern</translation>
     </message>
     <message>
-        <location filename="aphgraphicsitems.cpp" line="68"/>
+        <location filename="aphgraphicsitems.cpp" line="103"/>
         <source>Close page</source>
         <translation>Seite schließen</translation>
     </message>
@@ -4961,88 +5116,88 @@ const char* philibtext( const req* )
 <context>
     <name>SItem</name>
     <message>
-        <location filename="sitem.cpp" line="505"/>
+        <location filename="sitem.cpp" line="509"/>
         <source>Properties</source>
         <translation>Eigenschaften</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="508"/>
+        <location filename="sitem.cpp" line="512"/>
         <source>ID</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="513"/>
+        <location filename="sitem.cpp" line="517"/>
         <source>Text</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="517"/>
+        <location filename="sitem.cpp" line="521"/>
         <source>Value</source>
         <translation>Wert</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="520"/>
+        <location filename="sitem.cpp" line="524"/>
         <source>Checked</source>
         <translation>Markiert</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="527"/>
-        <location filename="sitem.cpp" line="598"/>
+        <location filename="sitem.cpp" line="531"/>
+        <location filename="sitem.cpp" line="602"/>
         <source>Save image as</source>
         <translation>Bild speichern unter</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="529"/>
+        <location filename="sitem.cpp" line="533"/>
         <source>Reset image size</source>
         <translation>Bildgröße zurücksetzen</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="532"/>
+        <location filename="sitem.cpp" line="536"/>
         <source>Visible</source>
         <translation>Sichtbar</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="539"/>
+        <location filename="sitem.cpp" line="543"/>
         <source>Freeze</source>
         <translation>Eingefroren</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="545"/>
+        <location filename="sitem.cpp" line="549"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="572"/>
+        <location filename="sitem.cpp" line="576"/>
         <source>Change ID</source>
         <translation>ID ändern</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="582"/>
+        <location filename="sitem.cpp" line="586"/>
         <source>Change value</source>
         <translation>Wert ändern</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="588"/>
+        <location filename="sitem.cpp" line="592"/>
         <source>Change text</source>
         <translation>Text ändern</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="599"/>
+        <location filename="sitem.cpp" line="603"/>
         <source>Images (*.png *.jpg *.tif *.ico)</source>
         <translation>Bilddateien (*.png *.jpg *.tif *.ico)</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="604"/>
+        <location filename="sitem.cpp" line="608"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="604"/>
+        <location filename="sitem.cpp" line="608"/>
         <source>Could not save image file.Please check file permissions.</source>
         <translation>Das Bild konnte nicht gespeichert werden. Bitte überprüfen Sie die Zugriffsrechte.</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="799"/>
+        <location filename="sitem.cpp" line="814"/>
         <source>Moving items</source>
         <translation>Elemente verschieben</translation>
     </message>

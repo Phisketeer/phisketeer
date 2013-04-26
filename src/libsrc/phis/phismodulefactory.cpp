@@ -55,7 +55,6 @@ void PHISModuleFactory::invalidate()
 #ifdef Q_OS_MAC
         dir.setPath( path ); // MacOS
         dir.cdUp(); //
-        dir.cdUp(); // Contents
         dir.setPath( dir.path()+QLatin1String( "/PlugIns/modules" ) );
 #endif
 #endif

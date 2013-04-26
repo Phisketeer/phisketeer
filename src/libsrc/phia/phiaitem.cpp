@@ -97,7 +97,7 @@ void PHIAItem::setCursor( const QByteArray &c )
     qDebug( "setCursor: %s", c.data() );
 }
 
-QFont PHIAItem::font() const
+QFont PHIAItem::font( const QFont& ) const
 {
     return _variants.value( DFont, view()->page()->font() ).value<QFont>();
 }

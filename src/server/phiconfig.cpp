@@ -108,7 +108,7 @@ PHIRC PHIConfig::init( QObject *mgr )
     _baseDir=s->value( QStringLiteral( "BaseDir" ) ).toString();
     qDebug( "BaseDir=%s", qPrintable( _baseDir ) );
 #ifdef PHIAPPSTORE
-    PHISecFile::loadSecurityBookmarkForDir( _baseDir+"/localhost" );
+    //PHISecFile::loadSecurityBookmarkForDir( _baseDir+QLatin1String( "/localhost" ) );
 #endif
     s->setValue( QStringLiteral( "ListenerPort" ), s->value( QStringLiteral( "ListenerPort" ), 8080 ) );
     s->setValue( QStringLiteral( "ListenerIF" ), s->value( QStringLiteral( "ListenerIF" ), QStringLiteral( "Any" ) ) );

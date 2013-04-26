@@ -33,6 +33,8 @@ GWidgetItem::GWidgetItem( qreal w, qreal h, const PHIAItem *it, QGraphicsItem *p
     if ( PHI::isTabOrderItem( static_cast<PHI::Widget>(it->wid()) ) ) setFlag( ItemIsFocusable, true );
     else setFlag( ItemIsFocusable, false );
     resize( w, h );
+    setCacheMode( ItemCoordinateCache );
+
     connect( this, SIGNAL( onClick( QGraphicsSceneMouseEvent* ) ),
         it, SLOT( slotOnClick( QGraphicsSceneMouseEvent* ) ) );
     connect( this, SIGNAL( onDblClick( QGraphicsSceneMouseEvent* ) ),

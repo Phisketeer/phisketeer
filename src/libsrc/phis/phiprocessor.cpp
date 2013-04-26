@@ -70,11 +70,11 @@ void PHIProcessor::run()
     _resp->_minorHttpVer=_req->httpServerMinorVersion();
     if ( _req->keyword( PHISRequest::KMethod )=="HEAD" ) _resp->_options|=PHIResponseRec::HeaderOnly;
     if ( _req->canonicalFilename().endsWith( QStringLiteral( "/phi.phis" ) ) ) return genSysItem();
-#ifdef PHIAPPSTORE
-    PHISecFile f( _req->canonicalFilename() );
-#else
+// #ifdef PHIAPPSTORE
+//    PHISecFile f( _req->canonicalFilename() );
+// #else
     QFile f( _req->canonicalFilename() );
-#endif
+// #endif
     QFileInfo fi( f );
     if ( fi.suffix()!=QString::fromLatin1( "phis" ) ) {
         // not used in Apache (other file types are handled by Apache itself)
@@ -901,11 +901,11 @@ PHISPage* PHIProcessor::loadMasterPage( const QString &relfilename )
     if ( page ) return page;
     else {
         qDebug( "Master page not in cache, loading" );
-#ifdef PHIAPPSTORE
-        PHISecFile f( filename );
-#else
+// #ifdef PHIAPPSTORE
+//        PHISecFile f( filename );
+// #else
         QFile f( filename );
-#endif
+// #endif
         if ( !f.open( QIODevice::ReadOnly ) ) {
             _resp->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
                 QObject::tr( "Could not open master template page '%1' for reading: %2" )

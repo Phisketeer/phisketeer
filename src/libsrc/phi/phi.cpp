@@ -43,6 +43,10 @@
 #include <QGraphicsItem>
 // end remove
 
+#ifdef PHIAPPSTORE
+#include "macfilebookmark.h"
+#endif
+
 const char* PHI::_phiDT="yyyyMMddHHmmsszzz";
 const char* PHI::_phiDate="yyyy-MM-dd";
 const char* PHI::_phiMimeType="application/x-phi";
@@ -322,6 +326,27 @@ void PHI::updateTranslations()
         app->installTranslator( tr );
     }
     tr=new QTranslator( app );
+    if ( !tr->load( QLatin1String( "qtbase_" )+lang, dir ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qtbase_" )+lang ), qPrintable( dir ) );
+        delete tr;
+    } else {
+        app->installTranslator( tr );
+    }
+    tr=new QTranslator( app );
+    if ( !tr->load( QLatin1String( "qtscript_" )+lang, dir ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qtscript_" )+lang ), qPrintable( dir ) );
+        delete tr;
+    } else {
+        app->installTranslator( tr );
+    }
+    tr=new QTranslator( app );
+    if ( !tr->load( QLatin1String( "qtmultimedia_" )+lang, dir ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qtmultimedia_" )+lang ), qPrintable( dir ) );
+        delete tr;
+    } else {
+        app->installTranslator( tr );
+    }
+    tr=new QTranslator( app );
     if ( !tr->load( QLatin1String( "phia_" )+lang, dir ) ) {
         qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "phia_" )+lang ), qPrintable( dir ) );
         delete tr;
@@ -420,10 +445,24 @@ int PHI::checkService()
 
 bool PHI::startPhisService()
 {
-    QString bin=serverBin();
+    const QString bin=serverBin();
     if ( !QFile::exists( bin ) ) return false;
 #ifdef Q_OS_MAC
-    return QProcess::startDetached( bin );
+#ifdef PHIAPPSTORE
+    QSettings *s=PHI::globalSettings();
+    // Sandboxing in Mac OS X requires a little hack: we check if the server responds
+    // to a QNetworkRequest to determine if the phis service is running
+    s->beginGroup( defaultString() );
+    const QString baseDir=s->value( QLatin1String( "BaseDir" ) ).toString();
+    s->beginGroup( QLatin1String( "localhost" ) );
+    const QString root=s->value( QLatin1String( "DocumentRoot" ), baseDir+QLatin1String( "/localhost" ) ).toString();
+    s->endGroup();
+    s->endGroup();
+    //PHISecFile sf( root ); // let the phis service access the document root
+    //Q_UNUSED( sf );
+#endif
+    bool res=QProcess::startDetached( bin );
+    return res;
 #else
     QProcess proc;
 #ifdef Q_OS_WIN

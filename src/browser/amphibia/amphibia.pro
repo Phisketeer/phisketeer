@@ -33,7 +33,7 @@ VERSION = $$PHIRELEASE
 TEMPLATE = app
 TARGET = amphibia
 DESTDIR = ../../../bin
-QT = core gui widgets network webkitwidgets svg script printsupport
+QT = core gui widgets network webkitwidgets webkit svg script printsupport
 INCLUDEPATH += ../../libsrc/phi ../../libsrc/phia
 DEFINES += PHIVERSION=\\\"$$VERSION\\\"
 DEFINES -= QT_NO_CAST_FROM_ASCII

@@ -18,24 +18,30 @@
 #    Exclusion: the Phi(sketeer) libraries libphi, libphia, libphis and
 #    the Apache module mod_phi are released under the terms of the LGPLv3.
 #
-#  Phi(sketeer) uses the great Qt C++ toolkit, freely available at <http://qt.digia.com>.
+#  --------------------------------------------------------------------------------------
 #
-#  Qt 4.8.4 configuration for the official release for Linux (Ubuntu64 10.04):
+#  Phi(sketeer) uses the great Qt C++ toolkit, freely available at <http://qt.digia.com>.
+#  The minimum version required to successfully compile Phi is Qt 5.0.2!
+#
+#  Qt 5.0.2 configuration for the official release for Linux (Ubuntu64 10.04):
 #  ./configure -fast -no-qt3support -no-dbus -release -no-stl -no-pch -no-scripttools -no-multimedia
 #     -no-exceptions -no-declarative -webkit -openssl -cups -nis -plugin-sql-mysql -plugin-sql-psql
 #     -plugin-sql-odbc -phonon -nomake demos -nomake examples -prefix /usr/local/phi/qt484 -v
 #     -fontconfig -xinerama -glib -xinput -xkb -xrender -xrandr -xfixes -xcursor -qmake-optimized
 #     -iconv -sm -xsync
-#  Note: Qt versions 4.8.2 and 4.8.3 have a bug in QScriptEngine which may crash PhiApp and Amphibia
-
-#  Qt configuration for the official release for Mac OS X (Mountain lion):
-#  ./configure -fast -no-qt3support -no-dbus -dwarf2 -release -no-stl -no-pch -no-scripttools
-#     -no-multimedia -no-exceptions -no-declarative -webkit -openssl -arch x86_64 -cups -nis -v
-#     -harfbuzz -nomake demos -nomake examples -no-rpath -qmake-optimized -prefix /usr/local/phi/qt484
+#
+#  Qt 5.0.2 configuration for the official release for Mac OS X (Mountain lion):
+#  ./configure -prefix /usr/local/qt/5.0.2 -commercial -release -process -force-debug-info
+#     -largefile -openssl -no-rpath -optimized-qmake -nis -cups -iconv -strip -no-dbus -no-directfb
+#     -no-linuxfb -nomake demos -nomake examples -system-proxies -qpa cocoa -c++11 -platform macx-clang-libc++
+#     -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
+#  Note: the QtWebKit library search path for /usr/local/qt/5.0.2/lib/QtWebKitWidgets.framework/Versions/5/QtWebKitWidgets
+#  may not correctly set by the install script of Qt. Use 'install_name_tool -change' to set the correct path.
+#  This might be of interest as well: https://bugreports.qt-project.org/browse/QTBUG-29003
 #
 #  For the Windows distribution the standard provided precompiled Qt packages are used.
 #
-#  Note: if you use Qt Creator do not enable shadow builds!
+#  Note: if you use Qt Creator do NOT enable shadow builds!
 
 include( scripts/phiconf.pri )
 message( Phi configuration: $$PHICONF )
@@ -58,7 +64,7 @@ unix {
         distmac.depends = all
 
         mysqlmac.target = mysqlsetup
-        mysqlmac.commands = cd ~/Downloads/qt-everywhere-commercial-src-$$[QT_VERSION]/src/plugins/sqldrivers/mysql/;
+        mysqlmac.commands = cd ~/Downloads/qt-everywhere-commercial-src-$$[QT_VERSION]/qtbase/src/plugins/sqldrivers/mysql/;
         mysqlmac.commands += $$[QT_INSTALL_BINS]/qmake INCLUDEPATH+="/usr/local/mysql/include" \
             LIBS+=\"-L/usr/local/mysql/lib -lmysqlclient_r\";
         mysqlmac.commands += make; sudo make install;

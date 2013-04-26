@@ -16,17 +16,18 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#import <QFile>
+#import <QObject>
+#import <QMutex>
 
-class PHISecFile : public QFile
+class PHISecDirPool
 {
 public:
-    explicit PHISecFile( const QString &fn );
-    virtual ~PHISecFile();
+    explicit PHISecDirPool();
+    virtual ~PHISecDirPool();
 
-    virtual bool open( OpenMode flags );
-    virtual void close();
+    static bool storeSecurityBookmarkForDir( const QString &dirname );
+    static void loadSecurityBookmarkPool();
 
-    static bool storeSecurityBookmark( const QString &filename );
-    static bool loadSecurityBookmarkForDir( const QString &filename );
+protected:
+    static QMutex _mutex;
 };

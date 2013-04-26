@@ -33,7 +33,7 @@ win32 {
     }
 }
 unix {
-    DESTDIR = ../../../../plugins/modules
+    DESTDIR = ../../../../lib/modules
     LIBS = -L../../../../lib -lphi -lphis
     CONFIG(debug,debug|release){
         LIBS = -L../../../../lib -lphi_debug -lphis_debug

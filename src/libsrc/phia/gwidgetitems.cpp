@@ -325,7 +325,7 @@ GDecimalNumberItem::GDecimalNumberItem( qreal w, qreal h, const PHIAItem *it, QG
     setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit );
     setMinimumHeight( PHI::minimumHeight() );
     resize( w, h );
-    setCacheMode( QGraphicsItem::NoCache );
+    //setCacheMode( QGraphicsItem::NoCache );
     connect( _spin, SIGNAL( valueChanged( int ) ), this, SLOT( slotNumberChanged( int ) ) );
 }
 
@@ -364,7 +364,7 @@ GRealNumberItem::GRealNumberItem( qreal w, qreal h, const PHIAItem *it, QGraphic
     setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit );
     setMinimumHeight( PHI::minimumHeight() );
     resize( w, h );
-    setCacheMode( QGraphicsItem::NoCache );
+    //setCacheMode( QGraphicsItem::NoCache );
     connect( _spin, SIGNAL( valueChanged( double ) ), this, SLOT( slotNumberChanged( double ) ) );
 }
 
@@ -400,7 +400,7 @@ GLineEditItem::GLineEditItem( qreal w, qreal h, const PHIAItem *it,
     setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::LineEdit );
     setMinimumHeight( PHI::minimumHeight() );
     resize( w, h );
-    setCacheMode( QGraphicsItem::NoCache );
+    //setCacheMode( QGraphicsItem::NoCache );
     connect( _e, SIGNAL( textChanged( const QString& ) ), this,
         SLOT( slotTextChanged( const QString& ) ) );
 }
@@ -530,6 +530,7 @@ GTextBrowserItem::GTextBrowserItem( qreal w, qreal h, const PHIAItem *it, QGraph
         it, SLOT( slotLinkActivated( const QString& ) ) );
     connect( _b, SIGNAL( highlighted( const QString& ) ),
         it, SLOT( slotLinkHovered( const QString& ) ) );
+    setCacheMode( NoCache );
 }
 
 GTextBrowserItem::~GTextBrowserItem()
@@ -613,6 +614,7 @@ GMultiLineEditItem::GMultiLineEditItem( qreal w, qreal h,
     setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     setMinimumSize( PHI::minimumSizeForBox() );
     resize( w, h );
+    setCacheMode( NoCache );
 }
 
 GMultiLineEditItem::~GMultiLineEditItem()

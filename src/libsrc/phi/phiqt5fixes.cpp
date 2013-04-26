@@ -19,36 +19,30 @@
 #include "phiqt5fixes.h"
 #include <QFileInfo>
 
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+#ifdef Q_OS_WIN
 extern QString qAppFileName();
-#else
-static QString qAppFileName();
 #endif
 
 void phiSetPluginPath( int argc, char **argv )
 {
-    Q_UNUSED( argc );
-    Q_UNUSED( argv );
-    QDir plugins=QFileInfo( qAppFileName() ).dir();
+    Q_UNUSED( argc )
+    QDir plugins;
+
 #ifdef Q_OS_WIN
+    plugins=QFileInfo( qAppFileName() ).dir();
     plugins.cd( QLatin1String( "plugins" ) );
-#endif
-    qDebug( "APPNAME=%s", qPrintable( plugins.canonicalPath() ) );
-    qputenv( "QT_PLUGIN_PATH", plugins.canonicalPath().toLocal8Bit() );
-}
-
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-
-#else
-static QString qAppFileName()
-{
-#ifndef Q_OS_LINUX
-#error qAppFileName is not defined correctly.
-#endif
+#elif defined Q_OS_LINUX
     QFileInfo fi( QLatin1String( "/proc/%1/exe" ).arg( getpid() ) );
     if ( fi.exists() && pfi.isSymLink() ) {
-        return fi.canonicalFilePath();
+        plugins.setPath( fi.dir() );
     }
-    return QString();
-}
+#elif defined Q_OS_MAC
+    plugins=QFileInfo( QString::fromLocal8Bit( argv[0] ) ).dir();
+    plugins.cdUp();
+    plugins.cd( QLatin1String( "PlugIns" ) );
+#else
+#error Unsupported OS
 #endif
+    qDebug( "Plugin path=%s", qPrintable( plugins.canonicalPath() ) );
+    qputenv( "QT_PLUGIN_PATH", plugins.canonicalPath().toLocal8Bit() );
+}

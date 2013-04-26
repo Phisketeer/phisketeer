@@ -104,183 +104,178 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="54"/>
+        <location filename="sconfigdlg.ui" line="73"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="60"/>
+        <location filename="sconfigdlg.ui" line="79"/>
         <source>Base directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="70"/>
-        <location filename="sconfigdlg.ui" line="87"/>
-        <location filename="sconfigdlg.ui" line="268"/>
-        <location filename="sconfigdlg.ui" line="419"/>
-        <location filename="sconfigdlg.ui" line="436"/>
-        <location filename="sconfigdlg.ui" line="476"/>
+        <location filename="sconfigdlg.ui" line="89"/>
+        <location filename="sconfigdlg.ui" line="110"/>
+        <location filename="sconfigdlg.ui" line="307"/>
+        <location filename="sconfigdlg.ui" line="462"/>
         <location filename="sconfigdlg.ui" line="483"/>
-        <location filename="sconfigdlg.ui" line="519"/>
-        <location filename="sconfigdlg.ui" line="536"/>
+        <location filename="sconfigdlg.ui" line="546"/>
+        <location filename="sconfigdlg.ui" line="557"/>
+        <location filename="sconfigdlg.ui" line="597"/>
+        <location filename="sconfigdlg.ui" line="618"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="77"/>
+        <location filename="sconfigdlg.ui" line="100"/>
         <source>Mime types file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="94"/>
+        <location filename="sconfigdlg.ui" line="121"/>
         <source>Admin email</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="104"/>
+        <location filename="sconfigdlg.ui" line="131"/>
         <source>Index files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="115"/>
+        <location filename="sconfigdlg.ui" line="142"/>
         <source>Service</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="121"/>
-        <location filename="sconfigdlg.ui" line="353"/>
+        <location filename="sconfigdlg.ui" line="148"/>
+        <location filename="sconfigdlg.ui" line="396"/>
         <source>Interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="131"/>
-        <location filename="sconfigdlg.ui" line="376"/>
+        <location filename="sconfigdlg.ui" line="158"/>
+        <location filename="sconfigdlg.ui" line="419"/>
         <source>Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="164"/>
+        <location filename="sconfigdlg.ui" line="191"/>
         <source>Keep alive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="199"/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="sconfigdlg.ui" line="206"/>
+        <location filename="sconfigdlg.ui" line="245"/>
         <source>Start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="213"/>
+        <location filename="sconfigdlg.ui" line="252"/>
         <source>Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="220"/>
+        <location filename="sconfigdlg.ui" line="259"/>
         <source>Clear cache</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="242"/>
+        <location filename="sconfigdlg.ui" line="281"/>
         <source>Run service on system startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="250"/>
+        <location filename="sconfigdlg.ui" line="289"/>
         <source>Log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="258"/>
+        <location filename="sconfigdlg.ui" line="297"/>
         <source>Log dir</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="277"/>
+        <location filename="sconfigdlg.ui" line="320"/>
         <source>Log filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="286"/>
+        <location filename="sconfigdlg.ui" line="329"/>
         <source>Critical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="293"/>
+        <location filename="sconfigdlg.ui" line="336"/>
         <source> User (JavaScript)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="300"/>
+        <location filename="sconfigdlg.ui" line="343"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="307"/>
+        <location filename="sconfigdlg.ui" line="350"/>
         <source>Trace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="314"/>
+        <location filename="sconfigdlg.ui" line="357"/>
         <source>Warnings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="321"/>
+        <location filename="sconfigdlg.ui" line="364"/>
         <source>Debug</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="332"/>
+        <location filename="sconfigdlg.ui" line="375"/>
         <source>SSL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="338"/>
+        <location filename="sconfigdlg.ui" line="381"/>
         <source>Enable SSL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="409"/>
+        <location filename="sconfigdlg.ui" line="452"/>
         <source>Certificate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="426"/>
+        <location filename="sconfigdlg.ui" line="473"/>
         <source>Private key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="447"/>
+        <location filename="sconfigdlg.ui" line="517"/>
         <source>Virtual hosts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="456"/>
-        <location filename="sconfigdlg.ui" line="543"/>
+        <location filename="sconfigdlg.ui" line="526"/>
+        <location filename="sconfigdlg.ui" line="629"/>
         <source>Host</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="461"/>
+        <location filename="sconfigdlg.ui" line="531"/>
         <source>Document root</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="466"/>
+        <location filename="sconfigdlg.ui" line="536"/>
         <source>Temp dir</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="509"/>
+        <location filename="sconfigdlg.ui" line="587"/>
         <source>Root</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sconfigdlg.ui" line="526"/>
+        <location filename="sconfigdlg.ui" line="608"/>
         <source>Temp</source>
         <translation type="unfinished"></translation>
     </message>

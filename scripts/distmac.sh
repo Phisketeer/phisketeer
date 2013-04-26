@@ -7,13 +7,15 @@ QTBINS=$3
 QTPLUGINS=$4
 QTTS=$5
 PHIMAS=$6
-MYSQLC=libmysqlclient.18.dylib
+MYSQLC=libmysql.16.dylib
 MYSQLDIR=/usr/local/mysql
-USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtQml QtOpenGL QtWidgets QtWebKit QtWebKitWidgets QtV8 QtQuick QtPrintSupport"
+USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtQml QtOpenGL QtWidgets QtWebKit QtWebKitWidgets QtV8 \
+    QtQuick QtPrintSupport QtMultimedia QtMultimediaWidgets QtXml"
 PLUGINPATH="sqldrivers imageformats iconengines platforms printsupport mediaservice accessible playlistformats"
 PHILIBS="libphi.1.dylib libphis.1.dylib libphia.1.dylib"
 PHIAPPS="Artephis Amphibia"
 PHIBINS="phis phiapp phisconf"
+PHIMODULES="email request sql system wrapper"
 
 echo "Cleaning previous installation"
 rm -rf $DESTDIR
@@ -27,6 +29,7 @@ for A in $PHIAPPS ; do
     echo "cp $A"
     cp -Rp bin/$A.app $DESTDIR/
     mkdir -p $DESTDIR/$A.app/Contents/PlugIns/phi
+    mkdir -p $DESTDIR/$A.app/Contents/PlugIns/modules
     for P in $PLUGINPATH ; do
         mkdir $DESTDIR/$A.app/Contents/PlugIns/$P
     done
@@ -41,6 +44,9 @@ for A in $PHIAPPS ; do
         cp -Rp $QTLIBS/$I.framework $DESTDIR/$A.app/Contents/Frameworks
     done;
     cp -Rp $QTTS/qt_*.qm $DESTDIR/$A.app/Contents/Resources/ts
+    cp -Rp $QTTS/qtbase_*.qm $DESTDIR/$A.app/Contents/Resources/ts
+    cp -Rp $QTTS/qtscript_*.qm $DESTDIR/$A.app/Contents/Resources/ts
+    cp -Rp $QTTS/qtmultimedia_*.qm $DESTDIR/$A.app/Contents/Resources/ts
     rm -f $DESTDIR/$A.app/Contents/Resources/ts/qt_help*
     for P in $PLUGINPATH ; do
         cp -p $QTPLUGINS/$P/*.dylib $DESTDIR/$A.app/Contents/PlugIns/$P/
@@ -83,6 +89,9 @@ cp -p doc/nosandbox.entitlements $DESTDIR/Artephis.app/Contents/Resources/sconfi
 echo "Sandboxing is disabled"
 chmod a-wx $DESTDIR/Artephis.app/Contents/Resources/ts/*
 chmod u+w $DESTDIR/Artephis.app/Contents/Resources/ts/*
+for L in $PHIMODULES ; do
+    cp -p "lib/modules/libphis$L.dylib" $DESTDIR/Artephis.app/Contents/PlugIns/modules/
+done
 
 echo "Copying Amphibia stuff"
 cp -Rp bin/phiapp $DESTDIR/Amphibia.app/Contents/MacOS/
@@ -92,7 +101,7 @@ cp -p src/ts/*.qm $DESTDIR/Amphibia.app/Contents/Resources/ts/
 #    cp -p $MYSQLDIR/lib/$MYSQLC $DESTDIR/Amphibia.app/Contents/PlugIns/phi
 #fi
 chmod a-wx $DESTDIR/Amphibia.app/Contents/Resources/ts/*
-chmod u+w $DESTDIR/Artephis.app/Contents/Resources/ts/*
+chmod u+w $DESTDIR/Amphibia.app/Contents/Resources/ts/*
 
 echo Stripping libs
 for A in $PHIAPPS ; do
@@ -120,16 +129,26 @@ for A in $PHIAPPS ; do
             if [ $L = $I ] ; then continue; fi
             install_name_tool -change $L @executable_path/../PlugIns/phi/$L\
                 $DESTDIR/$A.app/Contents/PlugIns/phi/$I
-        done;
-    done;
-done;
+        done
+    done
+    if [ $A = "Artephis" ] ; then
+        for I in $PHIMODULES ; do
+            install_name_tool -id "@executable_path/../PlugIns/modules/libphis$I.dylib"\
+                "$DESTDIR/$A.app/Contents/PlugIns/modules/libphis$I.dylib"
+            for L in $PHILIBS ; do
+                install_name_tool -change $L @executable_path/../PlugIns/phi/$L\
+                    "$DESTDIR/$A.app/Contents/PlugIns/modules/libphis$I.dylib"
+            done
+        done
+    fi
+done
 
 for A in $PHIAPPS ; do
     for L in $PHILIBS ; do
         install_name_tool -change $L @executable_path/../PlugIns/phi/$L\
             $DESTDIR/$A.app/Contents/MacOS/$A
-    done;
-done;
+    done
+done
 if [ -f $MYSQLDIR/lib/$MYSQLC ] ; then
     install_name_tool -id @executable_path/../PlugIns/phi/$MYSQLC\
         $DESTDIR/Artephis.app/Contents/PlugIns/phi/$MYSQLC
@@ -145,7 +164,7 @@ for L in $PHILIBS ; do
         $DESTDIR/Artephis.app/Contents/MacOS/phiapp
     install_name_tool -change $L @executable_path/../PlugIns/phi/$L\
         $DESTDIR/Amphibia.app/Contents/MacOS/phiapp
-done;
+done
 
 for A in $PHIAPPS; do
     for I in $DISTPLUGINS ; do
@@ -161,7 +180,7 @@ for A in $PHIAPPS; do
 done
 
 for I in $USEQT; do
-    # if rpath was set in the Qt configure script:
+    # if -rpath was set in the Qt configure script (default):
     install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
         @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Artephis.app/Contents/MacOS/phis
@@ -174,7 +193,7 @@ for I in $USEQT; do
     install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
         @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Amphibia.app/Contents/MacOS/phiapp
-    # if rpath was not set:
+    # if -no-rpath was set:
     install_name_tool -change $I.framework/Versions/5/$I\
         @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Artephis.app/Contents/MacOS/phis
@@ -220,6 +239,16 @@ for I in $USEQT; do
                 @executable_path/../Frameworks/$I.framework/Versions/5/$I\
                 $DESTDIR/$A.app/Contents/PlugIns/$P
         done
+        if [ $A = "Artephis" ] ; then
+            for L in $PHIMODULES ; do
+                install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+                    @executable_path/../Frameworks/$I.framework/Versions/5/$I\
+                    "$DESTDIR/$A.app/Contents/PlugIns/modules/libphis$L.dylib"
+                install_name_tool -change $I.framework/Versions/5/$I\
+                    @executable_path/../Frameworks/$I.framework/Versions/5/$I\
+                    "$DESTDIR/$A.app/Contents/PlugIns/modules/libphis$L.dylib"
+            done
+        fi
     done
 done
 

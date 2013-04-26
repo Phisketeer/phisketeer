@@ -232,8 +232,13 @@ inline QString PHI::defaultString()
 
 inline QString PHI::stdTmpPath()
 {
+#ifdef PHIAPPSTORE
     static QString tmp=QStandardPaths::writableLocation(
-        QStandardPaths::TempLocation )+QDir::separator()+QStringLiteral( "phi" );
+        QStandardPaths::GenericCacheLocation )+QDir::separator()+QStringLiteral( "phis" );
+#else
+    static QString tmp=QStandardPaths::writableLocation(
+        QStandardPaths::TempLocation )+QDir::separator()+QStringLiteral( "phis" );
+#endif
     return tmp;
 }
 

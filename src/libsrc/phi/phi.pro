@@ -69,7 +69,7 @@ unix {
     SOURCES += phisysinfo_unix.cpp
     CONFIG(debug,debug|release): TARGET = phi_debug
     mac {
-        contains( CONFIG, macappstore ){
+        contains( PHICONF, macappstore ){
             OBJECTIVE_SOURCES += macfilebookmark.mm
             OBJECTIVE_HEADERS += macfilebookmark.h
             LIBS = -framework AppKit

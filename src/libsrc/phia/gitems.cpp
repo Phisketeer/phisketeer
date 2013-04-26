@@ -714,6 +714,7 @@ GSvgItem::GSvgItem( const PHIAItem *it, qreal w, qreal h, QGraphicsItem *parent 
         it, SLOT( slotOnMouseMove( QGraphicsSceneHoverEvent* ) ) );
     connect( this, SIGNAL( onChange() ), it, SLOT( slotOnChange() ) );
     setAcceptHoverEvents( true );
+    setCacheMode( NoCache );
 }
 
 GSvgItem::~GSvgItem()
