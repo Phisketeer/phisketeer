@@ -39,11 +39,11 @@ void PHIWizardInstall::install()
     rd.mkpath( root+"/lib" );
     rd.mkpath( root+"/bin" );
     rd.mkpath( root+"/plugins/sqldrivers" );
-    rd.mkpath( root+"/plugins/codecs" );
+    rd.mkpath( root+"/plugins/accessible" );
     rd.mkpath( root+"/plugins/imageformats" );
     rd.mkpath( root+"/plugins/modules" );
     rd.mkpath( root+"/plugins/iconengines" );
-    rd.mkpath( root+"/plugins/phonon_backend" );
+    rd.mkpath( root+"/plugins/printsupport" );
     rd.mkpath( root+"/ts" );
     if ( field( "phis" ).toBool() ) {
         file=field( "datadir" ).toString();
@@ -62,11 +62,11 @@ void PHIWizardInstall::install()
     QDir lib( QDir::currentPath()+"/lib" );
     QDir bin( QDir::currentPath()+"/bin" );
     QDir sqldrivers( QDir::currentPath()+"/plugins/sqldrivers" );
-    QDir codecs( QDir::currentPath()+"/plugins/codecs" );
+    QDir accessible( QDir::currentPath()+"/plugins/accessible" );
     QDir imageformats( QDir::currentPath()+"/plugins/imageformats" );
     QDir modules( QDir::currentPath()+"/plugins/modules" );
     QDir iconengines( QDir::currentPath()+"/plugins/iconengines" );
-    QDir phonon( QDir::currentPath()+"/plugins/phonon_backend" );
+    QDir printsupport( QDir::currentPath()+"/plugins/printsupport" );
     QDir ts( QDir::currentPath()+"/ts" );
     QStringList files=lib.entryList( QDir::Files );
     foreach ( file, files ) {
@@ -86,9 +86,9 @@ void PHIWizardInstall::install()
         _progress->setValue( _progress->value()+1 );
         qApp->processEvents();
     }
-    files=codecs.entryList( QDir::Files );
+    files=accessible.entryList( QDir::Files );
     foreach ( file, files ) {
-        QFile::copy( codecs.absolutePath()+'/'+file, root+"/plugins/codecs/"+file );
+        QFile::copy( accessible.absolutePath()+'/'+file, root+"/plugins/accessible/"+file );
         _progress->setValue( _progress->value()+1 );
         qApp->processEvents();
     }
@@ -104,9 +104,9 @@ void PHIWizardInstall::install()
         _progress->setValue( _progress->value()+1 );
         qApp->processEvents();
     }
-    files=phonon.entryList( QDir::Files );
+    files=printsupport.entryList( QDir::Files );
     foreach ( file, files ) {
-        QFile::copy( phonon.absolutePath()+'/'+file, root+"/plugins/phonon_backend/"+file );
+        QFile::copy( printsupport.absolutePath()+'/'+file, root+"/plugins/printsupport/"+file );
         _progress->setValue( _progress->value()+1 );
         qApp->processEvents();
     }
@@ -153,6 +153,7 @@ void PHIWizardInstall::install()
         QString f=t.readAll();
         f.replace( "%phibinpath%", root+"/bin" );
         f.replace( "%philibpath%", root+"/lib" );
+        f.replace( "%phipluginpath%", root+"/plugins" );
         if ( QFile::exists( "/etc/init.d" ) ) {
             QFile dest( "/etc/init.d/phis" );
             if ( dest.open( QIODevice::WriteOnly ) ) {

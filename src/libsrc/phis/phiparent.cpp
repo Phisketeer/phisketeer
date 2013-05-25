@@ -25,6 +25,7 @@
 #include "phispagecache.h"
 #include "phisitemcache.h"
 #include "phismodulefactory.h"
+#include "phiqt5fixes.h"
 
 PHIParent* PHIParent::_instance=0;
 //QHash <QString, QString> PHIParent::_tmpDirs=QHash <QString, QString>();
@@ -42,7 +43,8 @@ PHIParent::PHIParent( QObject *parent )
     qDebug( "PHIParent::PHIParent()" );
     if ( !qApp ) { // not set in apache module so instanciate QApplication here
         QStringList argList;
-        argList << QStringLiteral( "mod_phi" );
+        argList << QStringLiteral( "mod_phi" ) << QStringLiteral( "-platform" )
+                << QStringLiteral( "linuxfb" );
         int argc=argList.size();
         QVector<char *> argv( argc );
         QList<QByteArray> argvData;

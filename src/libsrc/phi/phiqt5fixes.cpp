@@ -29,12 +29,14 @@ void phiSetPluginPath( int argc, char **argv )
     QDir plugins;
 
 #ifdef Q_OS_WIN
+    Q_UNUSED( argv )
     plugins=QFileInfo( qAppFileName() ).dir();
     plugins.cd( QLatin1String( "plugins" ) );
 #elif defined Q_OS_LINUX
-    QFileInfo fi( QLatin1String( "/proc/%1/exe" ).arg( getpid() ) );
-    if ( fi.exists() && pfi.isSymLink() ) {
-        plugins.setPath( fi.dir() );
+    Q_UNUSED( argv )
+    QFileInfo fi( QString::fromLatin1( "/proc/%1/exe" ).arg( getpid() ) );
+    if ( fi.exists() && fi.isSymLink() ) {
+        plugins.setPath( fi.dir().absolutePath() );
     }
 #elif defined Q_OS_MAC
     plugins=QFileInfo( QString::fromLocal8Bit( argv[0] ) ).dir();

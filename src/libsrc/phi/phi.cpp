@@ -228,7 +228,7 @@ QSettings* PHI::globalSettings()
 // returns the root directory for the application
 QString PHI::applicationRoot()
 {
-    static QString path; qAppName();
+    static QString path;
     if ( !path.isNull() ) return path;
     Q_ASSERT( qApp );
     QDir appdir( QCoreApplication::applicationDirPath() );

@@ -46,9 +46,9 @@ QString PHISysInfo::systemString()
     _systemString=QLatin1String( "Macintosh; Intel Mac OS X " )+QString::fromLocal8Bit( utsn.sysname );
     _systemString+=QLatin1Char( ' ' )+QString::fromLocal8Bit( utsn.release );
 #else
-    _systemString=QString::fromLocal8Bit( utsn.sysname )+';';
+    _systemString=QString::fromLocal8Bit( utsn.sysname )+QLatin1Char( ';' );
     //_systemString+=QString::fromLocal8Bit( utsn.nodename )+';';
-    _systemString+=QString::fromLocal8Bit( utsn.release )+';';
+    _systemString+=QString::fromLocal8Bit( utsn.release )+QLatin1Char( ';' );
     _systemString+=QString::fromLocal8Bit( utsn.version );
     //_systemString+=QString::fromLocal8Bit( utsn.machine );
 #endif

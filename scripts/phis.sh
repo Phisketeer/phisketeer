@@ -11,6 +11,10 @@
 
 LD_LIBRARY_PATH=%philibpath%:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH
+QT_PLUGIN_PATH=%phipluginpath%
+export QT_PLUGIN_PATH
+QT_QPA_FONTDIR=/usr/share/fonts
+export QT_QPA_FONTDIR
 PHIBINPATH=%phibinpath%
 
 case $1 in

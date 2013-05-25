@@ -52,7 +52,7 @@ unix {
     updts.target = updatets
     updts.commands = scripts/updts.sh $$[QT_INSTALL_BINS] $$PWD
     QMAKE_EXTRA_TARGETS += updts
-    OTHER_FILES += scripts/updts.sh
+    OTHER_FILES += scripts/updts.sh scripts/phis.sh
     QMAKE_CLEAN += -r bin/* lib/*
     QMAKE_DISTCLEAN += -r bin/* lib/*
 
