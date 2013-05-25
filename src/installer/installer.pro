@@ -25,7 +25,7 @@ PHIORG = $$[PHIORG]
 TEMPLATE = app
 TARGET = phiinstaller
 CONFIG += qt thread $$[PHICONF]
-QT = core gui
+QT = core gui widgets
 
 INCLUDEPATH += .
 DEFINES += QT_NO_CAST_TO_ASCII

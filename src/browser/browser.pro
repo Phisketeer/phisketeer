@@ -16,5 +16,5 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SUBDIRS += phiapp plugin amphibia
-mac: SUBDIRS -= plugin
+unix: SUBDIRS -= plugin
 TEMPLATE = subdirs
