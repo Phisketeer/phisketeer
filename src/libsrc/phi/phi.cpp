@@ -218,17 +218,17 @@ QSettings* PHI::globalSettings()
 #else
     s=new QSettings( QString::fromLatin1( PHI::domain() ), name, qApp );
 #endif
-    qDebug( "Application name %s", qPrintable( qApp->applicationName() ) );
+    qWarning( "Application name %s", qPrintable( qApp->applicationName() ) );
     qDebug( "Application domain %s", qPrintable( qApp->organizationDomain() ) );
     qDebug( "Application organisation %s", qPrintable( qApp->organizationName() ) );
-    qDebug( "Global settings file name: %s", qPrintable( s->fileName() ) );
+    qWarning( "Global settings file name: %s", qPrintable( s->fileName() ) );
     return s;
 }
 
 // returns the root directory for the application
 QString PHI::applicationRoot()
 {
-    static QString path; qAppName();
+    static QString path;
     if ( !path.isNull() ) return path;
     Q_ASSERT( qApp );
     QDir appdir( QCoreApplication::applicationDirPath() );
@@ -382,7 +382,7 @@ void PHI::setupApplication( QGuiApplication *app )
     app->setOrganizationName( QString::fromLatin1( PHI::organisation() ) );
 #endif
     app->addLibraryPath( pluginPath() );
-    qDebug( "Adding Plug-inPath %s", qPrintable( pluginPath() ) );
+    qWarning( "Adding Plug-inPath %s", qPrintable( pluginPath() ) );
     updateTranslations();
     qRegisterMetaTypeStreamOperators<PHIRectHash>("PHIRectHash");
     qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
@@ -423,7 +423,7 @@ int PHI::checkService()
         // phis responses with "access denied" to phi.phis?ping=1
         // so we can asume the service is running
         if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
-        qDebug( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
+        qWarning( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
         return 0;
     }
     return 0;
@@ -461,6 +461,7 @@ bool PHI::startPhisService()
     //PHISecFile sf( root ); // let the phis service access the document root
     //Q_UNUSED( sf );
 #endif
+    qWarning( "Starting process %s", qPrintable( bin) );
     bool res=QProcess::startDetached( bin );
     return res;
 #else
