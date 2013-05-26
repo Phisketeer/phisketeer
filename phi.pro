@@ -23,14 +23,11 @@
 #  Phi(sketeer) uses the great Qt C++ toolkit, freely available at <http://qt.digia.com>.
 #  The minimum version required to successfully compile Phi is Qt 5.0.2!
 #
-#  Qt 5.0.2 configuration for the official release for Linux (Ubuntu64 10.04):
-#  ./configure -fast -no-qt3support -no-dbus -release -no-stl -no-pch -no-scripttools -no-multimedia
-#     -no-exceptions -no-declarative -webkit -openssl -cups -nis -plugin-sql-mysql -plugin-sql-psql
-#     -plugin-sql-odbc -phonon -nomake demos -nomake examples -prefix /usr/local/phi/qt484 -v
-#     -fontconfig -xinerama -glib -xinput -xkb -xrender -xrandr -xfixes -xcursor -qmake-optimized
-#     -iconv -sm -xsync
+#  Qt 5.0.2 configuration for the official release for Linux (Ubuntu64 10.04 and higher):
+#  ./configure -prefix /usr/local/qt/5.0.2 -no-linuxfb -no-directfb -nomake examples -nomake demos -strip -icu
+#     -cups -optimized-qmake -no-rpath -iconv -openssl -c++11 -commercial -release -glib -qt-xcb -javascript-jit
 #
-#  Qt 5.0.2 configuration for the official release for Mac OS X (Mountain lion):
+#  Qt 5.0.2 configuration for the official release for Mac OS X (Mountain Lion):
 #  ./configure -prefix /usr/local/qt/5.0.2 -commercial -release -process -force-debug-info
 #     -largefile -openssl -no-rpath -optimized-qmake -nis -cups -iconv -strip -no-dbus -no-directfb
 #     -no-linuxfb -nomake demos -nomake examples -system-proxies -qpa cocoa -c++11 -platform macx-clang-libc++
