@@ -67,6 +67,7 @@ void PHIWizardInstall::install()
     QDir modules( QDir::currentPath()+"/plugins/modules" );
     QDir iconengines( QDir::currentPath()+"/plugins/iconengines" );
     QDir printsupport( QDir::currentPath()+"/plugins/printsupport" );
+    QDir platforms( QDir::currentPath()+"/plugins/platforms" );
     QDir ts( QDir::currentPath()+"/ts" );
     QStringList files=lib.entryList( QDir::Files );
     foreach ( file, files ) {
@@ -113,6 +114,12 @@ void PHIWizardInstall::install()
     files=iconengines.entryList( QDir::Files );
     foreach ( file, files ) {
         QFile::copy( iconengines.absolutePath()+'/'+file, root+"/plugins/iconengines/"+file );
+        _progress->setValue( _progress->value()+1 );
+        qApp->processEvents();
+    }
+    files=platforms.entryList( QDir::Files );
+    foreach ( file, files ) {
+        QFile::copy( platforms.absolutePath()+'/'+file, root+"/plugins/platforms/"+file );
         _progress->setValue( _progress->value()+1 );
         qApp->processEvents();
     }
@@ -185,18 +192,18 @@ void PHIWizardInstall::install()
     _progress->setValue( 90 );
     qApp->processEvents();
 
-    QSettings sg( QSettings::SystemScope, PHIORG, "phis" );
+    QSettings sg( "/etc/Phisketeer/phis.conf", QSettings::IniFormat );
     sg.setFallbacksEnabled( false );
     sg.setValue( "BinDir", root+"/bin" );
     sg.setValue( "Phisketeer", "1" );
     sg.setValue( "PluginsPath", root+"/plugins" );
 
-    QSettings sa( QSettings::SystemScope, PHIORG, "phiapp" );
+    QSettings sa( "/etc/Phisketeer/phiapp.conf", QSettings::IniFormat );
     sa.setFallbacksEnabled( false );
     sa.setValue( "Path", root+"/bin/phiapp" );
 
     if ( field( "phis" ).toBool() ) {
-        QSettings s( QSettings::SystemScope, PHIORG, "phis" );
+        QSettings s( "/etc/Phisketeer/phis.conf", QSettings::IniFormat );
         s.setFallbacksEnabled( false );
         s.setValue( "RootDir", field( "datadir" ) );
         QString datadir=s.value( "RootDir" ).toString();

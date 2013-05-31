@@ -43,8 +43,31 @@ PHIParent::PHIParent( QObject *parent )
     qDebug( "PHIParent::PHIParent()" );
     if ( !qApp ) { // not set in apache module so instanciate QApplication here
         QStringList argList;
-        argList << QStringLiteral( "mod_phi" ) << QStringLiteral( "-platform" )
-                << QStringLiteral( "linuxfb" );
+#ifdef Q_OS_LINUX
+        QSettings s( QStringLiteral( "/etc/xdg/Phisketeer/phis.conf" ), QSettings::IniFormat );
+        QString bindir=s.value( QStringLiteral( "BinDir" ), QString() ).toString();
+        QString plugindir=s.value( QStringLiteral( "PluginsPath" ), QString() ).toString();
+        if ( bindir.isEmpty() ) {
+            QByteArray arr=qgetenv( "QT_PLUGIN_PATH" );
+            if ( !arr.isEmpty() ) {
+                QDir dir( QString::fromLocal8Bit( arr ) );
+                dir.cdUp();
+                bindir=dir.absolutePath()+QStringLiteral( "/bin" );
+            } else {
+                bindir=QStringLiteral( "/opt/phi/bin" ); // fallback
+            }
+        }
+        if ( !plugindir.isEmpty() ) {
+            qputenv( "QT_PLUGIN_PATH", plugindir.toLocal8Bit() );
+        }
+        argList << bindir+QStringLiteral( "/mod_phi" ) << QStringLiteral( "-platform" ) << QStringLiteral( "minimal" );
+#elif defined Q_OS_WIN
+        QSettings s( QStringLiteral( "" ), QSettings::NativeFormat );
+
+        argList << QStringLiteral( "mod_phi" );
+#else
+#error Unsupported OS for mod_phi
+#endif
         int argc=argList.size();
         QVector<char *> argv( argc );
         QList<QByteArray> argvData;

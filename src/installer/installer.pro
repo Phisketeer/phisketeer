@@ -14,47 +14,32 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+include( ../../scripts/phiconf.pri )
 
 HEADERS += phiwizard.h
 SOURCES += main.cpp \
     phiwizard.cpp \
     unixinstall.cpp
-VERSION = $$[PHIRELEASE]
-PHIDOM = $$[PHIDOM]
-PHIORG = $$[PHIORG]
 TEMPLATE = app
 TARGET = phiinstaller
-CONFIG += qt thread $$[PHICONF]
 QT = core gui widgets
 
-INCLUDEPATH += .
-DEFINES += QT_NO_CAST_TO_ASCII
-DEFINES += PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
-OBJECTS_DIR = .tmp
-MOC_DIR = .tmp
-RCC_DIR = .tmp
+DEFINES += PHIVERSION=\\\"$$PHIRELEASE\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
+DEFINES -= QT_NO_CAST_FROM_ASCII
 RESOURCES += installer.qrc
 
 win32 { 
-    DESTDIR = ../../bin
-    CONFIG(debug,debug|release) { 
-        CONFIG += console
-        TARGET = phiinstallerd
-        DEFINES += PHIDEBUG
-    } else {
-        DEFINES += QT_NO_DEBUG_OUTPUT
-        CONFIG += embed_manifest_exe
-    }
+        error( "The installer application is not supported for Windows." )
 }
 unix { 
+    mac {
+        error( "The installer application is not supported for Mac OS X." )
+    }
     DESTDIR = ../../bin
     CONFIG(debug,debug|release): TARGET = phiinstaller_debug
     else: DEFINES += QT_NO_DEBUG_OUTPUT
     QMAKE_LFLAGS_RPATH =
     QMAKE_LFLAGS +=-Wl,-rpath,\'\$$ORIGIN/../lib\',-rpath-link,$$[QT_INSTALL_LIBS]
-    mac {
-        error( "The installer application is not supported for Mac OS X." )
-    }
 }
 FORMS += wizardstart.ui \
     wizardlicense.ui \

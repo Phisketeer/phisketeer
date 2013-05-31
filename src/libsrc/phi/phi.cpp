@@ -216,9 +216,10 @@ QSettings* PHI::globalSettings()
     s=new QSettings( QSettings::SystemScope, QString::fromLatin1( PHI::organisation() ), name, qApp );
     s->setFallbacksEnabled( false );
 #else
-    s=new QSettings( QString::fromLatin1( PHI::domain() ), name, qApp );
+    name=QLatin1String( "/etc/" )+QString::fromLatin1( PHI::organisation() )+QLatin1String( "/phis.conf" );
+    s=new QSettings( name, QSettings::IniFormat, qApp );
 #endif
-    qWarning( "Application name %s", qPrintable( qApp->applicationName() ) );
+    qDebug( "Application name %s", qPrintable( qApp->applicationName() ) );
     qDebug( "Application domain %s", qPrintable( qApp->organizationDomain() ) );
     qDebug( "Application organisation %s", qPrintable( qApp->organizationName() ) );
     qWarning( "Global settings file name: %s", qPrintable( s->fileName() ) );
@@ -241,6 +242,8 @@ QString PHI::applicationRoot()
     appdir.cdUp(); // bundleID/Contents/
     appdir.cdUp(); // bundleID/
 #else
+    QSettings *s=PHI::globalSettings();
+    appdir.setPath( s->value( QLatin1String( "BinDir" ), QLatin1String( "/opt/phi/bin" ) ).toString() );
     // bundleID/bin
     appdir.cdUp();
 #endif
