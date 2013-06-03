@@ -41,10 +41,10 @@ PHIParent::PHIParent( QObject *parent )
     : QObject( parent ), _app( 0 ), _internalApp( false )
 {
     qDebug( "PHIParent::PHIParent()" );
-    if ( !qApp ) { // not set in apache module so instanciate QApplication here
+    if ( !qApp ) { // not set in apache module so instantiate QApplication here
         QStringList argList;
 #ifdef Q_OS_LINUX
-        QSettings s( QStringLiteral( "/etc/xdg/Phisketeer/phis.conf" ), QSettings::IniFormat );
+        QSettings s( QStringLiteral( "/etc/phi/phis.conf" ), QSettings::IniFormat );
         QString bindir=s.value( QStringLiteral( "BinDir" ), QString() ).toString();
         QString plugindir=s.value( QStringLiteral( "PluginsPath" ), QString() ).toString();
         if ( bindir.isEmpty() ) {
@@ -106,6 +106,7 @@ PHIParent::~PHIParent()
 */
     if ( _internalApp ) delete _app;
     _app=0;
+    PHI::clearSettingsInstance();
     _lock.unlock();
     qDebug( "PHIParent::~PHIParent()" );
 }

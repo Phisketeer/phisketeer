@@ -52,6 +52,7 @@ const char* PHI::_phiDate="yyyy-MM-dd";
 const char* PHI::_phiMimeType="application/x-phi";
 const char* PHI::_emailRegExp="[A-Z0-9._%-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}";
 const char* PHI::_phoneNumberRegExp="[0-9+][0-9 ]{3,25}[0-9]";
+QSettings* PHI::_settings=0;
 
 // Code of the templates are based on Qt's image rendering algorithm
 template <int shift>
@@ -207,8 +208,12 @@ void phi_blurImage( QImage &blurImage, qreal radius, bool quality, int transpose
 
 QSettings* PHI::globalSettings()
 {
-    static QSettings *s=0;
-    if ( s ) return s;
+    Q_ASSERT( qApp );
+    QSettings *s=_settings;
+    if ( s ) {
+        qDebug( "Global settings (instantiated) file name: %s", qPrintable( s->fileName() ) );
+        return s;
+    }
     QString name=QStringLiteral( "phis" );
 #ifdef Q_OS_MAC
     s=new QSettings( QStringLiteral( "phisys.com" ), name, qApp ); // required for Mac app store
@@ -216,14 +221,15 @@ QSettings* PHI::globalSettings()
     s=new QSettings( QSettings::SystemScope, QString::fromLatin1( PHI::organisation() ), name, qApp );
     s->setFallbacksEnabled( false );
 #else
-    name=QLatin1String( "/etc/" )+QString::fromLatin1( PHI::organisation() )+QLatin1String( "/phis.conf" );
+    name=QLatin1String( "/etc/phi/phis.conf" );
     s=new QSettings( name, QSettings::IniFormat, qApp );
 #endif
     qDebug( "Application name %s", qPrintable( qApp->applicationName() ) );
     qDebug( "Application domain %s", qPrintable( qApp->organizationDomain() ) );
     qDebug( "Application organisation %s", qPrintable( qApp->organizationName() ) );
-    qWarning( "Global settings file name: %s", qPrintable( s->fileName() ) );
-    return s;
+    qDebug( "Global settings file name: %s", qPrintable( s->fileName() ) );
+    _settings=s;
+    return _settings;
 }
 
 // returns the root directory for the application
@@ -385,7 +391,7 @@ void PHI::setupApplication( QGuiApplication *app )
     app->setOrganizationName( QString::fromLatin1( PHI::organisation() ) );
 #endif
     app->addLibraryPath( pluginPath() );
-    qWarning( "Adding Plug-inPath %s", qPrintable( pluginPath() ) );
+    qDebug( "Adding Plug-in path %s", qPrintable( pluginPath() ) );
     updateTranslations();
     qRegisterMetaTypeStreamOperators<PHIRectHash>("PHIRectHash");
     qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");

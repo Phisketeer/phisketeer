@@ -26,6 +26,7 @@
 #  Qt 5.0.2 configuration for the official release for Linux (Ubuntu64 10.04 and higher):
 #  ./configure -prefix /usr/local/qt/5.0.2 -no-linuxfb -no-directfb -nomake examples -nomake demos -strip -icu
 #     -cups -optimized-qmake -no-rpath -iconv -openssl -c++11 -commercial -release -glib -qt-xcb -javascript-jit
+#  For Phi you need the modified files found in 3rdparty/linux (adapting QPA minimal)
 #
 #  Qt 5.0.2 configuration for the official release for Mac OS X (Mountain Lion):
 #  ./configure -prefix /usr/local/qt/5.0.2 -commercial -release -process -force-debug-info

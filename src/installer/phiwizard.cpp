@@ -84,7 +84,7 @@ PHIWizardRoot::PHIWizardRoot( QWidget *parent )
 {
     qDebug( "PHIWizardRoot::PHIWizardRoot()" );
     setupUi( this );
-    QSettings s( "/etc/Phisketeer/phis.conf", QSettings::IniFormat );
+    QSettings s( "/etc/phi/phis.conf", QSettings::IniFormat );
     QString binDir=s.value( "BinDir", QString( "/opt/phisketeer-%1/bin" ).arg( PHIVERSION ) ).toString();
     binDir.replace( QRegExp( ".bin$" ), "" );
     if ( binDir.contains( '-' ) ) {
@@ -149,7 +149,7 @@ PHIWizardData::PHIWizardData( QWidget *parent )
 {
     qDebug( "PHIWizardData::PHIWizardData()" );
     setupUi( this );
-    QSettings s( "/etc/Phisketeer/phis.conf", QSettings::IniFormat );
+    QSettings s( "/etc/phi/phis.conf", QSettings::IniFormat );
     QString binDir=s.value( "RootDir", QString( "/var/phis" ) ).toString();
     _dataDir->setText( binDir );
     _dataDir->setReadOnly( true );

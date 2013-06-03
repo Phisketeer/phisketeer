@@ -165,6 +165,7 @@ public:
     static inline QFont defaultFont() { static QFont f( QStringLiteral( "Arial" ), 11 ); return f; }
     static inline int defaultDragDistance() { return 5; }
     static inline QSize defaultPageSize() { return QSize( 1000, 750 ); }
+    static inline void clearSettingsInstance() { _settings=0; }
 
     static QByteArray emailRegExp();
     static QByteArray phoneNumberRegExp();
@@ -217,6 +218,7 @@ private:
     static const char* _emailRegExp;
     static const char* _phoneNumberRegExp;
     static const char* _phiMimeType;
+    static QSettings *_settings;
 };
 
 inline QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )

@@ -558,6 +558,8 @@ QByteArray PHISHtmlBase::createHtmlCode()
             if ( _req->agentId()==PHISRequest::Amphibia ) useObjTag=0;
         }
     } else useObjTag=0;
+    useObjTag=0; // obsolete - Phi plug-in is not longer supported
+
     if ( useObjTag!=2 ) {
         _indent="\t";
 
@@ -587,6 +589,7 @@ QByteArray PHISHtmlBase::createHtmlCode()
     }
 
     if ( useObjTag>0 ) {
+        //  obsolete (disable plug-in):
         static QString phisid=QStringLiteral( "phisid" );
         QUrl url( _req->url() );
         QUrlQuery query( _req->url() );

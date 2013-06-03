@@ -31,13 +31,14 @@ PHISModuleFactory* PHISModuleFactory::_instance=0;
 PHISModuleFactory::PHISModuleFactory( QObject *parent )
     : QObject( parent )
 {
-    qDebug( "PHISModuleFactore::PHISModuleFactory()" );
+    qDebug( "PHISModuleFactory::PHISModuleFactory()" );
     invalidate();
 }
 
 PHISModuleFactory::~PHISModuleFactory()
 {
-    qDebug( "PHISModuleFactore::~PHISModuleFactory()" );
+    _instance=0;
+    qDebug( "PHISModuleFactory::~PHISModuleFactory()" );
 }
 
 void PHISModuleFactory::invalidate()
@@ -103,7 +104,7 @@ QStringList PHISModuleFactory::loadedModules() const
         QString cr=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "Copyright" ) ).value() );
         QString v=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "Version" ) ).value() );
         QString lic=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "License" ) ).value() );
-        list << tr( "Library file '%1' provides module '%2' (%3).\nAuthor:\t  %4\nUrl:\t  %5"
+        list << tr( "Library '%1' provides module '%2' (%3).\nAuthor:\t  %4\nUrl:\t  %5"
                     "\nLicense:  %6\nCopyright %7" )
             .arg( _libNames.value( key ) ).arg( key ).arg( v )
             .arg( author.isEmpty() ? na : author ).arg( url.isEmpty() ? na : url )

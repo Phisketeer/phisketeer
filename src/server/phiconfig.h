@@ -21,7 +21,7 @@
 
 /** @file phiconfig.h PHI manager configuration and settings.
  * All configuration settings for this mgr stored in
- * <tt>/etc/xdg/Phisys/phis.conf</tt> (Unix), or in the
+ * <tt>/etc/phi/phis.conf</tt> (Unix), or in the
  * registry (Windows) can be accessed through this class. */
 
 /** @defgroup server_api PHI server (internal)
@@ -41,7 +41,7 @@
 
 /** PHI manager configuration class.
  * PHIConfig is implemented as singleton. This class holds all configuration
- * issues for this mgr including settings from <tt>/etc/xdg/PhiTechnologies/phi.conf
+ * issues for this mgr including settings from <tt>/etc/phi/phis.conf
  * </tt> or the registry and settings from the license file.
  * @todo Implementing license file settings.
  * @note This class is thread safe.

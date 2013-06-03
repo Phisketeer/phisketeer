@@ -192,18 +192,18 @@ void PHIWizardInstall::install()
     _progress->setValue( 90 );
     qApp->processEvents();
 
-    QSettings sg( "/etc/Phisketeer/phis.conf", QSettings::IniFormat );
+    QSettings sg( "/etc/phi/phis.conf", QSettings::IniFormat );
     sg.setFallbacksEnabled( false );
     sg.setValue( "BinDir", root+"/bin" );
     sg.setValue( "Phisketeer", "1" );
     sg.setValue( "PluginsPath", root+"/plugins" );
 
-    QSettings sa( "/etc/Phisketeer/phiapp.conf", QSettings::IniFormat );
+    QSettings sa( "/etc/phi/phiapp.conf", QSettings::IniFormat );
     sa.setFallbacksEnabled( false );
     sa.setValue( "Path", root+"/bin/phiapp" );
 
     if ( field( "phis" ).toBool() ) {
-        QSettings s( "/etc/Phisketeer/phis.conf", QSettings::IniFormat );
+        QSettings s( "/etc/phi/phis.conf", QSettings::IniFormat );
         s.setFallbacksEnabled( false );
         s.setValue( "RootDir", field( "datadir" ) );
         QString datadir=s.value( "RootDir" ).toString();
