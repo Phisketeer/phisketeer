@@ -65,8 +65,6 @@ PHIParent::PHIParent( QObject *parent )
         QSettings s( QStringLiteral( "" ), QSettings::NativeFormat );
 
         argList << QStringLiteral( "mod_phi" );
-#else
-#error Unsupported OS for mod_phi
 #endif
         int argc=argList.size();
         QVector<char *> argv( argc );
