@@ -5,7 +5,7 @@ QTLIBS=$2
 QTBINS=$3
 QTPLUGINS=$4
 QTTS=$5
-USEQT="libQt5Core libQt5Network libQt5Sql libQt5Gui libQt5Widgets libQt5PrintSupport libQt5Svg libQt5Script libQt5WebKit libQt5WebKitWidgets libQt5CLucene"
+USEQT="libQt5Core libQt5Network libQt5Sql libQt5Gui libQt5Widgets libQt5PrintSupport libQt5Svg libQt5Script libQt5WebKit libQt5WebKitWidgets libQt5Xml"
 
 rm -rf $DESTDIR
 echo "Creating directories"
