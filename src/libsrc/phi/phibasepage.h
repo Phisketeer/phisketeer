@@ -18,7 +18,7 @@
 */
 #ifndef PHIBASEPAGE_H
 #define PHIBASEPAGE_H
-
+/*
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -112,11 +112,11 @@ public:
     virtual ~PHIBasePage();
     // PHIBasePage( const PHIBasePage& );
 
-    inline void insertElementById( const QByteArray &id, PHIBaseItem *item ) { _items.insert( id, item ); }
-    inline void removeElementById( const QByteArray &id ) { PHIBaseItem *it=_items.take( id );
-        if ( it ) delete it; }
+    //inline void insertElementById( const QByteArray &id, PHIBaseItem *item ) { _items.insert( id, item ); }
+    //inline void removeElementById( const QByteArray &id ) { PHIBaseItem *it=_items.take( id );
+    //    if ( it ) delete it; }
     inline virtual quint16 itemCount() const { return _items.count(); }
-    inline QHash <QByteArray, PHIBaseItem*> items() const { return _items; }
+    //inline QHash <QByteArray, PHIBaseItem*> items() const { return _items; }
     inline void setTemplatePage( const QString &s ) { _variants.insert( DTemplatePage, s.toUtf8() ); }
     inline PHIPage::Attributes attributes() const { return _attributes; }
     inline PHIPage::Extensions extensions() const { return _extensions; }
@@ -208,10 +208,10 @@ public slots:
         return QString::fromLatin1( _variants.value( DCurrentLang ).toByteArray() ); }
 
     inline QStringList properties() const { return PHI::properties( this ); }
-    inline virtual PHIBaseItem* getElementById( const QString &id ) const
-        { return _items.value( id.toLatin1() ); }
-    virtual PHIBaseItem* createElementById( quint16 type, const QString &id, qreal x, qreal y,
-        qreal width=0, qreal height=0 );
+    //inline virtual PHIBaseItem* getElementById( const QString &id ) const
+    //    { return _items.value( id.toLatin1() ); }
+    //virtual PHIBaseItem* createElementById( quint16 type, const QString &id, qreal x, qreal y,
+    //    qreal width=0, qreal height=0 );
     inline virtual void removeElementById( const QString &id )
         { removeElementById( id.toLatin1() ); }
     inline virtual void setBgImageUrl( const QString &url ) { _variants.insert( DBgImageUrl, url.toUtf8() ); }
@@ -226,11 +226,11 @@ public slots:
 
 protected:
     QHash <quint8, QVariant> _variants;
-    QHash <QByteArray, PHIBaseItem*> _items;
+    //QHash <QByteArray, PHIBaseItem*> _items;
     QList <PHIPageMenuEntry> _menuEntries;
 };
 
 PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIBasePage* );
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBasePage* );
-
+*/
 #endif // PHIBASEPAGE_H

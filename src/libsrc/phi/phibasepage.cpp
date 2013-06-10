@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "phibasepage.h"
-
+/*
 PHIPageMenuEntry::PHIPageMenuEntry()
 {
     qDebug( "PHIPageMenuEntry::PHIPageMenuEntry()" );
@@ -90,6 +90,8 @@ PHIBasePage::~PHIBasePage()
 PHIBaseItem* PHIBasePage::createElementById( quint16 type, const QString &id, qreal x, qreal y,
     qreal width, qreal height )
 {
+*/
+    /*
     PHI::Widget wid=static_cast<PHI::Widget>(type);
     QByteArray newid=id.toLatin1();
     PHIBaseItem *it( 0 );
@@ -117,6 +119,9 @@ PHIBaseItem* PHIBasePage::createElementById( quint16 type, const QString &id, qr
     else if ( wid==PHI::GOOGLE_PLUS ) _extensions |= PHIPage::EHasGooglePlus;
     else if ( wid==PHI::CANVAS ) _extensions |= PHIPage::EHasCanvas;
     return it;
+    */
+/*
+    return 0;
 }
 
 QStringList PHIBasePage::itemIds() const
@@ -159,3 +164,4 @@ QDataStream& operator>>( QDataStream &in, PHIBasePage *p )
     if ( p->_attributes & PHIPage::AApplication ) in >> p->_menuEntries;
     return in;
 }
+*/

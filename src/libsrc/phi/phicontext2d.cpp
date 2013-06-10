@@ -23,6 +23,7 @@
 #include <QScriptEngine>
 #include <QRect>
 #include <QFontMetricsF>
+#include <QGuiApplication>
 #include <math.h>
 #include "phicontext2d.h"
 

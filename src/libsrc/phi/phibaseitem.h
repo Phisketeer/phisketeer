@@ -18,7 +18,7 @@
 */
 #ifndef PHIBASEITEM_H
 #define PHIBASEITEM_H
-
+/*
 #include <QObject>
 #include <QMetaType>
 #include <QScriptEngine>
@@ -418,5 +418,5 @@ public slots:
 protected:
     PHIBaseItem *_it;
 };
-
+*/
 #endif // PHIBASEITEM_H

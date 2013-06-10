@@ -18,7 +18,7 @@
 */
 #include <QMetaType>
 #include "phibaseitem.h"
-
+/*
 QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem * const &it )
 {
     return engine->newQObject( it, QScriptEngine::QtOwnership,
@@ -195,12 +195,10 @@ void PHIBaseItem::setSpanAngle( qint16 a )
 
 QDataStream& operator<<( QDataStream &out, const PHIBaseItem *it )
 {
-/*
     quint8 vid;
     foreach ( vid, it->_variants.keys() ) {
         qDebug( "%d=%d", vid, it->_variants.value( vid ).toInt() );
     }
-*/
     //qDebug( "<< VARIANT count %d", it->_variants.count() );
     if ( it->_effect->effects()!=PHIEffect::ENone ) {
         it->_effectData=it->_effect->save();
@@ -260,3 +258,4 @@ void PHIBaseEffect::rotate( quint8 axis, qreal step, const QString &ease )
     if ( axis & 0x4 ) zstep=step;
     _it->setRotate( axis, xstep, ystep, zstep, ease );
 }
+*/

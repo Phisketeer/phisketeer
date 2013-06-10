@@ -24,11 +24,9 @@
 
 class PHIEXPORT PHISysInfo
 {
-    friend class PHI;
     Q_DISABLE_COPY( PHISysInfo )
 
 public:
-    // inline QString application() const { return _application; }
     static QString systemString();
     static QString realUserName();
     static QString realGroupName();

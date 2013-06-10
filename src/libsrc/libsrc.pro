@@ -16,5 +16,5 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 CONFIG += ordered
-SUBDIRS += phi phis modules phia
+SUBDIRS += phi #modules phis phia
 TEMPLATE = subdirs

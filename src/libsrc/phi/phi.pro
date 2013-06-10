@@ -17,6 +17,9 @@
 
 HEADERS += phi.h \
     phiitem.h \
+    phisitem.h \
+    phiitemdata.h \
+    phidatasources.h \
     phierror.h \
     phisysinfo.h \
     phimemrotate.h \
@@ -31,11 +34,12 @@ HEADERS += phi.h \
     phiapplication.h \
     phipixlabel.h \
     phiupdateinfo.h \
-    phictx2dwidget.h \
-    phiqt5fixes.h
-#    philicense.h \
+    phictx2dwidget.h
 SOURCES += phi.cpp \
     phiitem.cpp \
+    phisitem.cpp \
+    phiitemdata.cpp \
+    phidatasources.cpp \
     phierror.cpp \
     phierrordesc.cpp \
     phimemrotate.cpp \
@@ -50,12 +54,9 @@ SOURCES += phi.cpp \
     phiapplication.cpp \
     phipixlabel.cpp \
     phiupdateinfo.cpp \
-    phictx2dwidget.cpp \
-    phiqt5fixes.cpp
-#    phimimetypes.cpp \
-#    philicense.cpp \
+    phictx2dwidget.cpp
 
-VERSION = 1.2.0
+VERSION = 2.0.0
 include( ../../../scripts/phiconf.pri )
 isEmpty( PHIDOM ): error( PHIDOM is not specified )
 isEmpty( PHIORG ): error( PHIORG is not specified )

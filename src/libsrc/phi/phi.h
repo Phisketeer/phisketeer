@@ -26,41 +26,24 @@
 #endif
 
 #define PHI_DSV QDataStream::Qt_4_7
+#define PHI_DSV2 QDataStream::Qt_5_0
 #define PHI_SFV 2
 #define PHI_MAGIC 0x5c34bb28
 
-#define PHI_LOG_FILTER_NONE     0x00
-#define PHI_LOG_FILTER_TRACE    0x01
-#define PHI_LOG_FILTER_ERROR    0x02
-#define PHI_LOG_FILTER_WARN     0x04
-#define PHI_LOG_FILTER_CRIT     0x08
-#define PHI_LOG_FILTER_DEBUG    0x10
-#define PHI_LOG_FILTER_USER     0x20
-
-#include <QAbstractSocket>
 #include <QObject>
-#include <QStringList>
-#include <QByteArray>
-#include <QSize>
-#include <QSizeF>
-#include <QDir>
-#include <QUrl>
-#include <QRect>
-#include <QColor>
-#include <QHash>
 #include <QMetaType>
-#include <QVariant>
-#include <QImage>
-#include <QGradient>
-#include <QDateTime>
-#include <QGuiApplication>
+#include <QUrl>
+#include <QAbstractSocket>
+#include <QColor>
+#include <QString>
+#include <QHash>
+#include <QGradientStops>
 #include <QFont>
+#include <QSize>
+#include <QPoint>
+#include <QFileInfo>
+#include <QImage>
 #include <QEasingCurve>
-#include <QStandardPaths>
-
-class QSettings;
-class QGraphicsItem;
-class PHIEffect;
 
 typedef QHash <QByteArray, QRect> PHIRectHash;
 typedef QList <QByteArray> PHIByteArrayList;
@@ -78,6 +61,143 @@ Q_DECLARE_METATYPE( QGradientStops )
 
 class PHIEXPORT PHI
 {
+protected:
+    Q_DISABLE_COPY( PHI )
+    PHI() {}
+
+public:
+    enum LogFilter { None=0x00, Trace=0x01, Error=0x02, Warning=0x04, Critical=0x08,
+                     Debug=0x10, User=0x20 };
+    enum Alignment { AlignLeftVCenter=0, AlignLeftTop=1, AlignLeftBottom=2, AlignRightVCenter=3, AlignRightTop=4,
+        AlignRightBottom=5, AlignTopHCenter=6, AlignBottomHCenter=7, AlignJustify=8, AlignCenter=9,
+        AlignLeft=10, AlignRight=11, AlignTop=12, AlignBottom=13 }; //quint8 in DataStream
+    enum ContentData { CDAll=0, CDUpdate=1, CDRequest=2, CDMessage=3, CDTemplatePage=4, CDImage=5,
+        CDStream=6 }; // quint8 in DataStream
+
+    static Qt::Alignment toQtAlignment( quint8 );
+    static PHIRC socketError( QAbstractSocket::SocketError err );
+    static QString tag( const QString &tag, const QString &msg ); // fast extractor <tag>msg</tag>
+    static QStringList properties( const QObject* );
+    static QString libVersion();
+    static void hsvToHsl( qreal h, qreal s, qreal v, qreal *hh, qreal *ss, qreal *ll );
+    static void hslToHsv( qreal hh, qreal ss, qreal ll, qreal *h, qreal *s, qreal *v );
+
+    static QColor percentColor( const QColor &c, qreal fac );
+    static QByteArray nl();
+    static QByteArray dtFormat();
+    static QString dtFormatString();
+    static QByteArray isoDateFormat();
+    static QByteArray emailRegExp();
+    static QByteArray phoneNumberRegExp();
+    static QByteArray mimeType();
+    static QByteArray mimeType( const QFileInfo &info );
+    static Qt::CursorShape toCursorShape( const QByteArray &s );
+    static bool isUpToDate( const QString &localV, const QString &serverV );
+    static QString toLocale( const QString &lang );
+    static QString defaultString(); // returns "default"
+    static QUrl createUrlForLink( const QUrl &ref, const QString &link );
+    static QString createPngUuid();
+    static QImage reflectedImage( const QImage &img, qreal off, qreal size );
+    static void grayscale( const QImage &image, QImage &dest, const QRect& rect=QRect() );
+    static QImage colorizedImage( const QImage &img, const QColor &c, qreal strength );
+    static QImage shadowedImage( const QImage &img, const QColor &color,
+        qreal radius, qreal xOff, qreal yOff );
+    static QImage bluredImage( const QImage &img, qreal radius, qreal factor=2.5 );
+    static void extractNumbers( const QByteArray &s, int &value, int &min, int &max, int &step );
+    static void extractRealNumbers( const QByteArray &s, qreal &value, qreal &min, qreal &max,
+        qreal &step, int &decimals );
+
+    static inline QString idValidator() { return QStringLiteral( "[A-Za-z][-_A-Za-z0-9]*" ); }
+    static inline QSize patternIconSize() { return QSize( 48, 12 ); }
+    static inline QSize colorIconSize() { return QSize( 14, 14 ); }
+    static inline qreal defaultSpacing() { return 6.; }
+    static inline qreal fontSizeFactor() { return static_cast<qreal>(1.33333333333); }
+    static inline int defaultFontSize() { return 10; }
+    static inline const QFont& invalidFont() { static QFont f( QStringLiteral( "phi" ), 3 ); return f; }
+    static inline const QFont& defaultFont() { static QFont f( QStringLiteral( "Arial" ), 10 ); return f; }
+    static inline int defaultDragDistance() { return 5; }
+    static inline QSize defaultPageSize() { return QSize( 1000, 750 ); }
+    static inline QPoint defaultHotSpot() { return QPoint( 5, 5 ); }
+
+    // move to PHIItem
+    static inline QString defaultEasingCurve() { return QStringLiteral( "easeOutQuad" ); }
+    static inline quint8 defaultEasingCurveType() {
+        return static_cast<quint8>(toEasingCurveType(defaultEasingCurve())); }
+    static inline QString toEasingCurveString( quint8 ease ) {
+        return QString::fromLatin1( toEasingCurveByteArray( ease ) ); }
+    static QEasingCurve::Type toEasingCurveType( const QString &name );
+    static QByteArray toEasingCurveByteArray( quint8 ease );
+    static QStringList availableEasingCurves();
+    static void getItemCheckData( QString &data, QString &opt, bool &isChecked );
+
+private:
+    static const char* _phiDT;
+    static const char* _phiDate;
+    static const char* _emailRegExp;
+    static const char* _phoneNumberRegExp;
+    static const char* _phiMimeType;
+};
+
+inline QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )
+{
+    return ref.resolved( QUrl( l ) );
+}
+
+inline QString PHI::defaultString()
+{
+    static QString def=QStringLiteral( "default" );
+    return def;
+}
+
+inline QByteArray PHI::dtFormat()
+{
+    static QByteArray dt=QByteArray::fromRawData( _phiDT, qstrlen( _phiDT ) );
+    return dt;
+}
+
+inline QString PHI::dtFormatString()
+{
+    static QString dt=QString::fromLatin1( dtFormat() );
+    return dt;
+}
+
+inline QByteArray PHI::isoDateFormat()
+{
+    static QByteArray isoDate=QByteArray::fromRawData( _phiDate, qstrlen( _phiDate ) );
+    return isoDate;
+}
+
+inline QByteArray PHI::emailRegExp() {
+    static QByteArray email=QByteArray::fromRawData( _emailRegExp, qstrlen( _emailRegExp ) );
+    return email;
+}
+
+inline QByteArray PHI::phoneNumberRegExp()
+{
+    static QByteArray phone=QByteArray::fromRawData( _phoneNumberRegExp, qstrlen( _phoneNumberRegExp ) );
+    return phone;
+}
+
+inline QByteArray PHI::mimeType()
+{
+    static QByteArray mime=QByteArray::fromRawData( _phiMimeType, qstrlen( _phiMimeType ) );
+    return mime;
+}
+
+inline QByteArray PHI::nl()
+{
+#ifdef Q_OS_WIN
+    static QByteArray nl=QByteArray::fromRawData( "\r\n", 2 );
+#else
+    static QByteArray nl=QByteArray::fromRawData( "\n", 1 );
+#endif
+    return nl;
+}
+
+
+/*
+class PHIEXPORT PHI
+{
     Q_DISABLE_COPY( PHI )
 
 public:
@@ -92,37 +212,6 @@ public:
         HTML_DOC=49, SEARCH=50, EMAIL=51, DECIMAL=52, REALNUMBER=53, PHONE=54, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
         GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, CANVAS=61, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
     }; // quint8 in DataStream
-    // end remove
-    enum Alignment { AlignLeftVCenter=0, AlignLeftTop=1, AlignLeftBottom=2, AlignRightVCenter=3, AlignRightTop=4,
-        AlignRightBottom=5, AlignTopHCenter=6, AlignBottomHCenter=7, AlignJustify=8, AlignCenter=9,
-        AlignLeft=10, AlignRight=11, AlignTop=12, AlignBottom=13 }; //quint8 in DataStream
-    enum ContentData { CDAll=0, CDUpdate=1, CDRequest=2, CDMessage=3, CDTemplatePage=4, CDImage=5,
-        CDStream=6 }; // quint8 in DataStream
-
-    static Qt::Alignment toQtAlignment( quint8 );
-    static PHIRC socketError( QAbstractSocket::SocketError err );
-    static QString tag( const QString &tag, const QString &msg ); // fast extractor <tag>msg</tag>
-    static QStringList properties( const QObject* );
-    static QString libVersion();
-    static void setupApplication( QGuiApplication *app );
-    static QString applicationRoot();
-    static QString libPath();
-    static QString pluginPath();
-    static void hsvToHsl( qreal h, qreal s, qreal v, qreal *hh, qreal *ss, qreal *ll );
-    static void hslToHsv( qreal hh, qreal ss, qreal ll, qreal *h, qreal *s, qreal *v );
-    static QColor percentColor( const QColor &c, qreal fac );
-    static inline quint16 maxLength() { return static_cast<quint16>(100); }
-    static inline quint8 maxPatternStyle() { return static_cast<quint8>(15); }
-    static inline quint8 maxLineStyle() { return static_cast<quint8>(5); }
-    static inline int maxZValue() { return 1000; }
-    static QByteArray nl();
-    static QByteArray dtFormat();
-    static QString dtFormatString();
-    static QByteArray isoDateFormat();
-    static QByteArray domain();
-    static QByteArray organisation();
-    static inline QString idValidator() { return QStringLiteral( "[A-Za-z][-_A-Za-z0-9]*" ); }
-
     // Remove in V2:
     static inline qreal minimumHeightForImageButton() { return 30.; }
     static inline qreal minimumHeight() { return 22.; }
@@ -156,20 +245,6 @@ public:
     static bool isShapeItem( PHI::Widget wid );
     // end remove
 
-    static inline QSize patternIconSize() { return QSize( 48, 12 ); }
-    static inline QSize colorIconSize() { return QSize( 14, 14 ); }
-    static inline qreal defaultSpacing() { return 6.; }
-    static inline qreal fontSizeFactor() { return static_cast<qreal>(1.33333333333); }
-    static inline int defaultFontSize() { return 10; }
-    static inline QFont invalidFont() { static QFont f( QStringLiteral( "phi" ), 3 ); return f; }
-    static inline QFont defaultFont() { static QFont f( QStringLiteral( "Arial" ), 11 ); return f; }
-    static inline int defaultDragDistance() { return 5; }
-    static inline QSize defaultPageSize() { return QSize( 1000, 750 ); }
-
-    static QByteArray emailRegExp();
-    static QByteArray phoneNumberRegExp();
-    static QByteArray mimeType();
-    static QByteArray mimeType( const QFileInfo &info );
     static QString stdTmpPath();
     static QString getLocalFilePath( const QString &docroot, const QString &referer, const QString &filename );
     static QString getRelativeFilePath( const QString &referer, const QString &filename );
@@ -286,5 +361,6 @@ inline QByteArray PHI::nl()
 #endif
     return nl;
 }
+*/
 
 #endif /* PHI_H */

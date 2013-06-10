@@ -20,28 +20,15 @@
 #
 #    Note: some parts are based on code provided by the Qt source.
 */
-#include <QSysInfo>
-#include <QSettings>
-#include <QTranslator>
 #include <QMetaProperty>
-#include <QProcess>
 #include <QUuid>
 #include <QPainter>
-#include <QPalette>
 #include <QMimeDatabase>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
 #include "qmath.h"
 #include "phi.h"
 #include "phierror.h"
 #include "phisysinfo.h"
 #include "phimemrotate.h"
-// remove in V2
-#include "phieffect.h"
-#include "phieffects.h"
-#include <QGraphicsItem>
-// end remove
 
 #ifdef PHIAPPSTORE
 #include "macfilebookmark.h"
@@ -55,17 +42,14 @@ const char* PHI::_phoneNumberRegExp="[0-9+][0-9 ]{3,25}[0-9]";
 
 // Code of the templates are based on Qt's image rendering algorithm
 template <int shift>
-inline int phi_static_shift(int value)
+inline int phi_static_shift( int value )
 {
-    if (shift == 0)
-        return value;
-    else if (shift > 0)
-        return value << (uint(shift) & 0x1f);
-    else
-        return value >> (uint(-shift) & 0x1f);
+    if ( shift==0 ) return value;
+    else if ( shift>0 ) return value << (uint(shift) & 0x1f);
+    else return value >> (uint(-shift) & 0x1f);
 }
 
-const int phi_alphaIndex=(QSysInfo::ByteOrder==QSysInfo::BigEndian ? 0 : 3);
+static const int phi_alphaIndex=(QSysInfo::ByteOrder==QSysInfo::BigEndian ? 0 : 3);
 
 template<int aprec, int zprec>
 inline void phi_blurinner_alphaOnly( uchar *bptr, int &z, int alpha )
@@ -205,160 +189,10 @@ void phi_blurImage( QImage &blurImage, qreal radius, bool quality, int transpose
         phi_expblur<12, 10, false>( blurImage, radius, quality, transposed );
 }
 
-QSettings* PHI::globalSettings()
-{
-    static QSettings *s=0;
-    if ( s ) return s;
-    QString name=QStringLiteral( "phis" );
-#ifdef Q_OS_MAC
-    s=new QSettings( QStringLiteral( "phisys.com" ), name, qApp ); // required for Mac app store
-#elif defined Q_OS_WIN
-    s=new QSettings( QSettings::SystemScope, QString::fromLatin1( PHI::organisation() ), name, qApp );
-    s->setFallbacksEnabled( false );
-#else
-    s=new QSettings( QString::fromLatin1( PHI::domain() ), name, qApp );
-#endif
-    qWarning( "Application name %s", qPrintable( qApp->applicationName() ) );
-    qDebug( "Application domain %s", qPrintable( qApp->organizationDomain() ) );
-    qDebug( "Application organisation %s", qPrintable( qApp->organizationName() ) );
-    qWarning( "Global settings file name: %s", qPrintable( s->fileName() ) );
-    return s;
-}
-
-// returns the root directory for the application
-QString PHI::applicationRoot()
-{
-    static QString path;
-    if ( !path.isNull() ) return path;
-    Q_ASSERT( qApp );
-    QDir appdir( QCoreApplication::applicationDirPath() );
-#ifdef Q_OS_WIN
-    // bundleID/bin
-    appdir.cdUp();
-#elif defined Q_OS_UNIX
-#ifdef Q_OS_MAC
-    // bundleID/Contents/MacOS
-    appdir.cdUp(); // bundleID/Contents/
-    appdir.cdUp(); // bundleID/
-#else
-    // bundleID/bin
-    appdir.cdUp();
-#endif
-#else
-#error Could not determine application root path
-#endif
-    path=appdir.canonicalPath();
-    return path;
-}
-
 QString PHI::libVersion()
 {
     static QString ver=QString::fromLatin1( PHIVERSION );
     return ver;
-}
-
-QString PHI::libPath()
-{
-    static QString path;
-    if ( !path.isNull() ) return path;
-#ifdef Q_OS_MAC
-    path=applicationRoot()+QLatin1String( "/Contents/PlugIns/phi" );
-#elif defined Q_OS_WIN
-    path=applicationRoot()+QLatin1String( "\\bin" );
-#elif defined Q_OS_UNIX
-    path=applicationRoot()+QLatin1String( "/lib" );
-#else
-#error Could not determine library path
-#endif
-    return path;
-}
-
-QString PHI::serverBin()
-{
-    static QString bin;
-    if ( !bin.isNull() ) return bin;
-#ifdef Q_OS_MAC
-    bin=applicationRoot()+QLatin1String( "/Contents/MacOS/phis" );
-#elif defined Q_OS_WIN
-    bin=applicationRoot()+QLatin1String( "\\bin\\phis.exe" );
-#else
-    bin=applicationRoot()+QLatin1String( "/bin/phis" );
-#endif
-    return bin;
-}
-
-QString PHI::pluginPath()
-{
-    static QString path;
-    if ( !path.isNull() ) return path;
-#ifdef Q_OS_MAC
-    path=applicationRoot()+QLatin1String( "/Contents/PlugIns" );
-#elif defined Q_OS_WIN
-    path=applicationRoot()+QLatin1String( "\\bin\\plugins" );
-#elif defined Q_OS_UNIX
-    path=applicationRoot()+QLatin1String( "/plugins" );
-#else
-#error Could not determine plug-in path
-#endif
-    return path;
-}
-
-void PHI::updateTranslations()
-{
-    QCoreApplication *app=QCoreApplication::instance();
-    if ( !app ) return;
-    QString lang=QLocale::system().name();
-    QSettings s;
-    lang=s.value( QStringLiteral( "Language" ), lang ).toString();
-    QLocale::setDefault( QLocale( lang ) );
-    qDebug( "SETTING LOCALE %s", qPrintable( lang ) );
-    QString dir;
-#ifdef Q_OS_MAC
-    dir=applicationRoot()+QLatin1String( "/Contents/Resources/ts" );
-#else
-    dir=applicationRoot()+QDir::separator()+QLatin1String( "ts" );
-#endif
-    QTranslator *tr=new QTranslator( app );
-    if ( !tr->load( QLatin1String( "qt_" )+lang, dir ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qt_" )+lang ), qPrintable( dir ) );
-        delete tr;
-    } else {
-        app->installTranslator( tr );
-    }
-    tr=new QTranslator( app );
-    if ( !tr->load( QLatin1String( "qtbase_" )+lang, dir ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qtbase_" )+lang ), qPrintable( dir ) );
-        delete tr;
-    } else {
-        app->installTranslator( tr );
-    }
-    tr=new QTranslator( app );
-    if ( !tr->load( QLatin1String( "qtscript_" )+lang, dir ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qtscript_" )+lang ), qPrintable( dir ) );
-        delete tr;
-    } else {
-        app->installTranslator( tr );
-    }
-    tr=new QTranslator( app );
-    if ( !tr->load( QLatin1String( "qtmultimedia_" )+lang, dir ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qtmultimedia_" )+lang ), qPrintable( dir ) );
-        delete tr;
-    } else {
-        app->installTranslator( tr );
-    }
-    tr=new QTranslator( app );
-    if ( !tr->load( QLatin1String( "phia_" )+lang, dir ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "phia_" )+lang ), qPrintable( dir ) );
-        delete tr;
-    } else {
-        app->installTranslator( tr );
-    }
-    tr=new QTranslator( app );
-    if ( !tr->load( app->applicationName().toLower()+QLatin1Char( '_' )+lang, dir ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( app->applicationName().toLower()+QLatin1Char( '_' )+lang ), qPrintable( dir ) );
-    } else {
-        app->installTranslator( tr );
-    }
 }
 
 QStringList PHI::properties( const QObject *obj )
@@ -371,25 +205,6 @@ QStringList PHI::properties( const QObject *obj )
     return properties;
 }
 
-void PHI::setupApplication( QGuiApplication *app )
-{
-    if ( !app ) return;
-#ifdef Q_OS_MAC // needed for AppStore
-    app->setOrganizationDomain( QStringLiteral( "phisys.com" ) );
-    app->setOrganizationName( QStringLiteral( "Phisys AG" ) );
-#else
-    app->setOrganizationDomain( QString::fromLatin1( PHI::domain() ) );
-    app->setOrganizationName( QString::fromLatin1( PHI::organisation() ) );
-#endif
-    app->addLibraryPath( pluginPath() );
-    qWarning( "Adding Plug-inPath %s", qPrintable( pluginPath() ) );
-    updateTranslations();
-    qRegisterMetaTypeStreamOperators<PHIRectHash>("PHIRectHash");
-    qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
-    qRegisterMetaTypeStreamOperators<PHIImageHash>("PHIImageHash");
-    qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
-}
-
 QByteArray PHI::mimeType( const QFileInfo &file )
 {
     static QMimeDatabase db;
@@ -399,151 +214,6 @@ QByteArray PHI::mimeType( const QFileInfo &file )
     return db.mimeTypeForFile( file ).name().toUtf8();
 }
 
-// returns -1 on error, 0 not running, 1 running
-int PHI::checkService()
-{
-    Q_ASSERT( qApp );
-#ifdef Q_OS_MAC
-    QSettings *s=PHI::globalSettings();
-    // Sandboxing in Mac OS X requires a little hack: we check if the server responds
-    // to a QNetworkRequest to determine if the phis service is running
-    s->beginGroup( defaultString() );
-    QUrl url( QStringLiteral( "http://localhost/phi.phis?ping=1" ) );
-    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
-    s->endGroup();
-    QNetworkRequest req;
-    req.setUrl( url );
-    QNetworkAccessManager mg;
-    QNetworkReply *rep=mg.get( req );
-    while ( !rep->isFinished() ) {
-        qApp->processEvents();
-    }
-    rep->deleteLater();
-    if ( rep->error()!=QNetworkReply::NoError ) {
-        // phis responses with "access denied" to phi.phis?ping=1
-        // so we can asume the service is running
-        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
-        qWarning( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
-        return 0;
-    }
-    return 0;
-#else // Linux and Windows
-    QString bin=serverBin();
-    if ( !QFile::exists( bin ) ) return -1;
-    qDebug( "Starting process %s", qPrintable( bin ) );
-    QProcess proc;
-    proc.setProcessChannelMode( QProcess::MergedChannels );
-    proc.start( bin, QStringList() << QStringLiteral( "-v" ) );
-    if ( !proc.waitForStarted() ) return -1;
-    if ( !proc.waitForFinished() ) return -1;
-    QByteArray arr=proc.readAll();
-    qDebug( "start process read all=%s", arr.data() );
-    if ( arr.contains( "not running" ) ) return 0;
-    return 1;
-#endif
-}
-
-bool PHI::startPhisService()
-{
-    const QString bin=serverBin();
-    if ( !QFile::exists( bin ) ) return false;
-#ifdef Q_OS_MAC
-#ifdef PHIAPPSTORE
-    QSettings *s=PHI::globalSettings();
-    // Sandboxing in Mac OS X requires a little hack: we check if the server responds
-    // to a QNetworkRequest to determine if the phis service is running
-    s->beginGroup( defaultString() );
-    const QString baseDir=s->value( QLatin1String( "BaseDir" ) ).toString();
-    s->beginGroup( QLatin1String( "localhost" ) );
-    const QString root=s->value( QLatin1String( "DocumentRoot" ), baseDir+QLatin1String( "/localhost" ) ).toString();
-    s->endGroup();
-    s->endGroup();
-    //PHISecFile sf( root ); // let the phis service access the document root
-    //Q_UNUSED( sf );
-#endif
-    qWarning( "Starting process %s", qPrintable( bin) );
-    bool res=QProcess::startDetached( bin );
-    return res;
-#else
-    QProcess proc;
-#ifdef Q_OS_WIN
-    proc.execute( bin, QStringList() << QStringLiteral( "-i" ) );
-#endif
-    proc.start( bin );
-    if ( !proc.waitForStarted() ) return false;
-    if ( !proc.waitForFinished() ) return false;
-    return true;
-#endif
-}
-
-bool PHI::stopPhisService()
-{
-    qDebug( "stop phis service" );
-#ifdef Q_OS_MAC
-    // Sandboxing in Mac OS X requires a little hack: we send
-    // a QNetworkRequest to stop the phis service
-    QSettings *s=PHI::globalSettings();
-    s->beginGroup( QStringLiteral( "default" ) );
-    QUrl url( QStringLiteral( "http://localhost/phi.phis?stop=1" ) );
-    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
-    s->endGroup();
-    QNetworkRequest req;
-    req.setUrl( url );
-    QNetworkAccessManager mg;
-    QNetworkReply *rep=mg.get( req );
-    while ( !rep->isFinished() ) {
-        qApp->processEvents();
-    }
-    rep->deleteLater();
-    if ( rep->error()!=QNetworkReply::NoError ) {
-        // phis responses with "access denied" to phi.phis?stop=1
-        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
-        qDebug( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
-        return 0;
-    }
-    return 0;
-#else
-    QProcess proc;
-    QString bin=serverBin();
-    int res=proc.execute( bin, QStringList() << QStringLiteral( "-t" ) );
-    if ( res ) return false;
-    return true;
-#endif
-}
-
-bool PHI::clearPhisServiceCache()
-{
-#ifdef Q_OS_MAC
-    // sandboxing in Mac OS X requires a little hack: we send
-    // a QNetworkRequest to invalidate the phis cache
-    QSettings *s=PHI::globalSettings();
-    s->beginGroup( defaultString() );
-    QUrl url( QStringLiteral( "http://localhost/phi.phis?invalidate=1" ) );
-    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
-    s->endGroup();
-    QNetworkRequest req;
-    req.setUrl( url );
-    QNetworkAccessManager mg;
-    QNetworkReply *rep=mg.get( req );
-    while ( !rep->isFinished() ) {
-        qApp->processEvents();
-    }
-    rep->deleteLater();
-    if ( rep->error()!=QNetworkReply::NoError ) {
-        // phis responses with "access denied" to phi.phis?invalidate=1
-        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
-        qDebug( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
-        return 0;
-    }
-    return 0;
-#else
-    QProcess proc;
-    QString bin=serverBin();
-    int res=proc.execute( bin, QStringList() << QStringLiteral( "-c" ) );
-    if ( res ) return false;
-    return true;
-#endif
-}
 
 QString PHI::tag( const QString &tag, const QString &msg )
 {
@@ -626,6 +296,7 @@ void PHI::hslToHsv( qreal hh, qreal ss, qreal ll, qreal *h, qreal *s, qreal *v )
     *s = (2 * ss) / (ll + ss);
 }
 
+/*
 QDateTime PHI::dateTimeFromHeader( const QByteArray &modified )
 {
     QByteArray tmp=modified.mid( 5 ), arr;
@@ -663,35 +334,6 @@ QDateTime PHI::dateTimeFromHeader( const QByteArray &modified )
     //qDebug( "DATETIME %s", qPrintable( QDateTime( QDate( y, m, d ), time, Qt::UTC ).toString() ) );
     return QDateTime( QDate ( y, m, d ), time, Qt::UTC );
 }
-
-/*
-QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )
-{
-    QUrl url=ref;
-    //qDebug( "ref path: %s", qPrintable( url.path()) );
-    QUrl link( l );
-    if ( !link.scheme().isEmpty() ) url.setScheme( link.scheme() );
-    if ( !link.host().isEmpty() ) {
-        url.setHost( link.host() );
-        url.setPort( -1 );
-    }
-    if ( !link.userInfo().isEmpty() ) url.setUserInfo( link.userInfo() );
-    if ( link.port()!=-1 ) url.setPort( link.port() );
-    if ( l.startsWith( '/' ) || l.startsWith( '\\' ) || !link.host().isEmpty() ) {
-        url.setPath( link.path() );
-        //qDebug( "path: %s", qPrintable( url.path() ) );
-    } else { // we have a relative Url
-        QString path=QFileInfo( ref.path() ).path();
-        qDebug( "path: %s link: %s", qPrintable( ref.path() ), qPrintable( link.path() ) );
-        link.path().startsWith( '/' ) ? path+=link.path() : path+='/'+link.path();
-        if ( path.startsWith( '/' ) || path.startsWith( '\\' ) ) path.remove( 0, 1 );
-        url.setPath( path );
-    }
-    url.setQuery( QUrlQuery( link ) );
-    qDebug( "createUrlForLink <%s>", url.toEncoded().data() );
-    return url;
-}
-*/
 
 QString PHI::getLocalFilePath( const QString &docroot, const QString &referer, const QString &filename )
 {
@@ -745,8 +387,9 @@ void PHI::getItemCheckData( QString &data, QString &opt, bool &isChecked )
         data.truncate( start );
     }
 }
+*/
 
-QImage PHI::getBluredImage( const QImage &img, qreal radius, qreal factor )
+QImage PHI::bluredImage( const QImage &img, qreal radius, qreal factor )
 {
     if ( img.isNull() || radius <=1. ) return img;
     int r=static_cast<int>(radius);
@@ -761,10 +404,10 @@ QImage PHI::getBluredImage( const QImage &img, qreal radius, qreal factor )
     return dest;
 }
 
-QImage PHI::getShadowedImage( const QImage &img, const QColor &color, qreal radius,
+QImage PHI::shadowedImage( const QImage &img, const QColor &color, qreal radius,
     qreal xOff, qreal yOff )
 {
-    QImage tmp=PHI::getBluredImage( img, radius, 1.3 );
+    QImage tmp=bluredImage( img, radius, 1.3 );
     QPainter tmpPainter( &tmp );
     //qDebug( "bluring org %d %d, new %d %d", img.width(), img.height(), tmp.width(), tmp.height() );
 
@@ -794,7 +437,7 @@ QImage PHI::getShadowedImage( const QImage &img, const QColor &color, qreal radi
     return dest;
 }
 
-QImage PHI::getColorizedImage( const QImage &img, const QColor &c, qreal strength )
+QImage PHI::colorizedImage( const QImage &img, const QColor &c, qreal strength )
 {
     if ( img.isNull() ) return img;
     QImage src=img;
@@ -856,7 +499,7 @@ void PHI::grayscale( const QImage &image, QImage &dest, const QRect& rect )
     }
 }
 
-QImage PHI::getSurfacedImage( const QImage &img, qreal off, qreal size )
+QImage PHI::reflectedImage( const QImage &img, qreal off, qreal size )
 {
     if ( img.isNull() ) return img;
     QImage newimg( img.width(), qMax( img.height(), img.height()+static_cast<int>(size+off) ),
@@ -913,6 +556,7 @@ Qt::Alignment PHI::toQtAlignment( quint8 align )
     }
 }
 
+/*
 // remove in V2
 void PHI::setEffect( QGraphicsItem *it, const PHIEffect &e )
 {
@@ -976,6 +620,7 @@ QByteArray PHI::emptyYouTubeDoc()
     arr+="</body></html>";
     return arr;
 }
+*/
 
 QByteArray PHI::toEasingCurveByteArray( quint8 ease )
 {
@@ -1141,18 +786,6 @@ QString PHI::toLocale( const QString &lang )
     return lang.left( 2 ).toLower();
 }
 
-QByteArray PHI::domain()
-{
-    static QByteArray dom=QByteArray::fromRawData( PHIDOM, qstrlen( PHIDOM ) );
-    return dom;
-}
-
-QByteArray PHI::organisation()
-{
-    static QByteArray org=QByteArray::fromRawData( PHIORG, qstrlen( PHIORG ) );
-    return org;
-}
-
 PHIRC PHI::socketError( QAbstractSocket::SocketError err )
 {
     switch ( err ){
@@ -1171,6 +804,7 @@ PHIRC PHI::socketError( QAbstractSocket::SocketError err )
     return PHIRC_TCP_UNKNOWN_SOCKET_ERROR;
 }
 
+/*
 // Remove in V2
 QSizeF PHI::sizeHint( const QSizeF &size, PHI::Widget wid, const QFont &font )
 {
@@ -1273,7 +907,7 @@ bool PHI::isWidgetItem( PHI::Widget wid )
     return false;
 }
 
-/* item is able to send data in a form */
+// item is able to send data in a form
 bool PHI::isInputItem( PHI::Widget wid )
 {
     switch ( wid ) {
@@ -1305,7 +939,7 @@ bool PHI::isInputItem( PHI::Widget wid )
     return false;
 }
 
-/* item has a tab index */
+// item has a tab index
 bool PHI::isTabOrderItem( PHI::Widget  wid )
 {
     if ( wid==PHI::HIDDEN ) return false;
@@ -1332,7 +966,7 @@ bool PHI::isTabOrderItem( PHI::Widget  wid )
     return false;
 }
 
-/* represents text items ie. for text shadows (no box elment) */
+// represents text items ie. for text shadows (no box elment)
 bool PHI::isTextItem( PHI::Widget wid ) {
     switch( wid ) {
     case PHI::LABEL: return true;
@@ -1349,7 +983,7 @@ bool PHI::isTextItem( PHI::Widget wid ) {
     return false;
 }
 
-/* Layout which contains other items */
+// Layout which contains other items
 bool PHI::isWidgetContainer( PHI::Widget wid )
 {
     switch( wid ) {
@@ -1365,7 +999,7 @@ bool PHI::isWidgetContainer( PHI::Widget wid )
     return false;
 }
 
-/* Item represents a layout */
+// Item represents a layout
 bool PHI::isLayoutContainer( PHI::Widget wid )
 {
     switch ( wid ) {
@@ -1386,7 +1020,7 @@ bool PHI::isLayoutContainer( PHI::Widget wid )
     return false;
 }
 
-/* Item is not widget based */
+// Item is not widget based
 bool PHI::isDisplayItem( PHI::Widget wid )
 {
     switch ( wid ) {
@@ -1443,3 +1077,4 @@ bool PHI::isShapeItem( PHI::Widget wid )
     return false;
 }
 // end remove
+*/

@@ -20,14 +20,61 @@
 #define PHIAPPLICATION_H
 
 #include <QApplication>
+#include <QSettings>
+#include "phi.h"
 
-class PHIApplication : public QApplication
+class PHIPrivateApplication : public QApplication
 {
     Q_OBJECT
 
 public:
-    explicit PHIApplication( int &argc, char **argv );
+    explicit PHIPrivateApplication( int &argc, char **argv );
+    //virtual ~PHIPrivateApplication();
 
+signals:
+    void openFileRequest( const QString& );
+
+protected:
+    virtual bool event( QEvent* );
+};
+
+class PHIEXPORT PHIApplication : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit PHIApplication( int &argc, char **argv, const char *name, const char *version );
+    virtual ~PHIApplication();
+    inline const QString& pluginsPath() const { return _pluginsPath; }
+    inline const QString& rootPath() const { return _rootPath; }
+    inline const QString& binPath() const { return _binPath; }
+    inline const QString& libPath() const { return _libPath; }
+    inline const QString& modulesPath() const { return _modulesPath; }
+    inline const QString& itemsPath() const { return _itemsPath; }
+    inline const QString& tsPath() const { return _tsPath; }
+    inline const QString& serverBin() const { return _serverBin; }
+    inline QSettings* settings() const { return _settings; }
+    inline QGuiApplication* qapp() const { return _app; }
+    inline int exec() { return _app->exec(); }
+    bool stopPhisService();
+    bool startPhisService();
+    int checkPhisService();
+    bool clearPhisServiceCache();
+    static PHIApplication* instance() { return _instance; }
+
+public slots:
+    void loadTranslations();
+    inline void quit() { _app->quit(); }
+
+signals:
+    void openFileRequest( const QString& );
+
+private:
+    static PHIApplication *_instance;
+    QGuiApplication *_app;
+    QSettings *_settings;
+    QString _pluginsPath, _rootPath, _binPath, _libPath, _modulesPath;
+    QString _itemsPath, _tsPath, _serverBin;
 };
 
 #endif // PHIAPPLICATION_H
