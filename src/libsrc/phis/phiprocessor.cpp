@@ -842,10 +842,12 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
             PHISScriptObj *obj=mod->create( key, phisif );
             if ( obj ) {
                 obj->initObject( &engine, key );
+                /*
                 _resp->log( PHILOGWARN, PHIRC_MODULE_DEPRECATED,
                     QObject::tr( "The page '%1' is using the old module interface.\n"
                     "Please switch to the dynamic module loading by using\n\"loadModule('%2');\""
                     " in your server script." ).arg( p->id() ).arg( key ) );
+                 */
             } else {
                 QString tmp=QObject::tr( "Could not load module '%1'." ).arg( smmap.value( sm ) );
                 _resp->log( PHILOGCRIT, PHIRC_MODULE_LOAD_ERROR, tmp );

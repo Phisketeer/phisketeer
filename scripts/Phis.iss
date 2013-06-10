@@ -52,7 +52,7 @@ Source: Qt5Multimedia.dll; DestDir: {app}\bin; Components: core; Flags: 32bit re
 Source: Qt5WebKit.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5WebKitWidgets.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5V8.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
-;Source: Qt5Xml.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
+Source: Qt5Xml.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 ;Source: Qt5XmlPatterns.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 ;Source: Qt5CLucene.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt
 Source: Qt5PrintSupport.dll; DestDir: {app}\bin; Components: core; Flags: 32bit restartreplace uninsnosharedfileprompt

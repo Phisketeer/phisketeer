@@ -352,7 +352,7 @@ void PHIAWebView::slotDataAvailable()
 
 void PHIAWebView::slotFinished()
 {
-    qWarning( "PHIAWebView::slotFinished()" );
+    qDebug( "PHIAWebView::slotFinished()" );
     QNetworkReply *reply=qobject_cast<QNetworkReply*>(_ioDev);
     if ( _ioDev ) _ioDev->deleteLater();
     _ioDev=0;

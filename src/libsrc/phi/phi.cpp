@@ -470,7 +470,7 @@ bool PHI::startPhisService()
     //PHISecFile sf( root ); // let the phis service access the document root
     //Q_UNUSED( sf );
 #endif
-    qWarning( "Starting process %s", qPrintable( bin) );
+    qDebug( "Starting process %s", qPrintable( bin) );
     bool res=QProcess::startDetached( bin );
     return res;
 #else

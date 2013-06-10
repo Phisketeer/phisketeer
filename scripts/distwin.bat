@@ -60,8 +60,8 @@ copy /y ..\3rdparty\win32\redist\msvcp100.dll
 if exist C:\PROGRA~2\MySQL\MYSQLS~1.5\lib\libmysql.dll copy /y C:\PROGRA~2\MySQL\MYSQLS~1.5\lib\libmysql.dll
 
 REM add type library:
-@echo on
-%QTBINS%\idc.exe npphiplugin1.dll /idl npphiplugin.idl -version %PHIRELEASE%
-midl npphiplugin.idl /nologo /tlb npphiplugin.tlb
-%QTBINS%\idc.exe npphiplugin1.dll /tlb npphiplugin.tlb
-@cd ..
+REM @echo on
+REM %QTBINS%\idc.exe npphiplugin1.dll /idl npphiplugin.idl -version %PHIRELEASE%
+REM midl npphiplugin.idl /nologo /tlb npphiplugin.tlb
+REM %QTBINS%\idc.exe npphiplugin1.dll /tlb npphiplugin.tlb
+cd ..
