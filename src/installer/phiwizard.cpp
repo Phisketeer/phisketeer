@@ -353,11 +353,9 @@ bool PHIWizardInstall::validatePage()
     if ( _phis->isChecked() ) {
         QProcess p_phis;
         p_phis.setProcessEnvironment( env );
-        p_phis.start( "/usr/bin/killall "+field( "rootdir" ).toString()+"/bin/phis" );
-        p_phis.waitForFinished( 4000 );
-        p_phis.start( "/usr/bin/killall /opt/phisketeer-1.4.1/bin/phis" );
-        p_phis.waitForFinished( 4000 );
-        p_phis.startDetached( field( "rootdir" ).toString()+"/bin/phis" );
+        p_phis.start( "/usr/bin/killall -q -w phis" );
+        p_phis.waitForFinished( 10000 );
+        p_phis.startDetached( field( "rootdir" ).toString()+"/bin/phis -platform minimal" );
     }
     if ( _artephis->isChecked() ) {
         QProcess p_artephis;

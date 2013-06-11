@@ -15,7 +15,11 @@ PHILIBPATH=`pwd`/lib
 PHIPLUGINS=`pwd`/plugins
 QT_PLUGIN_PATH=$PHIPLUGINS
 LD_LIBRARY_PATH=$PHILIBPATH:$LD_LIBRARY_PATH
-/usr/bin/xhost si:localuser:root
+if [ -n "$SUDO_USER" ] ; then
+    su $SUDO_USER -c "/usr/bin/xhost si:localuser:root" -
+else
+    /usr/bin/xhost si:localhost:root
+fi
 export LD_LIBRARY_PATH
 export QT_PLUGIN_PATH
 echo "Starting GUI installer"

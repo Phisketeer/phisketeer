@@ -454,7 +454,7 @@ int PHI::checkService()
 
 bool PHI::startPhisService()
 {
-    const QString bin=serverBin();
+    QString bin=serverBin();
     if ( !QFile::exists( bin ) ) return false;
 #ifdef Q_OS_MAC
 #ifdef PHIAPPSTORE
@@ -477,6 +477,9 @@ bool PHI::startPhisService()
     QProcess proc;
 #ifdef Q_OS_WIN
     proc.execute( bin, QStringList() << QStringLiteral( "-i" ) );
+#endif
+#ifdef Q_OS_LINUX
+    bin+=QLatin1String( " -platform minimal" );
 #endif
     proc.start( bin );
     if ( !proc.waitForStarted() ) return false;
@@ -506,15 +509,18 @@ bool PHI::stopPhisService()
     rep->deleteLater();
     if ( rep->error()!=QNetworkReply::NoError ) {
         // phis responses with "access denied" to phi.phis?stop=1
-        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
+        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return true;
         qDebug( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
-        return 0;
+        return false;
     }
-    return 0;
+    return false;
 #else
     QProcess proc;
-    QString bin=serverBin();
-    int res=proc.execute( bin, QStringList() << QStringLiteral( "-t" ) );
+#ifdef Q_OS_WIN
+    int res=proc.execute( serverBin(), QStringList() << QStringLiteral( "-t" ) );
+#else
+    int res=proc.execute( QStringLiteral( "/usr/bin/killall -q phis" ) );
+#endif
     if ( res ) return false;
     return true;
 #endif

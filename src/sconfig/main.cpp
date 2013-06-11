@@ -28,6 +28,7 @@ int main ( int argc, char **argv )
     QApplication app( argc, argv );
     app.setApplicationName( QStringLiteral( "Phisconf" ) );
     app.setApplicationVersion( QStringLiteral( PHIVERSION ) );
+    app.setStyle( QStringLiteral( "fusion" ) );
     PHI::setupApplication( &app );
 
     SConfig dlg;
