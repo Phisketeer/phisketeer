@@ -9,9 +9,9 @@ QTTS=$5
 PHIMAS=$6
 MYSQLC=libmysql.16.dylib
 MYSQLDIR=/usr/local/mysql
-USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtQml QtOpenGL QtWidgets QtWebKit QtWebKitWidgets QtV8 \
-    QtQuick QtPrintSupport QtMultimedia QtMultimediaWidgets QtXml"
-PLUGINPATH="sqldrivers imageformats iconengines platforms printsupport mediaservice accessible playlistformats"
+USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtOpenGL QtWidgets QtWebKit QtWebKitWidgets \
+    QtPrintSupport QtXml QtQuick QtQml QtV8"
+PLUGINPATH="sqldrivers imageformats iconengines platforms printsupport accessible"
 PHILIBS="libphi.1.dylib libphis.1.dylib libphia.1.dylib"
 PHIAPPS="Artephis Amphibia"
 PHIBINS="phis phiapp phisconf"

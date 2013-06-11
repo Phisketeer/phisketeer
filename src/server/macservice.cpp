@@ -30,7 +30,7 @@
 MACService::MACService( int argc, char **argv, const QString &name )
     : QObject( 0 ), _name( name )
 {
-    qWarning( "MACService::MACService" );
+    qDebug( "MACService::MACService" );
     phiSetPluginPath( argc, argv ); // Qt5 fix
     qputenv( "QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "1" );
     _app=new QGuiApplication( argc, argv );
