@@ -349,17 +349,20 @@ bool PHIWizardInstall::validatePage()
     libpath=field( "rootdir" ).toString()+"/lib:"+libpath;
     env.insert( "LD_LIBRARY_PATH", libpath );
     env.insert( "LD_LIBRARY_PATH_64", libpath );
+    env.insert( "QT_PLUGIN_PATH", field( "rootdir" ).toString()+"/plugins" );
     if ( _phis->isChecked() ) {
         QProcess p_phis;
         p_phis.setProcessEnvironment( env );
-        p_phis.start( field( "rootdir" ).toString()+"/bin/phis -t" );
-        p_phis.waitForFinished( 10000 );
+        p_phis.start( "/usr/bin/killall "+field( "rootdir" ).toString()+"/bin/phis" );
+        p_phis.waitForFinished( 4000 );
+        p_phis.start( "/usr/bin/killall /opt/phisketeer-1.4.1/bin/phis" );
+        p_phis.waitForFinished( 4000 );
         p_phis.startDetached( field( "rootdir" ).toString()+"/bin/phis" );
     }
     if ( _artephis->isChecked() ) {
         QProcess p_artephis;
         p_artephis.setProcessEnvironment( env );
-        p_artephis.startDetached( field( "rootdir" ).toString()+"/bin/artephis -style cleanlooks" );
+        p_artephis.startDetached( field( "rootdir" ).toString()+"/bin/artephis" );
     }
     if ( _daemon->isChecked() ) {
         QFile f( "/etc/init.d/phis" );

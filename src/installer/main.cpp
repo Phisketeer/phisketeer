@@ -26,6 +26,7 @@ int main ( int argc, char **argv )
     app.setApplicationVersion( QString::fromLatin1( PHIVERSION ) );
     app.setOrganizationDomain( QString::fromLatin1( PHIDOM ) );
     app.setOrganizationName( QString::fromLatin1( PHIORG ) );
+    app.setStyle( "fusion" );
     PHIWizard w;
     w.show();
     return app.exec();

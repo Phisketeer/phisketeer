@@ -66,6 +66,13 @@ fi
 if [ -f /usr/lib/libssl.so.0.9.8 ]; then
     cp -p /usr/lib/libssl.so.0.9.8 $DESTDIR/lib/
 fi
+# ICUI is not installed on every system
+if [ -f /usr/lib/libicui18n.so.42 ]; then
+    cp -p /usr/lib/libicui18n.so.42 $DESTDIR/lib/
+    cp -p /usr/lib/libicuuc.so.42 $DESTDIR/lib/
+    cp -p /usr/lib/libicudata.so.42 $DESTDIR/lib/
+fi
+
 strip --strip-unneeded $DESTDIR/lib/*
 strip --strip-unneeded $DESTDIR/bin/*
 cp -p doc/readme.txt $DESTDIR/

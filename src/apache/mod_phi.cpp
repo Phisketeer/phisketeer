@@ -421,6 +421,24 @@ static int phi_handler( request_rec *r )
         }
         apr_file_close( fd );
     } else {
+        //const QByteArray body=resp->body();
+        apr_status_t rv;
+        apr_bucket_brigade *bb;
+        apr_bucket *b;
+        bb=apr_brigade_create( r->pool, r->connection->bucket_alloc );
+        b=apr_bucket_immortal_create( resp->body().constData(), resp->body().size(), bb->bucket_alloc );
+        APR_BRIGADE_INSERT_TAIL(bb,b);
+        APR_BRIGADE_INSERT_TAIL(bb,apr_bucket_eos_create(bb->bucket_alloc));
+        rv=ap_pass_brigade( r->output_filters, bb );
+        if ( rv!=APR_SUCCESS ) {
+            if ( r->connection->aborted ) return OK;
+            PHIRC rcm=PHIRC_HTTP_INTERNAL_SERVER_ERROR;
+            QString err=QObject::tr( "Could not send data to the client '%1'." ).arg( rv );
+            PHI_RLOG_ERR(rcm,__FILE__,__LINE__,err);
+            PHI_RLOG_RC(rcm);
+            return HTTP_RESET_CONTENT;
+        }
+        /*
         QByteArray body=resp->body();
         int size=body.size();
         int bytes_written=0;
@@ -440,6 +458,7 @@ static int phi_handler( request_rec *r )
             body.remove( 0, bytes_written );
         }
         //ap_rflush( r );
+        */
     }
     return OK;
 }

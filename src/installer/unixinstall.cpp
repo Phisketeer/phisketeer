@@ -44,6 +44,7 @@ void PHIWizardInstall::install()
     rd.mkpath( root+"/plugins/modules" );
     rd.mkpath( root+"/plugins/iconengines" );
     rd.mkpath( root+"/plugins/printsupport" );
+    rd.mkpath( root+"/plugins/platforms" );
     rd.mkpath( root+"/ts" );
     if ( field( "phis" ).toBool() ) {
         file=field( "datadir" ).toString();

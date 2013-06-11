@@ -12,8 +12,12 @@ echo "Decompressing Phisketeer $PHIVERSION archive"
 tar -zxf phisketeer.tar.gz
 cd phisketeer-$PHIVERSION
 PHILIBPATH=`pwd`/lib
+PHIPLUGINS=`pwd`/plugins
+QT_PLUGIN_PATH=$PHIPLUGINS
 LD_LIBRARY_PATH=$PHILIBPATH:$LD_LIBRARY_PATH
+/usr/bin/xhost si:localuser:root
 export LD_LIBRARY_PATH
+export QT_PLUGIN_PATH
 echo "Starting GUI installer"
-./bin/phiinstaller -style cleanlooks
+./bin/phiinstaller
 exit 0
