@@ -474,17 +474,18 @@ bool PHI::startPhisService()
     bool res=QProcess::startDetached( bin );
     return res;
 #else
-    QProcess proc;
+    /*
 #ifdef Q_OS_WIN
-    proc.execute( bin, QStringList() << QStringLiteral( "-i" ) );
+    int res=QProcess::execute( bin, QStringList() << QStringLiteral( "-i" ) );
+    QMessageBox::warning( 0, bin, QObject::tr( "res=%1" ).arg( res ) );
 #endif
+    */
 #ifdef Q_OS_LINUX
     bin+=QLatin1String( " -platform minimal" );
 #endif
-    proc.start( bin );
-    if ( !proc.waitForStarted() ) return false;
-    if ( !proc.waitForFinished() ) return false;
-    return true;
+    int res=QProcess::execute( bin );
+    if ( res==0 ) return true;
+    return false;
 #endif
 }
 
