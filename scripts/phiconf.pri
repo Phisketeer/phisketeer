@@ -40,7 +40,6 @@ unix {
         contains( PHICONF, macappstore ){
             DEFINES += PHIAPPSTORE
             # QMAKE_CFLAGS += -gdwarf-2 # not needed anymore with Qt5
-            QMAKE_CXXFLAGS += -gdwarf-2
             QMAKE_CFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
             QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO
             QMAKE_OBJECTIVE_CFLAGS_RELEASE = $$QMAKE_OBJECTIVE_CFLAGS_RELEASE_WITH_DEBUGINFO\
@@ -48,9 +47,9 @@ unix {
             QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
         }
         QMAKE_MAC_SDK = $$[PHIMACSDK]
-        # QMAKE_MACOSX_DEPLOYMENT_TARGET = $$PHIMACDEPLOY
+        QMAKE_MACOSX_DEPLOYMENT_TARGET = $$PHIMACDEPLOY
         QMAKE_CXXFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
-        # QMAKE_CXXFLAGS = -stdlib=libc++
+        QMAKE_LFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY
         DEFINES += PHIMACFONT
     }
 }

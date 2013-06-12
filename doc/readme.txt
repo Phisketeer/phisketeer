@@ -6,7 +6,7 @@ Please visit: http://www.phisys.com for further information.
 
 Phi components:
 ===============
-- Artephis is your intuitive editor creating genious Phi pages
+- Artephis is your intuitive editor creating genius Phi Web pages
 - Phis is the stand-alone Web service which processes Phi pages into HTML code
 - Phisconf is the configuration program for the Phis Web service
 - PhiApp is an OS natively running program for displaying Phi content
@@ -15,7 +15,7 @@ Phi components:
 
 Amphibia notes:
 ===============
-- it is not a replacement for other browser, however it contains a ful WebKit implementation
+- it is not a replacement for other browser, however it contains a full WebKit implementation
 - the main intention is to test the Phi native mode
 - bookmarks are not yet implemented
 - searching is not yet working
