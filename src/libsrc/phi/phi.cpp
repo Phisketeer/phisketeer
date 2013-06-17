@@ -39,6 +39,7 @@ const char* PHI::_phiDate="yyyy-MM-dd";
 const char* PHI::_phiMimeType="application/x-phi";
 const char* PHI::_emailRegExp="[A-Z0-9._%-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}";
 const char* PHI::_phoneNumberRegExp="[0-9+][0-9 ]{3,25}[0-9]";
+QSettings* PHI::_settings=0;
 
 // Code of the templates are based on Qt's image rendering algorithm
 template <int shift>
@@ -187,6 +188,60 @@ void phi_blurImage( QImage &blurImage, qreal radius, bool quality, int transpose
         phi_expblur<12, 10, true>( blurImage, radius, quality, transposed );
     else
         phi_expblur<12, 10, false>( blurImage, radius, quality, transposed );
+}
+
+QSettings* PHI::globalSettings()
+{
+    Q_ASSERT( qApp );
+    QSettings *s=_settings;
+    if ( s ) {
+        qDebug( "Global settings (instantiated) file name: %s", qPrintable( s->fileName() ) );
+        return s;
+    }
+    QString name=QStringLiteral( "phis" );
+#ifdef Q_OS_MAC
+    s=new QSettings( QStringLiteral( "phisys.com" ), name, qApp ); // required for Mac app store
+#elif defined Q_OS_WIN
+    s=new QSettings( QSettings::SystemScope, QString::fromLatin1( PHI::organisation() ), name, qApp );
+    s->setFallbacksEnabled( false );
+#else
+    name=QLatin1String( "/etc/phi/phis.conf" );
+    s=new QSettings( name, QSettings::IniFormat, qApp );
+#endif
+    qDebug( "Application name %s", qPrintable( qApp->applicationName() ) );
+    qDebug( "Application domain %s", qPrintable( qApp->organizationDomain() ) );
+    qDebug( "Application organisation %s", qPrintable( qApp->organizationName() ) );
+    qDebug( "Global settings file name: %s", qPrintable( s->fileName() ) );
+    _settings=s;
+    return _settings;
+}
+
+// returns the root directory for the application
+QString PHI::applicationRoot()
+{
+    static QString path;
+    if ( !path.isNull() ) return path;
+    Q_ASSERT( qApp );
+    QDir appdir( QCoreApplication::applicationDirPath() );
+#ifdef Q_OS_WIN
+    // bundleID/bin
+    appdir.cdUp();
+#elif defined Q_OS_UNIX
+#ifdef Q_OS_MAC
+    // bundleID/Contents/MacOS
+    appdir.cdUp(); // bundleID/Contents/
+    appdir.cdUp(); // bundleID/
+#else
+    QSettings *s=PHI::globalSettings();
+    appdir.setPath( s->value( QLatin1String( "BinDir" ), QLatin1String( "/opt/phi/bin" ) ).toString() );
+    // bundleID/bin
+    appdir.cdUp();
+#endif
+#else
+#error Could not determine application root path
+#endif
+    path=appdir.canonicalPath();
+    return path;
 }
 
 QString PHI::libVersion()

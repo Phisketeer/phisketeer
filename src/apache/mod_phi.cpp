@@ -434,11 +434,12 @@ static int phi_handler( request_rec *r )
                 ap_rflush( r );
                 return HTTP_RESET_CONTENT;
             }
+            ap_rflush( r );
             if ( size==bytes_written ) break;
             size-=bytes_written;
             body.remove( 0, bytes_written );
         }
-        ap_rflush( r );
+        //ap_rflush( r );
     }
     return OK;
 }

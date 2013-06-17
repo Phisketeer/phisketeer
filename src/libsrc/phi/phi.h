@@ -245,6 +245,24 @@ public:
     static bool isShapeItem( PHI::Widget wid );
     // end remove
 
+<<<<<<< HEAD
+=======
+    static inline QSize patternIconSize() { return QSize( 48, 12 ); }
+    static inline QSize colorIconSize() { return QSize( 14, 14 ); }
+    static inline qreal defaultSpacing() { return 6.; }
+    static inline qreal fontSizeFactor() { return static_cast<qreal>(1.33333333333); }
+    static inline int defaultFontSize() { return 10; }
+    static inline QFont invalidFont() { static QFont f( QStringLiteral( "phi" ), 3 ); return f; }
+    static inline QFont defaultFont() { static QFont f( QStringLiteral( "Arial" ), 11 ); return f; }
+    static inline int defaultDragDistance() { return 5; }
+    static inline QSize defaultPageSize() { return QSize( 1000, 750 ); }
+    static inline void clearSettingsInstance() { _settings=0; }
+
+    static QByteArray emailRegExp();
+    static QByteArray phoneNumberRegExp();
+    static QByteArray mimeType();
+    static QByteArray mimeType( const QFileInfo &info );
+>>>>>>> qt5
     static QString stdTmpPath();
     static QString getLocalFilePath( const QString &docroot, const QString &referer, const QString &filename );
     static QString getRelativeFilePath( const QString &referer, const QString &filename );
@@ -292,6 +310,7 @@ private:
     static const char* _emailRegExp;
     static const char* _phoneNumberRegExp;
     static const char* _phiMimeType;
+    static QSettings *_settings;
 };
 
 inline QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )

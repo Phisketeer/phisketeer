@@ -161,6 +161,7 @@ public:
     inline void setBgImageOptions( PHIPage::ImageOptions opts ) { _bgImageOptions=opts; }
     inline QPoint bgImageOffset() const { return QPoint( _bgImageXOff, _bgImageYOff ); }
     inline void setBgImageOffset( const QPoint &off ) { _bgImageXOff=off.x(); _bgImageYOff=off.y(); }
+    inline void clearScriptModules() { _scriptModules=SNone; }
 
 protected:
     QDataStream& dynamicData( QDataStream& ) const;

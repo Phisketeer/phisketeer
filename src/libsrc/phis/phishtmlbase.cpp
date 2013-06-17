@@ -375,11 +375,12 @@ QByteArray PHISHtmlBase::decimalValidatorJS( int min, int max ) const
     QByteArray arr;
     arr.reserve( 400 );
     arr+="$('"+_it->id()+"').change(function(){\n"
-        "\tvar i=parseInt(this.value);\n"
+        "\tvar o=$('"+_it->id()+"');\n"
+        "\tvar i=parseInt(o.val());\n"
         "\tif (i<"+QByteArray::number( min )+"||i>"+QByteArray::number( max )
-        +"){this.value='';this.title='"+QByteArray::number( min )+"<=x<="
-        +QByteArray::number( max )+"';this.focus();}\n"
-        "\telse this.value=i;\n"
+        +"){o.val('');o.title('"+QByteArray::number( min )+"<=x<="
+        +QByteArray::number( max )+"');o.focus();}\n"
+        "\telse o.val(i);\n"
         "});\n";
     return arr;
 }
@@ -391,11 +392,12 @@ QByteArray PHISHtmlBase::realValidatorJS( qreal min, qreal max, int prec ) const
     for ( int i=0; i<prec; i++ ) dec+='x';
     arr.reserve( 400 );
     arr+="$('"+_it->id()+"').change(function(){\n"
-        "\tvar i=parseFloat(this.value);\n"
+        "\tvar o=$('"+_it->id()+"');\n"
+        "\tvar i=parseFloat(o.val());\n"
         "\tif (i<"+QByteArray::number( min )+"||i>"+QByteArray::number( max )
-        +"){this.value='';this.title='"+QByteArray::number( min )+"<=x."+dec+"<="
-        +QByteArray::number( max )+"';this.focus();}\n"
-        "\telse this.value=i.toFixed("+QByteArray::number( prec )+");\n"
+        +"){o.val('');o.title('"+QByteArray::number( min )+"<=x."+dec+"<="
+        +QByteArray::number( max )+"');o.focus();}\n"
+        "\telse o.val(i.toFixed("+QByteArray::number( prec )+"));\n"
         "});\n";
     return arr;
 }
@@ -405,8 +407,9 @@ QByteArray PHISHtmlBase::textValidatorJS( const QByteArray &regexp, const QByteA
     QByteArray arr;
     arr.reserve( 400 );
     arr+="$('"+_it->id()+"').change(function(){\n"
+        "\tvar o=$('"+_it->id()+"');\n"
         "\tvar r="+regexp+";\n"
-        "\tif(!r.test(this.value)){this.value='';this.title='"+title+"';this.focus();}\n"
+        "\tif(!r.test(o.val())){o.val('');o.title('"+title+"');o.focus();}\n"
         "});\n";
     return arr;
 }
@@ -558,6 +561,8 @@ QByteArray PHISHtmlBase::createHtmlCode()
             if ( _req->agentId()==PHISRequest::Amphibia ) useObjTag=0;
         }
     } else useObjTag=0;
+    useObjTag=0; // obsolete - Phi plug-in is not longer supported
+
     if ( useObjTag!=2 ) {
         _indent="\t";
 
@@ -587,6 +592,7 @@ QByteArray PHISHtmlBase::createHtmlCode()
     }
 
     if ( useObjTag>0 ) {
+        //  obsolete (disable plug-in):
         static QString phisid=QStringLiteral( "phisid" );
         QUrl url( _req->url() );
         QUrlQuery query( _req->url() );

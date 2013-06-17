@@ -91,6 +91,8 @@ public slots:
     QScriptValue bgColor( const QScriptValue &c=QScriptValue() );
     QScriptValue dragEnabled( const QScriptValue &b=QScriptValue() );
     QScriptValue dropEnabled( const QScriptValue &b=QScriptValue() );
+    QScriptValue text( const QScriptValue &t=QScriptValue() );
+    QScriptValue label( const QScriptValue &l=QScriptValue() );
 
 protected:
     inline QScriptEngine* engine() const { return qobject_cast<QScriptEngine*>(parent()); }
@@ -278,6 +280,20 @@ inline QScriptValue PHISScriptItem::title( const QString &t )
 {
     if ( t.isNull() ) return _it->toolTip();
     _it->setToolTip( t );
+    return self();
+}
+
+inline QScriptValue PHISScriptItem::text( const QScriptValue &t )
+{
+    if ( !t.isValid() ) return _it->value();
+    _it->setValue( t.toString() );
+    return self();
+}
+
+inline QScriptValue PHISScriptItem::label( const QScriptValue &l )
+{
+    if ( !l.isValid() ) return _it->label();
+    _it->setLabel( l.toString() );
     return self();
 }
 
