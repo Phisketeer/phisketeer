@@ -262,12 +262,12 @@
 <context>
     <name>GFileItem</name>
     <message>
-        <location filename="gwidgetitems.cpp" line="1116"/>
+        <location filename="gwidgetitems.cpp" line="1118"/>
         <source>File to send</source>
         <translation>Datei für Upload</translation>
     </message>
     <message>
-        <location filename="gwidgetitems.cpp" line="1117"/>
+        <location filename="gwidgetitems.cpp" line="1119"/>
         <source>Images (*.png *.jpg *.gif *.tif);;Text (*.txt *.doc *.html *.xml *.svg);; All (*.*)</source>
         <translation>Bilder (*.png *.jpg *.gif *.tif);;Text (*.txt *.doc *.html *.xml *.svg);; Alle (*.*)</translation>
     </message>

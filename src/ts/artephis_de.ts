@@ -782,7 +782,7 @@
 <context>
     <name>APHLayoutWidget</name>
     <message>
-        <location filename="aphlayoutwidget.cpp" line="71"/>
+        <location filename="aphlayoutwidget.cpp" line="72"/>
         <source>title</source>
         <translation>Titel</translation>
     </message>
@@ -790,7 +790,7 @@
 <context>
     <name>APHMainWindow</name>
     <message>
-        <location filename="aphmainwindow.cpp" line="146"/>
+        <location filename="aphmainwindow.cpp" line="150"/>
         <source>Starting with Phi</source>
         <translation>Starten mit Phi</translation>
     </message>
@@ -803,22 +803,22 @@
         <translation type="obsolete">Willkommen beim Aphilo Editor. Ziehen Sie einfach per &apos;Drag &amp; Drop&apos; Elemente aus der &apos;Elemente-Liste&apos; in den Arbeitsbereich. Sie können auch die mitgelieferte Datei &apos;phitest.phis&apos; erkunden, um die vielen Möglichkeiten der PhiSuite zu entdecken. Bitte zögern Sie nicht sämtliche Fehler und Verbesserungsvorschläge and feedback@phisys.com zu melden. Wir wünschen Ihnen viel Spaß mit Phi.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="147"/>
+        <location filename="aphmainwindow.cpp" line="151"/>
         <source>Welcome to the Artephis editor. Simply drag and drop items from the &apos;Elements&apos; tool box into the working space. You also may explore the provided &apos;phitest.phis&apos; page to discover the nice possibilities and features Phisketeer comes along with. Please don&apos;t hesitate to report any bugs and suggestions to feedback@phisketeer.org! We wish you a lot of fun with Phi.</source>
         <translation>Willkommen beim Artephis Editor. Ziehen Sie einfach per &apos;Drag &amp; Drop&apos; Elemente aus der &apos;Elemente-Liste&apos; in den Arbeitsbereich. Sie können auch die mitgelieferte Datei &apos;phitest.phis&apos; erkunden, um die vielen Möglichkeiten von Phisketeer zu entdecken. Bitte zögern Sie nicht sämtliche Fehler und Verbesserungsvorschläge and feedback@phisketeer.org zu melden. Wir wünschen Ihnen viel Spaß mit Phi.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="152"/>
+        <location filename="aphmainwindow.cpp" line="156"/>
         <source>Please note:</source>
         <translation>Bitte beachten Sie:</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="152"/>
+        <location filename="aphmainwindow.cpp" line="156"/>
         <source>Phisketeer is free software and we need your help to develop new features and quality. If you like this software you may want to contribute or donate. Find more information on %1.</source>
         <translation>Phisketeer ist freie Software und wir benötigen Ihre Hilfe, um neue Features und höhere Qualität zu entwickeln. Wenn Ihnen diese Software gefällt, möchten Sie uns vielleicht unterstützen oder etwas spenden. Weitere Informationen finden Sie auf %1.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="155"/>
+        <location filename="aphmainwindow.cpp" line="159"/>
         <source>You may also optain a professional license from our main sponsor Phisys AG, please visit %1.</source>
         <translation>Sie können auch eine professionelle Lizenz von unserem Hauptsponsor Phisys AG erwerben, bitte besuchen Sie dazu %1.</translation>
     </message>
@@ -831,10 +831,10 @@
         <translation type="obsolete">Der Phis Webdienst läuft nicht auf &apos;localhost&apos;. Möchten Sie den Dienst auf Port &apos;%1&apos; starten? Sie können den Dienst auch unter &apos;Einstellungen&apos; konfigurieren.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="240"/>
-        <location filename="aphmainwindow.cpp" line="268"/>
-        <location filename="aphmainwindow.cpp" line="368"/>
-        <location filename="aphmainwindow.cpp" line="448"/>
+        <location filename="aphmainwindow.cpp" line="252"/>
+        <location filename="aphmainwindow.cpp" line="282"/>
+        <location filename="aphmainwindow.cpp" line="382"/>
+        <location filename="aphmainwindow.cpp" line="462"/>
         <source>Error</source>
         <oldsource>ERROR</oldsource>
         <translation>Fehler</translation>
@@ -844,177 +844,177 @@
         <translation type="obsolete">Konnte %1 nicht kopieren</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="263"/>
+        <location filename="aphmainwindow.cpp" line="277"/>
         <source>Note</source>
         <translation>Anmerkung</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="264"/>
+        <location filename="aphmainwindow.cpp" line="278"/>
         <source>You can not serve pages if the phis service is not running. You may want to start the service from the &apos;Settings&apos; menu.</source>
         <translation>Es können keine Seiten bereitgestellt werden, solange der Phis Webdienst nicht gestartet wurde. Sie können den Dienst unter &apos;Einstellungen&apos; starten.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="240"/>
+        <location filename="aphmainwindow.cpp" line="252"/>
         <source>Could not copy %1.</source>
         <translation>Konnte %1 nicht kopieren.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="196"/>
+        <location filename="aphmainwindow.cpp" line="202"/>
         <source>Please select the base directory for your &apos;%1&apos; documents</source>
         <translation>Bitte wählen Sie das Basisverzeichnis für Ihre &apos;%1&apos; Dokumente aus</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="269"/>
+        <location filename="aphmainwindow.cpp" line="283"/>
         <source>Could not start the phis web service.</source>
         <translation>Der Phis Webdienst konnte nicht gestartet werden.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="317"/>
+        <location filename="aphmainwindow.cpp" line="331"/>
         <source>Site configuration has changed. Do you want to save it?</source>
         <translation>Die &apos;Site&apos;-Konfiguration wurde geändert. Möchten Sie diese sichern?</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="369"/>
+        <location filename="aphmainwindow.cpp" line="383"/>
         <source>Could not stop the phis web service.</source>
         <translation>Der Phis Webdienst konnte nicht gestoppt werden.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="411"/>
+        <location filename="aphmainwindow.cpp" line="425"/>
         <source>Network response error: %1</source>
         <translation>Netzwerk-Antwort Fehler: %1</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="415"/>
+        <location filename="aphmainwindow.cpp" line="429"/>
         <source>Version %1 is up to date.</source>
         <translation>Version %1 ist aktuell.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="417"/>
+        <location filename="aphmainwindow.cpp" line="431"/>
         <source>A new release %1 is available (current: %2).</source>
         <translation>Eine neue Version %1 ist verfügbar (aktuell: %2).</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="428"/>
+        <location filename="aphmainwindow.cpp" line="442"/>
         <source>Editor update</source>
         <translation>Editor Update</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="449"/>
+        <location filename="aphmainwindow.cpp" line="463"/>
         <source>Could not start the phiapp program using binary directory &apos;%1&apos;.</source>
         <oldsource>Could not start the phiapp program using binary directory &apos;%1&apos;</oldsource>
         <translation>Die &apos;Phiapp&apos; Anwendung konnte nicht im Verzeichnis &apos;%1&apos; gefunden werden.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="489"/>
+        <location filename="aphmainwindow.cpp" line="503"/>
         <source>Open page</source>
         <translation>Seite öffnen</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="490"/>
-        <location filename="aphmainwindow.cpp" line="534"/>
+        <location filename="aphmainwindow.cpp" line="504"/>
+        <location filename="aphmainwindow.cpp" line="548"/>
         <source>PHI server page (*.phis)</source>
         <translation>PHI Server Seite (*.phis)</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="526"/>
+        <location filename="aphmainwindow.cpp" line="540"/>
         <source>File &apos;%1&apos; saved.</source>
         <translation>Datei &apos;%1&apos; wurde gesichert.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="533"/>
+        <location filename="aphmainwindow.cpp" line="547"/>
         <source>Save page</source>
         <translation>Seite speichern</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="550"/>
+        <location filename="aphmainwindow.cpp" line="564"/>
         <source>File saved as &apos;%1&apos;.</source>
         <translation>Datei &apos;%1&apos; wurde gesichert.</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="560"/>
+        <location filename="aphmainwindow.cpp" line="574"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="561"/>
+        <location filename="aphmainwindow.cpp" line="575"/>
         <source>Page &apos;%1&apos; has changed. Do you want to save it?</source>
         <translation>Seite &apos;%1&apos; wurde geändert. Möchten Sie diese sichern?</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="686"/>
-        <location filename="aphmainwindow.cpp" line="1002"/>
-        <location filename="aphmainwindow.cpp" line="1303"/>
+        <location filename="aphmainwindow.cpp" line="700"/>
+        <location filename="aphmainwindow.cpp" line="1016"/>
+        <location filename="aphmainwindow.cpp" line="1317"/>
         <source>New page</source>
         <translation>Neue Seite</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="742"/>
+        <location filename="aphmainwindow.cpp" line="756"/>
         <source>Loading a site configuration overwrites the palette of all open documents. Continue?</source>
         <translation>Das Laden einer &apos;Site&apos;-Konfiguration überschreibt die Farbpalette aller offenen Dokumente. Möchten Sie fortfahren?</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="748"/>
+        <location filename="aphmainwindow.cpp" line="762"/>
         <source>Open site configuration</source>
         <translation>&apos;Site&apos;-Konfiguration öffnen</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="749"/>
-        <location filename="aphmainwindow.cpp" line="773"/>
+        <location filename="aphmainwindow.cpp" line="763"/>
+        <location filename="aphmainwindow.cpp" line="787"/>
         <source>PHI site configuration (*.phc)</source>
         <translation>PHI &apos;Site&apos;-Konfiguration (*.phc)</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="772"/>
+        <location filename="aphmainwindow.cpp" line="786"/>
         <source>Save site configuration</source>
         <translation>&apos;Site&apos;-Konfiguration sichern</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1067"/>
+        <location filename="aphmainwindow.cpp" line="1081"/>
         <source>Align left</source>
         <translation>Ausrichtung links</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1083"/>
+        <location filename="aphmainwindow.cpp" line="1097"/>
         <source>Align top</source>
         <translation>Ausrichtung oben</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1104"/>
+        <location filename="aphmainwindow.cpp" line="1118"/>
         <source>Align V center</source>
         <translation>Ausrichtung V Mitte</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1125"/>
+        <location filename="aphmainwindow.cpp" line="1139"/>
         <source>Align H center</source>
         <translation>Ausrichtung H Mitte</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1141"/>
+        <location filename="aphmainwindow.cpp" line="1155"/>
         <source>Align right</source>
         <translation>Ausrichtung rechts</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1157"/>
+        <location filename="aphmainwindow.cpp" line="1171"/>
         <source>Align bottom</source>
         <translation>Ausrichtung unten</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1178"/>
+        <location filename="aphmainwindow.cpp" line="1192"/>
         <source>version:</source>
         <translation>Version:</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1179"/>
+        <location filename="aphmainwindow.cpp" line="1193"/>
         <source>Phi library version:</source>
         <translation>Phi Bibliotheksversion:</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1180"/>
+        <location filename="aphmainwindow.cpp" line="1194"/>
         <source>Phis library version:</source>
         <translation>Phis Bibliotheksversion:</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1185"/>
+        <location filename="aphmainwindow.cpp" line="1199"/>
         <source>About %1</source>
         <translation>Über %1</translation>
     </message>
@@ -1023,22 +1023,22 @@
         <translation type="obsolete">Über</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1623"/>
+        <location filename="aphmainwindow.cpp" line="1637"/>
         <source>ID</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1623"/>
+        <location filename="aphmainwindow.cpp" line="1637"/>
         <source>L</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1623"/>
+        <location filename="aphmainwindow.cpp" line="1637"/>
         <source>T</source>
         <translation>O</translation>
     </message>
     <message>
-        <location filename="aphmainwindow.cpp" line="1623"/>
+        <location filename="aphmainwindow.cpp" line="1637"/>
         <source>Z</source>
         <translation>Z</translation>
     </message>
@@ -1064,8 +1064,8 @@
 <context>
     <name>APHPageDialog</name>
     <message>
-        <location filename="aphpagedialog.cpp" line="289"/>
-        <location filename="aphpagedialog.cpp" line="305"/>
+        <location filename="aphpagedialog.cpp" line="290"/>
+        <location filename="aphpagedialog.cpp" line="306"/>
         <source>Syntax error in script!
 Line %1, column %2.
 Error: %3</source>
@@ -1078,160 +1078,160 @@ Fehler: %3</translation>
         <translation type="obsolete">Datenbank konnte nicht geöffnet werden!</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="455"/>
+        <location filename="aphpagedialog.cpp" line="456"/>
         <source>Redirection</source>
         <translation>Weiterleitung</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="456"/>
+        <location filename="aphpagedialog.cpp" line="457"/>
         <source>A redirection page path must be relative to the document root. A slash &apos;/&apos; is automatically prepended to the path.</source>
         <translation>Eine Weiterleitungsseite muss relativ zum Dokumentwurzel-Verzeichnis sein. Ein &apos;/&apos; wird dem Pfad automatisch vorangestellt.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="625"/>
-        <location filename="aphpagedialog.cpp" line="637"/>
-        <location filename="aphpagedialog.cpp" line="685"/>
+        <location filename="aphpagedialog.cpp" line="626"/>
+        <location filename="aphpagedialog.cpp" line="638"/>
+        <location filename="aphpagedialog.cpp" line="686"/>
         <source>Menu item</source>
         <translation>Menu Element</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="626"/>
+        <location filename="aphpagedialog.cpp" line="627"/>
         <source>Use &apos;Text source&apos; to change non static text.</source>
         <translation>Verwenden Sie &apos;Text Quelle&apos;, um nicht statischen Text zu ändern.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="638"/>
+        <location filename="aphpagedialog.cpp" line="639"/>
         <source>Menu item with ID &apos;%1&apos; already exists!</source>
         <translation>Menu Element mit ID &apos;%1&apos; existiert bereits!</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="697"/>
+        <location filename="aphpagedialog.cpp" line="698"/>
         <source>Menu icon</source>
         <translation>Menu Icon</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="699"/>
-        <location filename="aphpagedialog.cpp" line="709"/>
+        <location filename="aphpagedialog.cpp" line="700"/>
+        <location filename="aphpagedialog.cpp" line="710"/>
         <source>Image</source>
         <translation>Bild</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="707"/>
+        <location filename="aphpagedialog.cpp" line="708"/>
         <source>Application icon</source>
         <translation>Anwendungs-Icon</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="723"/>
+        <location filename="aphpagedialog.cpp" line="724"/>
         <source>Application menus</source>
         <translation>Anwendungsmenus</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="724"/>
+        <location filename="aphpagedialog.cpp" line="725"/>
         <source>Please note: you need to reimplement &apos;phi.menu.activated()&apos; in JavaScript to react on menu entry activations.</source>
         <translation>Anmerkung: Sie müssen &apos;phi.menu.activated()&apos; in JavaScript überschreiben, um auf Menu Ereignisse zu reagieren.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="745"/>
+        <location filename="aphpagedialog.cpp" line="746"/>
         <source>Application mode</source>
         <translation>Anwendungsmodus</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="746"/>
+        <location filename="aphpagedialog.cpp" line="747"/>
         <source>You can not uncheck JavaScript in Phi application mode.</source>
         <translation>Sie können JavaScript im Phi Anwendungsmodus nicht deaktivieren.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="755"/>
+        <location filename="aphpagedialog.cpp" line="756"/>
         <source>menu text</source>
         <translation>Menu Text</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="911"/>
+        <location filename="aphpagedialog.cpp" line="913"/>
         <source>HTML</source>
         <translation>HTML</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="912"/>
+        <location filename="aphpagedialog.cpp" line="914"/>
         <source>If you process POST data, the object tag for the PhiPlugin should be disabled: some browser will reload the content if enabled. In Phi mode this is automatically handled. Enabling the request module will also check the flag on &apos;HTML: Suppress creation of object tag&apos;.</source>
         <translation>Fall Sie POST Daten verarbeiten, sollten Sie das &apos;Object-Tag&apos; für das Phi-Plugin abschalten: einige Browser werden den Inhalt ansonsten erneut laden. Im Phi Modus wird das automatisch berücksichtigt. Die Aktivierung des &apos;Request-Modul&apos; wird auch &apos;HTML: Unterdrücke die Erstellung des Object-Tag&apos; markieren.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="920"/>
+        <location filename="aphpagedialog.cpp" line="922"/>
         <source>DB file</source>
         <translation>Datenbank Datei</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="930"/>
+        <location filename="aphpagedialog.cpp" line="932"/>
         <source>Title</source>
         <translation>Titel</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="937"/>
+        <location filename="aphpagedialog.cpp" line="939"/>
         <source>Author</source>
         <translation>Autor</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="944"/>
+        <location filename="aphpagedialog.cpp" line="946"/>
         <source>Company</source>
         <translation>Gesellschaft</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="951"/>
+        <location filename="aphpagedialog.cpp" line="953"/>
         <source>Copyright</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="958"/>
+        <location filename="aphpagedialog.cpp" line="960"/>
         <source>Version</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="965"/>
+        <location filename="aphpagedialog.cpp" line="967"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="972"/>
+        <location filename="aphpagedialog.cpp" line="974"/>
         <source>Keywords</source>
         <translation>Schlüsselworte</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="979"/>
+        <location filename="aphpagedialog.cpp" line="981"/>
         <source>Form action</source>
         <translation>&apos;Form action&apos;</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="986"/>
+        <location filename="aphpagedialog.cpp" line="988"/>
         <source>Style sheet</source>
         <translation>Stil-Beschreibung</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="993"/>
+        <location filename="aphpagedialog.cpp" line="995"/>
         <source>Serverscript</source>
         <translation>Serverskript</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="1000"/>
+        <location filename="aphpagedialog.cpp" line="1002"/>
         <source>Javascript</source>
         <translation>JavaScript</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="1007"/>
+        <location filename="aphpagedialog.cpp" line="1009"/>
         <source>Redirect invalid session</source>
         <translation>Ungültige Sitzung weiterleiten</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="1051"/>
+        <location filename="aphpagedialog.cpp" line="1053"/>
         <source>Languages</source>
         <translation>Sprachen</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="1052"/>
+        <location filename="aphpagedialog.cpp" line="1054"/>
         <source>The standard &apos;C&apos; language can not be deleted.</source>
         <translation>Die &apos;C&apos;-Sprache kann nicht gelöscht werden.</translation>
     </message>
     <message>
-        <location filename="aphpagedialog.cpp" line="1096"/>
+        <location filename="aphpagedialog.cpp" line="1098"/>
         <source>Template page</source>
         <translation>Mastervorlage</translation>
     </message>
@@ -1247,44 +1247,44 @@ Fehler: %3</translation>
 <context>
     <name>APHPropertyDialog</name>
     <message>
-        <location filename="aphpropertydialog.cpp" line="214"/>
+        <location filename="aphpropertydialog.cpp" line="215"/>
         <source>Radius</source>
         <translation>Radius</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="220"/>
+        <location filename="aphpropertydialog.cpp" line="221"/>
         <source>Fade time</source>
         <translation>Überblendzeit</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="223"/>
-        <location filename="aphpropertydialog.cpp" line="227"/>
+        <location filename="aphpropertydialog.cpp" line="224"/>
+        <location filename="aphpropertydialog.cpp" line="228"/>
         <source>sec</source>
         <translation>Sek</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="224"/>
+        <location filename="aphpropertydialog.cpp" line="225"/>
         <source>Interval</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="303"/>
+        <location filename="aphpropertydialog.cpp" line="304"/>
         <source>Invalid URL</source>
         <translation>Ungültige URL</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="304"/>
+        <location filename="aphpropertydialog.cpp" line="305"/>
         <source>The URL you have entered is invalid. The URL will not be changed.</source>
         <translation>Die eingegebene URL Adresse ist ungültig. Sie wird nicht geändert.</translation>
     </message>
     <message>
         <location filename="aphpropertydialog.cpp" line="30"/>
-        <location filename="aphpropertydialog.cpp" line="314"/>
+        <location filename="aphpropertydialog.cpp" line="315"/>
         <source>Properties</source>
         <translation>Eigenschaften</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="342"/>
+        <location filename="aphpropertydialog.cpp" line="343"/>
         <source>Hyperlink</source>
         <translation>Hyperlink</translation>
     </message>
@@ -1293,92 +1293,92 @@ Fehler: %3</translation>
         <translation type="obsolete">Sie benützen anscheinend einen Hyperlink </translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="342"/>
+        <location filename="aphpropertydialog.cpp" line="343"/>
         <source>It seems you use a hyper link in the &apos;Rich text&apos; element which is a display element. Use the &apos;Rich text layouted&apos; item if you want to use hyper links.</source>
         <translation>Sie benützen anscheinend einen Hyperlink in einem &apos;Richtext&apos; Element, welches ein Anzeigelement ist. Bitte benutzen Sie ein &apos;Richtext Layouted&apos; Element, falls Sie Hyperlinks verwenden möchten.</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="514"/>
+        <location filename="aphpropertydialog.cpp" line="515"/>
         <source>Color</source>
         <translation>Farbe</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="522"/>
+        <location filename="aphpropertydialog.cpp" line="523"/>
         <source>Outline / background color</source>
         <translation>Rahmen- / Hintergrundfarbe</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="531"/>
+        <location filename="aphpropertydialog.cpp" line="532"/>
         <source>Rollover text color</source>
         <translation>Rollover Textfarbe</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="540"/>
+        <location filename="aphpropertydialog.cpp" line="541"/>
         <source>Rollover background color</source>
         <translation>Rollover Hintergrundfarbe</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="550"/>
+        <location filename="aphpropertydialog.cpp" line="551"/>
         <source>Text</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="557"/>
+        <location filename="aphpropertydialog.cpp" line="558"/>
         <source>Title (tool tip)</source>
         <translation>Titel (Tool Tip)</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="565"/>
+        <location filename="aphpropertydialog.cpp" line="566"/>
         <source>Image</source>
         <translation>Bild</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="569"/>
+        <location filename="aphpropertydialog.cpp" line="570"/>
         <source>Images</source>
         <translation>Bilder</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="587"/>
+        <location filename="aphpropertydialog.cpp" line="588"/>
         <source>CSS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="594"/>
+        <location filename="aphpropertydialog.cpp" line="595"/>
         <source>Start angle</source>
         <translation>Startwinkel</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="601"/>
+        <location filename="aphpropertydialog.cpp" line="602"/>
         <source>Span angle</source>
         <translation>Spannwinkel</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="608"/>
+        <location filename="aphpropertydialog.cpp" line="609"/>
         <source>Disable</source>
         <translation>Abschalten</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="615"/>
+        <location filename="aphpropertydialog.cpp" line="616"/>
         <source>Check</source>
         <translation>Markieren</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="622"/>
+        <location filename="aphpropertydialog.cpp" line="623"/>
         <source>Read only</source>
         <translation>Nur lesbar</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="629"/>
+        <location filename="aphpropertydialog.cpp" line="630"/>
         <source>Visibility</source>
         <translation>Sichtbarkeit</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="653"/>
+        <location filename="aphpropertydialog.cpp" line="654"/>
         <source>Disable item caching</source>
         <translation>Zwischenspeicher ausschalten</translation>
     </message>
     <message>
-        <location filename="aphpropertydialog.cpp" line="654"/>
+        <location filename="aphpropertydialog.cpp" line="655"/>
         <source>If you disable the cache for the selected item the item will be created newly for each client request. This can be very time consuming especially for image items with graphical effects. Only disable the cache if you want to change the item dynamically via server scripting (changing effects, size, etc. depending on a user request).</source>
         <translation>Wenn Sie den Zwischenspeicher für das ausgewählte Element ausschalten wird das Element jedes Mal bei einer neuen Browser-Anfrage neu generiert. Dies kann sehr Zeit aufwendig sein, insbesondere bei Bildern mit grafischen Effekten. Schalten Sie den Zwischenspeicher nur aus, wenn Sie das Element dynamisch mit Server-Skripten bearbeiten wollen (z.B. Effekte, Größe, usw. werden abhängig von einer Browser-Anfrage verändert).</translation>
     </message>
@@ -1556,62 +1556,62 @@ Lösen Sie das Layout auf und selektieren Sie die Elemente neu.</translation>
         <translation>Layout löschen</translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1480"/>
+        <location filename="aphscene.cpp" line="1482"/>
         <source>Button</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1481"/>
+        <location filename="aphscene.cpp" line="1483"/>
         <source>Radiobutton</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1482"/>
+        <location filename="aphscene.cpp" line="1484"/>
         <source>Checkbox</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1483"/>
+        <location filename="aphscene.cpp" line="1485"/>
         <source>Submit</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1484"/>
+        <location filename="aphscene.cpp" line="1486"/>
         <source>Reset</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1498"/>
+        <location filename="aphscene.cpp" line="1500"/>
         <source>label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1499"/>
+        <location filename="aphscene.cpp" line="1501"/>
         <source>hidden</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1505"/>
+        <location filename="aphscene.cpp" line="1507"/>
         <source>link</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1506"/>
+        <location filename="aphscene.cpp" line="1508"/>
         <source>rich text layouted</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1508"/>
+        <location filename="aphscene.cpp" line="1510"/>
         <source>rollover</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1529"/>
+        <location filename="aphscene.cpp" line="1531"/>
         <source>graphic text</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aphscene.cpp" line="1530"/>
+        <location filename="aphscene.cpp" line="1532"/>
         <source>rich text</source>
         <translation></translation>
     </message>
@@ -3355,643 +3355,630 @@ const char* philibtext( const req* )
         <translation>&amp;Datei</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="68"/>
+        <location filename="mainwindow.ui" line="69"/>
         <source>&amp;Edit</source>
         <translation>&amp;Editieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="72"/>
-        <location filename="mainwindow.ui" line="518"/>
-        <location filename="mainwindow.ui" line="1786"/>
+        <location filename="mainwindow.ui" line="73"/>
+        <location filename="mainwindow.ui" line="517"/>
+        <location filename="mainwindow.ui" line="1752"/>
         <source>Text</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="99"/>
+        <location filename="mainwindow.ui" line="98"/>
         <source>&amp;Site</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="110"/>
+        <location filename="mainwindow.ui" line="109"/>
         <source>&amp;Items</source>
         <translation>&amp;Elemente</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="114"/>
+        <location filename="mainwindow.ui" line="113"/>
         <source>Layout</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="125"/>
+        <location filename="mainwindow.ui" line="124"/>
         <source>Alignment</source>
         <translation>Ausrichtung</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="148"/>
+        <location filename="mainwindow.ui" line="147"/>
         <source>&amp;Tools</source>
         <translation>&amp;Werkzeuge</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="159"/>
+        <location filename="mainwindow.ui" line="158"/>
         <source>&amp;Help</source>
         <translation>&amp;Hilfe</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="183"/>
-        <location filename="mainwindow.ui" line="1738"/>
+        <location filename="mainwindow.ui" line="182"/>
+        <location filename="mainwindow.ui" line="1715"/>
         <source>Elements</source>
         <translation>Elemente</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="204"/>
+        <location filename="mainwindow.ui" line="203"/>
         <source>File tool</source>
         <translation>Datei-Werkzeug</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="225"/>
+        <location filename="mainwindow.ui" line="224"/>
         <source>Text tool</source>
         <translation>Text-Werkzeug</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="244"/>
+        <location filename="mainwindow.ui" line="243"/>
         <source>Group tool</source>
         <translation>Gruppieren-Werkzeug</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="278"/>
-        <location filename="mainwindow.ui" line="1749"/>
-        <location filename="mainwindow.ui" line="1901"/>
+        <location filename="mainwindow.ui" line="277"/>
+        <location filename="mainwindow.ui" line="1726"/>
+        <location filename="mainwindow.ui" line="1873"/>
         <source>Properties</source>
         <translation>Eigenschaften</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="308"/>
+        <location filename="mainwindow.ui" line="307"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="325"/>
+        <location filename="mainwindow.ui" line="324"/>
         <source>Opacity</source>
         <translation>Deckkraft</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="344"/>
+        <location filename="mainwindow.ui" line="343"/>
         <source>%</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="381"/>
+        <location filename="mainwindow.ui" line="380"/>
         <source>Filling / color</source>
         <translation>Füllung / Farbe</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="400"/>
+        <location filename="mainwindow.ui" line="399"/>
         <source>Outline / background color</source>
         <translation>Randfarbe / Hintergrund</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="418"/>
+        <location filename="mainwindow.ui" line="417"/>
         <source>Outline width</source>
         <translation>Randstärke</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="473"/>
+        <location filename="mainwindow.ui" line="472"/>
         <source>z-Index</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="549"/>
-        <location filename="mainwindow.ui" line="1797"/>
+        <location filename="mainwindow.ui" line="548"/>
+        <location filename="mainwindow.ui" line="1763"/>
         <source>Transformation</source>
         <translation>Transformationen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="580"/>
+        <location filename="mainwindow.ui" line="579"/>
         <source>Origin point</source>
         <translation>Bezugspunkt</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="595"/>
+        <location filename="mainwindow.ui" line="594"/>
         <source>Top left</source>
         <translation>Oben links</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="598"/>
+        <location filename="mainwindow.ui" line="597"/>
         <source>TL</source>
         <translation>OL</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="621"/>
+        <location filename="mainwindow.ui" line="620"/>
         <source>Top center</source>
         <translation>Oben mitte</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="624"/>
+        <location filename="mainwindow.ui" line="623"/>
         <source>TC</source>
         <translation>OM</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="644"/>
+        <location filename="mainwindow.ui" line="643"/>
         <source>Top right</source>
         <translation>Oben rechts</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="647"/>
+        <location filename="mainwindow.ui" line="646"/>
         <source>TR</source>
         <translation>OR</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="654"/>
+        <location filename="mainwindow.ui" line="653"/>
         <source>Mid left</source>
         <translation>Mitte links</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="657"/>
+        <location filename="mainwindow.ui" line="656"/>
         <source>ML</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="677"/>
+        <location filename="mainwindow.ui" line="676"/>
         <source>Mid center</source>
         <translation>Mitte mitte</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="680"/>
+        <location filename="mainwindow.ui" line="679"/>
         <source>MC</source>
         <translation>MM</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="700"/>
+        <location filename="mainwindow.ui" line="699"/>
         <source>Mid right</source>
         <translation>Mitte rechts</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="703"/>
+        <location filename="mainwindow.ui" line="702"/>
         <source>MR</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="710"/>
+        <location filename="mainwindow.ui" line="709"/>
         <source>Bottom left</source>
         <translation>Unten links</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="713"/>
+        <location filename="mainwindow.ui" line="712"/>
         <source>BL</source>
         <translation>UL</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="733"/>
+        <location filename="mainwindow.ui" line="732"/>
         <source>Bottom center</source>
         <translation>Unten mitte</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="736"/>
+        <location filename="mainwindow.ui" line="735"/>
         <source>BC</source>
         <translation>UM</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="756"/>
+        <location filename="mainwindow.ui" line="755"/>
         <source>Bottom right</source>
         <translation>Unten rechts</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="759"/>
+        <location filename="mainwindow.ui" line="758"/>
         <source>BR</source>
         <translation>UR</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="792"/>
+        <location filename="mainwindow.ui" line="791"/>
         <source>X </source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="820"/>
+        <location filename="mainwindow.ui" line="819"/>
         <source>x translation</source>
         <translation>X-Verschiebung</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="842"/>
+        <location filename="mainwindow.ui" line="841"/>
         <source>Y </source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="870"/>
+        <location filename="mainwindow.ui" line="869"/>
         <source>y translation</source>
         <translation>Y-Verschiebung</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="899"/>
+        <location filename="mainwindow.ui" line="898"/>
         <source>Rotate X axis</source>
         <translation>Rotation X-Achse</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="963"/>
+        <location filename="mainwindow.ui" line="962"/>
         <source>Rotate Y axis</source>
         <translation>Roatation Y-Achse</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1027"/>
+        <location filename="mainwindow.ui" line="1026"/>
         <source>Rotate Z axis</source>
         <translation>Rotation Z-Achse</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1091"/>
+        <location filename="mainwindow.ui" line="1090"/>
         <source>Skew X</source>
         <translation>Horizontal schären</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1119"/>
+        <location filename="mainwindow.ui" line="1118"/>
         <source>Horizontal shearing</source>
         <translation>Horizontale Schärung</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1164"/>
+        <location filename="mainwindow.ui" line="1163"/>
         <source>Skew Y</source>
         <translation>Vertikal schären</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1195"/>
+        <location filename="mainwindow.ui" line="1194"/>
         <source>Vertical shearing</source>
         <translation>Vertikale Schärung</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1250"/>
+        <location filename="mainwindow.ui" line="1249"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1264"/>
-        <location filename="mainwindow.ui" line="1883"/>
+        <location filename="mainwindow.ui" line="1263"/>
+        <location filename="mainwindow.ui" line="1855"/>
         <source>History</source>
         <translation>Verlauf</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1273"/>
-        <location filename="mainwindow.ui" line="1999"/>
+        <location filename="mainwindow.ui" line="1272"/>
+        <location filename="mainwindow.ui" line="1962"/>
         <source>Used item list</source>
         <translation>Aktive Elementliste</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1319"/>
+        <location filename="mainwindow.ui" line="1318"/>
         <source>&amp;New</source>
         <translation>&amp;Neu</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1322"/>
+        <location filename="mainwindow.ui" line="1321"/>
         <source>Ctrl+N</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1331"/>
+        <location filename="mainwindow.ui" line="1330"/>
         <source>&amp;Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1334"/>
+        <location filename="mainwindow.ui" line="1333"/>
         <source>Ctrl+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1343"/>
+        <location filename="mainwindow.ui" line="1342"/>
         <source>&amp;Save</source>
         <translation>&amp;Speichern</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1346"/>
+        <location filename="mainwindow.ui" line="1345"/>
         <source>Ctrl+S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1355"/>
+        <location filename="mainwindow.ui" line="1354"/>
         <source>Save &amp;as</source>
         <translation>Speichern &amp;unter</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1358"/>
+        <location filename="mainwindow.ui" line="1357"/>
         <source>Ctrl+Shift+S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1367"/>
+        <location filename="mainwindow.ui" line="1366"/>
         <source>&amp;Quit</source>
         <translation>&amp;Beenden</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1370"/>
+        <location filename="mainwindow.ui" line="1369"/>
         <source>Ctrl+Q</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1379"/>
+        <location filename="mainwindow.ui" line="1381"/>
         <source>Bring to front</source>
         <translation>Nach vorne</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1382"/>
+        <location filename="mainwindow.ui" line="1384"/>
         <source>Ctrl++</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1391"/>
+        <location filename="mainwindow.ui" line="1393"/>
         <source>Send to back</source>
         <translation>Nach hinten</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1394"/>
+        <location filename="mainwindow.ui" line="1396"/>
         <source>Ctrl+-</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1403"/>
-        <location filename="mainwindow.ui" line="1532"/>
+        <location filename="mainwindow.ui" line="1405"/>
+        <location filename="mainwindow.ui" line="1516"/>
         <source>Align left</source>
         <translation>Links ausrichten</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1412"/>
+        <location filename="mainwindow.ui" line="1414"/>
         <source>Align top</source>
         <translation>Oben ausrichten</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1421"/>
-        <location filename="mainwindow.ui" line="1544"/>
+        <location filename="mainwindow.ui" line="1423"/>
+        <location filename="mainwindow.ui" line="1528"/>
         <source>Align right</source>
         <translation>Rechts ausrichten</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1430"/>
+        <location filename="mainwindow.ui" line="1432"/>
         <source>Align bottom</source>
         <translation>Unten ausrichten</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1439"/>
+        <location filename="mainwindow.ui" line="1441"/>
         <source>New</source>
         <translation>Neu</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1448"/>
+        <location filename="mainwindow.ui" line="1450"/>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1457"/>
+        <location filename="mainwindow.ui" line="1459"/>
         <source>Rotate 90</source>
         <translation>90° Rotieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1466"/>
-        <source>Generate PHIS</source>
-        <translation></translation>
+        <location filename="mainwindow.ui" line="1995"/>
+        <location filename="mainwindow.ui" line="1998"/>
+        <source>Preferences</source>
+        <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1475"/>
-        <source>Generate XHTML</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="1487"/>
+        <location filename="mainwindow.ui" line="1471"/>
         <source>Bold</source>
         <translation>Fett</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1490"/>
+        <location filename="mainwindow.ui" line="1474"/>
         <source>Ctrl+B</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1502"/>
+        <location filename="mainwindow.ui" line="1486"/>
         <source>Italic</source>
         <translation>Kursiv</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1505"/>
+        <location filename="mainwindow.ui" line="1489"/>
         <source>Ctrl+I</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1517"/>
+        <location filename="mainwindow.ui" line="1501"/>
         <source>Align center</source>
         <translation>Zentriert ausrichten</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1553"/>
+        <location filename="mainwindow.ui" line="1537"/>
         <source>Group</source>
         <translation>Gruppieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1562"/>
+        <location filename="mainwindow.ui" line="1546"/>
         <source>Ungroup</source>
         <translation>Gruppe auflösen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1571"/>
+        <location filename="mainwindow.ui" line="1555"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1574"/>
+        <location filename="mainwindow.ui" line="1558"/>
         <source>Save site config</source>
         <translation>Site Konfiguration speichern</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1579"/>
+        <location filename="mainwindow.ui" line="1563"/>
         <source>Save as</source>
         <translation>Speichern unter</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1582"/>
+        <location filename="mainwindow.ui" line="1566"/>
         <source>Save site config as</source>
         <translation>Site Konfiguration speichern unter</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1591"/>
-        <location filename="mainwindow.ui" line="1988"/>
+        <location filename="mainwindow.ui" line="1575"/>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1594"/>
+        <location filename="mainwindow.ui" line="1578"/>
         <source>Site settings</source>
         <translation>Site Einstellungen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1606"/>
+        <location filename="mainwindow.ui" line="1593"/>
         <source>Align justify</source>
         <translation>Block ausrichten</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1615"/>
+        <location filename="mainwindow.ui" line="1602"/>
         <source>Layout horizontal</source>
         <translation>Layout horizontal</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1624"/>
+        <location filename="mainwindow.ui" line="1611"/>
         <source>Layout vertical</source>
         <translation>Layout vertikal</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1633"/>
+        <location filename="mainwindow.ui" line="1620"/>
         <source>Layout grid</source>
         <translation>Layout Gitter</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1645"/>
+        <location filename="mainwindow.ui" line="1632"/>
         <source>Underline</source>
         <translation>Unterstreichen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1648"/>
+        <location filename="mainwindow.ui" line="1635"/>
         <source>Ctrl+U</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1657"/>
+        <location filename="mainwindow.ui" line="1644"/>
         <source>Cut</source>
         <translation>Ausschneiden</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1660"/>
+        <location filename="mainwindow.ui" line="1647"/>
         <source>Ctrl+X</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1669"/>
+        <location filename="mainwindow.ui" line="1656"/>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1672"/>
+        <location filename="mainwindow.ui" line="1659"/>
         <source>Ctrl+C</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1681"/>
+        <location filename="mainwindow.ui" line="1668"/>
         <source>Paste</source>
         <translation>Einfügen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1684"/>
+        <location filename="mainwindow.ui" line="1671"/>
         <source>Ctrl+V</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1693"/>
+        <location filename="mainwindow.ui" line="1680"/>
         <source>Break layout</source>
         <translation>Layout auflösen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1702"/>
+        <location filename="mainwindow.ui" line="1689"/>
         <source>&amp;Close</source>
         <translation>&amp;Schließen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1705"/>
+        <location filename="mainwindow.ui" line="1692"/>
         <source>Ctrl+W</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1714"/>
+        <location filename="mainwindow.ui" line="1701"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1717"/>
+        <location filename="mainwindow.ui" line="1704"/>
         <source>Del</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1722"/>
         <source>Save master</source>
-        <translation>Als Master speichern</translation>
+        <translation type="obsolete">Als Master speichern</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1727"/>
         <source>Preview</source>
-        <translation>Vorschau</translation>
+        <translation type="obsolete">Vorschau</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1757"/>
         <source>HTML combat</source>
-        <translation>HTML-Kompatibilität</translation>
+        <translation type="obsolete">HTML-Kompatibilität</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1760"/>
-        <source>Ctrl+H</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="1772"/>
+        <location filename="mainwindow.ui" line="1738"/>
         <source>Grid</source>
         <translation>Gitter</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1775"/>
+        <location filename="mainwindow.ui" line="1741"/>
         <source>Ctrl+G</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1806"/>
+        <location filename="mainwindow.ui" line="1772"/>
         <source>Page settings</source>
         <translation>Seiten-Einstellungen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1815"/>
+        <location filename="mainwindow.ui" line="1784"/>
         <source>Undo</source>
         <translation>Rückgängig</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1818"/>
+        <location filename="mainwindow.ui" line="1787"/>
         <source>Ctrl+Z</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1827"/>
+        <location filename="mainwindow.ui" line="1796"/>
         <source>Redo</source>
         <translation>Wiederherstellen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1830"/>
+        <location filename="mainwindow.ui" line="1799"/>
         <source>Ctrl+Y</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1839"/>
+        <location filename="mainwindow.ui" line="1808"/>
         <source>Align H center</source>
         <translation>Horizontal zentrieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1848"/>
+        <location filename="mainwindow.ui" line="1817"/>
         <source>Align V center</source>
         <translation>Vertikal zentrieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1857"/>
+        <location filename="mainwindow.ui" line="1826"/>
         <source>Online Help</source>
         <translation>Online Hilfe</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1860"/>
+        <location filename="mainwindow.ui" line="1829"/>
         <source>Artephis Online Help</source>
         <translation>Artephis Online Hilfe</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2008"/>
+        <location filename="mainwindow.ui" line="1971"/>
         <source>Browser view</source>
         <translation>Browser Ansicht</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2011"/>
+        <location filename="mainwindow.ui" line="1974"/>
         <source>F2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2020"/>
+        <location filename="mainwindow.ui" line="1983"/>
         <source>Application view</source>
         <translation>Anwendungsansicht</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="2023"/>
+        <location filename="mainwindow.ui" line="1986"/>
         <source>F3</source>
         <translation></translation>
     </message>
@@ -4000,87 +3987,87 @@ const char* philibtext( const req* )
         <translation type="obsolete">Aphilo Online Hilfe</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1863"/>
+        <location filename="mainwindow.ui" line="1832"/>
         <source>F1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1872"/>
+        <location filename="mainwindow.ui" line="1841"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1892"/>
+        <location filename="mainwindow.ui" line="1864"/>
         <source>Layout form</source>
         <translation>Layout Formular</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1904"/>
+        <location filename="mainwindow.ui" line="1876"/>
         <source>Item properties</source>
         <translation>Element-Eigenschaften</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1907"/>
+        <location filename="mainwindow.ui" line="1879"/>
         <source>Ctrl+P</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1916"/>
+        <location filename="mainwindow.ui" line="1888"/>
         <source>Default font</source>
         <translation>Standard Schrift</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1928"/>
+        <location filename="mainwindow.ui" line="1900"/>
         <source>Tab order mode</source>
         <translation>Tab-Reihenfolge Modus</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1931"/>
+        <location filename="mainwindow.ui" line="1903"/>
         <source>Switch to tab order mode</source>
         <translation>Zum Tab-Reihenfolge Modus wechseln</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1934"/>
+        <location filename="mainwindow.ui" line="1906"/>
         <source>Ctrl+L</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1946"/>
+        <location filename="mainwindow.ui" line="1918"/>
         <source>Show template</source>
         <translation>Zeige Master-Vorlage</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1949"/>
+        <location filename="mainwindow.ui" line="1921"/>
         <source>Show template page in the background</source>
         <translation>Zeige Master-Vorlage im Hintergrund</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1952"/>
+        <location filename="mainwindow.ui" line="1924"/>
         <source>Ctrl+M</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1961"/>
+        <location filename="mainwindow.ui" line="1933"/>
         <source>Translator</source>
         <translation>Übersetzung</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1964"/>
+        <location filename="mainwindow.ui" line="1936"/>
         <source>Internationalization</source>
         <translation>Internationalisierung</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1967"/>
+        <location filename="mainwindow.ui" line="1939"/>
         <source>Ctrl+T</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1976"/>
+        <location filename="mainwindow.ui" line="1948"/>
         <source>Select all</source>
         <translation>Alle markieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1979"/>
+        <location filename="mainwindow.ui" line="1951"/>
         <source>Ctrl+A</source>
         <translation></translation>
     </message>
@@ -5037,7 +5024,7 @@ const char* philibtext( const req* )
     </message>
     <message>
         <location filename="aphundo.cpp" line="411"/>
-        <location filename="aphundo.cpp" line="675"/>
+        <location filename="aphundo.cpp" line="677"/>
         <source>Text</source>
         <translation></translation>
     </message>
@@ -5048,7 +5035,7 @@ const char* philibtext( const req* )
     </message>
     <message>
         <location filename="aphundo.cpp" line="414"/>
-        <location filename="aphundo.cpp" line="547"/>
+        <location filename="aphundo.cpp" line="549"/>
         <source>Transform</source>
         <translation>Transformation</translation>
     </message>
@@ -5098,17 +5085,17 @@ const char* philibtext( const req* )
         <translation></translation>
     </message>
     <message>
-        <location filename="aphundo.cpp" line="608"/>
+        <location filename="aphundo.cpp" line="610"/>
         <source>Page</source>
         <translation>Seite</translation>
     </message>
     <message>
-        <location filename="aphundo.cpp" line="640"/>
+        <location filename="aphundo.cpp" line="642"/>
         <source>Effect</source>
         <translation>Effekt</translation>
     </message>
     <message>
-        <location filename="aphundo.cpp" line="714"/>
+        <location filename="aphundo.cpp" line="716"/>
         <source>Style sheet</source>
         <translation>Stil-Beschreibung</translation>
     </message>
@@ -5197,7 +5184,7 @@ const char* philibtext( const req* )
         <translation>Das Bild konnte nicht gespeichert werden. Bitte überprüfen Sie die Zugriffsrechte.</translation>
     </message>
     <message>
-        <location filename="sitem.cpp" line="814"/>
+        <location filename="sitem.cpp" line="818"/>
         <source>Moving items</source>
         <translation>Elemente verschieben</translation>
     </message>

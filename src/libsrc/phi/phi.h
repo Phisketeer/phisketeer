@@ -330,8 +330,12 @@ inline QString PHI::stdTmpPath()
     static QString tmp=QStandardPaths::writableLocation(
         QStandardPaths::GenericCacheLocation )+QDir::separator()+QStringLiteral( "phis" );
 #else
+#ifdef Q_OS_MAC
+    static QString tmp=QDir::homePath()+QStringLiteral( "/.phis" );
+#else
     static QString tmp=QStandardPaths::writableLocation(
         QStandardPaths::TempLocation )+QDir::separator()+QStringLiteral( "phis" );
+#endif
 #endif
     return tmp;
 }

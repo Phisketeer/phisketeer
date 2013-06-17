@@ -20,7 +20,7 @@
 #define PHISERVICE_H
 
 #include <QtServiceBase>
-#include <QApplication>
+#include <QGuiApplication>
 #include "phimanager.h"
 
 class PHIService : public QtServiceBase
@@ -38,7 +38,7 @@ public:
     virtual void stop();
 
 protected:
-    QApplication *_app;
+    QGuiApplication *_app;
     PHIManager *_manager;
 };
 

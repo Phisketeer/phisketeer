@@ -12,8 +12,16 @@ echo "Decompressing Phisketeer $PHIVERSION archive"
 tar -zxf phisketeer.tar.gz
 cd phisketeer-$PHIVERSION
 PHILIBPATH=`pwd`/lib
+PHIPLUGINS=`pwd`/plugins
+QT_PLUGIN_PATH=$PHIPLUGINS
 LD_LIBRARY_PATH=$PHILIBPATH:$LD_LIBRARY_PATH
+if [ -n "$SUDO_USER" ] ; then
+    su $SUDO_USER -c "/usr/bin/xhost si:localuser:root" -
+else
+    /usr/bin/xhost si:localhost:root
+fi
 export LD_LIBRARY_PATH
+export QT_PLUGIN_PATH
 echo "Starting GUI installer"
-./bin/phiinstaller -style cleanlooks
+./bin/phiinstaller
 exit 0

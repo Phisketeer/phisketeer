@@ -9,13 +9,15 @@ QTTS=$5
 PHIMAS=$6
 MYSQLC=libmysql.16.dylib
 MYSQLDIR=/usr/local/mysql
-USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtQml QtOpenGL QtWidgets QtWebKit QtWebKitWidgets QtV8 \
-    QtQuick QtPrintSupport QtMultimedia QtMultimediaWidgets QtXml"
-PLUGINPATH="sqldrivers imageformats iconengines platforms printsupport mediaservice accessible playlistformats"
+USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtOpenGL QtWidgets QtWebKit QtWebKitWidgets \
+    QtPrintSupport QtXml QtQuick QtQml QtV8"
+PLUGINPATH="sqldrivers imageformats iconengines platforms printsupport accessible"
 PHILIBS="libphi.1.dylib libphis.1.dylib libphia.1.dylib"
 PHIAPPS="Artephis Amphibia"
 PHIBINS="phis phiapp phisconf"
 PHIMODULES="email request sql system wrapper"
+DEVCERT="Developer ID Application: Phisys AG"
+INSCERT="Developer ID Installer: Phisys AG"
 
 echo "Cleaning previous installation"
 rm -rf $DESTDIR
@@ -254,7 +256,9 @@ done
 
 for A in $PHIAPPS ; do
     echo "Building product for $A"
-    productbuild --component $DESTDIR/$A.app /Applications $DESTDIR/$A.pkg
+    #productbuild --component $DESTDIR/$A.app /Applications $DESTDIR/$A.pkg
+     productbuild --component $DESTDIR/$A.app /Applications \
+        --sign "$INSCERT" $DESTDIR/$A.pkg
 done
 echo "You may use '$> sudo installer -store -pkg distmac/Artephis.pkg -target /'"
 echo "if you want to install the Artephis package to the system."

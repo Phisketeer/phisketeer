@@ -13,23 +13,23 @@ LD_LIBRARY_PATH=%philibpath%:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 QT_PLUGIN_PATH=%phipluginpath%
 export QT_PLUGIN_PATH
-QT_QPA_FONTDIR=/usr/share/fonts
-export QT_QPA_FONTDIR
+# QT_QPA_FONTDIR=/usr/share/fonts
+# export QT_QPA_FONTDIR
 PHIBINPATH=%phibinpath%
 
 case $1 in
 	start)
-		$PHIBINPATH/phis
+                $PHIBINPATH/phis -platform minimal
 	;;
 	stop)
-		$PHIBINPATH/phis -t
+                /usr/bin/killall -q $PHIBINPATH/phis
 	;;
 	restart)
-		$PHIBINPATH/phis -t
-		$PHIBINPATH/phis
+                /usr/bin/killall -q -w $PHIBINPATH/phis
+                $PHIBINPATH/phis -platform minimal
 	;;
 	reload)
-		$PHIBINPATH/phis -c
+                $PHIBINPATH/phis -c
 	;;
 	status)
 		$PHIBINPATH/phis -v

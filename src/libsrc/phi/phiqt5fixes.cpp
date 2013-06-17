@@ -18,6 +18,7 @@
 */
 #include "phiqt5fixes.h"
 #include <QFileInfo>
+#include <QSettings>
 
 #ifdef Q_OS_WIN
 extern QString qAppFileName();
@@ -34,10 +35,9 @@ void phiSetPluginPath( int argc, char **argv )
     plugins.cd( QLatin1String( "plugins" ) );
 #elif defined Q_OS_LINUX
     Q_UNUSED( argv )
-    QFileInfo fi( QString::fromLatin1( "/proc/%1/exe" ).arg( getpid() ) );
-    if ( fi.exists() && fi.isSymLink() ) {
-        plugins.setPath( fi.dir().absolutePath() );
-    }
+    QSettings s( QLatin1String( "/etc/phi/phis.conf" ), QSettings::IniFormat );
+    QString fallback=QString::fromLatin1( "/opt/phisketeer/plugins" );
+    plugins.setPath( s.value( QLatin1String( "PluginsPath" ), fallback ).toString() );
 #elif defined Q_OS_MAC
     plugins=QFileInfo( QString::fromLocal8Bit( argv[0] ) ).dir();
     plugins.cdUp();

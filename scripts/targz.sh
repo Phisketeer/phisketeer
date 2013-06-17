@@ -5,7 +5,7 @@ QTLIBS=$2
 QTBINS=$3
 QTPLUGINS=$4
 QTTS=$5
-USEQT="libQt5Core libQt5Network libQt5Sql libQt5Gui libQt5Widgets libQt5PrintSupport libQt5Svg libQt5Script libQt5WebKit libQt5WebKitWidgets libQt5CLucene"
+USEQT="libQt5Core libQt5Network libQt5Sql libQt5Gui libQt5Widgets libQt5PrintSupport libQt5Svg libQt5Script libQt5WebKit libQt5WebKitWidgets libQt5Xml"
 
 rm -rf $DESTDIR
 echo "Creating directories"
@@ -66,6 +66,13 @@ fi
 if [ -f /usr/lib/libssl.so.0.9.8 ]; then
     cp -p /usr/lib/libssl.so.0.9.8 $DESTDIR/lib/
 fi
+# ICUI is not installed on every system
+if [ -f /usr/lib/libicui18n.so.42 ]; then
+    cp -p /usr/lib/libicui18n.so.42 $DESTDIR/lib/
+    cp -p /usr/lib/libicuuc.so.42 $DESTDIR/lib/
+    cp -p /usr/lib/libicudata.so.42 $DESTDIR/lib/
+fi
+
 strip --strip-unneeded $DESTDIR/lib/*
 strip --strip-unneeded $DESTDIR/bin/*
 cp -p doc/readme.txt $DESTDIR/

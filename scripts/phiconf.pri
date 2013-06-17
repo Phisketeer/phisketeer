@@ -23,8 +23,8 @@ PHIORG = Phisketeer
 PHIRELEASE = 1.5.0
 PHIMACDEPLOY = 10.7
 PHIMACSDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
-mac: PHICONF = macappstore
-#PHICONF =
+#mac: PHICONF = macappstore
+PHICONF =
 
 CONFIG += qt thread largefile ordered c++11 warn_on
 INCLUDEPATH += .
@@ -47,9 +47,9 @@ unix {
             QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
         }
         QMAKE_MAC_SDK = $$[PHIMACSDK]
-        # QMAKE_MACOSX_DEPLOYMENT_TARGET = $$PHIMACDEPLOY
+        QMAKE_MACOSX_DEPLOYMENT_TARGET = $$PHIMACDEPLOY
         QMAKE_CXXFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
-        # QMAKE_CXXFLAGS = -stdlib=libc++
+        QMAKE_LFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY
         DEFINES += PHIMACFONT
     }
 }

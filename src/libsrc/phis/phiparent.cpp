@@ -43,8 +43,11 @@ PHIParent::PHIParent( QObject *parent )
     qDebug( "PHIParent::PHIParent()" );
     if ( !qApp ) { // not set in apache module so instantiate QApplication here
         QStringList argList;
-#ifdef Q_OS_LINUX
+#ifdef Q_OS_UNIX
         QSettings s( QStringLiteral( "/etc/phi/phis.conf" ), QSettings::IniFormat );
+#elif defined Q_OS_WIN
+        QSettings s( QStringLiteral( "HKEY_LOCAL_MACHINE\\SOFTWARE\\Phisketeer\\phis" ), QSettings::NativeFormat );
+#endif
         QString bindir=s.value( QStringLiteral( "BinDir" ), QString() ).toString();
         QString plugindir=s.value( QStringLiteral( "PluginsPath" ), QString() ).toString();
         if ( bindir.isEmpty() ) {
@@ -54,17 +57,19 @@ PHIParent::PHIParent( QObject *parent )
                 dir.cdUp();
                 bindir=dir.absolutePath()+QStringLiteral( "/bin" );
             } else {
+#ifdef Q_OS_UNIX
                 bindir=QStringLiteral( "/opt/phi/bin" ); // fallback
+#elif defined Q_OS_WIN
+                bindir=QStringLiteral( "C:\\Program Files (x86)\\Phisketeer\\bin" ); //fallback
+#endif
             }
         }
         if ( !plugindir.isEmpty() ) {
             qputenv( "QT_PLUGIN_PATH", plugindir.toLocal8Bit() );
         }
-        argList << bindir+QStringLiteral( "/mod_phi" ) << QStringLiteral( "-platform" ) << QStringLiteral( "minimal" );
-#elif defined Q_OS_WIN
-        QSettings s( QStringLiteral( "" ), QSettings::NativeFormat );
-
-        argList << QStringLiteral( "mod_phi" );
+        argList << bindir+QDir::separator()+QStringLiteral( "mod_phi" );
+#ifdef Q_OS_UNIX
+        argList << QStringLiteral( "-platform" ) << QStringLiteral( "minimal" );
 #endif
         int argc=argList.size();
         QVector<char *> argv( argc );

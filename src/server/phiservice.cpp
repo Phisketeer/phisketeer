@@ -35,8 +35,7 @@ PHIService::~PHIService()
 
 void PHIService::createApplication( int &argc, char **argv )
 {
-    _app=new QApplication( argc, argv, false );
-    //_app=new QApplication( argc, argv, true );
+    _app=new QGuiApplication( argc, argv );
     _app->setApplicationVersion( PHIS::libVersion() );
     _app->setApplicationName( QStringLiteral( "Phis" ) );
     PHI::setupApplication( _app );
