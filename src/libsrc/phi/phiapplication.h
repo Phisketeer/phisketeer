@@ -23,6 +23,8 @@
 #include <QSettings>
 #include "phi.h"
 
+#define phiApp PHIApplication::instance()
+
 class PHIPrivateApplication : public QApplication
 {
     Q_OBJECT
@@ -43,8 +45,10 @@ class PHIEXPORT PHIApplication : public QObject
     Q_OBJECT
 
 public:
-    explicit PHIApplication( int &argc, char **argv, const char *name, const char *version );
+    enum Type { App, ApacheModule, Service };
+    explicit PHIApplication( int &argc, char **argv, const char *name, const char *version, Type type=App );
     virtual ~PHIApplication();
+
     inline const QString& pluginsPath() const { return _pluginsPath; }
     inline const QString& rootPath() const { return _rootPath; }
     inline const QString& binPath() const { return _binPath; }
@@ -53,8 +57,12 @@ public:
     inline const QString& itemsPath() const { return _itemsPath; }
     inline const QString& tsPath() const { return _tsPath; }
     inline const QString& serverBin() const { return _serverBin; }
+    inline const QString& appBin() const { return _appBin; }
+    inline const QString& tmpPath() const { return _tmpPath; }
+    inline const QString& cachePath() const { return _cachePath; }
+    inline const QString& appLanguage() const { return _lang; }
+    inline QSettings* serverSettings() const { return _serverSettings; }
     inline QSettings* settings() const { return _settings; }
-    inline QGuiApplication* qapp() const { return _app; }
     inline int exec() { return _app->exec(); }
     bool stopPhisService();
     bool startPhisService();
@@ -65,6 +73,7 @@ public:
 public slots:
     void loadTranslations();
     inline void quit() { _app->quit(); }
+    void invalidate();
 
 signals:
     void openFileRequest( const QString& );
@@ -72,9 +81,9 @@ signals:
 private:
     static PHIApplication *_instance;
     QGuiApplication *_app;
-    QSettings *_settings;
-    QString _pluginsPath, _rootPath, _binPath, _libPath, _modulesPath;
-    QString _itemsPath, _tsPath, _serverBin;
+    QSettings *_settings, *_serverSettings;
+    QString _pluginsPath, _rootPath, _binPath, _libPath, _modulesPath, _lang;
+    QString _itemsPath, _tsPath, _serverBin, _cachePath, _tmpPath, _appBin;
 };
 
 #endif // PHIAPPLICATION_H

@@ -20,7 +20,7 @@
 
 PHIDOM = phisketeer.org
 PHIORG = Phisketeer
-PHIRELEASE = 1.5.0
+PHIRELEASE = 2.0.0
 PHIMACDEPLOY = 10.7
 PHIMACSDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
 #mac: PHICONF = macappstore
@@ -32,7 +32,7 @@ DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QT_NO_CAST_FROM_BYTEARRAY Q
 OBJECTS_DIR = .tmp
 MOC_DIR = .tmp
 RCC_DIR = .tmp
-CONFIG(debug,debug|release): DEFINES += PHIDEBUG
+CONFIG(debug,debug|release): DEFINES += PHIDEBUG PHIDIR=\\\"$$PWD\\\"
 else: DEFINES += QT_NO_DEBUG_OUTPUT
 unix {
     QMAKE_LFLAGS_RPATH =
@@ -43,13 +43,13 @@ unix {
             QMAKE_CFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
             QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO
             QMAKE_OBJECTIVE_CFLAGS_RELEASE = $$QMAKE_OBJECTIVE_CFLAGS_RELEASE_WITH_DEBUGINFO\
-                -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
+            #    -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
             QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
         }
-        QMAKE_MAC_SDK = $$[PHIMACSDK]
+        QMAKE_MAC_SDK = macosx
         QMAKE_MACOSX_DEPLOYMENT_TARGET = $$PHIMACDEPLOY
-        QMAKE_CXXFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
-        QMAKE_LFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY
+        #QMAKE_CXXFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
+        #QMAKE_LFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY
         DEFINES += PHIMACFONT
     }
 }

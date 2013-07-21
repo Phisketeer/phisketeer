@@ -18,22 +18,217 @@
 */
 #ifndef PHIBASEITEM_H
 #define PHIBASEITEM_H
-/*
-#include <QObject>
-#include <QMetaType>
-#include <QScriptEngine>
-#include <QScriptValue>
-#include <QFont>
-#include <QColor>
-#include <QPalette>
-#include <QVariant>
-#include <QHash>
-#include <QGraphicsEffect>
-#include <QStringList>
-#include "phiitem.h"
-#include "phieffect.h"
-#include "phi.h"
 
+#include <QObject>
+
+/*
+#include "phieffect.h"
+*/
+#include <QScriptValue>
+#include <QScriptEngine>
+#include <QDataStream>
+#include <QGraphicsProxyWidget>
+#include "phi.h"
+#include "phipalette.h"
+
+class QGraphicsSceneEvent;
+class PHIBasePage;
+
+class PHIEXPORT PHIBaseItem : public QObject
+{
+    friend class PHIGraphicsItem;
+
+    Q_OBJECT
+    Q_DISABLE_COPY( PHIBaseItem )
+    Q_PROPERTY( QString id READ name )
+    Q_PROPERTY( QString name READ name )
+    Q_PROPERTY( quint16 type READ type ) // to keep old code working
+    Q_PROPERTY( QStringList properties READ properties )
+    Q_PROPERTY( QString parentName READ parentName WRITE setParentName )
+    Q_PROPERTY( qreal x READ x WRITE setX )
+    Q_PROPERTY( qreal y READ y WRITE setY )
+    Q_PROPERTY( qreal width READ width WRITE setWidth )
+    Q_PROPERTY( qreal height READ height WRITE setHeight )
+    Q_PROPERTY( qint16 tabIndex READ tabIndex WRITE setTabIndex NOTIFY tabIndexChanged )
+    Q_PROPERTY( qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged )
+    Q_PROPERTY( QString title READ title WRITE setTitle NOTIFY titleChanged )
+    Q_PROPERTY( qint16 zIndex READ zIndex WRITE setZIndex NOTIFY zIndexChanged )
+
+public:
+    enum Type { TUndefined=0, TIDEItem=1, TClientItem=2, TServerItem=3, TServerParserItem=4 };
+    enum Wid { Invalid=0 };
+    enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4 };
+    /*
+    enum DataType { DNone=0, DPalette=1, DFont=2, DColor=3, DOutlineColor=4, DMaxSize=5,
+        DStartAngle=6, DSpanAngle=7, DUrl=8, DPattern=9, DLine=10, DPenWidth=11, DStopPoints=12,
+        DText=13, DImage=14, DAlignment=15, DStyleSheet=16, DToolTip=17, DLabel=18, DChildIds=19,
+        DGridLayoutInfo=20, DDelimiter=21, DOpacity=22, DTabIndex=23, DShortCut=24,
+        DRolloverTextColor=25, DRolloverBackgroundColor=26, DImageBook=27, DCurFadeIn=28,
+        DCurFadeOut=29, DMaxFadeIn=30, DMinFadeOut=31, DCurMoveDeltaX=32, DCurMoveDeltaY=33,
+        DCurMoveTime=34, DStartPoint=35, DFinalStopPoint=36, DCenterPoint=37, DFocalPoint=38,
+        DAngle=39, DRadius=40, DSpreadType=41, DGradientType=42, DFadeTime=DStartAngle,
+        DFadeInterval=DSpanAngle, DBorderRadius=DStartAngle, DDragStartPos=43, DDragOriginalPos=44,
+        DDragHotSpot=45, DDragCursor=46, DDragDistance=47, DDragOpacity=48, DDragDropOptions=49,
+        DDropAcceptedIds=50, DDragHotSpotType=51, DCursor=52, DLayoutOptions=53, DLayoutTitleHeight=54
+    }; // quint8 - ensure compatibility for version 1.x documents
+    enum Widget { NO_ITEM=0, LINE_EDIT=1, MULTI_LINE_EDIT=2, PASSWD=3, CHECK_BOX=4, RADIO_BUTTON=5, BUTTON=6,
+        SUBMIT_BUTTON=7, RESET_BUTTON=8, FILE_BUTTON=9, COMBO_BOX=10, HIDDEN=11, IMAGE_BUTTON=12, ELLIPSE=13,
+        RECT=14, LINE=15, IMAGE=16, LAYOUT_LOGIN=17, LIST=18, LAYOUT_GRID=19, LAYOUT_VBOX=20, LAYOUT_HBOX=21,
+        LAYOUT_FORM=22, LINK=23, TAB=24, ROUNDED_RECT=25, HSPACE=26, VSPACE=27, GRAPH_TEXT=28, TEXT=29,
+        LABEL=30, DATEEDIT=31, CALENDAR=32, LANG_SELECTOR=33, LAYOUT_ADDRESS=34, LAYOUT_DELIVERY=35,
+        LAYOUT_CREDIT_CARD=36, ROLLOVER_BUTTON=37, LAYOUT_CONTACT=38, LAYOUT_PERIOD=39, LAYOUT_REGISTER=40,
+        RICH_TEXT=41, SVG=42, CHECK_LIST=43, DIA_SHOW=44, IMAGE_BOOK=45, TABLE=46, COUNTRY=47, PHISYS_LINK=48,
+        HTML_DOC=49, SEARCH=50, EMAIL=51, DECIMAL=52, REALNUMBER=53, PHONE=54, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
+        GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, CANVAS=61, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
+    */
+    explicit PHIBaseItem( Type type, PHIBasePage *page );
+    virtual ~PHIBaseItem();
+
+signals:
+    void zIndexChanged( qint16 );
+    void tabIndexChanged( qint16 );
+    void titleChanged( QString );
+    void opacityChanged( qreal );
+
+public: // not usable by script engine
+    inline QByteArray id() const { return _id; }
+    inline QByteArray parentId() const { return _parentId; }
+    inline Type itemType() const { return _type; }
+    inline void setId( const QByteArray &id ) { _id=id; setObjectName( QString::fromUtf8( id ) ); }
+    inline void setId( const QString &id ) { _id=id.toLatin1(); setObjectName( id ); }
+    inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); }
+    inline void setParentId( const QByteArray &pid ) { _parentId=pid; }
+    inline void setZIndex( qint16 idx ) { _zIndex=idx; if ( _gw) _gw->setZValue( static_cast<qreal>(idx) ); }
+    inline qint16 zIndex() const { return _zIndex; }
+
+    void load( QDataStream &in, quint8 version );
+    void save( QDataStream &out, quint8 version ) const;
+    QFont font() const;
+
+    //virtual functions
+    inline virtual bool isFocusable() const { return false; }
+    inline virtual bool isInputItem() const { return false; }
+    inline virtual bool isLayoutItem() const { return false; }
+    inline virtual bool widthChangeable() const { return true; }
+    inline virtual bool heightChangeable() const { return true; }
+    inline virtual QRectF rect() const { return QRectF( QPointF(), size() ); }
+
+    virtual PHIWID wid() const=0;
+    virtual void setFont( const QFont &font );
+    virtual void setColor( PHIPalette::ColorRole role, const QColor &color, quint8 percent=100 );
+    virtual void paletteColorChange( PHIPalette::ColorRole role, const QColor &color );
+
+    // IDE related members
+    static void setTabMode( bool on ) { _tabModeOn=on; }
+    static bool isTabMode() { return _tabModeOn; }
+    static void setSelectionColor( const QColor &c ) { _selectionColor=c; }
+    static void setGripSize( quint8 g ) { _gripSize=g; }
+    static QColor selectionColor() { return _selectionColor; }
+    static quint8 gripSize() { return _gripSize; }
+    static QRectF topLeftGrip( const QRect &r );
+    virtual QPixmap pixmap() const=0;
+    virtual QString listName() const=0;
+    virtual QString description() const=0;
+    inline QGraphicsWidget* graphicsWidget() const { return _gw; }
+
+public slots: // usable by script engine
+    inline qreal x() const { return _x; }
+    inline qreal y() const { return _y; }
+    inline qreal width() const { return _width; }
+    inline qreal height() const { return _height; }
+    inline QPointF pos() const { return QPointF( _x, _y ); }
+    inline QSizeF size() const { return QSizeF( _width, _height ); }
+    inline qint16 tabIndex() const { return _variants.value( DTabIndex, 0 ).value<qint16>(); }
+    inline qreal opacity() const { return _variants.value( DOpacity, 1. ).toReal(); }
+    inline QString title() const { return QString::fromUtf8( _variants.value( DTitle ).toByteArray() ); }
+    inline QString name() const { return objectName(); }
+    inline QString parentName() const { return QString::fromLatin1( _parentId ); }
+    inline PHIWID type() const { return wid(); }
+
+    inline void setX( qreal x ) { _x=x; if ( _gw ) _gw->setX( x ); }
+    inline void setY( qreal y ) { _y=y; if ( _gw ) _gw->setY( y ); }
+    inline void setWidth( qreal w ) { _width=w; if ( _gw ) _gw->resize( _width, _height ); }
+    inline void setHeight( qreal h ) { _height=h; if ( _gw ) _gw->resize( _width, _height ); }
+    inline void setPos( const QPointF &p ) { _x=p.x(); _y=p.y(); if ( _gw ) _gw->setPos( p ); }
+    inline void resize( qreal w, qreal h ) { _width=w; _height=h; if ( _gw ) _gw->resize( w, h ); }
+    inline void resize( const QSizeF &s ) { _width=s.width(); _height=s.height(); if ( _gw ) _gw->resize( s ); }
+    inline void setOpacity( qreal o ) { o=qBound( 0., o, 1. ); _variants.insert( DOpacity, o ); if ( _gw ) _gw->setOpacity( o ); }
+    inline void setTitle( const QString &t ) { _variants.insert( DTitle, t.toUtf8() ); if ( _gw ) _gw->setToolTip( t ); }
+    inline void setParentName( const QString &n ) { _parentId=n.toLatin1(); }
+    inline void setTabIndex( qint16 tab ) { _variants.insert( DTabIndex, tab ); }
+
+    inline virtual bool isDraggable() const { return false; }
+    inline virtual bool isDroppable() const { return false; }
+
+    QStringList properties() const;
+
+protected:
+    //virtual void squeeze()=0;
+    virtual void loadItemData( QDataStream &in, quint8 version );
+    virtual void saveItemData( QDataStream &out, quint8 version ) const;
+    virtual void loadEditorData( QDataStream &in, quint8 version );
+    virtual void saveEditorData( QDataStream &out, quint8 version ) const;
+
+    // IDE related members
+    inline QWidget* widget() const { if ( _gw ) return _gw->widget(); return 0; }
+    inline void setWidget( QWidget *w ) { if ( _gw ) { _gw->setWidget( w ); resize( _gw->preferredSize() ); } }
+    inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
+    inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
+    inline void setPreferredSize( const QSizeF &s ) { if ( _gw ) _gw->setPreferredSize( s ); }
+    inline void setMinimumSize( const QSizeF &s ) { if ( _gw ) _gw->setMinimumSize( s ); }
+    inline void setMaximumSize( const QSizeF &s ) { if ( _gw ) _gw->setMaximumSize( s ); }
+    inline void setMaximumWidth( const qreal w ) { if ( _gw ) _gw->setMaximumWidth( w ); }
+    inline void setMaximumHeight( const qreal h ) { if ( _gw ) _gw->setMaximumHeight( h ); }
+    inline void setMinimumWidth( const qreal w ) { if ( _gw ) _gw->setMinimumWidth( w ); }
+    inline void setMinimumHeight( const qreal h ) { if ( _gw ) _gw->setMinimumHeight( h ); }
+    inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
+
+    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual void paintSelection( QPainter *painter );
+    virtual void paintHighlight( QPainter *painter );
+    virtual QRectF boundingRect() const;
+    virtual QPainterPath shape() const;
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const; // return invalid size to call basic implementation
+    virtual bool sceneEvent( QEvent *event ); // return false to call inherited implementation
+    virtual bool ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
+    virtual bool ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual bool ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual bool ideDropEvent( QGraphicsSceneDragDropEvent *event );
+    virtual bool ideResizeEvent( QGraphicsSceneResizeEvent *event );
+    //virtual void ideHoverEnterEvent( QGraphicsSceneHoverEvent *event );
+    //virtual void ideHoverMoveEvent( QGraphicsSceneHoverEvent *event );
+    //virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
+
+private:
+    // IDE related members
+    void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
+
+protected:
+    QHash <qint8, QVariant> _variants;
+
+private:
+    static bool _tabModeOn;
+    static quint8 _gripSize;
+    static QColor _selectionColor;
+    Type _type;
+    QGraphicsProxyWidget *_gw;
+    QByteArray _id, _parentId;
+    qreal _x, _y, _width, _height;
+    qint16 _zIndex;
+};
+
+Q_DECLARE_METATYPE( PHIBaseItem* )
+Q_DECLARE_METATYPE( const PHIBaseItem* )
+
+PHIEXPORT QScriptValue baseItemToScriptValue( QScriptEngine*, PHIBaseItem* const &in );
+PHIEXPORT void baseItemFromScriptValue( const QScriptValue&, PHIBaseItem* &out );
+
+inline void baseItemFromScriptValue( const QScriptValue &obj, PHIBaseItem* &it )
+{
+    it=qobject_cast<PHIBaseItem*>(obj.toQObject());
+}
+
+/*
 class PHIEXPORT PHIBaseItem : public QObject, public PHIItem
 {
     Q_OBJECT
@@ -254,121 +449,8 @@ protected:
     QByteArray _pageId;
 };
 
-Q_DECLARE_METATYPE( PHIBaseItem* )
-Q_DECLARE_METATYPE( const PHIBaseItem* )
-
-PHIEXPORT QScriptValue baseItemToScriptValue( QScriptEngine*, PHIBaseItem* const &in );
-PHIEXPORT void baseItemFromScriptValue( const QScriptValue&, PHIBaseItem* &out );
-
 PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIBaseItem* );
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBaseItem* );
-
-class PHIBaseStyle : public QObject
-{
-    Q_OBJECT
-    Q_DISABLE_COPY( PHIBaseStyle )
-
-    Q_PROPERTY( QString top WRITE setTop READ top )
-    Q_PROPERTY( QString left WRITE setLeft READ left )
-    Q_PROPERTY( QString width WRITE setWidth READ width )
-    Q_PROPERTY( QString height WRITE setHeight READ height )
-    Q_PROPERTY( qreal opacity WRITE setOpacity READ opacity )
-    Q_PROPERTY( qint16 zIndex WRITE setZIndex READ zIndex )
-    Q_PROPERTY( QString borderRadius WRITE setBorderRadius READ borderRadius )
-    Q_PROPERTY( quint8 line WRITE setLine READ line )
-    Q_PROPERTY( quint8 pattern WRITE setPattern READ pattern )
-    Q_PROPERTY( QStringList properties READ properties )
-    Q_PROPERTY( QString color WRITE setColor READ color )
-    Q_PROPERTY( QString outlineColor WRITE setOutlineColor READ outlineColor )
-    Q_PROPERTY( QString backgroundColor WRITE setBackgroundColor READ backgroundColor )
-    Q_PROPERTY( QString rolloverTextColor WRITE setRolloverTextColor READ rolloverTextColor )
-    Q_PROPERTY( QString rolloverBackgroundColor WRITE setRolloverBackgroundColor READ rolloverBackgroundColor )
-
-    Q_PROPERTY( qreal penWidth WRITE setPenWidth READ penWidth )
-    Q_PROPERTY( qint16 startAngle WRITE setStartAngle READ startAngle )
-    Q_PROPERTY( qint16 spanAngle WRITE setSpanAngle READ spanAngle )
-    Q_PROPERTY( QString visibility WRITE setVisibility READ visibility )
-    Q_PROPERTY( qreal rotateX WRITE setXRotation READ xRotation )
-    Q_PROPERTY( qreal rotateY WRITE setYRotation READ yRotation )
-    Q_PROPERTY( qreal rotateZ WRITE setZRotation READ zRotation )
-    Q_PROPERTY( qreal shearH WRITE setHShear READ hShear )
-    Q_PROPERTY( qreal shearV WRITE setVShear READ vShear )
-    Q_PROPERTY( qreal translateX WRITE setXTranslation READ xTranslation )
-    Q_PROPERTY( qreal translateY WRITE setYTranslation READ yTranslation )
-    Q_PROPERTY( qreal skewX WRITE setXSkew READ xSkew )
-    Q_PROPERTY( qreal skewY WRITE setYSkew READ ySkew )
-    Q_PROPERTY( QString cursor WRITE setCursor READ cursor )
-
-public:
-    PHIBaseStyle( PHIBaseItem* );
-
-public slots:
-    // offered by CSS 2.1 / 3.0
-    inline QString left() const { return QString::number( _it->x() )+QLatin1String( "px" ); }
-    inline void setLeft( const QString &x ) { QString xx=x; _it->setX( xx.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
-    inline QString top() const { return QString::number( _it->y() )+QLatin1String( "px" ); }
-    inline void setTop( const QString &y ) { QString yy=y; _it->setY( yy.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
-    inline qint16 zIndex() const { return _it->zValue(); }
-    inline void setZIndex( qint16 z ) { if ( z <= PHI::maxZValue() ) _it->setZValue( z ); }
-    inline QString height() const { return QString::number( _it->height() )+QLatin1String( "px" ); }
-    inline void setHeight( const QString &h ) { QString hh=h; _it->setHeight( hh.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
-    inline QString width() const { return QString::number( _it->width() )+QLatin1String( "px" ); }
-    inline void setWidth( const QString &w ) { QString ww=w; _it->setWidth( ww.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
-    inline void setColor( const QString &c ) { _it->setColor( c ); }
-    inline QString color() const { return _it->color().name(); }
-    inline void setBackgroundColor( const QString &c ) { _it->setOutlineColor( c ); }
-    inline QString backgroundColor() const { return _it->outlineColor().name(); }
-    QString visibility() const;
-    void setVisibility( const QString& );
-    inline void setBorderRadius( const QString &r ) {
-        QString rr=r; _it->setBorderRadius( rr.replace( QStringLiteral( "px" ), QString() ).toShort() ); }
-    inline QString borderRadius() const { return QString::number( _it->borderRadius() )+QLatin1String( "px" ); }
-    inline QString cursor() const { return QString::fromLatin1( _it->cursor() ); }
-    inline void setCursor( const QString &c ) { _it->setCursor( c.toLatin1() ); }
-
-    // PHI extensions
-    inline qreal opacity() const { return _it->opacity(); }
-    inline void setOpacity( qreal o ) { _it->setOpacity( o ); }
-    inline void setPattern( quint8 p ) { _it->setPattern( p ); }
-    inline quint8 pattern() const { return _it->pattern(); }
-    inline void setLine( quint8 l ) { _it->setLine( l ); }
-    inline quint8 line() const { return _it->line(); }
-    inline void setRolloverTextColor( const QString &c ) { _it->setRolloverTextColor( c ); }
-    inline QString rolloverTextColor() const { return _it->rolloverTextColor().name(); }
-    inline void setRolloverBackgroundColor( const QString &c ) { _it->setRolloverBackgroundColor( c ); }
-    inline QString rolloverBackgroundColor() const { return _it->rolloverBackgroundColor().name(); }
-    inline void setOutlineColor( const QString &c ) { _it->setOutlineColor( c ); }
-    inline QString outlineColor() const { return _it->outlineColor().name(); }
-    inline void setPenWidth( qreal w ) { _it->setPenWidth( w ); }
-    inline qreal penWidth() const { return _it->penWidth(); }
-    inline void setSpanAngle( qint16 a ) { _it->setSpanAngle( a ); }
-    inline qint16 spanAngle() const { return _it->spanAngle(); }
-    inline void setStartAngle( qint16 a ) { _it->setStartAngle( a ); }
-    inline qint16 startAngle() const { return _it->startAngle(); }
-    inline void setXRotation( qreal xr ) { _it->setXRotation( xr ); }
-    inline qreal xRotation() const { return _it->xRotation(); }
-    inline void setYRotation( qreal yr ) { _it->setYRotation( yr ); }
-    inline qreal yRotation() const { return _it->yRotation(); }
-    inline void setZRotation( qreal zr ) { _it->setZRotation( zr ); }
-    inline qreal zRotation() const { return _it->zRotation(); }
-    inline void setHShear( qreal hs ) { _it->setHShear( hs ); }
-    inline qreal hShear() const { return _it->hShear(); }
-    inline void setVShear( qreal vs ) { _it->setVShear( vs ); }
-    inline qreal vShear() const { return _it->vShear(); }
-    inline void setXTranslation( qreal xt ) { _it->setXTranslation( xt ); }
-    inline qreal xTranslation() const { return _it->xTranslation(); }
-    inline void setYTranslation( qreal yt ) { _it->setYTranslation( yt ); }
-    inline qreal yTranslation() const { return _it->yTranslation(); }
-    inline void setXSkew( qreal xs ) { _it->setHShear( xs ); }
-    inline qreal xSkew() const { return _it->hShear(); }
-    inline void setYSkew( qreal ys ) { _it->setVShear( ys ); }
-    inline qreal ySkew() const { return _it->vShear(); }
-
-    inline QStringList properties() const { return PHI::properties( this ); }
-
-protected:
-    PHIBaseItem *_it;
-};
 
 class PHIBaseEffect : public QObject
 {

@@ -1,0 +1,64 @@
+/*
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
+#
+#    This C++ library is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Lesser General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#ifndef PHIGRAPHICSSCENE_H
+#define PHIGRAPHICSSCENE_H
+
+#include <QGraphicsScene>
+#include <QList>
+#include "phi.h"
+
+class PHIBaseItem;
+class PHIBasePage;
+class QMimeData;
+class QGraphicsSceneDragDropEvent;
+
+class PHIEXPORT PHIGraphicsScene : public QGraphicsScene
+{
+    Q_OBJECT
+
+public:
+    explicit PHIGraphicsScene( QObject *parent );
+    virtual ~PHIGraphicsScene();
+
+    void addBaseItem( PHIBaseItem *item );
+    inline void setFileName( const QString &f ) { setObjectName( f ); }
+    inline QString fileName() const { return objectName(); }
+    //inline QGraphicsScene* graphicsScene() { return qobject_cast<QGraphicsScene*>(this); }
+    inline PHIBasePage* page() const { return _page; }
+    static PHIWID widFromMimeData( const QMimeData *md );
+
+protected:
+    virtual void drawBackground( QPainter *painter, const QRectF &rect );
+    virtual void drawForeground( QPainter *painter, const QRectF &rect );
+    virtual void dragEnterEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void dragLeaveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
+
+signals:
+    
+public slots:
+    
+private:
+    PHIBasePage *_page;
+    QList <PHIBaseItem*> _items;
+
+};
+
+#endif // PHIGRAPHICSSCENE_H

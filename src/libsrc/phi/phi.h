@@ -26,8 +26,8 @@
 #endif
 
 #define PHI_DSV QDataStream::Qt_4_7
-#define PHI_DSV2 QDataStream::Qt_5_0
-#define PHI_SFV 2
+#define PHI_DSV2 QDataStream::Qt_5_1
+#define PHI_SFV 3
 #define PHI_MAGIC 0x5c34bb28
 
 #include <QObject>
@@ -51,6 +51,7 @@ typedef QHash <QByteArray, QVariant> PHIVariantHash;
 typedef QHash <quint8, QColor> PHIColorHash;
 typedef QHash <QByteArray, QImage> PHIImageHash;
 typedef quint16 PHIRC;
+typedef quint16 PHIWID;
 
 Q_DECLARE_METATYPE( PHIRectHash )
 Q_DECLARE_METATYPE( PHIByteArrayList )
@@ -61,7 +62,6 @@ Q_DECLARE_METATYPE( QGradientStops )
 
 class PHIEXPORT PHI
 {
-protected:
     Q_DISABLE_COPY( PHI )
     PHI() {}
 
@@ -83,31 +83,30 @@ public:
     static void hslToHsv( qreal hh, qreal ss, qreal ll, qreal *h, qreal *s, qreal *v );
 
     static QColor percentColor( const QColor &c, qreal fac );
-    static QByteArray nl();
-    static QByteArray dtFormat();
-    static QString dtFormatString();
+    static const QByteArray& nl();
+    static const QByteArray& dtFormat();
+    static const QString& dtFormatString();
     static QByteArray isoDateFormat();
     static QByteArray emailRegExp();
-    static QByteArray phoneNumberRegExp();
-    static QByteArray mimeType();
+    static const QByteArray& phoneNumberRegExp();
+    static const QByteArray& mimeType();
     static QByteArray mimeType( const QFileInfo &info );
     static Qt::CursorShape toCursorShape( const QByteArray &s );
     static bool isUpToDate( const QString &localV, const QString &serverV );
     static QString toLocale( const QString &lang );
-    static QString defaultString(); // returns "default"
+    static const QString& defaultString(); // returns "default"
     static QUrl createUrlForLink( const QUrl &ref, const QString &link );
     static QString createPngUuid();
     static QImage reflectedImage( const QImage &img, qreal off, qreal size );
-    static void grayscale( const QImage &image, QImage &dest, const QRect& rect=QRect() );
     static QImage colorizedImage( const QImage &img, const QColor &c, qreal strength );
     static QImage shadowedImage( const QImage &img, const QColor &color,
         qreal radius, qreal xOff, qreal yOff );
-    static QImage bluredImage( const QImage &img, qreal radius, qreal factor=2.5 );
+    static QImage bluredImage( const QImage &img, qreal radius );
     static void extractNumbers( const QByteArray &s, int &value, int &min, int &max, int &step );
     static void extractRealNumbers( const QByteArray &s, qreal &value, qreal &min, qreal &max,
         qreal &step, int &decimals );
 
-    static inline QString idValidator() { return QStringLiteral( "[A-Za-z][-_A-Za-z0-9]*" ); }
+    static inline const QString& idValidator() { static QString v=QStringLiteral( "[A-Za-z][-_A-Za-z0-9]*" ); return v; }
     static inline QSize patternIconSize() { return QSize( 48, 12 ); }
     static inline QSize colorIconSize() { return QSize( 14, 14 ); }
     static inline qreal defaultSpacing() { return 6.; }
@@ -143,19 +142,19 @@ inline QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )
     return ref.resolved( QUrl( l ) );
 }
 
-inline QString PHI::defaultString()
+inline const QString& PHI::defaultString()
 {
     static QString def=QStringLiteral( "default" );
     return def;
 }
 
-inline QByteArray PHI::dtFormat()
+inline const QByteArray& PHI::dtFormat()
 {
     static QByteArray dt=QByteArray::fromRawData( _phiDT, qstrlen( _phiDT ) );
     return dt;
 }
 
-inline QString PHI::dtFormatString()
+inline const QString& PHI::dtFormatString()
 {
     static QString dt=QString::fromLatin1( dtFormat() );
     return dt;
@@ -172,19 +171,19 @@ inline QByteArray PHI::emailRegExp() {
     return email;
 }
 
-inline QByteArray PHI::phoneNumberRegExp()
+inline const QByteArray& PHI::phoneNumberRegExp()
 {
     static QByteArray phone=QByteArray::fromRawData( _phoneNumberRegExp, qstrlen( _phoneNumberRegExp ) );
     return phone;
 }
 
-inline QByteArray PHI::mimeType()
+inline const QByteArray& PHI::mimeType()
 {
     static QByteArray mime=QByteArray::fromRawData( _phiMimeType, qstrlen( _phiMimeType ) );
     return mime;
 }
 
-inline QByteArray PHI::nl()
+inline const QByteArray& PHI::nl()
 {
 #ifdef Q_OS_WIN
     static QByteArray nl=QByteArray::fromRawData( "\r\n", 2 );

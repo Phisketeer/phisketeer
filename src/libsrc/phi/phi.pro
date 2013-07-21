@@ -22,7 +22,6 @@ HEADERS += phi.h \
     phidatasources.h \
     phierror.h \
     phisysinfo.h \
-    phimemrotate.h \
     phicontext2d.h \
     phidomimage.h \
     phieffect.h \
@@ -34,7 +33,16 @@ HEADERS += phi.h \
     phiapplication.h \
     phipixlabel.h \
     phiupdateinfo.h \
-    phictx2dwidget.h
+    phictx2dwidget.h \
+    phiitemplugin.h \
+    phigraphicsitem.h \
+    phigraphicsscene.h \
+    phigraphicsview.h \
+    phiwidgetitem.h \
+    phipalette.h \
+    qpixmapfilter_p.h \
+    phipagemenuentry.h \
+    phiitemstylecss.h
 SOURCES += phi.cpp \
     phiitem.cpp \
     phisitem.cpp \
@@ -42,7 +50,6 @@ SOURCES += phi.cpp \
     phidatasources.cpp \
     phierror.cpp \
     phierrordesc.cpp \
-    phimemrotate.cpp \
     phicontext2d.cpp \
     phidomimage.cpp \
     phieffect.cpp \
@@ -54,17 +61,24 @@ SOURCES += phi.cpp \
     phiapplication.cpp \
     phipixlabel.cpp \
     phiupdateinfo.cpp \
-    phictx2dwidget.cpp
+    phictx2dwidget.cpp \
+    phigraphicsitem.cpp \
+    phigraphicsscene.cpp \
+    phigraphicsview.cpp \
+    phiwidgetitem.cpp \
+    phipalette.cpp \
+    phipagemenuentry.cpp \
+    phiitemstylecss.cpp
 
 VERSION = 2.0.0
-include( ../../../scripts/phiconf.pri )
+include( ../../../phiconf.pri )
 isEmpty( PHIDOM ): error( PHIDOM is not specified )
 isEmpty( PHIORG ): error( PHIORG is not specified )
 TEMPLATE = lib
 TARGET = phi
 QT = core gui network script widgets
 DEFINES += PHILIB PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
-
+RESOURCES += phi.qrc
 unix { 
     DESTDIR = ../../../lib
     SOURCES += phisysinfo_unix.cpp

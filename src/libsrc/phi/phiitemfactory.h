@@ -18,21 +18,66 @@
 */
 #ifndef PHIITEMFACTORY_H
 #define PHIITEMFACTORY_H
-
 #include <QObject>
+#include <QHash>
+#include <QReadWriteLock>
+#include <QReadLocker>
+#include "phibaseitem.h"
+#include "phiitemplugin.h"
 
-// needed in V2
+class PHIBasePage;
+
 class PHIItemFactory : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit PHIItemFactory( QObject *parent=0 ) : QObject( parent ) {}
+    explicit PHIItemFactory( const QString &itemspath, QObject *parent );
+    virtual ~PHIItemFactory();
+    static inline PHIItemFactory* instance() { return _instance; }
+
+    void invalidate();
+    inline QStringList keys() const { QReadLocker l( &_lock ); return _keys; }
+    inline QStringList categoryList() const { QReadLocker l( &_lock ); return _categories.toList(); }
+    inline QPixmap pixmapForCategory( const QString &cat ) const {
+        QReadLocker l( &_lock ); return _pixmapForCategory.value( cat ); }
+    PHIBaseItem* item( const QString &key, PHIBaseItem::Type type, PHIBasePage *page ) const;
+    PHIBaseItem* item( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const;
+    QString category( const QString &key ) const;
+    QStringList keysForCategory( const QString &cat ) const;
     
-signals:
-    
-public slots:
-    
+private:
+    static PHIItemFactory *_instance;
+    mutable QReadWriteLock _lock;
+    QString _itemspath;
+    QStringList _keys;
+    QHash <QString, PHIItemPlugin*> _plugins;
+    QHash <PHIWID, PHIItemPlugin*> _wids;
+    QHash <QString, QStringList> _keysForCategory;
+    QSet <QString> _categories;
+    QHash <QString, QPixmap> _pixmapForCategory;
 };
+
+inline PHIBaseItem* PHIItemFactory::item(const QString &key, PHIBaseItem::Type type, PHIBasePage *page ) const
+{
+    QReadLocker l( &_lock );
+    PHIItemPlugin *plugin=_plugins.value( key, 0 );
+    if ( plugin ) return plugin->create( plugin->wid( key ), type, page );
+    return 0;
+}
+
+inline PHIBaseItem* PHIItemFactory::item( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const
+{
+    QReadLocker l( &_lock );
+    PHIItemPlugin *plugin=_wids.value( wid, 0 );
+    if ( plugin ) return plugin->create( wid, type, page );
+    return 0;
+}
+
+inline QStringList PHIItemFactory::keysForCategory( const QString &cat ) const
+{
+    QReadLocker l( &_lock );
+    return _keysForCategory.value( cat, QStringList() );
+}
 
 #endif // PHIITEMFACTORY_H

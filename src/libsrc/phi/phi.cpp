@@ -28,7 +28,7 @@
 #include "phi.h"
 #include "phierror.h"
 #include "phisysinfo.h"
-#include "phimemrotate.h"
+#include "qpixmapfilter_p.h"
 
 #ifdef PHIAPPSTORE
 #include "macfilebookmark.h"
@@ -39,9 +39,9 @@ const char* PHI::_phiDate="yyyy-MM-dd";
 const char* PHI::_phiMimeType="application/x-phi";
 const char* PHI::_emailRegExp="[A-Z0-9._%-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}";
 const char* PHI::_phoneNumberRegExp="[0-9+][0-9 ]{3,25}[0-9]";
-QSettings* PHI::_settings=0;
 
 // Code of the templates are based on Qt's image rendering algorithm
+/*
 template <int shift>
 inline int phi_static_shift( int value )
 {
@@ -190,59 +190,7 @@ void phi_blurImage( QImage &blurImage, qreal radius, bool quality, int transpose
         phi_expblur<12, 10, false>( blurImage, radius, quality, transposed );
 }
 
-QSettings* PHI::globalSettings()
-{
-    Q_ASSERT( qApp );
-    QSettings *s=_settings;
-    if ( s ) {
-        qDebug( "Global settings (instantiated) file name: %s", qPrintable( s->fileName() ) );
-        return s;
-    }
-    QString name=QStringLiteral( "phis" );
-#ifdef Q_OS_MAC
-    s=new QSettings( QStringLiteral( "phisys.com" ), name, qApp ); // required for Mac app store
-#elif defined Q_OS_WIN
-    s=new QSettings( QSettings::SystemScope, QString::fromLatin1( PHI::organisation() ), name, qApp );
-    s->setFallbacksEnabled( false );
-#else
-    name=QLatin1String( "/etc/phi/phis.conf" );
-    s=new QSettings( name, QSettings::IniFormat, qApp );
-#endif
-    qDebug( "Application name %s", qPrintable( qApp->applicationName() ) );
-    qDebug( "Application domain %s", qPrintable( qApp->organizationDomain() ) );
-    qDebug( "Application organisation %s", qPrintable( qApp->organizationName() ) );
-    qDebug( "Global settings file name: %s", qPrintable( s->fileName() ) );
-    _settings=s;
-    return _settings;
-}
-
-// returns the root directory for the application
-QString PHI::applicationRoot()
-{
-    static QString path;
-    if ( !path.isNull() ) return path;
-    Q_ASSERT( qApp );
-    QDir appdir( QCoreApplication::applicationDirPath() );
-#ifdef Q_OS_WIN
-    // bundleID/bin
-    appdir.cdUp();
-#elif defined Q_OS_UNIX
-#ifdef Q_OS_MAC
-    // bundleID/Contents/MacOS
-    appdir.cdUp(); // bundleID/Contents/
-    appdir.cdUp(); // bundleID/
-#else
-    QSettings *s=PHI::globalSettings();
-    appdir.setPath( s->value( QLatin1String( "BinDir" ), QLatin1String( "/opt/phi/bin" ) ).toString() );
-    // bundleID/bin
-    appdir.cdUp();
-#endif
-#else
-#error Could not determine application root path
-#endif
-    path=appdir.canonicalPath();
-    return path;
-}
+*/
 
 QString PHI::libVersion()
 {
@@ -255,8 +203,9 @@ QStringList PHI::properties( const QObject *obj )
     Q_ASSERT( obj );
     const QMetaObject *mo=obj->metaObject();
     QStringList properties;
-    for( int i=mo->propertyOffset(); i < mo->propertyCount(); ++i )
+    for( int i=1; i < mo->propertyCount(); ++i )
         properties << QString::fromLatin1( mo->property( i ).name() );
+    properties.sort();
     return properties;
 }
 
@@ -268,160 +217,6 @@ QByteArray PHI::mimeType( const QFileInfo &file )
     if ( file.suffix()==phis ) return phismime;
     return db.mimeTypeForFile( file ).name().toUtf8();
 }
-
-/*
-// returns -1 on error, 0 not running, 1 running
-int PHI::checkService()
-{
-    Q_ASSERT( qApp );
-#ifdef Q_OS_MAC
-    QSettings *s=PHI::globalSettings();
-    // Sandboxing in Mac OS X requires a little hack: we check if the server responds
-    // to a QNetworkRequest to determine if the phis service is running
-    s->beginGroup( defaultString() );
-    QUrl url( QStringLiteral( "http://localhost/phi.phis?ping=1" ) );
-    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
-    s->endGroup();
-    QNetworkRequest req;
-    req.setUrl( url );
-    QNetworkAccessManager mg;
-    QNetworkReply *rep=mg.get( req );
-    while ( !rep->isFinished() ) {
-        qApp->processEvents();
-    }
-    rep->deleteLater();
-    if ( rep->error()!=QNetworkReply::NoError ) {
-        // phis responses with "access denied" to phi.phis?ping=1
-        // so we can asume the service is running
-        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
-        qWarning( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
-        return 0;
-    }
-    return 0;
-#else // Linux and Windows
-    QString bin=serverBin();
-    if ( !QFile::exists( bin ) ) return -1;
-    qDebug( "Starting process %s", qPrintable( bin ) );
-    QProcess proc;
-    proc.setProcessChannelMode( QProcess::MergedChannels );
-    proc.start( bin, QStringList() << QStringLiteral( "-v" ) );
-    if ( !proc.waitForStarted() ) return -1;
-    if ( !proc.waitForFinished() ) return -1;
-    QByteArray arr=proc.readAll();
-    qDebug( "start process read all=%s", arr.data() );
-    if ( arr.contains( "not running" ) ) return 0;
-    return 1;
-#endif
-}
-
-bool PHI::startPhisService()
-{
-    QString bin=serverBin();
-    if ( !QFile::exists( bin ) ) return false;
-#ifdef Q_OS_MAC
-#ifdef PHIAPPSTORE
-    QSettings *s=PHI::globalSettings();
-    // Sandboxing in Mac OS X requires a little hack: we check if the server responds
-    // to a QNetworkRequest to determine if the phis service is running
-    s->beginGroup( defaultString() );
-    const QString baseDir=s->value( QLatin1String( "BaseDir" ) ).toString();
-    s->beginGroup( QLatin1String( "localhost" ) );
-    const QString root=s->value( QLatin1String( "DocumentRoot" ), baseDir+QLatin1String( "/localhost" ) ).toString();
-    s->endGroup();
-    s->endGroup();
-    //PHISecFile sf( root ); // let the phis service access the document root
-    //Q_UNUSED( sf );
-#endif
-    qDebug( "Starting process %s", qPrintable( bin) );
-    bool res=QProcess::startDetached( bin );
-    return res;
-#else
-
-//#ifdef Q_OS_WIN
-//    int res=QProcess::execute( bin, QStringList() << QStringLiteral( "-i" ) );
-//    QMessageBox::warning( 0, bin, QObject::tr( "res=%1" ).arg( res ) );
-//#endif
-#ifdef Q_OS_LINUX
-    bin+=QLatin1String( " -platform minimal" );
-#endif
-    int res=QProcess::execute( bin );
-    if ( res==0 ) return true;
-    return false;
-#endif
-}
-
-bool PHI::stopPhisService()
-{
-    qDebug( "stop phis service" );
-#ifdef Q_OS_MAC
-    // Sandboxing in Mac OS X requires a little hack: we send
-    // a QNetworkRequest to stop the phis service
-    QSettings *s=PHI::globalSettings();
-    s->beginGroup( QStringLiteral( "default" ) );
-    QUrl url( QStringLiteral( "http://localhost/phi.phis?stop=1" ) );
-    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
-    s->endGroup();
-    QNetworkRequest req;
-    req.setUrl( url );
-    QNetworkAccessManager mg;
-    QNetworkReply *rep=mg.get( req );
-    while ( !rep->isFinished() ) {
-        qApp->processEvents();
-    }
-    rep->deleteLater();
-    if ( rep->error()!=QNetworkReply::NoError ) {
-        // phis responses with "access denied" to phi.phis?stop=1
-        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return true;
-        qDebug( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
-        return false;
-    }
-    return false;
-#else
-    QProcess proc;
-#ifdef Q_OS_WIN
-    int res=proc.execute( serverBin(), QStringList() << QStringLiteral( "-t" ) );
-#else
-    int res=proc.execute( QStringLiteral( "/usr/bin/killall -q phis" ) );
-#endif
-    if ( res ) return false;
-    return true;
-#endif
-}
-
-bool PHI::clearPhisServiceCache()
-{
-#ifdef Q_OS_MAC
-    // sandboxing in Mac OS X requires a little hack: we send
-    // a QNetworkRequest to invalidate the phis cache
-    QSettings *s=PHI::globalSettings();
-    s->beginGroup( defaultString() );
-    QUrl url( QStringLiteral( "http://localhost/phi.phis?invalidate=1" ) );
-    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
-    s->endGroup();
-    QNetworkRequest req;
-    req.setUrl( url );
-    QNetworkAccessManager mg;
-    QNetworkReply *rep=mg.get( req );
-    while ( !rep->isFinished() ) {
-        qApp->processEvents();
-    }
-    rep->deleteLater();
-    if ( rep->error()!=QNetworkReply::NoError ) {
-        // phis responses with "access denied" to phi.phis?invalidate=1
-        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
-        qDebug( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
-        return 0;
-    }
-    return 0;
-#else
-    QProcess proc;
-    QString bin=serverBin();
-    int res=proc.execute( bin, QStringList() << QStringLiteral( "-c" ) );
-    if ( res ) return false;
-    return true;
-#endif
-}
-*/
 
 QString PHI::tag( const QString &tag, const QString &msg )
 {
@@ -597,24 +392,39 @@ void PHI::getItemCheckData( QString &data, QString &opt, bool &isChecked )
 }
 */
 
-QImage PHI::bluredImage( const QImage &img, qreal radius, qreal factor )
+QImage PHI::bluredImage( const QImage &img, qreal radius )
 {
-    if ( img.isNull() || radius <=1. ) return img;
-    int r=static_cast<int>(radius);
-    QImage dest=QImage( img.width()+r*2, img.height()+r*2, QImage::Format_ARGB32_Premultiplied );
+    if ( radius <=1. ) return img;
+    QPixmapBlurFilter f;
+    f.setRadius( radius );
+    f.setBlurHints( QGraphicsBlurEffect::QualityHint );
+    QRect r=f.boundingRectFor( img.rect() ).toAlignedRect();
+    qDebug() << r;
+    QImage dest=QImage( r.width(), r.height(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
-
     QPainter p( &dest );
-    p.drawImage( r, r, img );
+    f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
     p.end();
-
-    phi_blurImage( dest, radius*factor, true, 0 );
     return dest;
 }
 
 QImage PHI::shadowedImage( const QImage &img, const QColor &color, qreal radius,
     qreal xOff, qreal yOff )
 {
+    if ( radius <=1. ) return img;
+    QPixmapDropShadowFilter f;
+    f.setBlurRadius( radius );
+    f.setColor( color );
+    f.setOffset( xOff, yOff );
+    QRect r=f.boundingRectFor( img.rect() ).toAlignedRect();
+    qDebug() << r;
+    QImage dest=QImage( r.width(), r.height(), QImage::Format_ARGB32_Premultiplied );
+    dest.fill( 0 );
+    QPainter p( &dest );
+    f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
+    p.end();
+    return dest;
+    /*
     QImage tmp=bluredImage( img, radius, 1.3 );
     QPainter tmpPainter( &tmp );
     //qDebug( "bluring org %d %d, new %d %d", img.width(), img.height(), tmp.width(), tmp.height() );
@@ -643,35 +453,25 @@ QImage PHI::shadowedImage( const QImage &img, const QColor &color, qreal radius,
     destPainter.drawImage( xoff, yoff, img );
     destPainter.end();
     return dest;
+    */
 }
 
 QImage PHI::colorizedImage( const QImage &img, const QColor &c, qreal strength )
 {
-    if ( img.isNull() ) return img;
-    QImage src=img;
-    if ( img.format()!=QImage::Format_ARGB32 && img.format()!=QImage::Format_ARGB32_Premultiplied )
-        src=img.convertToFormat( QImage::Format_ARGB32_Premultiplied );
-    QImage destImage( img.width(), img.height(), QImage::Format_ARGB32_Premultiplied );
-
-    // do colorizing
-    QPainter destPainter( &destImage );
-    PHI::grayscale( src, destImage, src.rect() );
-    destPainter.setCompositionMode( QPainter::CompositionMode_Screen );
-    destPainter.fillRect( src.rect(), c );
-    destPainter.end();
-
-    if ( strength<1. ) {
-        QImage buffer=img;
-        QPainter bufPainter( &buffer );
-        bufPainter.setOpacity( strength );
-        bufPainter.drawImage( 0, 0, destImage );
-        bufPainter.end();
-        destImage=buffer;
-    }
-    if ( img.hasAlphaChannel() ) destImage.setAlphaChannel( img.alphaChannel() );
-    return destImage;
+    QPixmapColorizeFilter f;
+    f.setColor( c );
+    f.setStrength( strength );
+    QRect r=f.boundingRectFor( img.rect() ).toAlignedRect();
+    qDebug() << r;
+    QImage dest=QImage( r.width(), r.height(), QImage::Format_ARGB32_Premultiplied );
+    dest.fill( 0 );
+    QPainter p( &dest );
+    f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
+    p.end();
+    return dest;
 }
 
+/*
 void PHI::grayscale( const QImage &image, QImage &dest, const QRect& rect )
 {
     //qDebug() << image.width() << image.height() << dest.width() << dest.height() << image.format();
@@ -706,6 +506,7 @@ void PHI::grayscale( const QImage &image, QImage &dest, const QRect& rect )
         }
     }
 }
+*/
 
 QImage PHI::reflectedImage( const QImage &img, qreal off, qreal size )
 {

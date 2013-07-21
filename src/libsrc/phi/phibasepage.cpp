@@ -17,57 +17,187 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "phibasepage.h"
-/*
-PHIPageMenuEntry::PHIPageMenuEntry()
+#include "phidatasources.h"
+#include "phibaseitem.h"
+#include "phiitemfactory.h"
+
+class PHIDynPageData
 {
-    qDebug( "PHIPageMenuEntry::PHIPageMenuEntry()" );
+public:
+    PHIDynPageData();
+    ~PHIDynPageData();
+    PHIDynPageData( const PHIDynPageData& );
+    PHIDynPageData& operator=( const PHIDynPageData& );
+
+    PHITextData *_title, *_styleSheet, *_author, *_version, *_company, *_copyright, *_template,
+        *_javascript, *_serverscript, *_action, *_keys, *_sessionRedirect, *_description,
+        *_opengraph;
+    PHIImageData *_bgImage;
+};
+
+PHIDynPageData::PHIDynPageData()
+{
+    _title=new PHITextData();
+    _styleSheet=new PHITextData();
+    _author=new PHITextData();
+    _version=new PHITextData();
+    _company=new PHITextData();
+    _copyright=new PHITextData();
+    _template=new PHITextData();
+    _javascript=new PHITextData();
+    _serverscript=new PHITextData();
+    _action=new PHITextData();
+    _keys=new PHITextData();
+    _sessionRedirect=new PHITextData();
+    _description=new PHITextData();
+    _opengraph=new PHITextData();
+    _bgImage=new PHIImageData();
 }
 
-PHIPageMenuEntry::PHIPageMenuEntry( const QByteArray &id, const QByteArray &parent,
-    const QImage &image, const QByteArray &text, Options options )
-    : _id( id ), _parent( parent ), _text( text ), _img( image ), _options( options )
+PHIDynPageData::~PHIDynPageData()
 {
-    qDebug( "PHIPageMenuEntry::PHIPageMenuEntry()" );
+    delete _title;
+    delete _styleSheet;
+    delete _author;
+    delete _version;
+    delete _company;
+    delete _copyright;
+    delete _template;
+    delete _javascript;
+    delete _serverscript;
+    delete _action;
+    delete _keys;
+    delete _sessionRedirect;
+    delete _description;
+    delete _opengraph;
+    delete _bgImage;
 }
 
-PHIPageMenuEntry::PHIPageMenuEntry( const PHIPageMenuEntry &e )
+PHIDynPageData::PHIDynPageData( const PHIDynPageData &p )
 {
-    _id=e._id;
-    _parent=e._parent;
-    _img=e._img;
-    _text=e._text;
-    _options=e._options;
+    qDebug( "PHISPage::PHISPage( const PHISPage& )" );
+    _title=new PHITextData();
+    _styleSheet=new PHITextData();
+    _author=new PHITextData();
+    _version=new PHITextData();
+    _company=new PHITextData();
+    _copyright=new PHITextData();
+    _template=new PHITextData();
+    _javascript=new PHITextData();
+    _serverscript=new PHITextData();
+    _action=new PHITextData();
+    _keys=new PHITextData();
+    _sessionRedirect=new PHITextData();
+    _description=new PHITextData();
+    _opengraph=new PHITextData();
+    _bgImage=new PHIImageData();
+
+    *_title=*p._title;
+    *_styleSheet=*p._styleSheet;
+    *_author=*p._author;
+    *_version=*p._version;
+    *_company=*p._company;
+    *_copyright=*p._copyright;
+    *_template=*p._template;
+    *_javascript=*p._javascript;
+    *_serverscript=*p._serverscript;
+    *_action=*p._action;
+    *_keys=*p._keys;
+    *_sessionRedirect=*p._sessionRedirect;
+    *_description=*p._description;
+    *_opengraph=*p._opengraph;
+    *_bgImage=*p._bgImage;
 }
 
-PHIPageMenuEntry& PHIPageMenuEntry::operator=( const PHIPageMenuEntry &e )
+PHIDynPageData& PHIDynPageData::operator=( const PHIDynPageData &p )
 {
-    _id=e._id;
-    _parent=e._parent;
-    _img=e._img;
-    _text=e._text;
-    _options=e._options;
+    *_title=*p._title;
+    *_styleSheet=*p._styleSheet;
+    *_author=*p._author;
+    *_version=*p._version;
+    *_company=*p._company;
+    *_copyright=*p._copyright;
+    *_template=*p._template;
+    *_javascript=*p._javascript;
+    *_serverscript=*p._serverscript;
+    *_action=*p._action;
+    *_keys=*p._keys;
+    *_sessionRedirect=*p._sessionRedirect;
+    *_description=*p._description;
+    *_opengraph=*p._opengraph;
+    *_bgImage=*p._bgImage;
     return *this;
 }
 
-PHIPageMenuEntry::~PHIPageMenuEntry()
+PHIBasePage::PHIBasePage( QObject *parent )
+    : QObject( parent ), _font( PHI::defaultFont() )
 {
-    qDebug( "PHIPageMenuEntry::~PHIPageMenuEntry()" );
+    qDebug( "PHIBasePage::PHIBasePage()" );
+    _pageData=new PHIDynPageData();
+    _width=PHI::defaultPageSize().width();
+    _height=PHI::defaultPageSize().height();
 }
 
-QDataStream& operator<<( QDataStream &out, const PHIPageMenuEntry &m )
+PHIBasePage::~PHIBasePage()
 {
-    out << m._id << m._parent << m._img << m._text << static_cast<quint8>(m._options);
-    return out;
+    delete _pageData;
+    qDebug( "PHIBasePage::~PHIBasePage()" );
 }
 
-QDataStream& operator>>( QDataStream &in, PHIPageMenuEntry &m )
+QList <PHIBaseItem*> PHIBasePage::items() const
 {
-    quint8 opt;
-    in >> m._id >> m._parent >> m._img >> m._text >> opt;
-    m._options=static_cast<PHIPageMenuEntry::Options>(opt);
-    return in;
+    return findChildren<PHIBaseItem*>();
 }
 
+PHIBaseItem* PHIBasePage::findItem( const QString &id ) const
+{
+    QList <PHIBaseItem*> list=findChildren<PHIBaseItem*>();
+    PHIBaseItem *it;
+    foreach( it, list ) {
+        if ( it->name()==id ) return it;
+    }
+    return 0;
+}
+
+// only available for Serverscript:
+bool PHIBasePage::removeElementById( const QString &id )
+{
+    PHIBaseItem *it=findItem( id );
+    if ( !it ) return false;
+    delete it;
+    return true;
+}
+
+// only available for Serverscript:
+PHIBaseItem* PHIBasePage::createElementById( PHIWID wid, const QString &id,
+    qreal x, qreal y, qreal width, qreal height )
+{
+    if ( containsItemId( id ) ) return 0;
+    PHIBaseItem *it=PHIItemFactory::instance()->item( wid, PHIBaseItem::TServerItem, this );
+    if ( !it ) return 0;
+    it->setId( id );
+    it->setX( x );
+    it->setY( y );
+    if ( width > 0 ) it->setWidth( width );
+    if ( height > 0 ) it->setHeight( height );
+    return it;
+}
+
+quint16 PHIBasePage::itemCount() const
+{
+    return static_cast<quint16>(findChildren<PHIBaseItem*>().count());
+}
+
+QStringList PHIBasePage::itemIds() const
+{
+    QStringList ids;
+    PHIBaseItem *it;
+    QList <PHIBaseItem*> list=findChildren<PHIBaseItem*>();
+    foreach( it, list ) ids.append( it->name() );
+    return ids;
+}
+
+/*
 PHIBasePage::PHIBasePage( const PHIPage &p, QObject *parent )
     : QObject( parent ), PHIPage( p )
 {

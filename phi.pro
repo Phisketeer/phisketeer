@@ -41,7 +41,7 @@
 #
 #  Note: if you use Qt Creator do NOT enable shadow builds!
 
-include( scripts/phiconf.pri )
+include( phiconf.pri )
 message( Phi configuration: $$PHICONF )
 OTHER_FILES = doc/license.txt doc/readme.txt scripts/phiupdate.xml doc/LGPLv3 doc/GPLv3
 

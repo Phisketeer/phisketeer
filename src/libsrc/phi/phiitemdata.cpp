@@ -25,13 +25,7 @@ PHIItemData::PHIItemData( QObject *parent )
     _disabledData( 0 ), _visibleData( 0 ), _checkedData( 0 ), _readOnlyData( 0 ), _startAngleData( 0 ),
     _spanAngleData( 0 ), _imageBookData( 0 ), _stringListData( 0 )
 {
-/*
-    qDebug( "PHIItemData::PHIItemData()" );
-    qRegisterMetaTypeStreamOperators<PHIRectHash>("PHIRectHash");
-    qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
-    qRegisterMetaTypeStreamOperators<PHIImageHash>("PHIImageHash");
-    qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
-*/
+    // qDebug( "PHIItemData::PHIItemData()" );
 }
 
 PHIItemData::~PHIItemData()
@@ -75,12 +69,6 @@ PHIItemData::PHIItemData( const PHIItemData &d )
     _disabledData( 0 ), _visibleData( 0 ), _checkedData( 0 ), _readOnlyData( 0 ), _startAngleData( 0 ),
     _spanAngleData( 0 ), _imageBookData( 0 ), _stringListData( 0 )
 {
-    /*
-    qRegisterMetaTypeStreamOperators<PHIRectHash>("PHIRectHash");
-    qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
-    qRegisterMetaTypeStreamOperators<PHIImageHash>("PHIImageHash");
-    qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
-    */
     //qDebug( "copy constructor(TEXT=%s)", qPrintable( d.textData()->text() ) );
     if (d._imageData) *imageData()=*d.imageData();
     if (d._textData) *textData()=*d.textData();
