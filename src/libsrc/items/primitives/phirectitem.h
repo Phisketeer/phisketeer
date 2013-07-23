@@ -33,7 +33,7 @@ public:
     inline virtual PHIWID wid() const { return Rect; }
     virtual QString listName() const { return tr( "Rect" ); }
     virtual QString description() const { return tr( "Draws a box or rect with optional rounded courners" ); }
-    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/editor/images/elements/ellipse" ) ); }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/rect" ) ); }
 
 public slots:
     inline virtual qint16 borderRadius() const { return _variants.value( DBorderRadius, 0 ).value<qint16>(); }

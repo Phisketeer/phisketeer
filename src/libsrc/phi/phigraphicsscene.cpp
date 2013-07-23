@@ -18,6 +18,7 @@
 */
 #include <QGraphicsSceneDragDropEvent>
 #include <QMimeData>
+#include <QUndoStack>
 #include "phigraphicsscene.h"
 #include "phibaseitem.h"
 #include "phibasepage.h"
@@ -28,13 +29,36 @@ PHIGraphicsScene::PHIGraphicsScene( QObject *parent )
 {
     qDebug( "PHIGraphicsScene::PHIGraphicsScene()" );
     _page=new PHIBasePage( this );
+    _undoStack=new QUndoStack( this );
+    setSceneRect( QRectF( QPoint(), QSizeF( _page->width(), _page->height() ) ) );
+    connect( _undoStack, &QUndoStack::cleanChanged, this, &PHIGraphicsScene::cleanChanged );
 }
 
 PHIGraphicsScene::~PHIGraphicsScene()
 {
-    _items.clear();
-    delete _page;
+    delete _page; // don't let delete with QObject parent
     qDebug( "PHIGraphicsScene::~PHIGraphicsScene()" );
+}
+
+void PHIGraphicsScene::saveAs( const QString &f )
+{
+    setObjectName( f );
+    save();
+}
+
+void PHIGraphicsScene::open( const QString &f )
+{
+    setObjectName( f );
+}
+
+void PHIGraphicsScene::save()
+{
+
+}
+
+void PHIGraphicsScene::setAlignment( Qt::Alignment align )
+{
+    if ( align==Qt::AlignJustify ) qDebug( "juche" );
 }
 
 void PHIGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
@@ -49,7 +73,6 @@ void PHIGraphicsScene::drawForeground( QPainter *painter, const QRectF &rect )
 
 void PHIGraphicsScene::addBaseItem( PHIBaseItem *item )
 {
-    _items.append( item );
     QGraphicsScene::addItem( item->graphicsWidget() );
 }
 
@@ -67,6 +90,7 @@ void PHIGraphicsScene::dragEnterEvent( QGraphicsSceneDragDropEvent *e )
     qDebug() << md->formats() << md->urls() << md->text();
 #endif
     QGraphicsScene::dragEnterEvent( e );
+    qDebug( "scene::dragEnter %d", e->dropAction()==Qt::IgnoreAction );
 }
 
 void PHIGraphicsScene::dragMoveEvent( QGraphicsSceneDragDropEvent *e )
@@ -79,8 +103,6 @@ void PHIGraphicsScene::dragMoveEvent( QGraphicsSceneDragDropEvent *e )
 void PHIGraphicsScene::dragLeaveEvent( QGraphicsSceneDragDropEvent *e )
 {
     qDebug( "scene drag leave" );
-    //PHIWID wid=widFromMimeData( e->mimeData() );
-    //if ( wid ) return;
     QGraphicsScene::dragLeaveEvent( e );
 }
 

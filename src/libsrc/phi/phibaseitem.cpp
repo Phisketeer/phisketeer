@@ -30,6 +30,7 @@
 #include "phigraphicsitem.h"
 #include "qpixmapfilter_p.h"
 #include "phiitemstylecss.h"
+#include "phisrequest.h"
 
 bool PHIBaseItem::_tabModeOn=false;
 quint8 PHIBaseItem::_gripSize=8;
@@ -264,6 +265,35 @@ bool PHIBaseItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
     qDebug( "ide drop" );
     return true;
 }
+
+void PHIBaseItem::squeeze( const PHISRequest* const req )
+{
+    Q_UNUSED( req )
+}
+
+void PHIBaseItem::html5( const PHISRequest* const req, QByteArray &out, const QByteArray& indent )
+{
+    Q_UNUSED( req );
+    out+=indent+"<div id=\""+_id+"\">Unknown WID "+QByteArray::number( wid() )+"</div>\n";
+}
+
+void PHIBaseItem::strictHtml( const PHISRequest* const req, QByteArray &out, const QByteArray &indent )
+{
+    return html5( req, out, indent );
+}
+
+void PHIBaseItem::jQuery( const PHISRequest* const req, QByteArray &out )
+{
+    Q_UNUSED( req )
+    Q_UNUSED( out )
+}
+
+void PHIBaseItem::css( const PHISRequest* const req, QByteArray &out )
+{
+
+}
+
+
 
 /*
 PHIBaseItem::PHIBaseItem( QObject *parent )

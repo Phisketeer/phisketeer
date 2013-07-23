@@ -42,7 +42,9 @@ HEADERS += phi.h \
     phipalette.h \
     qpixmapfilter_p.h \
     phipagemenuentry.h \
-    phiitemstylecss.h
+    phiitemstylecss.h \
+    phisrequest.h \
+    phitools.h
 SOURCES += phi.cpp \
     phiitem.cpp \
     phisitem.cpp \
@@ -68,7 +70,9 @@ SOURCES += phi.cpp \
     phiwidgetitem.cpp \
     phipalette.cpp \
     phipagemenuentry.cpp \
-    phiitemstylecss.cpp
+    phiitemstylecss.cpp \
+    phisrequest.cpp \
+    phitools.cpp
 
 VERSION = 2.0.0
 include( ../../../phiconf.pri )

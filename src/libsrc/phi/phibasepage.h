@@ -25,9 +25,23 @@
 #include <QDataStream>
 #include "phi.h"
 #include "phipagemenuentry.h"
+#include "phidatasources.h"
 
-class PHIDynPageData;
 class PHIBaseItem;
+
+class PHIDynPageData
+{
+public:
+    PHIDynPageData();
+    ~PHIDynPageData();
+    PHIDynPageData( const PHIDynPageData& );
+    PHIDynPageData& operator=( const PHIDynPageData& );
+
+    PHITextData *_title, *_styleSheet, *_author, *_version, *_company, *_copyright, *_template,
+        *_javascript, *_serverscript, *_action, *_keys, *_sessionRedirect, *_description,
+        *_opengraph;
+    PHIImageData *_bgImage;
+};
 
 class PHIEXPORT PHIBasePage : public QObject
 {
@@ -78,7 +92,7 @@ public:
     inline QFont font() const { return _font; }
     inline void setFont( const QFont &f ) { _font=_font.resolve( f ); }
     inline void setLanguages( const QStringList &langs ) { _variants.insert( DLanguages, langs ); }
-    inline bool containsItemId( const QString &id ) const { findItem( id ) ? true : false; }
+    inline bool containsItemId( const QString &id ) const { return findItem( id ) ? true : false; }
     PHIBaseItem* findItem( const QString &id ) const;
     QList <PHIBaseItem*> items() const;
     PHIBasePage* clone() const;
@@ -157,6 +171,29 @@ public slots:
     inline qint32 bgImageYOff() const { return _variants.value( DBgImageYOff ).toInt(); }
     inline void setBgImageOptions( qint32 opts ) { _variants.insert( DBgImageOptions, opts ); }
     inline qint32 bgImageOptions() const { return _variants.value( DBgImageOptions ).toInt(); }
+    inline QString dbName() const { return _dbName; }
+    inline QString dbHost() const { return _dbHost; }
+    inline QString dbPasswd() const { return _dbPasswd; }
+    inline QString dbUser() const { return _dbUser; }
+    inline QString dbConnectOptions() const { return _dbOptions; }
+    inline QString dbDriver() const { return _dbDriver; }
+    inline qint32 dbPort() const { return _dbPort; }
+
+    inline PHITextData* titleData() const { return _pageData->_title; }
+    inline PHITextData* styleSheetData() const { return _pageData->_styleSheet; }
+    inline PHITextData* authorData() const { return _pageData->_author; }
+    inline PHITextData* versionData() const { return _pageData->_version; }
+    inline PHITextData* companyData() const { return _pageData->_company; }
+    inline PHITextData* copyrightData() const { return _pageData->_copyright; }
+    inline PHITextData* templatePageData() const { return _pageData->_template; }
+    inline PHITextData* javascriptData() const { return _pageData->_javascript; }
+    inline PHITextData* serverscriptData() const { return _pageData->_serverscript; }
+    inline PHITextData* actionData() const { return _pageData->_action; }
+    inline PHITextData* keysData() const { return _pageData->_keys; }
+    inline PHITextData* sessionRedirectData() const { return _pageData->_sessionRedirect; }
+    inline PHITextData* descriptionData() const { return _pageData->_description; }
+    inline PHITextData* opengraphData() const { return _pageData->_opengraph; }
+    inline PHIImageData* bgImageData() const { return _pageData->_bgImage; }
 
 signals:
     void titleChanged( QString );

@@ -27,6 +27,7 @@ class PHIBaseItem;
 class PHIBasePage;
 class QMimeData;
 class QGraphicsSceneDragDropEvent;
+class QUndoStack;
 
 class PHIEXPORT PHIGraphicsScene : public QGraphicsScene
 {
@@ -36,11 +37,16 @@ public:
     explicit PHIGraphicsScene( QObject *parent );
     virtual ~PHIGraphicsScene();
 
-    void addBaseItem( PHIBaseItem *item );
-    inline void setFileName( const QString &f ) { setObjectName( f ); }
-    inline QString fileName() const { return objectName(); }
     //inline QGraphicsScene* graphicsScene() { return qobject_cast<QGraphicsScene*>(this); }
     inline PHIBasePage* page() const { return _page; }
+    inline QString fileName() const { return objectName(); }
+    inline QUndoStack* undoStack() const { return _undoStack; }
+    void addBaseItem( PHIBaseItem *item );
+    void saveAs( const QString &f );
+    void save();
+    void open( const QString &f );
+    void setAlignment( Qt::Alignment );
+
     static PHIWID widFromMimeData( const QMimeData *md );
 
 protected:
@@ -52,13 +58,13 @@ protected:
     virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
 
 signals:
+    void cleanChanged( bool );
     
 public slots:
     
 private:
     PHIBasePage *_page;
-    QList <PHIBaseItem*> _items;
-
+    QUndoStack *_undoStack;
 };
 
 #endif // PHIGRAPHICSSCENE_H

@@ -29,6 +29,7 @@
 #define PHI_DSV2 QDataStream::Qt_5_1
 #define PHI_SFV 3
 #define PHI_MAGIC 0x5c34bb28
+#define L1(s) QLatin1String(s)
 
 #include <QObject>
 #include <QMetaType>
@@ -78,7 +79,7 @@ public:
     static PHIRC socketError( QAbstractSocket::SocketError err );
     static QString tag( const QString &tag, const QString &msg ); // fast extractor <tag>msg</tag>
     static QStringList properties( const QObject* );
-    static QString libVersion();
+    static const QString &libVersion();
     static void hsvToHsl( qreal h, qreal s, qreal v, qreal *hh, qreal *ss, qreal *ll );
     static void hslToHsv( qreal hh, qreal ss, qreal ll, qreal *h, qreal *s, qreal *v );
 
@@ -89,8 +90,8 @@ public:
     static QByteArray isoDateFormat();
     static QByteArray emailRegExp();
     static const QByteArray& phoneNumberRegExp();
-    static const QByteArray& mimeType();
-    static QByteArray mimeType( const QFileInfo &info );
+    static const QByteArray& phiMimeType();
+    static QByteArray mimeTypeForFile( const QFileInfo &info );
     static Qt::CursorShape toCursorShape( const QByteArray &s );
     static bool isUpToDate( const QString &localV, const QString &serverV );
     static QString toLocale( const QString &lang );
@@ -99,9 +100,14 @@ public:
     static QString createPngUuid();
     static QImage reflectedImage( const QImage &img, qreal off, qreal size );
     static QImage colorizedImage( const QImage &img, const QColor &c, qreal strength );
-    static QImage shadowedImage( const QImage &img, const QColor &color,
+    static QImage dropShadowedImage( const QImage &img, const QColor &color,
         qreal radius, qreal xOff, qreal yOff );
     static QImage bluredImage( const QImage &img, qreal radius );
+    static QPixmap colorizedPixmap( const QPixmap &pix, const QColor &c=QColor( Qt::black ), qreal strength=1. );
+    static QPixmap dropShadowedPixmap( const QPixmap &src, const QPointF &off=QPointF( 1., 2. ),
+        const QColor &c=QColor( 0, 0, 0, 220 ), qreal radius=3. );
+
+
     static void extractNumbers( const QByteArray &s, int &value, int &min, int &max, int &step );
     static void extractRealNumbers( const QByteArray &s, qreal &value, qreal &min, qreal &max,
         qreal &step, int &decimals );
@@ -177,7 +183,7 @@ inline const QByteArray& PHI::phoneNumberRegExp()
     return phone;
 }
 
-inline const QByteArray& PHI::mimeType()
+inline const QByteArray& PHI::phiMimeType()
 {
     static QByteArray mime=QByteArray::fromRawData( _phiMimeType, qstrlen( _phiMimeType ) );
     return mime;

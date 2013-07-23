@@ -40,159 +40,7 @@ const char* PHI::_phiMimeType="application/x-phi";
 const char* PHI::_emailRegExp="[A-Z0-9._%-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}";
 const char* PHI::_phoneNumberRegExp="[0-9+][0-9 ]{3,25}[0-9]";
 
-// Code of the templates are based on Qt's image rendering algorithm
-/*
-template <int shift>
-inline int phi_static_shift( int value )
-{
-    if ( shift==0 ) return value;
-    else if ( shift>0 ) return value << (uint(shift) & 0x1f);
-    else return value >> (uint(-shift) & 0x1f);
-}
-
-static const int phi_alphaIndex=(QSysInfo::ByteOrder==QSysInfo::BigEndian ? 0 : 3);
-
-template<int aprec, int zprec>
-inline void phi_blurinner_alphaOnly( uchar *bptr, int &z, int alpha )
-{
-    const int A_zprec = int(*(bptr)) << zprec;
-    const int z_zprec = z >> aprec;
-    z += alpha * (A_zprec - z_zprec);
-    *(bptr) = z >> (zprec + aprec);
-}
-
-template<int aprec, int zprec>
-inline void phi_blurinner( uchar *bptr, int &zR, int &zG, int &zB, int &zA, int alpha )
-{
-    QRgb *pixel = (QRgb*)bptr;
-
-#define PHI_Z_MASK (0xff << zprec)
-    const int A_zprec = phi_static_shift<zprec - 24>(*pixel) & PHI_Z_MASK;
-    const int R_zprec = phi_static_shift<zprec - 16>(*pixel) & PHI_Z_MASK;
-    const int G_zprec = phi_static_shift<zprec - 8>(*pixel)  & PHI_Z_MASK;
-    const int B_zprec = phi_static_shift<zprec>(*pixel)      & PHI_Z_MASK;
-#undef PHI_Z_MASK
-
-    const int zR_zprec = zR >> aprec;
-    const int zG_zprec = zG >> aprec;
-    const int zB_zprec = zB >> aprec;
-    const int zA_zprec = zA >> aprec;
-
-    zR += alpha * (R_zprec - zR_zprec);
-    zG += alpha * (G_zprec - zG_zprec);
-    zB += alpha * (B_zprec - zB_zprec);
-    zA += alpha * (A_zprec - zA_zprec);
-
-#define PHI_ZA_MASK (0xff << (zprec + aprec))
-    *pixel =
-        phi_static_shift<24 - zprec - aprec>(zA & PHI_ZA_MASK)
-        | phi_static_shift<16 - zprec - aprec>(zR & PHI_ZA_MASK)
-        | phi_static_shift<8 - zprec - aprec>(zG & PHI_ZA_MASK)
-        | phi_static_shift<-zprec - aprec>(zB & PHI_ZA_MASK);
-#undef PHI_ZA_MASK
-}
-
-template<int aprec, int zprec, bool alphaOnly>
-inline void phi_blurrow( QImage &im, int line, int alpha )
-{
-    uchar *bptr = im.scanLine(line);
-    int zR = 0, zG = 0, zB = 0, zA = 0;
-    if ( alphaOnly && im.format() != QImage::Format_Indexed8 )
-        bptr += phi_alphaIndex;
-    const int stride = im.depth() >> 3;
-    const int im_width = im.width();
-    for ( int index = 0; index < im_width; ++index ) {
-        if ( alphaOnly )
-            phi_blurinner_alphaOnly<aprec, zprec>(bptr, zA, alpha);
-        else
-            phi_blurinner<aprec, zprec>(bptr, zR, zG, zB, zA, alpha);
-        bptr += stride;
-    }
-    bptr -= stride;
-    for ( int index = im_width - 2; index >= 0; --index ) {
-        bptr -= stride;
-        if ( alphaOnly )
-            phi_blurinner_alphaOnly<aprec, zprec>(bptr, zA, alpha);
-        else
-            phi_blurinner<aprec, zprec>(bptr, zR, zG, zB, zA, alpha);
-    }
-}
-
-template <int aprec, int zprec, bool alphaOnly>
-void phi_expblur( QImage &img, qreal radius, bool improvedQuality=false, int transposed=0 )
-{
-    // half the radius if we're using two passes
-    if ( improvedQuality ) radius *= qreal(0.5);
-
-    Q_ASSERT( img.format() == QImage::Format_ARGB32_Premultiplied
-             || img.format() == QImage::Format_RGB32
-             || img.format() == QImage::Format_Indexed8 );
-
-    // choose the alpha such that pixels at radius distance from a fully
-    // saturated pixel will have an alpha component of no greater than
-    // the cutOffIntensity
-    const qreal cutOffIntensity = 2;
-    int alpha = radius <= qreal(1e-5)
-        ? ((1 << aprec)-1)
-        : qRound((1<<aprec)*(1 - qPow(cutOffIntensity * (1 / qreal(255)), 1 / radius)));
-    int img_height = img.height();
-    for (int row = 0; row < img_height; ++row) {
-        for (int i = 0; i <= static_cast<int>(improvedQuality); ++i)
-            phi_blurrow<aprec, zprec, alphaOnly>(img, row, alpha);
-    }
-    QImage temp(img.height(), img.width(), img.format());
-    if (transposed >= 0) {
-        if (img.depth() == 8) {
-            phi_memrotate270(reinterpret_cast<const quint8*>(img.bits()),
-                            img.width(), img.height(), img.bytesPerLine(),
-                            reinterpret_cast<quint8*>(temp.bits()),
-                            temp.bytesPerLine());
-        } else {
-            phi_memrotate270(reinterpret_cast<const quint32*>(img.bits()),
-                            img.width(), img.height(), img.bytesPerLine(),
-                            reinterpret_cast<quint32*>(temp.bits()),
-                            temp.bytesPerLine());
-        }
-    } else {
-        if (img.depth() == 8) {
-            phi_memrotate90(reinterpret_cast<const quint8*>(img.bits()),
-                           img.width(), img.height(), img.bytesPerLine(),
-                           reinterpret_cast<quint8*>(temp.bits()),
-                           temp.bytesPerLine());
-        } else {
-            phi_memrotate90(reinterpret_cast<const quint32*>(img.bits()),
-                           img.width(), img.height(), img.bytesPerLine(),
-                           reinterpret_cast<quint32*>(temp.bits()),
-                           temp.bytesPerLine());
-        }
-    }
-    img_height = temp.height();
-    for (int row = 0; row < img_height; ++row) {
-        for (int i = 0; i <= static_cast<int>(improvedQuality); ++i)
-            phi_blurrow<aprec, zprec, alphaOnly>(temp, row, alpha);
-    }
-
-    if (transposed == 0) {
-        phi_memrotate90( reinterpret_cast<const quint32*>(temp.bits()),
-           temp.width(), temp.height(), temp.bytesPerLine(),
-           reinterpret_cast<quint32*>(img.bits()),
-           img.bytesPerLine() );
-    } else {
-        img = temp;
-    }
-}
-
-void phi_blurImage( QImage &blurImage, qreal radius, bool quality, int transposed=0 )
-{
-    if ( blurImage.format() == QImage::Format_Indexed8 )
-        phi_expblur<12, 10, true>( blurImage, radius, quality, transposed );
-    else
-        phi_expblur<12, 10, false>( blurImage, radius, quality, transposed );
-}
-
-*/
-
-QString PHI::libVersion()
+const QString& PHI::libVersion()
 {
     static QString ver=QString::fromLatin1( PHIVERSION );
     return ver;
@@ -209,7 +57,7 @@ QStringList PHI::properties( const QObject *obj )
     return properties;
 }
 
-QByteArray PHI::mimeType( const QFileInfo &file )
+QByteArray PHI::mimeTypeForFile( const QFileInfo &file )
 {
     static QMimeDatabase db;
     static QString phis=QString::fromLatin1( "phis" );
@@ -300,44 +148,6 @@ void PHI::hslToHsv( qreal hh, qreal ss, qreal ll, qreal *h, qreal *s, qreal *v )
 }
 
 /*
-QDateTime PHI::dateTimeFromHeader( const QByteArray &modified )
-{
-    QByteArray tmp=modified.mid( 5 ), arr;
-    if ( tmp.endsWith( " GMT" ) ) arr=tmp.left( tmp.length()-4 );
-    else arr=tmp;
-    tmp=arr.right( 8 );
-    QTime time=QTime::fromString( QString::fromLatin1( tmp ), QStringLiteral( "hh:mm:ss" ) ).addMSecs( 999 );
-    if ( !time.isValid() ) {
-        qDebug( "------------------>>>> If-Modified-Since is invalid" );
-        return QDateTime( QDate( 1970, 1, 1 ) );
-    }
-    if ( arr.length()==20 ) {
-        tmp=arr.left( 2 );
-        arr.remove( 0, 3 );
-    } else {
-        tmp=arr.left( 1 );
-        arr.remove( 0, 2 );
-    }
-    arr.chop( 9 );
-    int d=tmp.toInt();
-    int y=arr.right( 4 ).toInt();
-    int m=1;
-    arr.chop( 5 );
-    if ( arr=="Feb" ) m=2;
-    else if ( arr=="Mar" ) m=3;
-    else if ( arr=="Apr" ) m=4;
-    else if ( arr=="May" ) m=5;
-    else if ( arr=="Jun" ) m=6;
-    else if ( arr=="Jul" ) m=7;
-    else if ( arr=="Aug" ) m=8;
-    else if ( arr=="Sep" ) m=9;
-    else if ( arr=="Oct" ) m=10;
-    else if ( arr=="Nov" ) m=11;
-    else if ( arr=="Dec" ) m=12;
-    //qDebug( "DATETIME %s", qPrintable( QDateTime( QDate( y, m, d ), time, Qt::UTC ).toString() ) );
-    return QDateTime( QDate ( y, m, d ), time, Qt::UTC );
-}
-
 QString PHI::getLocalFilePath( const QString &docroot, const QString &referer, const QString &filename )
 {
     // we have an absolute file path related to documentroot:
@@ -399,7 +209,6 @@ QImage PHI::bluredImage( const QImage &img, qreal radius )
     f.setRadius( radius );
     f.setBlurHints( QGraphicsBlurEffect::QualityHint );
     QRect r=f.boundingRectFor( img.rect() ).toAlignedRect();
-    qDebug() << r;
     QImage dest=QImage( r.width(), r.height(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
     QPainter p( &dest );
@@ -408,7 +217,7 @@ QImage PHI::bluredImage( const QImage &img, qreal radius )
     return dest;
 }
 
-QImage PHI::shadowedImage( const QImage &img, const QColor &color, qreal radius,
+QImage PHI::dropShadowedImage( const QImage &img, const QColor &color, qreal radius,
     qreal xOff, qreal yOff )
 {
     if ( radius <=1. ) return img;
@@ -417,43 +226,12 @@ QImage PHI::shadowedImage( const QImage &img, const QColor &color, qreal radius,
     f.setColor( color );
     f.setOffset( xOff, yOff );
     QRect r=f.boundingRectFor( img.rect() ).toAlignedRect();
-    qDebug() << r;
     QImage dest=QImage( r.width(), r.height(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
     QPainter p( &dest );
     f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
     p.end();
     return dest;
-    /*
-    QImage tmp=bluredImage( img, radius, 1.3 );
-    QPainter tmpPainter( &tmp );
-    //qDebug( "bluring org %d %d, new %d %d", img.width(), img.height(), tmp.width(), tmp.height() );
-
-    // blacken the image...
-    tmpPainter.setCompositionMode( QPainter::CompositionMode_SourceIn );
-    tmpPainter.fillRect( tmp.rect(), color );
-    tmpPainter.end();
-
-    if ( radius<=1. ) radius=0;
-    QImage dest=QImage( img.width()+qAbs(static_cast<int>(xOff))+2*radius, img.height()
-            +qAbs(static_cast<int>(yOff))+2*radius, QImage::Format_ARGB32_Premultiplied );
-    dest.fill( 0 );
-    QPainter destPainter( &dest );
-    qreal xoff=0, yoff=0;
-    if ( xOff>0 ) xoff=xOff;
-    if ( yOff>0 ) yoff=yOff;
-    // draw the blurred drop shadow...
-    destPainter.drawImage( xoff, yoff, tmp );
-
-    if ( xOff>=0 ) xoff=radius;
-    else xoff=-xOff+radius;
-    if ( yOff>=0 ) yoff=radius;
-    else yoff=-yOff+radius;
-    // Draw the actual pixmap...
-    destPainter.drawImage( xoff, yoff, img );
-    destPainter.end();
-    return dest;
-    */
 }
 
 QImage PHI::colorizedImage( const QImage &img, const QColor &c, qreal strength )
@@ -462,11 +240,39 @@ QImage PHI::colorizedImage( const QImage &img, const QColor &c, qreal strength )
     f.setColor( c );
     f.setStrength( strength );
     QRect r=f.boundingRectFor( img.rect() ).toAlignedRect();
-    qDebug() << r;
     QImage dest=QImage( r.width(), r.height(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
     QPainter p( &dest );
     f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
+    p.end();
+    return dest;
+}
+
+QPixmap PHI::colorizedPixmap( const QPixmap &src, const QColor &c, qreal strength )
+{
+    QPixmapColorizeFilter f;
+    f.setColor( c );
+    f.setStrength( strength );
+    QRect r=f.boundingRectFor( QRectF( QPointF(), QSize( src.width(), src.height() ) ) ).toAlignedRect();
+    QPixmap dest( r.width(), r.height() );
+    dest.fill( Qt::transparent );
+    QPainter p( &dest );
+    f.draw( &p, QPointF(), src );
+    p.end();
+    return dest;
+}
+
+QPixmap PHI::dropShadowedPixmap( const QPixmap &src, const QPointF &off, const QColor &c, qreal radius )
+{
+    QPixmapDropShadowFilter f;
+    f.setOffset( off );
+    f.setBlurRadius( radius );
+    f.setColor( c );
+    QRect r=f.boundingRectFor( QRectF( QPointF(), QSize( src.width(), src.height() ) ) ).toAlignedRect();
+    QPixmap dest( r.width(), r.height() );
+    dest.fill( Qt::transparent );
+    QPainter p( &dest );
+    f.draw( &p, QPointF(), src );
     p.end();
     return dest;
 }

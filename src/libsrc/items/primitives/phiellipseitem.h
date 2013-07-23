@@ -33,7 +33,7 @@ public:
     inline virtual PHIWID wid() const { return Ellipse; }
     virtual QString listName() const { return tr( "Ellipse" ); }
     virtual QString description() const { return tr( "Draws an ellipse, pie or circle" ); }
-    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/editor/images/elements/ellipse" ) ); }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/ellipse" ) ); }
 
 public slots:
     inline void setStartAngle( qint16 a ) { _variants.insert( DStartAngle, a ); }

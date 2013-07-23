@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/items">
-        <file>images/address.png</file>
+        <file alias="address">images/address.png</file>
         <file>images/button.png</file>
         <file>images/calendar.png</file>
         <file>images/check_box_list.png</file>
@@ -8,7 +8,7 @@
         <file>images/contact.png</file>
         <file>images/credit_card.png</file>
         <file>images/date_edit.png</file>
-        <file>images/ellipse.png</file>
+        <file alias="ellipse">images/ellipse.png</file>
         <file>images/file_upload_button.png</file>
         <file>images/graphical_text.png</file>
         <file>images/hidden_field.png</file>
@@ -17,14 +17,14 @@
         <file>images/image.png</file>
         <file>images/label.png</file>
         <file>images/language_selection.png</file>
-        <file>images/line_edit.png</file>
-        <file>images/list_box.png</file>
+        <file alias="lineedit">images/line_edit.png</file>
+        <file alias="listbox">images/list_box.png</file>
         <file>images/login.png</file>
         <file>images/multi_line_edit.png</file>
         <file>images/password.png</file>
         <file>images/period.png</file>
-        <file>images/radio_button.png</file>
-        <file>images/rect.png</file>
+        <file alias="radiobutton">images/radio_button.png</file>
+        <file alias="rect">images/rect.png</file>
         <file>images/register_user.png</file>
         <file>images/reset_button.png</file>
         <file>images/rich_text_layouted.png</file>

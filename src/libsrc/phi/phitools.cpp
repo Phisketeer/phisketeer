@@ -13,29 +13,23 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PHIINPUTITEMS_H
-#define PHIINPUTITEMS_H
-#include "phiwidgetitem.h"
+#include "phitools.h"
 
-class PHILineEditItem : public PHIWidgetItem
+PHIIcon::PHIIcon( const char *name, const QColor &c )
+    : QIcon( PHI::dropShadowedPixmap( QPixmap( L1( name ) ), QPointF( 1., 2. ) ) )
 {
-    Q_OBJECT
+    QPixmap pix( PHI::colorizedPixmap( QPixmap( L1( name ) ), c ) );
+    addPixmap( pix, QIcon::Disabled, QIcon::Off );
+    addPixmap( pix, QIcon::Disabled, QIcon::On );
+}
 
-public:
-    enum Wid { LineEdit=1 };
-    explicit PHILineEditItem( Type type, PHIBasePage *page );
-    virtual QString listName() const { return tr( "Lineedit" ); }
-    virtual QString description() const { return tr( "Line edit with input type <text>" ); }
-    virtual PHIWID wid() const { return LineEdit; }
-    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
-
-signals:
-    
-public slots:
-    
-};
-
-#endif // PHIINPUTITEMS_H
+PHIIcon::PHIIcon( const QPixmap &src, const QColor &c )
+    : QIcon( PHI::dropShadowedPixmap( src, QPointF( 1., 2. ) ) )
+{
+    QPixmap pix( PHI::colorizedPixmap( src, c ) );
+    addPixmap( pix, QIcon::Disabled, QIcon::Off );
+    addPixmap( pix, QIcon::Disabled, QIcon::On );
+}

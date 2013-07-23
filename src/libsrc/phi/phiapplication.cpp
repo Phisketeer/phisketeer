@@ -159,7 +159,8 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
         _settings=_serverSettings;
     } else {
         PHIPrivateApplication *pApp=new PHIPrivateApplication( argc, argv );
-        connect( pApp, SIGNAL(openFileRequest(QString)), this, SIGNAL(openFileRequest(QString)) );
+        connect( pApp, &PHIPrivateApplication::openFileRequest,
+            this, &PHIApplication::openFileRequest, Qt::QueuedConnection );
         _app=pApp;
 #ifdef Q_OS_MAC
         _settings=new QSettings( QSettings::UserScope, domain, objectName(), this );
@@ -222,7 +223,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qWarning( "Tmp dir: %s", qPrintable( _tmpPath ) );
     qWarning( "Cache dir: %s", qPrintable( _cachePath ) );
 #endif
-
+    _usrDocPath=QStandardPaths::writableLocation( QStandardPaths::DocumentsLocation );
     loadTranslations();
     new PHIItemFactory( _itemsPath, this );
 }

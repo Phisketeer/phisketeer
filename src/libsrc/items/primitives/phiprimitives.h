@@ -38,7 +38,7 @@ public:
     virtual PHIBaseItem* create( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
-    virtual QString category() const { return tr( "Primitives" ); }
+    virtual QString category() const { return tr( "Shapes" ); }
 };
 
 inline PHIBaseItem* PHIPrimitives::create( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const

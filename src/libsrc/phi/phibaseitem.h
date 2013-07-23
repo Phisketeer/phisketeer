@@ -20,7 +20,6 @@
 #define PHIBASEITEM_H
 
 #include <QObject>
-
 /*
 #include "phieffect.h"
 */
@@ -28,11 +27,14 @@
 #include <QScriptEngine>
 #include <QDataStream>
 #include <QGraphicsProxyWidget>
+#include <QPixmap>
 #include "phi.h"
 #include "phipalette.h"
 
 class QGraphicsSceneEvent;
 class PHIBasePage;
+class PHISRequest;
+class PHISDataParser;
 
 class PHIEXPORT PHIBaseItem : public QObject
 {
@@ -163,11 +165,22 @@ public slots: // usable by script engine
     QStringList properties() const;
 
 protected:
-    //virtual void squeeze()=0;
     virtual void loadItemData( QDataStream &in, quint8 version );
     virtual void saveItemData( QDataStream &out, quint8 version ) const;
     virtual void loadEditorData( QDataStream &in, quint8 version );
     virtual void saveEditorData( QDataStream &out, quint8 version ) const;
+
+    // Phis server related members
+    // create all cached language dependend images and transformed images and free memory:
+    virtual void squeeze( const PHISRequest* const req );
+    // create a srtict HTML 4 for old browser versions:
+    virtual void strictHtml( const PHISRequest* const req, QByteArray &out, const QByteArray &indent );
+    // create new HTML5 content:
+    virtual void html5( const PHISRequest* const req, QByteArray &out, const QByteArray &indent );
+    // create jQuery related stuff, like onclick and other handlers:
+    virtual void jQuery( const PHISRequest* const req, QByteArray &out );
+    // create all none dynamic CSS styles:
+    virtual void css( const PHISRequest* const req, QByteArray &out );
 
     // IDE related members
     inline QWidget* widget() const { if ( _gw ) return _gw->widget(); return 0; }

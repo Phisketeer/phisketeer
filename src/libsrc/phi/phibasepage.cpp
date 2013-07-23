@@ -17,23 +17,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "phibasepage.h"
-#include "phidatasources.h"
 #include "phibaseitem.h"
 #include "phiitemfactory.h"
-
-class PHIDynPageData
-{
-public:
-    PHIDynPageData();
-    ~PHIDynPageData();
-    PHIDynPageData( const PHIDynPageData& );
-    PHIDynPageData& operator=( const PHIDynPageData& );
-
-    PHITextData *_title, *_styleSheet, *_author, *_version, *_company, *_copyright, *_template,
-        *_javascript, *_serverscript, *_action, *_keys, *_sessionRedirect, *_description,
-        *_opengraph;
-    PHIImageData *_bgImage;
-};
 
 PHIDynPageData::PHIDynPageData()
 {

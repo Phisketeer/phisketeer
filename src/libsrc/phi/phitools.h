@@ -13,29 +13,20 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PHIINPUTITEMS_H
-#define PHIINPUTITEMS_H
-#include "phiwidgetitem.h"
+#ifndef PHITOOLS_H
+#define PHITOOLS_H
+#include <QIcon>
+#include <QColor>
+#include "phi.h"
 
-class PHILineEditItem : public PHIWidgetItem
+class PHIEXPORT PHIIcon : public QIcon
 {
-    Q_OBJECT
-
 public:
-    enum Wid { LineEdit=1 };
-    explicit PHILineEditItem( Type type, PHIBasePage *page );
-    virtual QString listName() const { return tr( "Lineedit" ); }
-    virtual QString description() const { return tr( "Line edit with input type <text>" ); }
-    virtual PHIWID wid() const { return LineEdit; }
-    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
-
-signals:
-    
-public slots:
-    
+    explicit PHIIcon( const char *name, const QColor &disabled=QColor( Qt::black ) );
+    explicit PHIIcon( const QPixmap &pix, const QColor &disabled=QColor( Qt::black ) );
 };
 
-#endif // PHIINPUTITEMS_H
+#endif // PHITOOLS_H
