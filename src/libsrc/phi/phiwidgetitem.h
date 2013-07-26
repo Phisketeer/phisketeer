@@ -29,9 +29,9 @@ class PHIWidgetItem : public PHIBaseItem
 public:
     explicit PHIWidgetItem( Type type, PHIBasePage *page );
     
-protected:
+public:
     virtual bool isFocusable() const { return true; }
-
+    virtual bool hasText() const { return true; }
 signals:
     
 public slots:

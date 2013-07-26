@@ -44,7 +44,8 @@ HEADERS += phi.h \
     phipagemenuentry.h \
     phiitemstylecss.h \
     phisrequest.h \
-    phitools.h
+    phitools.h \
+    phiundo.h
 SOURCES += phi.cpp \
     phiitem.cpp \
     phisitem.cpp \
@@ -72,7 +73,8 @@ SOURCES += phi.cpp \
     phipagemenuentry.cpp \
     phiitemstylecss.cpp \
     phisrequest.cpp \
-    phitools.cpp
+    phitools.cpp \
+    phiundo.cpp
 
 VERSION = 2.0.0
 include( ../../../phiconf.pri )

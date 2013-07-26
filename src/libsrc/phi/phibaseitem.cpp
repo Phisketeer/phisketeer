@@ -96,10 +96,14 @@ QStringList PHIBaseItem::properties() const
 void PHIBaseItem::setFont( const QFont &font )
 {
     Q_ASSERT( parent() );
-    QFont f=qobject_cast<PHIBasePage*>(parent())->font();
-    f.resolve( font );
-    _variants.insert( DFont, f );
-    if ( _gw ) _gw->setFont( f );
+    QFont pf=qobject_cast<PHIBasePage*>(parent())->font();
+    if ( pf==font ) {
+        _variants.remove( DFont );
+        if ( _gw ) _gw->setFont( pf );
+        return;
+    }
+    _variants.insert( DFont, font );
+    if ( _gw ) _gw->setFont( font );
 }
 
 QFont PHIBaseItem::font() const
@@ -114,11 +118,10 @@ void PHIBaseItem::paletteColorChange( PHIPalette::ColorRole role, const QColor &
     Q_UNUSED( color )
 }
 
-void PHIBaseItem::setColor( PHIPalette::ColorRole role, const QColor &color, quint8 percent )
+void PHIBaseItem::setColor( PHIPalette::ColorRole role, const QColor &color )
 {
     Q_UNUSED( role )
     Q_UNUSED( color )
-    Q_UNUSED( percent )
 }
 
 QRectF PHIBaseItem::boundingRect() const
@@ -225,6 +228,8 @@ bool PHIBaseItem::sceneEvent( QEvent *e )
             return false;
         case QEvent::GraphicsSceneMouseRelease:
             return false;
+        case QEvent::KeyPress:
+            return ideKeyPressEvent( static_cast<QKeyEvent*>(e) );
         default:;
         }
     }
@@ -243,26 +248,38 @@ bool PHIBaseItem::ideResizeEvent( QGraphicsSceneResizeEvent *e )
 bool PHIBaseItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
 {
     qDebug( "ide drag enter" );
-    //e->setDropAction( Qt::IgnoreAction );
-    e->ignore();
+    e->setDropAction( Qt::CopyAction );
+    e->accept();
     return true;
 }
 
 bool PHIBaseItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
 {
     //qDebug( "idedragmove" );
+    if ( e->isAccepted() ) qDebug( "baseitem::ideDragMove isaccepted" );
+    else qDebug( "baseitem::ideDragMove is not accepted" );
     return true;
 }
 
 bool PHIBaseItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
 {
     qDebug( "ide drag leave" );
+    if ( e->isAccepted() ) qDebug( "baseitem::ideDragLeave isaccepted" );
+    else qDebug( "baseitem::ideDragLeave is not accepted" );
     return true;
 }
 
 bool PHIBaseItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
 {
-    qDebug( "ide drop" );
+    if ( e->isAccepted() ) qDebug( "baseitem::ideDrop isaccepted" );
+    else qDebug( "baseitem::ideDrop is not accepted" );
+    return true;
+}
+
+bool PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
+{
+    qDebug( "key %d", e->key() );
+    e->ignore();
     return true;
 }
 

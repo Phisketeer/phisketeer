@@ -32,6 +32,7 @@
 #include "phipalette.h"
 
 class QGraphicsSceneEvent;
+class QKeyEvent;
 class PHIBasePage;
 class PHISRequest;
 class PHISDataParser;
@@ -108,16 +109,20 @@ public: // not usable by script engine
     QFont font() const;
 
     //virtual functions
+    inline virtual bool hasText() const { return false; }
+    inline virtual bool hasImage() const { return false; }
+    inline virtual bool hasImages() const { return false; }
     inline virtual bool isFocusable() const { return false; }
     inline virtual bool isInputItem() const { return false; }
     inline virtual bool isLayoutItem() const { return false; }
     inline virtual bool widthChangeable() const { return true; }
     inline virtual bool heightChangeable() const { return true; }
     inline virtual QRectF rect() const { return QRectF( QPointF(), size() ); }
+    inline virtual QColor color( PHIPalette::ColorRole ) const { return QColor(); }
 
     virtual PHIWID wid() const=0;
     virtual void setFont( const QFont &font );
-    virtual void setColor( PHIPalette::ColorRole role, const QColor &color, quint8 percent=100 );
+    virtual void setColor( PHIPalette::ColorRole role, const QColor &color );
     virtual void paletteColorChange( PHIPalette::ColorRole role, const QColor &color );
 
     // IDE related members
@@ -147,13 +152,8 @@ public slots: // usable by script engine
     inline QString parentName() const { return QString::fromLatin1( _parentId ); }
     inline PHIWID type() const { return wid(); }
 
-    inline void setX( qreal x ) { _x=x; if ( _gw ) _gw->setX( x ); }
-    inline void setY( qreal y ) { _y=y; if ( _gw ) _gw->setY( y ); }
-    inline void setWidth( qreal w ) { _width=w; if ( _gw ) _gw->resize( _width, _height ); }
-    inline void setHeight( qreal h ) { _height=h; if ( _gw ) _gw->resize( _width, _height ); }
-    inline void setPos( const QPointF &p ) { _x=p.x(); _y=p.y(); if ( _gw ) _gw->setPos( p ); }
-    inline void resize( qreal w, qreal h ) { _width=w; _height=h; if ( _gw ) _gw->resize( w, h ); }
-    inline void resize( const QSizeF &s ) { _width=s.width(); _height=s.height(); if ( _gw ) _gw->resize( s ); }
+    inline void setX( qreal x ) { if ( _x==x ) return; _x=x; if ( _gw ) _gw->setX( x ); }
+    inline void setY( qreal y ) { if ( _y==y ) return; _y=y; if ( _gw ) _gw->setY( y ); }
     inline void setOpacity( qreal o ) { o=qBound( 0., o, 1. ); _variants.insert( DOpacity, o ); if ( _gw ) _gw->setOpacity( o ); }
     inline void setTitle( const QString &t ) { _variants.insert( DTitle, t.toUtf8() ); if ( _gw ) _gw->setToolTip( t ); }
     inline void setParentName( const QString &n ) { _parentId=n.toLatin1(); }
@@ -163,6 +163,11 @@ public slots: // usable by script engine
     inline virtual bool isDroppable() const { return false; }
 
     QStringList properties() const;
+    void setWidth( qreal w );
+    void setHeight( qreal h );
+    void setPos( const QPointF &p );
+    void resize( qreal w, qreal h );
+    void resize( const QSizeF &s );
 
 protected:
     virtual void loadItemData( QDataStream &in, quint8 version );
@@ -208,6 +213,7 @@ protected:
     virtual bool ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual bool ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual bool ideResizeEvent( QGraphicsSceneResizeEvent *event );
+    virtual bool ideKeyPressEvent( QKeyEvent *event );
     //virtual void ideHoverEnterEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverMoveEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
@@ -239,6 +245,44 @@ PHIEXPORT void baseItemFromScriptValue( const QScriptValue&, PHIBaseItem* &out )
 inline void baseItemFromScriptValue( const QScriptValue &obj, PHIBaseItem* &it )
 {
     it=qobject_cast<PHIBaseItem*>(obj.toQObject());
+}
+
+inline void PHIBaseItem::setWidth( qreal w )
+{
+    if ( w==_width ) return;
+    _width=w;
+    if ( _gw ) _gw->resize( _width, _height );
+}
+
+inline void PHIBaseItem::setHeight( qreal h )
+{
+    if ( h==_height ) return;
+    _height=h;
+    if ( _gw ) _gw->resize( _width, _height );
+}
+
+inline void PHIBaseItem::setPos( const QPointF &p )
+{
+    if ( p==pos() ) return;
+    _x=p.x();
+    _y=p.y();
+    if ( _gw ) _gw->setPos( p );
+}
+
+inline void PHIBaseItem::resize( qreal w, qreal h )
+{
+    if ( w==_width && h==_height ) return;
+    _width=w;
+    _height=h;
+    if ( _gw ) _gw->resize( w, h );
+}
+
+inline void PHIBaseItem::resize( const QSizeF &s )
+{
+    if ( s==size() ) return;
+    _width=s.width();
+    _height=s.height();
+    if ( _gw ) _gw->resize( s );
 }
 
 /*

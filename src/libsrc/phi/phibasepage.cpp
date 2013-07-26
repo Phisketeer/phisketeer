@@ -134,15 +134,19 @@ QList <PHIBaseItem*> PHIBasePage::items() const
     return findChildren<PHIBaseItem*>();
 }
 
+/*
 PHIBaseItem* PHIBasePage::findItem( const QString &id ) const
 {
-    QList <PHIBaseItem*> list=findChildren<PHIBaseItem*>();
+    return findChild<PHIBaseItem*>(id);
+    if ( list.isEmpty() ) return 0;
+    return list.first();
     PHIBaseItem *it;
     foreach( it, list ) {
         if ( it->name()==id ) return it;
     }
     return 0;
 }
+*/
 
 // only available for Serverscript:
 bool PHIBasePage::removeElementById( const QString &id )
@@ -173,6 +177,11 @@ quint16 PHIBasePage::itemCount() const
     return static_cast<quint16>(findChildren<PHIBaseItem*>().count());
 }
 
+PHIBaseItem* PHIBasePage::findItem( const QString &id ) const
+{
+    return findChild<PHIBaseItem*>(id);
+}
+
 QStringList PHIBasePage::itemIds() const
 {
     QStringList ids;
@@ -182,6 +191,17 @@ QStringList PHIBasePage::itemIds() const
     return ids;
 }
 
+QString PHIBasePage::nextFreeId( const QString &requestedId ) const
+{
+    PHIBaseItem *it=findChild<PHIBaseItem*>(requestedId);
+    if ( !it ) return requestedId;
+    int i=1;
+    QString id=requestedId+L1( "_" )+QString::number( ++i );
+    while ( findChild<PHIBaseItem*>(id) ) {
+        id=requestedId+L1( "_" )+QString::number( ++i );
+    }
+    return id;
+}
 /*
 PHIBasePage::PHIBasePage( const PHIPage &p, QObject *parent )
     : QObject( parent ), PHIPage( p )

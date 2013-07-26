@@ -1,0 +1,632 @@
+/*
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
+*/
+#include <QObject>
+#include "phiundo.h"
+#include "phibaseitem.h"
+#include "phibasepage.h"
+#include "phigraphicsscene.h"
+#include "phiitemfactory.h"
+//#include "phieffects.h"
+
+#define UT(s) QString( L1( " <%1>" ) ).arg( s )
+
+PHIUndoCommand::PHIUndoCommand( PHIBaseItem *it )
+    : QUndoCommand( 0 ), _it( it )
+{
+}
+
+PHIUndoMove::PHIUndoMove( PHIBaseItem *it, const QPointF &oldPos )
+    : PHIUndoCommand( it ), _oldPos( oldPos )
+{
+    qDebug( "PHIUndoMove::PHIUndoMove()" );
+    setText( QObject::tr( "Move" )+UT( it->name() ) );
+    _newPos=it->pos();
+}
+
+bool PHIUndoMove::mergeWith( const QUndoCommand *other )
+{
+    const PHIUndoMove *o=dynamic_cast<const PHIUndoMove*>(other);
+    Q_ASSERT( o );
+    if ( item()!=o->item() ) return false;
+    _newPos=o->_newPos;
+    return true;
+}
+
+void PHIUndoMove::undo()
+{
+    item()->setPos( _oldPos );
+}
+
+void PHIUndoMove::redo()
+{
+    item()->setPos( _newPos );
+}
+
+PHIUndoColor::PHIUndoColor( PHIBaseItem *it, PHIPalette::ColorRole role, const QColor &newCol )
+    : PHIUndoCommand( it ), _role( role ), _newCol( newCol )
+{
+    qDebug( "PHIUndoColor::PHIUndoColor()" );
+    if ( role==PHIPalette::Background )
+        setText( QObject::tr( "BG color" )+UT( it->name() ) );
+    else setText( QObject::tr( "FG color" )+UT( it->name() ) );
+    _oldCol=it->color( role );
+}
+
+bool PHIUndoColor::mergeWith( const QUndoCommand *other )
+{
+    const PHIUndoColor *o=dynamic_cast<const PHIUndoColor*>(other);
+    Q_ASSERT( o );
+    if ( item()!=o->item() ) return false;
+    if ( _role!=o->_role ) return false;
+    _newCol=o->_newCol;
+    return true;
+}
+
+void PHIUndoColor::undo()
+{
+    item()->setColor( _role, _oldCol );
+}
+
+void PHIUndoColor::redo()
+{
+    item()->setColor( _role, _newCol );
+}
+
+PHIUndoAdd::PHIUndoAdd( PHIBaseItem *it, PHIGraphicsScene *scene )
+    : PHIUndoCommand( it ), _scene( scene )
+{
+    qDebug( "PHIUndoAdd::PHIUndoAdd()" );
+    setText( QObject::tr( "Add" )+UT( it->name() ) );
+}
+
+PHIUndoAdd::~PHIUndoAdd()
+{
+    qDebug( "PHIUndoAdd::~PHIUndoAdd()" );
+}
+
+void PHIUndoAdd::undo()
+{
+    item()->setParent( _scene ); // reparent to scene
+    _scene->removeItem( item()->graphicsWidget() );
+    /*
+    bool layoutChanged=false;
+    if ( PHI::isLayoutContainer( item()->wid() ) ) {
+        SAbstractLayoutItem *l=qobject_cast<SAbstractLayoutItem*>(item());
+        Q_ASSERT( l );
+        l->breakLayout();
+        PHIBaseItem *it;
+        foreach ( it, _childItems ) {
+            QRectF p=_childRects.value( it );
+            it->setPos( p.x(), p.y() );
+            it->setWidth( p.width() );
+            it->setHeight( p.height() );
+            //it->setMoving( false );
+        }
+        layoutChanged=true;
+    }
+    item()->scene()->removePHIBaseItem( item() );
+    item()->setDeleted( true );
+    if ( layoutChanged ) item()->scene()->updateItemIds( layoutChanged );
+    */
+}
+
+void PHIUndoAdd::redo()
+{
+    item()->setParent( _scene->page() );
+    _scene->addItem( item()->graphicsWidget() );
+    /*
+    item()->setDeleted( false );
+    item()->scene()->addPHIBaseItem( item() );
+    bool layoutChanged=false;
+    if ( PHI::isLayoutContainer( item()->wid() ) ) {
+        SAbstractLayoutItem *l=qobject_cast<SAbstractLayoutItem*>(item());
+        Q_ASSERT( l );
+        PHIBaseItem *it;
+        //qDebug( "layout %s children %d", qPrintable( item()->id() ), _childItems.count() );
+        foreach ( it, _childItems ) {
+            //it->setMoving( false );
+            _childRects.insert( it, QRectF( it->x(), it->y(), it->width(), it->height() ) );
+            //qDebug( "add PHIBaseItem %s", qPrintable( it->id() ) );
+            l->addPHIBaseItem( it );
+            it->setDeleted( false );
+        }
+        l->activate();
+        layoutChanged=true;
+    }
+    // item()->setSelected( true );
+    qDebug( "ADD %s %s", qPrintable( item()->id() ), qPrintable( item()->parent() ) );
+    //item()->setFocusItem();
+    if ( layoutChanged ) item()->scene()->updateItemIds( layoutChanged );
+    */
+}
+
+PHIUndoDelete::PHIUndoDelete( PHIBaseItem* it, PHIGraphicsScene *scene )
+    : PHIUndoCommand( it ), _scene( scene )
+{
+    qDebug( "PHIUndoDelete::PHIUndoDelete()" );
+    setText( QObject::tr( "Delete" )+UT( it->name() ) );
+    /*
+    if ( PHI::isLayoutContainer( item()->wid() ) ) {
+        SAbstractLayoutItem *l=qobject_cast<SAbstractLayoutItem*>(item());
+        Q_ASSERT( l );
+        _childItems=l->children();
+    }
+    */
+}
+
+void PHIUndoDelete::undo()
+{
+    item()->setParent( _scene->page() );
+    _scene->addItem( item()->graphicsWidget() );
+    /*
+    item()->setDeleted( false );
+    item()->scene()->addPHIBaseItem( item() );
+    bool layoutChanged=false;
+    if ( PHI::isLayoutContainer( item()->wid() ) ) {
+        SAbstractLayoutItem *l=qobject_cast<SAbstractLayoutItem*>(item());
+        Q_ASSERT( l );
+        //l->setMoving( false );
+        PHIBaseItem *it;
+        foreach ( it, _childItems ) {
+            //it->setMoving( false );
+            l->addPHIBaseItem( it );
+            it->setDeleted( false );
+        }
+        l->activate();
+        //l->setPos( _containerRect.x(), _containerRect.y() );
+        l->setWidth( _containerRect.width() );
+        l->setHeight( _containerRect.height() );
+        layoutChanged=true;
+    }
+    // item()->setSelected( true );
+    item()->setFocusItem();
+    item()->scene()->updateItemIds( layoutChanged );
+    */
+}
+
+void PHIUndoDelete::redo()
+{
+    item()->setParent( _scene );
+    _scene->removeItem( item()->graphicsWidget() );
+    /*
+    bool layoutChanged=false;
+    if ( PHI::isLayoutContainer( item()->wid() ) ) {
+        SAbstractLayoutItem *l=qobject_cast<SAbstractLayoutItem*>(item());
+        Q_ASSERT( l );
+        _containerRect=QRectF( l->x(), l->y(), l->width(), l->height() );
+        //l->setMoving( false );
+        _childItems=l->children();
+        PHIBaseItem *it;
+        foreach ( it, _childItems ) {
+            //it->setMoving( false );
+        }
+        l->breakLayout();
+        layoutChanged=true;
+    }
+    item()->scene()->removePHIBaseItem( item() );
+    item()->setDeleted( true );
+    item()->scene()->updateItemIds( layoutChanged );
+    */
+}
+
+PHIUndoSize::PHIUndoSize( PHIBaseItem *it, const QSizeF &oldSize )
+    : PHIUndoCommand( it ), _oldSize( oldSize )
+{
+    qDebug( "PHIUndoSize::PHIUndoSize()" );
+    setText( QObject::tr( "Size" )+UT( it->name() ) );
+    _newSize=it->size();
+}
+
+bool PHIUndoSize::mergeWith( const QUndoCommand *other )
+{
+    const PHIUndoSize *o=dynamic_cast<const PHIUndoSize*>(other);
+    Q_ASSERT( o );
+    if ( item()!=o->item() ) return false;
+    _newSize=o->item()->size();
+    return true;
+}
+
+void PHIUndoSize::undo()
+{
+    item()->resize( _oldSize );
+}
+
+void PHIUndoSize::redo()
+{
+    item()->resize( _newSize );
+}
+
+/*
+PHIUndoUrl::PHIUndoUrl( PHIBaseItem *it, const QString &oldUrl, const QString &newUrl )
+    : PHIUndoCommand( it ), _oldUrl( oldUrl ), _newUrl( newUrl )
+{
+    qDebug( "PHIUndoUrl::PHIUndoUrl()" );
+}
+
+PHIUndoUrl::~PHIUndoUrl()
+{
+    qDebug( "PHIUndoUrl::PHIUndoUrl()" );
+}
+
+bool PHIUndoUrl::mergeWith( const QUndoCommand* )
+{
+    return false;
+}
+
+void PHIUndoUrl::redo()
+{
+    QGraphicsProxyWidget *w=qgraphicsitem_cast<QGraphicsProxyWidget*>(item()->graphicsItem());
+    if ( w ) {
+        QWebView *view=qobject_cast<QWebView*>(w->widget());
+        if ( view ) {
+            if ( !_newUrl.isEmpty() ) view->load( QUrl( _newUrl ) );
+            else view->setContent( PHI::emptyHtmlDoc() );
+        }
+    }
+}
+
+void PHIUndoUrl::undo()
+{
+    QGraphicsProxyWidget *w=qgraphicsitem_cast<QGraphicsProxyWidget*>(item()->graphicsItem());
+    if ( w ) {
+        QWebView *view=qobject_cast<QWebView*>(w->widget());
+        if ( view ) {
+            if ( !_oldUrl.isEmpty() ) view->load( QUrl( _oldUrl ) );
+            else view->setContent( PHI::emptyHtmlDoc() );
+        }
+    }
+}
+
+PHIUndoProperty::PHIUndoProperty( PHIBaseItem *it, PHIUndoCommand::Id id, const QVariant &newProp )
+    : PHIUndoCommand( it ), _id( id ), _newProp( newProp )
+{
+    qDebug( "PHIUndoProperty::PHIUndoProperty()" );
+    QString text;
+    switch ( id ) {
+    case Opacity: text=QObject::tr( "Opacity" ); _oldProp.setValue( it->opacity() ); break;
+    case Font: text=QObject::tr( "Font" ); _oldProp.setValue( it->font() ); break;
+    case FontSize: text=QObject::tr( "Font size" ); _oldProp.setValue( it->fontSize() ); break;
+    case Line: text=QObject::tr( "Line" ); _oldProp.setValue( it->line() ); break;
+    case PenWidth: text=QObject::tr( "Line width" ); _oldProp.setValue( it->penWidth() ); break;
+    case Pattern: text=QObject::tr( "Pattern" ); _oldProp.setValue( it->pattern() ); break;
+    case Alignment: text=QObject::tr( "Alignment" ); _oldProp.setValue( it->alignment() ); break;
+    case Text: text=QObject::tr( "Text" ); _oldProp.setValue( it->text() ); break;
+    case Data: text=QObject::tr( "Data" ); _oldProp.setValue( *(it->itemData()) ); break;
+    case Pixmap: text=QObject::tr( "Image" ); _oldProp.setValue( it->pixmap() ); break;
+    case TransformPos: text=QObject::tr( "Transform" ); _oldProp.setValue( it->transformPos() ); break;
+    case ZValue: text=QObject::tr( "zValue" ); _oldProp.setValue( it->zValue() ); break;
+    case Value: text=QObject::tr( "Value" ); _oldProp.setValue( it->value() ); break;
+    //case Label: text=QObject::tr( "Label" ); _oldProp.setValue( it->label() ); break;
+    case ItemId: text=QObject::tr( "Id" ); _oldProp.setValue( it->id() ); break;
+    case Parent: text=QObject::tr( "Parent" ); _oldProp.setValue( it->parent() ); break;
+    case TabOrder: text=QObject::tr( "Tab index" ); _oldProp.setValue( it->tabOrder() ); break;
+    case Check: text=QObject::tr( "Check value" ); _oldProp.setValue( it->checked() ); break;
+    case ToolTip: text=QObject::tr( "Title" ); _oldProp.setValue( it->toolTip() ); break;
+    case Visibility: text=QObject::tr( "Visibility" ); _oldProp.setValue( it->visible() ); break;
+    case Attribute: text=QObject::tr( "Attribute" );
+        _oldProp.setValue(static_cast<qint32>(it->attributes())); break;
+    default: qFatal( "Unknown id in PHIUndoProperty" );
+    }
+    setText( text+UT( it->id() ) );
+}
+
+PHIUndoProperty::~PHIUndoProperty()
+{
+    qDebug( "PHIUndoProperty::~PHIUndoProperty()" );
+}
+
+bool PHIUndoProperty::mergeWith( const QUndoCommand *other )
+{
+    const PHIUndoProperty *o=dynamic_cast<const PHIUndoProperty*>(other);
+    Q_ASSERT( o );
+    if ( item()!=o->item() ) return false;
+    if ( _id!=o->_id ) return false;
+    if ( _id==Visibility ) return false;
+    if ( _id==Check ) return false;
+    _newProp=o->_newProp;
+    return true;
+}
+
+void PHIUndoProperty::redo()
+{
+    switch ( _id ) {
+    case Opacity: item()->setOpacity( _newProp.toDouble() ); break;
+    case Font: item()->setFont( _newProp.value<QFont>() ); break;
+    case FontSize: item()->setFontSize( _newProp.toInt() ); break;
+    case Line: item()->setLine( _newProp.toInt() ); break;
+    case PenWidth: item()->setPenWidth( _newProp.toDouble() ); break;
+    case Pattern: item()->setPattern( _newProp.toInt() );
+        QTimer::singleShot( 50, item(), SLOT( updateGradient() ) ); break;
+    case Alignment: item()->setAlignment( static_cast<PHI::Alignment>(_newProp.toUInt()) ); break;
+    case Text: {
+        item()->setText( _newProp.toString() );
+        PHIBaseItem *it=item()->scene()->findPHIBaseItem( item()->parent() );
+        if ( !it ) break;
+        if ( PHI::isLayoutContainer( it->wid() ) ) {
+            item()->graphicsWidget()->adjustSize();
+            item()->graphicsLayoutItem()->updateGeometry();
+        }
+        break;
+    }
+    case Data:
+        *(item()->itemData())=_newProp.value<PHIPHIBaseItemData>();
+        QTimer::singleShot( 50, item(), SLOT( updateGradient() ) );
+        break;
+    case Pixmap: item()->setPixmap( _newProp.value<QPixmap>() ); break;
+    case TransformPos: item()->setTransformPos( _newProp.toInt() ); break;
+    case ZValue:
+        item()->setZValue( _newProp.toInt() );
+        item()->scene()->mw()->setZValue( _newProp.toInt(), item()->id() ); break;
+    case Value: item()->setValue( _newProp.toString() ); break;
+    //case Label: item()->setLabel( _newProp.toString() ); break;
+    case ItemId: item()->setId( _newProp.toString() );
+        _newProp.setValue( item()->id() ); // could be changed if id already exist
+        item()->scene()->itemIdChanged( _oldProp.toString(), _newProp.toString() ); break;
+    case Parent: item()->setParent( _newProp.toString() ); break;
+    case TabOrder:
+        item()->setTabOrder( _newProp.value<quint16>() );
+        item()->scene()->update(); break;
+    case Check: item()->setChecked( _newProp.toBool() ); break;
+    case ToolTip: item()->setToolTip( _newProp.toString() ); break;
+    case Visibility: item()->setVisible( _newProp.toBool() ); break;
+    case Attribute: item()->setAttributes( static_cast<PHIItem::Attributes>(_newProp.value<qint32>()) ); break;
+    default: qFatal( "Unknown id in PHIUndoProperty" );
+    }
+    item()->graphicsItem()->update();
+}
+
+void PHIUndoProperty::undo()
+{
+    switch ( _id ) {
+    case Opacity: item()->setOpacity( _oldProp.toDouble() ); break;
+    case Font: item()->setFont( _oldProp.value<QFont>() ); break;
+    case FontSize: item()->setFontSize( _oldProp.toInt() ); break;
+    case Line: item()->setLine( _oldProp.toInt() ); break;
+    case PenWidth: item()->setPenWidth( _oldProp.toDouble() ); break;
+    case Pattern: item()->setPattern( _oldProp.toInt() ); break;
+        QTimer::singleShot( 50, item(), SLOT( updateGradient() ) ); break;
+    case Alignment: item()->setAlignment( static_cast<PHI::Alignment>(_oldProp.toUInt()) ); break;
+    case Text: {
+        item()->setText( _oldProp.toString() );
+        PHIBaseItem *it=item()->scene()->findPHIBaseItem( item()->parent() );
+        if ( !it ) break;
+        if ( PHI::isLayoutContainer( it->wid() ) ) {
+            item()->graphicsWidget()->adjustSize();
+            item()->graphicsLayoutItem()->updateGeometry();
+        }
+        break;
+    }
+    case Data:
+        *(item()->itemData())=_oldProp.value<PHIPHIBaseItemData>();
+        QTimer::singleShot( 50, item(), SLOT( updateGradient() ) );
+        break;
+    case Pixmap: item()->setPixmap( _oldProp.value<QPixmap>() ); break;
+    case TransformPos: item()->setTransformPos( _oldProp.toInt() ); break;
+    case ZValue:
+        item()->setZValue( _oldProp.toInt() );
+        item()->scene()->mw()->setZValue( _oldProp.toInt(), item()->id() ); break;
+    case Value: item()->setValue( _oldProp.toString() ); break;
+    //case Label: item()->setLabel( _oldProp.toString() ); break;
+    case ItemId: item()->setId( _oldProp.toString() );
+        item()->scene()->itemIdChanged( _newProp.toString(), _oldProp.toString() ); break;
+    case Parent: item()->setParent( _oldProp.toString() ); break;
+    case TabOrder:
+        item()->setTabOrder( _oldProp.value<quint16>() );
+        item()->scene()->update();
+        item()->scene()->subTabIndex(); break;
+    case Check: item()->setChecked( _oldProp.toBool() ); break;
+    case ToolTip: item()->setToolTip( _oldProp.toString() ); break;
+    case Visibility: item()->setVisible( _oldProp.toBool() ); break;
+    case Attribute: item()->setAttributes( static_cast<PHIItem::Attributes>(_oldProp.value<qint32>()) ); break;
+    default: qFatal( "Unknown id in PHIUndoProperty" );
+    }
+    item()->graphicsItem()->update();
+}
+
+PHIUndoTransform::PHIUndoTransform( PHIBaseItem *it, double x, double y, double z, double dx,
+    double dy, double sh, double sv ) : PHIUndoCommand( it ), _newX( x ), _newY( y ),
+    _newZ( z ), _newDX( dx ), _newDY( dy ), _newSH( sh ), _newSV( sv )
+{
+    qDebug( "PHIUndoTransform::PHIUndoTransform()" );
+    setText( QObject::tr( "Transform" )+UT( it->id() ) );
+    _oldX=it->xRotation();
+    _oldY=it->yRotation();
+    _oldZ=it->zRotation();
+    _oldDX=it->xTranslation();
+    _oldDY=it->yTranslation();
+    _oldSH=it->shearH();
+    _oldSV=it->shearV();
+}
+
+PHIUndoTransform::~PHIUndoTransform()
+{
+    qDebug( "PHIUndoTransform::~PHIUndoTransform()" );
+}
+
+bool PHIUndoTransform::mergeWith( const QUndoCommand *other )
+{
+    const PHIUndoTransform *o=dynamic_cast<const PHIUndoTransform*>(other);
+    Q_ASSERT( o );
+    if ( item()!=o->item() ) return false;
+    _newX=o->_newX;
+    _newY=o->_newY;
+    _newZ=o->_newZ;
+    _newDX=o->_newDX;
+    _newDY=o->_newDY;
+    _newSH=o->_newSH;
+    _newSV=o->_newSV;
+    return true;
+}
+
+void PHIUndoTransform::redo()
+{
+    item()->setXRotation( _newX );
+    item()->setYRotation( _newY );
+    item()->setZRotation( _newZ );
+    item()->setXTranslation( _newDX );
+    item()->setYTranslation( _newDY );
+    item()->setHShear( _newSH );
+    item()->setVShear( _newSV );
+    item()->updateTransformation();
+    item()->setFocusItem();
+}
+
+void PHIUndoTransform::undo()
+{
+    item()->setXRotation( _oldX );
+    item()->setYRotation( _oldY );
+    item()->setZRotation( _oldZ );
+    item()->setXTranslation( _oldDX );
+    item()->setYTranslation( _oldDY );
+    item()->setHShear( _oldSH );
+    item()->setVShear( _oldSV );
+    item()->updateTransformation();
+    item()->setFocusItem();
+}
+
+PHIUndoPage::PHIUndoPage( PHIScene *scene, const PHISPage &newPage )
+    : PHIUndoCommand( 0 ), _scene( scene ), _newPage( newPage )
+{
+    qDebug( "PHIUndoPage::PHIUndoPage()" );
+    Q_ASSERT( _scene );
+    setText( QObject::tr( "Page" )+UT( newPage.id() ) );
+    _oldPage=*(_scene->page());
+}
+
+PHIUndoPage::~PHIUndoPage()
+{
+    qDebug( "PHIUndoPage::~PHIUndoPage()" );
+}
+
+bool PHIUndoPage::mergeWith( const QUndoCommand *other )
+{
+    const PHIUndoPage *o=dynamic_cast<const PHIUndoPage*>(other);
+    Q_ASSERT( o );
+    if ( id()!=o->id() ) return false;
+    _newPage=o->_newPage;
+    return true;
+}
+
+void PHIUndoPage::redo()
+{
+    _scene->setPage( _newPage );
+}
+
+void PHIUndoPage::undo()
+{
+    _scene->setPage( _oldPage );
+}
+
+PHIUndoEffect::PHIUndoEffect( PHIBaseItem *it, const PHIEffect &newEffect )
+    : PHIUndoCommand( it ), _newEffect( newEffect )
+{
+    qDebug( "PHIUndoEffect::PHIUndoEffect()" );
+    setText( QObject::tr( "Effect" )+UT( it->id() ) );
+    _oldEffect=*(it->effect());
+}
+
+PHIUndoEffect::~PHIUndoEffect()
+{
+    qDebug( "PHIUndoEffect::~PHIUndoEffect()" );
+}
+
+bool PHIUndoEffect::mergeWith( const QUndoCommand *other )
+{
+    const PHIUndoEffect *o=dynamic_cast<const PHIUndoEffect*>(other);
+    Q_ASSERT( o );
+    if ( id()!=o->id() ) return false;
+    _newEffect=o->_newEffect;
+    return true;
+}
+
+void PHIUndoEffect::redo()
+{
+    *(item()->effect())=_newEffect;
+    PHI::setEffect( item()->graphicsItem(), _newEffect );
+}
+
+void PHIUndoEffect::undo()
+{
+    *(item()->effect())=_oldEffect;
+    PHI::setEffect( item()->graphicsItem(), _oldEffect );
+}
+
+PHIUndoTextData::PHIUndoTextData( PHIBaseItem *it, const PHITextData &newText )
+    : PHIUndoCommand( it )
+{
+    qDebug( "PHIUndoTextData::PHIUndoTextData()" );
+    Q_ASSERT( it->textChangeable() );
+    setText( QObject::tr( "Text" )+UT( it->id() ) );
+    _oldText=*(it->textData());
+    _newText=newText;
+}
+
+PHIUndoTextData::~PHIUndoTextData()
+{
+    qDebug( "PHIUndoTextData::~PHIUndoTextData()" );
+}
+
+bool PHIUndoTextData::mergeWith( const QUndoCommand *other )
+{
+    const PHIUndoTextData *o=dynamic_cast<const PHIUndoTextData*>(other);
+    //Q_ASSERT( o );
+    if ( id()!=o->id() ) return false;
+    //_newText=o->_newText;
+    //return true;
+    return false;
+}
+
+void PHIUndoTextData::redo()
+{
+    qDebug( "new text (%s): %s", qPrintable( item()->id() ), qPrintable( _newText.text() ) );
+    *(item()->textData())=_newText;
+    item()->setText( _newText.text() );
+}
+
+void PHIUndoTextData::undo()
+{
+    qDebug( "old text (%s): %s", qPrintable( item()->id() ), qPrintable( _oldText.text() ) );
+    *(item()->textData())=_oldText;
+    item()->setText( _oldText.text() );
+}
+
+PHIUndoStyleSheet::PHIUndoStyleSheet( PHIBaseItem *it, const PHITextData &newCss )
+    : PHIUndoCommand( it )
+{
+    qDebug( "PHIUndoStyleSheet::PHIUndoStyleSheet()" );
+    Q_ASSERT( it->styleSheetChangeable() );
+    setText( QObject::tr( "Style sheet" )+UT( it->id() ) );
+    _oldCss=*(it->styleSheetData());
+    _newCss=newCss;
+}
+
+PHIUndoStyleSheet::~PHIUndoStyleSheet()
+{
+    qDebug( "PHIUndoStyleSheet::~PHIUndoStyleSheet()" );
+}
+
+bool PHIUndoStyleSheet::mergeWith( const QUndoCommand *other )
+{
+    const PHIUndoStyleSheet *o=dynamic_cast<const PHIUndoStyleSheet*>(other);
+    //Q_ASSERT( o );
+    if ( id()!=o->id() ) return false;
+    //_newText=o->_newText;
+    //return true;
+    return false;
+}
+
+void PHIUndoStyleSheet::redo()
+{
+    *(item()->styleSheetData())=_newCss;
+    item()->setStyleSheet( _newCss.text() );
+}
+
+void PHIUndoStyleSheet::undo()
+{
+    *(item()->styleSheetData())=_oldCss;
+    item()->setStyleSheet( _oldCss.text() );
+}
+*/

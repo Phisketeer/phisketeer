@@ -37,15 +37,16 @@ public:
     explicit PHIGraphicsScene( QObject *parent );
     virtual ~PHIGraphicsScene();
 
-    //inline QGraphicsScene* graphicsScene() { return qobject_cast<QGraphicsScene*>(this); }
     inline PHIBasePage* page() const { return _page; }
     inline QString fileName() const { return objectName(); }
     inline QUndoStack* undoStack() const { return _undoStack; }
-    void addBaseItem( PHIBaseItem *item );
     void saveAs( const QString &f );
     void save();
     void open( const QString &f );
     void setAlignment( Qt::Alignment );
+    void setItemFont( const QFont &font );
+    void deleteSelectedBaseItems();
+    QList<PHIBaseItem*> selectedBaseItems() const;
 
     static PHIWID widFromMimeData( const QMimeData *md );
 
@@ -56,6 +57,7 @@ protected:
     virtual void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void keyPressEvent( QKeyEvent *event );
 
 signals:
     void cleanChanged( bool );
@@ -65,6 +67,7 @@ public slots:
 private:
     PHIBasePage *_page;
     QUndoStack *_undoStack;
+    bool _handleOwnDragDropEvent;
 };
 
 #endif // PHIGRAPHICSSCENE_H

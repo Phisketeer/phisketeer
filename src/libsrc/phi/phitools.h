@@ -25,8 +25,8 @@
 class PHIEXPORT PHIIcon : public QIcon
 {
 public:
-    explicit PHIIcon( const char *name, const QColor &disabled=QColor( Qt::black ) );
-    explicit PHIIcon( const QPixmap &pix, const QColor &disabled=QColor( Qt::black ) );
+    explicit PHIIcon( const char *name, const QColor &colorize=QColor(), const QColor &disabled=QColor( Qt::black ) );
+    explicit PHIIcon( const QPixmap &pix, const QColor &colorize=QColor(), const QColor &disabled=QColor( Qt::black ) );
 };
 
 #endif // PHITOOLS_H

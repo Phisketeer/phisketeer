@@ -34,6 +34,7 @@ public:
     virtual ~PHIGraphicsItem();
     virtual QRectF boundingRect() const;
     PHIGraphicsScene* phiGraphicsScene() const { return qobject_cast<PHIGraphicsScene*>(scene()); }
+    PHIBaseItem* phiBaseItem() const { return _it; }
 
 protected:
     virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget );

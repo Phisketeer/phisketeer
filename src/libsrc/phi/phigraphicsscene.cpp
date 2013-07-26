@@ -23,6 +23,8 @@
 #include "phibaseitem.h"
 #include "phibasepage.h"
 #include "phiitemfactory.h"
+#include "phigraphicsitem.h"
+#include "phiundo.h"
 
 PHIGraphicsScene::PHIGraphicsScene( QObject *parent )
     : QGraphicsScene( parent ), _page( 0 )
@@ -36,7 +38,7 @@ PHIGraphicsScene::PHIGraphicsScene( QObject *parent )
 
 PHIGraphicsScene::~PHIGraphicsScene()
 {
-    delete _page; // don't let delete with QObject parent
+    delete _page; // don't let delete this with QObject parent!
     qDebug( "PHIGraphicsScene::~PHIGraphicsScene()" );
 }
 
@@ -53,12 +55,27 @@ void PHIGraphicsScene::open( const QString &f )
 
 void PHIGraphicsScene::save()
 {
+    _undoStack->setClean();
+}
 
+QList<PHIBaseItem*> PHIGraphicsScene::selectedBaseItems() const
+{
+    QList<QGraphicsItem*> items=selectedItems();
+    QList<PHIBaseItem*> list;
+    QGraphicsItem *it;
+    foreach( it, items ) {
+        list.append( qgraphicsitem_cast<PHIGraphicsItem*>(it)->phiBaseItem() );
+    }
+    return list;
 }
 
 void PHIGraphicsScene::setAlignment( Qt::Alignment align )
 {
-    if ( align==Qt::AlignJustify ) qDebug( "juche" );
+}
+
+void PHIGraphicsScene::setItemFont( const QFont &f )
+{
+
 }
 
 void PHIGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
@@ -71,33 +88,30 @@ void PHIGraphicsScene::drawForeground( QPainter *painter, const QRectF &rect )
     QGraphicsScene::drawForeground( painter, rect );
 }
 
-void PHIGraphicsScene::addBaseItem( PHIBaseItem *item )
-{
-    QGraphicsScene::addItem( item->graphicsWidget() );
-}
-
 void PHIGraphicsScene::dragEnterEvent( QGraphicsSceneDragDropEvent *e )
 {
-    qDebug( "scene drag enter" );
-    PHIWID wid=widFromMimeData( e->mimeData() );
-    if ( wid ) {
-        e->setDropAction( Qt::CopyAction );
-        e->accept();
-        return;
-    }
+    // allways accepts event for dispatching to items:
+    QGraphicsScene::dragEnterEvent( e );
 #ifdef PHIDEBUG
     const QMimeData *md=e->mimeData();
     qDebug() << md->formats() << md->urls() << md->text();
 #endif
-    QGraphicsScene::dragEnterEvent( e );
-    qDebug( "scene::dragEnter %d", e->dropAction()==Qt::IgnoreAction );
 }
 
 void PHIGraphicsScene::dragMoveEvent( QGraphicsSceneDragDropEvent *e )
 {
-    PHIWID wid=widFromMimeData( e->mimeData() );
-    if ( wid ) return;
     QGraphicsScene::dragMoveEvent( e );
+    _handleOwnDragDropEvent=false;
+    if ( e->isAccepted() ) {
+        qDebug( "scene: drag move accepted by item" );
+        return;
+    }
+    PHIWID wid=widFromMimeData( e->mimeData() );
+    if ( wid ) {
+        _handleOwnDragDropEvent=true;
+        e->setDropAction( Qt::CopyAction );
+        e->accept();
+    }
 }
 
 void PHIGraphicsScene::dragLeaveEvent( QGraphicsSceneDragDropEvent *e )
@@ -108,16 +122,44 @@ void PHIGraphicsScene::dragLeaveEvent( QGraphicsSceneDragDropEvent *e )
 
 void PHIGraphicsScene::dropEvent( QGraphicsSceneDragDropEvent *e )
 {
-    qDebug( "scene drop" );
+    QGraphicsScene::dropEvent( e );
+    qDebug( "scene dropEvent %d", e->dropAction() );
+    if ( !_handleOwnDragDropEvent ) return;
     PHIWID wid=widFromMimeData( e->mimeData() );
     if ( wid ) {
-        PHIBaseItem *it;
-        it=PHIItemFactory::instance()->item( wid, PHIBaseItem::TIDEItem, _page );
+        PHIBaseItem *it=PHIItemFactory::instance()->item( wid, PHIBaseItem::TIDEItem, page() );
         if ( !it ) return;
         it->setPos( e->scenePos() );
-        addBaseItem( it );
+        it->setId( page()->nextFreeId( it->listName() ) );
+        _undoStack->push( new PHIUndoAdd( it, this ) );
     }
-    QGraphicsScene::dropEvent( e );
+}
+
+void PHIGraphicsScene::keyPressEvent( QKeyEvent *e )
+{
+    QGraphicsScene::keyPressEvent( e );
+    if ( e->isAccepted() ) return;
+    if ( e->key()==Qt::Key_Backspace || e->key()==Qt::Key_Delete ) {
+        e->accept();
+        deleteSelectedBaseItems();
+        return;
+    }
+    qDebug( "scene key press not accepted" );
+}
+
+void PHIGraphicsScene::deleteSelectedBaseItems()
+{
+    qDebug( "delete items" );
+    QList<PHIBaseItem*> list=selectedBaseItems();
+    if ( list.isEmpty() ) return;
+    if ( list.count()==1 ) {
+        _undoStack->push( new PHIUndoDelete( list.first(), this ) );
+        return;
+    }
+    _undoStack->beginMacro( tr( "Delete elements" ) );
+    foreach( PHIBaseItem *it, list )
+        _undoStack->push( new PHIUndoDelete( it, this ) );
+    _undoStack->endMacro();
 }
 
 PHIWID PHIGraphicsScene::widFromMimeData( const QMimeData *md )

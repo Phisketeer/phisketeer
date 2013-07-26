@@ -95,6 +95,7 @@ public:
     inline bool containsItemId( const QString &id ) const { return findItem( id ) ? true : false; }
     PHIBaseItem* findItem( const QString &id ) const;
     QList <PHIBaseItem*> items() const;
+    QString nextFreeId( const QString &requestedId ) const;
     PHIBasePage* clone() const;
 
     void load( QDataStream &in, quint8 version );

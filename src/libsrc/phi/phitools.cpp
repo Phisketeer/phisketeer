@@ -18,18 +18,21 @@
 */
 #include "phitools.h"
 
-PHIIcon::PHIIcon( const char *name, const QColor &c )
-    : QIcon( PHI::dropShadowedPixmap( QPixmap( L1( name ) ), QPointF( 1., 2. ) ) )
+PHIIcon::PHIIcon( const char *name, const QColor &col, const QColor &dis )
+    : QIcon( PHI::dropShadowedPixmap( ( col.isValid() ?
+    PHI::colorizedPixmap( QPixmap( L1( name ) ), col )
+    : QPixmap( L1( name ) ) ), QPointF( 1., 2. ) ) )
 {
-    QPixmap pix( PHI::colorizedPixmap( QPixmap( L1( name ) ), c ) );
+    QPixmap pix( PHI::colorizedPixmap( QPixmap( L1( name ) ), dis ) );
     addPixmap( pix, QIcon::Disabled, QIcon::Off );
     addPixmap( pix, QIcon::Disabled, QIcon::On );
 }
 
-PHIIcon::PHIIcon( const QPixmap &src, const QColor &c )
-    : QIcon( PHI::dropShadowedPixmap( src, QPointF( 1., 2. ) ) )
+PHIIcon::PHIIcon( const QPixmap &src, const QColor &col, const QColor &dis )
+    : QIcon( PHI::dropShadowedPixmap( ( col.isValid() ?
+    PHI::colorizedPixmap( src ) : src ), QPointF( 1., 2. ) ) )
 {
-    QPixmap pix( PHI::colorizedPixmap( src, c ) );
+    QPixmap pix( PHI::colorizedPixmap( src, dis ) );
     addPixmap( pix, QIcon::Disabled, QIcon::Off );
     addPixmap( pix, QIcon::Disabled, QIcon::On );
 }
