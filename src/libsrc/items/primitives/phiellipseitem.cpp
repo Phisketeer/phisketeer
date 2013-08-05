@@ -25,14 +25,10 @@ PHIEllipseItem::PHIEllipseItem(Type type, PHIBasePage *page )
     qDebug( "PHIEllipseItem::PHIEllipseItem()" );
 }
 
-void PHIEllipseItem::paint( QPainter *p, const QRectF& )
+void PHIEllipseItem::drawShape( QPainter *p, const QRectF& )
 {
-    p->save();
     p->setRenderHint( QPainter::Antialiasing );
-    p->setPen( _pen );
-    p->setBrush( _brush );
     if ( spanAngle()==5760 ) p->drawEllipse( rect() );
     else p->drawPie( rect(), startAngle(), spanAngle() );
-    p->restore();
 }
 

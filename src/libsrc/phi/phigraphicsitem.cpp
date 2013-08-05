@@ -18,6 +18,8 @@
 */
 #include <QWidget>
 #include <QGraphicsSceneEvent>
+#include <QPainter>
+#include <QTime>
 #include "phigraphicsitem.h"
 #include "phibaseitem.h"
 
@@ -90,6 +92,8 @@ QSizeF PHIGraphicsItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint )
 void PHIGraphicsItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget )
 {
     _it->paint( painter, option, widget );
+    if ( _it->selectMode()==PHIBaseItem::STabOrder ) paintTabOrder( painter );
+    else if ( _it->isSelected() ) paintSelectionItems( painter );
 }
 
 void PHIGraphicsItem::paintTabOrder( QPainter *painter )
@@ -99,7 +103,19 @@ void PHIGraphicsItem::paintTabOrder( QPainter *painter )
 
 void PHIGraphicsItem::paintSelectionItems( QPainter *painter )
 {
-
+    painter->save();
+    painter->setOpacity( 1. );
+    painter->setRenderHint( QPainter::Antialiasing, false );
+    QPen pen;
+    pen.setStyle( Qt::DashLine );
+    pen.setCapStyle( Qt::RoundCap );
+    pen.setDashOffset( phiGraphicsScene()->selectAnimationOffset() );
+    pen.setColor( _it->selectionColor() );
+    //pen.setStyle( Qt::DotLine );
+    pen.setWidth( 1 );
+    painter->setPen( pen );
+    painter->drawRoundedRect( 0, 0, _it->width(), _it->height(), 5., 5. );
+    painter->restore();
 }
 
 /*

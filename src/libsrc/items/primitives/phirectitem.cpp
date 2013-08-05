@@ -25,13 +25,9 @@ PHIRectItem::PHIRectItem(Type type, PHIBasePage *page )
     qDebug( "PHIRectItem::PHIRectItem()" );
 }
 
-void PHIRectItem::paint( QPainter *p, const QRectF& )
+void PHIRectItem::drawShape( QPainter *p, const QRectF& )
 {
-    p->save();
     p->setRenderHint( QPainter::Antialiasing, borderRadius() );
-    p->setPen( _pen );
-    p->setBrush( _brush );
     if ( borderRadius() ) p->drawRoundedRect( rect(), borderRadius(), borderRadius() );
     else p->drawRect( rect() );
-    p->restore();
 }

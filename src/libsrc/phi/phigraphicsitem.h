@@ -40,6 +40,7 @@ protected:
     virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget );
     void paintTabOrder( QPainter *painter );
     void paintSelectionItems( QPainter *painter );
+
     // void paintBorder( QPainter *painter );
     virtual bool sceneEvent( QEvent *event );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;

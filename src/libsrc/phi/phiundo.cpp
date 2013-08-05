@@ -45,14 +45,17 @@ void PHIUndoMove::redo()
     item()->setPos( _newPos );
 }
 
-PHIUndoColor::PHIUndoColor( PHIBaseItem *it, PHIPalette::ColorRole role, const QColor &newCol )
-    : PHIUndoCommand( it ), _role( role ), _newCol( newCol )
+PHIUndoColor::PHIUndoColor( PHIBaseItem *it, PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newCol )
+    : PHIUndoCommand( it ), _itemRole( ir ), _newColorRole( cr ), _newCol( newCol )
 {
     qDebug( "PHIUndoColor::PHIUndoColor()" );
-    if ( role==PHIPalette::Background )
-        setText( QObject::tr( "BG color" )+UT( it->name() ) );
-    else setText( QObject::tr( "FG color" )+UT( it->name() ) );
-    _oldCol=it->color( role );
+    if ( ir==PHIPalette::Background )
+        setText( QObject::tr( "Outline color" )+UT( it->name() ) );
+    else setText( QObject::tr( "Pattern color" )+UT( it->name() ) );
+    qDebug() << _newCol << _newColorRole;
+    _oldCol=it->color( ir );
+    _oldColorRole=it->colorRole( ir );
+    qDebug() << _oldCol << _oldColorRole;
 }
 
 bool PHIUndoColor::mergeWith( const QUndoCommand *other )
@@ -60,19 +63,20 @@ bool PHIUndoColor::mergeWith( const QUndoCommand *other )
     const PHIUndoColor *o=dynamic_cast<const PHIUndoColor*>(other);
     Q_ASSERT( o );
     if ( item()!=o->item() ) return false;
-    if ( _role!=o->_role ) return false;
+    if ( _itemRole!=o->_itemRole ) return false;
     _newCol=o->_newCol;
+    _newColorRole=o->_newColorRole;
     return true;
 }
 
 void PHIUndoColor::undo()
 {
-    item()->setColor( _role, _oldCol );
+    item()->setColor( _itemRole, _oldColorRole, _oldCol );
 }
 
 void PHIUndoColor::redo()
 {
-    item()->setColor( _role, _newCol );
+    item()->setColor( _itemRole, _newColorRole, _newCol );
 }
 
 PHIUndoAdd::PHIUndoAdd( PHIBaseItem *it, PHIGraphicsScene *scene )
@@ -279,25 +283,48 @@ void PHIUndoUrl::undo()
         }
     }
 }
+*/
 
 PHIUndoProperty::PHIUndoProperty( PHIBaseItem *it, PHIUndoCommand::Id id, const QVariant &newProp )
     : PHIUndoCommand( it ), _id( id ), _newProp( newProp )
 {
-    qDebug( "PHIUndoProperty::PHIUndoProperty()" );
+    createText();
+}
+
+PHIUndoProperty::PHIUndoProperty( PHIBaseItem *it, const char *prop, const QVariant &newProp )
+    : PHIUndoCommand( it ), _newProp( newProp )
+{
+    const QString p=L1( prop );
+    if ( p==L1( "opacity" ) ) _id=Opacity;
+    if ( p==L1( "font" ) ) _id=Font;
+    if ( p==L1( "penWidth" ) ) _id=PenWidth;
+    if ( p==L1( "pattern" ) ) _id=Pattern;
+    if ( p==L1( "line" ) ) _id=Line;
+    if ( p==L1( "zIndex" ) ) _id=ZIndex;
+    createText();
+}
+
+void PHIUndoProperty::createText()
+{
     QString text;
-    switch ( id ) {
-    case Opacity: text=QObject::tr( "Opacity" ); _oldProp.setValue( it->opacity() ); break;
-    case Font: text=QObject::tr( "Font" ); _oldProp.setValue( it->font() ); break;
-    case FontSize: text=QObject::tr( "Font size" ); _oldProp.setValue( it->fontSize() ); break;
-    case Line: text=QObject::tr( "Line" ); _oldProp.setValue( it->line() ); break;
-    case PenWidth: text=QObject::tr( "Line width" ); _oldProp.setValue( it->penWidth() ); break;
-    case Pattern: text=QObject::tr( "Pattern" ); _oldProp.setValue( it->pattern() ); break;
-    case Alignment: text=QObject::tr( "Alignment" ); _oldProp.setValue( it->alignment() ); break;
-    case Text: text=QObject::tr( "Text" ); _oldProp.setValue( it->text() ); break;
+    switch ( _id ) {
+    case Opacity: text=QObject::tr( "Opacity" );
+        _oldProp.setValue( item()->opacity() ); break;
+    case Font: text=QObject::tr( "Font" );
+        _oldProp.setValue( item()->font() ); break;
+    case Line: text=QObject::tr( "Outline" );
+        _oldProp.setValue( item()->property( "line").value<quint8>() ); break;
+    case PenWidth: text=QObject::tr( "Line width" );
+        _oldProp.setValue( item()->property( "penWidth" ).toReal() ); break;
+    case Pattern: text=QObject::tr( "Pattern" );
+        _oldProp.setValue( item()->property( "pattern" ).value<quint8>() ); break;
+    //case Alignment: text=QObject::tr( "Alignment" ); _oldProp.setValue( it->alignment() ); break;
+    //case Text: text=QObject::tr( "Text" ); _oldProp.setValue( it->text() ); break;
+    case ZIndex: text=QObject::tr( "zIndex" ); _oldProp.setValue( item()->zIndex() ); break;
+/*
     case Data: text=QObject::tr( "Data" ); _oldProp.setValue( *(it->itemData()) ); break;
     case Pixmap: text=QObject::tr( "Image" ); _oldProp.setValue( it->pixmap() ); break;
     case TransformPos: text=QObject::tr( "Transform" ); _oldProp.setValue( it->transformPos() ); break;
-    case ZValue: text=QObject::tr( "zValue" ); _oldProp.setValue( it->zValue() ); break;
     case Value: text=QObject::tr( "Value" ); _oldProp.setValue( it->value() ); break;
     //case Label: text=QObject::tr( "Label" ); _oldProp.setValue( it->label() ); break;
     case ItemId: text=QObject::tr( "Id" ); _oldProp.setValue( it->id() ); break;
@@ -308,14 +335,10 @@ PHIUndoProperty::PHIUndoProperty( PHIBaseItem *it, PHIUndoCommand::Id id, const 
     case Visibility: text=QObject::tr( "Visibility" ); _oldProp.setValue( it->visible() ); break;
     case Attribute: text=QObject::tr( "Attribute" );
         _oldProp.setValue(static_cast<qint32>(it->attributes())); break;
+*/
     default: qFatal( "Unknown id in PHIUndoProperty" );
     }
-    setText( text+UT( it->id() ) );
-}
-
-PHIUndoProperty::~PHIUndoProperty()
-{
-    qDebug( "PHIUndoProperty::~PHIUndoProperty()" );
+    setText( text+UT( item()->name() ) );
 }
 
 bool PHIUndoProperty::mergeWith( const QUndoCommand *other )
@@ -324,8 +347,8 @@ bool PHIUndoProperty::mergeWith( const QUndoCommand *other )
     Q_ASSERT( o );
     if ( item()!=o->item() ) return false;
     if ( _id!=o->_id ) return false;
-    if ( _id==Visibility ) return false;
-    if ( _id==Check ) return false;
+    //if ( _id==Visibility ) return false;
+    //if ( _id==Check ) return false;
     _newProp=o->_newProp;
     return true;
 }
@@ -333,13 +356,13 @@ bool PHIUndoProperty::mergeWith( const QUndoCommand *other )
 void PHIUndoProperty::redo()
 {
     switch ( _id ) {
-    case Opacity: item()->setOpacity( _newProp.toDouble() ); break;
+    case Opacity: item()->setOpacity( _newProp.value<qreal>() ); break;
     case Font: item()->setFont( _newProp.value<QFont>() ); break;
-    case FontSize: item()->setFontSize( _newProp.toInt() ); break;
-    case Line: item()->setLine( _newProp.toInt() ); break;
-    case PenWidth: item()->setPenWidth( _newProp.toDouble() ); break;
-    case Pattern: item()->setPattern( _newProp.toInt() );
-        QTimer::singleShot( 50, item(), SLOT( updateGradient() ) ); break;
+    case Line: item()->setProperty( "line", _newProp.value<quint8>() ); break;
+    case PenWidth: item()->setProperty( "penWidth", _newProp.toReal() ); break;
+    case Pattern: item()->setProperty( "pattern", _newProp.value<quint8>() ); break;
+    case ZIndex:item()->setZIndex( _newProp.value<qint16>() );
+    /*
     case Alignment: item()->setAlignment( static_cast<PHI::Alignment>(_newProp.toUInt()) ); break;
     case Text: {
         item()->setText( _newProp.toString() );
@@ -373,21 +396,21 @@ void PHIUndoProperty::redo()
     case ToolTip: item()->setToolTip( _newProp.toString() ); break;
     case Visibility: item()->setVisible( _newProp.toBool() ); break;
     case Attribute: item()->setAttributes( static_cast<PHIItem::Attributes>(_newProp.value<qint32>()) ); break;
+    */
     default: qFatal( "Unknown id in PHIUndoProperty" );
     }
-    item()->graphicsItem()->update();
 }
 
 void PHIUndoProperty::undo()
 {
     switch ( _id ) {
-    case Opacity: item()->setOpacity( _oldProp.toDouble() ); break;
+    case Opacity: item()->setOpacity( _oldProp.value<qreal>() ); break;
     case Font: item()->setFont( _oldProp.value<QFont>() ); break;
-    case FontSize: item()->setFontSize( _oldProp.toInt() ); break;
-    case Line: item()->setLine( _oldProp.toInt() ); break;
-    case PenWidth: item()->setPenWidth( _oldProp.toDouble() ); break;
-    case Pattern: item()->setPattern( _oldProp.toInt() ); break;
-        QTimer::singleShot( 50, item(), SLOT( updateGradient() ) ); break;
+    case Line: item()->setProperty( "line", _oldProp.value<quint8>() ); break;
+    case PenWidth: item()->setProperty( "penWidth", _oldProp.toReal() ); break;
+    case Pattern: item()->setProperty( "pattern", _oldProp.value<quint8>() ); break;
+    case ZIndex: item()->setZIndex( _oldProp.value<qint16>() ); break;
+/*
     case Alignment: item()->setAlignment( static_cast<PHI::Alignment>(_oldProp.toUInt()) ); break;
     case Text: {
         item()->setText( _oldProp.toString() );
@@ -421,11 +444,12 @@ void PHIUndoProperty::undo()
     case ToolTip: item()->setToolTip( _oldProp.toString() ); break;
     case Visibility: item()->setVisible( _oldProp.toBool() ); break;
     case Attribute: item()->setAttributes( static_cast<PHIItem::Attributes>(_oldProp.value<qint32>()) ); break;
+    */
     default: qFatal( "Unknown id in PHIUndoProperty" );
     }
-    item()->graphicsItem()->update();
 }
 
+/*
 PHIUndoTransform::PHIUndoTransform( PHIBaseItem *it, double x, double y, double z, double dx,
     double dy, double sh, double sv ) : PHIUndoCommand( it ), _newX( x ), _newY( y ),
     _newZ( z ), _newDX( dx ), _newDY( dy ), _newSH( sh ), _newSV( sv )

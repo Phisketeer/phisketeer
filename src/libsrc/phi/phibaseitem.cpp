@@ -25,6 +25,7 @@
 #include <QEvent>
 #include <QGraphicsSceneEvent>
 #include <QMimeData>
+#include <QUndoStack>
 #include "phibaseitem.h"
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
@@ -32,9 +33,9 @@
 #include "phiitemstylecss.h"
 #include "phisrequest.h"
 
-bool PHIBaseItem::_tabModeOn=false;
+PHIBaseItem::SelectMode PHIBaseItem::_selectMode=PHIBaseItem::SMove;
 quint8 PHIBaseItem::_gripSize=8;
-QColor PHIBaseItem::_selectionColor=QColor( Qt::darkRed );
+QColor PHIBaseItem::_selectionColor=QColor( Qt::red );
 
 QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem* const &it )
 {
@@ -59,7 +60,6 @@ static QStringList _myproperties( const QObject *obj )
 PHIBaseItem::PHIBaseItem( Type type, PHIBasePage *page )
     : QObject( page ), _type( type ), _gw( 0 )
 {
-    qDebug( "PHIBaseItem::PHIBaseItem()" );
     _x=0;
     _y=0;
     _width=100.;
@@ -77,7 +77,7 @@ PHIBaseItem::~PHIBaseItem()
         delete _gw;
         _gw=0;
     }
-    qDebug( "PHIBaseItem::~PHIBaseItem()" );
+    //qDebug( "PHIBaseItem::~PHIBaseItem()" );
 }
 
 void PHIBaseItem::load( QDataStream &in, quint8 version )
@@ -91,6 +91,14 @@ void PHIBaseItem::load( QDataStream &in, quint8 version )
 QStringList PHIBaseItem::properties() const
 {
     return _myproperties( this );
+}
+
+QUndoStack* PHIBaseItem::undoStack() const
+{
+    Q_ASSERT( _gw );
+    PHIGraphicsScene *scene=qobject_cast<PHIGraphicsScene*>(_gw->scene());
+    Q_ASSERT( scene );
+    return scene->undoStack();
 }
 
 void PHIBaseItem::setFont( const QFont &font )
@@ -112,27 +120,27 @@ QFont PHIBaseItem::font() const
     return _variants.value( DFont, qobject_cast<PHIBasePage*>(parent())->font() ).value<QFont>();
 }
 
-void PHIBaseItem::paletteColorChange( PHIPalette::ColorRole role, const QColor &color )
+void PHIBaseItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color )
 {
-    Q_UNUSED( role )
+    Q_UNUSED( ir )
+    Q_UNUSED( cr )
     Q_UNUSED( color )
 }
 
-void PHIBaseItem::setColor( PHIPalette::ColorRole role, const QColor &color )
+void PHIBaseItem::phiPaletteChanged( const PHIPalette &pal )
 {
-    Q_UNUSED( role )
-    Q_UNUSED( color )
+    Q_UNUSED( pal )
 }
 
 QRectF PHIBaseItem::boundingRect() const
 {
-    return QRectF( -1., -1., _width+1, _height+1 );
+    return QRectF( -2., -2., _width+2, _height+2 );
 }
 
 QPainterPath PHIBaseItem::shape() const
 {
     QPainterPath path;
-    path.addRect( rect() );
+    path.addRect( boundingRect() );
     return path;
 }
 
@@ -149,7 +157,7 @@ void PHIBaseItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_ASSERT( _gw );
     if ( !_gw->isVisible() ) return;
     paint( painter, options->exposedRect );
-    if ( _gw->isSelected() ) paintSelection( painter );
+    if ( _gw->isSelected() && _type==TIDEItem ) idePaintSelection( painter );
 }
 
 void PHIBaseItem::paint( QPainter *painter, const QRectF &exposed )
@@ -161,27 +169,14 @@ void PHIBaseItem::paint( QPainter *painter, const QRectF &exposed )
     _gw->widget()->render( painter, exposedRect.topLeft(), exposedRect );
 }
 
-void PHIBaseItem::paintSelection( QPainter *painter )
+void PHIBaseItem::idePaintSelection( QPainter *painter )
 {
-    painter->save();
-    painter->setOpacity( 1. );
-    painter->setRenderHint( QPainter::Antialiasing, false );
-    QPen pen;
-    pen.setColor( _selectionColor );
-    pen.setStyle( Qt::DashLine );
-    painter->setPen( pen );
-    painter->drawRoundedRect( 0, 0, _width, _height, 5., 5. );
-    painter->restore();
-    QPixmapColorizeFilter f;
-    f.setColor( Qt::darkMagenta );
-    f.setStrength( 1. );
-    QPixmap p( QLatin1String( ":/items/images/button.png" ) );
-    f.draw( painter, QPointF(), p );
+    Q_UNUSED( painter )
 }
 
 void PHIBaseItem::paintHighlight( QPainter *painter )
 {
-
+    Q_UNUSED( painter )
 }
 
 void PHIBaseItem::loadItemData( QDataStream &in, quint8 version )
@@ -213,15 +208,20 @@ bool PHIBaseItem::sceneEvent( QEvent *e )
     if ( _type==TIDEItem ) {
         switch ( e->type() ) {
         case QEvent::GraphicsSceneResize:
-            return ideResizeEvent( static_cast<QGraphicsSceneResizeEvent*>(e) );
+            ideResizeEvent( static_cast<QGraphicsSceneResizeEvent*>(e) );
+            return true;
         case QEvent::GraphicsSceneDragEnter:
-            return ideDragEnterEvent( static_cast<QGraphicsSceneDragDropEvent*>(e) );
+            ideDragEnterEvent( static_cast<QGraphicsSceneDragDropEvent*>(e) );
+            return true;
         case QEvent::GraphicsSceneDragMove:
-            return ideDragMoveEvent( static_cast<QGraphicsSceneDragDropEvent*>(e) );
+            ideDragMoveEvent( static_cast<QGraphicsSceneDragDropEvent*>(e) );
+            return true;
         case QEvent::GraphicsSceneDragLeave:
-            return ideDragLeaveEvent( static_cast<QGraphicsSceneDragDropEvent*>(e) );
+            ideDragLeaveEvent( static_cast<QGraphicsSceneDragDropEvent*>(e) );
+            return true;
         case QEvent::GraphicsSceneDrop:
-            return ideDropEvent( static_cast<QGraphicsSceneDragDropEvent*>(e) );
+            ideDropEvent( static_cast<QGraphicsSceneDragDropEvent*>(e) );
+            return true;
         case QEvent::GraphicsSceneMousePress:
             return false; // forward to PHIGraphicsItem
         case QEvent::GraphicsSceneMouseMove:
@@ -229,7 +229,8 @@ bool PHIBaseItem::sceneEvent( QEvent *e )
         case QEvent::GraphicsSceneMouseRelease:
             return false;
         case QEvent::KeyPress:
-            return ideKeyPressEvent( static_cast<QKeyEvent*>(e) );
+            ideKeyPressEvent( static_cast<QKeyEvent*>(e) );
+            return true;
         default:;
         }
     }
@@ -237,50 +238,38 @@ bool PHIBaseItem::sceneEvent( QEvent *e )
     return false;
 }
 
-bool PHIBaseItem::ideResizeEvent( QGraphicsSceneResizeEvent *e )
+void PHIBaseItem::ideResizeEvent( QGraphicsSceneResizeEvent *e )
 {
     qDebug( "ideResizeEvent %f %f", e->newSize().width(), e->newSize().height() );
     _width=e->newSize().width();
     _height=e->newSize().height();
-    return true;
 }
 
-bool PHIBaseItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
+void PHIBaseItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
 {
-    qDebug( "ide drag enter" );
-    e->setDropAction( Qt::CopyAction );
-    e->accept();
-    return true;
+    e->ignore();
 }
 
-bool PHIBaseItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
+void PHIBaseItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
 {
-    //qDebug( "idedragmove" );
-    if ( e->isAccepted() ) qDebug( "baseitem::ideDragMove isaccepted" );
-    else qDebug( "baseitem::ideDragMove is not accepted" );
-    return true;
 }
 
-bool PHIBaseItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
+void PHIBaseItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
 {
-    qDebug( "ide drag leave" );
     if ( e->isAccepted() ) qDebug( "baseitem::ideDragLeave isaccepted" );
     else qDebug( "baseitem::ideDragLeave is not accepted" );
-    return true;
 }
 
-bool PHIBaseItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
+void PHIBaseItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( e->isAccepted() ) qDebug( "baseitem::ideDrop isaccepted" );
     else qDebug( "baseitem::ideDrop is not accepted" );
-    return true;
 }
 
-bool PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
+void PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
 {
     qDebug( "key %d", e->key() );
     e->ignore();
-    return true;
 }
 
 void PHIBaseItem::squeeze( const PHISRequest* const req )

@@ -28,6 +28,7 @@ class PHIBasePage;
 class QMimeData;
 class QGraphicsSceneDragDropEvent;
 class QUndoStack;
+class QTimer;
 
 class PHIEXPORT PHIGraphicsScene : public QGraphicsScene
 {
@@ -44,11 +45,16 @@ public:
     void save();
     void open( const QString &f );
     void setAlignment( Qt::Alignment );
-    void setItemFont( const QFont &font );
     void deleteSelectedBaseItems();
+    void setSelectAnimation( bool );
     QList<PHIBaseItem*> selectedBaseItems() const;
 
     static PHIWID widFromMimeData( const QMimeData *md );
+    static QPixmap pixmapFromMimeData( const QMimeData *md );
+    static QString pathFromMimeData( const QMimeData *md );
+    static QUrl urlFromMimeData( const QMimeData *md );
+    static QColor colorFromMimeData( const QMimeData *md );
+    static qreal selectAnimationOffset() { return _selectAnimOff; }
 
 protected:
     virtual void drawBackground( QPainter *painter, const QRectF &rect );
@@ -61,12 +67,16 @@ protected:
 
 signals:
     void cleanChanged( bool );
-    
-public slots:
+    void newBaseItemAdded( PHIBaseItem* );
+
+protected slots:
+    void updateSelectAnimation();
     
 private:
+    static qreal _selectAnimOff;
     PHIBasePage *_page;
     QUndoStack *_undoStack;
+    QTimer *_selectAnimTimer;
     bool _handleOwnDragDropEvent;
 };
 

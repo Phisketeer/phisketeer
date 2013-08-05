@@ -19,8 +19,9 @@ class PHIUndoCommand : public QUndoCommand
 {
 
 public:
-    enum Id { Move=0, Color=1, Size, Add, Delete, Opacity, Font, Title, Visibility };
-        //Line, PenWidth, Pattern, Alignment, Text, Data, Pixmap, TransformPos, ZValue,
+    enum Id { Move=0, Color=1, Size, Add, Delete, Opacity, Font, Title, Visibility,
+        Line, PenWidth, Pattern, Alignment, Text, ZIndex };
+        //Data, Pixmap, TransformPos, ZValue,
         //Transform, Value, Label, ItemId, Parent, Page, TabOrder, Check, ToolTip, Visibility,
         //Effect, TextData, Url, StyleSheet, Attribute };
 
@@ -49,14 +50,15 @@ protected:
 class PHIUndoColor : public PHIUndoCommand
 {
 public:
-    PHIUndoColor( PHIBaseItem* it, PHIPalette::ColorRole role, const QColor &newCol );
+    PHIUndoColor( PHIBaseItem* it, PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newCol );
     inline virtual int id() const { return static_cast<int>(Color); }
     virtual bool mergeWith( const QUndoCommand *other );
     virtual void undo();
     virtual void redo();
 
 protected:
-    PHIPalette::ColorRole _role;
+    PHIPalette::ItemRole _itemRole;
+    PHIPalette::ColorRole _newColorRole, _oldColorRole;
     QColor _newCol, _oldCol;
 };
 
@@ -98,21 +100,21 @@ protected:
     QSizeF _oldSize, _newSize;
 };
 
-/*
 class PHIUndoProperty : public PHIUndoCommand
 {
 public:
     PHIUndoProperty( PHIBaseItem*, PHIUndoCommand::Id, const QVariant &newProp );
+    PHIUndoProperty( PHIBaseItem*, const char *property, const QVariant &newProp );
     inline virtual int id() const { return static_cast<int>(_id); }
     virtual bool mergeWith( const QUndoCommand *other );
     virtual void undo();
     virtual void redo();
 
 protected:
+    void createText();
     PHIUndoCommand::Id _id;
     QVariant _oldProp, _newProp;
 };
-*/
 
 /*
 class PHIUndoTransform : public PHIUndoCommand

@@ -46,7 +46,7 @@ signals:
     void spanAngleChanged( qint16 );
 
 protected:
-    virtual void paint( QPainter *painter, const QRectF &r );
+    virtual void drawShape( QPainter *painter, const QRectF &r );
 
 };
 

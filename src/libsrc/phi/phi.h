@@ -111,6 +111,7 @@ public:
     static void extractNumbers( const QByteArray &s, int &value, int &min, int &max, int &step );
     static void extractRealNumbers( const QByteArray &s, qreal &value, qreal &min, qreal &max,
         qreal &step, int &decimals );
+    static qreal adjustedFontSize( qreal s);
 
     static inline const QString& idValidator() { static QString v=QStringLiteral( "[A-Za-z][-_A-Za-z0-9]*" ); return v; }
     static inline QSize patternIconSize() { return QSize( 48, 12 ); }
@@ -199,6 +200,14 @@ inline const QByteArray& PHI::nl()
     return nl;
 }
 
+inline qreal PHI::adjustedFontSize( qreal s )
+{
+#ifdef Q_OS_MAC
+    return s*fontSizeFactor();
+#else
+    return s;
+#endif
+}
 
 /*
 class PHIEXPORT PHI

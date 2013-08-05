@@ -19,6 +19,7 @@
 #include <QGraphicsSceneDragDropEvent>
 #include <QMimeData>
 #include <QUndoStack>
+#include <QTimer>
 #include "phigraphicsscene.h"
 #include "phibaseitem.h"
 #include "phibasepage.h"
@@ -26,19 +27,23 @@
 #include "phigraphicsitem.h"
 #include "phiundo.h"
 
+qreal PHIGraphicsScene::_selectAnimOff=0;
+
 PHIGraphicsScene::PHIGraphicsScene( QObject *parent )
     : QGraphicsScene( parent ), _page( 0 )
 {
     qDebug( "PHIGraphicsScene::PHIGraphicsScene()" );
     _page=new PHIBasePage( this );
     _undoStack=new QUndoStack( this );
+    _selectAnimTimer=new QTimer( this );
     setSceneRect( QRectF( QPoint(), QSizeF( _page->width(), _page->height() ) ) );
     connect( _undoStack, &QUndoStack::cleanChanged, this, &PHIGraphicsScene::cleanChanged );
+    connect( _selectAnimTimer, &QTimer::timeout, this, &PHIGraphicsScene::updateSelectAnimation );
 }
 
 PHIGraphicsScene::~PHIGraphicsScene()
 {
-    delete _page; // don't let delete this with QObject parent!
+    delete _page; // don't let delete this with QObject parent!!!
     qDebug( "PHIGraphicsScene::~PHIGraphicsScene()" );
 }
 
@@ -73,9 +78,25 @@ void PHIGraphicsScene::setAlignment( Qt::Alignment align )
 {
 }
 
-void PHIGraphicsScene::setItemFont( const QFont &f )
+void PHIGraphicsScene::setSelectAnimation( bool animate )
 {
+    if ( animate ) {
+        _selectAnimTimer->setInterval( 100 );
+        _selectAnimTimer->start();
+    } else {
+        _selectAnimTimer->stop();
+    }
+}
 
+void PHIGraphicsScene::updateSelectAnimation()
+{
+    _selectAnimOff+=.5;
+    if ( _selectAnimOff>6 ) _selectAnimOff=0;
+    QList <QGraphicsItem*> list=selectedItems();
+    QGraphicsItem *it;
+    foreach( it, list ) {
+        it->update();
+    }
 }
 
 void PHIGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
@@ -123,7 +144,6 @@ void PHIGraphicsScene::dragLeaveEvent( QGraphicsSceneDragDropEvent *e )
 void PHIGraphicsScene::dropEvent( QGraphicsSceneDragDropEvent *e )
 {
     QGraphicsScene::dropEvent( e );
-    qDebug( "scene dropEvent %d", e->dropAction() );
     if ( !_handleOwnDragDropEvent ) return;
     PHIWID wid=widFromMimeData( e->mimeData() );
     if ( wid ) {
@@ -132,6 +152,9 @@ void PHIGraphicsScene::dropEvent( QGraphicsSceneDragDropEvent *e )
         it->setPos( e->scenePos() );
         it->setId( page()->nextFreeId( it->listName() ) );
         _undoStack->push( new PHIUndoAdd( it, this ) );
+        emit newBaseItemAdded( it ); // initialize item
+        clearSelection();
+        it->setSelected( true );
     }
 }
 
@@ -173,4 +196,49 @@ PHIWID PHIGraphicsScene::widFromMimeData( const QMimeData *md )
         if ( id ) return static_cast<PHIWID>( id );
     }
     return 0;
+}
+
+QPixmap PHIGraphicsScene::pixmapFromMimeData( const QMimeData *md )
+{
+    Q_ASSERT( md );
+    if ( md->hasImage() ) {
+        return QPixmap::fromImage( qvariant_cast<QImage>( md->imageData() ) );
+    }
+    return QPixmap();
+}
+
+QString PHIGraphicsScene::pathFromMimeData( const QMimeData *md )
+{
+    Q_ASSERT( md );
+    if ( md->hasText() ) {
+        QString file=md->text();
+        if ( file.startsWith( L1( "file://" ) ) ) {
+            file=file.mid( 7 );
+            qDebug( "file=%s", qPrintable( file ) );
+            return file;
+        }
+    }
+    return QString();
+}
+
+QUrl PHIGraphicsScene::urlFromMimeData( const QMimeData *md )
+{
+    Q_ASSERT( md );
+    if ( md->hasUrls() ) {
+        QList<QUrl> list=md->urls();
+        QUrl url=list.first();
+        qDebug( "url=%s", qPrintable( url.toLocalFile() ) );
+        return url;
+    }
+    return QUrl();
+}
+
+QColor PHIGraphicsScene::colorFromMimeData( const QMimeData *md )
+{
+    Q_ASSERT( md );
+    if ( md->hasColor() ) {
+        QColor c=md->colorData().value<QColor>();
+        return c;
+    }
+    return QColor();
 }

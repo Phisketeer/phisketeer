@@ -36,10 +36,12 @@ class QKeyEvent;
 class PHIBasePage;
 class PHISRequest;
 class PHISDataParser;
+class QUndoStack;
 
 class PHIEXPORT PHIBaseItem : public QObject
 {
     friend class PHIGraphicsItem;
+    friend class PHIGraphicsScene;
 
     Q_OBJECT
     Q_DISABLE_COPY( PHIBaseItem )
@@ -61,6 +63,7 @@ public:
     enum Type { TUndefined=0, TIDEItem=1, TClientItem=2, TServerItem=3, TServerParserItem=4 };
     enum Wid { Invalid=0 };
     enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4 };
+    enum SelectMode { SMove, STransform, STabOrder };
     /*
     enum DataType { DNone=0, DPalette=1, DFont=2, DColor=3, DOutlineColor=4, DMaxSize=5,
         DStartAngle=6, DSpanAngle=7, DUrl=8, DPattern=9, DLine=10, DPenWidth=11, DStopPoints=12,
@@ -118,25 +121,25 @@ public: // not usable by script engine
     inline virtual bool widthChangeable() const { return true; }
     inline virtual bool heightChangeable() const { return true; }
     inline virtual QRectF rect() const { return QRectF( QPointF(), size() ); }
-    inline virtual QColor color( PHIPalette::ColorRole ) const { return QColor(); }
+    inline virtual QColor color( PHIPalette::ItemRole ) const { return QColor(); }
+    inline virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole ) const { return PHIPalette::NoRole; }
 
     virtual PHIWID wid() const=0;
     virtual void setFont( const QFont &font );
-    virtual void setColor( PHIPalette::ColorRole role, const QColor &color );
-    virtual void paletteColorChange( PHIPalette::ColorRole role, const QColor &color );
+    virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color );
+    virtual void phiPaletteChanged( const PHIPalette &pal );
 
     // IDE related members
-    static void setTabMode( bool on ) { _tabModeOn=on; }
-    static bool isTabMode() { return _tabModeOn; }
-    static void setSelectionColor( const QColor &c ) { _selectionColor=c; }
-    static void setGripSize( quint8 g ) { _gripSize=g; }
-    static QColor selectionColor() { return _selectionColor; }
-    static quint8 gripSize() { return _gripSize; }
-    static QRectF topLeftGrip( const QRect &r );
     virtual QPixmap pixmap() const=0;
     virtual QString listName() const=0;
     virtual QString description() const=0;
     inline QGraphicsWidget* graphicsWidget() const { return _gw; }
+    static void setSelectMode( SelectMode mode ) { _selectMode=mode; }
+    static void setSelectionColor( const QColor &c ) { _selectionColor=c; }
+    static void setGripSize( quint8 g ) { _gripSize=g; }
+    static QColor selectionColor() { return _selectionColor; }
+    static quint8 gripSize() { return _gripSize; }
+    static SelectMode selectMode() { return _selectMode; }
 
 public slots: // usable by script engine
     inline qreal x() const { return _x; }
@@ -192,6 +195,7 @@ protected:
     inline void setWidget( QWidget *w ) { if ( _gw ) { _gw->setWidget( w ); resize( _gw->preferredSize() ); } }
     inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
     inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
+    inline bool isIdeItem() const { return _type==TIDEItem; }
     inline void setPreferredSize( const QSizeF &s ) { if ( _gw ) _gw->setPreferredSize( s ); }
     inline void setMinimumSize( const QSizeF &s ) { if ( _gw ) _gw->setMinimumSize( s ); }
     inline void setMaximumSize( const QSizeF &s ) { if ( _gw ) _gw->setMaximumSize( s ); }
@@ -200,20 +204,22 @@ protected:
     inline void setMinimumWidth( const qreal w ) { if ( _gw ) _gw->setMinimumWidth( w ); }
     inline void setMinimumHeight( const qreal h ) { if ( _gw ) _gw->setMinimumHeight( h ); }
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
+    inline void update( const QRectF &r=QRectF() ) { if ( _gw ) _gw->update( r ); }
+    QUndoStack* undoStack() const;
 
     virtual void paint( QPainter *painter, const QRectF &exposed );
-    virtual void paintSelection( QPainter *painter );
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
     virtual QPainterPath shape() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const; // return invalid size to call basic implementation
-    virtual bool sceneEvent( QEvent *event ); // return false to call inherited implementation
-    virtual bool ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
-    virtual bool ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
-    virtual bool ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
-    virtual bool ideDropEvent( QGraphicsSceneDragDropEvent *event );
-    virtual bool ideResizeEvent( QGraphicsSceneResizeEvent *event );
-    virtual bool ideKeyPressEvent( QKeyEvent *event );
+    virtual bool sceneEvent( QEvent *event ); // return false to call inherited implementatio
+    virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideResizeEvent( QGraphicsSceneResizeEvent *event );
+    virtual void ideKeyPressEvent( QKeyEvent *event );
+    virtual void idePaintSelection( QPainter *painter );
     //virtual void ideHoverEnterEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverMoveEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
@@ -226,9 +232,9 @@ protected:
     QHash <qint8, QVariant> _variants;
 
 private:
-    static bool _tabModeOn;
     static quint8 _gripSize;
     static QColor _selectionColor;
+    static SelectMode _selectMode;
     Type _type;
     QGraphicsProxyWidget *_gw;
     QByteArray _id, _parentId;
@@ -345,8 +351,6 @@ public: //not useable by script engine
     inline QPoint dragHotSpot() const { return _variants.value( DDragHotSpot, PHI::defaultHotSpot() ).toPoint(); }
 
     virtual void setPenWidth( qreal w );
-    virtual void setColor( const QColor &c );
-    virtual void setOutlineColor( const QColor &c );
     virtual void setRolloverTextColor( const QColor &c );
     virtual void setRolloverBackgroundColor( const QColor &c );
     virtual void setPattern( quint8 p );
@@ -406,7 +410,6 @@ public: //not useable by script engine
         return _variants.value( DRolloverTextColor, QColor() ).value<QColor>(); }
     inline virtual QColor rolloverBackgroundColor() const {
         return _variants.value( DRolloverBackgroundColor, QColor() ).value<QColor>(); }
-    inline virtual quint8 pattern() const { return _variants.value( DPattern, 1 ).value<quint8>(); }
     inline virtual quint8 line() const { return _variants.value( DLine, 0 ).value<quint8>(); }
     inline virtual qint16 startAngle() const { return _variants.value( DStartAngle, 0 ).value<qint16>(); }
     inline virtual qint16 spanAngle() const { return _variants.value( DSpanAngle, 5760 ).value<qint16>(); }
