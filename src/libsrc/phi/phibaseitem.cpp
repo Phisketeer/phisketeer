@@ -33,10 +33,6 @@
 #include "phiitemstylecss.h"
 #include "phisrequest.h"
 
-PHIBaseItem::SelectMode PHIBaseItem::_selectMode=PHIBaseItem::SMove;
-quint8 PHIBaseItem::_gripSize=8;
-QColor PHIBaseItem::_selectionColor=QColor( Qt::red );
-
 QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem* const &it )
 {
     new PHIItemStyleCSS( it );
@@ -64,9 +60,10 @@ PHIBaseItem::PHIBaseItem( Type type, PHIBasePage *page )
     _y=0;
     _width=100.;
     _height=100.;
-    if ( type==TIDEItem || type==TClientItem ) {
+    if ( type==TIDEItem || type==TClientItem || type==TTemplateItem ) {
         _gw=new PHIGraphicsItem( this );
     }
+    setTransformPos( PHI::TopLeft );
 }
 
 PHIBaseItem::~PHIBaseItem()
@@ -103,6 +100,7 @@ QUndoStack* PHIBaseItem::undoStack() const
 
 void PHIBaseItem::setFont( const QFont &font )
 {
+    if ( _type==TTemplateItem ) return;
     Q_ASSERT( parent() );
     QFont pf=qobject_cast<PHIBasePage*>(parent())->font();
     if ( pf==font ) {
@@ -134,15 +132,46 @@ void PHIBaseItem::phiPaletteChanged( const PHIPalette &pal )
 
 QRectF PHIBaseItem::boundingRect() const
 {
-    return QRectF( -2., -2., _width+2, _height+2 );
+    return rect();
 }
 
+void PHIBaseItem::setTransformPos( quint8 pos )
+{
+    int p=qBound( 0, static_cast<int>(pos), 9 );
+    _variants.insert( DTransformPos, static_cast<quint8>(p) );
+    QPointF o;
+    switch( static_cast<PHI::Origin>(p) ) {
+    case PHI::TopLeft: o=QPointF( 0, 0 ); break;
+    case PHI::TopMid: o=QPointF( _width/2., 0 ); break;
+    case PHI::TopRight: o=QPointF( _width, 0 ); break;
+    case PHI::MidLeft: o=QPointF( 0, _height/2. ); break;
+    case PHI::MidMid: o=QPointF( _width/2., _height/2. ); break;
+    case PHI::MidRight: o=QPointF( _width, _height/2. ); break;
+    case PHI::BottomLeft: o=QPointF( 0, _height ); break;
+    case PHI::BottomMid: o=QPointF( _width/2., _height ); break;
+    case PHI::BottomRight: o=QPointF( _width, _height ); break;
+    default:
+        o=_variants.value( DTransformOrigin, QPointF( 0, 0 ) ).toPointF();
+    }
+    _variants.insert( DTransformOrigin, o );
+    if ( !_gw ) return;
+    _gw->setTransformOriginPoint( o );
+}
+
+void PHIBaseItem::setTransformOrigin( const QPointF &pos )
+{
+    _variants.insert( DTransformPos, 0 );
+    _variants.insert( DTransformOrigin, pos );
+}
+
+/*
 QPainterPath PHIBaseItem::shape() const
 {
     QPainterPath path;
     path.addRect( boundingRect() );
     return path;
 }
+*/
 
 QSizeF PHIBaseItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
@@ -154,10 +183,9 @@ QSizeF PHIBaseItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) con
 void PHIBaseItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget )
 {
     Q_UNUSED( widget );
-    Q_ASSERT( _gw );
-    if ( !_gw->isVisible() ) return;
+    painter->setOpacity( opacity() );
     paint( painter, options->exposedRect );
-    if ( _gw->isSelected() && _type==TIDEItem ) idePaintSelection( painter );
+    //if ( _gw->isSelected() && _type==TIDEItem ) idePaintSelection( painter );
 }
 
 void PHIBaseItem::paint( QPainter *painter, const QRectF &exposed )
@@ -268,7 +296,6 @@ void PHIBaseItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
 
 void PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
 {
-    qDebug( "key %d", e->key() );
     e->ignore();
 }
 

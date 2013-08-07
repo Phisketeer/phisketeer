@@ -353,6 +353,7 @@ QImage PHI::reflectedImage( const QImage &img, qreal off, qreal size )
     return newimg;
 }
 
+/*
 Qt::Alignment PHI::toQtAlignment( quint8 align )
 {
     switch ( static_cast<PHI::Alignment>(align) ) {
@@ -370,6 +371,7 @@ Qt::Alignment PHI::toQtAlignment( quint8 align )
     default: return Qt::AlignLeft | Qt::AlignTop;
     }
 }
+*/
 
 /*
 // remove in V2

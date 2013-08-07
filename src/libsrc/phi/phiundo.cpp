@@ -52,10 +52,8 @@ PHIUndoColor::PHIUndoColor( PHIBaseItem *it, PHIPalette::ItemRole ir, PHIPalette
     if ( ir==PHIPalette::Background )
         setText( QObject::tr( "Outline color" )+UT( it->name() ) );
     else setText( QObject::tr( "Pattern color" )+UT( it->name() ) );
-    qDebug() << _newCol << _newColorRole;
     _oldCol=it->color( ir );
     _oldColorRole=it->colorRole( ir );
-    qDebug() << _oldCol << _oldColorRole;
 }
 
 bool PHIUndoColor::mergeWith( const QUndoCommand *other )
@@ -301,6 +299,7 @@ PHIUndoProperty::PHIUndoProperty( PHIBaseItem *it, const char *prop, const QVari
     if ( p==L1( "pattern" ) ) _id=Pattern;
     if ( p==L1( "line" ) ) _id=Line;
     if ( p==L1( "zIndex" ) ) _id=ZIndex;
+    if ( p==L1( "transformPos" ) ) _id=TransformPos;
     createText();
 }
 
@@ -318,15 +317,17 @@ void PHIUndoProperty::createText()
         _oldProp.setValue( item()->property( "penWidth" ).toReal() ); break;
     case Pattern: text=QObject::tr( "Pattern" );
         _oldProp.setValue( item()->property( "pattern" ).value<quint8>() ); break;
-    //case Alignment: text=QObject::tr( "Alignment" ); _oldProp.setValue( it->alignment() ); break;
-    //case Text: text=QObject::tr( "Text" ); _oldProp.setValue( it->text() ); break;
-    case ZIndex: text=QObject::tr( "zIndex" ); _oldProp.setValue( item()->zIndex() ); break;
+    case ZIndex: text=QObject::tr( "zIndex" );
+        _oldProp.setValue( item()->zIndex() ); break;
+    case TransformPos: text=QObject::tr( "Transform origin" );
+        _oldProp.setValue( item()->transformPos() ); break;
 /*
+    case Alignment: text=QObject::tr( "Alignment" ); _oldProp.setValue( it->alignment() ); break;
+    case Text: text=QObject::tr( "Text" ); _oldProp.setValue( it->text() ); break;
     case Data: text=QObject::tr( "Data" ); _oldProp.setValue( *(it->itemData()) ); break;
     case Pixmap: text=QObject::tr( "Image" ); _oldProp.setValue( it->pixmap() ); break;
-    case TransformPos: text=QObject::tr( "Transform" ); _oldProp.setValue( it->transformPos() ); break;
     case Value: text=QObject::tr( "Value" ); _oldProp.setValue( it->value() ); break;
-    //case Label: text=QObject::tr( "Label" ); _oldProp.setValue( it->label() ); break;
+    case Label: text=QObject::tr( "Label" ); _oldProp.setValue( it->label() ); break;
     case ItemId: text=QObject::tr( "Id" ); _oldProp.setValue( it->id() ); break;
     case Parent: text=QObject::tr( "Parent" ); _oldProp.setValue( it->parent() ); break;
     case TabOrder: text=QObject::tr( "Tab index" ); _oldProp.setValue( it->tabOrder() ); break;
@@ -361,7 +362,8 @@ void PHIUndoProperty::redo()
     case Line: item()->setProperty( "line", _newProp.value<quint8>() ); break;
     case PenWidth: item()->setProperty( "penWidth", _newProp.toReal() ); break;
     case Pattern: item()->setProperty( "pattern", _newProp.value<quint8>() ); break;
-    case ZIndex:item()->setZIndex( _newProp.value<qint16>() );
+    case ZIndex: item()->setZIndex( _newProp.value<qint16>() ); break;
+    case TransformPos: item()->setTransformPos( _newProp.value<quint8>() ); break;
     /*
     case Alignment: item()->setAlignment( static_cast<PHI::Alignment>(_newProp.toUInt()) ); break;
     case Text: {
@@ -410,6 +412,7 @@ void PHIUndoProperty::undo()
     case PenWidth: item()->setProperty( "penWidth", _oldProp.toReal() ); break;
     case Pattern: item()->setProperty( "pattern", _oldProp.value<quint8>() ); break;
     case ZIndex: item()->setZIndex( _oldProp.value<qint16>() ); break;
+    case TransformPos: item()->setTransformPos( _oldProp.value<quint8>() ); break;
 /*
     case Alignment: item()->setAlignment( static_cast<PHI::Alignment>(_oldProp.toUInt()) ); break;
     case Text: {

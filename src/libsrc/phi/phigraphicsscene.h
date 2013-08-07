@@ -27,6 +27,7 @@ class PHIBaseItem;
 class PHIBasePage;
 class QMimeData;
 class QGraphicsSceneDragDropEvent;
+class QGraphicsSceneMouseEvent;
 class QUndoStack;
 class QTimer;
 
@@ -41,13 +42,15 @@ public:
     inline PHIBasePage* page() const { return _page; }
     inline QString fileName() const { return objectName(); }
     inline QUndoStack* undoStack() const { return _undoStack; }
+    inline void setGridSize( int s ) { _gridSize=qBound( 0, s, 99 ); }
+    inline int gridSize() const { return _gridSize; }
     void saveAs( const QString &f );
     void save();
     void open( const QString &f );
-    void setAlignment( Qt::Alignment );
     void deleteSelectedBaseItems();
     void setSelectAnimation( bool );
     QList<PHIBaseItem*> selectedBaseItems() const;
+    QPointF gridPos( const QPointF &pos ) const;
 
     static PHIWID widFromMimeData( const QMimeData *md );
     static QPixmap pixmapFromMimeData( const QMimeData *md );
@@ -55,6 +58,10 @@ public:
     static QUrl urlFromMimeData( const QMimeData *md );
     static QColor colorFromMimeData( const QMimeData *md );
     static qreal selectAnimationOffset() { return _selectAnimOff; }
+
+public slots:
+    void documentSizeChanged();
+    void setAlignment( Qt::Alignment );
 
 protected:
     virtual void drawBackground( QPainter *painter, const QRectF &rect );
@@ -64,10 +71,12 @@ protected:
     virtual void dragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void keyPressEvent( QKeyEvent *event );
+    virtual void mouseMoveEvent( QGraphicsSceneMouseEvent *event );
 
 signals:
     void cleanChanged( bool );
     void newBaseItemAdded( PHIBaseItem* );
+    void mousePos( const QPointF& );
 
 protected slots:
     void updateSelectAnimation();
@@ -78,6 +87,7 @@ private:
     QUndoStack *_undoStack;
     QTimer *_selectAnimTimer;
     bool _handleOwnDragDropEvent;
+    int _gridSize;
 };
 
 #endif // PHIGRAPHICSSCENE_H

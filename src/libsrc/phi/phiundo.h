@@ -20,7 +20,7 @@ class PHIUndoCommand : public QUndoCommand
 
 public:
     enum Id { Move=0, Color=1, Size, Add, Delete, Opacity, Font, Title, Visibility,
-        Line, PenWidth, Pattern, Alignment, Text, ZIndex };
+        Line, PenWidth, Pattern, Alignment, Text, ZIndex, TransformPos };
         //Data, Pixmap, TransformPos, ZValue,
         //Transform, Value, Label, ItemId, Parent, Page, TabOrder, Check, ToolTip, Visibility,
         //Effect, TextData, Url, StyleSheet, Attribute };

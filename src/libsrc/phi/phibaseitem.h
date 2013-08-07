@@ -42,6 +42,8 @@ class PHIEXPORT PHIBaseItem : public QObject
 {
     friend class PHIGraphicsItem;
     friend class PHIGraphicsScene;
+    friend class PHIUndoAdd;
+    friend class PHIUndoDelete;
 
     Q_OBJECT
     Q_DISABLE_COPY( PHIBaseItem )
@@ -58,12 +60,20 @@ class PHIEXPORT PHIBaseItem : public QObject
     Q_PROPERTY( qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged )
     Q_PROPERTY( QString title READ title WRITE setTitle NOTIFY titleChanged )
     Q_PROPERTY( qint16 zIndex READ zIndex WRITE setZIndex NOTIFY zIndexChanged )
+    Q_PROPERTY( quint8 transformPos READ transformPos WRITE setTransformPos )
 
 public:
-    enum Type { TUndefined=0, TIDEItem=1, TClientItem=2, TServerItem=3, TServerParserItem=4 };
+    enum Type { TUndefined=0, TIDEItem=1, TTemplateItem=2, TServerItem=3,
+        TServerParserItem=4, TClientItem=5 };
     enum Wid { Invalid=0 };
-    enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4 };
-    enum SelectMode { SMove, STransform, STabOrder };
+    enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4, DTransformPos=-5,
+        DTransformOrigin=-6 };
+    enum Flag { FNone=0x0, FChild=0x01 };
+#ifdef PHIDEBUG
+    Q_DECLARE_FLAGS( Flags, Flag )
+#else
+    typedef qint32 Flags;
+#endif
     /*
     enum DataType { DNone=0, DPalette=1, DFont=2, DColor=3, DOutlineColor=4, DMaxSize=5,
         DStartAngle=6, DSpanAngle=7, DUrl=8, DPattern=9, DLine=10, DPenWidth=11, DStopPoints=12,
@@ -99,14 +109,20 @@ signals:
 public: // not usable by script engine
     inline QByteArray id() const { return _id; }
     inline QByteArray parentId() const { return _parentId; }
-    inline Type itemType() const { return _type; }
+    //inline Type itemType() const { return _type; }
     inline void setId( const QByteArray &id ) { _id=id; setObjectName( QString::fromUtf8( id ) ); }
     inline void setId( const QString &id ) { _id=id.toLatin1(); setObjectName( id ); }
     inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); }
     inline void setParentId( const QByteArray &pid ) { _parentId=pid; }
-    inline void setZIndex( qint16 idx ) { _zIndex=idx; if ( _gw) _gw->setZValue( static_cast<qreal>(idx) ); }
+    inline void setZIndex( qint16 idx ) { _zIndex=idx; if ( _gw ) _gw->setZValue( static_cast<qreal>(idx) ); }
     inline qint16 zIndex() const { return _zIndex; }
+    inline QRectF rect() const { return QRectF( QPointF(), size() ); }
+    inline quint8 transformPos() const { return _variants.value( DTransformPos, 1 ).value<quint8>(); }
+    inline void setTransformPos( PHI::Origin o ) { setTransformPos( static_cast<quint8>(o) ); }
+    inline QPointF transformOrigin() const { return _variants.value( DTransformOrigin, QPointF() ).toPointF(); }
 
+    void setTransformPos( quint8 pos );
+    void setTransformOrigin( const QPointF &pos );
     void load( QDataStream &in, quint8 version );
     void save( QDataStream &out, quint8 version ) const;
     QFont font() const;
@@ -118,9 +134,8 @@ public: // not usable by script engine
     inline virtual bool isFocusable() const { return false; }
     inline virtual bool isInputItem() const { return false; }
     inline virtual bool isLayoutItem() const { return false; }
-    inline virtual bool widthChangeable() const { return true; }
-    inline virtual bool heightChangeable() const { return true; }
-    inline virtual QRectF rect() const { return QRectF( QPointF(), size() ); }
+    inline virtual bool widthIsChangeable() const { return true; }
+    inline virtual bool heightIsChangeable() const { return true; }
     inline virtual QColor color( PHIPalette::ItemRole ) const { return QColor(); }
     inline virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole ) const { return PHIPalette::NoRole; }
 
@@ -133,13 +148,6 @@ public: // not usable by script engine
     virtual QPixmap pixmap() const=0;
     virtual QString listName() const=0;
     virtual QString description() const=0;
-    inline QGraphicsWidget* graphicsWidget() const { return _gw; }
-    static void setSelectMode( SelectMode mode ) { _selectMode=mode; }
-    static void setSelectionColor( const QColor &c ) { _selectionColor=c; }
-    static void setGripSize( quint8 g ) { _gripSize=g; }
-    static QColor selectionColor() { return _selectionColor; }
-    static quint8 gripSize() { return _gripSize; }
-    static SelectMode selectMode() { return _selectMode; }
 
 public slots: // usable by script engine
     inline qreal x() const { return _x; }
@@ -157,10 +165,11 @@ public slots: // usable by script engine
 
     inline void setX( qreal x ) { if ( _x==x ) return; _x=x; if ( _gw ) _gw->setX( x ); }
     inline void setY( qreal y ) { if ( _y==y ) return; _y=y; if ( _gw ) _gw->setY( y ); }
-    inline void setOpacity( qreal o ) { o=qBound( 0., o, 1. ); _variants.insert( DOpacity, o ); if ( _gw ) _gw->setOpacity( o ); }
+    inline void setOpacity( qreal o ) { o=qBound( 0., o, 1. ); _variants.insert( DOpacity, o ); }
     inline void setTitle( const QString &t ) { _variants.insert( DTitle, t.toUtf8() ); if ( _gw ) _gw->setToolTip( t ); }
     inline void setParentName( const QString &n ) { _parentId=n.toLatin1(); }
     inline void setTabIndex( qint16 tab ) { _variants.insert( DTabIndex, tab ); }
+    inline void setPos( qreal x, qreal y ) { setPos( QPointF( x, y ) ); }
 
     inline virtual bool isDraggable() const { return false; }
     inline virtual bool isDroppable() const { return false; }
@@ -177,6 +186,8 @@ protected:
     virtual void saveItemData( QDataStream &out, quint8 version ) const;
     virtual void loadEditorData( QDataStream &in, quint8 version );
     virtual void saveEditorData( QDataStream &out, quint8 version ) const;
+
+    inline bool isChild() const { return _flags & FChild; }
 
     // Phis server related members
     // create all cached language dependend images and transformed images and free memory:
@@ -196,6 +207,8 @@ protected:
     inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
     inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
     inline bool isIdeItem() const { return _type==TIDEItem; }
+    inline bool isTemplateItem() const { return _type==TTemplateItem; }
+    inline bool isClientItem() const { return _type==TClientItem; }
     inline void setPreferredSize( const QSizeF &s ) { if ( _gw ) _gw->setPreferredSize( s ); }
     inline void setMinimumSize( const QSizeF &s ) { if ( _gw ) _gw->setMinimumSize( s ); }
     inline void setMaximumSize( const QSizeF &s ) { if ( _gw ) _gw->setMaximumSize( s ); }
@@ -210,7 +223,7 @@ protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
-    virtual QPainterPath shape() const;
+    //virtual QPainterPath shape() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const; // return invalid size to call basic implementation
     virtual bool sceneEvent( QEvent *event ); // return false to call inherited implementatio
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
@@ -227,14 +240,13 @@ protected:
 private:
     // IDE related members
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
+    inline QGraphicsWidget* graphicsWidget() const { return _gw; }
 
 protected:
     QHash <qint8, QVariant> _variants;
+    Flags _flags;
 
 private:
-    static quint8 _gripSize;
-    static QColor _selectionColor;
-    static SelectMode _selectMode;
     Type _type;
     QGraphicsProxyWidget *_gw;
     QByteArray _id, _parentId;
@@ -242,6 +254,9 @@ private:
     qint16 _zIndex;
 };
 
+#ifdef PHIDEBUG
+Q_DECLARE_OPERATORS_FOR_FLAGS( PHIBaseItem::Flags )
+#endif
 Q_DECLARE_METATYPE( PHIBaseItem* )
 Q_DECLARE_METATYPE( const PHIBaseItem* )
 
@@ -269,7 +284,6 @@ inline void PHIBaseItem::setHeight( qreal h )
 
 inline void PHIBaseItem::setPos( const QPointF &p )
 {
-    if ( p==pos() ) return;
     _x=p.x();
     _y=p.y();
     if ( _gw ) _gw->setPos( p );
@@ -277,7 +291,6 @@ inline void PHIBaseItem::setPos( const QPointF &p )
 
 inline void PHIBaseItem::resize( qreal w, qreal h )
 {
-    if ( w==_width && h==_height ) return;
     _width=w;
     _height=h;
     if ( _gw ) _gw->resize( w, h );

@@ -47,7 +47,6 @@ static void _extractShapeDefs( const QString &s, PHIPalette::ColorRole &cr, quin
             continue;
         }
     }
-    qDebug() << pattern << style << penWidth;
 }
 
 PHIShapeItem::PHIShapeItem( Type type, PHIBasePage *page )
@@ -66,7 +65,8 @@ void PHIShapeItem::paint( QPainter *p, const QRectF &exposed )
     if ( style!=Qt::NoPen ) {
         pen.setColor( outlineColor() );
         pen.setWidthF( penWidth() );
-        pen.setCapStyle( style==Qt::SolidLine ? Qt::SquareCap : Qt::FlatCap );
+        pen.setJoinStyle( Qt::MiterJoin );
+        pen.setCapStyle( Qt::FlatCap );
         pen.setStyle( style );
     } else pen.setStyle( Qt::NoPen );
     QBrush brush;
@@ -139,7 +139,7 @@ void PHIShapeItem::setLine( quint8 l )
 
 QRectF PHIShapeItem::boundingRect() const
 {
-    int off=static_cast<int>(penWidth()/2.)+5;
+    int off=static_cast<int>(penWidth()/2.)+1;
     return QRectF( -off, -off, width()+2*off, height()+2*off );
 }
 

@@ -53,8 +53,8 @@ class PHIEXPORT PHIBasePage : public QObject
     Q_DISABLE_COPY( PHIBasePage )
     Q_PROPERTY( QString id READ id )
     Q_PROPERTY( QString title READ title WRITE setTitle NOTIFY titleChanged )
-    Q_PROPERTY( quint32 width READ width WRITE setWidth NOTIFY widthChanged )
-    Q_PROPERTY( quint32 height READ height WRITE setHeight NOTIFY heightChanged )
+    Q_PROPERTY( quint32 width READ width WRITE setWidth )
+    Q_PROPERTY( quint32 height READ height WRITE setHeight )
     Q_PROPERTY( QString author WRITE setAuthor READ author )
     Q_PROPERTY( QString company WRITE setCompany READ company )
     Q_PROPERTY( QString version WRITE setVersion READ version )
@@ -97,6 +97,7 @@ public:
     QList <PHIBaseItem*> items() const;
     QString nextFreeId( const QString &requestedId ) const;
     PHIBasePage* clone() const;
+    QRect rect() const { return QRect( QPoint(), QSize( _width, _height ) ); }
 
     void load( QDataStream &in, quint8 version );
     void save( QDataStream &out, quint8 version );
@@ -106,9 +107,9 @@ public slots:
     inline QString id() const { return QString::fromLatin1( _id ); }
     inline void setTitle( const QString &s ) { _variants.insert( DTitle, s.toUtf8() ); }
     inline QString title() const { return QString::fromUtf8( _variants.value( DTitle ).toByteArray() ); }
-    inline void setWidth( quint32 w ) { _width=w; }
+    inline void setWidth( quint32 w ) { _width=w; emit documentSizeChanged(); }
     inline quint32 width() const { return _width; }
-    inline void setHeight( quint32 h ) { _height=h; }
+    inline void setHeight( quint32 h ) { _height=h; emit documentSizeChanged(); }
     inline quint32 height() const { return _height; }
     QStringList itemIds() const;
     quint16 itemCount() const;
@@ -198,8 +199,7 @@ public slots:
 
 signals:
     void titleChanged( QString );
-    void widthChanged( quint32 );
-    void heightChanged( quint32 );
+    void documentSizeChanged();
 
 protected:
     void loadVersion1_x( QDataStream &in );

@@ -69,11 +69,13 @@ class PHIEXPORT PHI
 public:
     enum LogFilter { None=0x00, Trace=0x01, Error=0x02, Warning=0x04, Critical=0x08,
                      Debug=0x10, User=0x20 };
-    enum Alignment { AlignLeftVCenter=0, AlignLeftTop=1, AlignLeftBottom=2, AlignRightVCenter=3, AlignRightTop=4,
-        AlignRightBottom=5, AlignTopHCenter=6, AlignBottomHCenter=7, AlignJustify=8, AlignCenter=9,
-        AlignLeft=10, AlignRight=11, AlignTop=12, AlignBottom=13 }; //quint8 in DataStream
+    //enum Alignment { AlignLeftVCenter=0, AlignLeftTop=1, AlignLeftBottom=2, AlignRightVCenter=3, AlignRightTop=4,
+    //    AlignRightBottom=5, AlignTopHCenter=6, AlignBottomHCenter=7, AlignJustify=8, AlignCenter=9,
+    //    AlignLeft=10, AlignRight=11, AlignTop=12, AlignBottom=13 }; //quint8 in DataStream
     enum ContentData { CDAll=0, CDUpdate=1, CDRequest=2, CDMessage=3, CDTemplatePage=4, CDImage=5,
         CDStream=6 }; // quint8 in DataStream
+    enum Origin { Custom=0, TopLeft=1, TopMid=2, TopRight=3, MidLeft=4, MidMid=5,
+        Center=MidMid, MidRight=6, BottomLeft=7, BottomMid=8, BottomRight=9, Invalid=10 };
 
     static Qt::Alignment toQtAlignment( quint8 );
     static PHIRC socketError( QAbstractSocket::SocketError err );
