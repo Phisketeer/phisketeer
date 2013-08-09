@@ -17,8 +17,10 @@
 
 include( ../items.pri )
 HEADERS += phiinput.h \ 
-    phiinputitems.h
+    phiinputitems.h \
+    phiabstractinputitem.h
 SOURCES += \ 
-    phiinputitems.cpp
+    phiinputitems.cpp \
+    phiabstractinputitem.cpp
 TARGET = phiinput
 OTHER_FILES = phiinput.json

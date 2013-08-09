@@ -60,9 +60,6 @@ PHIBaseItem::PHIBaseItem( Type type, PHIBasePage *page )
     _y=0;
     _width=100.;
     _height=100.;
-    if ( type==TIDEItem || type==TClientItem || type==TTemplateItem ) {
-        _gw=new PHIGraphicsItem( this );
-    }
     setTransformPos( PHI::TopLeft );
 }
 
@@ -77,6 +74,15 @@ PHIBaseItem::~PHIBaseItem()
     //qDebug( "PHIBaseItem::~PHIBaseItem()" );
 }
 
+// Hack to provide Drop operations for the IDE:
+QUndoStack* PHIBaseItem::undoStack() const
+{
+    Q_ASSERT( _gw );
+    PHIGraphicsScene *scene=qobject_cast<PHIGraphicsScene*>(_gw->scene());
+    Q_ASSERT( scene );
+    return scene->undoStack();
+}
+
 void PHIBaseItem::load( QDataStream &in, quint8 version )
 {
     in >> _id >> _parentId >> _x >> _y >> _width >> _height >> _variants;
@@ -88,14 +94,6 @@ void PHIBaseItem::load( QDataStream &in, quint8 version )
 QStringList PHIBaseItem::properties() const
 {
     return _myproperties( this );
-}
-
-QUndoStack* PHIBaseItem::undoStack() const
-{
-    Q_ASSERT( _gw );
-    PHIGraphicsScene *scene=qobject_cast<PHIGraphicsScene*>(_gw->scene());
-    Q_ASSERT( scene );
-    return scene->undoStack();
 }
 
 void PHIBaseItem::setFont( const QFont &font )
@@ -164,6 +162,18 @@ void PHIBaseItem::setTransformOrigin( const QPointF &pos )
     _variants.insert( DTransformOrigin, pos );
 }
 
+void PHIBaseItem::setText( const QString &t, const QString &lang )
+{
+    Q_UNUSED( t )
+    Q_UNUSED( lang )
+}
+
+QString PHIBaseItem::text( const QString &lang ) const
+{
+    Q_UNUSED( lang )
+    return QString();
+}
+
 /*
 QPainterPath PHIBaseItem::shape() const
 {
@@ -191,10 +201,12 @@ void PHIBaseItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *opti
 void PHIBaseItem::paint( QPainter *painter, const QRectF &exposed )
 {
     Q_ASSERT( _gw );
-    if ( !_gw->widget() ) return;
+    QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_gw);
+    if ( !proxy ) return;
+    if ( !proxy->widget() ) return;
     const QRect exposedRect=( exposed & rect() ).toAlignedRect();
     if ( exposedRect.isEmpty() ) return;
-    _gw->widget()->render( painter, exposedRect.topLeft(), exposedRect );
+    proxy->widget()->render( painter, exposedRect.topLeft(), exposedRect );
 }
 
 void PHIBaseItem::idePaintSelection( QPainter *painter )
@@ -296,7 +308,17 @@ void PHIBaseItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
 
 void PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
 {
+    qDebug( "base item key press" );
     e->ignore();
+}
+
+void PHIBaseItem::setGraphicsWidget( QGraphicsWidget *gw )
+{
+    _gw=gw;
+    QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_gw);
+    if ( !proxy ) return;
+    proxy->setWidget( createWidget() );
+    resize( proxy->preferredSize() );
 }
 
 void PHIBaseItem::squeeze( const PHISRequest* const req )

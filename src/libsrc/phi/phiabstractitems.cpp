@@ -13,17 +13,50 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU Lesser General Public License
+#    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <QFontMetrics>
 #include <QGraphicsSceneDragDropEvent>
 #include <QPainter>
 #include <QMimeData>
 #include <QUndoStack>
+#include "phiabstractitems.h"
+#include "phibasepage.h"
 #include "phiundo.h"
-#include "phishapeitem.h"
 
-qreal PHIShapeItem::_dropRegion=6.;
+PHIAbstractTextItem::PHIAbstractTextItem( Type type, PHIBasePage *page )
+    : PHIBaseItem( type, page )
+{
+}
+
+void PHIAbstractTextItem::setText( const QString &t, const QString &lang )
+{
+    Q_UNUSED( lang )
+    setWidgetText( t );
+}
+
+QString PHIAbstractTextItem::text( const QString &lang ) const
+{
+    Q_UNUSED( lang )
+    return QString();
+}
+
+QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    Q_UNUSED( constraint )
+    if ( which==Qt::MinimumSize ) {
+        if ( isSingleLine() ) return QSizeF( 21, 21 );
+        return QSizeF( 21, 42 );
+    }
+    if ( which==Qt::PreferredSize ) {
+        QFontMetrics m( font() );
+        return QSizeF( 150, qMax( 21, m.height()+4 ) );
+    }
+    return QSizeF();
+}
+
+qreal PHIAbstractShapeItem::_dropRegion=6.;
 
 static void _extractShapeDefs( const QString &s, PHIPalette::ColorRole &cr, quint8 &pattern, quint8 &style, qreal &penWidth )
 {
@@ -49,14 +82,14 @@ static void _extractShapeDefs( const QString &s, PHIPalette::ColorRole &cr, quin
     }
 }
 
-PHIShapeItem::PHIShapeItem( Type type, PHIBasePage *page )
+PHIAbstractShapeItem::PHIAbstractShapeItem( Type type, PHIBasePage *page )
     : PHIBaseItem( type, page )
 {
     _colorRole=PHIPalette::Black;
     _outlineColorRole=PHIPalette::Black;
 }
 
-void PHIShapeItem::paint( QPainter *p, const QRectF &exposed )
+void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
 {
     p->save();
     QPen pen;
@@ -80,21 +113,21 @@ void PHIShapeItem::paint( QPainter *p, const QRectF &exposed )
     p->restore();
 }
 
-QColor PHIShapeItem::color( PHIPalette::ItemRole role ) const
+QColor PHIAbstractShapeItem::color( PHIPalette::ItemRole role ) const
 {
     if ( role==PHIPalette::Foreground ) return color();
     if ( role==PHIPalette::Background ) return outlineColor();
     return QColor();
 }
 
-PHIPalette::ColorRole PHIShapeItem::colorRole( PHIPalette::ItemRole role ) const
+PHIPalette::ColorRole PHIAbstractShapeItem::colorRole( PHIPalette::ItemRole role ) const
 {
     if ( role==PHIPalette::Foreground ) return _colorRole;
     if ( role==PHIPalette::Background ) return _outlineColorRole;
     return PHIPalette::NoRole;
 }
 
-void PHIShapeItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
+void PHIAbstractShapeItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
 {
     if ( ir==PHIPalette::Foreground ) {
         _colorRole=cr;
@@ -110,7 +143,7 @@ void PHIShapeItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, 
     }
 }
 
-void PHIShapeItem::setPattern( quint8 p )
+void PHIAbstractShapeItem::setPattern( quint8 p )
 {
     Qt::BrushStyle s;
     if ( p > static_cast<quint8>(Qt::LinearGradientPattern) ) s=Qt::NoBrush;
@@ -120,14 +153,14 @@ void PHIShapeItem::setPattern( quint8 p )
     update();
 }
 
-void PHIShapeItem::setPenWidth( qreal w )
+void PHIAbstractShapeItem::setPenWidth( qreal w )
 {
     if ( w==1. ) _variants.remove( DPenWidth );
     else _variants.insert( DPenWidth, w );
     update();
 }
 
-void PHIShapeItem::setLine( quint8 l )
+void PHIAbstractShapeItem::setLine( quint8 l )
 {
     Qt::PenStyle s;
     if ( l > static_cast<quint8>(Qt::DashDotDotLine) ) s=Qt::NoPen;
@@ -137,13 +170,21 @@ void PHIShapeItem::setLine( quint8 l )
     update();
 }
 
-QRectF PHIShapeItem::boundingRect() const
+QRectF PHIAbstractShapeItem::boundingRect() const
 {
     int off=static_cast<int>(penWidth()/2.)+1;
     return QRectF( -off, -off, width()+2*off, height()+2*off );
 }
 
-void PHIShapeItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
+QSizeF PHIAbstractShapeItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    Q_UNUSED( constraint )
+    if ( which==Qt::PreferredSize ) return QSizeF( 100, 100 );
+    if ( which==Qt::MinimumSize ) return QSizeF( 16, 16 );
+    return QSizeF();
+}
+
+void PHIAbstractShapeItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return e->ignore();
     _variants.insert( DTmpColor, _variants.value( DColor ) );
@@ -157,7 +198,7 @@ void PHIShapeItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
     e->accept();
 }
 
-void PHIShapeItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
+void PHIAbstractShapeItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return;
     QRectF r=QRectF( QPointF( _dropRegion, _dropRegion ),
@@ -198,7 +239,7 @@ void PHIShapeItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
     update();
 }
 
-void PHIShapeItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
+void PHIAbstractShapeItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return;
     setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
@@ -211,7 +252,7 @@ void PHIShapeItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
     update();
 }
 
-void PHIShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
+void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return;
     QString ut=QString( L1( " <%1>" ) ).arg( name() );

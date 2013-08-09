@@ -20,7 +20,7 @@
 #include "phirectitem.h"
 
 PHIRectItem::PHIRectItem(Type type, PHIBasePage *page )
-    : PHIShapeItem( type, page )
+    : PHIAbstractShapeItem( type, page )
 {
     qDebug( "PHIRectItem::PHIRectItem()" );
 }

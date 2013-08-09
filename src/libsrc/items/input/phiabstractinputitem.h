@@ -16,26 +16,22 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PHIWIDGETITEM_H
-#define PHIWIDGETITEM_H
-#include "phibaseitem.h"
+#ifndef PHIABSTRACTINPUTITEM_H
+#define PHIABSTRACTINPUTITEM_H
+#include "phiabstractitems.h"
 
-class PHIBasePage;
-
-class PHIWidgetItem : public PHIBaseItem
+class PHIAbstractInputItem : public PHIAbstractTextItem
 {
     Q_OBJECT
+    Q_PROPERTY( QString value READ value WRITE setValue )
 
 public:
-    explicit PHIWidgetItem( Type type, PHIBasePage *page );
-    
-public:
+    explicit PHIAbstractInputItem( Type type, PHIBasePage *page );
     virtual bool isFocusable() const { return true; }
-    virtual bool hasText() const { return true; }
-signals:
-    
+
 public slots:
-    
+    virtual void setValue( const QString &v );
+    QString value() const;
 };
 
-#endif // PHIWIDGETITEM_H
+#endif // PHIABSTRACTINPUTITEM_H

@@ -18,9 +18,12 @@
 */
 #ifndef PHIINPUTITEMS_H
 #define PHIINPUTITEMS_H
-#include "phiwidgetitem.h"
+#include "phiabstractinputitem.h"
 
-class PHILineEditItem : public PHIWidgetItem
+class QLineEdit;
+class QPlainTextEdit;
+
+class PHILineEditItem : public PHIAbstractInputItem
 {
     Q_OBJECT
 
@@ -31,11 +34,35 @@ public:
     virtual QString description() const { return tr( "Line edit with input type <text>" ); }
     virtual PHIWID wid() const { return LineEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
+    //virtual bool heightIsChangeable() const { return false; }
 
-signals:
-    
-public slots:
-    
+protected:
+    virtual QWidget *createWidget();
+    virtual void setWidgetText( const QString &s );
+
+private:
+    QLineEdit *_edit;
+};
+
+class PHITextAreaItem : public PHIAbstractInputItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { TextArea=2 };
+    explicit PHITextAreaItem( Type type, PHIBasePage *page );
+    virtual QString listName() const { return tr( "Textarea" ); }
+    virtual QString description() const { return tr( "Input type <textarea>" ); }
+    virtual PHIWID wid() const { return TextArea; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/textarea" ) ); }
+
+protected:
+    virtual bool isSingleLine() const { return false; }
+    virtual QWidget *createWidget();
+    virtual void setWidgetText( const QString &t );
+
+private:
+    QPlainTextEdit *_edit;
 };
 
 #endif // PHIINPUTITEMS_H

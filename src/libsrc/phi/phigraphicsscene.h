@@ -26,10 +26,8 @@
 class PHIBaseItem;
 class PHIBasePage;
 class QMimeData;
-class QGraphicsSceneDragDropEvent;
 class QGraphicsSceneMouseEvent;
 class QUndoStack;
-class QTimer;
 
 class PHIEXPORT PHIGraphicsScene : public QGraphicsScene
 {
@@ -42,52 +40,32 @@ public:
     inline PHIBasePage* page() const { return _page; }
     inline QString fileName() const { return objectName(); }
     inline QUndoStack* undoStack() const { return _undoStack; }
-    inline void setGridSize( int s ) { _gridSize=qBound( 0, s, 99 ); }
-    inline int gridSize() const { return _gridSize; }
-    void saveAs( const QString &f );
-    void save();
-    void open( const QString &f );
-    void deleteSelectedBaseItems();
-    void setSelectAnimation( bool );
     QList<PHIBaseItem*> selectedBaseItems() const;
-    QPointF gridPos( const QPointF &pos ) const;
+    PHIBaseItem* focusBaseItem() const;
 
     static PHIWID widFromMimeData( const QMimeData *md );
     static QPixmap pixmapFromMimeData( const QMimeData *md );
     static QString pathFromMimeData( const QMimeData *md );
     static QUrl urlFromMimeData( const QMimeData *md );
     static QColor colorFromMimeData( const QMimeData *md );
-    static qreal selectAnimationOffset() { return _selectAnimOff; }
 
-public slots:
-    void documentSizeChanged();
+protected slots:
+    virtual void documentSizeChanged();
     void setAlignment( Qt::Alignment );
 
 protected:
-    virtual void drawBackground( QPainter *painter, const QRectF &rect );
-    virtual void drawForeground( QPainter *painter, const QRectF &rect );
-    virtual void dragEnterEvent( QGraphicsSceneDragDropEvent *event );
-    virtual void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
-    virtual void dragLeaveEvent( QGraphicsSceneDragDropEvent *event );
-    virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
-    virtual void keyPressEvent( QKeyEvent *event );
     virtual void mouseMoveEvent( QGraphicsSceneMouseEvent *event );
+    virtual void drawBackground( QPainter *painter, const QRectF &rect );
 
 signals:
-    void cleanChanged( bool );
-    void newBaseItemAdded( PHIBaseItem* );
     void mousePos( const QPointF& );
+    void cleanChanged( bool );
 
-protected slots:
-    void updateSelectAnimation();
-    
 private:
-    static qreal _selectAnimOff;
     PHIBasePage *_page;
+    // Hack to provide Drop operations for the IDE,
+    // unused in client applications:
     QUndoStack *_undoStack;
-    QTimer *_selectAnimTimer;
-    bool _handleOwnDragDropEvent;
-    int _gridSize;
 };
 
 #endif // PHIGRAPHICSSCENE_H

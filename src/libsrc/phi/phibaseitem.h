@@ -41,7 +41,10 @@ class QUndoStack;
 class PHIEXPORT PHIBaseItem : public QObject
 {
     friend class PHIGraphicsItem;
+    friend class ARTGraphicsItem;
+    friend class PHIAGraphicsItem;
     friend class PHIGraphicsScene;
+    friend class ARTGraphicsScene;
     friend class PHIUndoAdd;
     friend class PHIUndoDelete;
 
@@ -114,13 +117,13 @@ public: // not usable by script engine
     inline void setId( const QString &id ) { _id=id.toLatin1(); setObjectName( id ); }
     inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); }
     inline void setParentId( const QByteArray &pid ) { _parentId=pid; }
-    inline void setZIndex( qint16 idx ) { _zIndex=idx; if ( _gw ) _gw->setZValue( static_cast<qreal>(idx) ); }
     inline qint16 zIndex() const { return _zIndex; }
     inline QRectF rect() const { return QRectF( QPointF(), size() ); }
     inline quint8 transformPos() const { return _variants.value( DTransformPos, 1 ).value<quint8>(); }
     inline void setTransformPos( PHI::Origin o ) { setTransformPos( static_cast<quint8>(o) ); }
     inline QPointF transformOrigin() const { return _variants.value( DTransformOrigin, QPointF() ).toPointF(); }
 
+    void setZIndex( qint16 idx );
     void setTransformPos( quint8 pos );
     void setTransformOrigin( const QPointF &pos );
     void load( QDataStream &in, quint8 version );
@@ -143,6 +146,8 @@ public: // not usable by script engine
     virtual void setFont( const QFont &font );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color );
     virtual void phiPaletteChanged( const PHIPalette &pal );
+    virtual void setText( const QString &t, const QString &lang );
+    virtual QString text( const QString &lang ) const;
 
     // IDE related members
     virtual QPixmap pixmap() const=0;
@@ -202,13 +207,12 @@ protected:
     virtual void css( const PHISRequest* const req, QByteArray &out );
 
     // IDE related members
-    inline QWidget* widget() const { if ( _gw ) return _gw->widget(); return 0; }
-    inline void setWidget( QWidget *w ) { if ( _gw ) { _gw->setWidget( w ); resize( _gw->preferredSize() ); } }
     inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
     inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
     inline bool isIdeItem() const { return _type==TIDEItem; }
     inline bool isTemplateItem() const { return _type==TTemplateItem; }
     inline bool isClientItem() const { return _type==TClientItem; }
+    /*
     inline void setPreferredSize( const QSizeF &s ) { if ( _gw ) _gw->setPreferredSize( s ); }
     inline void setMinimumSize( const QSizeF &s ) { if ( _gw ) _gw->setMinimumSize( s ); }
     inline void setMaximumSize( const QSizeF &s ) { if ( _gw ) _gw->setMaximumSize( s ); }
@@ -216,16 +220,18 @@ protected:
     inline void setMaximumHeight( const qreal h ) { if ( _gw ) _gw->setMaximumHeight( h ); }
     inline void setMinimumWidth( const qreal w ) { if ( _gw ) _gw->setMinimumWidth( w ); }
     inline void setMinimumHeight( const qreal h ) { if ( _gw ) _gw->setMinimumHeight( h ); }
+    */
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
     inline void update( const QRectF &r=QRectF() ) { if ( _gw ) _gw->update( r ); }
-    QUndoStack* undoStack() const;
 
+    QUndoStack* undoStack() const;
+    virtual QWidget* createWidget() { return 0; }
     virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
     //virtual QPainterPath shape() const;
-    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const; // return invalid size to call basic implementation
-    virtual bool sceneEvent( QEvent *event ); // return false to call inherited implementatio
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
+    virtual bool sceneEvent( QEvent *event ); // return false to call basic implementation
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
@@ -240,6 +246,7 @@ protected:
 private:
     // IDE related members
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
+    void setGraphicsWidget( QGraphicsWidget *gw );
     inline QGraphicsWidget* graphicsWidget() const { return _gw; }
 
 protected:
@@ -248,7 +255,7 @@ protected:
 
 private:
     Type _type;
-    QGraphicsProxyWidget *_gw;
+    QGraphicsWidget *_gw;
     QByteArray _id, _parentId;
     qreal _x, _y, _width, _height;
     qint16 _zIndex;
@@ -298,10 +305,15 @@ inline void PHIBaseItem::resize( qreal w, qreal h )
 
 inline void PHIBaseItem::resize( const QSizeF &s )
 {
-    if ( s==size() ) return;
     _width=s.width();
     _height=s.height();
     if ( _gw ) _gw->resize( s );
+}
+
+inline void PHIBaseItem::setZIndex( qint16 idx )
+{
+    _zIndex=qBound(static_cast<qint16>(-PHI::maxZIndex()), idx, PHI::maxZIndex());
+    if ( _gw ) _gw->setZValue( static_cast<qreal>(idx) );
 }
 
 /*

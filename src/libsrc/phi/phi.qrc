@@ -20,7 +20,7 @@
         <file alias="lineedit">images/line_edit.png</file>
         <file alias="listbox">images/list_box.png</file>
         <file>images/login.png</file>
-        <file>images/multi_line_edit.png</file>
+        <file alias="textarea">images/multi_line_edit.png</file>
         <file>images/password.png</file>
         <file>images/period.png</file>
         <file alias="radiobutton">images/radio_button.png</file>

@@ -18,9 +18,9 @@
 */
 #ifndef PHIELLIPSEITEM_H
 #define PHIELLIPSEITEM_H
-#include "phishapeitem.h"
+#include "phiabstractitems.h"
 
-class PHIEllipseItem : public PHIShapeItem
+class PHIEllipseItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
     Q_PROPERTY( qint16 startAngle READ startAngle WRITE setStartAngle NOTIFY startAngleChanged )
@@ -47,7 +47,6 @@ signals:
 
 protected:
     virtual void drawShape( QPainter *painter, const QRectF &r );
-
 };
 
 #endif // PHIELLIPSEITEM_H

@@ -38,14 +38,14 @@ HEADERS += phi.h \
     phigraphicsitem.h \
     phigraphicsscene.h \
     phigraphicsview.h \
-    phiwidgetitem.h \
     phipalette.h \
     qpixmapfilter_p.h \
     phipagemenuentry.h \
     phiitemstylecss.h \
     phisrequest.h \
     phitools.h \
-    phiundo.h
+    phiundo.h \
+    phiabstractitems.h
 SOURCES += phi.cpp \
     phiitem.cpp \
     phisitem.cpp \
@@ -68,13 +68,13 @@ SOURCES += phi.cpp \
     phigraphicsitem.cpp \
     phigraphicsscene.cpp \
     phigraphicsview.cpp \
-    phiwidgetitem.cpp \
     phipalette.cpp \
     phipagemenuentry.cpp \
     phiitemstylecss.cpp \
     phisrequest.cpp \
     phitools.cpp \
-    phiundo.cpp
+    phiundo.cpp \
+    phiabstractitems.cpp
 
 VERSION = 2.0.0
 include( ../../../phiconf.pri )

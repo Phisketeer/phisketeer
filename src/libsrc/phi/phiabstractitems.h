@@ -13,18 +13,36 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU Lesser General Public License
+#    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PHISHAPEITEM_H
-#define PHISHAPEITEM_H
-#include <QPen>
-#include <QGradient>
-#include <QBrush>
+#ifndef PHIABSTRACTITEMS_H
+#define PHIABSTRACTITEMS_H
 #include "phibaseitem.h"
 #include "phipalette.h"
 
-class PHIShapeItem : public PHIBaseItem
+class PHIBasePage;
+
+class PHIAbstractTextItem : public PHIBaseItem
+{
+    Q_OBJECT
+
+public:
+    explicit PHIAbstractTextItem( Type type, PHIBasePage *page );
+    
+public:
+    virtual bool hasText() const { return true; }
+    virtual void setText( const QString &t, const QString &lang );
+    virtual QString text( const QString &lang ) const;
+
+protected:
+    virtual bool isSingleLine() const { return true; }
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual QWidget* createWidget()=0;
+    virtual void setWidgetText( const QString &t )=0;
+};
+
+class PHIAbstractShapeItem : public PHIBaseItem
 {
     Q_OBJECT
     Q_PROPERTY( quint8 line READ line WRITE setLine )
@@ -39,7 +57,7 @@ public:
         DColor=-103, DOutlineColor=-104, DPenWidth=-105, DTmpColor=-106,
         DTmpOutlineColor=-107, DTmpPatternStyle=-108, DTmpLineStyle=-109,
         DTmpPenWidth=-110 };
-    explicit PHIShapeItem( Type type, PHIBasePage *page );
+    explicit PHIAbstractShapeItem( Type type, PHIBasePage *page );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
@@ -58,6 +76,7 @@ public slots:
 
 protected:
     virtual QRectF boundingRect() const;
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
@@ -71,4 +90,4 @@ protected:
     static qreal _dropRegion;
 };
 
-#endif // PHISHAPEITEM_H
+#endif // PHIABSTRACTITEMS_H

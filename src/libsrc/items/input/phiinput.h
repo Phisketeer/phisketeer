@@ -42,18 +42,20 @@ inline PHIBaseItem* PHIInput::create( PHIWID wid, PHIBaseItem::Type type, PHIBas
 {
     switch ( wid ) {
     case PHILineEditItem::LineEdit: return new PHILineEditItem( type, page );
+    case PHITextAreaItem::TextArea: return new PHITextAreaItem( type, page );
     }
     return 0;
 }
 
 inline QStringList PHIInput::keys() const
 {
-    return QStringList() << QStringLiteral( "lineedit" );
+    return QStringList() << QStringLiteral( "lineedit" ) << QStringLiteral( "textarea" );
 }
 
 inline PHIWID PHIInput::wid( const QString &key ) const
 {
     if ( key==QLatin1String( "lineedit" ) ) return PHILineEditItem::LineEdit;
+    if ( key==QLatin1String( "textarea" ) ) return PHITextAreaItem::TextArea;
     return 0;
 }
 

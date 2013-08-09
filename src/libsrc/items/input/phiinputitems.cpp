@@ -17,13 +17,42 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QLineEdit>
+#include <QPlainTextEdit>
 #include "phiinputitems.h"
 
 PHILineEditItem::PHILineEditItem( Type type, PHIBasePage *page )
-    : PHIWidgetItem( type, page )
+    : PHIAbstractInputItem( type, page ), _edit( 0 )
 {
-    QLineEdit *edit=new QLineEdit();
-    qDebug() << edit->sizeHint();
-    setWidget( edit );
-    qDebug() << DFont;
+}
+
+QWidget* PHILineEditItem::createWidget()
+{
+    _edit=new QLineEdit();
+    return _edit;
+}
+
+void PHILineEditItem::setWidgetText( const QString &s )
+{
+    _edit->setText( s );
+}
+
+PHITextAreaItem::PHITextAreaItem( Type type, PHIBasePage *page )
+    : PHIAbstractInputItem( type, page ), _edit( 0 )
+{
+}
+
+QWidget* PHITextAreaItem::createWidget()
+{
+    _edit=new QPlainTextEdit();
+    if ( isIdeItem() ) _edit->setReadOnly( true );
+#ifdef Q_OS_MAC
+    _edit->setForegroundRole( QPalette::Button );
+    _edit->setFrameStyle( QFrame::Box );
+#endif
+    return _edit;
+}
+
+void PHITextAreaItem::setWidgetText( const QString &t )
+{
+    _edit->setPlainText( t );
 }

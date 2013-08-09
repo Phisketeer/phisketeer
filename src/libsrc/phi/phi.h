@@ -68,7 +68,7 @@ class PHIEXPORT PHI
 
 public:
     enum LogFilter { None=0x00, Trace=0x01, Error=0x02, Warning=0x04, Critical=0x08,
-                     Debug=0x10, User=0x20 };
+        Debug=0x10, User=0x20 };
     //enum Alignment { AlignLeftVCenter=0, AlignLeftTop=1, AlignLeftBottom=2, AlignRightVCenter=3, AlignRightTop=4,
     //    AlignRightBottom=5, AlignTopHCenter=6, AlignBottomHCenter=7, AlignJustify=8, AlignCenter=9,
     //    AlignLeft=10, AlignRight=11, AlignTop=12, AlignBottom=13 }; //quint8 in DataStream
@@ -109,7 +109,6 @@ public:
     static QPixmap dropShadowedPixmap( const QPixmap &src, const QPointF &off=QPointF( 1., 2. ),
         const QColor &c=QColor( 0, 0, 0, 220 ), qreal radius=3. );
 
-
     static void extractNumbers( const QByteArray &s, int &value, int &min, int &max, int &step );
     static void extractRealNumbers( const QByteArray &s, qreal &value, qreal &min, qreal &max,
         qreal &step, int &decimals );
@@ -126,6 +125,7 @@ public:
     static inline int defaultDragDistance() { return 5; }
     static inline QSize defaultPageSize() { return QSize( 1000, 750 ); }
     static inline QPoint defaultHotSpot() { return QPoint( 5, 5 ); }
+    static inline qint16 maxZIndex() { return static_cast<qint16>(30000); }
 
     // move to PHIItem
     static inline QString defaultEasingCurve() { return QStringLiteral( "easeOutQuad" ); }

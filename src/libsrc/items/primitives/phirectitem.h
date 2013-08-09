@@ -19,9 +19,9 @@
 #ifndef PHIRECTITEM_H
 #define PHIRECTITEM_H
 
-#include "phishapeitem.h"
+#include "phiabstractitems.h"
 
-class PHIRectItem : public PHIShapeItem
+class PHIRectItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
     Q_PROPERTY( qint16 borderRadius READ borderRadius WRITE setBorderRadius NOTIFY borderRadiusChanged )

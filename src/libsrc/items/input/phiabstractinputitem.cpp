@@ -16,10 +16,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "phiwidgetitem.h"
-#include "phibasepage.h"
+#include "phiabstractinputitem.h"
 
-PHIWidgetItem::PHIWidgetItem( Type type, PHIBasePage *page )
-    : PHIBaseItem( type, page )
+PHIAbstractInputItem::PHIAbstractInputItem( Type type, PHIBasePage *page )
+    : PHIAbstractTextItem( type, page )
 {
+}
+
+QString PHIAbstractInputItem::value() const
+{
+    return QString();
+}
+
+void PHIAbstractInputItem::setValue( const QString &v )
+{
+    Q_UNUSED( v )
 }

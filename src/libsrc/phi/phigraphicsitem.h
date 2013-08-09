@@ -30,48 +30,18 @@ class PHIGraphicsItem : public QGraphicsProxyWidget
     Q_OBJECT
 
 public:
-    enum Mode { Normal, Transform, TabOrder };
     explicit PHIGraphicsItem( PHIBaseItem* );
     virtual ~PHIGraphicsItem();
     virtual QRectF boundingRect() const;
-    PHIGraphicsScene* phiGraphicsScene() const { return qobject_cast<PHIGraphicsScene*>(scene()); }
-    PHIBaseItem* phiBaseItem() const { return _it; }
-    static void setSelectionColor( const QColor &c ) { _selectionColor=c; }
-    static void setGripSize( quint8 g ) { _gripSize=g; }
-    static QColor selectionColor() { return _selectionColor; }
-    static quint8 gripSize() { return _gripSize; }
-    static void showItemInfo( bool show ) { _showItemInfo=show; }
+    inline PHIBaseItem* baseItem() const { return _it; }
 
 protected:
     virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget );
-    void paintTabOrder( QPainter *painter );
-    void paintSelectionItems( QPainter *painter );
-    void paintRoundedGrips( QPainter *painter );
-    void paintRectGrips( QPainter *painter );
-    void paintItemInfo( QPainter *painter );
-    QRectF gripRect( PHI::Origin o ) const;
-
-    // void paintBorder( QPainter *painter );
-    virtual bool sceneEvent( QEvent *event );
+    virtual bool sceneEvent( QEvent *event )=0;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual void ideMousePressEvent( QGraphicsSceneMouseEvent *event );
-    virtual void ideMouseMoveEvent( QGraphicsSceneMouseEvent *event );
-    virtual void ideMouseReleaseEvent( QGraphicsSceneMouseEvent *event );
-    virtual void ideHoverEnterEvent( QGraphicsSceneHoverEvent *event );
-    virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
-    virtual void ideHoverMoveEvent( QGraphicsSceneHoverEvent *event );
     virtual QPainterPath shape() const;
 
 private:
-    static quint8 _gripSize;
-    static QColor _selectionColor;
-    static Mode _mode;
-    static bool _showItemInfo, _newlySelected;
-    static const QList <Qt::CursorShape> _cursorShapes;
-    static const QList <PHI::Origin> _gripOrigins;
-    static PHI::Origin _currentGrip;
-    static QPointF _startPos;
-    static QHash <PHIBaseItem*, QRectF> _selectedItemRects;
     PHIBaseItem *_it;
 };
 

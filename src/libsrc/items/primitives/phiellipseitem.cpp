@@ -20,7 +20,7 @@
 #include <QPainter>
 
 PHIEllipseItem::PHIEllipseItem(Type type, PHIBasePage *page )
-    : PHIShapeItem( type, page )
+    : PHIAbstractShapeItem( type, page )
 {
     qDebug( "PHIEllipseItem::PHIEllipseItem()" );
 }

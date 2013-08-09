@@ -18,11 +18,9 @@
 include( ../items.pri )
 HEADERS += phiprimitives.h \
     phiellipseitem.h \
-    phishapeitem.h \
     phirectitem.h
 SOURCES += \
     phiellipseitem.cpp \
-    phishapeitem.cpp \
     phirectitem.cpp
 TARGET = phiprimitives
 OTHER_FILES = phiprimitives.json

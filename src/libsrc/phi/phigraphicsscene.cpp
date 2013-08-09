@@ -25,50 +25,31 @@
 #include "phigraphicsscene.h"
 #include "phibaseitem.h"
 #include "phibasepage.h"
-#include "phiitemfactory.h"
 #include "phigraphicsitem.h"
 #include "phiundo.h"
 
-qreal PHIGraphicsScene::_selectAnimOff=0;
-
 PHIGraphicsScene::PHIGraphicsScene( QObject *parent )
-    : QGraphicsScene( parent ), _page( 0 ), _gridSize( 16 )
+    : QGraphicsScene( parent ), _page( 0 )
 {
     qDebug( "PHIGraphicsScene::PHIGraphicsScene()" );
     _page=new PHIBasePage( this );
     _undoStack=new QUndoStack( this );
-    _selectAnimTimer=new QTimer( this );
-    connect( _undoStack, &QUndoStack::cleanChanged, this, &PHIGraphicsScene::cleanChanged );
-    connect( _selectAnimTimer, &QTimer::timeout, this, &PHIGraphicsScene::updateSelectAnimation );
     connect( _page, &PHIBasePage::documentSizeChanged, this, &PHIGraphicsScene::documentSizeChanged );
+    connect( _undoStack, &QUndoStack::cleanChanged, this, &PHIGraphicsScene::cleanChanged );
     documentSizeChanged();
 }
 
 PHIGraphicsScene::~PHIGraphicsScene()
 {
-    delete _page; // don't let delete this with usual QObject parent!!!
+    // don't let delete _page with usual QObject parent mechanism
+    // graphics items must be deleted before via _page destructor!
+    delete _page;
     qDebug( "PHIGraphicsScene::~PHIGraphicsScene()" );
 }
 
 void PHIGraphicsScene::documentSizeChanged()
 {
-    setSceneRect( QRectF( QPoint( -50, -50 ), QSizeF( _page->width()+100, _page->height()+100 ) ) );
-}
-
-void PHIGraphicsScene::saveAs( const QString &f )
-{
-    setObjectName( f );
-    save();
-}
-
-void PHIGraphicsScene::open( const QString &f )
-{
-    setObjectName( f );
-}
-
-void PHIGraphicsScene::save()
-{
-    _undoStack->setClean();
+    setSceneRect( QRectF( QPoint(), QSizeF( _page->width(), _page->height() ) ) );
 }
 
 QList<PHIBaseItem*> PHIGraphicsScene::selectedBaseItems() const
@@ -77,9 +58,16 @@ QList<PHIBaseItem*> PHIGraphicsScene::selectedBaseItems() const
     QList<PHIBaseItem*> list;
     QGraphicsItem *it;
     foreach( it, items ) {
-        list.append( qgraphicsitem_cast<PHIGraphicsItem*>(it)->phiBaseItem() );
+        list.append( qgraphicsitem_cast<PHIGraphicsItem*>(it)->baseItem() );
     }
     return list;
+}
+
+PHIBaseItem* PHIGraphicsScene::focusBaseItem() const
+{
+    PHIGraphicsItem *it=qgraphicsitem_cast<PHIGraphicsItem*>(focusItem());
+    if ( !it ) return 0;
+    return it->baseItem();
 }
 
 void PHIGraphicsScene::setAlignment( Qt::Alignment align )
@@ -87,43 +75,9 @@ void PHIGraphicsScene::setAlignment( Qt::Alignment align )
     views().first()->setAlignment( align );
 }
 
-void PHIGraphicsScene::setSelectAnimation( bool animate )
-{
-    if ( animate ) {
-        _selectAnimTimer->setInterval( 50 );
-        _selectAnimTimer->start();
-    } else _selectAnimTimer->stop();
-}
-
-void PHIGraphicsScene::updateSelectAnimation()
-{
-    _selectAnimOff+=.25;
-    if ( _selectAnimOff>6 ) _selectAnimOff=0;
-    QList <QGraphicsItem*> list=selectedItems();
-    QGraphicsItem *it;
-    foreach( it, list ) {
-        it->update();
-    }
-}
-
-QPointF PHIGraphicsScene::gridPos( const QPointF &p ) const
-{
-    if ( _gridSize==0 ) return p;
-    int x=static_cast<int>(p.x());
-    int y=static_cast<int>(p.y());
-    int mod=x%_gridSize;
-    x=x-(x%_gridSize);
-    if ( mod > _gridSize/2 ) x+=_gridSize;
-    mod=y%_gridSize;
-    y=y-(y%_gridSize);
-    if ( mod > _gridSize/2 ) y+=_gridSize;
-    return QPointF( x, y );
-}
-
 void PHIGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
 {
     QGraphicsScene::drawBackground( painter, rect );
-    painter->setRenderHint( QPainter::Antialiasing, false );
     /*
     if ( p->attributes() & PHIPage::ABgImage ) {
         QPointF off=p->bgImageOffset();
@@ -151,123 +105,12 @@ void PHIGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
         }
     }
     */
-    QRect r=page()->rect();
-    if ( _gridSize!=0 ) {
-        QPen pen( Qt::darkGray );
-        painter->setPen( pen );
-        for ( int x=0; x<r.width(); x+=_gridSize ) {
-            for ( int y=0; y<r.height(); y+=_gridSize ) {
-                painter->drawPoint( x, y );
-            }
-        }
-    }
-    painter->setBrush( Qt::NoBrush );
-    painter->drawRect( r );
 }
 
 void PHIGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent *e )
 {
     QGraphicsScene::mouseMoveEvent( e );
     emit mousePos( e->scenePos() );
-}
-
-void PHIGraphicsScene::drawForeground( QPainter *painter, const QRectF &rect )
-{
-    QGraphicsScene::drawForeground( painter, rect );
-}
-
-void PHIGraphicsScene::dragEnterEvent( QGraphicsSceneDragDropEvent *e )
-{
-    // allways accepts event for dispatching to items:
-    QGraphicsScene::dragEnterEvent( e );
-#ifdef PHIDEBUG
-    const QMimeData *md=e->mimeData();
-    qDebug() << md->formats() << md->urls() << md->text();
-#endif
-}
-
-void PHIGraphicsScene::dragMoveEvent( QGraphicsSceneDragDropEvent *e )
-{
-    QGraphicsScene::dragMoveEvent( e );
-    _handleOwnDragDropEvent=false;
-    if ( e->isAccepted() ) {
-        qDebug( "scene: drag move accepted by item" );
-        return;
-    }
-    PHIWID wid=widFromMimeData( e->mimeData() );
-    if ( wid ) {
-        _handleOwnDragDropEvent=true;
-        e->setDropAction( Qt::CopyAction );
-        e->accept();
-    }
-}
-
-void PHIGraphicsScene::dragLeaveEvent( QGraphicsSceneDragDropEvent *e )
-{
-    qDebug( "scene drag leave" );
-    QGraphicsScene::dragLeaveEvent( e );
-}
-
-void PHIGraphicsScene::dropEvent( QGraphicsSceneDragDropEvent *e )
-{
-    QGraphicsScene::dropEvent( e );
-    if ( !_handleOwnDragDropEvent ) return;
-    PHIWID wid=widFromMimeData( e->mimeData() );
-    if ( wid ) {
-        PHIBaseItem *it=PHIItemFactory::instance()->item( wid, PHIBaseItem::TIDEItem, page() );
-        if ( !it ) return;
-        it->setPos( gridPos( e->scenePos() ) );
-        it->setId( page()->nextFreeId( it->listName().toLower() ) );
-        _undoStack->push( new PHIUndoAdd( it, this ) );
-        emit newBaseItemAdded( it ); // initialize item
-        clearSelection();
-        it->setSelected( true );
-        views().first()->setFocus();
-        setFocusItem( it->graphicsWidget() );
-    }
-}
-
-void PHIGraphicsScene::keyPressEvent( QKeyEvent *e )
-{
-    QGraphicsScene::keyPressEvent( e );
-    if ( e->isAccepted() ) return;
-    if ( e->key()==Qt::Key_Backspace || e->key()==Qt::Key_Delete ) {
-        e->accept();
-        deleteSelectedBaseItems();
-        return;
-    }
-    int k=e->key();
-    if ( k!=Qt::Key_Left && k!=Qt::Key_Up && k!=Qt::Key_Down && k!=Qt::Key_Right  ) return;
-    QList <PHIBaseItem*> list=selectedBaseItems();
-    if ( list.count() ) {
-        PHIBaseItem *it;
-        if ( list.count()>1 ) undoStack()->beginMacro( tr( "Move" ) );
-        foreach( it, list ) {
-            QPointF old=it->pos();
-            if ( k==Qt::Key_Left ) it->setPos( it->pos().x()-1, it->pos().y() );
-            else if ( k==Qt::Key_Right ) it->setPos( it->pos().x()+1, it->pos().y() );
-            else if ( k==Qt::Key_Up ) it->setPos( it->pos().x(), it->pos().y()-1 );
-            else it->setPos( it->pos().x(), it->pos().y()+1 );
-            undoStack()->push( new PHIUndoMove( it, old ) );
-        }
-        if ( list.count()>1 ) undoStack()->endMacro();
-        e->accept();
-    }
-}
-
-void PHIGraphicsScene::deleteSelectedBaseItems()
-{
-    qDebug( "delete items" );
-    QList<PHIBaseItem*> list=selectedBaseItems();
-    if ( list.isEmpty() ) return;
-    if ( list.count()==1 ) {
-        _undoStack->push( new PHIUndoDelete( list.first(), this ) );
-        return;
-    }
-    _undoStack->beginMacro( tr( "Delete elements" ) );
-    foreach( PHIBaseItem *it, list )
-        _undoStack->push( new PHIUndoDelete( it, this ) );
-    _undoStack->endMacro();
 }
 
 PHIWID PHIGraphicsScene::widFromMimeData( const QMimeData *md )
