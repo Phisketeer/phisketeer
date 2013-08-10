@@ -29,7 +29,7 @@ class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
     Q_OBJECT
 
 public:
-    explicit PHIAbstractTextItem( Type type, PHIBasePage *page );
+    explicit PHIAbstractTextItem();
     
 public:
     virtual bool hasText() const { return true; }
@@ -57,7 +57,7 @@ public:
         DColor=-103, DOutlineColor=-104, DPenWidth=-105, DTmpColor=-106,
         DTmpOutlineColor=-107, DTmpPatternStyle=-108, DTmpLineStyle=-109,
         DTmpPenWidth=-110 };
-    explicit PHIAbstractShapeItem( Type type, PHIBasePage *page );
+    explicit PHIAbstractShapeItem();
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;

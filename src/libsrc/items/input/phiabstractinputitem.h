@@ -26,7 +26,7 @@ class PHIAbstractInputItem : public PHIAbstractTextItem
     Q_PROPERTY( QString value READ value WRITE setValue )
 
 public:
-    explicit PHIAbstractInputItem( Type type, PHIBasePage *page );
+    explicit PHIAbstractInputItem();
     virtual bool isFocusable() const { return true; }
 
 public slots:

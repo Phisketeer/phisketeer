@@ -28,6 +28,7 @@
 #include <QDataStream>
 #include <QGraphicsProxyWidget>
 #include <QPixmap>
+#include <QGraphicsTransform>
 #include "phi.h"
 #include "phipalette.h"
 
@@ -40,6 +41,7 @@ class QUndoStack;
 
 class PHIEXPORT PHIBaseItem : public QObject
 {
+    friend class PHIBasePage;
     friend class PHIGraphicsItem;
     friend class ARTGraphicsItem;
     friend class PHIAGraphicsItem;
@@ -100,7 +102,7 @@ public:
         HTML_DOC=49, SEARCH=50, EMAIL=51, DECIMAL=52, REALNUMBER=53, PHONE=54, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
         GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, CANVAS=61, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
     */
-    explicit PHIBaseItem( Type type, PHIBasePage *page );
+    explicit PHIBaseItem();
     virtual ~PHIBaseItem();
 
 signals:
@@ -122,6 +124,13 @@ public: // not usable by script engine
     inline quint8 transformPos() const { return _variants.value( DTransformPos, 1 ).value<quint8>(); }
     inline void setTransformPos( PHI::Origin o ) { setTransformPos( static_cast<quint8>(o) ); }
     inline QPointF transformOrigin() const { return _variants.value( DTransformOrigin, QPointF() ).toPointF(); }
+    inline void setXRotation( qreal x ) { _xRot->setAngle( x ); }
+    inline void setYRotation( qreal y ) { _yRot->setAngle( y ); }
+    inline void setZRotation( qreal z ) { _zRot->setAngle( z ); }
+    inline qreal xRotation() const { return _xRot->angle(); }
+    inline qreal yRotation() const { return _yRot->angle(); }
+    inline qreal zRotation() const { return _zRot->angle(); }
+    inline bool hasRotation() const { return _xRot->angle()+_yRot->angle()+_zRot->angle() ? true : false; }
     inline bool isIdeItem() const { return _type==TIDEItem; }
     inline bool isTemplateItem() const { return _type==TTemplateItem; }
     inline bool isClientItem() const { return _type==TClientItem; }
@@ -260,6 +269,7 @@ private:
     QByteArray _id, _parentId;
     qreal _x, _y, _width, _height;
     qint16 _zIndex;
+    QGraphicsRotation *_xRot, *_yRot, *_zRot;
 };
 
 #ifdef PHIDEBUG

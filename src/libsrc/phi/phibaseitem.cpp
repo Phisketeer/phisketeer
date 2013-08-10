@@ -26,7 +26,6 @@
 #include <QGraphicsSceneEvent>
 #include <QMimeData>
 #include <QUndoStack>
-#include <QGraphicsTransform>
 #include "phibaseitem.h"
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
@@ -54,16 +53,26 @@ static QStringList _myproperties( const QObject *obj )
     return properties;
 }
 
-PHIBaseItem::PHIBaseItem( Type type, PHIBasePage *page )
-    : QObject( page ), _type( type ), _gw( 0 )
+PHIBaseItem::PHIBaseItem()
+    : QObject( 0 ), _type( TUndefined ), _gw( 0 )
 {
+    _xRot=new QGraphicsRotation( this );
+    _xRot->setAxis( Qt::XAxis );
+    _yRot=new QGraphicsRotation( this );
+    _yRot->setAxis( Qt::YAxis );
+    _zRot=new QGraphicsRotation( this );
+    _zRot->setAxis( Qt::ZAxis );
     _x=0;
     _y=0;
     setTransformPos( PHI::TopLeft );
-    if ( PHIGraphicsItemProvider::instance() ) {
-        _gw=PHIGraphicsItemProvider::instance()->createGraphicsItem( this );
-        if ( !_gw ) return;
-    }
+    if ( !PHIGraphicsItemProvider::instance() ) return;
+    setParent( PHIGraphicsItemProvider::instance()->currentBasePage() );
+    _type=PHIGraphicsItemProvider::instance()->currentItemType();
+    _gw=PHIGraphicsItemProvider::instance()->createGraphicsItem( this );
+    if ( !_gw ) return;
+    QList <QGraphicsTransform*> list;
+    list << _xRot << _yRot << _zRot;
+    _gw->setTransformations( list );
 }
 
 PHIBaseItem::~PHIBaseItem()
@@ -174,14 +183,16 @@ void PHIBaseItem::setTransformPos( quint8 pos )
         o=_variants.value( DTransformOrigin, QPointF( 0, 0 ) ).toPointF();
     }
     _variants.insert( DTransformOrigin, o );
-    if ( !_gw ) return;
-    _gw->setTransformOriginPoint( o );
+    QVector3D v( o );
+    _xRot->setOrigin( v );
+    _yRot->setOrigin( v );
+    _zRot->setOrigin( v );
 }
 
 void PHIBaseItem::setTransformOrigin( const QPointF &pos )
 {
-    _variants.insert( DTransformPos, 0 );
     _variants.insert( DTransformOrigin, pos );
+    setTransformPos( 0 );
 }
 
 void PHIBaseItem::setText( const QString &t, const QString &lang )

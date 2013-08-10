@@ -20,8 +20,8 @@
 #include <QPlainTextEdit>
 #include "phiinputitems.h"
 
-PHILineEditItem::PHILineEditItem( Type type, PHIBasePage *page )
-    : PHIAbstractInputItem( type, page )
+PHILineEditItem::PHILineEditItem()
+    : PHIAbstractInputItem()
 {
     QLineEdit *edit=new QLineEdit();
     setWidget( edit );
@@ -34,13 +34,12 @@ void PHILineEditItem::setWidgetText( const QString &s )
     edit->setText( s );
 }
 
-PHITextAreaItem::PHITextAreaItem( Type type, PHIBasePage *page )
-    : PHIAbstractInputItem( type, page )
+PHITextAreaItem::PHITextAreaItem()
+    : PHIAbstractInputItem()
 {
     QPlainTextEdit *edit=new QPlainTextEdit();
     if ( isIdeItem() ) edit->setReadOnly( true );
 #ifdef Q_OS_MAC
-    edit->setForegroundRole( QPalette::Button );
     edit->setFrameStyle( QFrame::Box );
 #endif
     setWidget( edit );

@@ -25,8 +25,6 @@
 #include "phibaseitem.h"
 #include "phiitemplugin.h"
 
-class PHIBasePage;
-
 class PHIItemFactory : public QObject
 {
     Q_OBJECT
@@ -41,8 +39,8 @@ public:
     inline QStringList categoryList() const { QReadLocker l( &_lock ); return _categories.toList(); }
     inline QPixmap pixmapForCategory( const QString &cat ) const {
         QReadLocker l( &_lock ); return _pixmapForCategory.value( cat ); }
-    PHIBaseItem* item( const QString &key, PHIBaseItem::Type type, PHIBasePage *page ) const;
-    PHIBaseItem* item( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const;
+    PHIBaseItem* item( const QString &key ) const;
+    PHIBaseItem* item( PHIWID wid ) const;
     QString category( const QString &key ) const;
     QStringList keysForCategory( const QString &cat ) const;
     
@@ -58,19 +56,19 @@ private:
     QHash <QString, QPixmap> _pixmapForCategory;
 };
 
-inline PHIBaseItem* PHIItemFactory::item(const QString &key, PHIBaseItem::Type type, PHIBasePage *page ) const
+inline PHIBaseItem* PHIItemFactory::item( const QString &key ) const
 {
     QReadLocker l( &_lock );
     PHIItemPlugin *plugin=_plugins.value( key, 0 );
-    if ( plugin ) return plugin->create( plugin->wid( key ), type, page );
+    if ( plugin ) return plugin->create( plugin->wid( key ) );
     return 0;
 }
 
-inline PHIBaseItem* PHIItemFactory::item( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const
+inline PHIBaseItem* PHIItemFactory::item( PHIWID wid ) const
 {
     QReadLocker l( &_lock );
     PHIItemPlugin *plugin=_wids.value( wid, 0 );
-    if ( plugin ) return plugin->create( wid, type, page );
+    if ( plugin ) return plugin->create( wid );
     return 0;
 }
 

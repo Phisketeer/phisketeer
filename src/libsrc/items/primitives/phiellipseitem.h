@@ -29,7 +29,7 @@ class PHIEllipseItem : public PHIAbstractShapeItem
 public:
     enum ItemData { DStartAngle=1, DSpanAngle=2 };
     enum Wid { Ellipse=13 };
-    explicit PHIEllipseItem( Type type, PHIBasePage *page );
+    explicit PHIEllipseItem();
     inline virtual PHIWID wid() const { return Ellipse; }
     virtual QString listName() const { return tr( "Ellipse" ); }
     virtual QString description() const { return tr( "Draws an ellipse, pie or circle" ); }

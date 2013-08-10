@@ -19,8 +19,8 @@
 #include "phiellipseitem.h"
 #include <QPainter>
 
-PHIEllipseItem::PHIEllipseItem(Type type, PHIBasePage *page )
-    : PHIAbstractShapeItem( type, page )
+PHIEllipseItem::PHIEllipseItem()
+    : PHIAbstractShapeItem()
 {
     qDebug( "PHIEllipseItem::PHIEllipseItem()" );
 }
@@ -28,7 +28,7 @@ PHIEllipseItem::PHIEllipseItem(Type type, PHIBasePage *page )
 void PHIEllipseItem::drawShape( QPainter *p, const QRectF& )
 {
     p->setRenderHint( QPainter::Antialiasing );
+    p->setRenderHint( QPainter::SmoothPixmapTransform );
     if ( spanAngle()==5760 ) p->drawEllipse( rect() );
     else p->drawPie( rect(), startAngle(), spanAngle() );
 }
-

@@ -32,17 +32,17 @@ class PHIInput : public PHIItemPlugin
     Q_CLASSINFO( "Copyright", "2013 Phisys AG, 2013 Phisketeer Team" )
 
 public:
-    virtual PHIBaseItem* create( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const;
+    virtual PHIBaseItem* create( PHIWID wid ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
     virtual QString category() const { return tr( "Input" ); }
 };
 
-inline PHIBaseItem* PHIInput::create( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const
+inline PHIBaseItem* PHIInput::create( PHIWID wid ) const
 {
     switch ( wid ) {
-    case PHILineEditItem::LineEdit: return new PHILineEditItem( type, page );
-    case PHITextAreaItem::TextArea: return new PHITextAreaItem( type, page );
+    case PHILineEditItem::LineEdit: return new PHILineEditItem();
+    case PHITextAreaItem::TextArea: return new PHITextAreaItem();
     }
     return 0;
 }

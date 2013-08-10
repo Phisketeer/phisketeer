@@ -29,7 +29,7 @@ class PHIRectItem : public PHIAbstractShapeItem
 public:
     enum ItemData { DBorderRadius=1 };
     enum Wid { Rect=14, RoundedRect=25 };
-    explicit PHIRectItem( Type type, PHIBasePage *page );
+    explicit PHIRectItem();
     inline virtual PHIWID wid() const { return Rect; }
     virtual QString listName() const { return tr( "Rect" ); }
     virtual QString description() const { return tr( "Draws a box or rect with optional rounded courners" ); }

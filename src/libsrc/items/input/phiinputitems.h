@@ -26,7 +26,7 @@ class PHILineEditItem : public PHIAbstractInputItem
 
 public:
     enum Wid { LineEdit=1 };
-    explicit PHILineEditItem( Type type, PHIBasePage *page );
+    explicit PHILineEditItem();
     virtual QString listName() const { return tr( "Lineedit" ); }
     virtual QString description() const { return tr( "Line edit with input type <text>" ); }
     virtual PHIWID wid() const { return LineEdit; }
@@ -43,7 +43,7 @@ class PHITextAreaItem : public PHIAbstractInputItem
 
 public:
     enum Wid { TextArea=2 };
-    explicit PHITextAreaItem( Type type, PHIBasePage *page );
+    explicit PHITextAreaItem();
     virtual QString listName() const { return tr( "Textarea" ); }
     virtual QString description() const { return tr( "Input type <textarea>" ); }
     virtual PHIWID wid() const { return TextArea; }

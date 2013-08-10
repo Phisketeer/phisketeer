@@ -22,8 +22,6 @@
 #include "phiellipseitem.h"
 #include "phirectitem.h"
 
-class PHIBasePage;
-
 class PHIPrimitives : public PHIItemPlugin
 {
     Q_OBJECT
@@ -35,18 +33,18 @@ class PHIPrimitives : public PHIItemPlugin
     Q_CLASSINFO( "Copyright", "2013 Phisys AG, 2013 Phisketeer Team" )
 
 public:
-    virtual PHIBaseItem* create( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const;
+    virtual PHIBaseItem* create( PHIWID wid ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
     virtual QString category() const { return tr( "Shapes" ); }
 };
 
-inline PHIBaseItem* PHIPrimitives::create( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const
+inline PHIBaseItem* PHIPrimitives::create( PHIWID wid ) const
 {
     switch ( wid ) {
-    case PHIRectItem::Rect: return new PHIRectItem( type, page );
-    case PHIRectItem::RoundedRect: return new PHIRectItem( type, page );
-    case PHIEllipseItem::Ellipse: return new PHIEllipseItem( type, page );
+    case PHIRectItem::Rect: return new PHIRectItem();
+    case PHIRectItem::RoundedRect: return new PHIRectItem();
+    case PHIEllipseItem::Ellipse: return new PHIEllipseItem();
     }
     return 0;
 }

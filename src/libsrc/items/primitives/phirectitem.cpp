@@ -19,15 +19,15 @@
 #include <QPainter>
 #include "phirectitem.h"
 
-PHIRectItem::PHIRectItem(Type type, PHIBasePage *page )
-    : PHIAbstractShapeItem( type, page )
+PHIRectItem::PHIRectItem()
+    : PHIAbstractShapeItem()
 {
     qDebug( "PHIRectItem::PHIRectItem()" );
 }
 
 void PHIRectItem::drawShape( QPainter *p, const QRectF& )
 {
-    p->setRenderHint( QPainter::Antialiasing, borderRadius() );
+    p->setRenderHint( QPainter::Antialiasing, borderRadius() || hasRotation() );
     if ( borderRadius() ) p->drawRoundedRect( rect(), borderRadius(), borderRadius() );
     else p->drawRect( rect() );
 }

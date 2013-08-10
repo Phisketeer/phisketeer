@@ -20,12 +20,10 @@
 #define PHIITEMPLUGIN_H
 #include "phibaseitem.h"
 
-class PHIBasePage;
-
 class PHIEXPORT PHIItemPluginIF
 {
 public:
-    virtual PHIBaseItem* create( PHIWID, PHIBaseItem::Type type, PHIBasePage *page ) const=0;
+    virtual PHIBaseItem* create( PHIWID ) const=0;
     virtual QStringList keys() const=0;
     virtual PHIWID wid( const QString &key ) const=0;
     virtual QString category() const=0;
@@ -40,7 +38,7 @@ class PHIEXPORT PHIItemPlugin : public QObject, public PHIItemPluginIF
     Q_INTERFACES( PHIItemPluginIF )
 
 public:
-    virtual PHIBaseItem* create( PHIWID wid, PHIBaseItem::Type type, PHIBasePage *page ) const=0;
+    virtual PHIBaseItem* create( PHIWID wid ) const=0;
     virtual QStringList keys() const=0;
     virtual PHIWID wid( const QString &key ) const=0;
     virtual QString category() const=0;

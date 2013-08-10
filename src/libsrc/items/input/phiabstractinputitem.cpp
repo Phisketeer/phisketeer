@@ -18,8 +18,8 @@
 */
 #include "phiabstractinputitem.h"
 
-PHIAbstractInputItem::PHIAbstractInputItem( Type type, PHIBasePage *page )
-    : PHIAbstractTextItem( type, page )
+PHIAbstractInputItem::PHIAbstractInputItem()
+    : PHIAbstractTextItem()
 {
 }
 

@@ -21,8 +21,9 @@
 
 #include <QGraphicsProxyWidget>
 #include "phigraphicsscene.h"
+#include "phibaseitem.h"
 
-class PHIBaseItem;
+class PHIBasePage;
 class QEvent;
 
 class PHIEXPORT PHIGraphicsItem : public QGraphicsProxyWidget
@@ -51,11 +52,19 @@ class PHIEXPORT PHIGraphicsItemProvider : public QObject
 public:
     static PHIGraphicsItemProvider* instance() { return _instance; }
     virtual QGraphicsWidget* createGraphicsItem( PHIBaseItem* )=0;
+    inline PHIBasePage* currentBasePage() const { return _page; }
+    inline void setCurrentBasePage( PHIBasePage *page ) { _page=page; }
+    inline void setCurrentItemType( PHIBaseItem::Type t ) { _type=t; }
+    inline PHIBaseItem::Type currentItemType() const { return _type; }
     virtual ~PHIGraphicsItemProvider();
 
 protected:
     explicit PHIGraphicsItemProvider( QObject *parent );
     static PHIGraphicsItemProvider *_instance;
+
+private:
+    PHIBasePage *_page;
+    PHIBaseItem::Type _type;
 };
 
 #endif // PHIGRAPHICSITEM_H

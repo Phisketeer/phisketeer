@@ -22,11 +22,10 @@
 #include <QMimeData>
 #include <QUndoStack>
 #include "phiabstractitems.h"
-#include "phibasepage.h"
 #include "phiundo.h"
 
-PHIAbstractTextItem::PHIAbstractTextItem( Type type, PHIBasePage *page )
-    : PHIBaseItem( type, page )
+PHIAbstractTextItem::PHIAbstractTextItem()
+    : PHIBaseItem()
 {
 }
 
@@ -84,8 +83,8 @@ static void _extractShapeDefs( const QString &s, PHIPalette::ColorRole &cr, quin
     }
 }
 
-PHIAbstractShapeItem::PHIAbstractShapeItem( Type type, PHIBasePage *page )
-    : PHIBaseItem( type, page )
+PHIAbstractShapeItem::PHIAbstractShapeItem()
+    : PHIBaseItem()
 {
     _colorRole=PHIPalette::Black;
     _outlineColorRole=PHIPalette::Black;
@@ -94,7 +93,6 @@ PHIAbstractShapeItem::PHIAbstractShapeItem( Type type, PHIBasePage *page )
 
 void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
 {
-    p->save();
     QPen pen;
     Qt::PenStyle style=static_cast<Qt::PenStyle>(line());
     Qt::BrushStyle pat=static_cast<Qt::BrushStyle>(pattern());
@@ -113,7 +111,6 @@ void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
     p->setBrush( brush );
     p->setPen( pen );
     drawShape( p, exposed );
-    p->restore();
 }
 
 QColor PHIAbstractShapeItem::color( PHIPalette::ItemRole role ) const
@@ -182,7 +179,7 @@ QRectF PHIAbstractShapeItem::boundingRect() const
 QSizeF PHIAbstractShapeItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     Q_UNUSED( constraint )
-    if ( which==Qt::PreferredSize ) return QSizeF( 100, 100 );
+    if ( which==Qt::PreferredSize ) return QSizeF( 128, 128 );
     if ( which==Qt::MinimumSize ) return QSizeF( 16, 16 );
     return QSizeF();
 }

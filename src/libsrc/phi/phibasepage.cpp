@@ -162,7 +162,7 @@ PHIBaseItem* PHIBasePage::createElementById( PHIWID wid, const QString &id,
     qreal x, qreal y, qreal width, qreal height )
 {
     if ( containsItemId( id ) ) return 0;
-    PHIBaseItem *it=PHIItemFactory::instance()->item( wid, PHIBaseItem::TServerItem, this );
+    PHIBaseItem *it=PHIItemFactory::instance()->item( wid );
     if ( !it ) return 0;
     it->setId( id );
     it->setX( x );

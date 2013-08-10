@@ -28,7 +28,7 @@
 PHIGraphicsItemProvider* PHIGraphicsItemProvider::_instance=0;
 
 PHIGraphicsItemProvider::PHIGraphicsItemProvider( QObject *parent )
-    : QObject( parent )
+    : QObject( parent ), _page( 0 )
 {
     _instance=this;
 }
