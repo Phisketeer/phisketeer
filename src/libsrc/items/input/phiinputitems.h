@@ -20,9 +20,6 @@
 #define PHIINPUTITEMS_H
 #include "phiabstractinputitem.h"
 
-class QLineEdit;
-class QPlainTextEdit;
-
 class PHILineEditItem : public PHIAbstractInputItem
 {
     Q_OBJECT
@@ -37,11 +34,7 @@ public:
     //virtual bool heightIsChangeable() const { return false; }
 
 protected:
-    virtual QWidget *createWidget();
     virtual void setWidgetText( const QString &s );
-
-private:
-    QLineEdit *_edit;
 };
 
 class PHITextAreaItem : public PHIAbstractInputItem
@@ -58,11 +51,7 @@ public:
 
 protected:
     virtual bool isSingleLine() const { return false; }
-    virtual QWidget *createWidget();
     virtual void setWidgetText( const QString &t );
-
-private:
-    QPlainTextEdit *_edit;
 };
 
 #endif // PHIINPUTITEMS_H

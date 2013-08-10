@@ -25,13 +25,12 @@
 class PHIBaseItem;
 class QEvent;
 
-class PHIGraphicsItem : public QGraphicsProxyWidget
+class PHIEXPORT PHIGraphicsItem : public QGraphicsProxyWidget
 {
     Q_OBJECT
 
 public:
     explicit PHIGraphicsItem( PHIBaseItem* );
-    virtual ~PHIGraphicsItem();
     virtual QRectF boundingRect() const;
     inline PHIBaseItem* baseItem() const { return _it; }
 
@@ -43,6 +42,20 @@ protected:
 
 private:
     PHIBaseItem *_it;
+};
+
+class PHIEXPORT PHIGraphicsItemProvider : public QObject
+{
+    Q_OBJECT
+
+public:
+    static PHIGraphicsItemProvider* instance() { return _instance; }
+    virtual QGraphicsWidget* createGraphicsItem( PHIBaseItem* )=0;
+    virtual ~PHIGraphicsItemProvider();
+
+protected:
+    explicit PHIGraphicsItemProvider( QObject *parent );
+    static PHIGraphicsItemProvider *_instance;
 };
 
 #endif // PHIGRAPHICSITEM_H

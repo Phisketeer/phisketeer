@@ -122,6 +122,10 @@ public: // not usable by script engine
     inline quint8 transformPos() const { return _variants.value( DTransformPos, 1 ).value<quint8>(); }
     inline void setTransformPos( PHI::Origin o ) { setTransformPos( static_cast<quint8>(o) ); }
     inline QPointF transformOrigin() const { return _variants.value( DTransformOrigin, QPointF() ).toPointF(); }
+    inline bool isIdeItem() const { return _type==TIDEItem; }
+    inline bool isTemplateItem() const { return _type==TTemplateItem; }
+    inline bool isClientItem() const { return _type==TClientItem; }
+    inline bool isServerItem() const { return _type==TServerItem; }
 
     void setZIndex( qint16 idx );
     void setTransformPos( quint8 pos );
@@ -193,6 +197,8 @@ protected:
     virtual void saveEditorData( QDataStream &out, quint8 version ) const;
 
     inline bool isChild() const { return _flags & FChild; }
+    void setWidget( QWidget* );
+    QWidget* widget() const;
 
     // Phis server related members
     // create all cached language dependend images and transformed images and free memory:
@@ -209,9 +215,6 @@ protected:
     // IDE related members
     inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
     inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
-    inline bool isIdeItem() const { return _type==TIDEItem; }
-    inline bool isTemplateItem() const { return _type==TTemplateItem; }
-    inline bool isClientItem() const { return _type==TClientItem; }
     /*
     inline void setPreferredSize( const QSizeF &s ) { if ( _gw ) _gw->setPreferredSize( s ); }
     inline void setMinimumSize( const QSizeF &s ) { if ( _gw ) _gw->setMinimumSize( s ); }
@@ -224,8 +227,7 @@ protected:
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
     inline void update( const QRectF &r=QRectF() ) { if ( _gw ) _gw->update( r ); }
 
-    QUndoStack* undoStack() const;
-    virtual QWidget* createWidget() { return 0; }
+    QUndoStack* undoStack() const; // Hack for Drag & Drop in IDE
     virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
@@ -246,7 +248,6 @@ protected:
 private:
     // IDE related members
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
-    void setGraphicsWidget( QGraphicsWidget *gw );
     inline QGraphicsWidget* graphicsWidget() const { return _gw; }
 
 protected:

@@ -25,6 +25,19 @@
 #include "phigraphicsitem.h"
 #include "phibaseitem.h"
 
+PHIGraphicsItemProvider* PHIGraphicsItemProvider::_instance=0;
+
+PHIGraphicsItemProvider::PHIGraphicsItemProvider( QObject *parent )
+    : QObject( parent )
+{
+    _instance=this;
+}
+
+PHIGraphicsItemProvider::~PHIGraphicsItemProvider()
+{
+    _instance=0;
+}
+
 PHIGraphicsItem::PHIGraphicsItem( PHIBaseItem *it )
     : QGraphicsProxyWidget(), _it( it )
 {
@@ -49,10 +62,6 @@ PHIGraphicsItem::PHIGraphicsItem( PHIBaseItem *it )
         setAcceptHoverEvents( false );
     }
     setCacheMode( ItemCoordinateCache );
-}
-
-PHIGraphicsItem::~PHIGraphicsItem()
-{
 }
 
 QPainterPath PHIGraphicsItem::shape() const

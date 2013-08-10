@@ -26,6 +26,7 @@
 #include <QGraphicsSceneEvent>
 #include <QMimeData>
 #include <QUndoStack>
+#include <QGraphicsTransform>
 #include "phibaseitem.h"
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
@@ -58,9 +59,11 @@ PHIBaseItem::PHIBaseItem( Type type, PHIBasePage *page )
 {
     _x=0;
     _y=0;
-    _width=100.;
-    _height=100.;
     setTransformPos( PHI::TopLeft );
+    if ( PHIGraphicsItemProvider::instance() ) {
+        _gw=PHIGraphicsItemProvider::instance()->createGraphicsItem( this );
+        if ( !_gw ) return;
+    }
 }
 
 PHIBaseItem::~PHIBaseItem()
@@ -74,7 +77,8 @@ PHIBaseItem::~PHIBaseItem()
     //qDebug( "PHIBaseItem::~PHIBaseItem()" );
 }
 
-// Hack to provide Drop operations for the IDE:
+// Hack to provide Drag & Drop operations for the IDE
+// Undo normaly should be part of the IDE
 QUndoStack* PHIBaseItem::undoStack() const
 {
     Q_ASSERT( _gw );
@@ -94,6 +98,24 @@ void PHIBaseItem::load( QDataStream &in, quint8 version )
 QStringList PHIBaseItem::properties() const
 {
     return _myproperties( this );
+}
+
+void PHIBaseItem::setWidget( QWidget *w )
+{
+    QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_gw);
+    if ( !proxy ) return;
+    proxy->setWidget( w );
+    if ( !w ) return;
+    if ( sizeHint( Qt::PreferredSize ).isValid() )
+        resize( sizeHint( Qt::PreferredSize ) );
+    else resize( w->sizeHint() );
+}
+
+QWidget* PHIBaseItem::widget() const
+{
+    QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_gw);
+    if ( !proxy ) return 0;
+    return proxy->widget();
 }
 
 void PHIBaseItem::setFont( const QFont &font )
@@ -187,6 +209,7 @@ QSizeF PHIBaseItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) con
 {
     Q_UNUSED( which )
     Q_UNUSED( constraint )
+    qDebug( "wrong");
     return QSizeF(); // invalid size: call base implementation of QGraphicsProxyWidget
 }
 
@@ -310,15 +333,6 @@ void PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
 {
     qDebug( "base item key press" );
     e->ignore();
-}
-
-void PHIBaseItem::setGraphicsWidget( QGraphicsWidget *gw )
-{
-    _gw=gw;
-    QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_gw);
-    if ( !proxy ) return;
-    proxy->setWidget( createWidget() );
-    resize( proxy->preferredSize() );
 }
 
 void PHIBaseItem::squeeze( const PHISRequest* const req )

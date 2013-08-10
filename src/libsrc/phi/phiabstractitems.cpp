@@ -45,13 +45,15 @@ QString PHIAbstractTextItem::text( const QString &lang ) const
 QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     Q_UNUSED( constraint )
+    qDebug( "sizehint" );
     if ( which==Qt::MinimumSize ) {
-        if ( isSingleLine() ) return QSizeF( 21, 21 );
-        return QSizeF( 21, 42 );
+        if ( isSingleLine() ) return QSizeF( 20, 21 );
+        return QSizeF( 20, 21 );
     }
     if ( which==Qt::PreferredSize ) {
         QFontMetrics m( font() );
-        return QSizeF( 150, qMax( 21, m.height()+4 ) );
+        if ( isSingleLine() ) return QSizeF( 150, qMax( 21, m.height()+4 ) );
+        return QSizeF( 150, 64 );
     }
     return QSizeF();
 }
@@ -87,6 +89,7 @@ PHIAbstractShapeItem::PHIAbstractShapeItem( Type type, PHIBasePage *page )
 {
     _colorRole=PHIPalette::Black;
     _outlineColorRole=PHIPalette::Black;
+    resize( sizeHint( Qt::PreferredSize, QSizeF() ) );
 }
 
 void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )

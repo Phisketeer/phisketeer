@@ -21,38 +21,34 @@
 #include "phiinputitems.h"
 
 PHILineEditItem::PHILineEditItem( Type type, PHIBasePage *page )
-    : PHIAbstractInputItem( type, page ), _edit( 0 )
+    : PHIAbstractInputItem( type, page )
 {
-}
-
-QWidget* PHILineEditItem::createWidget()
-{
-    _edit=new QLineEdit();
-    return _edit;
+    QLineEdit *edit=new QLineEdit();
+    setWidget( edit );
 }
 
 void PHILineEditItem::setWidgetText( const QString &s )
 {
-    _edit->setText( s );
+    QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
+    Q_ASSERT( edit );
+    edit->setText( s );
 }
 
 PHITextAreaItem::PHITextAreaItem( Type type, PHIBasePage *page )
-    : PHIAbstractInputItem( type, page ), _edit( 0 )
+    : PHIAbstractInputItem( type, page )
 {
-}
-
-QWidget* PHITextAreaItem::createWidget()
-{
-    _edit=new QPlainTextEdit();
-    if ( isIdeItem() ) _edit->setReadOnly( true );
+    QPlainTextEdit *edit=new QPlainTextEdit();
+    if ( isIdeItem() ) edit->setReadOnly( true );
 #ifdef Q_OS_MAC
-    _edit->setForegroundRole( QPalette::Button );
-    _edit->setFrameStyle( QFrame::Box );
+    edit->setForegroundRole( QPalette::Button );
+    edit->setFrameStyle( QFrame::Box );
 #endif
-    return _edit;
+    setWidget( edit );
 }
 
 void PHITextAreaItem::setWidgetText( const QString &t )
 {
-    _edit->setPlainText( t );
+    QPlainTextEdit *edit=qobject_cast<QPlainTextEdit*>(widget());
+    Q_ASSERT( edit );
+    edit->setPlainText( t );
 }

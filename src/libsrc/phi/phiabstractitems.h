@@ -20,10 +20,11 @@
 #define PHIABSTRACTITEMS_H
 #include "phibaseitem.h"
 #include "phipalette.h"
+#include "phi.h"
 
 class PHIBasePage;
 
-class PHIAbstractTextItem : public PHIBaseItem
+class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 {
     Q_OBJECT
 
@@ -38,11 +39,10 @@ public:
 protected:
     virtual bool isSingleLine() const { return true; }
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual QWidget* createWidget()=0;
     virtual void setWidgetText( const QString &t )=0;
 };
 
-class PHIAbstractShapeItem : public PHIBaseItem
+class PHIEXPORT PHIAbstractShapeItem : public PHIBaseItem
 {
     Q_OBJECT
     Q_PROPERTY( quint8 line READ line WRITE setLine )
