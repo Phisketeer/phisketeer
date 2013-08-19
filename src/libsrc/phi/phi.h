@@ -137,7 +137,8 @@ public:
     static QByteArray toEasingCurveByteArray( quint8 ease );
     static QStringList availableEasingCurves();
     static void getItemCheckData( QString &data, QString &opt, bool &isChecked );
-
+    static inline qreal gradToRad( qreal g ) { return g*static_cast<qreal>(0.01745329251994); }
+    static inline qreal radToGrad( qreal r ) { return r*static_cast<qreal>(57.29577951309314); }
 private:
     static const char* _phiDT;
     static const char* _phiDate;

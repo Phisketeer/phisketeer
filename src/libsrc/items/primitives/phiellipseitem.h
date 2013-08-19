@@ -41,6 +41,9 @@ public slots:
     inline qint16 startAngle() const { return _variants.value( DStartAngle, 0 ).value<qint16>(); }
     inline qint16 spanAngle() const { return _variants.value( DSpanAngle, 5760 ).value<qint16>(); }
 
+protected:
+    virtual bool widthIsChangeable() const { return false; }
+
 signals:
     void startAngleChanged( qint16 );
     void spanAngleChanged( qint16 );

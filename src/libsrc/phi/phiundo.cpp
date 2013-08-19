@@ -18,6 +18,16 @@ PHIUndoCommand::PHIUndoCommand( PHIBaseItem *it )
 {
 }
 
+void PHIUndoCommand::undo()
+{
+    //item()->setFocus();
+}
+
+void PHIUndoCommand::redo()
+{
+    //item()->setFocus();
+}
+
 PHIUndoMove::PHIUndoMove( PHIBaseItem *it, const QPointF &oldPos )
     : PHIUndoCommand( it ), _oldPos( oldPos )
 {
@@ -38,20 +48,31 @@ bool PHIUndoMove::mergeWith( const QUndoCommand *other )
 void PHIUndoMove::undo()
 {
     item()->setPos( _oldPos );
+    PHIUndoCommand::undo();
 }
 
 void PHIUndoMove::redo()
 {
     item()->setPos( _newPos );
+    PHIUndoCommand::redo();
 }
 
 PHIUndoColor::PHIUndoColor( PHIBaseItem *it, PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newCol )
     : PHIUndoCommand( it ), _itemRole( ir ), _newColorRole( cr ), _newCol( newCol )
 {
     qDebug( "PHIUndoColor::PHIUndoColor()" );
-    if ( ir==PHIPalette::Background )
-        setText( QObject::tr( "Outline color" )+UT( it->name() ) );
-    else setText( QObject::tr( "Pattern color" )+UT( it->name() ) );
+    switch ( ir ) {
+    case PHIPalette::Background:
+        setText( QObject::tr( "Outline color" )+UT( it->name() ) ); break;
+    case PHIPalette::WidgetBase:
+        setText( QObject::tr( "BG color" )+UT( it->name() ) ); break;
+    case PHIPalette::Foreground:
+        setText( QObject::tr( "Pattern color" )+UT( it->name() ) ); break;
+    case PHIPalette::WidgetText:
+        setText( QObject::tr( "Text color" )+UT( it->name() ) ); break;
+    default:
+        setText( QObject::tr( "Color" )+UT( it->name() ) ); break;
+    }
     _oldCol=it->color( ir );
     _oldColorRole=it->colorRole( ir );
 }
@@ -70,11 +91,13 @@ bool PHIUndoColor::mergeWith( const QUndoCommand *other )
 void PHIUndoColor::undo()
 {
     item()->setColor( _itemRole, _oldColorRole, _oldCol );
+    PHIUndoCommand::undo();
 }
 
 void PHIUndoColor::redo()
 {
     item()->setColor( _itemRole, _newColorRole, _newCol );
+    PHIUndoCommand::redo();
 }
 
 PHIUndoAdd::PHIUndoAdd( PHIBaseItem *it, PHIGraphicsScene *scene )
@@ -119,6 +142,7 @@ void PHIUndoAdd::redo()
 {
     item()->setParent( _scene->page() );
     _scene->addItem( item()->graphicsWidget() );
+    PHIUndoCommand::redo();
     /*
     item()->setDeleted( false );
     item()->scene()->addPHIBaseItem( item() );
@@ -163,6 +187,7 @@ void PHIUndoDelete::undo()
 {
     item()->setParent( _scene->page() );
     _scene->addItem( item()->graphicsWidget() );
+    PHIUndoCommand::undo();
     /*
     item()->setDeleted( false );
     item()->scene()->addPHIBaseItem( item() );
@@ -234,11 +259,13 @@ bool PHIUndoSize::mergeWith( const QUndoCommand *other )
 void PHIUndoSize::undo()
 {
     item()->resize( _oldSize );
+    PHIUndoCommand::undo();
 }
 
 void PHIUndoSize::redo()
 {
     item()->resize( _newSize );
+    PHIUndoCommand::redo();
 }
 
 /*
@@ -401,6 +428,7 @@ void PHIUndoProperty::redo()
     */
     default: qFatal( "Unknown id in PHIUndoProperty" );
     }
+    PHIUndoCommand::redo();
 }
 
 void PHIUndoProperty::undo()
@@ -450,27 +478,21 @@ void PHIUndoProperty::undo()
     */
     default: qFatal( "Unknown id in PHIUndoProperty" );
     }
+    PHIUndoCommand::undo();
 }
 
-/*
-PHIUndoTransform::PHIUndoTransform( PHIBaseItem *it, double x, double y, double z, double dx,
-    double dy, double sh, double sv ) : PHIUndoCommand( it ), _newX( x ), _newY( y ),
-    _newZ( z ), _newDX( dx ), _newDY( dy ), _newSH( sh ), _newSV( sv )
+PHIUndoTransform::PHIUndoTransform( PHIBaseItem *it, qreal sh, qreal sv, qreal x, qreal y, qreal z )
+    : PHIUndoCommand( it ), _oldSH( sh ), _oldSV( sv ), _oldX( x ), _oldY( y ), _oldZ( z )
 {
     qDebug( "PHIUndoTransform::PHIUndoTransform()" );
-    setText( QObject::tr( "Transform" )+UT( it->id() ) );
-    _oldX=it->xRotation();
-    _oldY=it->yRotation();
-    _oldZ=it->zRotation();
-    _oldDX=it->xTranslation();
-    _oldDY=it->yTranslation();
-    _oldSH=it->shearH();
-    _oldSV=it->shearV();
-}
-
-PHIUndoTransform::~PHIUndoTransform()
-{
-    qDebug( "PHIUndoTransform::~PHIUndoTransform()" );
+    _newX=it->xRotation();
+    _newY=it->yRotation();
+    _newZ=it->zRotation();
+    _newSH=it->hSkew();
+    _newSV=it->vSkew();
+    if ( _newX==0 && _newY==00 && _newZ==0 && _newSH==0 && _newSV==0 )
+        setText( QObject::tr( "Reset" )+UT( it->name() ) );
+    else setText( QObject::tr( "Transform" )+UT( it->name() ) );
 }
 
 bool PHIUndoTransform::mergeWith( const QUndoCommand *other )
@@ -481,8 +503,6 @@ bool PHIUndoTransform::mergeWith( const QUndoCommand *other )
     _newX=o->_newX;
     _newY=o->_newY;
     _newZ=o->_newZ;
-    _newDX=o->_newDX;
-    _newDY=o->_newDY;
     _newSH=o->_newSH;
     _newSV=o->_newSV;
     return true;
@@ -490,30 +510,17 @@ bool PHIUndoTransform::mergeWith( const QUndoCommand *other )
 
 void PHIUndoTransform::redo()
 {
-    item()->setXRotation( _newX );
-    item()->setYRotation( _newY );
-    item()->setZRotation( _newZ );
-    item()->setXTranslation( _newDX );
-    item()->setYTranslation( _newDY );
-    item()->setHShear( _newSH );
-    item()->setVShear( _newSV );
-    item()->updateTransformation();
-    item()->setFocusItem();
+    item()->setTransformation( _newSH, _newSV, _newX, _newY, _newZ );
+    PHIUndoCommand::redo();
 }
 
 void PHIUndoTransform::undo()
 {
-    item()->setXRotation( _oldX );
-    item()->setYRotation( _oldY );
-    item()->setZRotation( _oldZ );
-    item()->setXTranslation( _oldDX );
-    item()->setYTranslation( _oldDY );
-    item()->setHShear( _oldSH );
-    item()->setVShear( _oldSV );
-    item()->updateTransformation();
-    item()->setFocusItem();
+    item()->setTransformation( _oldSH, _oldSV, _oldX, _oldY, _oldZ );
+    PHIUndoCommand::undo();
 }
 
+/*
 PHIUndoPage::PHIUndoPage( PHIScene *scene, const PHISPage &newPage )
     : PHIUndoCommand( 0 ), _scene( scene ), _newPage( newPage )
 {

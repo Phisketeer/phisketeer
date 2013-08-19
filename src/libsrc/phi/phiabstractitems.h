@@ -27,19 +27,41 @@ class PHIBasePage;
 class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 {
     Q_OBJECT
+    Q_PROPERTY( QFont font READ font WRITE setFont )
+    Q_PROPERTY( QColor color READ color WRITE setColor )
+    Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
 
 public:
+    enum ItemData { DColor=-100, DBackgroundColor=-101, DTmpColor=-102, DTmpBackgroundColor=-103 };
     explicit PHIAbstractTextItem();
-    
+    virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
+    virtual QColor color( PHIPalette::ItemRole role ) const;
+    virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
+
 public:
     virtual bool hasText() const { return true; }
     virtual void setText( const QString &t, const QString &lang );
     virtual QString text( const QString &lang ) const;
 
+public slots:
+    inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
+    inline void setBackgroundColor( const QColor &col ) { setColor( PHIPalette::WidgetBase, _backgroundColorRole, col ); }
+    inline QColor color() const { return _variants.value( DColor, QColor( Qt::black ) ).value<QColor>(); }
+    inline QColor backgroundColor() const { return _variants.value( DBackgroundColor, QColor( Qt::black ) ).value<QColor>(); }
+
 protected:
     virtual bool isSingleLine() const { return true; }
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void setWidgetText( const QString &t )=0;
+    virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
+
+protected:
+    PHIPalette::ColorRole _colorRole, _backgroundColorRole;
+    QColor _orgColor, _orgBackgroundColor;
+    static qreal _dropRegion;
 };
 
 class PHIEXPORT PHIAbstractShapeItem : public PHIBaseItem
@@ -73,6 +95,8 @@ public slots:
     inline QColor color() const { return _variants.value( DColor, QColor( Qt::black ) ).value<QColor>(); }
     inline QColor outlineColor() const { return _variants.value( DOutlineColor, QColor( Qt::black ) ).value<QColor>(); }
     inline qreal penWidth() const { return _variants.value( DPenWidth, 1. ).toReal(); }
+    inline virtual bool isDraggable() const { return true; }
+    inline virtual bool isDroppable() const { return true; }
 
 protected:
     virtual QRectF boundingRect() const;

@@ -28,7 +28,6 @@
 #include <QDataStream>
 #include <QGraphicsProxyWidget>
 #include <QPixmap>
-#include <QGraphicsTransform>
 #include "phi.h"
 #include "phipalette.h"
 
@@ -41,12 +40,14 @@ class QUndoStack;
 
 class PHIEXPORT PHIBaseItem : public QObject
 {
-    friend class PHIBasePage;
+    //friend class PHIBasePage;
     friend class PHIGraphicsItem;
     friend class ARTGraphicsItem;
     friend class PHIAGraphicsItem;
     friend class PHIGraphicsScene;
     friend class ARTGraphicsScene;
+    friend class PHIAGraphicsScene;
+    friend class PHIUndoCommand;
     friend class PHIUndoAdd;
     friend class PHIUndoDelete;
 
@@ -54,7 +55,7 @@ class PHIEXPORT PHIBaseItem : public QObject
     Q_DISABLE_COPY( PHIBaseItem )
     Q_PROPERTY( QString id READ name )
     Q_PROPERTY( QString name READ name )
-    Q_PROPERTY( quint16 type READ type ) // to keep old code working
+    Q_PROPERTY( quint16 type READ type ) // type==WID (to keep old code working)
     Q_PROPERTY( QStringList properties READ properties )
     Q_PROPERTY( QString parentName READ parentName WRITE setParentName )
     Q_PROPERTY( qreal x READ x WRITE setX )
@@ -66,13 +67,14 @@ class PHIEXPORT PHIBaseItem : public QObject
     Q_PROPERTY( QString title READ title WRITE setTitle NOTIFY titleChanged )
     Q_PROPERTY( qint16 zIndex READ zIndex WRITE setZIndex NOTIFY zIndexChanged )
     Q_PROPERTY( quint8 transformPos READ transformPos WRITE setTransformPos )
+    Q_PROPERTY( QPointF transformOrigin READ transformOrigin WRITE setTransformOrigin )
 
 public:
     enum Type { TUndefined=0, TIDEItem=1, TTemplateItem=2, TServerItem=3,
         TServerParserItem=4, TClientItem=5 };
     enum Wid { Invalid=0 };
     enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4, DTransformPos=-5,
-        DTransformOrigin=-6 };
+        DTransformOrigin=-6, DXRot=-7, DYRot=-8, DZRot=-9, DHSkew=-10, DVSkew=-11 };
     enum Flag { FNone=0x0, FChild=0x01 };
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
@@ -114,7 +116,6 @@ signals:
 public: // not usable by script engine
     inline QByteArray id() const { return _id; }
     inline QByteArray parentId() const { return _parentId; }
-    //inline Type itemType() const { return _type; }
     inline void setId( const QByteArray &id ) { _id=id; setObjectName( QString::fromUtf8( id ) ); }
     inline void setId( const QString &id ) { _id=id.toLatin1(); setObjectName( id ); }
     inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); }
@@ -123,14 +124,18 @@ public: // not usable by script engine
     inline QRectF rect() const { return QRectF( QPointF(), size() ); }
     inline quint8 transformPos() const { return _variants.value( DTransformPos, 1 ).value<quint8>(); }
     inline void setTransformPos( PHI::Origin o ) { setTransformPos( static_cast<quint8>(o) ); }
-    inline QPointF transformOrigin() const { return _variants.value( DTransformOrigin, QPointF() ).toPointF(); }
-    inline void setXRotation( qreal x ) { _xRot->setAngle( x ); }
-    inline void setYRotation( qreal y ) { _yRot->setAngle( y ); }
-    inline void setZRotation( qreal z ) { _zRot->setAngle( z ); }
-    inline qreal xRotation() const { return _xRot->angle(); }
-    inline qreal yRotation() const { return _yRot->angle(); }
-    inline qreal zRotation() const { return _zRot->angle(); }
-    inline bool hasRotation() const { return _xRot->angle()+_yRot->angle()+_zRot->angle() ? true : false; }
+    inline QPointF transformOrigin() const { return _transformOrigin; }
+    inline void setXRotation( qreal x ) { _xRot=x; if ( _gw ) _gw->setTransform( computeTransformation() ); }
+    inline void setYRotation( qreal y ) { _yRot=y; if ( _gw ) _gw->setTransform( computeTransformation() ); }
+    inline void setZRotation( qreal z ) { _zRot=z; if ( _gw ) _gw->setTransform( computeTransformation() ); }
+    inline void setHSkew( qreal h ) { _hSkew=h; if ( _gw ) _gw->setTransform( computeTransformation() ); }
+    inline void setVSkew( qreal v ) { _vSkew=v; if ( _gw ) _gw->setTransform( computeTransformation() ); }
+    inline qreal xRotation() const { return _xRot; }
+    inline qreal yRotation() const { return _yRot; }
+    inline qreal zRotation() const { return _zRot; }
+    inline qreal hSkew() const { return _hSkew; }
+    inline qreal vSkew() const { return _vSkew; }
+    inline bool hasTransformation() const { return _xRot+_yRot+_zRot+_hSkew+_vSkew? true : false; }
     inline bool isIdeItem() const { return _type==TIDEItem; }
     inline bool isTemplateItem() const { return _type==TTemplateItem; }
     inline bool isClientItem() const { return _type==TClientItem; }
@@ -139,8 +144,9 @@ public: // not usable by script engine
     void setZIndex( qint16 idx );
     void setTransformPos( quint8 pos );
     void setTransformOrigin( const QPointF &pos );
-    void load( QDataStream &in, quint8 version );
-    void save( QDataStream &out, quint8 version ) const;
+    void setTransformation( qreal hs, qreal vs, qreal xRot, qreal yRot, qreal zRot );
+    void load( QDataStream &in, int version );
+    void save( QDataStream &out, int version );
     QFont font() const;
 
     //virtual functions
@@ -158,7 +164,6 @@ public: // not usable by script engine
     virtual PHIWID wid() const=0;
     virtual void setFont( const QFont &font );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color );
-    virtual void phiPaletteChanged( const PHIPalette &pal );
     virtual void setText( const QString &t, const QString &lang );
     virtual QString text( const QString &lang ) const;
 
@@ -200,14 +205,16 @@ public slots: // usable by script engine
     void resize( const QSizeF &s );
 
 protected:
-    virtual void loadItemData( QDataStream &in, quint8 version );
-    virtual void saveItemData( QDataStream &out, quint8 version ) const;
-    virtual void loadEditorData( QDataStream &in, quint8 version );
-    virtual void saveEditorData( QDataStream &out, quint8 version ) const;
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void loadEditorData( QDataStream &in, int version );
+    virtual void saveEditorData( QDataStream &out, int version );
+    virtual void loadVersion1x( QDataStream &in ) { Q_UNUSED( in ) }
 
-    inline bool isChild() const { return _flags & FChild; }
+    //inline bool isChild() const { return _flags & FChild; }
     void setWidget( QWidget* );
     QWidget* widget() const;
+    PHIBasePage* page() const;
 
     // Phis server related members
     // create all cached language dependend images and transformed images and free memory:
@@ -224,17 +231,9 @@ protected:
     // IDE related members
     inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
     inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
-    /*
-    inline void setPreferredSize( const QSizeF &s ) { if ( _gw ) _gw->setPreferredSize( s ); }
-    inline void setMinimumSize( const QSizeF &s ) { if ( _gw ) _gw->setMinimumSize( s ); }
-    inline void setMaximumSize( const QSizeF &s ) { if ( _gw ) _gw->setMaximumSize( s ); }
-    inline void setMaximumWidth( const qreal w ) { if ( _gw ) _gw->setMaximumWidth( w ); }
-    inline void setMaximumHeight( const qreal h ) { if ( _gw ) _gw->setMaximumHeight( h ); }
-    inline void setMinimumWidth( const qreal w ) { if ( _gw ) _gw->setMinimumWidth( w ); }
-    inline void setMinimumHeight( const qreal h ) { if ( _gw ) _gw->setMinimumHeight( h ); }
-    */
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
     inline void update( const QRectF &r=QRectF() ) { if ( _gw ) _gw->update( r ); }
+    inline void setFocus() { if ( _gw ) _gw->setFocus(); }
 
     QUndoStack* undoStack() const; // Hack for Drag & Drop in IDE
     virtual void paint( QPainter *painter, const QRectF &exposed );
@@ -249,7 +248,6 @@ protected:
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideResizeEvent( QGraphicsSceneResizeEvent *event );
     virtual void ideKeyPressEvent( QKeyEvent *event );
-    virtual void idePaintSelection( QPainter *painter );
     //virtual void ideHoverEnterEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverMoveEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
@@ -258,18 +256,20 @@ private:
     // IDE related members
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
     inline QGraphicsWidget* graphicsWidget() const { return _gw; }
+    QTransform computeTransformation() const;
+    void phiPaletteChanged( const PHIPalette &pal );
 
 protected:
     QHash <qint8, QVariant> _variants;
-    Flags _flags;
+    //Flags _flags;
 
 private:
     Type _type;
     QGraphicsWidget *_gw;
     QByteArray _id, _parentId;
-    qreal _x, _y, _width, _height;
+    qreal _x, _y, _width, _height, _xRot, _yRot, _zRot, _hSkew, _vSkew;
     qint16 _zIndex;
-    QGraphicsRotation *_xRot, *_yRot, *_zRot;
+    QPointF _transformOrigin;
 };
 
 #ifdef PHIDEBUG
@@ -289,15 +289,13 @@ inline void baseItemFromScriptValue( const QScriptValue &obj, PHIBaseItem* &it )
 inline void PHIBaseItem::setWidth( qreal w )
 {
     if ( w==_width ) return;
-    _width=w;
-    if ( _gw ) _gw->resize( _width, _height );
+    resize( QSizeF( w, _height ) );
 }
 
 inline void PHIBaseItem::setHeight( qreal h )
 {
     if ( h==_height ) return;
-    _height=h;
-    if ( _gw ) _gw->resize( _width, _height );
+    resize( QSizeF( _width, h ) );
 }
 
 inline void PHIBaseItem::setPos( const QPointF &p )
@@ -309,9 +307,7 @@ inline void PHIBaseItem::setPos( const QPointF &p )
 
 inline void PHIBaseItem::resize( qreal w, qreal h )
 {
-    _width=w;
-    _height=h;
-    if ( _gw ) _gw->resize( w, h );
+    resize( QSizeF( w, h ) );
 }
 
 inline void PHIBaseItem::resize( const QSizeF &s )

@@ -19,11 +19,13 @@ class PHIUndoCommand : public QUndoCommand
 {
 
 public:
-    enum Id { Move=0, Color=1, Size, Add, Delete, Opacity, Font, Title, Visibility,
-        Line, PenWidth, Pattern, Alignment, Text, ZIndex, TransformPos };
-        //Data, Pixmap, TransformPos, ZValue,
-        //Transform, Value, Label, ItemId, Parent, Page, TabOrder, Check, ToolTip, Visibility,
+    enum Id { Move, Color, Size, Add, Delete, Opacity, Font, Title, Visibility,
+        Line, PenWidth, Pattern, Alignment, Text, ZIndex, TransformPos, Transform };
+        //Data, Pixmap,
+        //Value, Label, ItemId, Parent, Page, TabOrder, Check, ToolTip, Visibility,
         //Effect, TextData, Url, StyleSheet, Attribute };
+    virtual void undo();
+    virtual void redo();
 
 protected:
     PHIUndoCommand( PHIBaseItem *it );
@@ -116,27 +118,24 @@ protected:
     QVariant _oldProp, _newProp;
 };
 
-/*
 class PHIUndoTransform : public PHIUndoCommand
 {
 public:
-    PHIUndoTransform( PHIBaseItem*, double x, double y, double z, double dx, double dy, double sh, double sv );
-    virtual ~PHIUndoTransform();
+    PHIUndoTransform( PHIBaseItem*, qreal oldSh, qreal oldSv, qreal oldX, qreal oldY, qreal oldZ );
     inline virtual int id() const { return static_cast<int>(Transform); }
     virtual bool mergeWith( const QUndoCommand *other );
     virtual void undo();
     virtual void redo();
 
 protected:
-    double _newX, _oldX;
-    double _newY, _oldY;
-    double _newZ, _oldZ;
-    double _newDX, _oldDX;
-    double _newDY, _oldDY;
-    double _newSH, _oldSH;
-    double _newSV, _oldSV;
+    qreal _newSH, _oldSH;
+    qreal _newSV, _oldSV;
+    qreal _newX, _oldX;
+    qreal _newY, _oldY;
+    qreal _newZ, _oldZ;
 };
 
+/*
 class PHIUndoUrl : public PHIUndoCommand
 {
 public:

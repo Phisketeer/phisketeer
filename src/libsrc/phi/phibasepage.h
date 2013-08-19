@@ -26,6 +26,7 @@
 #include "phi.h"
 #include "phipagemenuentry.h"
 #include "phidatasources.h"
+#include "phipalette.h"
 
 class PHIBaseItem;
 
@@ -93,11 +94,14 @@ public:
     inline void setFont( const QFont &f ) { _font=_font.resolve( f ); }
     inline void setLanguages( const QStringList &langs ) { _variants.insert( DLanguages, langs ); }
     inline bool containsItemId( const QString &id ) const { return findItem( id ) ? true : false; }
+    inline PHIPalette phiPalette() const { return _pal; }
     PHIBaseItem* findItem( const QString &id ) const;
     QList <PHIBaseItem*> items() const;
     QString nextFreeId( const QString &requestedId ) const;
     PHIBasePage* clone() const;
     QRect rect() const { return QRect( QPoint(), QSize( _width, _height ) ); }
+    quint8 gridSize() const { return _variants.value( DGridSize, 16 ).value<quint8>(); }
+    void setGridSize( quint8 s ) { _variants.insert( DGridSize, s ); }
 
     void load( QDataStream &in, quint8 version );
     void save( QDataStream &out, quint8 version );
@@ -217,6 +221,7 @@ private:
     QColor _bgColor;
     QList <PHIPageMenuEntry> _menuEntries;
     QSet <quint8> _flags;
+    PHIPalette _pal;
 };
 
 PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIBasePage* );

@@ -16,17 +16,34 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QFontMetrics>
+#include <QFontMetricsF>
 #include <QGraphicsSceneDragDropEvent>
 #include <QPainter>
 #include <QMimeData>
 #include <QUndoStack>
+#include <QWidget>
 #include "phiabstractitems.h"
 #include "phiundo.h"
+
+qreal PHIAbstractTextItem::_dropRegion=7.;
+
+static void _extractColorRole( const QString &s, PHIPalette::ColorRole &cr )
+{
+    QStringList list=s.split( L1( ";" ), QString::SkipEmptyParts );
+    for ( int i=0; i<list.count(); i++ ) {
+        QString t=list.at( i );
+        if ( t.startsWith( L1( "ColorRole:" ) ) ) {
+            cr=static_cast<PHIPalette::ColorRole>(t.mid( 10 ).toUShort());
+            break;
+        }
+    }
+}
 
 PHIAbstractTextItem::PHIAbstractTextItem()
     : PHIBaseItem()
 {
+    _colorRole=PHIPalette::Text;
+    _backgroundColorRole=PHIPalette::Base;
 }
 
 void PHIAbstractTextItem::setText( const QString &t, const QString &lang )
@@ -43,21 +60,119 @@ QString PHIAbstractTextItem::text( const QString &lang ) const
 
 QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    Q_UNUSED( constraint )
-    qDebug( "sizehint" );
     if ( which==Qt::MinimumSize ) {
         if ( isSingleLine() ) return QSizeF( 20, 21 );
         return QSizeF( 20, 21 );
     }
     if ( which==Qt::PreferredSize ) {
-        QFontMetrics m( font() );
-        if ( isSingleLine() ) return QSizeF( 150, qMax( 21, m.height()+4 ) );
-        return QSizeF( 150, 64 );
+        QFont f=font();
+        f.setPointSizeF( PHI::adjustedFontSize( font().pointSizeF() ) );
+        QFontMetricsF m( f );
+        if ( isSingleLine() ) return QSizeF( 160, qMax( 21., m.height()+4 ) );
+        return QSizeF( 160, qMax( m.height()+4, 96. ) );
     }
-    return QSizeF();
+    return PHIBaseItem::sizeHint( which, constraint );
 }
 
-qreal PHIAbstractShapeItem::_dropRegion=6.;
+void PHIAbstractTextItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
+{
+    if ( ir==PHIPalette::WidgetText ) {
+        _variants.insert( DColor, col );
+        _colorRole=cr;
+    } else if ( ir==PHIPalette::WidgetBase ) {
+        _variants.insert( DBackgroundColor, col );
+        _backgroundColorRole=cr;
+    } else return;
+    QWidget *w=widget();
+    if ( !w ) return;
+    QPalette::ColorRole role=QPalette::Text;
+    if ( ir==PHIPalette::WidgetBase ) role=QPalette::Base;
+    QPalette pal=w->palette();
+    pal.setColor( role, col );
+    w->setPalette( pal );
+}
+
+QColor PHIAbstractTextItem::color( PHIPalette::ItemRole role ) const
+{
+    if ( role==PHIPalette::WidgetText ) return color();
+    if ( role==PHIPalette::WidgetBase ) return backgroundColor();
+    return QColor();
+}
+
+PHIPalette::ColorRole PHIAbstractTextItem::colorRole( PHIPalette::ItemRole role ) const
+{
+    if ( role==PHIPalette::WidgetText ) return _colorRole;
+    if ( role==PHIPalette::WidgetBase ) return _backgroundColorRole;
+    return PHIPalette::NoRole;
+}
+
+void PHIAbstractTextItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
+{
+    if ( !e->mimeData()->hasColor() ) return e->ignore();
+    _variants.insert( DTmpColor, _variants.value( DColor ) );
+    _variants.insert( DTmpBackgroundColor, _variants.value( DBackgroundColor ) );
+    e->setDropAction( Qt::CopyAction );
+    e->accept();
+}
+
+void PHIAbstractTextItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
+{
+    if ( !e->mimeData()->hasColor() ) return;
+    QRectF r=QRectF( QPointF( _dropRegion, _dropRegion ),
+        QSizeF( width()-_dropRegion, height()-_dropRegion ) );
+    if ( r.contains( e->pos() ) ) {
+        setBackgroundColor( e->mimeData()->colorData().value<QColor>() );
+        setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
+    } else {
+        setBackgroundColor( _variants.value( DTmpBackgroundColor, QColor( Qt::black ) ).value<QColor>() );
+        setColor( e->mimeData()->colorData().value<QColor>() );
+    }
+    update();
+}
+
+void PHIAbstractTextItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
+{
+    if ( !e->mimeData()->hasColor() ) return;
+    setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
+    setBackgroundColor( _variants.value( DTmpBackgroundColor, QColor( Qt::black ) ).value<QColor>() );
+    update();
+}
+
+void PHIAbstractTextItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
+{
+    if ( !e->mimeData()->hasColor() ) return;
+    // restore old colors:
+    setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
+    setBackgroundColor( _variants.value( DTmpBackgroundColor, QColor( Qt::black ) ).value<QColor>() );
+    QRectF r=QRectF( QPointF( _dropRegion, _dropRegion ),
+        QSizeF( width()-_dropRegion, height()-_dropRegion ) );
+    if ( e->mimeData()->hasText() ) {
+        PHIPalette::ColorRole newCR=PHIPalette::Custom;
+        _extractColorRole( e->mimeData()->text(), newCR );
+        // drag from color button
+        if ( !r.contains( e->pos() ) ) {
+            undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetText,
+                newCR, e->mimeData()->colorData().value<QColor>() ) );
+        } else {
+            undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetBase,
+                newCR, e->mimeData()->colorData().value<QColor>() ) );
+        }
+        update();
+        return;
+    }
+    // drag from external app
+    if ( !r.contains( e->pos() ) ) {
+        undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetText,
+            PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
+    } else {
+        undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetBase,
+            PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
+    }
+    update();
+}
+
+
+qreal PHIAbstractShapeItem::_dropRegion=7.;
 
 static void _extractShapeDefs( const QString &s, PHIPalette::ColorRole &cr, quint8 &pattern, quint8 &style, qreal &penWidth )
 {
@@ -179,7 +294,7 @@ QRectF PHIAbstractShapeItem::boundingRect() const
 QSizeF PHIAbstractShapeItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     Q_UNUSED( constraint )
-    if ( which==Qt::PreferredSize ) return QSizeF( 128, 128 );
+    if ( which==Qt::PreferredSize ) return QSizeF( 96, 96 );
     if ( which==Qt::MinimumSize ) return QSizeF( 16, 16 );
     return QSizeF();
 }
@@ -194,7 +309,7 @@ void PHIAbstractShapeItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
         _variants.insert( DTmpLineStyle, line() );
         _variants.insert( DTmpPenWidth, penWidth() );
     }
-    e->setDropAction( Qt::MoveAction );
+    e->setDropAction( Qt::CopyAction );
     e->accept();
 }
 

@@ -102,7 +102,7 @@ void PHIPalette::setColor( ColorRole role, const QColor &col )
         _pal.setColor( static_cast<QPalette::ColorRole>(num), col );
         return;
     }
-    if ( role==Black || role==White ) {
+    if ( role==Black || role==White || role==Custom || role==NoRole ) {
         return;
     }
     createPercentColors( role, col );
@@ -110,8 +110,7 @@ void PHIPalette::setColor( ColorRole role, const QColor &col )
 
 QDataStream& operator <<( QDataStream &out, const PHIPalette &p )
 {
-    for ( quint8 i=0; i<17; i++ )
-        out << p.color( static_cast<PHIPalette::ColorRole>(i) );
+    for ( quint8 i=0; i<17; i++ ) out << p.color( static_cast<PHIPalette::ColorRole>(i) );
     out << p.color( PHIPalette::User1_100 )
         << p.color( PHIPalette::User2_100 ) << p.color( PHIPalette::User3_100 )
         << p.color( PHIPalette::User4_100 ) << p.color( PHIPalette::User5_100 )
