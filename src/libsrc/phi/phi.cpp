@@ -117,6 +117,7 @@ void PHI::extractRealNumbers( const QByteArray &s, qreal &value, qreal &min, qre
     if ( prec>10 ) prec=10;
 }
 
+/*
 QColor PHI::percentColor( const QColor &c, qreal fac )
 {
     qreal h, s, v, hh, ss, ll;
@@ -146,6 +147,7 @@ void PHI::hslToHsv( qreal hh, qreal ss, qreal ll, qreal *h, qreal *s, qreal *v )
     *v = (ll + ss) / 2.0;
     *s = (2 * ss) / (ll + ss);
 }
+*/
 
 /*
 QString PHI::getLocalFilePath( const QString &docroot, const QString &referer, const QString &filename )

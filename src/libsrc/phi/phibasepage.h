@@ -25,10 +25,11 @@
 #include <QDataStream>
 #include "phi.h"
 #include "phipagemenuentry.h"
-#include "phidatasources.h"
 #include "phipalette.h"
 
 class PHIBaseItem;
+class PHITextData;
+class PHIImageData;
 
 class PHIDynPageData
 {
@@ -37,6 +38,8 @@ public:
     ~PHIDynPageData();
     PHIDynPageData( const PHIDynPageData& );
     PHIDynPageData& operator=( const PHIDynPageData& );
+    bool operator==( const PHIDynPageData &d );
+    inline bool operator!=( const PHIDynPageData &d ) { return !operator==(d); }
 
     PHITextData *_title, *_styleSheet, *_author, *_version, *_company, *_copyright, *_template,
         *_javascript, *_serverscript, *_action, *_keys, *_sessionRedirect, *_description,
@@ -51,7 +54,6 @@ class PHIEXPORT PHIBasePage : public QObject
     friend PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBasePage* );
 
     Q_OBJECT
-    Q_DISABLE_COPY( PHIBasePage )
     Q_PROPERTY( QString id READ id )
     Q_PROPERTY( QString title READ title WRITE setTitle NOTIFY titleChanged )
     Q_PROPERTY( quint32 width READ width WRITE setWidth )
@@ -78,31 +80,60 @@ class PHIEXPORT PHIBasePage : public QObject
     // default lang (initialized with philang or first matching lang from accepted languages of the browser)
     Q_PROPERTY( QString lang WRITE setLang READ lang )
     Q_PROPERTY( QString openGraph WRITE setOpenGraph READ openGraph )
+    Q_PROPERTY( QSize size READ size WRITE setSize )
 
 public:
     enum DataType { DFlags=0, DTemplatePage=1, DTitle=2, DSession=3, DAuthor=4, DCompany=5,
         DVersion=6, DAction=7, DCopyright=8, DSessionRedirect=9, DJavascript=10,
         DStyleSheet=11, DKeys=12, DLanguages=13, DGridSize=14, DDescription=15,
         DColorError=16, DColorBgError=17, DColorHover=18, DOpenGraph=19, DBgImageUrl=20,
-        DBgImageOptions=21, DBgImageXOff=22, DBgImageYOff=23 }; // quint8
-    enum Flag { FUseClientPalette=1, FHasFacebook=2, FHasCalendar=3, FHasGoogleMaps=4,
-        FHasGoogleCalendar=5 }; // quint8
+        DBgImageOptions=21, DBgImageXOff=22, DBgImageYOff=23, DDefaultLang=24,
+        DGeometry=25 }; // quint8
+    enum Flag { FNone=0x0, FUseClientPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
+            FBGRepeatX=0x8, FBGRepeatY=0x10, FBGFixed=0x20, FBGImg=0x40 }; // quint32
+    enum Geometry { GUnknown=0, GA4=1, GLetter=2, GCustom=3, GPhi=4, G4_3=5, G16_9=6, GiPad=7 };
+
+#ifdef PHIDEBUG
+    Q_DECLARE_FLAGS( Flags, Flag )
+#else
+    typedef quint32 Flags;
+#endif
 
     explicit PHIBasePage( QObject *parent );
     virtual ~PHIBasePage();
+    PHIBasePage( const PHIBasePage &p );
+    PHIBasePage& operator=( const PHIBasePage &p );
+    bool operator==( const PHIBasePage &p );
+    inline bool operator!=( const PHIBasePage &p ) { return !operator==(p); }
+    inline Flags flags() const { return _flags; }
+    inline void setFlag( Flag f, bool b=true ) { b ? _flags |= f : _flags &= ~f; }
+
+    inline void setBgColor( const QColor &c ) { _bgColor=c; }
+    inline bool pageLeftAligned() const { return _flags & FPageLeftAlign; }
+    inline void setPageLeftAligned( bool b=true ) { b ? _flags |= FPageLeftAlign : _flags &= ~FPageLeftAlign; }
+    inline bool applicationMode() const { return _flags & FPageLeftAlign; }
+    inline void setApplicationMode( bool b=true ) { b ? _flags |= FApplicationMode : _flags &= ~FApplicationMode; }
     inline QFont font() const { return _font; }
-    inline void setFont( const QFont &f ) { _font=_font.resolve( f ); }
+    inline void setFont( const QFont &f ) { _font=f; }
     inline void setLanguages( const QStringList &langs ) { _variants.insert( DLanguages, langs ); }
+    inline void setDefaultLanguage( const QByteArray &l ) { _variants.insert( DDefaultLang, l ); }
+    inline void setDefaultLanguage( const QString &l ) { _variants.insert( DDefaultLang, l.toLatin1() ); }
+    inline QByteArray defaultLanguage() const { return _variants.value( DDefaultLang ).toByteArray(); }
     inline bool containsItemId( const QString &id ) const { return findItem( id ) ? true : false; }
     inline PHIPalette phiPalette() const { return _pal; }
+    inline void addMenuEntry( const PHIPageMenuEntry &e ) { _menuEntries.append( e ); }
+    inline void setId( const QByteArray &id ) { _id=id; }
+    inline void setId( const QString &id ) { _id=id.toLatin1(); }
+    inline Geometry geometry() const { return static_cast<Geometry>(_variants.value( DGeometry, 0 ).value<quint8>()); }
+    void setGeometry( Geometry g );
+    void setFavicon( const QPixmap &pix ) { _favicon=pix.toImage(); }
+    QPixmap favicon() const { return QPixmap::fromImage( _favicon ); }
     PHIBaseItem* findItem( const QString &id ) const;
     QList <PHIBaseItem*> items() const;
     QString nextFreeId( const QString &requestedId ) const;
-    PHIBasePage* clone() const;
     QRect rect() const { return QRect( QPoint(), QSize( _width, _height ) ); }
     quint8 gridSize() const { return _variants.value( DGridSize, 16 ).value<quint8>(); }
     void setGridSize( quint8 s ) { _variants.insert( DGridSize, s ); }
-
     void load( QDataStream &in, quint8 version );
     void save( QDataStream &out, quint8 version );
 
@@ -115,6 +146,9 @@ public slots:
     inline quint32 width() const { return _width; }
     inline void setHeight( quint32 h ) { _height=h; emit documentSizeChanged(); }
     inline quint32 height() const { return _height; }
+    inline QSize size() const { return QSize( _width, _height ); }
+    inline void setSize( const QSize &s ) { _width=s.width(); _height=s.height(); emit documentSizeChanged(); }
+    inline void setSize( quint32 w, quint32 h ) { _width=w; _height=h; emit documentSizeChanged(); }
     QStringList itemIds() const;
     quint16 itemCount() const;
 
@@ -167,6 +201,8 @@ public slots:
     inline PHIBaseItem* getElementById( const QString &id ) const { return findItem( id ); }
     PHIBaseItem* createElementById( quint16 type, const QString &id, qreal x, qreal y, qreal width=-1, qreal height=-1 );
     bool removeElementById( const QString &id );
+    void setBgImageOptions( qint32 opts );
+    qint32 bgImageOptions() const;
 
     inline void setBgImageUrl( const QString &url ) { _variants.insert( DBgImageUrl, url.toUtf8() ); }
     inline QString bgImageUrl() const {
@@ -175,8 +211,6 @@ public slots:
     inline qint32 bgImageXOff() const { return _variants.value( DBgImageXOff ).toInt(); }
     inline void setBgImageYOff( qint32 y ) { _variants.insert( DBgImageYOff, y ); }
     inline qint32 bgImageYOff() const { return _variants.value( DBgImageYOff ).toInt(); }
-    inline void setBgImageOptions( qint32 opts ) { _variants.insert( DBgImageOptions, opts ); }
-    inline qint32 bgImageOptions() const { return _variants.value( DBgImageOptions ).toInt(); }
     inline QString dbName() const { return _dbName; }
     inline QString dbHost() const { return _dbHost; }
     inline QString dbPasswd() const { return _dbPasswd; }
@@ -185,6 +219,7 @@ public slots:
     inline QString dbDriver() const { return _dbDriver; }
     inline qint32 dbPort() const { return _dbPort; }
 
+public:
     inline PHITextData* titleData() const { return _pageData->_title; }
     inline PHITextData* styleSheetData() const { return _pageData->_styleSheet; }
     inline PHITextData* authorData() const { return _pageData->_author; }
@@ -195,7 +230,7 @@ public slots:
     inline PHITextData* javascriptData() const { return _pageData->_javascript; }
     inline PHITextData* serverscriptData() const { return _pageData->_serverscript; }
     inline PHITextData* actionData() const { return _pageData->_action; }
-    inline PHITextData* keysData() const { return _pageData->_keys; }
+    inline PHITextData* keywordsData() const { return _pageData->_keys; }
     inline PHITextData* sessionRedirectData() const { return _pageData->_sessionRedirect; }
     inline PHITextData* descriptionData() const { return _pageData->_description; }
     inline PHITextData* opengraphData() const { return _pageData->_opengraph; }
@@ -214,72 +249,20 @@ private:
     quint32 _width, _height;
     QHash <quint8, QVariant> _variants;
     QString _dbName, _dbHost, _dbPasswd, _dbUser, _dbDriver, _dbOptions, _dbFileName;
-    //Geometry _geometry;
     qint32 _dbPort;
     QImage _favicon;
     QFont _font;
     QColor _bgColor;
     QList <PHIPageMenuEntry> _menuEntries;
-    QSet <quint8> _flags;
+    Flags _flags;
     PHIPalette _pal;
 };
+
+#ifdef PHIDEBUG
+    Q_DECLARE_OPERATORS_FOR_FLAGS( PHIBasePage::Flags )
+#endif
 
 PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIBasePage* );
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBasePage* );
 
-/*
-class PHIEXPORT PHIBasePage : public QObject, public PHIPage
-{
-    Q_OBJECT
-    Q_DISABLE_COPY( PHIBasePage )
-
-
-    friend PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIBasePage* );
-    friend PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBasePage* );
-
-public:
-    explicit PHIBasePage( const PHIPage&, QObject *parent=0 );
-    explicit PHIBasePage( QObject *parent=0 );
-    virtual ~PHIBasePage();
-    // PHIBasePage( const PHIBasePage& );
-
-    //inline void insertElementById( const QByteArray &id, PHIBaseItem *item ) { _items.insert( id, item ); }
-    //inline void removeElementById( const QByteArray &id ) { PHIBaseItem *it=_items.take( id );
-    //    if ( it ) delete it; }
-    inline virtual quint16 itemCount() const { return _items.count(); }
-    //inline QHash <QByteArray, PHIBaseItem*> items() const { return _items; }
-    inline void setTemplatePage( const QString &s ) { _variants.insert( DTemplatePage, s.toUtf8() ); }
-    inline PHIPage::Attributes attributes() const { return _attributes; }
-    inline PHIPage::Extensions extensions() const { return _extensions; }
-    inline void addExtensions( PHIPage::Extensions e ) { _extensions |= e; }
-    inline bool contains( const QByteArray &id ) const { return _items.value( id, 0 ) ? true : false; }
-    inline QPalette palette() const { return _palette; }
-    inline void setPalette( const QPalette &p ) { _palette=p; }
-    inline void setTemplatePageOverwritesPalette( const QPalette &p )
-        { _palette=p; _attributes |= PHIPage::APalette; }
-
-    inline QFont font() const { return _font; }
-    inline void setFont( const QFont &f ) { _font=f; }
-    inline QImage image() const { return _image; } // favicon
-    inline void setImage( const QImage &img ) { _image=img; } // favicon
-    inline ScriptModules scriptModules() const { return _scriptModules; }
-    inline void joinScriptModules( ScriptModules s ) { _scriptModules |=s; }
-    inline void setPageUsesCalendar() { _attributes |= PHIPage::AHasCalendar; }
-    inline void addMenuEntry( const PHIPageMenuEntry &e ) { _menuEntries.append( e ); }
-    inline QByteArray pageId() const { return _id; }
-    inline QVariant variant( DataType t ) const { return _variants.value( t ); }
-
-    QColor additionalColor( DataType c ) const;
-    bool needjQueryUI() const;
-
-// Available for scripting in the server environment
-public slots:
-
-protected:
-    QHash <quint8, QVariant> _variants;
-    //QHash <QByteArray, PHIBaseItem*> _items;
-    QList <PHIPageMenuEntry> _menuEntries;
-};
-
-*/
 #endif // PHIBASEPAGE_H

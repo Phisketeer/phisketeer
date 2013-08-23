@@ -57,6 +57,8 @@ public:
     explicit PHIPalette();
     PHIPalette( const PHIPalette &p );
     PHIPalette& operator=( const PHIPalette &p );
+    bool operator==( const PHIPalette &p );
+    inline bool operator!=( const PHIPalette &p ) { return !operator==(p); }
 
     QColor color( ColorRole role ) const;
     void setColor( ColorRole role, const QColor &col );

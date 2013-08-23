@@ -45,11 +45,18 @@ PHIPalette::PHIPalette( const PHIPalette &p )
     _userColors=p._userColors;
 }
 
-PHIPalette& PHIPalette::operator =( const PHIPalette &p )
+PHIPalette& PHIPalette::operator=( const PHIPalette &p )
 {
     _pal=p._pal;
     _userColors=p._userColors;
     return *this;
+}
+
+bool PHIPalette::operator==( const PHIPalette &p )
+{
+    if ( _pal!=p._pal ) return false;
+    if ( _userColors!=p._userColors ) return false;
+    return true;
 }
 
 void PHIPalette::createPercentColors( ColorRole role, const QColor &col )

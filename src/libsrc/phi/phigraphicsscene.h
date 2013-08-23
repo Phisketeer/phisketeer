@@ -38,6 +38,7 @@ public:
     virtual ~PHIGraphicsScene();
 
     inline PHIBasePage* page() const { return _page; }
+    inline void setPage( PHIBasePage *page ) { _page=page; }
     inline QString fileName() const { return objectName(); }
     inline QUndoStack* undoStack() const { return _undoStack; }
     QList<PHIBaseItem*> selectedBaseItems() const;
@@ -49,7 +50,7 @@ public:
     static QUrl urlFromMimeData( const QMimeData *md );
     static QColor colorFromMimeData( const QMimeData *md );
 
-protected slots:
+public slots:
     virtual void documentSizeChanged();
     void setAlignment( Qt::Alignment );
 
@@ -60,6 +61,7 @@ protected:
 signals:
     void mousePos( const QPointF& );
     void cleanChanged( bool );
+    void languagesChanged( const QStringList &langs );
 
 private:
     PHIBasePage *_page;

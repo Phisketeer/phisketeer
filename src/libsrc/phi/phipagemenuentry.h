@@ -43,6 +43,8 @@ public:
     virtual ~PHIPageMenuEntry();
     PHIPageMenuEntry( const PHIPageMenuEntry& );
     PHIPageMenuEntry& operator=( const PHIPageMenuEntry& );
+    bool operator==( const PHIPageMenuEntry &p );
+    inline bool operator!=( const PHIPageMenuEntry &p ) { return !operator==(p); }
 
     inline QString id() const { return QString::fromUtf8( _id ); }
     inline QString parent() const { return QString::fromUtf8( _parent ); }

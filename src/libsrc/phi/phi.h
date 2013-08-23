@@ -82,10 +82,10 @@ public:
     static QString tag( const QString &tag, const QString &msg ); // fast extractor <tag>msg</tag>
     static QStringList properties( const QObject* );
     static const QString &libVersion();
-    static void hsvToHsl( qreal h, qreal s, qreal v, qreal *hh, qreal *ss, qreal *ll );
-    static void hslToHsv( qreal hh, qreal ss, qreal ll, qreal *h, qreal *s, qreal *v );
 
-    static QColor percentColor( const QColor &c, qreal fac );
+    //static void hsvToHsl( qreal h, qreal s, qreal v, qreal *hh, qreal *ss, qreal *ll );
+    //static void hslToHsv( qreal hh, qreal ss, qreal ll, qreal *h, qreal *s, qreal *v );
+    //static QColor percentColor( const QColor &c, qreal fac );
     static const QByteArray& nl();
     static const QByteArray& dtFormat();
     static const QString& dtFormatString();
@@ -126,6 +126,9 @@ public:
     static inline QSize defaultPageSize() { return QSize( 1000, 750 ); }
     static inline QPoint defaultHotSpot() { return QPoint( 5, 5 ); }
     static inline qint16 maxZIndex() { return static_cast<qint16>(30000); }
+    static inline qreal gradToRad( qreal g ) { return g*static_cast<qreal>(0.01745329251994); }
+    static inline qreal radToGrad( qreal r ) { return r*static_cast<qreal>(57.29577951309314); }
+    static inline int defaultToolBarHeight() { return 24; }
 
     // move to PHIItem
     static inline QString defaultEasingCurve() { return QStringLiteral( "easeOutQuad" ); }
@@ -137,8 +140,7 @@ public:
     static QByteArray toEasingCurveByteArray( quint8 ease );
     static QStringList availableEasingCurves();
     static void getItemCheckData( QString &data, QString &opt, bool &isChecked );
-    static inline qreal gradToRad( qreal g ) { return g*static_cast<qreal>(0.01745329251994); }
-    static inline qreal radToGrad( qreal r ) { return r*static_cast<qreal>(57.29577951309314); }
+
 private:
     static const char* _phiDT;
     static const char* _phiDate;

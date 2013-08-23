@@ -520,14 +520,12 @@ void PHIUndoTransform::undo()
     PHIUndoCommand::undo();
 }
 
-/*
-PHIUndoPage::PHIUndoPage( PHIScene *scene, const PHISPage &newPage )
-    : PHIUndoCommand( 0 ), _scene( scene ), _newPage( newPage )
+PHIUndoPage::PHIUndoPage( PHIGraphicsScene *scene, const PHIBasePage &newPage )
+    : PHIUndoCommand( 0 ), _scene( scene ), _oldPage( *(scene->page()) ), _newPage( newPage )
 {
     qDebug( "PHIUndoPage::PHIUndoPage()" );
     Q_ASSERT( _scene );
     setText( QObject::tr( "Page" )+UT( newPage.id() ) );
-    _oldPage=*(_scene->page());
 }
 
 PHIUndoPage::~PHIUndoPage()
@@ -546,14 +544,29 @@ bool PHIUndoPage::mergeWith( const QUndoCommand *other )
 
 void PHIUndoPage::redo()
 {
-    _scene->setPage( _newPage );
+    const PHIBasePage page=*(_scene->page());
+    *(_scene->page())=_newPage;
+    if ( page.languages()!=_newPage.languages() ||
+            page.defaultLanguage()!=_newPage.defaultLanguage() )
+        emit _scene->languagesChanged( _newPage.languages() );
+    if ( page.bgColor()!=_newPage.bgColor() )
+        _scene->setBackgroundBrush( QColor( _newPage.bgColor() ) );
+    if ( page.size()!=_newPage.size() ) emit _scene->page()->documentSizeChanged();
 }
 
 void PHIUndoPage::undo()
 {
-    _scene->setPage( _oldPage );
+    const PHIBasePage page=*(_scene->page());
+    *(_scene->page())=_oldPage;
+    if ( page.languages()!=_oldPage.languages() ||
+            page.defaultLanguage()!=_oldPage.defaultLanguage() )
+        emit _scene->languagesChanged( _oldPage.languages() );
+    if ( page.bgColor()!=_oldPage.bgColor() )
+        _scene->setBackgroundBrush( QColor( _oldPage.bgColor() ) );
+    if ( page.size()!=_oldPage.size() ) emit _scene->page()->documentSizeChanged();
 }
 
+/*
 PHIUndoEffect::PHIUndoEffect( PHIBaseItem *it, const PHIEffect &newEffect )
     : PHIUndoCommand( it ), _newEffect( newEffect )
 {

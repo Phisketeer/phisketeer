@@ -19,6 +19,7 @@
 #include "phibasepage.h"
 #include "phibaseitem.h"
 #include "phiitemfactory.h"
+#include "phidatasources.h"
 
 PHIDynPageData::PHIDynPageData()
 {
@@ -76,22 +77,7 @@ PHIDynPageData::PHIDynPageData( const PHIDynPageData &p )
     _description=new PHITextData();
     _opengraph=new PHITextData();
     _bgImage=new PHIImageData();
-
-    *_title=*p._title;
-    *_styleSheet=*p._styleSheet;
-    *_author=*p._author;
-    *_version=*p._version;
-    *_company=*p._company;
-    *_copyright=*p._copyright;
-    *_template=*p._template;
-    *_javascript=*p._javascript;
-    *_serverscript=*p._serverscript;
-    *_action=*p._action;
-    *_keys=*p._keys;
-    *_sessionRedirect=*p._sessionRedirect;
-    *_description=*p._description;
-    *_opengraph=*p._opengraph;
-    *_bgImage=*p._bgImage;
+    operator=(p);
 }
 
 PHIDynPageData& PHIDynPageData::operator=( const PHIDynPageData &p )
@@ -114,19 +100,99 @@ PHIDynPageData& PHIDynPageData::operator=( const PHIDynPageData &p )
     return *this;
 }
 
+bool PHIDynPageData::operator==( const PHIDynPageData &p )
+{
+    if ( *_title!=*p._title ) return false;
+    if ( *_styleSheet!=*p._styleSheet ) return false;
+    if ( *_author!=*p._author ) return false;
+    if ( *_version!=*p._version ) return false;
+    if ( *_company!=*p._company ) return false;
+    if ( *_copyright!=*p._copyright ) return false;
+    if ( *_template!=*p._template ) return false;
+    if ( *_javascript!=*p._javascript ) return false;
+    if ( *_serverscript!=*p._serverscript ) return false;
+    if ( *_action!=*p._action ) return false;
+    if ( *_keys!=*p._keys ) return false;
+    if ( *_sessionRedirect!=*p._sessionRedirect ) return false;
+    if ( *_description!=*p._description ) return false;
+    if ( *_opengraph!=*p._opengraph ) return false;
+    if ( *_bgImage!=*p._bgImage ) return false;
+    return true;
+}
+
 PHIBasePage::PHIBasePage( QObject *parent )
     : QObject( parent ), _font( PHI::defaultFont() )
 {
     qDebug( "PHIBasePage::PHIBasePage()" );
     _pageData=new PHIDynPageData();
-    _width=PHI::defaultPageSize().width();
-    _height=PHI::defaultPageSize().height();
+    setGeometry( G4_3 );
+    _variants.insert( DLanguages, QStringList() << QStringLiteral( "en" ) );
+    _variants.insert( DDefaultLang, QByteArrayLiteral( "en" ) );
+    _bgColor=QColor( Qt::white );
+    _font=PHI::defaultFont();
 }
 
 PHIBasePage::~PHIBasePage()
 {
     delete _pageData;
     qDebug( "PHIBasePage::~PHIBasePage()" );
+}
+
+PHIBasePage::PHIBasePage( const PHIBasePage &p )
+    : QObject( p.parent() )
+{
+    _pageData=new PHIDynPageData();
+    operator=(p);
+}
+
+PHIBasePage& PHIBasePage::operator=( const PHIBasePage &p )
+{
+    *_pageData=*(p._pageData);
+    _id=p._id;
+    _currentLang=p._currentLang;
+    _width=p._width;
+    _height=p._height;
+    _variants=p._variants;
+    _dbName=p._dbName;
+    _dbHost=p._dbHost;
+    _dbPasswd=p._dbPasswd;
+    _dbUser=p._dbUser;
+    _dbDriver=p._dbDriver;
+    _dbOptions=p._dbOptions;
+    _dbFileName=p._dbFileName;
+    _dbPort=p._dbPort;
+    _favicon=p._favicon;
+    _font=p._font;
+    _bgColor=p._bgColor;
+    _menuEntries=p._menuEntries;
+    _flags=p._flags;
+    _pal=p._pal;
+    return *this;
+}
+
+// expensive (used in the IDE only)
+bool PHIBasePage::operator==( const PHIBasePage &p )
+{
+    if ( _id!=p._id ) return false;
+    if ( *_pageData!=*p._pageData ) return false;
+    if ( _width!=p._width ) return false;
+    if ( _height!=p._height ) return false;
+    if ( _variants!=p._variants ) return false;
+    if ( _dbName!=p._dbName ) return false;
+    if ( _dbHost!=p._dbHost ) return false;
+    if ( _dbPasswd!=p._dbPasswd ) return false;
+    if ( _dbUser!=p._dbUser ) return false;
+    if ( _dbDriver!=p._dbDriver ) return false;
+    if ( _dbOptions!=p._dbOptions ) return false;
+    if ( _dbFileName!=p._dbFileName ) return false;
+    if ( _dbPort!=p._dbPort ) return false;
+    if ( _favicon!=p._favicon ) return false;
+    if ( _font!=p._font ) return false;
+    if ( _bgColor!=p._bgColor ) return false;
+    if ( _menuEntries!=p._menuEntries ) return false;
+    if ( _flags!=p._flags ) return false;
+    if ( _pal!=p._pal ) return false;
+    return true;
 }
 
 QList <PHIBaseItem*> PHIBasePage::items() const
@@ -202,79 +268,44 @@ QString PHIBasePage::nextFreeId( const QString &requestedId ) const
     }
     return id;
 }
-/*
-PHIBasePage::PHIBasePage( const PHIPage &p, QObject *parent )
-    : QObject( parent ), PHIPage( p )
-{
-    qDebug( "PHIBasePage::PHIBasePage( const PHIPage&, QObject* )" );
-}
 
-PHIBasePage::PHIBasePage( QObject *parent )
-    : QObject( parent ), PHIPage()
+void PHIBasePage::setGeometry( Geometry g )
 {
-    qDebug( "PHIBasePage::PHIBasePage( QObject* )" );
-}
-
-PHIBasePage::~PHIBasePage()
-{
-    PHIBaseItem *it;
-    foreach ( it, _items ) { delete it; }
-    qDebug( "PHIBasePage::~PHIBasePage()" );
-}
-
-PHIBaseItem* PHIBasePage::createElementById( quint16 type, const QString &id, qreal x, qreal y,
-    qreal width, qreal height )
-{
-*/
-    /*
-    PHI::Widget wid=static_cast<PHI::Widget>(type);
-    QByteArray newid=id.toLatin1();
-    PHIBaseItem *it( 0 );
-    try {
-        it=new PHIBaseItem( wid, newid );
-    } catch( std::bad_alloc& ) {
-        return 0;
+    _variants.insert( DGeometry, static_cast<quint8>(g) );
+    switch( g ) {
+    case GCustom: return;
+    case GA4: setSize( 1000, 1414 ); break;
+    case GLetter: setSize( 1000, 1292 ); break;
+    case GPhi: setSize( 618, 1000 ); break;
+    case G4_3: setSize( 750, 1000 ); break;
+    case G16_9: setSize( 720, 1280 ); break;
+    case GiPad: setSize( 768, 1024 ); break;
+    default:;
     }
-    insertElementById( newid, it );
-    if ( width>0 ) it->setWidth( width );
-    else it->setWidth( PHI::defaultWidth() );
-    if ( height>0 ) it->setHeight( height );
-    else it->setHeight( PHI::defaultHeight() );
-    it->setX( x );
-    it->setY( y );
-    it->setPageId( this->pageId() );
-    it->setVisible( true );
-    it->setDisabled( false );
+}
 
-    if ( wid==PHI::CALENDAR || wid==PHI::DATEEDIT ) _attributes |= PHIPage::AHasCalendar;
-    else if ( wid==PHI::PHISYS_LINK ) it->setZValue( PHI::maxZValue()+1 );
-    else if ( wid==PHI::PROGRESSBAR ) _extensions |= PHIPage::EProgressBar;
-    else if ( wid==PHI::FACEBOOK_LIKE ) _extensions |= PHIPage::EHasFacebookLike;
-    else if ( wid==PHI::TWITTER ) _extensions |= PHIPage::EHasTwitter;
-    else if ( wid==PHI::GOOGLE_PLUS ) _extensions |= PHIPage::EHasGooglePlus;
-    else if ( wid==PHI::CANVAS ) _extensions |= PHIPage::EHasCanvas;
-    return it;
-    */
+// to keep old code working:
+void PHIBasePage::setBgImageOptions( qint32 opts )
+{
+    // enum ImageOption { INone=0x00, IFixed=0x01, IRepeatX=0x02, IRepeatY=0x04 };
+    if ( opts & 0x01 ) _flags |= FBGFixed;
+    else _flags &= ~FBGFixed;
+    if ( opts & 0x02 ) _flags |= FBGRepeatX;
+    else _flags &= ~FBGRepeatX;
+    if ( opts & 0x04 ) _flags |= FBGRepeatY;
+    else _flags &= ~FBGRepeatY;
+}
+
+qint32 PHIBasePage::bgImageOptions() const
+{
+    // enum ImageOption { INone=0x00, IFixed=0x01, IRepeatX=0x02, IRepeatY=0x04 };
+    qint32 opts=0;
+    if ( _flags & FBGFixed ) opts |= 0x01;
+    if ( _flags & FBGRepeatX ) opts |= 0x02;
+    if ( _flags & FBGRepeatY ) opts |= 0x04;
+    return opts;
+}
 /*
-    return 0;
-}
-
-QStringList PHIBasePage::itemIds() const
-{
-    QStringList list;
-    QByteArray id;
-    foreach( id, _items.keys() ) list.append( QString::fromUtf8( id ) );
-    return list;
-}
-
-bool PHIBasePage::needjQueryUI() const
-{
-    if ( _attributes & AHasCalendar ) return true;
-    if ( _extensions & EProgressBar ) return true;
-    if ( _attributes & AHasDragDrop ) return true;
-    return false;
-}
-
 QColor PHIBasePage::additionalColor( PHIPage::DataType c ) const
 {
     switch ( c ) {

@@ -110,6 +110,8 @@ public:
     inline void setFileNames( const QStringList &l ) { _data.insert( "#Y", l ); }
     static QDataStream& readData( QDataStream &in, PHIData *phiData );
     static const QByteArray c() { return _c; }
+    bool operator==( const PHIData& );
+    inline bool operator!=( const PHIData &d ) { return ! operator==(d); }
 
 protected:
     Source _source;
@@ -124,6 +126,13 @@ protected:
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIData*& );
 PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIData* );
+
+inline bool PHIData::operator ==( const PHIData &d )
+{
+    if ( type()==d.type() && _source==d.source() && _options==d.options()
+         && _data==d.data() ) return true;
+    return false;
+}
 
 class PHIEXPORT PHITextData : public PHIData
 {

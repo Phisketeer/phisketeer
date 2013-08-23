@@ -53,6 +53,16 @@ PHIPageMenuEntry& PHIPageMenuEntry::operator=( const PHIPageMenuEntry &e )
     return *this;
 }
 
+bool PHIPageMenuEntry::operator==( const PHIPageMenuEntry &p )
+{
+    if ( _id!=p._id ) return false;
+    if ( _parent!=p._parent ) return false;
+    if ( _img!=p._img ) return false;
+    if ( _text!=p._text ) return false;
+    if ( _options!=_options ) return false;
+    return true;
+}
+
 PHIPageMenuEntry::~PHIPageMenuEntry()
 {
     qDebug( "PHIPageMenuEntry::~PHIPageMenuEntry()" );

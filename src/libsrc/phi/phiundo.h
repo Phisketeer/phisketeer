@@ -8,7 +8,7 @@
 
 #include <QUndoCommand>
 #include <QList>
-//#include "phidatasources.h"
+#include "phibasepage.h"
 #include "phipalette.h"
 #include "phi.h"
 
@@ -20,7 +20,8 @@ class PHIUndoCommand : public QUndoCommand
 
 public:
     enum Id { Move, Color, Size, Add, Delete, Opacity, Font, Title, Visibility,
-        Line, PenWidth, Pattern, Alignment, Text, ZIndex, TransformPos, Transform };
+        Line, PenWidth, Pattern, Alignment, Text, ZIndex, TransformPos, Transform,
+        Page };
         //Data, Pixmap,
         //Value, Label, ItemId, Parent, Page, TabOrder, Check, ToolTip, Visibility,
         //Effect, TextData, Url, StyleSheet, Attribute };
@@ -149,11 +150,12 @@ public:
 protected:
     QString _oldUrl, _newUrl;
 };
+*/
 
 class PHIUndoPage : public PHIUndoCommand
 {
 public:
-    PHIUndoPage( PHIScene *scene, const PHISPage &newPage );
+    PHIUndoPage( PHIGraphicsScene *scene, const PHIBasePage &newPage );
     virtual ~PHIUndoPage();
     inline virtual int id() const { return static_cast<int>(Page); }
     virtual bool mergeWith( const QUndoCommand *other );
@@ -161,11 +163,12 @@ public:
     virtual void undo();
 
 protected:
-    PHIScene *_scene;
-    PHISPage _oldPage;
-    PHISPage _newPage;
+    PHIGraphicsScene *_scene;
+    PHIBasePage _oldPage;
+    PHIBasePage _newPage;
 };
 
+/*
 class PHIUndoEffect : public PHIUndoCommand
 {
 public:
