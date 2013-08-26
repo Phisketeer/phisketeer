@@ -20,18 +20,23 @@
 #
 #    Note: some parts are based on code provided by the Qt source.
 */
+#include <QDataStream>
 #include "phipagemenuentry.h"
+#include "phidatasources.h"
 
 PHIPageMenuEntry::PHIPageMenuEntry()
 {
     qDebug( "PHIPageMenuEntry::PHIPageMenuEntry()" );
+    _textData=new PHITextData();
 }
 
 PHIPageMenuEntry::PHIPageMenuEntry( const QByteArray &id, const QByteArray &parent,
-    const QImage &image, const QByteArray &text, Options options )
+    const QImage &image, const QByteArray &text, Options options, const PHITextData *data )
     : _id( id ), _parent( parent ), _text( text ), _img( image ), _options( options )
 {
     qDebug( "PHIPageMenuEntry::PHIPageMenuEntry()" );
+    _textData=new PHITextData();
+    if ( data ) *_textData=*data;
 }
 
 PHIPageMenuEntry::PHIPageMenuEntry( const PHIPageMenuEntry &e )
@@ -41,6 +46,8 @@ PHIPageMenuEntry::PHIPageMenuEntry( const PHIPageMenuEntry &e )
     _img=e._img;
     _text=e._text;
     _options=e._options;
+    _textData=new PHITextData();
+    *_textData=*(e._textData);
 }
 
 PHIPageMenuEntry& PHIPageMenuEntry::operator=( const PHIPageMenuEntry &e )
@@ -50,6 +57,7 @@ PHIPageMenuEntry& PHIPageMenuEntry::operator=( const PHIPageMenuEntry &e )
     _img=e._img;
     _text=e._text;
     _options=e._options;
+    *_textData=*(e._textData);
     return *this;
 }
 
@@ -58,14 +66,31 @@ bool PHIPageMenuEntry::operator==( const PHIPageMenuEntry &p )
     if ( _id!=p._id ) return false;
     if ( _parent!=p._parent ) return false;
     if ( _img!=p._img ) return false;
-    if ( _text!=p._text ) return false;
-    if ( _options!=_options ) return false;
+    // if ( _text!=p._text ) return false;
+    Q_ASSERT( _text.isEmpty() && p._text.isEmpty() );
+    if ( _options!=p._options ) return false;
+    if ( *_textData!=*(p._textData) ) return false;
     return true;
 }
 
 PHIPageMenuEntry::~PHIPageMenuEntry()
 {
+    delete _textData;
     qDebug( "PHIPageMenuEntry::~PHIPageMenuEntry()" );
+}
+
+void PHIPageMenuEntry::load( QDataStream &in, int version )
+{
+    Q_UNUSED( version )
+    quint8 opt;
+    in >> _id >> _parent >> _img >> _textData >> opt;
+    _options=static_cast<PHIPageMenuEntry::Options>(opt);
+}
+
+void PHIPageMenuEntry::save( QDataStream &out, int version )
+{
+    Q_UNUSED( version )
+    out << _id << _parent << _img << _textData << static_cast<quint8>(_options);
 }
 
 QDataStream& operator<<( QDataStream &out, const PHIPageMenuEntry &m )

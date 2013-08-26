@@ -16,6 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <QUuid>
 #include "phibasepage.h"
 #include "phibaseitem.h"
 #include "phiitemfactory.h"
@@ -130,6 +131,10 @@ PHIBasePage::PHIBasePage( QObject *parent )
     _variants.insert( DDefaultLang, QByteArrayLiteral( "en" ) );
     _bgColor=QColor( Qt::white );
     _font=PHI::defaultFont();
+    QByteArray arr=QUuid::createUuid().toByteArray();
+    arr.replace( '-', QByteArray() );
+    _id=arr.mid( 5, 10 );
+    _currentLang="en";
 }
 
 PHIBasePage::~PHIBasePage()

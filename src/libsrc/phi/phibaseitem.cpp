@@ -409,6 +409,7 @@ void PHIBaseItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
 
 void PHIBaseItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
 {
+    Q_UNUSED( e )
 }
 
 void PHIBaseItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )

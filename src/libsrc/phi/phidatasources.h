@@ -61,6 +61,7 @@ public:
     inline void setOption( Option o ) { _options |= o; }
     inline void removeOption( Option o ) { _options &= ~o; }
     inline bool unparsedStatic() const { return _source==Static && !(_options & Parse); }
+    inline bool translated() const { return _source==Translated; }
     inline QList<QByteArray> keys() const { return _data.keys(); }
     inline void remove( const QByteArray &l ) { _data.remove( l ); }
     inline PHIVariantHash data() const { return _data; }

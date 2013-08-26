@@ -69,7 +69,7 @@ class PHIEXPORT PHIBasePage : public QObject
     Q_PROPERTY( QString keywords WRITE setKeywords READ keywords )
     Q_PROPERTY( QString sessionRedirect WRITE setSessionRedirect READ sessionRedirect )
     Q_PROPERTY( QString description WRITE setDescription READ description )
-    Q_PROPERTY( QString templatePage READ templatePage )
+    Q_PROPERTY( QString templatePage READ templatePage ) // to keep old code working
     Q_PROPERTY( quint16 itemCount READ itemCount )
     Q_PROPERTY( QString session WRITE setSession READ session )
     Q_PROPERTY( QString fontFamily WRITE setFontFamily READ fontFamily )
@@ -90,7 +90,8 @@ public:
         DBgImageOptions=21, DBgImageXOff=22, DBgImageYOff=23, DDefaultLang=24,
         DGeometry=25 }; // quint8
     enum Flag { FNone=0x0, FUseClientPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
-            FBGRepeatX=0x8, FBGRepeatY=0x10, FBGFixed=0x20, FBGImg=0x40 }; // quint32
+            FBGRepeatX=0x8, FBGRepeatY=0x10, FBGFixed=0x20, FBGImg=0x40, FHidePhiMenu=0x80,
+            FUseMasterPalette=0x100 }; // quint32
     enum Geometry { GUnknown=0, GA4=1, GLetter=2, GCustom=3, GPhi=4, G4_3=5, G16_9=6, GiPad=7 };
 
 #ifdef PHIDEBUG
@@ -107,24 +108,27 @@ public:
     inline bool operator!=( const PHIBasePage &p ) { return !operator==(p); }
     inline Flags flags() const { return _flags; }
     inline void setFlag( Flag f, bool b=true ) { b ? _flags |= f : _flags &= ~f; }
-
+    inline void setMenuEntries( const QList <PHIPageMenuEntry> &list ) { _menuEntries=list; }
+    inline QList <PHIPageMenuEntry> menuEntries() const { return _menuEntries; }
     inline void setBgColor( const QColor &c ) { _bgColor=c; }
     inline bool pageLeftAligned() const { return _flags & FPageLeftAlign; }
-    inline void setPageLeftAligned( bool b=true ) { b ? _flags |= FPageLeftAlign : _flags &= ~FPageLeftAlign; }
-    inline bool applicationMode() const { return _flags & FPageLeftAlign; }
-    inline void setApplicationMode( bool b=true ) { b ? _flags |= FApplicationMode : _flags &= ~FApplicationMode; }
+    inline void setPageLeftAligned( bool b=true ) {  b ? _flags |= FPageLeftAlign : _flags &= ~FPageLeftAlign; }
+    inline bool applicationMode() const { return _flags & FApplicationMode; }
+    inline void setApplicationMode( bool b=true ) {  b ? _flags |= FApplicationMode : _flags &= ~FApplicationMode; }
     inline QFont font() const { return _font; }
     inline void setFont( const QFont &f ) { _font=f; }
     inline void setLanguages( const QStringList &langs ) { _variants.insert( DLanguages, langs ); }
     inline void setDefaultLanguage( const QByteArray &l ) { _variants.insert( DDefaultLang, l ); }
     inline void setDefaultLanguage( const QString &l ) { _variants.insert( DDefaultLang, l.toLatin1() ); }
     inline QByteArray defaultLanguage() const { return _variants.value( DDefaultLang ).toByteArray(); }
+    inline QByteArray currentLang() const { return _currentLang; }
     inline bool containsItemId( const QString &id ) const { return findItem( id ) ? true : false; }
     inline PHIPalette phiPalette() const { return _pal; }
     inline void addMenuEntry( const PHIPageMenuEntry &e ) { _menuEntries.append( e ); }
     inline void setId( const QByteArray &id ) { _id=id; }
     inline void setId( const QString &id ) { _id=id.toLatin1(); }
     inline Geometry geometry() const { return static_cast<Geometry>(_variants.value( DGeometry, 0 ).value<quint8>()); }
+
     void setGeometry( Geometry g );
     void setFavicon( const QPixmap &pix ) { _favicon=pix.toImage(); }
     QPixmap favicon() const { return QPixmap::fromImage( _favicon ); }
