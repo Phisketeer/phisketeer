@@ -75,24 +75,31 @@ class PHIEXPORT PHIBasePage : public QObject
     Q_PROPERTY( QString fontFamily WRITE setFontFamily READ fontFamily )
     Q_PROPERTY( QStringList itemIds READ itemIds )
     Q_PROPERTY( QStringList properties READ properties )
-    // provided languages by current page
+    // provided languages for this page
     Q_PROPERTY( QStringList languages READ languages )
     // default lang (initialized with philang or first matching lang from accepted languages of the browser)
     Q_PROPERTY( QString lang WRITE setLang READ lang )
     Q_PROPERTY( QString openGraph WRITE setOpenGraph READ openGraph )
     Q_PROPERTY( QSize size READ size WRITE setSize )
+    Q_PROPERTY( quint8 sessionOptions READ sessionOptions WRITE setSessionOptions )
+    Q_PROPERTY( qint32 sessionTimeout READ sessionTimeout WRITE setSessionTimeout )
 
 public:
-    enum DataType { DFlags=0, DTemplatePage=1, DTitle=2, DSession=3, DAuthor=4, DCompany=5,
+    enum DataType { DTemplatePage=1, DTitle=2, DSession=3, DAuthor=4, DCompany=5,
         DVersion=6, DAction=7, DCopyright=8, DSessionRedirect=9, DJavascript=10,
         DStyleSheet=11, DKeys=12, DLanguages=13, DGridSize=14, DDescription=15,
-        DColorError=16, DColorBgError=17, DColorHover=18, DOpenGraph=19, DBgImageUrl=20,
-        DBgImageOptions=21, DBgImageXOff=22, DBgImageYOff=23, DDefaultLang=24,
-        DGeometry=25 }; // quint8
+        DSessionOptions=16, DOpenGraph=17, DBgImageUrl=18, DSessionTimeout=19,
+        DBgImageOptions=20, DBgImageXOff=21, DBgImageYOff=22, DDefaultLang=23,
+        DGeometry=24 }; // quint8
     enum Flag { FNone=0x0, FUseOwnPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
-            FBGRepeatX=0x8, FBGRepeatY=0x10, FBGFixed=0x20, FBGImg=0x40, FHidePhiMenu=0x80,
-            FUseMasterPalette=0x100 }; // quint32
+        FUseOpenGraph=0x8, FHasAction=0x10, FUseSession=0x20, FHidePhiMenu=0x40,
+        FUseMasterPalette=0x80, FUseBgImage=0x100, FNoUnderlinedLinks=0x200,
+        FHasMasterTemplate=0x400, FServerscript=0x800, FJavaScript=0x1000,
+        FNoSystemCSS=0x2000, FNoUITheme=0x4000, FUseCSS=0x8000 }; // quint32
     enum Geometry { GUnknown=0, GA4=1, GLetter=2, GCustom=3, GPhi=4, G4_3=5, G16_9=6, GiPad=7 };
+    enum SessionOption { SNone=0x0, SRequiresLogin=0x1, SRequiresSession=0x2,
+        SSessionCookie=0x4, SCreateSession=0x8 };
+    enum ImageOption { INone=0x0, IFixed=0x1, IRepeatX=0x2, IRepeatY=0x4 };
 
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
@@ -181,6 +188,8 @@ public slots:
         _variants.insert( DSessionRedirect, s.toUtf8() ); }
     inline QString sessionRedirect() const {
         return QString::fromUtf8( _variants.value( DSessionRedirect ).toByteArray() ); }
+    inline void setSessionTimeout( qint32 t ) { _variants.insert( DSessionTimeout, t ); }
+    inline qint32 sessionTimeout() const { return _variants.value( DSessionTimeout, 60 ).value<qint32>(); }
 
     inline void setJavascript( const QString &s ) { _variants.insert( DJavascript, s.toUtf8() ); }
     inline QString javascript() const {
@@ -206,8 +215,10 @@ public slots:
     inline PHIBaseItem* getElementById( const QString &id ) const { return findItem( id ); }
     PHIBaseItem* createElementById( quint16 type, const QString &id, qreal x, qreal y, qreal width=-1, qreal height=-1 );
     bool removeElementById( const QString &id );
-    void setBgImageOptions( qint32 opts );
-    qint32 bgImageOptions() const;
+    inline void setBgImageOptions( quint8 opts ) { _variants.insert( DBgImageOptions, opts ); }
+    inline quint8 bgImageOptions() const { return _variants.value( DBgImageOptions, 0 ).value<quint8>(); }
+    inline void setSessionOptions( quint8 opts ) { _variants.insert( DSessionOptions, opts ); }
+    inline quint8 sessionOptions() const { return _variants.value( DSessionOptions, 0 ).value<quint8>(); }
 
     inline void setBgImageUrl( const QString &url ) { _variants.insert( DBgImageUrl, url.toUtf8() ); }
     inline QString bgImageUrl() const {

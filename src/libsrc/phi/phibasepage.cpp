@@ -289,27 +289,6 @@ void PHIBasePage::setGeometry( Geometry g )
     }
 }
 
-// to keep old code working:
-void PHIBasePage::setBgImageOptions( qint32 opts )
-{
-    // enum ImageOption { INone=0x00, IFixed=0x01, IRepeatX=0x02, IRepeatY=0x04 };
-    if ( opts & 0x01 ) _flags |= FBGFixed;
-    else _flags &= ~FBGFixed;
-    if ( opts & 0x02 ) _flags |= FBGRepeatX;
-    else _flags &= ~FBGRepeatX;
-    if ( opts & 0x04 ) _flags |= FBGRepeatY;
-    else _flags &= ~FBGRepeatY;
-}
-
-qint32 PHIBasePage::bgImageOptions() const
-{
-    // enum ImageOption { INone=0x00, IFixed=0x01, IRepeatX=0x02, IRepeatY=0x04 };
-    qint32 opts=0;
-    if ( _flags & FBGFixed ) opts |= 0x01;
-    if ( _flags & FBGRepeatX ) opts |= 0x02;
-    if ( _flags & FBGRepeatY ) opts |= 0x04;
-    return opts;
-}
 /*
 QColor PHIBasePage::additionalColor( PHIPage::DataType c ) const
 {
