@@ -552,6 +552,10 @@ void PHIUndoPage::redo()
     if ( page.bgColor()!=_newPage.bgColor() )
         _scene->setBackgroundBrush( QColor( _newPage.bgColor() ) );
     if ( page.size()!=_newPage.size() ) emit _scene->page()->documentSizeChanged();
+    if ( page.phiPalette()!=_newPage.phiPalette() ) {
+        _scene->updatePagePalette( _newPage.phiPalette() );
+        emit _scene->pagePaletteChanged( _newPage.phiPalette() );
+    }
 }
 
 void PHIUndoPage::undo()
@@ -564,6 +568,10 @@ void PHIUndoPage::undo()
     if ( page.bgColor()!=_oldPage.bgColor() )
         _scene->setBackgroundBrush( QColor( _oldPage.bgColor() ) );
     if ( page.size()!=_oldPage.size() ) emit _scene->page()->documentSizeChanged();
+    if ( page.phiPalette()!=_oldPage.phiPalette() ) {
+        _scene->updatePagePalette( _oldPage.phiPalette() );
+        emit _scene->pagePaletteChanged( _oldPage.phiPalette() );
+    }
 }
 
 /*

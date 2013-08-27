@@ -21,6 +21,7 @@
 
 #include <QGraphicsScene>
 #include <QList>
+#include "phipalette.h"
 #include "phi.h"
 
 class PHIBaseItem;
@@ -51,8 +52,11 @@ public:
     static QColor colorFromMimeData( const QMimeData *md );
 
 public slots:
+    virtual void updatePagePalette( const PHIPalette &pal );
+
+protected slots:
     virtual void documentSizeChanged();
-    void setAlignment( Qt::Alignment );
+    virtual void setAlignment( Qt::Alignment );
 
 protected:
     virtual void mouseMoveEvent( QGraphicsSceneMouseEvent *event );
@@ -62,11 +66,13 @@ signals:
     void mousePos( const QPointF& );
     void cleanChanged( bool );
     void languagesChanged( const QStringList &langs );
+    void pagePaletteChanged( const PHIPalette &pal );
 
 private:
     PHIBasePage *_page;
     // Hack to provide Drop operations for the IDE,
-    // unused in client applications:
+    // unused in client applications (usually an undo stack
+    // should be part of the IDE only):
     QUndoStack *_undoStack;
 };
 

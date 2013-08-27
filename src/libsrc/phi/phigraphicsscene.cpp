@@ -27,6 +27,7 @@
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
 #include "phiundo.h"
+#include "phipalette.h"
 
 PHIGraphicsScene::PHIGraphicsScene( QObject *parent )
     : QGraphicsScene( parent ), _page( 0 )
@@ -75,36 +76,14 @@ void PHIGraphicsScene::setAlignment( Qt::Alignment align )
     views().first()->setAlignment( align );
 }
 
+void PHIGraphicsScene::updatePagePalette( const PHIPalette &pal )
+{
+    emit pagePaletteChanged( pal );
+}
+
 void PHIGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
 {
     QGraphicsScene::drawBackground( painter, rect );
-    /*
-    if ( p->attributes() & PHIPage::ABgImage ) {
-        QPointF off=p->bgImageOffset();
-        PHIPage::ImageOptions opts=p->bgImageOptions();
-        if ( opts & PHIPage::IFixed ) off+=scene()->views().first()->mapToScene( QPoint( 50, 50 ) );
-        QImage img=p->bgImageData()->image();
-        if ( !img.isNull() ) {
-            painter->translate( off );
-            if ( opts & PHIPage::IRepeatX && opts & PHIPage::IRepeatY ) {
-                for ( qreal x=-img.width(); x<rect().width()+img.width(); x=x+img.width() ) {
-                    for ( qreal y=-img.height(); y<rect().height()+img.height(); y=y+img.height() ) {
-                        painter->drawImage( x, y, img );
-                    }
-                }
-            } else if ( opts & PHIPage::IRepeatX ) {
-                for ( qreal x=-img.width(); x<rect().width()+img.width(); x=x+img.width() ) {
-                    painter->drawImage( x, 0, img );
-                }
-            } else if ( opts & PHIPage::IRepeatY ) {
-                for ( qreal y=-img.height(); y<rect().height()+img.height(); y=y+img.height() ) {
-                    painter->drawImage( 0, y, img );
-                }
-            } else painter->drawImage( 0, 0, img );
-            painter->translate( -off );
-        }
-    }
-    */
 }
 
 void PHIGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent *e )

@@ -89,7 +89,7 @@ public:
         DColorError=16, DColorBgError=17, DColorHover=18, DOpenGraph=19, DBgImageUrl=20,
         DBgImageOptions=21, DBgImageXOff=22, DBgImageYOff=23, DDefaultLang=24,
         DGeometry=25 }; // quint8
-    enum Flag { FNone=0x0, FUseClientPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
+    enum Flag { FNone=0x0, FUseOwnPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
             FBGRepeatX=0x8, FBGRepeatY=0x10, FBGFixed=0x20, FBGImg=0x40, FHidePhiMenu=0x80,
             FUseMasterPalette=0x100 }; // quint32
     enum Geometry { GUnknown=0, GA4=1, GLetter=2, GCustom=3, GPhi=4, G4_3=5, G16_9=6, GiPad=7 };
@@ -124,6 +124,7 @@ public:
     inline QByteArray currentLang() const { return _currentLang; }
     inline bool containsItemId( const QString &id ) const { return findItem( id ) ? true : false; }
     inline PHIPalette phiPalette() const { return _pal; }
+    inline void setPhiPalette( const PHIPalette &p ) { _pal=p; emit phiPaletteChanged( _pal ); }
     inline void addMenuEntry( const PHIPageMenuEntry &e ) { _menuEntries.append( e ); }
     inline void setId( const QByteArray &id ) { _id=id; }
     inline void setId( const QString &id ) { _id=id.toLatin1(); }
@@ -243,6 +244,7 @@ public:
 signals:
     void titleChanged( QString );
     void documentSizeChanged();
+    void phiPaletteChanged( const PHIPalette &pal );
 
 protected:
     void loadVersion1_x( QDataStream &in );
