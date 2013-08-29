@@ -90,12 +90,14 @@ public:
         DStyleSheet=11, DKeys=12, DLanguages=13, DGridSize=14, DDescription=15,
         DSessionOptions=16, DOpenGraph=17, DBgImageUrl=18, DSessionTimeout=19,
         DBgImageOptions=20, DBgImageXOff=21, DBgImageYOff=22, DDefaultLang=23,
-        DGeometry=24 }; // quint8
+        DGeometry=24, DDBUser=25, DDBName=26, DDBDriver=27, DDBPasswd=28,
+        DDBPort=29, DDBOptions=30, DDBHost=31, DDBFileName=32 }; // quint8
     enum Flag { FNone=0x0, FUseOwnPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
         FUseOpenGraph=0x8, FHasAction=0x10, FUseSession=0x20, FHidePhiMenu=0x40,
         FUseMasterPalette=0x80, FUseBgImage=0x100, FNoUnderlinedLinks=0x200,
         FHasMasterTemplate=0x400, FServerscript=0x800, FJavaScript=0x1000,
-        FNoSystemCSS=0x2000, FNoUITheme=0x4000, FUseCSS=0x8000 }; // quint32
+        FNoSystemCSS=0x2000, FNoUiThemeCSS=0x4000, FUseCSS=0x8000, FUseDB=0x10000,
+        FDBFile=0x20000 }; // quint32
     enum Geometry { GUnknown=0, GA4=1, GLetter=2, GCustom=3, GPhi=4, G4_3=5, G16_9=6, GiPad=7 };
     enum SessionOption { SNone=0x0, SRequiresLogin=0x1, SRequiresSession=0x2,
         SSessionCookie=0x4, SCreateSession=0x8 };
@@ -118,10 +120,6 @@ public:
     inline void setMenuEntries( const QList <PHIPageMenuEntry> &list ) { _menuEntries=list; }
     inline QList <PHIPageMenuEntry> menuEntries() const { return _menuEntries; }
     inline void setBgColor( const QColor &c ) { _bgColor=c; }
-    inline bool pageLeftAligned() const { return _flags & FPageLeftAlign; }
-    inline void setPageLeftAligned( bool b=true ) {  b ? _flags |= FPageLeftAlign : _flags &= ~FPageLeftAlign; }
-    inline bool applicationMode() const { return _flags & FApplicationMode; }
-    inline void setApplicationMode( bool b=true ) {  b ? _flags |= FApplicationMode : _flags &= ~FApplicationMode; }
     inline QFont font() const { return _font; }
     inline void setFont( const QFont &f ) { _font=f; }
     inline void setLanguages( const QStringList &langs ) { _variants.insert( DLanguages, langs ); }
@@ -146,8 +144,25 @@ public:
     QRect rect() const { return QRect( QPoint(), QSize( _width, _height ) ); }
     quint8 gridSize() const { return _variants.value( DGridSize, 16 ).value<quint8>(); }
     void setGridSize( quint8 s ) { _variants.insert( DGridSize, s ); }
-    void load( QDataStream &in, quint8 version );
-    void save( QDataStream &out, quint8 version );
+    void load(QDataStream &in, qint32 version );
+    void save( QDataStream &out, qint32 version );
+
+    inline QString dbFileName() const { return _dbFileName; }
+    inline void setDbFileName( const QString &fn ) { _dbFileName=fn; }
+    inline QString dbName() const { return _dbName; }
+    inline void setDbName( const QString &n ) { _dbName=n; }
+    inline QString dbHost() const { return _dbHost; }
+    inline void setDbHost( const QString &h ) { _dbHost=h; }
+    inline QString dbPasswd() const { return _dbPasswd; }
+    inline void setDbPasswd( const QString &p ) { _dbPasswd=p; }
+    inline QString dbUser() const { return _dbUser; }
+    inline void setDbUser( const QString &u ) { _dbUser=u; }
+    inline QString dbConnectOptions() const { return _dbOptions; }
+    inline void setDbConnectOptions( const QString &o ) { _dbOptions=o; }
+    inline QString dbDriver() const { return _dbDriver; }
+    inline void setDbDriver( const QString &d ) { _dbDriver=d; }
+    inline qint32 dbPort() const { return _dbPort; }
+    inline void setDbPort( qint32 p ) { _dbPort=p; }
 
 // Available for scripting
 public slots:
@@ -227,13 +242,6 @@ public slots:
     inline qint32 bgImageXOff() const { return _variants.value( DBgImageXOff ).toInt(); }
     inline void setBgImageYOff( qint32 y ) { _variants.insert( DBgImageYOff, y ); }
     inline qint32 bgImageYOff() const { return _variants.value( DBgImageYOff ).toInt(); }
-    inline QString dbName() const { return _dbName; }
-    inline QString dbHost() const { return _dbHost; }
-    inline QString dbPasswd() const { return _dbPasswd; }
-    inline QString dbUser() const { return _dbUser; }
-    inline QString dbConnectOptions() const { return _dbOptions; }
-    inline QString dbDriver() const { return _dbDriver; }
-    inline qint32 dbPort() const { return _dbPort; }
 
 public:
     inline PHITextData* titleData() const { return _pageData->_title; }

@@ -135,6 +135,7 @@ PHIBasePage::PHIBasePage( QObject *parent )
     arr.replace( '-', QByteArray() );
     _id=arr.mid( 5, 10 );
     _currentLang="en";
+    _dbPort=3306;
 }
 
 PHIBasePage::~PHIBasePage()
@@ -287,6 +288,92 @@ void PHIBasePage::setGeometry( Geometry g )
     case GiPad: setSize( 768, 1024 ); break;
     default:;
     }
+}
+
+void PHIBasePage::save( QDataStream &out, qint32 version )
+{
+
+}
+
+void PHIBasePage::load( QDataStream &in, qint32 version )
+{
+    if ( version<3 ) return loadVersion1_x( in );
+    in.setVersion( QDataStream::Qt_5_1 );
+}
+
+void PHIBasePage::loadVersion1_x( QDataStream &in )
+{
+    enum Attribute { ANone=0x0, ARequiresSession=0x1, ARequiresLogin=0x2, AFormAction=0x4, APalette=0x8,
+        ABgColor=0x10, AStyleSheet=0x20, ACreateSession=0x40, AKeywords=0x80, ALandscape=0x100, ATemplate=0x200,
+        AIcon=0x400, AExtensions=0x800, AJavascript=0x1000, ADatabase=0x2000, ASetCookie=0x4000,
+        AServerscript=0x8000, AUsejQueryUI=0x10000, AApplication=0x20000, AUseTemplatePalette=0x40000,
+        ANoSystemCSS=0x80000, AHasCalendar=0x100000, APhiNoObjectTag=0x200000,
+        ADbSettingsFromFile=0x400000, ANoUiCSS=0x800000, AHasDragDrop=0x1000000,
+        AForceHtmlOutput=0x2000000, ADocumentLeft=0x4000000, AUseOpenGraph=0x8000000,
+        ANoUnderlineLinks=0x10000000, ABgImage=0x20000000, AMax=0x40000000 }; // qint32
+    enum Extension { ENone=0x0, EProgressBar=0x1, EHasFacebookLike=0x2, EHasTwitter=0x4,
+        EHasGooglePlus=0x8, EHidePhiMenu=0x10, EHasCanvas=0x20 }; // qint32
+    enum ScriptModule { SNone=0x0, SDatabase=0x1, SFile=0x2, SSystem=0x4, SProcess=0x8,
+        SServer=0x10, SRequest=0x20, SEmail=0x40, SReply=0x80, SAll=0xFFFF }; // qint32
+
+    qint32 attributes( 0 ), extensions( 0 ), modules( 0 );
+    quint16 itemCount;
+    QByteArray extensionData, eventData, editorData, dynamicData, reserved;
+
+    in >> attributes >> _id >> _width >> _height >> itemCount;
+    if ( attributes & ABgColor ) in >> _bgColor;
+    else _bgColor=QColor( Qt::white );
+    if ( attributes & APalette ) {
+        QPalette pal;
+        QColor cwt, cba, ct, cb, cbt, ch, cht, cl, clv;
+        in >> cwt >> cba >> ct >> cb >> cbt >> ch >> cht >> cl >> clv;
+        pal.setColor( QPalette::WindowText, cwt );
+        pal.setColor( QPalette::Base, cba );
+        pal.setColor( QPalette::Text, ct );
+        pal.setColor( QPalette::Button, cb );
+        pal.setColor( QPalette::ButtonText, cbt );
+        pal.setColor( QPalette::Highlight, ch );
+        pal.setColor( QPalette::HighlightedText, cht );
+        pal.setColor( QPalette::Link, cl );
+        pal.setColor( QPalette::LinkVisited, clv );
+        _pal.setPalette( pal );
+    }
+    if ( attributes & AIcon ) in >> _favicon;
+    if ( attributes & AExtensions ) in >> extensions >> extensionData;
+    in >> _font;
+    qDebug( "load page font %f", _font.pointSizeF() );
+    if ( attributes & AServerscript ) in >> modules;
+    in >> dynamicData >> eventData >> reserved >> editorData >> reserved >> reserved;
+    QDataStream dsd( &dynamicData, QIODevice::ReadOnly );
+    dsd.setVersion( PHI_DSV );
+    {
+        PHITextData txtData;
+        if ( attributes & ADatabase ) {
+            if ( attributes & ADbSettingsFromFile ) dsd >> _dbFileName;
+            else dsd >> _dbName >> _dbHost >> _dbPasswd >> _dbUser >> _dbDriver >> _dbOptions >> _dbPort;
+        }
+        QStringList langs;
+        qint32 sessionTimeout;
+        PHIDynPageData *d=_pageData;
+        dsd >> d->_title >> d->_styleSheet >> d->_author >> d->_version >> d->_company >> d->_copyright
+           >> d->_template >> d->_javascript >> d->_serverscript >> d->_action >> sessionTimeout
+           >> d->_keys >> d->_sessionRedirect >> d->_description >> d->_opengraph >> &txtData >> &txtData
+           >> langs;
+        setLanguages( langs );
+        setSessionTimeout( sessionTimeout );
+        if ( attributes & AApplication ) dsd >> _menuEntries;
+        if ( attributes & ABgImage ){
+            qint16 imageOptions;
+            qint32 bgImgXOff, bgImgYOff;
+            dsd >> imageOptions >> d->_bgImage >> bgImgXOff >> bgImgYOff;
+            setBgImageOptions( static_cast<quint8>(imageOptions) );
+            setBgImageXOff( bgImgXOff );
+            setBgImageYOff( bgImgYOff );
+        }
+    }
+    QDataStream dse( &editorData, QIODevice::ReadOnly );
+    dse.setVersion( PHI_DSV );
+    //setEditorData( dse );
 }
 
 /*
