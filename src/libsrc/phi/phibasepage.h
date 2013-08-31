@@ -28,6 +28,7 @@
 #include "phipalette.h"
 
 class PHIBaseItem;
+class PHIDynPageData;
 class PHITextData;
 class PHIImageData;
 
@@ -91,7 +92,8 @@ public:
         DSessionOptions=16, DOpenGraph=17, DBgImageUrl=18, DSessionTimeout=19,
         DBgImageOptions=20, DBgImageXOff=21, DBgImageYOff=22, DDefaultLang=23,
         DGeometry=24, DDBUser=25, DDBName=26, DDBDriver=27, DDBPasswd=28,
-        DDBPort=29, DDBOptions=30, DDBHost=31, DDBFileName=32, DServerModules=33 }; // quint8
+        DDBPort=29, DDBOptions=30, DDBHost=31, DDBFileName=32, DServerModules=33,
+        DBgColor=34, DWidth=35, DHeight=36 }; // quint8
     enum Flag { FNone=0x0, FUseOwnPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
         FUseOpenGraph=0x8, FHasAction=0x10, FUseSession=0x20, FHidePhiMenu=0x40,
         FUseMasterPalette=0x80, FUseBgImage=0x100, FNoUnderlinedLinks=0x200,
@@ -148,6 +150,7 @@ public:
     void setGridSize( quint8 s ) { _variants.insert( DGridSize, s ); }
     quint16 load(QDataStream &in, qint32 version ); // returns item count
     void save( QDataStream &out, qint32 version );
+    void squeeze();
 
     inline QString dbFileName() const { return _dbFileName; }
     inline void setDbFileName( const QString &fn ) { _dbFileName=fn; }

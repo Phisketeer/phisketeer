@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QUuid>
+#include <QGuiApplication>
 #include "phibasepage.h"
 #include "phibaseitem.h"
 #include "phiitemfactory.h"
@@ -121,6 +122,24 @@ bool PHIDynPageData::operator==( const PHIDynPageData &p )
     return true;
 }
 
+QDataStream& operator<<( QDataStream &out, const PHIDynPageData *p )
+{
+    out << p->_title << p->_styleSheet << p->_author << p->_version
+        << p->_company << p->_copyright << p->_template << p->_javascript
+        << p->_serverscript << p->_action << p->_keys << p->_sessionRedirect
+        << p->_description << p->_opengraph << p->_bgImage;
+    return out;
+}
+
+QDataStream& operator>>( QDataStream &in, PHIDynPageData *p )
+{
+    in >> p->_title >> p->_styleSheet >> p->_author >> p->_version
+        >> p->_company >> p->_copyright >> p->_template >> p->_javascript
+        >> p->_serverscript >> p->_action >> p->_keys >> p->_sessionRedirect
+        >> p->_description >> p->_opengraph >> p->_bgImage;
+    return in;
+}
+
 PHIBasePage::PHIBasePage( QObject *parent )
     : QObject( parent ), _font( PHI::defaultFont() )
 {
@@ -200,6 +219,7 @@ bool PHIBasePage::operator==( const PHIBasePage &p )
     if ( _menuEntries!=p._menuEntries ) return false;
     if ( _flags!=p._flags ) return false;
     if ( _pal!=p._pal ) return false;
+    qDebug() << "==";
     return true;
 }
 
@@ -278,15 +298,77 @@ PHIBaseItem* PHIBasePage::findItem( const QString &id ) const
     return findChild<PHIBaseItem*>(id);
 }
 
+void PHIBasePage::squeeze()
+{
+    _variants.remove( DDBDriver );
+    _variants.remove( DDBUser );
+    _variants.remove( DDBFileName );
+    _variants.remove( DDBPasswd );
+    _variants.remove( DDBPort );
+    _variants.remove( DDBOptions );
+    _variants.remove( DDBHost );
+    _variants.remove( DWidth );
+    _variants.remove( DHeight );
+    _variants.remove( DGeometry );
+    _variants.squeeze();
+    _pal.squeeze();
+}
+
 void PHIBasePage::save( QDataStream &out, qint32 version )
 {
-
+    Q_ASSERT( version>2 );
+    out.setVersion( PHI_DSV2 );
+    if ( _width==750 ) _variants.remove( DWidth );
+    else _variants.insert( DWidth, _width );
+    if ( _height==1000 ) _variants.remove( DHeight );
+    else _variants.insert( DHeight, _height );
+    if ( _bgColor!=QColor( Qt::white ) ) _variants.insert( DBgColor, _bgColor );
+    else _variants.remove( DBgColor );
+    if ( _flags & FUseDB ) {
+        if ( _flags & FDBFile ) {
+            _variants.insert( DDBFileName, _dbFileName.toUtf8() );
+        } else {
+            _variants.insert( DDBDriver, _dbDriver.toUtf8() );
+            _variants.insert( DDBHost, _dbHost.toUtf8() );
+            _variants.insert( DDBName, _dbName.toUtf8() );
+            _variants.insert( DDBUser, _dbUser.toUtf8() );
+            _variants.insert( DDBPort, _dbPort );
+            _variants.insert( DDBPasswd, _dbPasswd.toUtf8() );
+            _variants.insert( DDBOptions, _dbOptions.toUtf8() );
+        }
+    }
+    out << _id << static_cast<quint32>(_flags) << _pal << _pageData
+        << static_cast<quint16>( itemCount() ) << _variants
+        << _favicon << _font << _menuEntries;
+    qDebug() << _variants;
 }
 
 quint16 PHIBasePage::load( QDataStream &in, qint32 version )
 {
     if ( version<3 ) return loadVersion1_x( in );
     in.setVersion( PHI_DSV2 );
+    quint32 flags;
+    quint16 itemCount;
+    in >> _id >> flags >> _pal >> _pageData >> itemCount >> _variants
+        >> _favicon >> _font >> _menuEntries;
+    _flags=static_cast<Flags>(flags);
+    _width=_variants.value( DWidth, 750 ).value<quint32>();
+    _height=_variants.value( DHeight, 1000 ).value<quint32>();
+    _bgColor=_variants.value( DBgColor, QColor( Qt::white ) ).value<QColor>();
+    _dbFileName=QString::fromUtf8( _variants.value( DDBFileName ).toByteArray() );
+    _dbHost=QString::fromUtf8( _variants.value( DDBHost ).toByteArray() );
+    _dbName=QString::fromUtf8( _variants.value( DDBName ).toByteArray() );
+    _dbUser=QString::fromUtf8( _variants.value( DDBUser ).toByteArray() );
+    _dbPasswd=QString::fromUtf8( _variants.value( DDBPasswd ).toByteArray() );
+    _dbOptions=QString::fromUtf8( _variants.value( DDBOptions ).toByteArray() );
+    _dbDriver=QString::fromUtf8( _variants.value( DDBDriver, QByteArray( "QSQLITE" ) ).toByteArray() );
+    _dbPort=_variants.value( DDBPort, 3360 ).value<qint32>();
+    _currentLang=_variants.value( DDefaultLang, QByteArray( "en" ) ).toByteArray();
+    qDebug() << _variants;
+    if ( !(_flags & FUseOwnPalette) ) {
+        _pal.setPalette( QGuiApplication::palette() );
+    }
+    return itemCount;
 }
 
 quint16 PHIBasePage::loadVersion1_x( QDataStream &in )

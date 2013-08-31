@@ -65,6 +65,7 @@ public:
     void setColor( ColorRole role, const QColor &col );
     void setPalette( const QPalette &pal );
     inline const QPalette& palette() const { return _pal; }
+    void squeeze();
 
 protected:
     void createPercentColors( ColorRole, const QColor &col );

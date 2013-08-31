@@ -121,21 +121,28 @@ void PHIPalette::setColor( ColorRole role, const QColor &col )
     createPercentColors( role, col );
 }
 
-QDataStream& operator <<( QDataStream &out, const PHIPalette &p )
+void PHIPalette::squeeze()
+{
+    _userColors.clear();
+    _userColors.squeeze();
+}
+
+QDataStream& operator<<( QDataStream &out, const PHIPalette &p )
 {
     for ( quint8 i=0; i<17; i++ ) out << p.color( static_cast<PHIPalette::ColorRole>(i) );
     out << p.color( PHIPalette::User1_100 )
         << p.color( PHIPalette::User2_100 ) << p.color( PHIPalette::User3_100 )
         << p.color( PHIPalette::User4_100 ) << p.color( PHIPalette::User5_100 )
         << p.color( PHIPalette::User6_100 ) << p.color( PHIPalette::Error )
-        << p.color( PHIPalette::ErrorBackground );
+        << p.color( PHIPalette::ErrorBackground )
+        << QColor() << QColor();
     return out;
 }
 
-QDataStream& operator >>( QDataStream &in, PHIPalette &p )
+QDataStream& operator>>( QDataStream &in, PHIPalette &p )
 {
     QColor c;
-    for ( quint8 i=0; i<18; i++ ) {
+    for ( quint8 i=0; i<17; i++ ) {
         in >> c;
         p.setColor( static_cast<PHIPalette::ColorRole>(i), c );
     }
@@ -147,5 +154,6 @@ QDataStream& operator >>( QDataStream &in, PHIPalette &p )
     in >> c; p.setColor( PHIPalette::User6_100, c );
     in >> c; p.setColor( PHIPalette::Error, c );
     in >> c; p.setColor( PHIPalette::ErrorBackground, c );
+    in >> c >> c; // reserved
     return in;
 }
