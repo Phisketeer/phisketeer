@@ -51,9 +51,6 @@ public:
     static QUrl urlFromMimeData( const QMimeData *md );
     static QColor colorFromMimeData( const QMimeData *md );
 
-public slots:
-    virtual void updatePagePalette( const PHIPalette &pal );
-
 protected slots:
     virtual void documentSizeChanged();
     virtual void setAlignment( Qt::Alignment );
@@ -67,6 +64,7 @@ signals:
     void cleanChanged( bool );
     void languagesChanged( const QStringList &langs );
     void pagePaletteChanged( const PHIPalette &pal );
+    void pageFontChanged( const QFont &font );
 
 private:
     PHIBasePage *_page;

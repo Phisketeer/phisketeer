@@ -162,6 +162,7 @@ public: // not usable by script engine
     inline virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole ) const { return PHIPalette::NoRole; }
 
     virtual PHIWID wid() const=0;
+    virtual void updatePageFont( const QFont &font );
     virtual void setFont( const QFont &font );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color );
     virtual void setText( const QString &t, const QString &lang );

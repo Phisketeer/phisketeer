@@ -76,11 +76,6 @@ void PHIGraphicsScene::setAlignment( Qt::Alignment align )
     views().first()->setAlignment( align );
 }
 
-void PHIGraphicsScene::updatePagePalette( const PHIPalette &pal )
-{
-    emit pagePaletteChanged( pal );
-}
-
 void PHIGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
 {
     QGraphicsScene::drawBackground( painter, rect );

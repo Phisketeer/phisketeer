@@ -546,32 +546,28 @@ void PHIUndoPage::redo()
 {
     const PHIBasePage page=*(_scene->page());
     *(_scene->page())=_newPage;
-    if ( page.languages()!=_newPage.languages() ||
-            page.defaultLanguage()!=_newPage.defaultLanguage() )
+    if ( page.languages()!=_newPage.languages() || page.defaultLanguage()!=_newPage.defaultLanguage() )
         emit _scene->languagesChanged( _newPage.languages() );
     if ( page.bgColor()!=_newPage.bgColor() )
         _scene->setBackgroundBrush( QColor( _newPage.bgColor() ) );
     if ( page.size()!=_newPage.size() ) emit _scene->page()->documentSizeChanged();
-    if ( page.phiPalette()!=_newPage.phiPalette() ) {
-        _scene->updatePagePalette( _newPage.phiPalette() );
+    if ( page.phiPalette()!=_newPage.phiPalette() )
         emit _scene->pagePaletteChanged( _newPage.phiPalette() );
-    }
+    if ( page.font()!=_newPage.font() ) emit _scene->pageFontChanged( _newPage.font() );
 }
 
 void PHIUndoPage::undo()
 {
     const PHIBasePage page=*(_scene->page());
     *(_scene->page())=_oldPage;
-    if ( page.languages()!=_oldPage.languages() ||
-            page.defaultLanguage()!=_oldPage.defaultLanguage() )
+    if ( page.languages()!=_oldPage.languages() || page.defaultLanguage()!=_oldPage.defaultLanguage() )
         emit _scene->languagesChanged( _oldPage.languages() );
     if ( page.bgColor()!=_oldPage.bgColor() )
         _scene->setBackgroundBrush( QColor( _oldPage.bgColor() ) );
     if ( page.size()!=_oldPage.size() ) emit _scene->page()->documentSizeChanged();
-    if ( page.phiPalette()!=_oldPage.phiPalette() ) {
-        _scene->updatePagePalette( _oldPage.phiPalette() );
+    if ( page.phiPalette()!=_oldPage.phiPalette() )
         emit _scene->pagePaletteChanged( _oldPage.phiPalette() );
-    }
+    if ( page.font()!=_oldPage.font() ) emit _scene->pageFontChanged( _oldPage.font() );
 }
 
 /*

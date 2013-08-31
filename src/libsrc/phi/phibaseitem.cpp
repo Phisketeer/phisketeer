@@ -27,6 +27,7 @@
 #include <QMimeData>
 #include <QUndoStack>
 #include <QMatrix4x4>
+#include <QGuiApplication>
 #include "phibaseitem.h"
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
@@ -175,12 +176,25 @@ QTransform PHIBaseItem::computeTransformation() const
     return t;
 }
 
+void PHIBaseItem::updatePageFont( const QFont &f )
+{
+    Q_UNUSED( f )
+    if ( !page() ) qWarning( "updatePageFont: page not set" );
+    if ( !page() || !_gw ) return;
+    QFont pf=page()->font();
+    if ( pf!=font() ) return;
+    pf.setPointSizeF( PHI::adjustedFontSize( pf.pointSizeF() ) );
+    _gw->setFont( pf );
+    _gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
+    _height=_gw->size().height();
+}
+
 void PHIBaseItem::setFont( const QFont &font )
 {
-    qDebug( "setFont %f", font.pointSizeF() );
     if ( _type==TTemplateItem ) return;
-    Q_ASSERT( page() );
-    QFont pf=page()->font();
+    QFont pf=QGuiApplication::font();
+    if ( !page() ) qWarning( "setFont: page not set" );
+    if ( page() ) pf=page()->font();
     if ( pf==font ) {
         _variants.remove( DFont );
         pf.setPointSizeF( PHI::adjustedFontSize( font.pointSizeF() ) );
@@ -203,8 +217,10 @@ void PHIBaseItem::setFont( const QFont &font )
 
 QFont PHIBaseItem::font() const
 {
-    Q_ASSERT( page() );
-    return _variants.value( DFont, page()->font() ).value<QFont>();
+    QFont f=QGuiApplication::font();
+    if ( !page() ) qWarning( "font: page not set" );
+    if ( page() ) f=page()->font();
+    return _variants.value( DFont, f ).value<QFont>();
 }
 
 void PHIBaseItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color )

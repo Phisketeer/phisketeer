@@ -219,7 +219,6 @@ bool PHIBasePage::operator==( const PHIBasePage &p )
     if ( _menuEntries!=p._menuEntries ) return false;
     if ( _flags!=p._flags ) return false;
     if ( _pal!=p._pal ) return false;
-    qDebug() << "==";
     return true;
 }
 
@@ -340,7 +339,6 @@ void PHIBasePage::save( QDataStream &out, qint32 version )
     out << _id << static_cast<quint32>(_flags) << _pal << _pageData
         << static_cast<quint16>( itemCount() ) << _variants
         << _favicon << _font << _menuEntries;
-    qDebug() << _variants;
 }
 
 quint16 PHIBasePage::load( QDataStream &in, qint32 version )
@@ -364,10 +362,7 @@ quint16 PHIBasePage::load( QDataStream &in, qint32 version )
     _dbDriver=QString::fromUtf8( _variants.value( DDBDriver, QByteArray( "QSQLITE" ) ).toByteArray() );
     _dbPort=_variants.value( DDBPort, 3360 ).value<qint32>();
     _currentLang=_variants.value( DDefaultLang, QByteArray( "en" ) ).toByteArray();
-    qDebug() << _variants;
-    if ( !(_flags & FUseOwnPalette) ) {
-        _pal.setPalette( QGuiApplication::palette() );
-    }
+    if ( !(_flags & FUseOwnPalette) ) _pal.setPalette( QGuiApplication::palette() );
     return itemCount;
 }
 
