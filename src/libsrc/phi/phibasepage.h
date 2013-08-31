@@ -91,13 +91,13 @@ public:
         DSessionOptions=16, DOpenGraph=17, DBgImageUrl=18, DSessionTimeout=19,
         DBgImageOptions=20, DBgImageXOff=21, DBgImageYOff=22, DDefaultLang=23,
         DGeometry=24, DDBUser=25, DDBName=26, DDBDriver=27, DDBPasswd=28,
-        DDBPort=29, DDBOptions=30, DDBHost=31, DDBFileName=32 }; // quint8
+        DDBPort=29, DDBOptions=30, DDBHost=31, DDBFileName=32, DServerModules=33 }; // quint8
     enum Flag { FNone=0x0, FUseOwnPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
         FUseOpenGraph=0x8, FHasAction=0x10, FUseSession=0x20, FHidePhiMenu=0x40,
         FUseMasterPalette=0x80, FUseBgImage=0x100, FNoUnderlinedLinks=0x200,
         FHasMasterTemplate=0x400, FServerscript=0x800, FJavaScript=0x1000,
         FNoSystemCSS=0x2000, FNoUiThemeCSS=0x4000, FUseCSS=0x8000, FUseDB=0x10000,
-        FDBFile=0x20000 }; // quint32
+        FDBFile=0x20000, FServerModulesCombat=0x40000 }; // quint32
     enum Geometry { GUnknown=0, GA4=1, GLetter=2, GCustom=3, GPhi=4, G4_3=5, G16_9=6, GiPad=7 };
     enum SessionOption { SNone=0x0, SRequiresLogin=0x1, SRequiresSession=0x2,
         SSessionCookie=0x4, SCreateSession=0x8 };
@@ -134,17 +134,19 @@ public:
     inline void setId( const QByteArray &id ) { _id=id; }
     inline void setId( const QString &id ) { _id=id.toLatin1(); }
     inline Geometry geometry() const { return static_cast<Geometry>(_variants.value( DGeometry, 0 ).value<quint8>()); }
+    inline void setServerModules( qint32 s ) { _variants.insert( DServerModules, s ); }
+    inline qint32 serverModules() const { return _variants.value( DServerModules, 0 ).value<qint32>(); }
 
     void setGeometry( Geometry g );
-    void setFavicon( const QPixmap &pix ) { _favicon=pix.toImage(); }
-    QPixmap favicon() const { return QPixmap::fromImage( _favicon ); }
-    PHIBaseItem* findItem( const QString &id ) const;
+    void setFavicon( const QImage &pix ) { _favicon=pix; }
+    QImage favicon() const { return _favicon; }
     QList <PHIBaseItem*> items() const;
+    PHIBaseItem* findItem( const QString &id ) const;
     QString nextFreeId( const QString &requestedId ) const;
     QRect rect() const { return QRect( QPoint(), QSize( _width, _height ) ); }
     quint8 gridSize() const { return _variants.value( DGridSize, 16 ).value<quint8>(); }
     void setGridSize( quint8 s ) { _variants.insert( DGridSize, s ); }
-    void load(QDataStream &in, qint32 version );
+    quint16 load(QDataStream &in, qint32 version ); // returns item count
     void save( QDataStream &out, qint32 version );
 
     inline QString dbFileName() const { return _dbFileName; }
@@ -176,8 +178,8 @@ public slots:
     inline QSize size() const { return QSize( _width, _height ); }
     inline void setSize( const QSize &s ) { _width=s.width(); _height=s.height(); emit documentSizeChanged(); }
     inline void setSize( quint32 w, quint32 h ) { _width=w; _height=h; emit documentSizeChanged(); }
-    QStringList itemIds() const;
     quint16 itemCount() const;
+    QStringList itemIds() const;
 
     inline QStringList languages() const { return _variants.value( DLanguages ).toStringList(); }
     inline QString fontFamily() const { return _font.family(); }
@@ -203,7 +205,7 @@ public slots:
         _variants.insert( DSessionRedirect, s.toUtf8() ); }
     inline QString sessionRedirect() const {
         return QString::fromUtf8( _variants.value( DSessionRedirect ).toByteArray() ); }
-    inline void setSessionTimeout( qint32 t ) { _variants.insert( DSessionTimeout, t ); }
+    inline void setSessionTimeout( qint32 t ) { if ( t!=60 ) _variants.insert( DSessionTimeout, t ); else _variants.remove( DSessionTimeout ); }
     inline qint32 sessionTimeout() const { return _variants.value( DSessionTimeout, 60 ).value<qint32>(); }
 
     inline void setJavascript( const QString &s ) { _variants.insert( DJavascript, s.toUtf8() ); }
@@ -230,9 +232,9 @@ public slots:
     inline PHIBaseItem* getElementById( const QString &id ) const { return findItem( id ); }
     PHIBaseItem* createElementById( quint16 type, const QString &id, qreal x, qreal y, qreal width=-1, qreal height=-1 );
     bool removeElementById( const QString &id );
-    inline void setBgImageOptions( quint8 opts ) { _variants.insert( DBgImageOptions, opts ); }
+    inline void setBgImageOptions( quint8 opts ) { if ( opts ) _variants.insert( DBgImageOptions, opts ); else _variants.remove( DBgImageOptions ); }
     inline quint8 bgImageOptions() const { return _variants.value( DBgImageOptions, 0 ).value<quint8>(); }
-    inline void setSessionOptions( quint8 opts ) { _variants.insert( DSessionOptions, opts ); }
+    inline void setSessionOptions( quint8 opts ) { if ( opts ) _variants.insert( DSessionOptions, opts ); else _variants.remove( DSessionOptions ); }
     inline quint8 sessionOptions() const { return _variants.value( DSessionOptions, 0 ).value<quint8>(); }
 
     inline void setBgImageUrl( const QString &url ) { _variants.insert( DBgImageUrl, url.toUtf8() ); }
@@ -266,7 +268,7 @@ signals:
     void phiPaletteChanged( const PHIPalette &pal );
 
 protected:
-    void loadVersion1_x( QDataStream &in );
+    quint16 loadVersion1_x( QDataStream &in ); // returns item count
 
 private:
     PHIDynPageData *_pageData;

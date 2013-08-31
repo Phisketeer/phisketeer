@@ -30,6 +30,8 @@
 #define PHI_SFV 3
 #define PHI_MAGIC 0x5c34bb28
 #define L1(s) QLatin1String(s)
+#define SL(s) QStringLiteral(s)
+#define BL(s) QByteArrayLiteral(s)
 
 #include <QObject>
 #include <QMetaType>
@@ -130,7 +132,7 @@ public:
     static inline qreal radToGrad( qreal r ) { return r*static_cast<qreal>(57.29577951309314); }
     static inline int defaultToolBarHeight() { return 24; }
 
-    // move to PHIItem
+    // move to PHIBaseItem
     static inline QString defaultEasingCurve() { return QStringLiteral( "easeOutQuad" ); }
     static inline quint8 defaultEasingCurveType() {
         return static_cast<quint8>(toEasingCurveType(defaultEasingCurve())); }
@@ -156,7 +158,7 @@ inline QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )
 
 inline const QString& PHI::defaultString()
 {
-    static QString def=QStringLiteral( "default" );
+    static QString def=SL( "default" );
     return def;
 }
 

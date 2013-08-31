@@ -136,6 +136,8 @@ PHIBasePage::PHIBasePage( QObject *parent )
     _id=arr.mid( 5, 10 );
     _currentLang="en";
     _dbPort=3306;
+    _dbDriver=L1( "QSQLITE" );
+    _favicon=QImage( L1( ":/file/phiappview" ) );
 }
 
 PHIBasePage::~PHIBasePage()
@@ -206,20 +208,6 @@ QList <PHIBaseItem*> PHIBasePage::items() const
     return findChildren<PHIBaseItem*>();
 }
 
-/*
-PHIBaseItem* PHIBasePage::findItem( const QString &id ) const
-{
-    return findChild<PHIBaseItem*>(id);
-    if ( list.isEmpty() ) return 0;
-    return list.first();
-    PHIBaseItem *it;
-    foreach( it, list ) {
-        if ( it->name()==id ) return it;
-    }
-    return 0;
-}
-*/
-
 // only available for Serverscript:
 bool PHIBasePage::removeElementById( const QString &id )
 {
@@ -242,16 +230,6 @@ PHIBaseItem* PHIBasePage::createElementById( PHIWID wid, const QString &id,
     if ( width > 0 ) it->setWidth( width );
     if ( height > 0 ) it->setHeight( height );
     return it;
-}
-
-quint16 PHIBasePage::itemCount() const
-{
-    return static_cast<quint16>(findChildren<PHIBaseItem*>().count());
-}
-
-PHIBaseItem* PHIBasePage::findItem( const QString &id ) const
-{
-    return findChild<PHIBaseItem*>(id);
 }
 
 QStringList PHIBasePage::itemIds() const
@@ -290,18 +268,28 @@ void PHIBasePage::setGeometry( Geometry g )
     }
 }
 
+quint16 PHIBasePage::itemCount() const
+{
+    return static_cast<quint16>(findChildren<PHIBaseItem*>().count());
+}
+
+PHIBaseItem* PHIBasePage::findItem( const QString &id ) const
+{
+    return findChild<PHIBaseItem*>(id);
+}
+
 void PHIBasePage::save( QDataStream &out, qint32 version )
 {
 
 }
 
-void PHIBasePage::load( QDataStream &in, qint32 version )
+quint16 PHIBasePage::load( QDataStream &in, qint32 version )
 {
     if ( version<3 ) return loadVersion1_x( in );
-    in.setVersion( QDataStream::Qt_5_1 );
+    in.setVersion( PHI_DSV2 );
 }
 
-void PHIBasePage::loadVersion1_x( QDataStream &in )
+quint16 PHIBasePage::loadVersion1_x( QDataStream &in )
 {
     enum Attribute { ANone=0x0, ARequiresSession=0x1, ARequiresLogin=0x2, AFormAction=0x4, APalette=0x8,
         ABgColor=0x10, AStyleSheet=0x20, ACreateSession=0x40, AKeywords=0x80, ALandscape=0x100, ATemplate=0x200,
@@ -318,11 +306,13 @@ void PHIBasePage::loadVersion1_x( QDataStream &in )
 
     qint32 attributes( 0 ), extensions( 0 ), modules( 0 );
     quint16 itemCount;
+    quint8 internalVersion;
     QByteArray extensionData, eventData, editorData, dynamicData, reserved;
 
-    in >> attributes >> _id >> _width >> _height >> itemCount;
+    in >> internalVersion >> attributes >> _id >> _width >> _height >> itemCount;
     if ( attributes & ABgColor ) in >> _bgColor;
     else _bgColor=QColor( Qt::white );
+    qDebug() << attributes << _id << _width << _height << itemCount;
     if ( attributes & APalette ) {
         QPalette pal;
         QColor cwt, cba, ct, cb, cbt, ch, cht, cl, clv;
@@ -341,7 +331,6 @@ void PHIBasePage::loadVersion1_x( QDataStream &in )
     if ( attributes & AIcon ) in >> _favicon;
     if ( attributes & AExtensions ) in >> extensions >> extensionData;
     in >> _font;
-    qDebug( "load page font %f", _font.pointSizeF() );
     if ( attributes & AServerscript ) in >> modules;
     in >> dynamicData >> eventData >> reserved >> editorData >> reserved >> reserved;
     QDataStream dsd( &dynamicData, QIODevice::ReadOnly );
@@ -359,7 +348,10 @@ void PHIBasePage::loadVersion1_x( QDataStream &in )
            >> d->_template >> d->_javascript >> d->_serverscript >> d->_action >> sessionTimeout
            >> d->_keys >> d->_sessionRedirect >> d->_description >> d->_opengraph >> &txtData >> &txtData
            >> langs;
+        langs.removeOne( L1( "C" ) );
+        langs.append( L1( "en" ) );
         setLanguages( langs );
+        setDefaultLanguage( L1( "en" ) );
         setSessionTimeout( sessionTimeout );
         if ( attributes & AApplication ) dsd >> _menuEntries;
         if ( attributes & ABgImage ){
@@ -373,32 +365,62 @@ void PHIBasePage::loadVersion1_x( QDataStream &in )
     }
     QDataStream dse( &editorData, QIODevice::ReadOnly );
     dse.setVersion( PHI_DSV );
-    //setEditorData( dse );
-}
-
-/*
-QColor PHIBasePage::additionalColor( PHIPage::DataType c ) const
-{
-    switch ( c ) {
-    case DColorError: return _variants.value( DColorError, QColor( 0xcd, 0x0a, 0x0a ) ).value<QColor>();
-    case DColorBgError: return _variants.value( DColorBgError, QColor( 0xfe, 0xf1, 0xec ) ).value<QColor>();
-    case DColorHover: return _variants.value( DColorHover, QColor( 0x21, 0x21, 0x21 ) ).value<QColor>();
-    default:;
+    {
+        quint8 geom;
+        dse >> geom;
+        setGeometry( static_cast<Geometry>(geom) );
+        QColor c;
+        QList <PHIPalette::ColorRole> roles;
+        roles << PHIPalette::User1_100 << PHIPalette::User2_100 << PHIPalette::User3_100
+              << PHIPalette::User4_100 << PHIPalette::User5_100 << PHIPalette::User6_100;
+        foreach ( PHIPalette::ColorRole r, roles ) {
+            dse >> c;
+            _pal.setColor( r, c );
+        }
     }
-    return QColor();
+    // map session options
+    {
+        quint8 opts( 0 );
+        if ( attributes & ARequiresSession ) opts |= SRequiresSession;
+        if ( attributes & ARequiresLogin ) opts |= SRequiresLogin;
+        if ( attributes & ACreateSession ) opts |= SCreateSession;
+        if ( attributes & ASetCookie ) opts |= SSessionCookie;
+        setSessionOptions( opts );
+    }
+    // map attributes
+    {
+        _flags=FNone;
+        if ( attributes & AStyleSheet ) _flags |= FUseCSS;
+        if ( attributes & AJavascript ) _flags |= FJavaScript;
+        if ( attributes & ADatabase ) _flags |= FUseDB;
+        if ( attributes & AServerscript ) _flags |= FServerscript;
+        if ( attributes & AApplication ) _flags |= FApplicationMode;
+        if ( attributes & AUseTemplatePalette ) _flags |= FUseMasterPalette;
+        if ( attributes & ANoSystemCSS ) _flags |= FNoSystemCSS;
+        if ( attributes & ADbSettingsFromFile ) _flags |= FDBFile;
+        if ( attributes & ANoUiCSS ) _flags |= FNoUiThemeCSS;
+        if ( attributes & ADocumentLeft ) _flags |= FPageLeftAlign;
+        if ( attributes & AUseOpenGraph ) _flags |= FUseOpenGraph;
+        if ( attributes & ANoUnderlineLinks ) _flags |= FNoUnderlinedLinks;
+        if ( extensions & EHidePhiMenu ) _flags |= FHidePhiMenu;
+    }
+    // translate Serverscript modules
+    {
+        if ( modules ) {
+            if ( _pageData->_serverscript->unparsedStatic() ) {
+                QString script=_pageData->_serverscript->text();
+                QStringList list;
+                list << L1( "sql" ) << L1( "file") << L1( "email") << L1( "process" )
+                     << L1( "system") << L1( "server" ) << L1( "reply" ) << L1( "request" );
+                foreach ( QString s, list ) {
+                    QString tmp=QString( L1( "loadModule('%1');\n" ) ).arg( s );
+                    if ( !script.contains( tmp ) ) script.prepend( tmp );
+                }
+            } else {
+                setServerModules( modules );
+                _flags |= FServerModulesCombat;
+            }
+        }
+    }
+    return itemCount;
 }
-
-QDataStream& operator<<( QDataStream &out, const PHIBasePage *p )
-{
-    out << dynamic_cast<const PHIPage*>(p) << p->_variants;
-    if ( p->_attributes & PHIPage::AApplication ) out << p->_menuEntries;
-    return out;
-}
-
-QDataStream& operator>>( QDataStream &in, PHIBasePage *p )
-{
-    in >> dynamic_cast<PHIPage*>(p) >> p->_variants;
-    if ( p->_attributes & PHIPage::AApplication ) in >> p->_menuEntries;
-    return in;
-}
-*/

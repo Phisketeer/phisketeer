@@ -79,30 +79,16 @@ PHIPageMenuEntry::~PHIPageMenuEntry()
     qDebug( "PHIPageMenuEntry::~PHIPageMenuEntry()" );
 }
 
-void PHIPageMenuEntry::load( QDataStream &in, int version )
-{
-    Q_UNUSED( version )
-    quint8 opt;
-    in >> _id >> _parent >> _img >> _textData >> opt;
-    _options=static_cast<PHIPageMenuEntry::Options>(opt);
-}
-
-void PHIPageMenuEntry::save( QDataStream &out, int version )
-{
-    Q_UNUSED( version )
-    out << _id << _parent << _img << _textData << static_cast<quint8>(_options);
-}
-
 QDataStream& operator<<( QDataStream &out, const PHIPageMenuEntry &m )
 {
-    out << m._id << m._parent << m._img << m._text << static_cast<quint8>(m._options);
+    out << m._id << m._parent << m._img << m._textData << static_cast<quint8>(m._options);
     return out;
 }
 
 QDataStream& operator>>( QDataStream &in, PHIPageMenuEntry &m )
 {
     quint8 opt;
-    in >> m._id >> m._parent >> m._img >> m._text >> opt;
+    in >> m._id >> m._parent >> m._img >> m._textData >> opt;
     m._options=static_cast<PHIPageMenuEntry::Options>(opt);
     return in;
 }

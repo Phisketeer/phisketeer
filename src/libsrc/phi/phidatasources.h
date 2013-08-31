@@ -32,14 +32,13 @@
 class PHIEXPORT PHIData
 {
 friend PHIEXPORT QDataStream& operator>>( QDataStream &in, PHIData *&phiData );
+friend PHIEXPORT QDataStream& operator<<( QDataStream &out, PHIData *phiData );
 
 public:
     enum Type { Unknown=0, Text=1, Image=2, ImageBook=3, Audio=4, Video=5, Stream=6, Integer=7,
-        Boolean=8, StringList=9, Color=10 };
-    /** Source provider. @note internaly quint8 representation. */
-    enum Source { Undefined=0, Static=1, Translated=2, Database=3, File=4, Url=5, Process=6, Library=7 };
-    /** Data Options. For example: should we parse text. @note internaly quint8 representation. */
-    enum Option { None=0x0, Parse=0x1, FileName=Parse, NoCache=0x2, DontSaveImage=0x4 };
+        Boolean=8, StringList=9, Color=10 }; //quint8
+    enum Source { Undefined=0, Static=1, Translated=2, Database=3, File=4, Url=5, Process=6, Library=7 }; // quint8
+    enum Option { None=0x0, Parse=0x1, FileName=Parse, NoCache=0x2, DontSaveImage=0x4 }; // quint8
 
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Options, Option )
@@ -48,14 +47,15 @@ public:
 #endif
 
     PHIData();
-    virtual ~PHIData();
+    virtual ~PHIData(){;}
     PHIData( const PHIData& );
     PHIData& operator=( const PHIData& );
-
+    bool operator==( const PHIData& );
+    inline bool operator!=( const PHIData &d ) { return ! operator==(d); }
     virtual Type type() const=0;
     virtual inline Source source() const { return _source; }
     virtual inline void setSource( Source s ) { _source=s; }
-    // inline QStringList languages() const { return _data.keys(); }
+    virtual void squeeze();
     inline Options options() const { return _options; }
     inline void setOptions( Options o ) { _options=o; }
     inline void setOption( Option o ) { _options |= o; }
@@ -69,21 +69,21 @@ public:
     inline QVariant variant( const QByteArray &l=_c ) const { return _data.value( l ); }
     inline QString libraryName() const { return _data.value( "#I" ).toString(); }
     inline void setLibraryName( const QString &s ) {
-        _data.insert( _c, QByteArrayLiteral( "LIB" ) ); _data.insert( "#I", s );
+        _data.insert( _c, QByteArray( "LIB" ) ); _data.insert( "#I", s );
     }
     inline QString processName() const { return _data.value( "#P" ).toString(); }
     inline void setProcessName( const QString &s ) {
-        _data.insert( _c, QByteArrayLiteral( "EXE" ) ); _data.insert( "#P", s );
+        _data.insert( _c, QByteArray( "EXE" ) ); _data.insert( "#P", s );
     }
     inline QString attributes() const { return _data.value( "#A" ).toString(); }
     inline void setAttributes( const QString &s ) { _data.insert( "#A", s ); }
     inline QString fileName() const { return _data.value( "#N" ).toString(); }
     inline void setFileName( const QString &s ) {
-        if ( type()==Text ) _data.insert( _c, QByteArrayLiteral( "FIL" ) ); _data.insert( "#N", s );
+        if ( type()==Text ) _data.insert( _c, QByteArray( "FIL" ) ); _data.insert( "#N", s );
     }
     inline QString sqlStatement() const { return _data.value( "#S" ).toString(); }
     inline void setSqlStatement( const QString &s ) {
-        _data.insert( _c, QByteArrayLiteral( "SQL" ) ); _data.insert( "#S", s );
+        _data.insert( _c, QByteArray( "SQL" ) ); _data.insert( "#S", s );
     }
     inline QString templateText() const { return _data.value( "#T" ).toString(); }
     inline void setTemplateText( const QString &s ) { _data.insert( "#T", s ); }
@@ -97,7 +97,7 @@ public:
     inline void setDelimiter( const QString &s ) { _data.insert( "#D", s ); }
     inline QString url() const { return _data.value( "#U" ).toString(); }
     inline void setUrl( const QString &s ) {
-        _data.insert( _c, QByteArrayLiteral( "URL" ) ), _data.insert( "#U", s );
+        _data.insert( _c, QByteArray( "URL" ) ), _data.insert( "#U", s );
     }
     inline QString value() const { return _data.value( "#V" ).toString(); }
     inline void setValue( const QString &s ) { _data.insert( "#V", s ); }
@@ -111,8 +111,6 @@ public:
     inline void setFileNames( const QStringList &l ) { _data.insert( "#Y", l ); }
     static QDataStream& readData( QDataStream &in, PHIData *phiData );
     static const QByteArray c() { return _c; }
-    bool operator==( const PHIData& );
-    inline bool operator!=( const PHIData &d ) { return ! operator==(d); }
 
 protected:
     Source _source;
@@ -126,46 +124,26 @@ protected:
 #endif
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIData*& );
-PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIData* );
-
-inline bool PHIData::operator ==( const PHIData &d )
-{
-    if ( type()==d.type() && _source==d.source() && _options==d.options()
-         && _data==d.data() ) return true;
-    return false;
-}
+PHIEXPORT QDataStream& operator<<( QDataStream&, PHIData* );
 
 class PHIEXPORT PHITextData : public PHIData
 {
 public:
     PHITextData( const QString &t=QString() );
-    virtual ~PHITextData();
+    virtual ~PHITextData(){;}
     inline virtual Type type() const { return Text; }
-    inline QString text( const QByteArray &l=_c ) const { return _data.value( l ).toString(); }
-    inline void setText( const QString &t, const QByteArray &l=_c ) { _data.insert( l, t ); }
+    inline void setText( const QString &t, const QByteArray &l=_c ) { if ( t.isEmpty() ) _data.remove( l ); else _data.insert( l, t.toUtf8() ); }
+    inline QString text( const QByteArray &l=_c ) const { return _data.value( l ).type()==12 ?
+        QString::fromUtf8( _data.value( l ).toByteArray() ) : _data.value( l ).toString(); }
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHITextData* );
-
-/*
-class PHIEXPORT PHIDateData : public PHIData
-{
-public:
-    PHIDateData( const QDate &d=QDate() );
-    virtual ~PHIDateData();
-    inline virtual Type type() const { return Date; }
-    inline QDate date( const QByteArray &l=_c ) const { return _data.value( l ).toDate(); }
-    inline void setDate( const QDate &d, const QByteArray &l=_c ) { _data.insert( l, d ); }
-};
-
-PHIEXPORT QDataStream& operator>>( QDataStream&, PHIDateData* );
-*/
 
 class PHIEXPORT PHIImageData : public PHIData
 {
 public:
     PHIImageData( const QImage &im=QImage() );
-    virtual ~PHIImageData();
+    virtual ~PHIImageData(){;}
     inline virtual Type type() const { return Image; }
     QImage image( const QByteArray &l=_c ) const;
     inline void setImage( const QImage &im, const QByteArray &l=_c ) { _data.insert( l, im ); }
@@ -177,7 +155,7 @@ class PHIEXPORT PHIImageBookData : public PHIData
 {
 public:
     PHIImageBookData( const PHIImageHash &book=PHIImageHash() );
-    virtual ~PHIImageBookData();
+    virtual ~PHIImageBookData(){;}
     inline virtual Type type() const { return ImageBook; }
     PHIImageHash imageBook( const QByteArray &l=_c ) const;
     inline void setImageBook( PHIImageHash &book, const QByteArray &l=_c )
@@ -190,7 +168,7 @@ class PHIEXPORT PHIIntData : public PHIData
 {
 public:
     PHIIntData( qint32 i=0 );
-    virtual ~PHIIntData();
+    virtual ~PHIIntData(){;}
     inline virtual Type type() const { return Integer; }
     inline qint32 integer( const QByteArray &l=_c ) const { return static_cast<qint32>(_data.value( l ).toInt()); }
     inline void setInteger( qint32 i, const QByteArray &l=_c ) { _data.insert( l, i ); }
@@ -204,7 +182,7 @@ class PHIEXPORT PHIBooleanData : public PHIData
 {
 public:
     PHIBooleanData( bool b=false );
-    virtual ~PHIBooleanData();
+    virtual ~PHIBooleanData(){;}
     inline virtual Type type() const { return Boolean; }
     inline bool boolean( const QByteArray &l=_c ) const { return _data.value( l ).toBool(); }
     inline void setBoolean( bool b, const QByteArray &l=_c ) { _data.insert( l, b ); }
@@ -218,13 +196,134 @@ class PHIEXPORT PHIStringListData : public PHIData
 {
 public:
     PHIStringListData( const QStringList &l=QStringList() );
-    virtual ~PHIStringListData();
+    virtual ~PHIStringListData(){;}
     inline virtual Type type() const { return StringList; }
     inline QStringList stringList( const QByteArray &l=_c ) const { return _data.value( l ).toStringList(); }
     inline void setStringList( const QStringList &sl, const QByteArray &l=_c ) { _data.insert( l, sl ); }
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIStringListData* );
+
+inline PHIData::PHIData(): _source( PHIData::Static ), _options( PHIData::None )
+{
+}
+
+inline PHIData::PHIData( const PHIData &d )
+    : _source( d._source ), _options( d._options ), _data( d._data )
+{
+}
+
+inline PHIData& PHIData::operator=( const PHIData &d )
+{
+    _source=d._source;
+    _options=d._options;
+    _data=d._data;
+    return *this;
+}
+
+inline QDataStream& PHIData::readData( QDataStream &in, PHIData *phiData )
+{
+    quint8 type, source, options;
+    in >> type >> source >> options;
+    Q_ASSERT( static_cast<PHIData::Type>(type)==phiData->type() );
+    phiData->setSource( static_cast<PHIData::Source>(source) );
+    phiData->setOptions( static_cast<PHIData::Options>(options) );
+    in >> phiData->_data;
+    phiData->squeeze();
+    return in;
+}
+
+inline bool PHIData::operator==( const PHIData &d )
+{
+    if ( type()!=d.type() ) return false;
+    if ( _source!=d._source ) return false;
+    if ( _options!=d._options ) return false;
+    if ( _data!=d._data ) return false;
+    return true;
+}
+
+inline PHITextData::PHITextData( const QString &t )
+{
+    if ( !t.isEmpty() ) _data.insert( _c, t.toUtf8() );
+}
+
+inline QDataStream& operator>>( QDataStream &in, PHITextData *phiData )
+{
+    return PHIData::readData( in, phiData );
+}
+
+inline PHIImageData::PHIImageData( const QImage &im )
+{
+    _data.insert( _c, im );
+}
+
+inline QDataStream& operator>>( QDataStream &in, PHIImageData *phiData )
+{
+    return PHIData::readData( in, phiData );
+}
+
+inline PHIImageBookData::PHIImageBookData( const PHIImageHash &imgHash )
+{
+    QVariant v;
+    v.setValue( imgHash );
+    _data.insert( _c, v );
+}
+
+inline PHIImageHash PHIImageBookData::imageBook( const QByteArray &l ) const
+{
+    QVariant v=_data.value( l );
+    PHIImageHash imgHash;
+    if ( v.isValid() && v.canConvert<PHIImageHash>() ) imgHash=v.value<PHIImageHash>();
+    return imgHash;
+}
+
+inline QDataStream& operator>>( QDataStream &in, PHIImageBookData *phiData )
+{
+    return PHIData::readData( in, phiData );
+}
+
+inline PHIIntData::PHIIntData( qint32 i )
+{
+    _data.insert( _c, i );
+}
+
+inline QDataStream& operator>>( QDataStream &in, PHIIntData *phiData )
+{
+    return PHIData::readData( in, phiData );
+}
+
+inline PHIBooleanData::PHIBooleanData( bool b )
+{
+    _data.insert( _c, b );
+}
+
+inline QDataStream& operator>>( QDataStream &in, PHIBooleanData *phiData )
+{
+    return PHIData::readData( in, phiData );
+}
+
+inline PHIStringListData::PHIStringListData( const QStringList &list )
+{
+    _data.insert( _c, list );
+}
+
+inline QDataStream& operator>>( QDataStream &in, PHIStringListData *phiData )
+{
+    return PHIData::readData( in, phiData );
+}
+
+/*
+class PHIEXPORT PHIDateData : public PHIData
+{
+public:
+    PHIDateData( const QDate &d=QDate() );
+    virtual ~PHIDateData();
+    inline virtual Type type() const { return Date; }
+    inline QDate date( const QByteArray &l=_c ) const { return _data.value( l ).toDate(); }
+    inline void setDate( const QDate &d, const QByteArray &l=_c ) { _data.insert( l, d ); }
+};
+
+PHIEXPORT QDataStream& operator>>( QDataStream&, PHIDateData* );
 
 class PHIEXPORT PHIColorData : public PHIData
 {
@@ -237,5 +336,6 @@ public:
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIColorData* );
+*/
 
 #endif // PHIDATASOURCES_H
