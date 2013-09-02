@@ -23,7 +23,6 @@
 #include <QUndoStack>
 #include <QWidget>
 #include "phiabstractitems.h"
-#include "phiundo.h"
 
 qreal PHIAbstractTextItem::_dropRegion=7.;
 
@@ -151,22 +150,26 @@ void PHIAbstractTextItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
         _extractColorRole( e->mimeData()->text(), newCR );
         // drag from color button
         if ( !r.contains( e->pos() ) ) {
-            undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetText,
-                newCR, e->mimeData()->colorData().value<QColor>() ) );
+            emit pushUndoStack( PHIPalette::WidgetText, newCR, e->mimeData()->colorData().value<QColor>() );
+            //undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetText,
+            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
         } else {
-            undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetBase,
-                newCR, e->mimeData()->colorData().value<QColor>() ) );
+            emit pushUndoStack( PHIPalette::WidgetBase, newCR, e->mimeData()->colorData().value<QColor>() );
+            //undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetBase,
+            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
         }
         update();
         return;
     }
     // drag from external app
     if ( !r.contains( e->pos() ) ) {
-        undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetText,
-            PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
+        emit pushUndoStack( PHIPalette::WidgetText, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
+        //undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetText,
+        //    PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
     } else {
-        undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetBase,
-            PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
+        emit pushUndoStack( PHIPalette::WidgetBase, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
+        //undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetBase,
+        //    PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
     }
     update();
 }
@@ -393,41 +396,54 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
         if ( newPattern!=pattern() ) forceForeground=true;
         if ( newLineStyle!=line() ) forceBackground=true;
         if ( forceForeground ) { // drag from pattern tool
-            undoStack()->beginMacro( tr( "Pattern" )+ut );
-            undoStack()->push( new PHIUndoColor( this, PHIPalette::Foreground,
-                newCR, e->mimeData()->colorData().value<QColor>() ) );
-            undoStack()->push( new PHIUndoProperty( this, PHIUndoCommand::Pattern, newPattern ) );
-            undoStack()->endMacro();
+            emit beginUndoStackMacro( tr( "Pattern" )+ut );
+            //undoStack()->beginMacro( tr( "Pattern" )+ut );
+            emit pushUndoStack( PHIPalette::Foreground, newCR, e->mimeData()->colorData().value<QColor>() );
+            //undoStack()->push( new PHIUndoColor( this, PHIPalette::Foreground,
+            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
+            emit pushUndoStack( "pattern", newPattern );
+            //undoStack()->push( new PHIUndoProperty( this, PHIUndoCommand::Pattern, newPattern ) );
+            //undoStack()->endMacro();
+            emit endUndoStackMacro();
             update();
             return;
         } else if ( forceBackground ) { // drag from pen tool
-            undoStack()->beginMacro( tr( "Outline" )+ut );
-            undoStack()->push( new PHIUndoColor( this, PHIPalette::Background,
-                newCR, e->mimeData()->colorData().value<QColor>() ) );
-            undoStack()->push( new PHIUndoProperty( this, PHIUndoCommand::Line, newLineStyle ) );
-            undoStack()->push( new PHIUndoProperty( this, PHIUndoCommand::PenWidth, newPenWidth ) );
-            undoStack()->endMacro();
+            emit beginUndoStackMacro( tr( "Outline" )+ut );
+            //undoStack()->beginMacro( tr( "Outline" )+ut );
+            emit pushUndoStack( PHIPalette::Background, newCR, e->mimeData()->colorData().value<QColor>() );
+            //undoStack()->push( new PHIUndoColor( this, PHIPalette::Background,
+            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
+            emit pushUndoStack( "line", newLineStyle );
+            //undoStack()->push( new PHIUndoProperty( this, PHIUndoCommand::Line, newLineStyle ) );
+            emit pushUndoStack( "penWidth", newPenWidth );
+            //undoStack()->push( new PHIUndoProperty( this, PHIUndoCommand::PenWidth, newPenWidth ) );
+            emit endUndoStackMacro();
+            //undoStack()->endMacro();
             update();
             return;
         }
         // drag from color button
         if ( r.contains( e->pos() ) ) {
-            undoStack()->push( new PHIUndoColor( this, PHIPalette::Foreground,
-                newCR, e->mimeData()->colorData().value<QColor>() ) );
+            emit pushUndoStack( PHIPalette::Foreground, newCR, e->mimeData()->colorData().value<QColor>() );
+            //undoStack()->push( new PHIUndoColor( this, PHIPalette::Foreground,
+            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
         } else {
-            undoStack()->push( new PHIUndoColor( this, PHIPalette::Background,
-                newCR, e->mimeData()->colorData().value<QColor>() ) );
+            emit pushUndoStack( PHIPalette::Background, newCR, e->mimeData()->colorData().value<QColor>() );
+            //undoStack()->push( new PHIUndoColor( this, PHIPalette::Background,
+            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
         }
         update();
         return;
     }
     // drag from external app
     if ( r.contains( e->pos() ) ) {
-        undoStack()->push( new PHIUndoColor( this, PHIPalette::Foreground,
-            PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
+        emit pushUndoStack( PHIPalette::Foreground, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
+        //undoStack()->push( new PHIUndoColor( this, PHIPalette::Foreground,
+        //    PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
     } else {
-        undoStack()->push( new PHIUndoColor( this, PHIPalette::Background,
-            PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
+        emit pushUndoStack( PHIPalette::Background, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
+        //undoStack()->push( new PHIUndoColor( this, PHIPalette::Background,
+        //    PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
     }
     update();
 }

@@ -25,7 +25,6 @@
 #include <QEvent>
 #include <QGraphicsSceneEvent>
 #include <QMimeData>
-#include <QUndoStack>
 #include <QMatrix4x4>
 #include <QGuiApplication>
 #include "phibaseitem.h"
@@ -75,16 +74,6 @@ PHIBaseItem::~PHIBaseItem()
         delete _gw;
         _gw=0;
     }
-}
-
-// Hack to provide easily Drag&Drop operations for the IDE
-// Usualy the undo stack should be part of the IDE only
-QUndoStack* PHIBaseItem::undoStack() const
-{
-    Q_ASSERT( _gw );
-    PHIGraphicsScene *scene=qobject_cast<PHIGraphicsScene*>(_gw->scene());
-    Q_ASSERT( scene );
-    return scene->undoStack();
 }
 
 PHIBasePage* PHIBaseItem::page() const
@@ -271,9 +260,9 @@ QTransform PHIBaseItem::computeTransformation() const
     QTransform t, trans, shear, rot;
     trans.translate( -_transformOrigin.x(), -_transformOrigin.y() );
     shear.shear( _hSkew, _vSkew );
-    rot.rotate( _xRot, Qt::XAxis );
-    rot.rotate( _yRot, Qt::YAxis );
     rot.rotate( _zRot, Qt::ZAxis );
+    rot.rotate( _yRot, Qt::YAxis );
+    rot.rotate( _xRot, Qt::XAxis );
     t=trans*shear*rot*trans.inverted();
     return t;
     /*

@@ -36,20 +36,15 @@ class QKeyEvent;
 class PHIBasePage;
 class PHISRequest;
 class PHISDataParser;
-class QUndoStack;
 
 class PHIEXPORT PHIBaseItem : public QObject
 {
-    //friend class PHIBasePage;
     friend class PHIGraphicsItem;
     friend class ARTGraphicsItem;
     friend class PHIAGraphicsItem;
     friend class PHIGraphicsScene;
     friend class ARTGraphicsScene;
     friend class PHIAGraphicsScene;
-    friend class PHIUndoCommand;
-    friend class PHIUndoAdd;
-    friend class PHIUndoDelete;
 
     Q_OBJECT
     Q_DISABLE_COPY( PHIBaseItem )
@@ -221,7 +216,6 @@ protected:
     inline void update( const QRectF &r=QRectF() ) { if ( _gw ) _gw->update( r ); }
     inline void setFocus() { if ( _gw ) _gw->setFocus(); }
 
-    QUndoStack* undoStack() const; // Hack for Drag & Drop in IDE
     virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
@@ -247,6 +241,13 @@ private:
     inline QGraphicsWidget* graphicsWidget() const { return _gw; }
     QTransform computeTransformation() const;
     void phiPaletteChanged( const PHIPalette &pal );
+
+signals:
+    // IDE related members
+    void pushUndoStack( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newColor );
+    void pushUndoStack( const char* property, const QVariant &newVariant );
+    void beginUndoStackMacro( const QString &text );
+    void endUndoStackMacro();
 
 protected:
     QHash <qint8, QVariant> _variants;

@@ -41,7 +41,6 @@ HEADERS += phi.h \
     phiitemstylecss.h \
     phisrequest.h \
     phitools.h \
-    phiundo.h \
     phiabstractitems.h
 SOURCES += phi.cpp \
     phiitemdata.cpp \
@@ -67,7 +66,6 @@ SOURCES += phi.cpp \
     phiitemstylecss.cpp \
     phisrequest.cpp \
     phitools.cpp \
-    phiundo.cpp \
     phiabstractitems.cpp
 
 VERSION = 2.0.0

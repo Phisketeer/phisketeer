@@ -28,7 +28,6 @@ class PHIBaseItem;
 class PHIBasePage;
 class QMimeData;
 class QGraphicsSceneMouseEvent;
-class QUndoStack;
 
 class PHIEXPORT PHIGraphicsScene : public QGraphicsScene
 {
@@ -41,7 +40,6 @@ public:
     inline PHIBasePage* page() const { return _page; }
     inline void setPage( PHIBasePage *page ) { _page=page; }
     inline QString fileName() const { return objectName(); }
-    inline QUndoStack* undoStack() const { return _undoStack; }
     QList<PHIBaseItem*> selectedBaseItems() const;
     PHIBaseItem* focusBaseItem() const;
 
@@ -61,17 +59,12 @@ protected:
 
 signals:
     void mousePos( const QPointF& );
-    void cleanChanged( bool );
     void languagesChanged( const QStringList &langs );
     void pagePaletteChanged( const PHIPalette &pal );
     void pageFontChanged( const QFont &font );
 
 private:
     PHIBasePage *_page;
-    // Hack to provide Drop operations for the IDE,
-    // unused in client applications (usually an undo stack
-    // should be part of the IDE only):
-    QUndoStack *_undoStack;
 };
 
 #endif // PHIGRAPHICSSCENE_H

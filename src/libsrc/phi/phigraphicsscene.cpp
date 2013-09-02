@@ -26,7 +26,6 @@
 #include "phibaseitem.h"
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
-#include "phiundo.h"
 #include "phipalette.h"
 
 PHIGraphicsScene::PHIGraphicsScene( QObject *parent )
@@ -34,9 +33,7 @@ PHIGraphicsScene::PHIGraphicsScene( QObject *parent )
 {
     qDebug( "PHIGraphicsScene::PHIGraphicsScene()" );
     _page=new PHIBasePage( this );
-    _undoStack=new QUndoStack( this );
     connect( _page, &PHIBasePage::documentSizeChanged, this, &PHIGraphicsScene::documentSizeChanged );
-    connect( _undoStack, &QUndoStack::cleanChanged, this, &PHIGraphicsScene::cleanChanged );
     documentSizeChanged();
 }
 
