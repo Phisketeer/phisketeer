@@ -25,7 +25,7 @@ PHIItemData::PHIItemData( QObject *parent )
     _disabledData( 0 ), _visibleData( 0 ), _checkedData( 0 ), _readOnlyData( 0 ), _startAngleData( 0 ),
     _spanAngleData( 0 ), _imageBookData( 0 ), _stringListData( 0 )
 {
-    // qDebug( "PHIItemData::PHIItemData()" );
+    qDebug( "PHIItemData::PHIItemData()" );
 }
 
 PHIItemData::~PHIItemData()
@@ -45,7 +45,7 @@ PHIItemData::~PHIItemData()
     //qDebug( "PHIItemData::~PHIItemData()" );
 }
 
-PHIItemData& PHIItemData::operator =( const PHIItemData &d )
+PHIItemData& PHIItemData::operator=( const PHIItemData &d )
 {
     if (d._imageData) *imageData()=*d.imageData();
     if (d._textData) *textData()=*d.textData();
@@ -60,7 +60,6 @@ PHIItemData& PHIItemData::operator =( const PHIItemData &d )
     if (d._imageBookData) *imageBookData()=*d.imageBookData();
     if (d._stringListData) *stringListData()=*d.stringListData();
     _variants=d._variants;
-    //qDebug( "operator=(TEXT=%s)", qPrintable( textData()->text() ) );
     return *this;
 }
 
@@ -69,7 +68,6 @@ PHIItemData::PHIItemData( const PHIItemData &d )
     _disabledData( 0 ), _visibleData( 0 ), _checkedData( 0 ), _readOnlyData( 0 ), _startAngleData( 0 ),
     _spanAngleData( 0 ), _imageBookData( 0 ), _stringListData( 0 )
 {
-    //qDebug( "copy constructor(TEXT=%s)", qPrintable( d.textData()->text() ) );
     if (d._imageData) *imageData()=*d.imageData();
     if (d._textData) *textData()=*d.textData();
     if (d._styleSheetData) *styleSheetData()=*d.styleSheetData();
@@ -85,7 +83,7 @@ PHIItemData::PHIItemData( const PHIItemData &d )
     _variants=d._variants;
 }
 
-QByteArray PHIItemData::save( PHIItem::Properties p ) const
+QByteArray PHIItemData::save( qint32 p ) const
 {
     QByteArray arr;
     QDataStream out( &arr, QIODevice::WriteOnly );
@@ -93,63 +91,61 @@ QByteArray PHIItemData::save( PHIItem::Properties p ) const
 
 /*
 #ifdef PHIDEBUG
-    if ( p & PHIItem::PImage ) qDebug( "image" );
-    if ( p & PHIItem::PText ) qDebug( "TEXT=%s", qPrintable( textData()->text() ) );
-    if ( p & PHIItem::PStyleSheet ) qDebug( "stylesheet" );
-    if ( p & PHIItem::PToolTip ) qDebug( "tooltip" );
-    if ( p & PHIItem::PDisable ) qDebug( "disable" );
-    if ( p & PHIItem::PVisible ) qDebug( "visible" );
-    if ( p & PHIItem::PCheckable ) qDebug( "checkable" );
-    if ( p & PHIItem::PReadOnly ) qDebug( "readonly" );
-    if ( p & PHIItem::PStartAngle ) qDebug( "startangle" );
-    if ( p & PHIItem::PSpanAngle ) qDebug( "spanangle" );
-    if ( p & PHIItem::PImageBook ) qDebug( "imagebook" );
-    if ( p & PHIItem::PStringList ) qDebug( "stringlist" );
+    if ( p & PImage ) qDebug( "image" );
+    if ( p & PText ) qDebug( "TEXT=%s", qPrintable( textData()->text() ) );
+    if ( p & PStyleSheet ) qDebug( "stylesheet" );
+    if ( p & PToolTip ) qDebug( "tooltip" );
+    if ( p & PDisable ) qDebug( "disable" );
+    if ( p & PVisible ) qDebug( "visible" );
+    if ( p & PCheckable ) qDebug( "checkable" );
+    if ( p & PReadOnly ) qDebug( "readonly" );
+    if ( p & PStartAngle ) qDebug( "startangle" );
+    if ( p & PSpanAngle ) qDebug( "spanangle" );
+    if ( p & PImageBook ) qDebug( "imagebook" );
+    if ( p & PStringList ) qDebug( "stringlist" );
 #endif
 */
 
-    if ( p & PHIItem::PImage ) out << imageData();
-    if ( p & PHIItem::PText ) out << textData();
-    if ( p & PHIItem::PStyleSheet ) out << styleSheetData();
-    if ( p & PHIItem::PToolTip ) out << toolTipData();
-    if ( p & PHIItem::PDisable ) out << disabledData();
-    if ( p & PHIItem::PVisible ) out << visibleData();
-    if ( p & PHIItem::PCheckable ) out << checkedData();
-    if ( p & PHIItem::PReadOnly ) out << readOnlyData();
-    if ( p & PHIItem::PStartAngle ) out << startAngleData();
-    if ( p & PHIItem::PSpanAngle ) out << spanAngleData();
-    if ( p & PHIItem::PImageBook ) out << imageBookData();
-    if ( p & PHIItem::PStringList ) out << stringListData();
+    if ( p & PImage ) out << imageData();
+    if ( p & PText ) out << textData();
+    if ( p & PStyleSheet ) out << styleSheetData();
+    if ( p & PToolTip ) out << toolTipData();
+    if ( p & PDisable ) out << disabledData();
+    if ( p & PVisible ) out << visibleData();
+    if ( p & PCheckable ) out << checkedData();
+    if ( p & PReadOnly ) out << readOnlyData();
+    if ( p & PStartAngle ) out << startAngleData();
+    if ( p & PSpanAngle ) out << spanAngleData();
+    if ( p & PImageBook ) out << imageBookData();
+    if ( p & PStringList ) out << stringListData();
 
-    if ( !(p & PHIItem::PColor) ) _variants.remove( PHIItem::DColor );
-    if ( !(p & PHIItem::POutlineColor) ) _variants.remove( PHIItem::DOutlineColor );
-    if ( !(p & PHIItem::PRolloverColors) ) {
-        _variants.remove( PHIItem::DRolloverTextColor );
-        _variants.remove( PHIItem::DRolloverBackgroundColor );
+    if ( !(p & PColor) ) _variants.remove( DColor );
+    if ( !(p & POutlineColor) ) _variants.remove( DOutlineColor );
+    if ( !(p & PRolloverColors) ) {
+        _variants.remove( DRolloverTextColor );
+        _variants.remove( DRolloverBackgroundColor );
     }
-    if ( !(p & PHIItem::PFont) ) _variants.remove( PHIItem::DFont );
-    if ( !(p & PHIItem::PPenWidth) ) _variants.remove( PHIItem::DPenWidth );
-    if ( !(p & PHIItem::PLine) ) _variants.remove( PHIItem::DLine );
-    if ( !(p & PHIItem::PPattern) ) _variants.remove( PHIItem::DPattern );
-    if ( _variants.value( PHIItem::DPattern, 0 ).value<quint8>() < 15 ) {
-        _variants.remove( PHIItem::DGradientType );
-        _variants.remove( PHIItem::DStartPoint );
-        _variants.remove( PHIItem::DFinalStopPoint );
-        _variants.remove( PHIItem::DCenterPoint );
-        _variants.remove( PHIItem::DFocalPoint );
-        _variants.remove( PHIItem::DAngle );
-        _variants.remove( PHIItem::DRadius );
-        _variants.remove( PHIItem::DStopPoints );
-        _variants.remove( PHIItem::DSpreadType );
+    if ( !(p & PFont) ) _variants.remove( DFont );
+    if ( !(p & PPenWidth) ) _variants.remove( DPenWidth );
+    if ( !(p & PLine) ) _variants.remove( DLine );
+    if ( !(p & PPattern) ) _variants.remove( DPattern );
+    if ( _variants.value( DPattern, 0 ).value<quint8>() < 15 ) {
+        _variants.remove( DGradientType );
+        _variants.remove( DStartPoint );
+        _variants.remove( DFinalStopPoint );
+        _variants.remove( DCenterPoint );
+        _variants.remove( DFocalPoint );
+        _variants.remove( DAngle );
+        _variants.remove( DRadius );
+        _variants.remove( DStopPoints );
+        _variants.remove( DSpreadType );
     }
     // PPalette is used globaly by page
-    //if ( !(p & PHIItem::PPalette) ) _variants.remove( PHIItem::DPalette );
-    if ( !(p & PHIItem::PAlignment) ) _variants.remove( PHIItem::DAlignment );
-    if ( !(p & PHIItem::PMaxSize) ) _variants.remove( PHIItem::DMaxSize );
-    if ( !(p & PHIItem::PUrl ) ) _variants.remove( PHIItem::DUrl );
-    if ( !(p & PHIItem::PTabOrder ) ) _variants.remove( PHIItem::DTabOrder );
-    // PLabel, PBuddy, PShortCut are stored in _textData:
-    //if ( p & PHIItem::PLabel ) out << textData();
+    //if ( !(p & PPalette) ) _variants.remove( DPalette );
+    if ( !(p & PAlignment) ) _variants.remove( DAlignment );
+    if ( !(p & PMaxSize) ) _variants.remove( DMaxSize );
+    if ( !(p & PUrl ) ) _variants.remove( DUrl );
+    if ( !(p & PTabOrder ) ) _variants.remove( DTabOrder );
     out << _variants;
 
 /*
@@ -164,57 +160,57 @@ QByteArray PHIItemData::save( PHIItem::Properties p ) const
 
 void PHIItemData::setGradient( QLinearGradient g )
 {
-    _variants.insert( PHIItem::DStartPoint, g.start() );
-    _variants.insert( PHIItem::DFinalStopPoint, g.finalStop() );
-    _variants.insert( PHIItem::DSpreadType, static_cast<quint8>(g.spread()) );
+    _variants.insert( DStartPoint, g.start() );
+    _variants.insert( DFinalStopPoint, g.finalStop() );
+    _variants.insert( DSpreadType, static_cast<quint8>(g.spread()) );
     QVariant v;
     v.setValue( g.stops() );
-    _variants.insert( PHIItem::DStopPoints, v );
-    _variants.insert( PHIItem::DGradientType, static_cast<quint8>(g.type()) );
+    _variants.insert( DStopPoints, v );
+    _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
 }
 
 void PHIItemData::setGradient( QConicalGradient g )
 {
-    _variants.insert( PHIItem::DAngle, g.angle() );
-    _variants.insert( PHIItem::DCenterPoint, g.center() );
-    _variants.insert( PHIItem::DSpreadType, static_cast<quint8>(g.spread()) );
+    _variants.insert( DAngle, g.angle() );
+    _variants.insert( DCenterPoint, g.center() );
+    _variants.insert( DSpreadType, static_cast<quint8>(g.spread()) );
     QVariant v;
     v.setValue( g.stops() );
-    _variants.insert( PHIItem::DStopPoints, v );
-    _variants.insert( PHIItem::DGradientType, static_cast<quint8>(g.type()) );
+    _variants.insert( DStopPoints, v );
+    _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
 }
 
 void PHIItemData::setGradient( QRadialGradient g )
 {
-    _variants.insert( PHIItem::DFocalPoint, g.focalPoint() );
-    _variants.insert( PHIItem::DRadius, g.radius() );
-    _variants.insert( PHIItem::DCenterPoint, g.center() );
-    _variants.insert( PHIItem::DSpreadType, static_cast<quint8>(g.spread()) );
+    _variants.insert( DFocalPoint, g.focalPoint() );
+    _variants.insert( DRadius, g.radius() );
+    _variants.insert( DCenterPoint, g.center() );
+    _variants.insert( DSpreadType, static_cast<quint8>(g.spread()) );
     QVariant v;
     v.setValue( g.stops() );
-    _variants.insert( PHIItem::DStopPoints, v );
-    _variants.insert( PHIItem::DGradientType, static_cast<quint8>(g.type()) );
+    _variants.insert( DStopPoints, v );
+    _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
 }
 
 QGradient PHIItemData::gradient() const
 {
     QGradient g;
     QGradient::Type type=static_cast<QGradient::Type>(_variants.value(
-        PHIItem::DGradientType, 0 ).value<quint8>());
+        DGradientType, 0 ).value<quint8>());
     if ( type==QGradient::ConicalGradient ) {
-        g=QConicalGradient( _variants.value( PHIItem::DCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
-            _variants.value( PHIItem::DAngle, 0. ).value<qreal>() );
+        g=QConicalGradient( _variants.value( DCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
+            _variants.value( DAngle, 0. ).value<qreal>() );
     } else if ( type==QGradient::RadialGradient ) {
-        g=QRadialGradient( _variants.value( PHIItem::DCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
-            _variants.value( PHIItem::DRadius, 0.5 ).value<qreal>(),
-            _variants.value( PHIItem::DFocalPoint, QPointF( 0.1, 0.1 ) ).toPointF() );
+        g=QRadialGradient( _variants.value( DCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
+            _variants.value( DRadius, 0.5 ).value<qreal>(),
+            _variants.value( DFocalPoint, QPointF( 0.1, 0.1 ) ).toPointF() );
     } else {
-        g=QLinearGradient( _variants.value( PHIItem::DStartPoint, QPointF( 0., 0. ) ).toPointF(),
-            _variants.value( PHIItem::DFinalStopPoint, QPointF( 1.0, 1.0 ) ).toPointF() );
+        g=QLinearGradient( _variants.value( DStartPoint, QPointF( 0., 0. ) ).toPointF(),
+            _variants.value( DFinalStopPoint, QPointF( 1.0, 1.0 ) ).toPointF() );
     }
-    QGradientStops stops=_variants.value( PHIItem::DStopPoints ).value<QGradientStops>();
+    QGradientStops stops=_variants.value( DStopPoints ).value<QGradientStops>();
     if ( stops.count() ) g.setStops( stops );
-    g.setSpread( static_cast<QGradient::Spread>(_variants.value( PHIItem::DSpreadType, 0 )
+    g.setSpread( static_cast<QGradient::Spread>(_variants.value( DSpreadType, 0 )
         .value<quint8>()) );
     g.setCoordinateMode( QGradient::ObjectBoundingMode );
     return g;
@@ -223,11 +219,11 @@ QGradient PHIItemData::gradient() const
 QLinearGradient PHIItemData::linearGradient() const
 {
     QLinearGradient g=QLinearGradient(
-        _variants.value( PHIItem::DStartPoint, QPointF( 0., 0. ) ).toPointF(),
-        _variants.value( PHIItem::DFinalStopPoint, QPointF( 1.0, 1.0 ) ).toPointF() );
-    QGradientStops stops=_variants.value( PHIItem::DStopPoints ).value<QGradientStops>();
+        _variants.value( DStartPoint, QPointF( 0., 0. ) ).toPointF(),
+        _variants.value( DFinalStopPoint, QPointF( 1.0, 1.0 ) ).toPointF() );
+    QGradientStops stops=_variants.value( DStopPoints ).value<QGradientStops>();
     if ( stops.count() ) g.setStops( stops );
-    g.setSpread( static_cast<QGradient::Spread>(_variants.value( PHIItem::DSpreadType, 0 )
+    g.setSpread( static_cast<QGradient::Spread>(_variants.value( DSpreadType, 0 )
         .value<quint8>()) );
     g.setCoordinateMode( QGradient::ObjectBoundingMode );
     return g;
@@ -236,11 +232,11 @@ QLinearGradient PHIItemData::linearGradient() const
 QConicalGradient PHIItemData::conicalGradient() const
 {
     QConicalGradient g=QConicalGradient(
-        _variants.value( PHIItem::DCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
-        _variants.value( PHIItem::DAngle, 0. ).value<qreal>() );
-    QGradientStops stops=_variants.value( PHIItem::DStopPoints ).value<QGradientStops>();
+        _variants.value( DCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
+        _variants.value( DAngle, 0. ).value<qreal>() );
+    QGradientStops stops=_variants.value( DStopPoints ).value<QGradientStops>();
     if ( stops.count() ) g.setStops( stops );
-    g.setSpread( static_cast<QGradient::Spread>(_variants.value( PHIItem::DSpreadType, 0 )
+    g.setSpread( static_cast<QGradient::Spread>(_variants.value( DSpreadType, 0 )
         .value<quint8>()) );
     g.setCoordinateMode( QGradient::ObjectBoundingMode );
     return g;
@@ -249,79 +245,79 @@ QConicalGradient PHIItemData::conicalGradient() const
 QRadialGradient PHIItemData::radialGradient() const
 {
     QRadialGradient g=QRadialGradient(
-        _variants.value( PHIItem::DCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
-        _variants.value( PHIItem::DRadius, 0.5 ).value<qreal>(),
-        _variants.value( PHIItem::DFocalPoint, QPointF( 0.1, 0.1 ) ).toPointF() );
-    QGradientStops stops=_variants.value( PHIItem::DStopPoints ).value<QGradientStops>();
+        _variants.value( DCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
+        _variants.value( DRadius, 0.5 ).value<qreal>(),
+        _variants.value( DFocalPoint, QPointF( 0.1, 0.1 ) ).toPointF() );
+    QGradientStops stops=_variants.value( DStopPoints ).value<QGradientStops>();
     if ( stops.count() ) g.setStops( stops );
-    g.setSpread( static_cast<QGradient::Spread>(_variants.value( PHIItem::DSpreadType, 0 )
+    g.setSpread( static_cast<QGradient::Spread>(_variants.value( DSpreadType, 0 )
         .value<quint8>()) );
     g.setCoordinateMode( QGradient::ObjectBoundingMode );
     return g;
 }
 
-void PHIItemData::load( PHIItem::Properties p, const QByteArray &data )
+void PHIItemData::load( qint32 p, const QByteArray &data )
 {
     QByteArray arr=data;
     QDataStream in( &arr, QIODevice::ReadOnly );
     in.setVersion( PHI_DSV );
-    if ( p & PHIItem::PImage ) {
+    if ( p & PImage ) {
         if ( !_imageData ) _imageData=new PHIImageData();
         in >> _imageData;
         //qDebug( "image" );
     }
-    if ( p & PHIItem::PText ) {
+    if ( p & PText ) {
         if ( !_textData ) _textData=new PHITextData();
         in >> _textData;
         //qDebug( "TEXT=%s", qPrintable( textData()->text() ) );
     }
-    if ( p & PHIItem::PStyleSheet ) {
+    if ( p & PStyleSheet ) {
         if ( !_styleSheetData ) _styleSheetData=new PHITextData();
         in >> _styleSheetData;
         //qDebug( "stylesheet" );
     }
-    if ( p & PHIItem::PToolTip ) {
+    if ( p & PToolTip ) {
         if ( !_toolTipData ) _toolTipData=new PHITextData();
         in >> _toolTipData;
         //qDebug( "tooltip" );
     }
-    if ( p & PHIItem::PDisable ) {
+    if ( p & PDisable ) {
         if ( !_disabledData ) _disabledData=new PHIBooleanData();
         in >> _disabledData;
         //qDebug( "disable" );
     }
-    if ( p & PHIItem::PVisible ) {
+    if ( p & PVisible ) {
         if ( !_visibleData ) _visibleData=new PHIBooleanData();
         in >> _visibleData;
         //qDebug( "visible" );
     }
-    if ( p & PHIItem::PCheckable ) {
+    if ( p & PCheckable ) {
         if ( !_checkedData ) _checkedData=new PHIBooleanData();
         in >> _checkedData;
         //qDebug( "checkable" );
     }
-    if ( p & PHIItem::PReadOnly ) {
+    if ( p & PReadOnly ) {
         if ( !_readOnlyData ) _readOnlyData=new PHIBooleanData();
         in >> _readOnlyData;
         //qDebug( "readonly" );
     }
-    if ( p & PHIItem::PStartAngle ) {
+    if ( p & PStartAngle ) {
         if ( !_startAngleData ) _startAngleData=new PHIIntData();
         in >> _startAngleData;
         //qDebug( "startangle" );
     }
-    if ( p & PHIItem::PSpanAngle ) {
+    if ( p & PSpanAngle ) {
         if ( !_spanAngleData ) _spanAngleData=new PHIIntData();
         in >> _spanAngleData;
         //qDebug( "spanangle" );
     }
-    if ( p & PHIItem::PImageBook ) {
+    if ( p & PImageBook ) {
         if ( !_imageBookData ) _imageBookData=new PHIImageBookData();
         //qDebug( "before imagebook" );
         in >> _imageBookData;
         qDebug( "imagebook" );
     }
-    if ( p & PHIItem::PStringList ) {
+    if ( p & PStringList ) {
         if ( !_stringListData ) _stringListData=new PHIStringListData();
         in >> _stringListData;
         //qDebug( "stringlist" );
@@ -329,8 +325,6 @@ void PHIItemData::load( PHIItem::Properties p, const QByteArray &data )
     in >> _variants;
 
 #ifdef PHIDEBUG
-    quint8 id;
-    foreach ( id, _variants.keys() ) qDebug( "%d %s", id, qPrintable( _variants.value( id ).toString() ) );
-    qDebug( "variants count %d", _variants.count() );
+    qDebug() << _variants;
 #endif
 }

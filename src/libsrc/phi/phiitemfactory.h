@@ -24,8 +24,31 @@
 #include <QReadLocker>
 #include "phibaseitem.h"
 #include "phiitemplugin.h"
+#include "phi.h"
 
-class PHIItemFactory : public QObject
+class QPainter;
+
+class PHIEXPORT PHIUnknownItem : public PHIBaseItem
+{
+    Q_OBJECT
+
+public:
+    explicit PHIUnknownItem( PHIWID requestedWID );
+    virtual PHIWID wid() const { return 0; }
+    virtual QPixmap pixmap() const;
+    virtual QString listName() const;
+    virtual QString description() const;
+    virtual bool widthIsChangeable() const { return false; }
+    virtual bool heightIsChangeable() const { return false; }
+
+protected:
+    virtual void paint( QPainter *painter, const QRectF &exposed );
+
+private:
+    PHIWID _requestedWID;
+};
+
+class PHIEXPORT PHIItemFactory : public QObject
 {
     Q_OBJECT
 
@@ -60,16 +83,24 @@ inline PHIBaseItem* PHIItemFactory::item( const QString &key ) const
 {
     QReadLocker l( &_lock );
     PHIItemPlugin *plugin=_plugins.value( key, 0 );
-    if ( plugin ) return plugin->create( plugin->wid( key ) );
-    return 0;
+    PHIWID wid( 0 );
+    if ( plugin ) {
+        PHIBaseItem *it=plugin->create( plugin->wid( key ) );
+        if ( it ) return it;
+        wid=plugin->wid( key );
+    }
+    return new PHIUnknownItem( wid );
 }
 
 inline PHIBaseItem* PHIItemFactory::item( PHIWID wid ) const
 {
     QReadLocker l( &_lock );
     PHIItemPlugin *plugin=_wids.value( wid, 0 );
-    if ( plugin ) return plugin->create( wid );
-    return 0;
+    if ( plugin ) {
+        PHIBaseItem *it=plugin->create( wid );
+        if ( it ) return it;
+    }
+    return new PHIUnknownItem( wid );
 }
 
 inline QStringList PHIItemFactory::keysForCategory( const QString &cat ) const

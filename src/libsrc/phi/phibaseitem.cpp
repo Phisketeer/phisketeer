@@ -34,6 +34,7 @@
 #include "qpixmapfilter_p.h"
 #include "phiitemstylecss.h"
 #include "phisrequest.h"
+#include "phiitemdata.h"
 
 QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem* const &it )
 {
@@ -91,14 +92,26 @@ PHIBasePage* PHIBaseItem::page() const
     return qobject_cast<PHIBasePage*>(parent());
 }
 
-void PHIBaseItem::load( QDataStream &in, int version )
+void PHIBaseItem::squeeze()
 {
-    if ( version < 3 ) {
+    _variants.remove( DTransformOrigin );
+    _variants.remove( DXRot );
+    _variants.remove( DYRot );
+    _variants.remove( DZRot );
+    _variants.remove( DHSkew );
+    _variants.remove( DVSkew );
+    _variants.remove( DParentId );
+    _variants.remove( DFlags );
+    _variants.squeeze();
+}
 
-        loadVersion1x( in );
-        return;
-    }
-    in >> _id >> _parentId >> _x >> _y >> _width >> _height >> _variants;
+void PHIBaseItem::load( const QByteArray &arr, int version )
+{
+    if ( version<3 ) return loadVersion1_x( arr );
+    QByteArray a( arr );
+    QDataStream in( &a, QIODevice::ReadOnly );
+    in.setVersion( PHI_DSV2 );
+    in >> _x >> _y >> _width >> _height >> _zIndex >> _variants;
     setObjectName( QString::fromUtf8( _id ) );
     _xRot=_variants.value( DXRot, 0 ).toReal();
     _yRot=_variants.value( DYRot, 0 ).toReal();
@@ -106,12 +119,17 @@ void PHIBaseItem::load( QDataStream &in, int version )
     _hSkew=_variants.value( DHSkew, 0 ).toReal();
     _vSkew=_variants.value( DVSkew, 0 ).toReal();
     _transformOrigin=_variants.value( DTransformOrigin, QPointF() ).toPointF();
+    _parentId=_variants.value( DParentId, QByteArray() ).toByteArray();
+    _flags=static_cast<Flags>(_variants.value( DFlags, 0 ).value<qint32>());
     loadItemData( in, version );
-    loadEditorData( in, version );
+    if ( hasTransformation() && _gw ) _gw->setTransform( computeTransformation() );
 }
 
-void PHIBaseItem::save( QDataStream &out, int version )
+QByteArray PHIBaseItem::save( int version )
 {
+    QByteArray arr;
+    QDataStream out( &arr, QIODevice::WriteOnly );
+    out.setVersion( PHI_DSV2 );
     Q_ASSERT( version>2 );
     if ( _xRot ) _variants.insert( DXRot, _xRot );
     else _variants.remove( DXRot );
@@ -123,12 +141,105 @@ void PHIBaseItem::save( QDataStream &out, int version )
     else _variants.remove( DHSkew );
     if ( _vSkew ) _variants.insert( DVSkew, _vSkew );
     else _variants.remove( DVSkew );
-    if ( _transformOrigin!=QPointF() )
-        _variants.insert( DTransformOrigin, _transformOrigin );
-    else _variants.remove( DTransformOrigin );
-    out << _id << _parentId << _x << _y << _width << _height << _variants;
+    if ( _transformOrigin==QPointF() ) _variants.remove( DTransformOrigin );
+    else _variants.insert( DTransformOrigin, _transformOrigin );
+    if ( _parentId.isEmpty() ) _variants.remove( DParentId );
+    else _variants.insert( DParentId, _parentId );
+    if ( _flags==FNone ) _variants.remove( DFlags );
+    else _variants.insert( DFlags, static_cast<qint32>(_flags) );
+    out << _x << _y << _width << _height << _zIndex << _variants;
     saveItemData( out, version );
-    saveEditorData( out, version );
+    return arr;
+}
+
+void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
+{
+    enum Attribute { ANone=0x0, AChild=0x1, AWidth=0x2, AHeight=0x4, ATransform=0x8,
+        AShear=0x10, AZValue=0x20, ATranslate=0x40, ARotate=0x80, ATransformPos=0x100,
+        ADynamicData=0x200, AExtensionData=0x400, AEffectData=0x800, AEditorData=0x1000,
+        AParent=0x2000, ADisabled=0x4000, AChecked=0x8000, AReadOnly=0x10000,
+        AProperties=0x20000, AOpacity=0x40000, AVisible=0x80000, ATemplateItem=0x100000,
+        ADraggable=0x200000, ADroppable=0x400000, AEnd=0x40000000 }; // AEnd is max value
+
+    QByteArray a( arr );
+    QDataStream in( &a, QIODevice::ReadOnly );
+    in.setVersion( PHI_DSV );
+    qint16 zIndex( 0 );
+    qint32 attributes, properties, extensions;
+    qreal width=sizeHint( Qt::PreferredSize ).width();
+    qreal height=sizeHint( Qt::PreferredSize ).height();
+    in >> attributes >> _x >> _y;
+    if ( attributes & AWidth ) in >> width;
+    if ( attributes & AHeight ) in >> height;
+    if ( attributes & AZValue ) in >> zIndex;
+    qDebug() << _id << wid() << _x << _y << width << height << zIndex;
+    resize( width, height );
+    setPos( _x, _y );
+    setZIndex( zIndex );
+    if ( attributes & AProperties ) in >> properties;
+    else properties=0;
+    QByteArray parent, dynData, extensionData, effectData, editorData;
+    qreal xRot, yRot, zRot, sH, sV, xTrans, yTrans, opacity;
+    QTransform transform;
+    quint8 transformPos;
+    if ( attributes & ARotate ) in >> xRot >> yRot >> zRot;
+    else xRot=yRot=zRot=0;
+    if ( attributes & AShear ) in >> sH >> sV;
+    else sH=sV=0;
+    if ( attributes & ATranslate ) in >> xTrans >> yTrans;
+    else xTrans=yTrans=0;
+    if ( attributes & ATransform ) in >> transform;
+    if ( attributes & AParent ) in >> parent;
+    if ( attributes & AOpacity ) in >> opacity;
+    else opacity=1;
+    if ( attributes & ADynamicData ) in >> dynData;
+    if ( attributes & AExtensionData ) in >> extensions >> extensionData;
+    else extensions=0;
+    if ( attributes & AEffectData ) in >> effectData;
+    if ( attributes & AEditorData ) in >> editorData;
+    // loading color IDs from editorData
+    if ( !editorData.isEmpty() ) loadEditorData1_x( editorData );
+    if ( attributes & ATransformPos) in >> transformPos;
+    else transformPos=1;
+    setOpacity( opacity );
+    setTransformOrigin( QPointF( xTrans, yTrans ) );
+    setTransformPos( transformPos );
+    setTransformation( sH, sV, xRot, yRot, zRot );
+    qDebug() << sH << sV << xRot << yRot << zRot;
+    loadDynData1_x( properties, dynData );
+}
+
+void PHIBaseItem::loadDynData1_x( qint32 properties, const QByteArray &arr )
+{
+    PHIItemData d;
+    d.load( properties, arr );
+
+}
+
+void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
+{
+    if ( arr.isEmpty() ) return;
+    QByteArray a( arr );
+    QDataStream in( &a, QIODevice::ReadOnly );
+    in.setVersion( PHI_DSV );
+    quint8 col, outCol;
+    in >> col >> outCol;
+    QList <PHIPalette::ColorRole> map;
+    map << PHIPalette::Black << PHIPalette::White << PHIPalette::User1_100 << PHIPalette::User1_80
+        << PHIPalette::User1_60 << PHIPalette::User1_40 << PHIPalette::User1_20 << PHIPalette::User2_100 << PHIPalette::User2_80
+        << PHIPalette::User2_60 << PHIPalette::User2_40 << PHIPalette::User2_20 << PHIPalette::User3_100 << PHIPalette::User3_80
+        << PHIPalette::User3_60 << PHIPalette::User3_40 << PHIPalette::User3_20 << PHIPalette::User4_100 << PHIPalette::User4_80
+        << PHIPalette::User4_60 << PHIPalette::User4_40 << PHIPalette::User4_20 << PHIPalette::User5_100 << PHIPalette::User5_80
+        << PHIPalette::User5_60 << PHIPalette::User5_40 << PHIPalette::User5_20 << PHIPalette::User6_100 << PHIPalette::User6_80
+        << PHIPalette::User6_60 << PHIPalette::User6_40 << PHIPalette::User6_20 << PHIPalette::Window << PHIPalette::WindowText
+        << PHIPalette::Base << PHIPalette::Text << PHIPalette::Button << PHIPalette::ButtonText << PHIPalette::Highlight
+        << PHIPalette::HighlightText << PHIPalette::Link << PHIPalette::LinkVisited;
+    if ( col>=map.count() ) col=0;
+    if ( outCol>=map.count() ) outCol=0;
+    setColor( PHIPalette::Foreground, map.at( col ), color( PHIPalette::Foreground ) );
+    setColor( PHIPalette::Background, map.at( outCol ), color( PHIPalette::Background ) );
+    setColor( PHIPalette::WidgetText, map.at( col ), color( PHIPalette::WidgetText ) );
+    setColor( PHIPalette::WidgetBase, map.at( outCol ), color( PHIPalette::WidgetBase ) );
 }
 
 QStringList PHIBaseItem::properties() const
@@ -157,13 +268,14 @@ QWidget* PHIBaseItem::widget() const
 
 QTransform PHIBaseItem::computeTransformation() const
 {
-    QTransform t;
-    t.translate( _transformOrigin.x(), _transformOrigin.y() );
-    t.shear( _hSkew, _vSkew );
-    t.rotate( _zRot, Qt::ZAxis );
-    t.rotate( _yRot, Qt::YAxis );
-    t.rotate( _xRot, Qt::XAxis );
-    t.translate( -_transformOrigin.x(), -_transformOrigin.y() );
+    QTransform t, trans, shear, rot;
+    trans.translate( -_transformOrigin.x(), -_transformOrigin.y() );
+    shear.shear( _hSkew, _vSkew );
+    rot.rotate( _xRot, Qt::XAxis );
+    rot.rotate( _yRot, Qt::YAxis );
+    rot.rotate( _zRot, Qt::ZAxis );
+    t=trans*shear*rot*trans.inverted();
+    return t;
     /*
     QMatrix4x4 m;
     m.translate( QVector3D( _transformOrigin ) );
@@ -173,7 +285,6 @@ QTransform PHIBaseItem::computeTransformation() const
     m.translate( QVector3D( -_transformOrigin ) );
     return t*m.toTransform();
     */
-    return t;
 }
 
 void PHIBaseItem::updatePageFont( const QFont &f )
@@ -364,18 +475,6 @@ void PHIBaseItem::saveItemData( QDataStream &out, int version )
     Q_UNUSED( version )
 }
 
-void PHIBaseItem::loadEditorData( QDataStream &in, int version )
-{
-    Q_UNUSED( in )
-    Q_UNUSED( version )
-}
-
-void PHIBaseItem::saveEditorData( QDataStream &out, int version )
-{
-    Q_UNUSED( out )
-    Q_UNUSED( version )
-}
-
 bool PHIBaseItem::sceneEvent( QEvent *e )
 {
     if ( _type==TIDEItem ) {
@@ -446,11 +545,6 @@ void PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
     e->ignore();
 }
 
-void PHIBaseItem::squeeze( const PHISRequest* const req )
-{
-    Q_UNUSED( req )
-}
-
 void PHIBaseItem::html5( const PHISRequest* const req, QByteArray &out, const QByteArray& indent )
 {
     Q_UNUSED( req );
@@ -470,50 +564,11 @@ void PHIBaseItem::jQuery( const PHISRequest* const req, QByteArray &out )
 
 void PHIBaseItem::css( const PHISRequest* const req, QByteArray &out )
 {
-
+    Q_UNUSED( req )
+    Q_UNUSED( out )
 }
-
-
 
 /*
-PHIBaseItem::PHIBaseItem( QObject *parent )
-    : QObject( parent ), PHIItem()
-{
-    //qDebug( "PHIBaseItem::PHIBaseItem()" );
-    _effect=new PHIEffect();
-    new PHIBaseStyle( this );
-    new PHIBaseEffect( this );
-}
-
-PHIBaseItem::PHIBaseItem( const PHIItem &it, QObject *parent )
-    : QObject( parent ), PHIItem( it )
-{
-    //qDebug( "PHIBaseItem::PHIBaseItem( const PHIItem& )" );
-    _effect=new PHIEffect();
-    new PHIBaseStyle( this );
-    new PHIBaseEffect( this );
-    _attributes &= ~PHIItem::ADynamicData;
-    _attributes &= ~PHIItem::AEditorData;
-    _effect->load( _effectData );
-}
-
-PHIBaseItem::PHIBaseItem( quint16 wid, const QByteArray &id, QObject *parent )
-    : QObject( parent ), PHIItem()
-{
-    _properties |= PHIItem::PNoCache;
-    _effect=new PHIEffect();
-    new PHIBaseStyle( this );
-    new PHIBaseEffect( this );
-    _wid=wid;
-    _id=id;
-}
-
-PHIBaseItem::~PHIBaseItem()
-{
-    delete _effect;
-    //qDebug( "PHIBaseItem::~PHIBaseItem()" );
-}
-
 QGradient PHIBaseItem::gradient() const
 {
     QGradient g;
@@ -547,73 +602,6 @@ void PHIBaseItem::setAlignment( quint8 a )
     }
     _variants.insert( DAlignment, a );
     _properties |= PHIItem::PAlignment;
-}
-
-void PHIBaseItem::setPenWidth( qreal w )
-{
-    if ( w==1. ) {
-        _variants.remove( DPenWidth );
-        _properties&= ~PHIItem::PPenWidth;
-        return;
-    }
-    _variants.insert( DPenWidth, static_cast<double>(w) );
-    _properties|= PHIItem::PPenWidth;
-}
-
-void PHIBaseItem::setColor( const QColor &c )
-{
-    if ( c==QColor( Qt::black ) || !c.isValid() ) {
-        _variants.remove( DColor );
-        _properties&= ~PHIItem::PColor;
-        return;
-    }
-    _variants.insert( DColor, c );
-    _properties|= PHIItem::PColor;
-}
-
-void PHIBaseItem::setOutlineColor( const QColor &c )
-{
-    if ( c==QColor( Qt::black ) || !c.isValid() ) {
-        _variants.remove( DOutlineColor );
-        _properties&= ~PHIItem::POutlineColor;
-        return;
-    }
-    _variants.insert( DOutlineColor, c );
-    _properties|= PHIItem::POutlineColor;
-}
-
-void PHIBaseItem::setRolloverTextColor( const QColor &c )
-{
-    _variants.insert( DRolloverTextColor, c );
-    _properties |= PRolloverColors;
-}
-
-void PHIBaseItem::setRolloverBackgroundColor( const QColor &c )
-{
-    _variants.insert( DRolloverBackgroundColor, c );
-    _properties |= PRolloverColors;
-}
-
-void PHIBaseItem::setPattern( quint8 p )
-{
-    if ( p > PHI::maxPatternStyle() || p==1 ) {
-        _variants.remove( DPattern );
-        _properties&= ~PHIItem::PPattern;
-        return;
-    }
-    _variants.insert( DPattern, p );
-    _properties|= PHIItem::PPattern;
-}
-
-void PHIBaseItem::setLine( quint8 l )
-{
-    if ( l > PHI::maxLineStyle() || l==0 ) {
-        _variants.remove( DLine );
-        _properties&= ~PHIItem::PLine;
-        return;
-    }
-    _variants.insert( DLine, l );
-    _properties|= PHIItem::PLine;
 }
 
 void PHIBaseItem::setStartAngle( qint16 a )

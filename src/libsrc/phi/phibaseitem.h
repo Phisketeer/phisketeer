@@ -72,28 +72,17 @@ class PHIEXPORT PHIBaseItem : public QObject
 public:
     enum Type { TUndefined=0, TIDEItem=1, TTemplateItem=2, TServerItem=3,
         TServerParserItem=4, TClientItem=5 };
-    enum Wid { Invalid=0 };
+    enum Wid { Unknown=0, User=1000 };
     enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4, DTransformPos=-5,
-        DTransformOrigin=-6, DXRot=-7, DYRot=-8, DZRot=-9, DHSkew=-10, DVSkew=-11 };
-    enum Flag { FNone=0x0, FChild=0x01 };
+        DTransformOrigin=-6, DXRot=-7, DYRot=-8, DZRot=-9, DHSkew=-10, DVSkew=-11,
+        DParentId=-12, DFlags=-13 };
+    enum Flag { FNone=0x0, FChild=0x1 };
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
 #else
     typedef qint32 Flags;
 #endif
     /*
-    enum DataType { DNone=0, DPalette=1, DFont=2, DColor=3, DOutlineColor=4, DMaxSize=5,
-        DStartAngle=6, DSpanAngle=7, DUrl=8, DPattern=9, DLine=10, DPenWidth=11, DStopPoints=12,
-        DText=13, DImage=14, DAlignment=15, DStyleSheet=16, DToolTip=17, DLabel=18, DChildIds=19,
-        DGridLayoutInfo=20, DDelimiter=21, DOpacity=22, DTabIndex=23, DShortCut=24,
-        DRolloverTextColor=25, DRolloverBackgroundColor=26, DImageBook=27, DCurFadeIn=28,
-        DCurFadeOut=29, DMaxFadeIn=30, DMinFadeOut=31, DCurMoveDeltaX=32, DCurMoveDeltaY=33,
-        DCurMoveTime=34, DStartPoint=35, DFinalStopPoint=36, DCenterPoint=37, DFocalPoint=38,
-        DAngle=39, DRadius=40, DSpreadType=41, DGradientType=42, DFadeTime=DStartAngle,
-        DFadeInterval=DSpanAngle, DBorderRadius=DStartAngle, DDragStartPos=43, DDragOriginalPos=44,
-        DDragHotSpot=45, DDragCursor=46, DDragDistance=47, DDragOpacity=48, DDragDropOptions=49,
-        DDropAcceptedIds=50, DDragHotSpotType=51, DCursor=52, DLayoutOptions=53, DLayoutTitleHeight=54
-    }; // quint8 - ensure compatibility for version 1.x documents
     enum Widget { NO_ITEM=0, LINE_EDIT=1, MULTI_LINE_EDIT=2, PASSWD=3, CHECK_BOX=4, RADIO_BUTTON=5, BUTTON=6,
         SUBMIT_BUTTON=7, RESET_BUTTON=8, FILE_BUTTON=9, COMBO_BOX=10, HIDDEN=11, IMAGE_BUTTON=12, ELLIPSE=13,
         RECT=14, LINE=15, IMAGE=16, LAYOUT_LOGIN=17, LIST=18, LAYOUT_GRID=19, LAYOUT_VBOX=20, LAYOUT_HBOX=21,
@@ -145,9 +134,9 @@ public: // not usable by script engine
     void setTransformPos( quint8 pos );
     void setTransformOrigin( const QPointF &pos );
     void setTransformation( qreal hs, qreal vs, qreal xRot, qreal yRot, qreal zRot );
-    void load( QDataStream &in, int version );
-    void save( QDataStream &out, int version );
     QFont font() const;
+    void load( const QByteArray &in, int version );
+    QByteArray save( int version );
 
     //virtual functions
     inline virtual bool hasText() const { return false; }
@@ -208,10 +197,6 @@ public slots: // usable by script engine
 protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
-    virtual void loadEditorData( QDataStream &in, int version );
-    virtual void saveEditorData( QDataStream &out, int version );
-    virtual void loadVersion1x( QDataStream &in ) { Q_UNUSED( in ) }
-
     //inline bool isChild() const { return _flags & FChild; }
     void setWidget( QWidget* );
     QWidget* widget() const;
@@ -219,7 +204,7 @@ protected:
 
     // Phis server related members
     // create all cached language dependend images and transformed images and free memory:
-    virtual void squeeze( const PHISRequest* const req );
+    virtual void squeeze();
     // create a srtict HTML 4 for old browser versions:
     virtual void strictHtml( const PHISRequest* const req, QByteArray &out, const QByteArray &indent );
     // create new HTML5 content:
@@ -254,7 +239,10 @@ protected:
     //virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
 
 private:
+    void loadVersion1_x( const QByteArray &arr );
+    virtual void loadDynData1_x( qint32 properties, const QByteArray &arr );
     // IDE related members
+    void loadEditorData1_x( const QByteArray &arr );
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
     inline QGraphicsWidget* graphicsWidget() const { return _gw; }
     QTransform computeTransformation() const;
@@ -262,7 +250,7 @@ private:
 
 protected:
     QHash <qint8, QVariant> _variants;
-    //Flags _flags;
+    Flags _flags;
 
 private:
     Type _type;
@@ -382,15 +370,6 @@ public: //not useable by script engine
     inline QByteArray toolTipData() const { return _variants.value( DToolTip ).toByteArray(); }
     inline quint8 dragHotSpotType() const { return _variants.value( DDragHotSpotType, 0 ).value<quint8>(); }
     inline QPoint dragHotSpot() const { return _variants.value( DDragHotSpot, PHI::defaultHotSpot() ).toPoint(); }
-
-    virtual void setPenWidth( qreal w );
-    virtual void setRolloverTextColor( const QColor &c );
-    virtual void setRolloverBackgroundColor( const QColor &c );
-    virtual void setPattern( quint8 p );
-    virtual void setLine( quint8 l );
-    virtual void setStartAngle( qint16 a );
-    virtual void setSpanAngle( qint16 a );
-    virtual void setAlignment( quint8 a );
 
     //set by PHIEffects
     inline virtual void clearEffects() { _effect->clearAll(); }

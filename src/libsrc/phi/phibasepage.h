@@ -270,7 +270,7 @@ signals:
     void documentSizeChanged();
     void phiPaletteChanged( const PHIPalette &pal );
 
-protected:
+private:
     quint16 loadVersion1_x( QDataStream &in ); // returns item count
 
 private:

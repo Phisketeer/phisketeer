@@ -16,8 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 HEADERS += phi.h \
-    phiitem.h \
-    phisitem.h \
     phiitemdata.h \
     phidatasources.h \
     phierror.h \
@@ -28,7 +26,6 @@ HEADERS += phi.h \
     phieffects.h \
     phibaseitem.h \
     phiitemfactory.h \
-    phipage.h \
     phibasepage.h \
     phiapplication.h \
     phipixlabel.h \
@@ -47,8 +44,6 @@ HEADERS += phi.h \
     phiundo.h \
     phiabstractitems.h
 SOURCES += phi.cpp \
-    phiitem.cpp \
-    phisitem.cpp \
     phiitemdata.cpp \
     phidatasources.cpp \
     phierror.cpp \
@@ -59,7 +54,6 @@ SOURCES += phi.cpp \
     phieffects.cpp \
     phibaseitem.cpp \
     phiitemfactory.cpp \
-    phipage.cpp \
     phibasepage.cpp \
     phiapplication.cpp \
     phipixlabel.cpp \

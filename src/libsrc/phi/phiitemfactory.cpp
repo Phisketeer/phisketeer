@@ -20,6 +20,7 @@
 #include <QMetaClassInfo>
 #include <QStringList>
 #include <QDir>
+#include <QPainter>
 #include "phiitemfactory.h"
 
 PHIItemFactory* PHIItemFactory::_instance=0;
@@ -94,29 +95,31 @@ QString PHIItemFactory::category( const QString &key ) const
     return QString();
 }
 
-/*
-QStringList PHISModuleFactory::loadedModules() const
+PHIUnknownItem::PHIUnknownItem( PHIWID requestedWID )
+    : PHIBaseItem(), _requestedWID( requestedWID )
 {
-    _lock.lockForRead();
-    QStringList list;
-    PHISModule *mod;
-    foreach ( QString key, _keys ) {
-        mod=_modules.value( key );
-        Q_ASSERT( mod );
-        const QMetaObject *obj=mod->metaObject();
-        QString na=tr( "n/a" );
-        QString author=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "Author" ) ).value() );
-        QString url=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "Url" ) ).value() );
-        QString cr=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "Copyright" ) ).value() );
-        QString v=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "Version" ) ).value() );
-        QString lic=QString::fromUtf8( obj->classInfo( obj->indexOfClassInfo( "License" ) ).value() );
-        list << tr( "Library '%1' provides module '%2' (%3).\nAuthor:\t  %4\nUrl:\t  %5"
-                    "\nLicense:  %6\nCopyright %7" )
-            .arg( _libNames.value( key ) ).arg( key ).arg( v )
-            .arg( author.isEmpty() ? na : author ).arg( url.isEmpty() ? na : url )
-            .arg( lic.isEmpty() ? na : lic ).arg( cr.isEmpty() ? na : cr );
-    }
-    _lock.unlock();
-    return list;
 }
-*/
+
+QPixmap PHIUnknownItem::pixmap() const
+{
+    return QPixmap( L1( ":/items/rect" ) );
+}
+
+QString PHIUnknownItem::description() const
+{
+    return tr( "Unknown item" );
+}
+
+QString PHIUnknownItem::listName() const
+{
+    return tr( "Unknown" );
+}
+
+void PHIUnknownItem::paint( QPainter *painter, const QRectF &exposed )
+{
+    Q_UNUSED( exposed )
+    QRectF r( 0, 0, width(), height() );
+    painter->fillRect( r, QColor( Qt::lightGray ) );
+    painter->setPen( Qt::darkGray );
+    painter->drawText( r, Qt::AlignCenter, tr( "Unknown item (%1)" ).arg( _requestedWID ) );
+}
