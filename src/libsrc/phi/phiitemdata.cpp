@@ -25,7 +25,7 @@ PHIItemData::PHIItemData( QObject *parent )
     _disabledData( 0 ), _visibleData( 0 ), _checkedData( 0 ), _readOnlyData( 0 ), _startAngleData( 0 ),
     _spanAngleData( 0 ), _imageBookData( 0 ), _stringListData( 0 )
 {
-    qDebug( "PHIItemData::PHIItemData()" );
+    //qDebug( "PHIItemData::PHIItemData()" );
 }
 
 PHIItemData::~PHIItemData()

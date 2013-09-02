@@ -121,5 +121,5 @@ void PHIUnknownItem::paint( QPainter *painter, const QRectF &exposed )
     QRectF r( 0, 0, width(), height() );
     painter->fillRect( r, QColor( Qt::lightGray ) );
     painter->setPen( Qt::darkGray );
-    painter->drawText( r, Qt::AlignCenter, tr( "Unknown item (%1)" ).arg( _requestedWID ) );
+    painter->drawText( r, Qt::AlignCenter, tr( "Unknown" )+QString( L1( "\nWID %1" ) ).arg( _requestedWID ) );
 }

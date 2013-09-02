@@ -56,8 +56,12 @@ static QStringList _myproperties( const QObject *obj )
 }
 
 PHIBaseItem::PHIBaseItem()
-    : QObject( 0 ), _type( TUndefined ), _gw( 0 )
+    : QObject( 0 ), _flags( FNone ), _type( TUndefined ), _gw( 0 )
 {
+    _visibleData=new PHIBooleanData();
+    _visibleData->setBoolean( true );
+    _titleData=new PHITextData();
+    _styleSheetData=new PHITextData();
     _x=_y=_xRot=_yRot=_zRot=_hSkew=_vSkew=0;
     setTransformPos( PHI::TopLeft );
     if ( !PHIGraphicsItemProvider::instance() ) return;
@@ -68,6 +72,9 @@ PHIBaseItem::PHIBaseItem()
 
 PHIBaseItem::~PHIBaseItem()
 {
+    delete _visibleData;
+    delete _titleData;
+    delete _styleSheetData;
     if ( _gw ) {
         QGraphicsScene *s=_gw->scene();
         if ( s ) s->removeItem( _gw ); // get ownership back from scene
@@ -79,6 +86,13 @@ PHIBaseItem::~PHIBaseItem()
 PHIBasePage* PHIBaseItem::page() const
 {
     return qobject_cast<PHIBasePage*>(parent());
+}
+
+void PHIBaseItem::setVisible( bool b )
+{
+    if ( !b ) _variants.insert( DVisibility, false );
+    else _variants.remove( DVisibility );
+    if ( !isIdeItem() && _gw ) _gw->setVisible( b );
 }
 
 void PHIBaseItem::squeeze()
@@ -109,7 +123,11 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     _vSkew=_variants.value( DVSkew, 0 ).toReal();
     _transformOrigin=_variants.value( DTransformOrigin, QPointF() ).toPointF();
     _parentId=_variants.value( DParentId, QByteArray() ).toByteArray();
-    _flags=static_cast<Flags>(_variants.value( DFlags, 0 ).value<qint32>());
+    _flags=static_cast<Flags>(_variants.value( DFlags, 0 ).value<quint32>());
+    if ( _flags & FUseStyleSheet ) in >> _styleSheetData;
+    if ( _flags & FStoreTitleData ) in >> _titleData;
+    if ( _flags & FStoreVisibleData ) in >> _visibleData;
+
     loadItemData( in, version );
     if ( hasTransformation() && _gw ) _gw->setTransform( computeTransformation() );
 }
@@ -134,9 +152,18 @@ QByteArray PHIBaseItem::save( int version )
     else _variants.insert( DTransformOrigin, _transformOrigin );
     if ( _parentId.isEmpty() ) _variants.remove( DParentId );
     else _variants.insert( DParentId, _parentId );
+
+    if ( _visibleData->unparsedStatic() && _visibleData->boolean() ) _flags &= ~FStoreVisibleData;
+    else _flags |= FStoreVisibleData;
+    if ( _titleData->unparsedStatic() && _titleData->text().isEmpty() ) _flags &= ~FStoreTitleData;
+    else _flags |= FStoreTitleData;
     if ( _flags==FNone ) _variants.remove( DFlags );
-    else _variants.insert( DFlags, static_cast<qint32>(_flags) );
+    else _variants.insert( DFlags, static_cast<quint32>(_flags) );
+
     out << _x << _y << _width << _height << _zIndex << _variants;
+    if ( _flags & FUseStyleSheet ) out << _styleSheetData; // toggled by IDE
+    if ( _flags & FStoreTitleData ) out << _titleData;
+    if ( _flags & FStoreVisibleData ) out << _visibleData;
     saveItemData( out, version );
     return arr;
 }
@@ -161,7 +188,6 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     if ( attributes & AWidth ) in >> width;
     if ( attributes & AHeight ) in >> height;
     if ( attributes & AZValue ) in >> zIndex;
-    qDebug() << _id << wid() << _x << _y << width << height << zIndex;
     resize( width, height );
     setPos( _x, _y );
     setZIndex( zIndex );
@@ -177,7 +203,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     else sH=sV=0;
     if ( attributes & ATranslate ) in >> xTrans >> yTrans;
     else xTrans=yTrans=0;
-    if ( attributes & ATransform ) in >> transform;
+    if ( attributes & ATransform ) in >> transform; //unused
     if ( attributes & AParent ) in >> parent;
     if ( attributes & AOpacity ) in >> opacity;
     else opacity=1;
@@ -186,7 +212,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     else extensions=0;
     if ( attributes & AEffectData ) in >> effectData;
     if ( attributes & AEditorData ) in >> editorData;
-    // loading color IDs from editorData
+    // loading preset palette color IDs from editorData:
     if ( !editorData.isEmpty() ) loadEditorData1_x( editorData );
     if ( attributes & ATransformPos) in >> transformPos;
     else transformPos=1;
@@ -194,27 +220,41 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     setTransformOrigin( QPointF( xTrans, yTrans ) );
     setTransformPos( transformPos );
     setTransformation( sH, sV, xRot, yRot, zRot );
-    qDebug() << sH << sV << xRot << yRot << zRot;
-    loadDynData1_x( properties, dynData );
-}
+    setParentId( parent );
 
-void PHIBaseItem::loadDynData1_x( qint32 properties, const QByteArray &arr )
-{
     PHIItemData d;
-    d.load( properties, arr );
-
+    d.load( properties, dynData );
+    *_visibleData=*d.visibleData();
+    *_titleData=*d.toolTipData();
+    *_styleSheetData=*d.styleSheetData();
+    if ( textData() ) *textData()=*d.textData();
+    if ( readOnlyData() ) *readOnlyData()=*d.readOnlyData();
+    if ( disabledData() ) *disabledData()=*d.disabledData();
+    if ( checkedData() ) *checkedData()=*d.checkedData();
+    if ( imageData() ) *imageData()=*d.imageData();
+    if ( imageBookData() ) *imageBookData()=*d.imageBookData();
+    if ( properties & PHIItemData::PStyleSheet ) _flags |= FUseStyleSheet;
+    QSizeF s=size(); // preserve size
+    if ( d.font()!=PHI::invalidFont() ) setFont( d.font() );
+    else setFont( page() ? page()->font() : QGuiApplication::font() );
+    resize( s );
+    setColor( PHIPalette::Foreground, colorRole( PHIPalette::Foreground ), d.color() );
+    setColor( PHIPalette::Background, colorRole( PHIPalette::Background ), d.outlineColor() );
+    setTabIndex( static_cast<qint16>( d.tabOrder() ) );
+    setProperty( "penWidth", d.penWidth() );
+    setProperty( "line", d.line() );
+    setProperty( "pattern", d.pattern() );
 }
 
 void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
 {
-    if ( arr.isEmpty() ) return;
     QByteArray a( arr );
     QDataStream in( &a, QIODevice::ReadOnly );
     in.setVersion( PHI_DSV );
     quint8 col, outCol;
     in >> col >> outCol;
     QList <PHIPalette::ColorRole> map;
-    map << PHIPalette::Black << PHIPalette::White << PHIPalette::User1_100 << PHIPalette::User1_80
+    map << PHIPalette::Custom << PHIPalette::White << PHIPalette::User1_100 << PHIPalette::User1_80
         << PHIPalette::User1_60 << PHIPalette::User1_40 << PHIPalette::User1_20 << PHIPalette::User2_100 << PHIPalette::User2_80
         << PHIPalette::User2_60 << PHIPalette::User2_40 << PHIPalette::User2_20 << PHIPalette::User3_100 << PHIPalette::User3_80
         << PHIPalette::User3_60 << PHIPalette::User3_40 << PHIPalette::User3_20 << PHIPalette::User4_100 << PHIPalette::User4_80
@@ -257,14 +297,13 @@ QWidget* PHIBaseItem::widget() const
 
 QTransform PHIBaseItem::computeTransformation() const
 {
-    QTransform t, trans, shear, rot;
+    QTransform trans, shear, rotX, rotY, rotZ;
     trans.translate( -_transformOrigin.x(), -_transformOrigin.y() );
     shear.shear( _hSkew, _vSkew );
-    rot.rotate( _zRot, Qt::ZAxis );
-    rot.rotate( _yRot, Qt::YAxis );
-    rot.rotate( _xRot, Qt::XAxis );
-    t=trans*shear*rot*trans.inverted();
-    return t;
+    rotZ.rotate( _zRot, Qt::ZAxis );
+    rotY.rotate( _yRot, Qt::YAxis );
+    rotX.rotate( _xRot, Qt::XAxis );
+    return trans*shear*rotZ*rotY*rotX*trans.inverted();
     /*
     QMatrix4x4 m;
     m.translate( QVector3D( _transformOrigin ) );
@@ -282,7 +321,7 @@ void PHIBaseItem::updatePageFont( const QFont &f )
     if ( !page() ) qWarning( "updatePageFont: page not set" );
     if ( !page() || !_gw ) return;
     QFont pf=page()->font();
-    if ( pf!=font() ) return;
+    if ( pf!=font() ) return; // font() returns the current page font if not set
     pf.setPointSizeF( PHI::adjustedFontSize( pf.pointSizeF() ) );
     _gw->setFont( pf );
     _gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
@@ -297,18 +336,12 @@ void PHIBaseItem::setFont( const QFont &font )
     if ( page() ) pf=page()->font();
     if ( pf==font ) {
         _variants.remove( DFont );
-        pf.setPointSizeF( PHI::adjustedFontSize( font.pointSizeF() ) );
-        if ( _gw ) {
-            _gw->setFont( pf );
-            _gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
-            _height=_gw->size().height();
-        }
-        return;
+    } else {
+        _variants.insert( DFont, font );
+        pf=font;
     }
-    _variants.insert( DFont, font );
-    pf=font;
-    pf.setPointSizeF( PHI::adjustedFontSize( font.pointSizeF() ) );
     if ( _gw ) {
+        pf.setPointSizeF( PHI::adjustedFontSize( font.pointSizeF() ) );
         _gw->setFont( pf );
         _gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
         _height=_gw->size().height();
@@ -339,7 +372,7 @@ void PHIBaseItem::phiPaletteChanged( const PHIPalette &pal )
     for ( int i=0; i<PHIPalette::ItemRoleMax; i++ ) {
         PHIPalette::ItemRole itemRole=static_cast<PHIPalette::ItemRole>(i);
         PHIPalette::ColorRole role=colorRole( itemRole );
-        if ( role==PHIPalette::NoRole ) continue;
+        if ( role==PHIPalette::NoRole || role==PHIPalette::Custom ) continue;
         setColor( itemRole, role, pal.color( role ) );
     }
 }
@@ -443,6 +476,7 @@ void PHIBaseItem::paint( QPainter *painter, const QRectF &exposed )
     const QRect exposedRect=( exposed & rect() ).toAlignedRect();
     if ( exposedRect.isEmpty() ) return;
     painter->setRenderHint( QPainter::TextAntialiasing );
+    painter->setRenderHint( QPainter::SmoothPixmapTransform );
     if ( hasTransformation() ) painter->setRenderHint( QPainter::Antialiasing );
     proxy->widget()->render( painter, exposedRect.topLeft(), exposedRect );
 }

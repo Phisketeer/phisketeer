@@ -23,6 +23,7 @@
 #include "phi.h"
 
 class PHIBasePage;
+class PHITextData;
 
 class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 {
@@ -34,6 +35,7 @@ class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 public:
     enum ItemData { DColor=-100, DBackgroundColor=-101, DTmpColor=-102, DTmpBackgroundColor=-103 };
     explicit PHIAbstractTextItem();
+    virtual ~PHIAbstractTextItem();
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
@@ -57,11 +59,13 @@ protected:
     virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
+    virtual PHITextData* textData() const { return _textData; }
 
 protected:
     PHIPalette::ColorRole _colorRole, _backgroundColorRole;
     QColor _orgColor, _orgBackgroundColor;
     static qreal _dropRegion;
+    PHITextData *_textData;
 };
 
 class PHIEXPORT PHIAbstractShapeItem : public PHIBaseItem

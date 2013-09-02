@@ -23,6 +23,7 @@
 #include <QUndoStack>
 #include <QWidget>
 #include "phiabstractitems.h"
+#include "phidatasources.h"
 
 qreal PHIAbstractTextItem::_dropRegion=7.;
 
@@ -41,8 +42,14 @@ static void _extractColorRole( const QString &s, PHIPalette::ColorRole &cr )
 PHIAbstractTextItem::PHIAbstractTextItem()
     : PHIBaseItem()
 {
+    _textData=new PHITextData();
     _colorRole=PHIPalette::Text;
     _backgroundColorRole=PHIPalette::Base;
+}
+
+PHIAbstractTextItem::~PHIAbstractTextItem()
+{
+    delete _textData;
 }
 
 void PHIAbstractTextItem::setText( const QString &t, const QString &lang )
@@ -173,7 +180,6 @@ void PHIAbstractTextItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
     }
     update();
 }
-
 
 qreal PHIAbstractShapeItem::_dropRegion=7.;
 

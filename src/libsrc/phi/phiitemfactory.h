@@ -38,8 +38,8 @@ public:
     virtual QPixmap pixmap() const;
     virtual QString listName() const;
     virtual QString description() const;
-    virtual bool widthIsChangeable() const { return false; }
-    virtual bool heightIsChangeable() const { return false; }
+    virtual bool isWidthChangeable() const { return false; }
+    virtual bool isHeightChangeable() const { return false; }
 
 protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );
