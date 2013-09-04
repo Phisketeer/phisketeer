@@ -138,6 +138,7 @@ public:
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHITextData* );
+Q_DECLARE_METATYPE( PHITextData )
 
 class PHIEXPORT PHIImageData : public PHIData
 {
@@ -170,9 +171,9 @@ public:
     PHIIntData( qint32 i=0 );
     virtual ~PHIIntData(){;}
     inline virtual Type type() const { return Integer; }
-    inline qint32 integer( const QByteArray &l=_c ) const { return static_cast<qint32>(_data.value( l ).toInt()); }
-    inline void setInteger( qint32 i, const QByteArray &l=_c ) { _data.insert( l, i ); }
-    inline void setText( const QString &t, const QByteArray &l=_c ) { _data.insert( l, t ); }
+    inline qint32 integer( const QByteArray &l=_c ) const { return static_cast<qint32>(_data.value( l, 0 ).toInt()); }
+    inline void setInteger( qint32 i, const QByteArray &l=_c ) { if ( i ) _data.insert( l, i ); else _data.remove( l ); }
+    inline void setText( const QString &t, const QByteArray &l=_c ) { if ( t.isEmpty() ) _data.remove( l ); else _data.insert( l, t ); }
     inline QString text( const QByteArray &l=_c ) const { return _data.value( l ).toString(); }
 };
 
@@ -184,13 +185,14 @@ public:
     PHIBooleanData( bool b=false );
     virtual ~PHIBooleanData(){;}
     inline virtual Type type() const { return Boolean; }
-    inline bool boolean( const QByteArray &l=_c ) const { return _data.value( l ).toBool(); }
-    inline void setBoolean( bool b, const QByteArray &l=_c ) { _data.insert( l, b ); }
-    inline void setText( const QString &t, const QByteArray &l=_c ) { _data.insert( l, t ); }
+    inline bool boolean( const QByteArray &l=_c ) const { return _data.value( l, false ).toBool(); }
+    inline void setBoolean( bool b, const QByteArray &l=_c ) { if ( b ) _data.insert( l, b ); else _data.remove( l ); }
+    inline void setText( const QString &t, const QByteArray &l=_c ) { if ( t.isEmpty() ) _data.remove( l ); else _data.insert( l, t ); }
     inline QString text( const QByteArray &l=_c ) const { return _data.value( l ).toString(); }
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBooleanData* );
+Q_DECLARE_METATYPE( PHIBooleanData )
 
 class PHIEXPORT PHIStringListData : public PHIData
 {

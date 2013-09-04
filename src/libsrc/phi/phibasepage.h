@@ -228,7 +228,7 @@ public slots:
 
     inline void setBgColor( const QString &c ) { _bgColor=QColor( c ); }
     inline QString bgColor() const { return _bgColor.name(); }
-    inline void setLang( const QString &l ) { _currentLang=l.toLatin1(); } // user can overwrite default
+    inline void setLang( const QString &l ) { _currentLang=l.toLatin1(); emit currentLangChanged( _currentLang ); } // user can overwrite default
     inline QString lang() const { return QString::fromLatin1( _currentLang ); }
 
     inline QStringList properties() const { return PHI::properties( this ); }
@@ -269,6 +269,7 @@ signals:
     void titleChanged( QString );
     void documentSizeChanged();
     void phiPaletteChanged( const PHIPalette &pal );
+    void currentLangChanged( const QByteArray &lang );
 
 private:
     quint16 loadVersion1_x( QDataStream &in ); // returns item count

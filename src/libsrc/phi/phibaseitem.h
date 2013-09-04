@@ -44,12 +44,15 @@ class PHIImageBookData;
 class PHIEXPORT PHIBaseItem : public QObject
 {
     friend class PHIGraphicsItem;
-    friend class ARTGraphicsItem;
-    friend class PHIAGraphicsItem;
     friend class PHIGraphicsScene;
-    friend class ARTGraphicsScene;
+    friend class PHIAGraphicsItem;
     friend class PHIAGraphicsScene;
+    friend class ARTGraphicsScene;
+    friend class ARTGraphicsItem;
+    friend class ARTUndoData;
+    friend class ARTUndoProperty;
     friend class ARTItemSettings;
+    friend class ARTItemProperties;
 
     Q_OBJECT
     Q_DISABLE_COPY( PHIBaseItem )
@@ -69,6 +72,7 @@ class PHIEXPORT PHIBaseItem : public QObject
     Q_PROPERTY( quint8 transformPos READ transformPos WRITE setTransformPos )
     Q_PROPERTY( QPointF transformOrigin READ transformOrigin WRITE setTransformOrigin )
     Q_PROPERTY( QPointF pos READ pos WRITE setPos )
+    Q_PROPERTY( QFont font READ font WRITE setFont SCRIPTABLE false )
 
 public:
     enum Type { TUndefined=0, TIDEItem=1, TTemplateItem=2, TServerItem=3,
@@ -76,9 +80,11 @@ public:
     enum Wid { Unknown=0, User=1000 };
     enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4, DTransformPos=-5,
         DTransformOrigin=-6, DXRot=-7, DYRot=-8, DZRot=-9, DHSkew=-10, DVSkew=-11,
-        DParentId=-12, DFlags=-13, DVisibility=-14, DStyleSheet=-15 };
+        DParentId=-12, DFlags=-13, DVisibility=-14, DStyleSheet=-15, DUrl=-16,
+        DAccessKey=-17, DLabel=-18, DMaxLength=-19 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
-        FStoreTitleData=0x8, FStoreVisibleData=0x10 }; //quint32
+        FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20,
+        FReadOnly=0x40, FDisabled=0x80 }; //quint32
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
 #else
@@ -131,13 +137,16 @@ public: // not usable by script engine
     inline bool isTemplateItem() const { return _type==TTemplateItem; }
     inline bool isClientItem() const { return _type==TClientItem; }
     inline bool isServerItem() const { return _type==TServerItem; }
-    inline bool child() const { return _flags & FChild; }
+    inline bool isChild() const { return _flags & FChild; }
+    inline Flags flags() const { return _flags; }
+    inline PHIKeyHash data() const { return _variants; }
+    inline void setData( const PHIKeyHash &data ) { _variants=data; }
+    QFont font() const;
 
-    void setZIndex( qint16 idx );
     void setTransformPos( quint8 pos );
     void setTransformOrigin( const QPointF &pos );
     void setTransformation( qreal hs, qreal vs, qreal xRot, qreal yRot, qreal zRot );
-    QFont font() const;
+    void setZIndex( qint16 idx );
     void load( const QByteArray &in, int version );
     QByteArray save( int version );
 
@@ -158,13 +167,9 @@ public: // not usable by script engine
     inline virtual bool isDroppable() const { return false; }
     inline virtual QColor color( PHIPalette::ItemRole ) const { return QColor(); }
     inline virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole ) const { return PHIPalette::NoRole; }
-
-    virtual PHIWID wid() const=0;
-    virtual void updatePageFont( const QFont &font );
-    virtual void setFont( const QFont &font );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color );
-    virtual void setText( const QString &t, const QString &lang );
-    virtual QString text( const QString &lang ) const;
+    virtual void setFont( const QFont &font );
+    virtual PHIWID wid() const=0;
 
     // IDE related members
     virtual QPixmap pixmap() const=0;
@@ -191,7 +196,7 @@ public slots: // usable by script engine
     inline void setOpacity( qreal o ) { o=qBound( 0., o, 1. ); _variants.insert( DOpacity, o ); }
     inline void setTitle( const QString &t ) { _variants.insert( DTitle, t.toUtf8() ); if ( _gw ) _gw->setToolTip( t ); }
     inline void setParentName( const QString &n ) { _parentId=n.toLatin1(); }
-    inline void setTabIndex( qint16 tab ) { _variants.insert( DTabIndex, tab ); }
+    inline void setTabIndex( qint16 tab ) { if ( tab ) _variants.insert( DTabIndex, tab ); else _variants.remove( DTabIndex ); }
     inline void setPos( qreal x, qreal y ) { setPos( QPointF( x, y ) ); }
     inline void hide() { setVisible( false ); }
     inline void show() { setVisible( true ); }
@@ -204,16 +209,46 @@ public slots: // usable by script engine
     void setVisible( bool b );
     QStringList properties() const;
 
+    inline QString styleSheet() const { return QString::fromUtf8( _variants.value( DStyleSheet ).toByteArray() ); }
+    inline virtual void setStyleSheet( const QString &s ) { _variants.insert( DStyleSheet, s.toUtf8() ); }
+    inline QString label() const { return QString::fromUtf8( _variants.value( DLabel ).toByteArray() ); }
+    inline virtual void setLabel( const QString &s ) { _variants.insert( DLabel, s.toUtf8() ); }
+    inline QString url() const { return QString::fromUtf8( _variants.value( DUrl ).toByteArray() ); }
+    inline virtual void setUrl( const QString &s ) { _variants.insert( DUrl, s.toUtf8() ); }
+    inline QString accessKey() const { return QString::fromUtf8( _variants.value( DAccessKey ).toByteArray() ); }
+    inline virtual void setAccessKey( const QString &s ) { _variants.insert( DAccessKey, s.left(1).toUtf8() ); }
+    inline quint16 maxLength() const { return _variants.value( DMaxLength, 2000 ).value<quint16>(); }
+    inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxLength, max ); }
+    inline bool disabled() const { return _flags & FDisabled; }
+    inline virtual void setDisabled( bool b ) { b ? _flags|= FDisabled : _flags&= ~FDisabled; }
+    inline bool checked() const { return _flags & FChecked; }
+    inline virtual void setChecked( bool b ) { b ? _flags|= FChecked : _flags&= ~FChecked; }
+    inline bool readOnly() const { return _flags & FReadOnly; }
+    inline virtual void setReadOnly( bool b ) { b ? _flags|= FReadOnly : _flags&= ~FReadOnly; }
+
 protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
+    virtual void squeeze() {;} // free unused data
     void setWidget( QWidget* );
     QWidget* widget() const;
-    PHIBasePage* page() const;
+    const PHIBasePage* page() const;
+    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual void paintHighlight( QPainter *painter );
+    virtual QRectF boundingRect() const;
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
+    virtual bool sceneEvent( QEvent *event ); // return false to call basic implementation
+
+    inline virtual PHIBooleanData* checkedData() const { return 0; }
+    inline virtual PHIBooleanData* readOnlyData() const { return 0; }
+    inline virtual PHIBooleanData* disabledData() const { return 0; }
+    inline virtual PHITextData* textData() const { return 0; }
+    inline virtual PHIImageData* imageData() const { return 0; }
+    inline virtual PHIImageBookData* imageBookData() const { return 0; }
 
     // Phis server related members
-    // create all cached language dependend images and transformed images and free memory:
-    virtual void squeeze();
+    // create all cached language dependend images and transformed images:
+    virtual void createCachedItems() {;}
     // create a srtict HTML 4 for old browser versions:
     virtual void strictHtml( const PHISRequest* const req, QByteArray &out, const QByteArray &indent );
     // create new HTML5 content:
@@ -224,26 +259,12 @@ protected:
     virtual void css( const PHISRequest* const req, QByteArray &out );
 
     // IDE related members
-    inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
-    inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
     inline void update( const QRectF &r=QRectF() ) { if ( _gw ) _gw->update( r ); }
-    inline void setFocus() { if ( _gw ) _gw->setFocus(); }
-    inline PHITextData* styleSheetData() const { return _styleSheetData; }
-    inline PHITextData* titleData() const { return _titleData; }
-    inline PHIBooleanData* visibleData() const { return _visibleData; }
+    inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
+    inline QVariant data( quint8 t, const QVariant &v=QVariant() ) const { return _variants.value( t, v ); }
+    inline void removeData( quint8 t ) { _variants.remove( t ); }
 
-    virtual PHIBooleanData* checkedData() const { return 0; }
-    virtual PHIBooleanData* readOnlyData() const { return 0; }
-    virtual PHIBooleanData* disabledData() const { return 0; }
-    virtual PHITextData* textData() const { return 0; }
-    virtual PHIImageData* imageData() const { return 0; }
-    virtual PHIImageBookData* imageBookData() const { return 0; }
-    virtual void paint( QPainter *painter, const QRectF &exposed );
-    virtual void paintHighlight( QPainter *painter );
-    virtual QRectF boundingRect() const;
-    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
-    virtual bool sceneEvent( QEvent *event ); // return false to call basic implementation
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
@@ -254,25 +275,36 @@ protected:
     //virtual void ideHoverMoveEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
 
+    virtual void updatePageFont( const QFont &font );
+    virtual void updateText( const QByteArray &lang ) { Q_UNUSED( lang ) }
+    virtual void setText( const QString &t, const QByteArray &lang );
+    virtual QString text( const QByteArray &lang ) const;
+
 private:
+    void privateSqueeze();
     void loadVersion1_x( const QByteArray &arr );
+    inline void setFocus() { if ( _gw ) _gw->setFocus(); }
+    inline void storeFlags() { _variants.insert( DFlags, static_cast<quint32>(_flags) ); }
+
+    QTransform computeTransformation() const;
+    void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
+    void phiPaletteChanged( const PHIPalette &pal );
+    inline PHITextData* styleSheetData() const { return _styleSheetData; }
+    inline PHITextData* titleData() const { return _titleData; }
+    inline PHIBooleanData* visibleData() const { return _visibleData; }
+
     // IDE related members
     void loadEditorData1_x( const QByteArray &arr );
-    void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
+    inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
+    inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
     inline QGraphicsWidget* graphicsWidget() const { return _gw; }
-    QTransform computeTransformation() const;
-    void phiPaletteChanged( const PHIPalette &pal );
 
 signals:
-    // IDE related members
+    // IDE related signals
     void pushUndoStack( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newColor );
     void pushUndoStack( const char* property, const QVariant &newVariant );
     void beginUndoStackMacro( const QString &text );
     void endUndoStackMacro();
-
-protected:
-    QHash <qint8, QVariant> _variants;
-    Flags _flags;
 
 private:
     Type _type;
@@ -281,6 +313,8 @@ private:
     qreal _x, _y, _width, _height, _xRot, _yRot, _zRot, _hSkew, _vSkew;
     qint16 _zIndex;
     QPointF _transformOrigin;
+    PHIKeyHash _variants;
+    Flags _flags;
     PHIBooleanData *_visibleData;
     PHITextData *_titleData, *_styleSheetData;
 };
@@ -490,8 +524,8 @@ public slots: //useable by script engine
     inline virtual void setLabel( const QString &s ) { _variants.insert( DLabel, s.toUtf8() ); }
     inline QString url() const { return QString::fromUtf8( _variants.value( DUrl ).toByteArray() ); }
     inline virtual void setUrl( const QString &s ) { _variants.insert( DUrl, s.toUtf8() ); }
-    inline QString accessKey() const { return QString::fromUtf8( _variants.value( DShortCut ).toByteArray() ); }
-    inline virtual void setAccessKey( const QString &s ) { _variants.insert( DShortCut, s.left(1).toUtf8() ); }
+    inline QString accessKey() const { return QString::fromUtf8( _variants.value( DAccessKey ).toByteArray() ); }
+    inline virtual void setAccessKey( const QString &s ) { _variants.insert( DAccessKey, s.left(1).toUtf8() ); }
     inline quint16 maxLength() const { return _variants.value( DMaxSize, PHI::maxLength() ).value<quint16>(); }
     inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxSize, max ); }
     inline QString delimiter() const { return _variants.value( DDelimiter, QStringLiteral( "\n" ) ).toString(); }

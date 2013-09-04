@@ -52,16 +52,28 @@ PHIAbstractTextItem::~PHIAbstractTextItem()
     delete _textData;
 }
 
-void PHIAbstractTextItem::setText( const QString &t, const QString &lang )
+void PHIAbstractTextItem::setText( const QString &t, const QByteArray &lang )
 {
-    Q_UNUSED( lang )
-    setWidgetText( t );
+    if ( _textData->translated() ) {
+        _textData->setText( t, lang );
+        setWidgetText( t );
+    } else if ( _textData->unparsedStatic() ) {
+        _textData->setSource( PHIData::Translated );
+        _textData->setText( t, lang );
+        setWidgetText( t );
+    } else setWidgetText( _textData->text() );
 }
 
-QString PHIAbstractTextItem::text( const QString &lang ) const
+QString PHIAbstractTextItem::text( const QByteArray &lang ) const
 {
-    Q_UNUSED( lang )
-    return QString();
+    if ( _textData->translated() ) return _textData->text( lang );
+    return _textData->text();
+}
+
+void PHIAbstractTextItem::updateText( const QByteArray &lang )
+{
+    if ( _textData->translated() ) setWidgetText( _textData->text( lang ) );
+    else setWidgetText( _textData->text() );
 }
 
 QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
@@ -83,10 +95,10 @@ QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constrai
 void PHIAbstractTextItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
 {
     if ( ir==PHIPalette::WidgetText ) {
-        _variants.insert( DColor, col );
+        setData( DColor, col );
         _colorRole=cr;
     } else if ( ir==PHIPalette::WidgetBase ) {
-        _variants.insert( DBackgroundColor, col );
+        setData( DBackgroundColor, col );
         _backgroundColorRole=cr;
     } else return;
     QWidget *w=widget();
@@ -115,8 +127,8 @@ PHIPalette::ColorRole PHIAbstractTextItem::colorRole( PHIPalette::ItemRole role 
 void PHIAbstractTextItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return e->ignore();
-    _variants.insert( DTmpColor, _variants.value( DColor ) );
-    _variants.insert( DTmpBackgroundColor, _variants.value( DBackgroundColor ) );
+    setData( DTmpColor, data( DColor ) );
+    setData( DTmpBackgroundColor, data( DBackgroundColor ) );
     e->setDropAction( Qt::CopyAction );
     e->accept();
 }
@@ -128,9 +140,9 @@ void PHIAbstractTextItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
         QSizeF( width()-_dropRegion, height()-_dropRegion ) );
     if ( r.contains( e->pos() ) ) {
         setBackgroundColor( e->mimeData()->colorData().value<QColor>() );
-        setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
+        setColor( data( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
     } else {
-        setBackgroundColor( _variants.value( DTmpBackgroundColor, QColor( Qt::black ) ).value<QColor>() );
+        setBackgroundColor( data( DTmpBackgroundColor, QColor( Qt::black ) ).value<QColor>() );
         setColor( e->mimeData()->colorData().value<QColor>() );
     }
     update();
@@ -139,8 +151,8 @@ void PHIAbstractTextItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
 void PHIAbstractTextItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return;
-    setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
-    setBackgroundColor( _variants.value( DTmpBackgroundColor, QColor( Qt::black ) ).value<QColor>() );
+    setColor( data( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
+    setBackgroundColor( data( DTmpBackgroundColor, QColor( Qt::black ) ).value<QColor>() );
     update();
 }
 
@@ -148,8 +160,8 @@ void PHIAbstractTextItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return;
     // restore old colors:
-    setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
-    setBackgroundColor( _variants.value( DTmpBackgroundColor, QColor( Qt::black ) ).value<QColor>() );
+    setColor( data( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
+    setBackgroundColor( data( DTmpBackgroundColor, QColor( Qt::black ) ).value<QColor>() );
     QRectF r=QRectF( QPointF( _dropRegion, _dropRegion ),
         QSizeF( width()-_dropRegion, height()-_dropRegion ) );
     if ( e->mimeData()->hasText() ) {
@@ -158,12 +170,8 @@ void PHIAbstractTextItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
         // drag from color button
         if ( !r.contains( e->pos() ) ) {
             emit pushUndoStack( PHIPalette::WidgetText, newCR, e->mimeData()->colorData().value<QColor>() );
-            //undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetText,
-            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
         } else {
             emit pushUndoStack( PHIPalette::WidgetBase, newCR, e->mimeData()->colorData().value<QColor>() );
-            //undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetBase,
-            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
         }
         update();
         return;
@@ -171,14 +179,38 @@ void PHIAbstractTextItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
     // drag from external app
     if ( !r.contains( e->pos() ) ) {
         emit pushUndoStack( PHIPalette::WidgetText, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
-        //undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetText,
-        //    PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
     } else {
         emit pushUndoStack( PHIPalette::WidgetBase, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
-        //undoStack()->push( new PHIUndoColor( this, PHIPalette::WidgetBase,
-        //    PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
     }
     update();
+}
+
+void PHIAbstractTextItem::squeeze()
+{
+    removeData( DTmpBackgroundColor );
+    removeData( DTmpColor );
+    if ( _colorRole!=PHIPalette::Custom ) removeData( DColor );
+    if ( _backgroundColorRole!=PHIPalette::Custom ) removeData( DBackgroundColor );
+}
+
+void PHIAbstractTextItem::loadItemData( QDataStream &in, int version )
+{
+    Q_UNUSED( version )
+    quint8 cr, bgcr;
+    in >> _textData >> cr >> bgcr;
+    _colorRole=static_cast<PHIPalette::ColorRole>(cr);
+    _backgroundColorRole=static_cast<PHIPalette::ColorRole>(bgcr);
+    if ( _colorRole==PHIPalette::Custom )
+        setColor( PHIPalette::WidgetText, _colorRole, data( DColor ).value<QColor>() );
+    if ( _backgroundColorRole==PHIPalette::Custom )
+        setColor( PHIPalette::WidgetBase, _backgroundColorRole, data( DBackgroundColor ).value<QColor>() );
+}
+
+void PHIAbstractTextItem::saveItemData( QDataStream &out, int version )
+{
+    Q_UNUSED( version )
+    qDebug() << _textData->data();
+    out << _textData << static_cast<quint8>(_colorRole) << static_cast<quint8>(_backgroundColorRole);
 }
 
 qreal PHIAbstractShapeItem::_dropRegion=7.;
@@ -255,13 +287,13 @@ void PHIAbstractShapeItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorR
 {
     if ( ir==PHIPalette::Foreground ) {
         _colorRole=cr;
-        _variants.insert( DColor, col );
+        setData( DColor, col );
         update();
         return;
     }
     if ( ir==PHIPalette::Background ) {
         _outlineColorRole=cr;
-        _variants.insert( DOutlineColor, col );
+        setData( DOutlineColor, col );
         update();
         return;
     }
@@ -272,15 +304,15 @@ void PHIAbstractShapeItem::setPattern( quint8 p )
     Qt::BrushStyle s;
     if ( p > static_cast<quint8>(Qt::LinearGradientPattern) ) s=Qt::NoBrush;
     else s=static_cast<Qt::BrushStyle>(p);
-    _variants.insert( DPatternStyle, static_cast<quint8>(s) );
-    if ( s==Qt::SolidPattern ) _variants.remove( DPatternStyle );
+    setData( DPatternStyle, static_cast<quint8>(s) );
+    if ( s==Qt::SolidPattern ) removeData( DPatternStyle );
     update();
 }
 
 void PHIAbstractShapeItem::setPenWidth( qreal w )
 {
-    if ( w==1. ) _variants.remove( DPenWidth );
-    else _variants.insert( DPenWidth, w );
+    if ( w==1. ) removeData( DPenWidth );
+    else setData( DPenWidth, w );
     update();
 }
 
@@ -289,8 +321,8 @@ void PHIAbstractShapeItem::setLine( quint8 l )
     Qt::PenStyle s;
     if ( l > static_cast<quint8>(Qt::DashDotDotLine) ) s=Qt::NoPen;
     else s=static_cast<Qt::PenStyle>(l);
-    _variants.insert( DLineStyle, static_cast<quint8>(s) );
-    if ( s==Qt::NoPen ) _variants.remove( DLineStyle );
+    setData( DLineStyle, static_cast<quint8>(s) );
+    if ( s==Qt::NoPen ) removeData( DLineStyle );
     update();
 }
 
@@ -311,12 +343,12 @@ QSizeF PHIAbstractShapeItem::sizeHint( Qt::SizeHint which, const QSizeF &constra
 void PHIAbstractShapeItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return e->ignore();
-    _variants.insert( DTmpColor, _variants.value( DColor ) );
-    _variants.insert( DTmpOutlineColor, _variants.value( DOutlineColor ) );
+    setData( DTmpColor, data( DColor ) );
+    setData( DTmpOutlineColor, data( DOutlineColor ) );
     if ( e->mimeData()->hasText() ) {
-        _variants.insert( DTmpPatternStyle, pattern() );
-        _variants.insert( DTmpLineStyle, line() );
-        _variants.insert( DTmpPenWidth, penWidth() );
+        setData( DTmpPatternStyle, pattern() );
+        setData( DTmpLineStyle, line() );
+        setData( DTmpPenWidth, penWidth() );
     }
     e->setDropAction( Qt::CopyAction );
     e->accept();
@@ -331,22 +363,22 @@ void PHIAbstractShapeItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
         bool forceForeground=false;
         bool forceBackground=false;
         PHIPalette::ColorRole newCR=PHIPalette::Custom;
-        qreal newPenWidth=_variants.value( DTmpPenWidth, 1. ).value<qreal>();
-        quint8 newPattern=_variants.value( DTmpPatternStyle, 1 ).value<quint8>();
-        quint8 newLineStyle=_variants.value( DTmpLineStyle, 0 ).value<quint8>();
+        qreal newPenWidth=data( DTmpPenWidth, 1. ).value<qreal>();
+        quint8 newPattern=data( DTmpPatternStyle, 1 ).value<quint8>();
+        quint8 newLineStyle=data( DTmpLineStyle, 0 ).value<quint8>();
         _extractShapeDefs( e->mimeData()->text(), newCR, newPattern, newLineStyle, newPenWidth );
-        if ( newPenWidth!=_variants.value( DTmpPenWidth, 1. ).value<qreal>() ) forceBackground=true;
-        if ( newPattern!=_variants.value( DTmpPatternStyle, 1 ).value<qreal>() ) forceForeground=true;
-        if ( newLineStyle!=_variants.value( DTmpLineStyle, 0 ).value<qreal>() ) forceBackground=true;
+        if ( newPenWidth!=data( DTmpPenWidth, 1. ).value<qreal>() ) forceBackground=true;
+        if ( newPattern!=data( DTmpPatternStyle, 1 ).value<qreal>() ) forceForeground=true;
+        if ( newLineStyle!=data( DTmpLineStyle, 0 ).value<qreal>() ) forceBackground=true;
         if ( forceForeground ) {
-            setOutlineColor( _variants.value( DTmpOutlineColor, QColor( Qt::black ) ).value<QColor>() );
+            setOutlineColor( data( DTmpOutlineColor, QColor( Qt::black ) ).value<QColor>() );
             setColor( e->mimeData()->colorData().value<QColor>() );
             setPattern( newPattern );
             update();
             return;
         } else if ( forceBackground ) {
             setOutlineColor( e->mimeData()->colorData().value<QColor>() );
-            setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
+            setColor( data( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
             setPenWidth( newPenWidth );
             setLine( newLineStyle );
             update();
@@ -355,9 +387,9 @@ void PHIAbstractShapeItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
     }
     if ( !r.contains( e->pos() ) ) {
         setOutlineColor( e->mimeData()->colorData().value<QColor>() );
-        setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
+        setColor( data( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
     } else {
-        setOutlineColor( _variants.value( DTmpOutlineColor, QColor( Qt::black ) ).value<QColor>() );
+        setOutlineColor( data( DTmpOutlineColor, QColor( Qt::black ) ).value<QColor>() );
         setColor( e->mimeData()->colorData().value<QColor>() );
     }
     update();
@@ -366,12 +398,12 @@ void PHIAbstractShapeItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
 void PHIAbstractShapeItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return;
-    setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
-    setOutlineColor( _variants.value( DTmpOutlineColor, QColor( Qt::black ) ).value<QColor>() );
+    setColor( data( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
+    setOutlineColor( data( DTmpOutlineColor, QColor( Qt::black ) ).value<QColor>() );
     if ( e->mimeData()->hasText() ) {
-        setPattern( _variants.value( DTmpPatternStyle, 1 ).value<quint8>() );
-        setLine( _variants.value( DTmpLineStyle, 0 ).value<quint8>() );
-        setPenWidth( _variants.value( DTmpPenWidth, 1. ).value<qreal>() );
+        setPattern( data( DTmpPatternStyle, 1 ).value<quint8>() );
+        setLine( data( DTmpLineStyle, 0 ).value<quint8>() );
+        setPenWidth( data( DTmpPenWidth, 1. ).value<qreal>() );
     }
     update();
 }
@@ -381,15 +413,15 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
     if ( !e->mimeData()->hasColor() ) return;
     QString ut=QString( L1( " <%1>" ) ).arg( name() );
     // restore old colors:
-    setColor( _variants.value( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
-    setOutlineColor( _variants.value( DTmpOutlineColor, QColor( Qt::black ) ).value<QColor>() );
+    setColor( data( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
+    setOutlineColor( data( DTmpOutlineColor, QColor( Qt::black ) ).value<QColor>() );
     QRectF r=QRectF( QPointF( _dropRegion, _dropRegion ),
         QSizeF( width()-_dropRegion, height()-_dropRegion ) );
     if ( e->mimeData()->hasText() ) {
         // restore old styles:
-        setPattern( _variants.value( DTmpPatternStyle, 1 ).value<quint8>() );
-        setLine( _variants.value( DTmpLineStyle, 0 ).value<quint8>() );
-        setPenWidth( _variants.value( DTmpPenWidth, 1. ).value<qreal>() );
+        setPattern( data( DTmpPatternStyle, 1 ).value<quint8>() );
+        setLine( data( DTmpLineStyle, 0 ).value<quint8>() );
+        setPenWidth( data( DTmpPenWidth, 1. ).value<qreal>() );
 
         bool forceForeground=false;
         bool forceBackground=false;
@@ -403,26 +435,16 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
         if ( newLineStyle!=line() ) forceBackground=true;
         if ( forceForeground ) { // drag from pattern tool
             emit beginUndoStackMacro( tr( "Pattern" )+ut );
-            //undoStack()->beginMacro( tr( "Pattern" )+ut );
             emit pushUndoStack( PHIPalette::Foreground, newCR, e->mimeData()->colorData().value<QColor>() );
-            //undoStack()->push( new PHIUndoColor( this, PHIPalette::Foreground,
-            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
             emit pushUndoStack( "pattern", newPattern );
-            //undoStack()->push( new PHIUndoProperty( this, PHIUndoCommand::Pattern, newPattern ) );
-            //undoStack()->endMacro();
             emit endUndoStackMacro();
             update();
             return;
         } else if ( forceBackground ) { // drag from pen tool
             emit beginUndoStackMacro( tr( "Outline" )+ut );
-            //undoStack()->beginMacro( tr( "Outline" )+ut );
             emit pushUndoStack( PHIPalette::Background, newCR, e->mimeData()->colorData().value<QColor>() );
-            //undoStack()->push( new PHIUndoColor( this, PHIPalette::Background,
-            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
             emit pushUndoStack( "line", newLineStyle );
-            //undoStack()->push( new PHIUndoProperty( this, PHIUndoCommand::Line, newLineStyle ) );
             emit pushUndoStack( "penWidth", newPenWidth );
-            //undoStack()->push( new PHIUndoProperty( this, PHIUndoCommand::PenWidth, newPenWidth ) );
             emit endUndoStackMacro();
             //undoStack()->endMacro();
             update();
@@ -431,12 +453,8 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
         // drag from color button
         if ( r.contains( e->pos() ) ) {
             emit pushUndoStack( PHIPalette::Foreground, newCR, e->mimeData()->colorData().value<QColor>() );
-            //undoStack()->push( new PHIUndoColor( this, PHIPalette::Foreground,
-            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
         } else {
             emit pushUndoStack( PHIPalette::Background, newCR, e->mimeData()->colorData().value<QColor>() );
-            //undoStack()->push( new PHIUndoColor( this, PHIPalette::Background,
-            //    newCR, e->mimeData()->colorData().value<QColor>() ) );
         }
         update();
         return;
@@ -444,12 +462,8 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
     // drag from external app
     if ( r.contains( e->pos() ) ) {
         emit pushUndoStack( PHIPalette::Foreground, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
-        //undoStack()->push( new PHIUndoColor( this, PHIPalette::Foreground,
-        //    PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
     } else {
         emit pushUndoStack( PHIPalette::Background, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
-        //undoStack()->push( new PHIUndoColor( this, PHIPalette::Background,
-        //    PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() ) );
     }
     update();
 }

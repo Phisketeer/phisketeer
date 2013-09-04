@@ -28,7 +28,6 @@ class PHITextData;
 class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 {
     Q_OBJECT
-    Q_PROPERTY( QFont font READ font WRITE setFont )
     Q_PROPERTY( QColor color READ color WRITE setColor )
     Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
 
@@ -42,14 +41,14 @@ public:
 
 public:
     virtual bool hasText() const { return true; }
-    virtual void setText( const QString &t, const QString &lang );
-    virtual QString text( const QString &lang ) const;
+    virtual void setText( const QString &t, const QByteArray &lang );
+    virtual QString text( const QByteArray &lang ) const;
 
 public slots:
     inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
     inline void setBackgroundColor( const QColor &col ) { setColor( PHIPalette::WidgetBase, _backgroundColorRole, col ); }
-    inline QColor color() const { return _variants.value( DColor, QColor( Qt::black ) ).value<QColor>(); }
-    inline QColor backgroundColor() const { return _variants.value( DBackgroundColor, QColor( Qt::black ) ).value<QColor>(); }
+    inline QColor color() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
+    inline QColor backgroundColor() const { return data( DBackgroundColor, QColor( Qt::black ) ).value<QColor>(); }
 
 protected:
     virtual bool isSingleLine() const { return true; }
@@ -60,6 +59,10 @@ protected:
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual PHITextData* textData() const { return _textData; }
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void squeeze();
+    virtual void updateText( const QByteArray &lang );
 
 protected:
     PHIPalette::ColorRole _colorRole, _backgroundColorRole;
@@ -94,11 +97,11 @@ public slots:
     void setPenWidth( qreal w );
     inline void setColor( const QColor &col ) { setColor( PHIPalette::Foreground, _colorRole, col ); }
     inline void setOutlineColor( const QColor &col ) { setColor( PHIPalette::Background, _outlineColorRole, col ); }
-    inline quint8 line() const { return _variants.value( DLineStyle, 0 ).value<quint8>(); }
-    inline quint8 pattern() const { return _variants.value( DPatternStyle, 1 ).value<quint8>(); }
-    inline QColor color() const { return _variants.value( DColor, QColor( Qt::black ) ).value<QColor>(); }
-    inline QColor outlineColor() const { return _variants.value( DOutlineColor, QColor( Qt::black ) ).value<QColor>(); }
-    inline qreal penWidth() const { return _variants.value( DPenWidth, 1. ).toReal(); }
+    inline quint8 line() const { return data( DLineStyle, 0 ).value<quint8>(); }
+    inline quint8 pattern() const { return data( DPatternStyle, 1 ).value<quint8>(); }
+    inline QColor color() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
+    inline QColor outlineColor() const { return data( DOutlineColor, QColor( Qt::black ) ).value<QColor>(); }
+    inline qreal penWidth() const { return data( DPenWidth, 1. ).toReal(); }
     inline virtual bool isDraggable() const { return true; }
     inline virtual bool isDroppable() const { return true; }
 

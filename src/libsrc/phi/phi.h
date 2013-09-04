@@ -53,6 +53,7 @@ typedef QList <QByteArray> PHIByteArrayList;
 typedef QHash <QByteArray, QVariant> PHIVariantHash;
 typedef QHash <quint8, QColor> PHIColorHash;
 typedef QHash <QByteArray, QImage> PHIImageHash;
+typedef QHash <qint8, QVariant> PHIKeyHash;
 typedef quint16 PHIRC;
 typedef quint16 PHIWID;
 
@@ -61,6 +62,7 @@ Q_DECLARE_METATYPE( PHIByteArrayList )
 Q_DECLARE_METATYPE( PHIVariantHash )
 Q_DECLARE_METATYPE( PHIColorHash )
 Q_DECLARE_METATYPE( PHIImageHash )
+Q_DECLARE_METATYPE( PHIKeyHash )
 Q_DECLARE_METATYPE( QGradientStops )
 
 class PHIEXPORT PHI

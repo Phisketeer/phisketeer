@@ -36,10 +36,10 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/ellipse" ) ); }
 
 public slots:
-    inline void setStartAngle( qint16 a ) { _variants.insert( DStartAngle, a ); }
-    inline void setSpanAngle( qint16 a ) { _variants.insert( DSpanAngle, a ); }
-    inline qint16 startAngle() const { return _variants.value( DStartAngle, 0 ).value<qint16>(); }
-    inline qint16 spanAngle() const { return _variants.value( DSpanAngle, 5760 ).value<qint16>(); }
+    inline void setStartAngle( qint16 a ) { setData( DStartAngle, a ); }
+    inline void setSpanAngle( qint16 a ) { setData( DSpanAngle, a ); }
+    inline qint16 startAngle() const { return data( DStartAngle, 0 ).value<qint16>(); }
+    inline qint16 spanAngle() const { return data( DSpanAngle, 5760 ).value<qint16>(); }
 
 protected:
     virtual bool isWidthChangeable() const { return false; }

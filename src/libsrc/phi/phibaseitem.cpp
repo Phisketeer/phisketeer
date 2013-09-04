@@ -48,15 +48,17 @@ static QStringList _myproperties( const QObject *obj )
     Q_ASSERT( obj );
     const QMetaObject *mo=obj->metaObject();
     QStringList properties;
-    for( int i=1; i < mo->propertyCount(); ++i )
-        properties << QString::fromLatin1( mo->property( i ).name() );
+    for( int i=1; i < mo->propertyCount(); ++i ) {
+        if ( mo->property( i ).isScriptable() )
+            properties << QString::fromLatin1( mo->property( i ).name() );
+    }
     properties << QStringLiteral( "style" ) << QStringLiteral( "effect" );
     properties.sort();
     return properties;
 }
 
 PHIBaseItem::PHIBaseItem()
-    : QObject( 0 ), _flags( FNone ), _type( TUndefined ), _gw( 0 )
+    : QObject( 0 ), _type( TUndefined ), _gw( 0 ), _flags( FNone )
 {
     _visibleData=new PHIBooleanData();
     _visibleData->setBoolean( true );
@@ -83,9 +85,9 @@ PHIBaseItem::~PHIBaseItem()
     }
 }
 
-PHIBasePage* PHIBaseItem::page() const
+const PHIBasePage* PHIBaseItem::page() const
 {
-    return qobject_cast<PHIBasePage*>(parent());
+    return qobject_cast<const PHIBasePage*>(parent());
 }
 
 void PHIBaseItem::setVisible( bool b )
@@ -95,8 +97,9 @@ void PHIBaseItem::setVisible( bool b )
     if ( !isIdeItem() && _gw ) _gw->setVisible( b );
 }
 
-void PHIBaseItem::squeeze()
+void PHIBaseItem::privateSqueeze()
 {
+    squeeze();
     _variants.remove( DTransformOrigin );
     _variants.remove( DXRot );
     _variants.remove( DYRot );
@@ -105,12 +108,20 @@ void PHIBaseItem::squeeze()
     _variants.remove( DVSkew );
     _variants.remove( DParentId );
     _variants.remove( DFlags );
+    if ( styleSheet().isEmpty() ) _variants.remove( DStyleSheet );
+    if ( title().isEmpty() ) _variants.remove( DTitle );
+    if ( accessKey().isEmpty() ) _variants.remove( DAccessKey );
+    if ( maxLength()==2000 ) _variants.remove( DMaxLength );
+    if ( transformPos()==1 ) _variants.remove( DTransformPos );
+    if ( url().isEmpty() ) _variants.remove( DUrl );
+    if ( label().isEmpty() ) _variants.remove( DLabel );
     _variants.squeeze();
 }
 
 void PHIBaseItem::load( const QByteArray &arr, int version )
 {
     if ( version<3 ) return loadVersion1_x( arr );
+    Q_ASSERT( page() );
     QByteArray a( arr );
     QDataStream in( &a, QIODevice::ReadOnly );
     in.setVersion( PHI_DSV2 );
@@ -127,9 +138,15 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     if ( _flags & FUseStyleSheet ) in >> _styleSheetData;
     if ( _flags & FStoreTitleData ) in >> _titleData;
     if ( _flags & FStoreVisibleData ) in >> _visibleData;
-
     loadItemData( in, version );
-    if ( hasTransformation() && _gw ) _gw->setTransform( computeTransformation() );
+
+    setTransformPos( _variants.value( DTransformPos, 1 ).value<quint8>() );
+    setFont( font() );
+    updateText( page()->currentLang() );
+    if ( _gw ) {
+        _gw->setTransform( computeTransformation() );
+        _gw->update();
+    }
 }
 
 QByteArray PHIBaseItem::save( int version )
@@ -138,28 +155,20 @@ QByteArray PHIBaseItem::save( int version )
     QDataStream out( &arr, QIODevice::WriteOnly );
     out.setVersion( PHI_DSV2 );
     Q_ASSERT( version>2 );
+    privateSqueeze();
     if ( _xRot ) _variants.insert( DXRot, _xRot );
-    else _variants.remove( DXRot );
     if ( _yRot ) _variants.insert( DYRot, _yRot );
-    else _variants.remove( DYRot );
     if ( _zRot ) _variants.insert( DZRot, _zRot );
-    else _variants.remove( DZRot );
     if ( _hSkew ) _variants.insert( DHSkew, _hSkew );
-    else _variants.remove( DHSkew );
     if ( _vSkew ) _variants.insert( DVSkew, _vSkew );
-    else _variants.remove( DVSkew );
-    if ( _transformOrigin==QPointF() ) _variants.remove( DTransformOrigin );
-    else _variants.insert( DTransformOrigin, _transformOrigin );
-    if ( _parentId.isEmpty() ) _variants.remove( DParentId );
-    else _variants.insert( DParentId, _parentId );
+    if ( _transformOrigin!=QPointF() ) _variants.insert( DTransformOrigin, _transformOrigin );
+    if ( !_parentId.isEmpty() ) _variants.insert( DParentId, _parentId );
 
     if ( _visibleData->unparsedStatic() && _visibleData->boolean() ) _flags &= ~FStoreVisibleData;
     else _flags |= FStoreVisibleData;
     if ( _titleData->unparsedStatic() && _titleData->text().isEmpty() ) _flags &= ~FStoreTitleData;
     else _flags |= FStoreTitleData;
-    if ( _flags==FNone ) _variants.remove( DFlags );
-    else _variants.insert( DFlags, static_cast<quint32>(_flags) );
-
+    if ( _flags!=FNone ) storeFlags();
     out << _x << _y << _width << _height << _zIndex << _variants;
     if ( _flags & FUseStyleSheet ) out << _styleSheetData; // toggled by IDE
     if ( _flags & FStoreTitleData ) out << _titleData;
@@ -238,12 +247,16 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     if ( d.font()!=PHI::invalidFont() ) setFont( d.font() );
     else setFont( page() ? page()->font() : QGuiApplication::font() );
     resize( s );
+    updateText( page()->currentLang() );
     setColor( PHIPalette::Foreground, colorRole( PHIPalette::Foreground ), d.color() );
     setColor( PHIPalette::Background, colorRole( PHIPalette::Background ), d.outlineColor() );
     setTabIndex( static_cast<qint16>( d.tabOrder() ) );
     setProperty( "penWidth", d.penWidth() );
     setProperty( "line", d.line() );
     setProperty( "pattern", d.pattern() );
+    setAccessKey( d.shortCut() );
+    setLabel( d.label() );
+    setUrl( d.url() );
 }
 
 void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
@@ -307,6 +320,7 @@ QTransform PHIBaseItem::computeTransformation() const
     /*
     QMatrix4x4 m;
     m.translate( QVector3D( _transformOrigin ) );
+    m.shear()
     m.rotate( _xRot, 1, 0, 0 );
     m.rotate( _yRot, 0, 1, 0 );
     m.rotate( _zRot, 0, 0, 1 );
@@ -400,10 +414,10 @@ void PHIBaseItem::setTransformPos( quint8 position )
     default:;
         return; // o==PHI::Custom (user defined origin)
     }
-    QPointF org=computeTransformation().map( QPointF() ); // old top left corner
+    QPointF org=computeTransformation().map( _transformOrigin );
     _transformOrigin=o;
     QTransform t=computeTransformation();
-    QPointF delta=t.map( QPointF() )-org; // new top left - old top left
+    QPointF delta=t.map( o )-org; // new - old
     setPos( pos()-delta );
     if ( _gw ) _gw->setTransform( t );
 }
@@ -425,13 +439,13 @@ void PHIBaseItem::setTransformation( qreal hs, qreal vs, qreal xRot, qreal yRot,
     if ( _gw ) _gw->setTransform( computeTransformation() );
 }
 
-void PHIBaseItem::setText( const QString &t, const QString &lang )
+void PHIBaseItem::setText( const QString &t, const QByteArray &lang )
 {
     Q_UNUSED( t )
     Q_UNUSED( lang )
 }
 
-QString PHIBaseItem::text( const QString &lang ) const
+QString PHIBaseItem::text( const QByteArray &lang ) const
 {
     Q_UNUSED( lang )
     return QString();

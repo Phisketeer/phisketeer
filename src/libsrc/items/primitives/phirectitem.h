@@ -36,8 +36,8 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/rect" ) ); }
 
 public slots:
-    inline virtual qint16 borderRadius() const { return _variants.value( DBorderRadius, 0 ).value<qint16>(); }
-    inline virtual void setBorderRadius( qint16 r ) { _variants.insert( DBorderRadius, r ); }
+    inline virtual qint16 borderRadius() const { return data( DBorderRadius, 0 ).value<qint16>(); }
+    inline virtual void setBorderRadius( qint16 r ) { setData( DBorderRadius, r ); }
 
 signals:
     void borderRadiusChanged( qint16 );
