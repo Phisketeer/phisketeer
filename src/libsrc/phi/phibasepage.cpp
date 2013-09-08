@@ -343,6 +343,7 @@ void PHIBasePage::save( QDataStream &out, qint32 version )
 
 quint16 PHIBasePage::load( QDataStream &in, qint32 version )
 {
+    Q_ASSERT( items().count()==0 );
     if ( version<3 ) return loadVersion1_x( in );
     in.setVersion( PHI_DSV2 );
     quint32 flags;

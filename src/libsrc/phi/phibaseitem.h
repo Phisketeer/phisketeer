@@ -53,6 +53,7 @@ class PHIEXPORT PHIBaseItem : public QObject
     friend class ARTUndoProperty;
     friend class ARTItemSettings;
     friend class ARTItemProperties;
+    friend class ARTItemCSS;
 
     Q_OBJECT
     Q_DISABLE_COPY( PHIBaseItem )
@@ -73,6 +74,7 @@ class PHIEXPORT PHIBaseItem : public QObject
     Q_PROPERTY( QPointF transformOrigin READ transformOrigin WRITE setTransformOrigin )
     Q_PROPERTY( QPointF pos READ pos WRITE setPos )
     Q_PROPERTY( QFont font READ font WRITE setFont SCRIPTABLE false )
+    Q_PROPERTY( QString styleSheet READ styleSheet WRITE setStyleSheet )
 
 public:
     enum Type { TUndefined=0, TIDEItem=1, TTemplateItem=2, TServerItem=3,
@@ -81,7 +83,10 @@ public:
     enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4, DTransformPos=-5,
         DTransformOrigin=-6, DXRot=-7, DYRot=-8, DZRot=-9, DHSkew=-10, DVSkew=-11,
         DParentId=-12, DFlags=-13, DVisibility=-14, DStyleSheet=-15, DUrl=-16,
-        DAccessKey=-17, DLabel=-18, DMaxLength=-19 };
+        DAccessKey=-17, DLabel=-18, DMaxLength=-19, DValue=-20, DText=-21,
+        DDelimiter=-22, DGradientType=-23, DGradientStartPoint=-24, DGradientStopPoints=-25,
+        DGradientFinalStopPoint=-26, DGradientSpreadType=-27, DGradientAngle=-28,
+        DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20,
         FReadOnly=0x40, FDisabled=0x80 }; //quint32
@@ -117,6 +122,8 @@ public: // not usable by script engine
     inline void setId( const QString &id ) { _id=id.toLatin1(); setObjectName( id ); }
     inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); }
     inline void setParentId( const QByteArray &pid ) { _parentId=pid; }
+    inline void setFocus() { if ( _gw ) { _gw->setFocus(); _gw->setSelected( true ); } }
+
     inline qint16 zIndex() const { return _zIndex; }
     inline QRectF rect() const { return QRectF( QPointF(), size() ); }
     inline quint8 transformPos() const { return _variants.value( DTransformPos, 1 ).value<quint8>(); }
@@ -139,9 +146,13 @@ public: // not usable by script engine
     inline bool isServerItem() const { return _type==TServerItem; }
     inline bool isChild() const { return _flags & FChild; }
     inline Flags flags() const { return _flags; }
-    inline PHIKeyHash data() const { return _variants; }
-    inline void setData( const PHIKeyHash &data ) { _variants=data; }
+    inline PHIKeyHash data() { storeFlags(); return _variants; }
+    inline void setData( const PHIKeyHash &data ) { _variants=data; _flags=static_cast<Flags>(_variants.value( DFlags, 0 ).value<quint32>()); }
     QFont font() const;
+    QGradient gradient() const;
+    QLinearGradient linearGradient() const;
+    QConicalGradient conicalGradient() const;
+    QRadialGradient radialGradient() const;
 
     void setTransformPos( quint8 pos );
     void setTransformOrigin( const QPointF &pos );
@@ -155,11 +166,15 @@ public: // not usable by script engine
     inline virtual bool hasSingleImage() const { return false; }
     inline virtual bool hasImages() const { return false; }
     inline virtual bool hasUrl() const { return false; }
-    inline virtual bool isCheckable() const { return false; }
+    inline virtual bool hasValue() const { return false; }
+    inline virtual bool hasMaxLength() const { return false; }
+    inline virtual bool hasDelimiter() const { return false; }
+    inline virtual bool hasGradient() const { return false; }
+    inline virtual bool isCheckable() const { return false; } // like checkboxes
     inline virtual bool isFocusable() const { return false; }
     inline virtual bool isDisable() const { return false; }
     inline virtual bool isReadOnlyChangeable() const { return false; }
-    inline virtual bool isInputItem() const { return false; }
+    inline virtual bool isInputItem() const { return false; } // has form data
     inline virtual bool isLayoutItem() const { return false; }
     inline virtual bool isWidthChangeable() const { return true; }
     inline virtual bool isHeightChangeable() const { return true; }
@@ -169,6 +184,9 @@ public: // not usable by script engine
     inline virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole ) const { return PHIPalette::NoRole; }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color );
     virtual void setFont( const QFont &font );
+    virtual void setGradient( QLinearGradient g );
+    virtual void setGradient( QConicalGradient g );
+    virtual void setGradient( QRadialGradient g );
     virtual PHIWID wid() const=0;
 
     // IDE related members
@@ -217,7 +235,13 @@ public slots: // usable by script engine
     inline virtual void setUrl( const QString &s ) { _variants.insert( DUrl, s.toUtf8() ); }
     inline QString accessKey() const { return QString::fromUtf8( _variants.value( DAccessKey ).toByteArray() ); }
     inline virtual void setAccessKey( const QString &s ) { _variants.insert( DAccessKey, s.left(1).toUtf8() ); }
-    inline quint16 maxLength() const { return _variants.value( DMaxLength, 2000 ).value<quint16>(); }
+    inline QString value() const { return QString::fromUtf8( _variants.value( DValue ).toByteArray() ); }
+    inline virtual void setValue( const QString &s ) { _variants.insert( DValue, s.toUtf8() ); }
+    inline QString text() const { return QString::fromUtf8( _variants.value( DText ).toByteArray() ); }
+    inline virtual void setText( const QString &s ) { _variants.insert( DText, s.toUtf8() ); }
+    inline QString delimiter() const { return _variants.value( DDelimiter, L1( "\n" ) ).toString(); }
+    inline virtual void setDelimiter( const QString &s ) { _variants.insert( DDelimiter, s ); }
+    inline quint16 maxLength() const { return _variants.value( DMaxLength, 100 ).value<quint16>(); }
     inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxLength, max ); }
     inline bool disabled() const { return _flags & FDisabled; }
     inline virtual void setDisabled( bool b ) { b ? _flags|= FDisabled : _flags&= ~FDisabled; }
@@ -283,8 +307,8 @@ protected:
 private:
     void privateSqueeze();
     void loadVersion1_x( const QByteArray &arr );
-    inline void setFocus() { if ( _gw ) _gw->setFocus(); }
     inline void storeFlags() { _variants.insert( DFlags, static_cast<quint32>(_flags) ); }
+    inline void setFlag( Flag f, bool b=true ) { b ? _flags |= f : _flags &= ~f; }
 
     QTransform computeTransformation() const;
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
@@ -405,16 +429,10 @@ class PHIEXPORT PHIBaseItem : public QObject, public PHIItem
     friend PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBaseItem* );
 
 public: //not useable by script engine
-    explicit PHIBaseItem( QObject *parent=0 );
-    explicit PHIBaseItem( const PHIItem&, QObject *parent=0 );
-    explicit PHIBaseItem( quint16 wid, const QByteArray &id, QObject *parent=0 );
-    virtual ~PHIBaseItem();
     virtual QGradient gradient() const;
 
     inline PHIRectHash gridLayoutInfo() const { return _variants.value( DGridLayoutInfo ).value<PHIRectHash>(); }
     inline PHIByteArrayList childIds() const { return _variants.value( DChildIds ).value<PHIByteArrayList>(); }
-    inline bool isChild() const { return _attributes & AChild; }
-    inline bool isTemplateItem() const { return _attributes & ATemplateItem; }
     inline PHIEffect::Effects effects() const { return _effect->effects(); }
     inline const PHIEffect* effect() const { return _effect; }
     inline QByteArray pageId() const { return _pageId; }
@@ -495,43 +513,12 @@ public: //not useable by script engine
     inline virtual void setCursor( const QByteArray &c ) { _variants.insert( DCursor, c ); }
 
 public slots: //useable by script engine
-    // inline qint32 attributes() const { return static_cast<qint32>(_attributes); }
-    inline QString name() const { return QString::fromUtf8( _id ); }
-    inline QString parentName() const { return QString::fromUtf8( _parent ); }
-    inline void setParentName( const QString &pid ) { _parent=pid.toUtf8(); }
-    inline quint16 type() const { return static_cast<quint16>(_wid); }
-    inline virtual QStringList properties() const { return PHI::properties( this ); }
-
     inline QString imageId() const {
         return QString::fromUtf8( _variants.value( DImage ).toByteArray() ); }
     inline virtual void setImageId( const QString &id ) { _variants.insert( DImage, id.toUtf8() ); }
     inline QStringList pictureBookIds() const { return _variants.value( DImageBook ).toStringList(); }
     inline virtual void setPictureBookIds( const QStringList &l ) { _variants.insert( DImageBook, l ); }
 
-    inline bool disabled() const { return _attributes & ADisabled; }
-    inline virtual void setDisabled( bool b ) { b ? _attributes|= ADisabled : _attributes&= ~ADisabled; }
-    inline bool checked() const { return _attributes & AChecked; }
-    inline virtual void setChecked( bool b ) { b ? _attributes|= AChecked : _attributes&= ~AChecked; }
-    inline bool readOnly() const { return _attributes & AReadOnly; }
-    inline virtual void setReadOnly( bool b ) { b ? _attributes|= AReadOnly : _attributes&= ~AReadOnly; }
-    inline QString value() const { return QString::fromUtf8( _variants.value( DText ).toByteArray() ); }
-    inline virtual void setValue( const QString &s ) { _variants.insert( DText, s.toUtf8() ); }
-    inline QString toolTip() const { return QString::fromUtf8( _variants.value( DToolTip ).toByteArray() ); }
-    inline virtual void setToolTip( const QString &s ) { _variants.insert( DToolTip, s.toUtf8() ); }
-    inline QString styleSheet() const { return QString::fromUtf8( _variants.value( DStyleSheet ).toByteArray() ); }
-    inline virtual void setStyleSheet( const QString &s ) { _variants.insert( DStyleSheet, s.toUtf8() ); }
-    inline QString label() const { return QString::fromUtf8( _variants.value( DLabel ).toByteArray() ); }
-    inline virtual void setLabel( const QString &s ) { _variants.insert( DLabel, s.toUtf8() ); }
-    inline QString url() const { return QString::fromUtf8( _variants.value( DUrl ).toByteArray() ); }
-    inline virtual void setUrl( const QString &s ) { _variants.insert( DUrl, s.toUtf8() ); }
-    inline QString accessKey() const { return QString::fromUtf8( _variants.value( DAccessKey ).toByteArray() ); }
-    inline virtual void setAccessKey( const QString &s ) { _variants.insert( DAccessKey, s.left(1).toUtf8() ); }
-    inline quint16 maxLength() const { return _variants.value( DMaxSize, PHI::maxLength() ).value<quint16>(); }
-    inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxSize, max ); }
-    inline QString delimiter() const { return _variants.value( DDelimiter, QStringLiteral( "\n" ) ).toString(); }
-    inline virtual void setDelimiter( const QString &d ) { _variants.insert( DDelimiter, d ); }
-    inline quint16 tabIndex() const { return _variants.value( DTabOrder, 0 ).value<quint16>(); }
-    inline virtual void setTabIndex( quint16 tab ) { _variants.insert( DTabOrder, tab ); }
     inline qint16 fadeTime() const { return _variants.value( DFadeTime, 2 ).value<qint16>(); }
     inline virtual void setFadeTime( qint16 ft ) { _variants.insert( DFadeTime, ft ); }
     inline virtual qint16 fadeInterval() const { return _variants.value( DFadeInterval, 4 ).value<qint16>(); }

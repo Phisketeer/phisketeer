@@ -108,13 +108,29 @@ void PHIBaseItem::privateSqueeze()
     _variants.remove( DVSkew );
     _variants.remove( DParentId );
     _variants.remove( DFlags );
+    if ( !hasGradient() || property( "pattern" ).value<quint8>()<15 ) {
+        _variants.remove( DGradientType );
+        _variants.remove( DGradientStartPoint );
+        _variants.remove( DGradientFinalStopPoint );
+        _variants.remove( DGradientSpreadType );
+        _variants.remove( DGradientFocalPoint );
+        _variants.remove( DGradientStopPoints );
+        _variants.remove( DGradientAngle );
+        _variants.remove( DGradientCenterPoint );
+        _variants.remove( DGradientRadius );
+    }
     if ( styleSheet().isEmpty() ) _variants.remove( DStyleSheet );
     if ( title().isEmpty() ) _variants.remove( DTitle );
     if ( accessKey().isEmpty() ) _variants.remove( DAccessKey );
-    if ( maxLength()==2000 ) _variants.remove( DMaxLength );
+    if ( maxLength()==100 ) _variants.remove( DMaxLength );
     if ( transformPos()==1 ) _variants.remove( DTransformPos );
     if ( url().isEmpty() ) _variants.remove( DUrl );
     if ( label().isEmpty() ) _variants.remove( DLabel );
+    if ( value().isEmpty() ) _variants.remove( DValue );
+    if ( text().isEmpty() ) _variants.remove( DText );
+    if ( hasDelimiter() && delimiter()==L1( "\n" ) ) _variants.remove( DDelimiter );
+    else if ( !hasDelimiter() ) _variants.remove( DDelimiter );
+    if ( tabIndex()==0 ) _variants.remove( DTabIndex );
     _variants.squeeze();
 }
 
@@ -257,6 +273,12 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     setAccessKey( d.shortCut() );
     setLabel( d.label() );
     setUrl( d.url() );
+    if ( hasGradient() ) {
+        QGradient g=d.gradient();
+        if ( g.type()==QGradient::ConicalGradient ) setGradient( d.conicalGradient() );
+        else if ( g.type()==QGradient::LinearGradient ) setGradient( d.linearGradient() );
+        else if ( g.type()==QGradient::RadialGradient ) setGradient( d.radialGradient() );
+    }
 }
 
 void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
@@ -605,31 +627,100 @@ void PHIBaseItem::css( const PHISRequest* const req, QByteArray &out )
     Q_UNUSED( out )
 }
 
-/*
+void PHIBaseItem::setGradient( QLinearGradient g )
+{
+    _variants.insert( DGradientStartPoint, g.start() );
+    _variants.insert( DGradientFinalStopPoint, g.finalStop() );
+    _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
+    _variants.insert( DGradientStopPoints, qVariantFromValue( g.stops() ) );
+    _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
+    update();
+}
+
+void PHIBaseItem::setGradient( QConicalGradient g )
+{
+    _variants.insert( DGradientAngle, g.angle() );
+    _variants.insert( DGradientCenterPoint, g.center() );
+    _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
+    _variants.insert( DGradientStopPoints, qVariantFromValue( g.stops() ) );
+    _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
+    update();
+}
+
+void PHIBaseItem::setGradient( QRadialGradient g )
+{
+    _variants.insert( DGradientFocalPoint, g.focalPoint() );
+    _variants.insert( DGradientRadius, g.radius() );
+    _variants.insert( DGradientCenterPoint, g.center() );
+    _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
+    _variants.insert( DGradientStopPoints, qVariantFromValue( g.stops() ) );
+    _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
+    update();
+}
+
 QGradient PHIBaseItem::gradient() const
 {
     QGradient g;
-    QGradient::Type type=static_cast<QGradient::Type>(_variants.value(
-        PHIItem::DGradientType, 0 ).value<quint8>());
+    QGradient::Type type=static_cast<QGradient::Type>(_variants.value( DGradientType, 0 ).value<quint8>());
     if ( type==QGradient::ConicalGradient ) {
-        g=QConicalGradient( _variants.value( PHIItem::DCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
-        _variants.value( PHIItem::DAngle, 0. ).value<qreal>() );
+        g=QConicalGradient( _variants.value( DGradientCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
+            _variants.value( DGradientAngle, 0. ).value<qreal>() );
     } else if ( type==QGradient::RadialGradient ) {
-        g=QRadialGradient( _variants.value( PHIItem::DCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
-        _variants.value( PHIItem::DRadius, 0.5 ).value<qreal>(),
-        _variants.value( PHIItem::DFocalPoint, QPointF( 0.1, 0.1 ) ).toPointF() );
+        g=QRadialGradient( _variants.value( DGradientCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
+            _variants.value( DGradientRadius, 0.5 ).value<qreal>(),
+            _variants.value( DGradientFocalPoint, QPointF( 0.1, 0.1 ) ).toPointF() );
     } else {
-        g=QLinearGradient( _variants.value( PHIItem::DStartPoint, QPointF( 0., 0. ) ).toPointF(),
-        _variants.value( PHIItem::DFinalStopPoint, QPointF( 1.0, 1.0 ) ).toPointF() );
+        g=QLinearGradient( _variants.value( DGradientStartPoint, QPointF( 0., 0. ) ).toPointF(),
+            _variants.value( DGradientFinalStopPoint, QPointF( 1.0, 1.0 ) ).toPointF() );
     }
-    g.setCoordinateMode( QGradient::ObjectBoundingMode );
-    QGradientStops stops=_variants.value( PHIItem::DStopPoints ).value<QGradientStops>();
+    QGradientStops stops=_variants.value( DGradientStopPoints ).value<QGradientStops>();
     if ( stops.count() ) g.setStops( stops );
-    g.setSpread( static_cast<QGradient::Spread>(_variants.value( PHIItem::DSpreadType, 0 )
-        .value<quint8>()) );
+    g.setSpread( static_cast<QGradient::Spread>(_variants.value( DGradientSpreadType, 0 ).value<quint8>()) );
+    g.setCoordinateMode( QGradient::ObjectBoundingMode );
     return g;
 }
 
+QLinearGradient PHIBaseItem::linearGradient() const
+{
+    QLinearGradient g=QLinearGradient(
+        _variants.value( DGradientStartPoint, QPointF( 0., 0. ) ).toPointF(),
+        _variants.value( DGradientFinalStopPoint, QPointF( 1.0, 1.0 ) ).toPointF() );
+    QGradientStops stops=_variants.value( DGradientStopPoints ).value<QGradientStops>();
+    if ( stops.count() ) g.setStops( stops );
+    g.setSpread( static_cast<QGradient::Spread>(_variants.value( DGradientSpreadType, 0 )
+        .value<quint8>()) );
+    g.setCoordinateMode( QGradient::ObjectBoundingMode );
+    return g;
+}
+
+QConicalGradient PHIBaseItem::conicalGradient() const
+{
+    QConicalGradient g=QConicalGradient(
+        _variants.value( DGradientCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
+        _variants.value( DGradientAngle, 0. ).value<qreal>() );
+    QGradientStops stops=_variants.value( DGradientStopPoints ).value<QGradientStops>();
+    if ( stops.count() ) g.setStops( stops );
+    g.setSpread( static_cast<QGradient::Spread>(_variants.value( DGradientSpreadType, 0 )
+        .value<quint8>()) );
+    g.setCoordinateMode( QGradient::ObjectBoundingMode );
+    return g;
+}
+
+QRadialGradient PHIBaseItem::radialGradient() const
+{
+    QRadialGradient g=QRadialGradient(
+        _variants.value( DGradientCenterPoint, QPointF( 0.5, 0.5 ) ).toPointF(),
+        _variants.value( DGradientRadius, 0.5 ).value<qreal>(),
+        _variants.value( DGradientFocalPoint, QPointF( 0.1, 0.1 ) ).toPointF() );
+    QGradientStops stops=_variants.value( DGradientStopPoints ).value<QGradientStops>();
+    if ( stops.count() ) g.setStops( stops );
+    g.setSpread( static_cast<QGradient::Spread>(_variants.value( DGradientSpreadType, 0 )
+        .value<quint8>()) );
+    g.setCoordinateMode( QGradient::ObjectBoundingMode );
+    return g;
+}
+
+/*
 void PHIBaseItem::setAlignment( quint8 a )
 {
     if ( a==0 ) {

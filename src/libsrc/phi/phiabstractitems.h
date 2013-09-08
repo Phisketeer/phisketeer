@@ -90,6 +90,7 @@ public:
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
+    virtual bool hasGradient() const { return true; }
 
 public slots:
     void setLine( quint8 l );

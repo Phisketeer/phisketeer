@@ -21,7 +21,7 @@
 PHIIcon::PHIIcon( const char *name, const QColor &col, const QColor &dis )
     : QIcon( PHI::dropShadowedPixmap( ( col.isValid() ?
     PHI::colorizedPixmap( QPixmap( L1( name ) ), col )
-    : QPixmap( L1( name ) ) ), QPointF( 1., 2. ) ) )
+    : QPixmap( L1( name ) ) ), QPointF( 0., 1. ), QColor( 0, 0, 0, 230 ), 1. ) )
 {
     QPixmap pix( PHI::colorizedPixmap( QPixmap( L1( name ) ), dis ) );
     addPixmap( pix, QIcon::Disabled, QIcon::Off );
@@ -30,7 +30,7 @@ PHIIcon::PHIIcon( const char *name, const QColor &col, const QColor &dis )
 
 PHIIcon::PHIIcon( const QPixmap &src, const QColor &col, const QColor &dis )
     : QIcon( PHI::dropShadowedPixmap( ( col.isValid() ?
-    PHI::colorizedPixmap( src ) : src ), QPointF( 1., 2. ) ) )
+    PHI::colorizedPixmap( src ) : src ), QPointF( 0., 1. ), QColor( 0, 0, 0, 230 ), 1. ) )
 {
     QPixmap pix( PHI::colorizedPixmap( src, dis ) );
     addPixmap( pix, QIcon::Disabled, QIcon::Off );

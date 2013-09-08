@@ -260,12 +260,13 @@ void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
         pen.setStyle( style );
     } else pen.setStyle( Qt::NoPen );
     QBrush brush;
-    if ( pattern()< 15 ) { // no gradient
+    if ( pattern()<15 ) { // no gradient style
         brush.setStyle( pat );
         brush.setColor( color() );
-    }
+    } else brush=QBrush( gradient() );
     p->setBrush( brush );
     p->setPen( pen );
+    p->setRenderHint( QPainter::SmoothPixmapTransform );
     drawShape( p, exposed );
 }
 
@@ -302,7 +303,7 @@ void PHIAbstractShapeItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorR
 void PHIAbstractShapeItem::setPattern( quint8 p )
 {
     Qt::BrushStyle s;
-    if ( p > static_cast<quint8>(Qt::LinearGradientPattern) ) s=Qt::NoBrush;
+    if ( p > static_cast<quint8>(Qt::LinearGradientPattern) ) s=Qt::LinearGradientPattern;
     else s=static_cast<Qt::BrushStyle>(p);
     setData( DPatternStyle, static_cast<quint8>(s) );
     if ( s==Qt::SolidPattern ) removeData( DPatternStyle );
