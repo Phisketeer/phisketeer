@@ -36,7 +36,7 @@ friend PHIEXPORT QDataStream& operator<<( QDataStream &out, PHIData *phiData );
 
 public:
     enum Type { Unknown=0, Text=1, Image=2, ImageBook=3, Audio=4, Video=5, Stream=6, Integer=7,
-        Boolean=8, StringList=9, Color=10 }; //quint8
+        Boolean=8, StringList=9 }; //quint8
     enum Source { Undefined=0, Static=1, Translated=2, Database=3, File=4, Url=5, Process=6, Library=7 }; // quint8
     enum Option { None=0x0, Parse=0x1, FileName=Parse, NoCache=0x2, DontSaveImage=0x4 }; // quint8
 
@@ -96,9 +96,7 @@ public:
     inline QString delimiter() const { return _data.value( "#D" ).toString(); }
     inline void setDelimiter( const QString &s ) { _data.insert( "#D", s ); }
     inline QString url() const { return _data.value( "#U" ).toString(); }
-    inline void setUrl( const QString &s ) {
-        _data.insert( _c, QByteArray( "URL" ) ), _data.insert( "#U", s );
-    }
+    inline void setUrl( const QString &s ) { _data.insert( _c, QByteArray( "URL" ) ), _data.insert( "#U", s ); }
     inline QString value() const { return _data.value( "#V" ).toString(); }
     inline void setValue( const QString &s ) { _data.insert( "#V", s ); }
     inline QString label() const { return _data.value( "#L" ).toString(); }
@@ -151,6 +149,7 @@ public:
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIImageData* );
+Q_DECLARE_METATYPE( PHIImageData )
 
 class PHIEXPORT PHIImageBookData : public PHIData
 {
@@ -164,6 +163,7 @@ public:
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIImageBookData* );
+Q_DECLARE_METATYPE( PHIImageBookData )
 
 class PHIEXPORT PHIIntData : public PHIData
 {
@@ -178,6 +178,7 @@ public:
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIIntData* );
+Q_DECLARE_METATYPE( PHIIntData )
 
 class PHIEXPORT PHIBooleanData : public PHIData
 {
@@ -205,8 +206,9 @@ public:
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIStringListData* );
+Q_DECLARE_METATYPE( PHIStringListData )
 
-inline PHIData::PHIData(): _source( PHIData::Static ), _options( PHIData::None )
+inline PHIData::PHIData() : _source( PHIData::Static ), _options( PHIData::None )
 {
 }
 
@@ -313,31 +315,5 @@ inline QDataStream& operator>>( QDataStream &in, PHIStringListData *phiData )
 {
     return PHIData::readData( in, phiData );
 }
-
-/*
-class PHIEXPORT PHIDateData : public PHIData
-{
-public:
-    PHIDateData( const QDate &d=QDate() );
-    virtual ~PHIDateData();
-    inline virtual Type type() const { return Date; }
-    inline QDate date( const QByteArray &l=_c ) const { return _data.value( l ).toDate(); }
-    inline void setDate( const QDate &d, const QByteArray &l=_c ) { _data.insert( l, d ); }
-};
-
-PHIEXPORT QDataStream& operator>>( QDataStream&, PHIDateData* );
-
-class PHIEXPORT PHIColorData : public PHIData
-{
-public:
-    PHIColorData( const QColor &c=QColor( Qt::black ) );
-    virtual ~PHIColorData();
-    inline virtual Type type() const { return Color; }
-    inline QColor color( const QByteArray &l=_c ) const { return _data.value( l ).value<QColor>(); }
-    inline void setColor( const QColor &c, const QByteArray &l=_c ) { _data.insert( l, c ); }
-};
-
-PHIEXPORT QDataStream& operator>>( QDataStream&, PHIColorData* );
-*/
 
 #endif // PHIDATASOURCES_H

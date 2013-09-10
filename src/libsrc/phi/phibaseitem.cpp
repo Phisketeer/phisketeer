@@ -157,9 +157,13 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     loadItemData( in, version );
 
     setTransformPos( _variants.value( DTransformPos, 1 ).value<quint8>() );
-    setFont( font() );
+    QSizeF preserve=QSizeF( _width, _height );
+    setFont( font() ); // setFont may change height depending on sizeHint
+    resize( preserve );
     updateText( page()->currentLang() );
+    updateData();
     if ( _gw ) {
+        _gw->setPos( _x, _y );
         _gw->setTransform( computeTransformation() );
         _gw->update();
     }
@@ -190,6 +194,7 @@ QByteArray PHIBaseItem::save( int version )
     if ( _flags & FStoreTitleData ) out << _titleData;
     if ( _flags & FStoreVisibleData ) out << _visibleData;
     saveItemData( out, version );
+    updateData();
     return arr;
 }
 
@@ -258,6 +263,8 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     if ( checkedData() ) *checkedData()=*d.checkedData();
     if ( imageData() ) *imageData()=*d.imageData();
     if ( imageBookData() ) *imageBookData()=*d.imageBookData();
+    if ( intData_1() ) *intData_1()=*d.startAngleData();
+    if ( intData_2() ) *intData_2()=*d.spanAngleData();
     if ( properties & PHIItemData::PStyleSheet ) _flags |= FUseStyleSheet;
     QSizeF s=size(); // preserve size
     if ( d.font()!=PHI::invalidFont() ) setFont( d.font() );
@@ -279,6 +286,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         else if ( g.type()==QGradient::LinearGradient ) setGradient( d.linearGradient() );
         else if ( g.type()==QGradient::RadialGradient ) setGradient( d.radialGradient() );
     }
+    updateData();
 }
 
 void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
@@ -402,14 +410,13 @@ void PHIBaseItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, c
 void PHIBaseItem::phiPaletteChanged( const PHIPalette &pal )
 {
     QWidget *w=widget();
-    if ( w ) {
-        w->setPalette( pal.palette() );
-    }
+    if ( w ) w->setPalette( pal.palette() );
     for ( int i=0; i<PHIPalette::ItemRoleMax; i++ ) {
         PHIPalette::ItemRole itemRole=static_cast<PHIPalette::ItemRole>(i);
         PHIPalette::ColorRole role=colorRole( itemRole );
-        if ( role==PHIPalette::NoRole || role==PHIPalette::Custom ) continue;
-        setColor( itemRole, role, pal.color( role ) );
+        if ( role==PHIPalette::NoRole ) continue;
+        if ( role==PHIPalette::Custom ) setColor( itemRole, role, color( itemRole ) );
+        else setColor( itemRole, role, pal.color( role ) );
     }
 }
 

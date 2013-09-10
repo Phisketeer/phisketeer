@@ -30,8 +30,11 @@
 #include "phidatasources.h"
 #include "phi.h"
 
-// This class mainly used to provide the old data structures for version 1_x.
-// Do not use it in new code!
+/*
+    WARNING:
+    This class is obsolete and mainly used to provide the old data structures for version 1_x.
+    Do not use it in new code!
+*/
 
 class PHIEXPORT PHIItemData : public QObject
 {
@@ -64,19 +67,19 @@ public:
     PHIItemData& operator =( const PHIItemData& );
     PHIItemData( const PHIItemData& );
 
-    QByteArray save( qint32 properties ) const;
+    //QByteArray save( qint32 properties ) const;
     void load( qint32 properties, const QByteArray& );
-    inline QHash <quint8, QVariant> variants() const { return _variants; }
-    inline void setVariants( const QHash <quint8, QVariant> &h ) { _variants=h; }
-    inline void removeData( quint8 t ) { _variants.remove( t ); }
+    //inline QHash <quint8, QVariant> variants() const { return _variants; }
+    //inline void setVariants( const QHash <quint8, QVariant> &h ) { _variants=h; }
+    //inline void removeData( quint8 t ) { _variants.remove( t ); }
 
     // some helper functions
-    inline void setChildIds( const PHIByteArrayList &list ) {
-        _variants.insert( DChildIds, qVariantFromValue( list ) ); }
+    //inline void setChildIds( const PHIByteArrayList &list ) {
+    //    _variants.insert( DChildIds, qVariantFromValue( list ) ); }
     inline PHIByteArrayList childIds() const {
         return _variants.value( DChildIds ).value<PHIByteArrayList>(); }
-    inline void setGridLayoutInfo( const PHIRectHash &h ) {
-        _variants.insert( DGridLayoutInfo,  qVariantFromValue( h ) ); }
+    //inline void setGridLayoutInfo( const PHIRectHash &h ) {
+    //    _variants.insert( DGridLayoutInfo,  qVariantFromValue( h ) ); }
     inline PHIRectHash gridLayoutInfo() const {
         return _variants.value( DGridLayoutInfo ).value<PHIRectHash>(); }
 
@@ -131,6 +134,7 @@ public:
     inline QString buddy() const { return textData()->buddy(); }
     inline QVariant data( DataType t ) const { return _variants.value( t ); }
 
+    /*
     inline void setData( DataType t, const QVariant &v ) { _variants.insert( t, v ); }
     inline void setColor( const QColor &c ) { _variants.insert( DColor, c ); }
     inline void setOutlineColor( const QColor &c ) { _variants.insert( DOutlineColor, c ); }
@@ -153,6 +157,7 @@ public:
     void setGradient( QLinearGradient g );
     void setGradient( QConicalGradient g );
     void setGradient( QRadialGradient g );
+    */
     QGradient gradient() const;
     QLinearGradient linearGradient() const;
     QConicalGradient conicalGradient() const;

@@ -20,6 +20,12 @@
 #include <QMetaType>
 #include "phiitemdata.h"
 
+/*
+    WARNING:
+    This class is obsolete and mainly used to provide the old data structures for version 1_x.
+    Do not use it in new code!
+*/
+
 PHIItemData::PHIItemData( QObject *parent )
     : QObject( parent ), _imageData( 0 ), _textData( 0 ), _styleSheetData( 0 ), _toolTipData( 0 ),
     _disabledData( 0 ), _visibleData( 0 ), _checkedData( 0 ), _readOnlyData( 0 ), _startAngleData( 0 ),
@@ -83,13 +89,13 @@ PHIItemData::PHIItemData( const PHIItemData &d )
     _variants=d._variants;
 }
 
+/*
 QByteArray PHIItemData::save( qint32 p ) const
 {
     QByteArray arr;
     QDataStream out( &arr, QIODevice::WriteOnly );
     out.setVersion( PHI_DSV );
 
-/*
 #ifdef PHIDEBUG
     if ( p & PImage ) qDebug( "image" );
     if ( p & PText ) qDebug( "TEXT=%s", qPrintable( textData()->text() ) );
@@ -104,7 +110,6 @@ QByteArray PHIItemData::save( qint32 p ) const
     if ( p & PImageBook ) qDebug( "imagebook" );
     if ( p & PStringList ) qDebug( "stringlist" );
 #endif
-*/
 
     if ( p & PImage ) out << imageData();
     if ( p & PText ) out << textData();
@@ -148,13 +153,11 @@ QByteArray PHIItemData::save( qint32 p ) const
     if ( !(p & PTabOrder ) ) _variants.remove( DTabOrder );
     out << _variants;
 
-/*
 #ifdef PHIDEBUG
     quint8 id;
     foreach ( id, _variants.keys() ) qDebug( "%d %s", id, qPrintable( _variants.value( id ).toString() ) );
     qDebug( "variants count %d", _variants.count() );
 #endif
-*/
     return arr;
 }
 
@@ -191,6 +194,7 @@ void PHIItemData::setGradient( QRadialGradient g )
     _variants.insert( DStopPoints, v );
     _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
 }
+*/
 
 QGradient PHIItemData::gradient() const
 {
@@ -323,8 +327,4 @@ void PHIItemData::load( qint32 p, const QByteArray &data )
         //qDebug( "stringlist" );
     }
     in >> _variants;
-
-#ifdef PHIDEBUG
-    qDebug() << _variants;
-#endif
 }

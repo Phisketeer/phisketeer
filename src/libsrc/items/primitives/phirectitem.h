@@ -18,8 +18,33 @@
 */
 #ifndef PHIRECTITEM_H
 #define PHIRECTITEM_H
-
 #include "phiabstractitems.h"
+#include "phicolorconfig.h"
+#include "phidatasources.h"
+
+class QLabel;
+class QSpinBox;
+
+class PHIRectConfig : public PHIColorConfig
+{
+    Q_OBJECT
+
+public:
+    explicit PHIRectConfig( PHIBaseItem *it, QWidget *parent=0 );
+    virtual ~PHIRectConfig();
+    virtual bool storeData();
+    virtual PHIConfigData oldData() const;
+
+protected slots:
+    void radiusSpinChanged( int );
+    void radiusToolClicked();
+
+private:
+    QLabel *_radiusLabel;
+    QSpinBox *_radiusSpin;
+    QToolButton *_radiusTool;
+    PHIIntData *_oldRadiusData;
+};
 
 class PHIRectItem : public PHIAbstractShapeItem
 {
@@ -31,19 +56,31 @@ public:
     enum Wid { Rect=14, RoundedRect=25 };
     explicit PHIRectItem();
     inline virtual PHIWID wid() const { return Rect; }
+    inline PHIIntData* radiusData() { return &_radiusData; }
     virtual QString listName() const { return tr( "Rect" ); }
     virtual QString description() const { return tr( "Draws a box or rect with optional rounded courners" ); }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/rect" ) ); }
+    virtual void updateData();
 
 public slots:
     inline virtual qint16 borderRadius() const { return data( DBorderRadius, 0 ).value<qint16>(); }
-    inline virtual void setBorderRadius( qint16 r ) { setData( DBorderRadius, r ); }
+    inline virtual void setBorderRadius( qint16 r ) { setData( DBorderRadius, r ); update(); }
+
+protected:
+    virtual PHIConfigWidget* configWidget();
+    virtual void drawShape( QPainter *painter, const QRectF &r );
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void squeeze();
 
 signals:
     void borderRadiusChanged( qint16 );
 
-protected:
-    virtual void drawShape( QPainter *painter, const QRectF &r );
+private:
+    virtual PHIIntData* intData_1() const { return const_cast<PHIIntData*>(&_radiusData); }
+
+private:
+    PHIIntData _radiusData;
 };
 
 #endif // PHIRECTITEM_H

@@ -41,7 +41,9 @@ HEADERS += phi.h \
     phiitemstylecss.h \
     phisrequest.h \
     phitools.h \
-    phiabstractitems.h
+    phiabstractitems.h \
+    phiconfigwidget.h \
+    phicolorconfig.h
 SOURCES += phi.cpp \
     phiitemdata.cpp \
     phidatasources.cpp \
@@ -66,7 +68,9 @@ SOURCES += phi.cpp \
     phiitemstylecss.cpp \
     phisrequest.cpp \
     phitools.cpp \
-    phiabstractitems.cpp
+    phiabstractitems.cpp \
+    phicolorconfig.cpp
+FORMS += colorconfig.ui
 
 VERSION = 2.0.0
 include( ../../../phiconf.pri )

@@ -51,13 +51,15 @@ inline PHIBaseItem* PHIPrimitives::create( PHIWID wid ) const
 
 inline QStringList PHIPrimitives::keys() const
 {
-    return QStringList() << QStringLiteral( "rect" ) << QStringLiteral( "ellipse" );
+    return QStringList() << QStringLiteral( "rect" ) << QStringLiteral( "ellipse" )
+        << QStringLiteral( "roundedrect" );
 }
 
 inline PHIWID PHIPrimitives::wid( const QString &key ) const
 {
     if ( key==QLatin1String( "rect" ) ) return PHIRectItem::Rect;
     if ( key==QLatin1String( "ellipse" ) ) return PHIEllipseItem::Ellipse;
+    if ( key==QLatin1String( "roundedrect" ) ) return PHIRectItem::RoundedRect;
     return 0;
 }
 

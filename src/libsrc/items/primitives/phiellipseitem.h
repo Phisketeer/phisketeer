@@ -19,12 +19,41 @@
 #ifndef PHIELLIPSEITEM_H
 #define PHIELLIPSEITEM_H
 #include "phiabstractitems.h"
+#include "phicolorconfig.h"
+#include "phidatasources.h"
+
+class QLabel;
+class QSpinBox;
+class QToolButton;
+
+class PHIEllipseConfig : public PHIColorConfig
+{
+    Q_OBJECT
+
+public:
+    explicit PHIEllipseConfig( PHIBaseItem *it, QWidget *parent=0 );
+    virtual ~PHIEllipseConfig();
+    virtual bool storeData();
+    virtual PHIConfigData oldData() const;
+
+protected slots:
+    void startSpinChanged( int );
+    void spanSpinChanged( int );
+    void startToolClicked();
+    void spanToolClicked();
+
+private:
+    QLabel *_startLabel, *_spanLabel;
+    QSpinBox *_startSpin, *_spanSpin;
+    QToolButton *_startTool, *_spanTool;
+    PHIIntData *_oldStartData, *_oldSpanData;
+};
 
 class PHIEllipseItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
-    Q_PROPERTY( qint16 startAngle READ startAngle WRITE setStartAngle NOTIFY startAngleChanged )
-    Q_PROPERTY( qint16 spanAngle READ spanAngle WRITE setSpanAngle NOTIFY spanAngleChanged )
+    Q_PROPERTY( int startAngle READ startAngle WRITE setStartAngle NOTIFY startAngleChanged )
+    Q_PROPERTY( int spanAngle READ spanAngle WRITE setSpanAngle NOTIFY spanAngleChanged )
 
 public:
     enum ItemData { DStartAngle=1, DSpanAngle=2 };
@@ -34,22 +63,33 @@ public:
     virtual QString listName() const { return tr( "Ellipse" ); }
     virtual QString description() const { return tr( "Draws an ellipse, pie or circle" ); }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/ellipse" ) ); }
+    inline PHIIntData* startData() { return &_startData; }
+    inline PHIIntData* spanData() { return &_spanData; }
+    virtual void updateData();
 
 public slots:
-    inline void setStartAngle( qint16 a ) { setData( DStartAngle, a ); }
-    inline void setSpanAngle( qint16 a ) { setData( DSpanAngle, a ); }
-    inline qint16 startAngle() const { return data( DStartAngle, 0 ).value<qint16>(); }
-    inline qint16 spanAngle() const { return data( DSpanAngle, 5760 ).value<qint16>(); }
+    inline void setStartAngle( int a ) { setData( DStartAngle, a ); update(); }
+    inline void setSpanAngle( int a ) { setData( DSpanAngle, a ); update(); }
+    inline int startAngle() const { return data( DStartAngle, 0 ).toInt(); }
+    inline int spanAngle() const { return data( DSpanAngle, 5760 ).toInt(); }
 
 protected:
-    virtual bool isWidthChangeable() const { return false; }
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void squeeze();
+    virtual PHIConfigWidget* configWidget();
+    virtual void drawShape( QPainter *painter, const QRectF &r );
 
 signals:
-    void startAngleChanged( qint16 );
-    void spanAngleChanged( qint16 );
+    void startAngleChanged( int );
+    void spanAngleChanged( int );
 
-protected:
-    virtual void drawShape( QPainter *painter, const QRectF &r );
+private:
+    virtual PHIIntData* intData_1() const { return const_cast<PHIIntData*>(&_startData); }
+    virtual PHIIntData* intData_2() const { return const_cast<PHIIntData*>(&_spanData); }
+
+private:
+    PHIIntData _startData, _spanData;
 };
 
 #endif // PHIELLIPSEITEM_H

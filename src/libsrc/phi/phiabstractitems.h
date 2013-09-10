@@ -48,7 +48,7 @@ public slots:
     inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
     inline void setBackgroundColor( const QColor &col ) { setColor( PHIPalette::WidgetBase, _backgroundColorRole, col ); }
     inline QColor color() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
-    inline QColor backgroundColor() const { return data( DBackgroundColor, QColor( Qt::black ) ).value<QColor>(); }
+    inline QColor backgroundColor() const { return data( DBackgroundColor, QColor( Qt::white ) ).value<QColor>(); }
 
 protected:
     virtual bool isSingleLine() const { return true; }
@@ -63,10 +63,10 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
     virtual void updateText( const QByteArray &lang );
+    virtual PHIConfigWidget* configWidget();
 
-protected:
+private:
     PHIPalette::ColorRole _colorRole, _backgroundColorRole;
-    QColor _orgColor, _orgBackgroundColor;
     static qreal _dropRegion;
     PHITextData *_textData;
 };
@@ -115,10 +115,13 @@ protected:
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void drawShape( QPainter *p, const QRectF &exposed )=0;
     virtual void paint( QPainter *p, const QRectF &exposed );
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void squeeze();
+    virtual PHIConfigWidget* configWidget();
 
 protected:
     PHIPalette::ColorRole _colorRole, _outlineColorRole;
-    QColor _orgColor, _orgOutlineColor;
     static qreal _dropRegion;
 };
 

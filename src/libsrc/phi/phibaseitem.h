@@ -40,6 +40,8 @@ class PHIBooleanData;
 class PHITextData;
 class PHIImageData;
 class PHIImageBookData;
+class PHIIntData;
+class PHIConfigWidget;
 
 class PHIEXPORT PHIBaseItem : public QObject
 {
@@ -187,6 +189,7 @@ public: // not usable by script engine
     virtual void setGradient( QLinearGradient g );
     virtual void setGradient( QConicalGradient g );
     virtual void setGradient( QRadialGradient g );
+    virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual PHIWID wid() const=0;
 
     // IDE related members
@@ -257,7 +260,6 @@ protected:
     void setWidget( QWidget* );
     QWidget* widget() const;
     const PHIBasePage* page() const;
-    virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
@@ -322,6 +324,10 @@ private:
     inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
     inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
     inline QGraphicsWidget* graphicsWidget() const { return _gw; }
+    virtual PHIConfigWidget* configWidget() { return 0; }
+    virtual void updateData() {;}
+    virtual PHIIntData* intData_1() const { return 0; }
+    virtual PHIIntData* intData_2() const { return 0; }
 
 signals:
     // IDE related signals
@@ -400,27 +406,12 @@ class PHIEXPORT PHIBaseItem : public QObject, public PHIItem
     Q_OBJECT
     Q_DISABLE_COPY( PHIBaseItem )
 
-    Q_PROPERTY( quint16 type READ type ) // note: wid is internaly stored as quint8
-    Q_PROPERTY( QString name READ name )
-    Q_PROPERTY( QString id READ name )
-    Q_PROPERTY( QString parentName READ parentName )
-    Q_PROPERTY( QStringList properties READ properties )
     Q_PROPERTY( QString value WRITE setValue READ value )
-    Q_PROPERTY( QString styleSheet WRITE setStyleSheet READ styleSheet )
-    Q_PROPERTY( QString title WRITE setToolTip READ toolTip )
     Q_PROPERTY( QString imageId WRITE setImageId READ imageId )
     Q_PROPERTY( QString label WRITE setLabel READ label )
-    Q_PROPERTY( QString delimiter WRITE setDelimiter READ delimiter )
-    Q_PROPERTY( QString url WRITE setUrl READ url )
-    Q_PROPERTY( QString accessKey WRITE setAccessKey READ accessKey )
     Q_PROPERTY( QStringList pictureBookIds WRITE setPictureBookIds READ pictureBookIds )
-    Q_PROPERTY( bool disabled WRITE setDisabled READ disabled )
-    Q_PROPERTY( bool checked WRITE setChecked READ checked )
-    Q_PROPERTY( bool readOnly WRITE setReadOnly READ readOnly )
     Q_PROPERTY( qint32 fontSize WRITE setFontSize READ fontSize )
     Q_PROPERTY( quint8 align WRITE setAlignment READ alignment )
-    Q_PROPERTY( quint16 maxLength WRITE setMaxLength READ maxLength )
-    Q_PROPERTY( quint16 tabIndex WRITE setTabIndex READ tabIndex )
     Q_PROPERTY( quint32 fadeTime WRITE setFadeTime READ fadeTime )
     Q_PROPERTY( quint32 fadeInterval WRITE setFadeInterval READ fadeInterval )
 
@@ -432,18 +423,9 @@ public: //not useable by script engine
     virtual QGradient gradient() const;
 
     inline PHIRectHash gridLayoutInfo() const { return _variants.value( DGridLayoutInfo ).value<PHIRectHash>(); }
-    inline PHIByteArrayList childIds() const { return _variants.value( DChildIds ).value<PHIByteArrayList>(); }
     inline PHIEffect::Effects effects() const { return _effect->effects(); }
     inline const PHIEffect* effect() const { return _effect; }
-    inline QByteArray pageId() const { return _pageId; }
-    inline void setPageId( const QByteArray &id ) { _pageId=id; }
     inline bool hasGraphicEffect() const { return _effect->effects() & PHIEffect::EGraphics; }
-    inline quint8 transformPosition() const { return _transformPos; }
-    inline QByteArray valueData() const { return _variants.value( DText ).toByteArray(); }
-    inline QByteArray imageIdData() const { return _variants.value( DImage ).toByteArray(); }
-    inline QByteArray urlData() const { return _variants.value( DUrl ).toByteArray(); }
-    inline QByteArray labelData() const { return _variants.value( DLabel ).toByteArray(); }
-    inline QByteArray toolTipData() const { return _variants.value( DToolTip ).toByteArray(); }
     inline quint8 dragHotSpotType() const { return _variants.value( DDragHotSpotType, 0 ).value<quint8>(); }
     inline QPoint dragHotSpot() const { return _variants.value( DDragHotSpot, PHI::defaultHotSpot() ).toPoint(); }
 
@@ -485,30 +467,14 @@ public: //not useable by script engine
     inline virtual void setFontSize( qint32 ps ) { QFont f=font(); f.setPointSize( ps ); setFont( f ); }
     inline virtual QFont font( const QFont &f=PHI::invalidFont() ) const { return _variants.value( DFont, f ).value<QFont>(); }
     inline virtual void setFont( const QFont &f ) { _properties|=PHIItem::PFont; _variants.insert( DFont, f ); }
-    //inline virtual QPalette palette( const QPalette &p=QPalette() ) const { return _variants.value( DPalette, p ).value<QPalette>(); }
-    //inline virtual void setPalette( const QPalette &p ) { _properties|=PHIItem::PPalette; _variants.insert( DPalette, p ); }
 
     // functions offered by style property
-    inline virtual qreal penWidth() const { return static_cast<qreal>(_variants.value( DPenWidth, 1. ).toDouble()); }
-    inline virtual QColor color() const {
-        return _variants.value( DColor, QColor() ).value<QColor>(); }
-    inline virtual QColor outlineColor() const {
-        return _variants.value( DOutlineColor, QColor() ).value<QColor>(); }
     inline virtual QColor rolloverTextColor() const {
         return _variants.value( DRolloverTextColor, QColor() ).value<QColor>(); }
     inline virtual QColor rolloverBackgroundColor() const {
         return _variants.value( DRolloverBackgroundColor, QColor() ).value<QColor>(); }
-    inline virtual quint8 line() const { return _variants.value( DLine, 0 ).value<quint8>(); }
-    inline virtual qint16 startAngle() const { return _variants.value( DStartAngle, 0 ).value<qint16>(); }
-    inline virtual qint16 spanAngle() const { return _variants.value( DSpanAngle, 5760 ).value<qint16>(); }
-    inline virtual bool visible() const { return _attributes & AVisible; }
-    inline virtual void setVisible( bool b ) { b ? _attributes|= AVisible : _attributes&= ~AVisible; }
     inline virtual quint8 alignment() const { return _variants.value( DAlignment, 0 ).value<quint8>(); }
 
-    inline qreal gradientAngle() const { return _variants.value( PHIItem::DAngle ).value<qreal>(); }
-    inline qreal gradientRadius() const { return _variants.value( PHIItem::DRadius ).value<qreal>(); }
-    inline virtual qint16 borderRadius() const { return _variants.value( DBorderRadius, 15 ).value<qint16>(); }
-    inline virtual void setBorderRadius( qint16 r ) { _variants.insert( DBorderRadius, r ); }
     inline QByteArray cursor() const { return _variants.value( DCursor, QByteArray( "auto" ) ).toByteArray(); }
     inline virtual void setCursor( const QByteArray &c ) { _variants.insert( DCursor, c ); }
 

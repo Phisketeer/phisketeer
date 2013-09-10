@@ -32,6 +32,7 @@
 #include "phisysinfo.h"
 #include "phi.h"
 #include "phiitemfactory.h"
+#include "phidatasources.h"
 
 #ifdef Q_OS_WIN
 extern QString qAppFileName();

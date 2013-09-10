@@ -24,6 +24,7 @@
 #include <QWidget>
 #include "phiabstractitems.h"
 #include "phidatasources.h"
+#include "phicolorconfig.h"
 
 qreal PHIAbstractTextItem::_dropRegion=7.;
 
@@ -50,6 +51,11 @@ PHIAbstractTextItem::PHIAbstractTextItem()
 PHIAbstractTextItem::~PHIAbstractTextItem()
 {
     delete _textData;
+}
+
+PHIConfigWidget* PHIAbstractTextItem::configWidget()
+{
+    return new PHIColorConfig( this );
 }
 
 void PHIAbstractTextItem::setText( const QString &t, const QByteArray &lang )
@@ -189,8 +195,8 @@ void PHIAbstractTextItem::squeeze()
 {
     removeData( DTmpBackgroundColor );
     removeData( DTmpColor );
-    if ( _colorRole!=PHIPalette::Custom ) removeData( DColor );
-    if ( _backgroundColorRole!=PHIPalette::Custom ) removeData( DBackgroundColor );
+    if ( color()==QColor( Qt::black ) ) removeData( DColor );
+    if ( backgroundColor()==QColor( Qt::white ) ) removeData( DBackgroundColor );
 }
 
 void PHIAbstractTextItem::loadItemData( QDataStream &in, int version )
@@ -200,16 +206,11 @@ void PHIAbstractTextItem::loadItemData( QDataStream &in, int version )
     in >> _textData >> cr >> bgcr;
     _colorRole=static_cast<PHIPalette::ColorRole>(cr);
     _backgroundColorRole=static_cast<PHIPalette::ColorRole>(bgcr);
-    if ( _colorRole==PHIPalette::Custom )
-        setColor( PHIPalette::WidgetText, _colorRole, data( DColor ).value<QColor>() );
-    if ( _backgroundColorRole==PHIPalette::Custom )
-        setColor( PHIPalette::WidgetBase, _backgroundColorRole, data( DBackgroundColor ).value<QColor>() );
 }
 
 void PHIAbstractTextItem::saveItemData( QDataStream &out, int version )
 {
     Q_UNUSED( version )
-    qDebug() << _textData->data();
     out << _textData << static_cast<quint8>(_colorRole) << static_cast<quint8>(_backgroundColorRole);
 }
 
@@ -245,6 +246,11 @@ PHIAbstractShapeItem::PHIAbstractShapeItem()
     _colorRole=PHIPalette::Black;
     _outlineColorRole=PHIPalette::Black;
     resize( sizeHint( Qt::PreferredSize, QSizeF() ) );
+}
+
+PHIConfigWidget* PHIAbstractShapeItem::configWidget()
+{
+    return new PHIColorConfig( this );
 }
 
 void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
@@ -467,4 +473,38 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
         emit pushUndoStack( PHIPalette::Background, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
     }
     update();
+}
+
+void PHIAbstractShapeItem::squeeze()
+{
+    removeData( DTmpLineStyle );
+    removeData( DTmpColor );
+    removeData( DTmpOutlineColor);
+    removeData( DTmpPenWidth );
+    removeData( DTmpPatternStyle );
+    if ( penWidth()==1. ) removeData( DPenWidth );
+    if ( line()==0 ) {
+        removeData( DOutlineColor );
+        removeData( DPenWidth );
+        removeData( DLineStyle );
+    }
+    if ( pattern()==1 ) removeData( DPatternStyle );
+    if ( pattern()==0 ) removeData( DColor );
+    if ( color()==QColor( Qt::black ) ) removeData( DColor );
+    if ( outlineColor()==QColor( Qt::black ) ) removeData( DOutlineColor );
+}
+
+void PHIAbstractShapeItem::loadItemData( QDataStream &in, int version )
+{
+    Q_UNUSED( version )
+    quint8 cr, bgcr;
+    in >> cr >> bgcr;
+    _colorRole=static_cast<PHIPalette::ColorRole>(cr);
+    _outlineColorRole=static_cast<PHIPalette::ColorRole>(bgcr);
+}
+
+void PHIAbstractShapeItem::saveItemData( QDataStream &out, int version )
+{
+    Q_UNUSED( version )
+    out << static_cast<quint8>(_colorRole) << static_cast<quint8>(_outlineColorRole);
 }

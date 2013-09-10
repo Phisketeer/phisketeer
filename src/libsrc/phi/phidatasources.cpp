@@ -48,8 +48,6 @@ QDataStream& operator>>( QDataStream &in, PHIData *&phiData )
         phiData=new PHIBooleanData(); break;
     case PHIData::StringList:
         phiData=new PHIStringListData(); break;
-    //case PHIData::Color:
-    //    phiData=new PHIColorData(); break;
     case PHIData::ImageBook:
         phiData=new PHIImageBookData(); break;
     default:
@@ -86,24 +84,8 @@ QImage PHIImageData::image( const QByteArray &l ) const
     QImage img;
     if ( v.isValid() && v.canConvert<QImage>() ) img=v.value<QImage>();
     else {
-        QPixmap pix( QStringLiteral( ":/gnome/brokenimage" ) );
+        QPixmap pix( SL( ":/svg/brokenimage" ) );
         img=pix.toImage();
     }
     return img;
 }
-
-/*
-PHIColorData::PHIColorData( const QColor &c )
-{
-    _data.insert( _c, c );
-}
-
-PHIColorData::~PHIColorData()
-{
-}
-
-QDataStream& operator>>( QDataStream &in, PHIColorData *phiData )
-{
-    return PHIData::readData( in, phiData );
-}
-*/
