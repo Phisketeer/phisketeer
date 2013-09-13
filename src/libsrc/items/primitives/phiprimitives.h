@@ -21,6 +21,7 @@
 #include "phiitemplugin.h"
 #include "phiellipseitem.h"
 #include "phirectitem.h"
+#include "phigraphictext.h"
 
 class PHIPrimitives : public PHIItemPlugin
 {
@@ -45,6 +46,7 @@ inline PHIBaseItem* PHIPrimitives::create( PHIWID wid ) const
     case PHIRectItem::Rect: return new PHIRectItem();
     case PHIRectItem::RoundedRect: return new PHIRectItem();
     case PHIEllipseItem::Ellipse: return new PHIEllipseItem();
+    case PHIGraphicText::GraphText: return new PHIGraphicText();
     }
     return 0;
 }
@@ -52,7 +54,7 @@ inline PHIBaseItem* PHIPrimitives::create( PHIWID wid ) const
 inline QStringList PHIPrimitives::keys() const
 {
     return QStringList() << QStringLiteral( "rect" ) << QStringLiteral( "ellipse" )
-        << QStringLiteral( "roundedrect" );
+        << QStringLiteral( "roundedrect" ) << QStringLiteral( "graphtext" );
 }
 
 inline PHIWID PHIPrimitives::wid( const QString &key ) const
@@ -60,6 +62,7 @@ inline PHIWID PHIPrimitives::wid( const QString &key ) const
     if ( key==QLatin1String( "rect" ) ) return PHIRectItem::Rect;
     if ( key==QLatin1String( "ellipse" ) ) return PHIEllipseItem::Ellipse;
     if ( key==QLatin1String( "roundedrect" ) ) return PHIRectItem::RoundedRect;
+    if ( key==QLatin1String( "graphtext" ) ) return PHIGraphicText::GraphText;
     return 0;
 }
 

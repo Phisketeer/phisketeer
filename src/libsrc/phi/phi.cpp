@@ -376,53 +376,6 @@ Qt::Alignment PHI::toQtAlignment( quint8 align )
 */
 
 /*
-// remove in V2
-void PHI::setEffect( QGraphicsItem *it, const PHIEffect &e )
-{
-    Q_ASSERT( it );
-    if ( e.effects() & PHIEffect::EGraphics ) {
-        qreal eStrength, eRadius, eXOff, eYOff;
-        QColor eColor;
-        switch ( e.graphicsType() ) {
-        case PHIEffect::GTBlur: {
-            e.blur( eRadius );
-            QGraphicsBlurEffect *blur=new QGraphicsBlurEffect();
-            blur->setBlurHints( QGraphicsBlurEffect::AnimationHint );
-            blur->setBlurRadius( eRadius );
-            it->setGraphicsEffect( blur );
-            break;
-        }
-        case PHIEffect::GTColorize: {
-            e.colorize( eColor, eStrength );
-            QGraphicsColorizeEffect *colorize=new QGraphicsColorizeEffect();
-            colorize->setStrength( eStrength );
-            colorize->setColor( eColor );
-            it->setGraphicsEffect( colorize );
-            break;
-        }
-        case PHIEffect::GTShadow: {
-            e.shadow( eColor, eXOff, eYOff, eRadius );
-            QGraphicsDropShadowEffect *shadow=new QGraphicsDropShadowEffect();
-            shadow->setBlurRadius( eRadius*2. );
-            shadow->setColor( eColor );
-            shadow->setXOffset( eXOff );
-            shadow->setYOffset( eYOff );
-            it->setGraphicsEffect( shadow );
-            break;
-        }
-        case PHIEffect::GTSurface: {
-            e.surface( eYOff, eRadius );
-            PHISurfaceEffect *surface=new PHISurfaceEffect();
-            surface->setYOffset( eYOff );
-            surface->setSize( eRadius );
-            it->setGraphicsEffect( surface );
-            break;
-        }
-        default:;
-        }
-    } else it->setGraphicsEffect( 0 );
-}
-// end remove
 
 QByteArray PHI::emptyHtmlDoc()
 {

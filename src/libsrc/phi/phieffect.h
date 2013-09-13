@@ -36,12 +36,13 @@ public:
         DRotateStepX=24, DRotateStepY=25, DRotateStepZ=26, DEaseMoveTo=27, DEaseFadeIn=28,
         DEaseFadeOut=29, DEaseMoveBy=30, DMoveByX=31, DMoveByY=32, DMoveByWidth=33,
         DMoveByHeight=34, DMoveByStart=35, DMoveByDuration=36 };
-    enum GraphicsType { GTUnknown=0, GTBlur=1, GTShadow=2, GTColorize=3, GTSurface=4 };
+    enum GraphicsType { GTUnknown=0, GTBlur=1, GTShadow=2, GTColorize=3, GTReflection=4 };
 
     PHIEffect();
-    virtual ~PHIEffect();
-    PHIEffect& operator =( const PHIEffect& );
+    PHIEffect& operator=( const PHIEffect& );
     PHIEffect( const PHIEffect& );
+    bool operator==( const PHIEffect &eff );
+    inline bool operator!=( const PHIEffect &eff ) { return !operator==( eff ); }
 
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Effects, Effect ) //qint32 in DataStream
@@ -49,8 +50,8 @@ public:
     typedef qint32 Effects;
 #endif
 
-    QByteArray save() const;
-    void load( const QByteArray &data );
+    QByteArray save( int version ) const;
+    void load( const QByteArray &data, int version );
     inline Effects effects() const { return _effects; }
     inline void clearEffect( Effect eff ) { _effects &= ~eff; }
     inline void clearAll() { _effects=ENone; _v.clear(); }
@@ -125,5 +126,24 @@ protected:
 #ifdef PHIDEBUG
 Q_DECLARE_OPERATORS_FOR_FLAGS( PHIEffect::Effects )
 #endif
+
+inline PHIEffect& PHIEffect::operator=( const PHIEffect &eff )
+{
+    _effects=eff._effects;
+    _v=eff._v;
+    return *this;
+}
+
+inline PHIEffect::PHIEffect( const PHIEffect &eff )
+    : _effects( eff._effects ), _v( eff._v )
+{
+}
+
+inline bool PHIEffect::operator==( const PHIEffect &eff )
+{
+    if ( _effects!=eff._effects ) return false;
+    if ( _v!=eff._v ) return false;
+    return true;
+}
 
 #endif // PHIEFFECT_H

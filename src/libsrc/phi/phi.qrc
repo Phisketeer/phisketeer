@@ -1,38 +1,38 @@
 <RCC>
     <qresource prefix="/items">
         <file alias="address">images/address.png</file>
-        <file>images/button.png</file>
-        <file>images/calendar.png</file>
-        <file>images/check_box_list.png</file>
-        <file>images/check_box.png</file>
-        <file>images/contact.png</file>
-        <file>images/credit_card.png</file>
-        <file>images/date_edit.png</file>
+        <file alias="button">images/button.png</file>
+        <file alias="calendar">images/calendar.png</file>
+        <file alias="checklist">images/check_box_list.png</file>
+        <file alias="checkbox">images/check_box.png</file>
+        <file alias="contact">images/contact.png</file>
+        <file alias="creditcard">images/credit_card.png</file>
+        <file alias="dateedit">images/date_edit.png</file>
         <file alias="ellipse">images/ellipse.png</file>
-        <file>images/file_upload_button.png</file>
-        <file>images/graphical_text.png</file>
-        <file>images/hidden_field.png</file>
-        <file>images/horizontal_spacer.png</file>
-        <file>images/image_button.png</file>
-        <file>images/image.png</file>
-        <file>images/label.png</file>
-        <file>images/language_selection.png</file>
+        <file alias="upload">images/file_upload_button.png</file>
+        <file alias="graphtext">images/graphical_text.png</file>
+        <file alias="hidden">images/hidden_field.png</file>
+        <file alias="hspacer">images/horizontal_spacer.png</file>
+        <file alias="imagebutton">images/image_button.png</file>
+        <file alias="image">images/image.png</file>
+        <file alias="label">images/label.png</file>
+        <file alias="langselect">images/language_selection.png</file>
         <file alias="lineedit">images/line_edit.png</file>
         <file alias="listbox">images/list_box.png</file>
-        <file>images/login.png</file>
+        <file alias="login">images/login.png</file>
         <file alias="textarea">images/multi_line_edit.png</file>
-        <file>images/password.png</file>
-        <file>images/period.png</file>
+        <file alias="password">images/password.png</file>
+        <file alias="period">images/period.png</file>
         <file alias="radiobutton">images/radio_button.png</file>
         <file alias="rect">images/rect.png</file>
-        <file>images/register_user.png</file>
-        <file>images/reset_button.png</file>
-        <file>images/rich_text_layouted.png</file>
-        <file>images/rollover_button.png</file>
-        <file>images/rounded_rect.png</file>
-        <file>images/selection_box.png</file>
-        <file>images/submit_button.png</file>
-        <file>images/table.png</file>
-        <file>images/vertical_spacer.png</file>
+        <file alias="user">images/register_user.png</file>
+        <file alias="reset">images/reset_button.png</file>
+        <file alias="richtext">images/rich_text_layouted.png</file>
+        <file alias="rollover">images/rollover_button.png</file>
+        <file alias="roundedrect">images/rounded_rect.png</file>
+        <file alias="selectbox">images/selection_box.png</file>
+        <file alias="submit">images/submit_button.png</file>
+        <file alias="table">images/table.png</file>
+        <file alias="vspacer">images/vertical_spacer.png</file>
     </qresource>
 </RCC>

@@ -20,6 +20,7 @@
 #define PHIINPUT_H
 #include "phiitemplugin.h"
 #include "phiinputitems.h"
+#include "phicheckitems.h"
 
 class PHIInput : public PHIItemPlugin
 {
@@ -43,19 +44,24 @@ inline PHIBaseItem* PHIInput::create( PHIWID wid ) const
     switch ( wid ) {
     case PHILineEditItem::LineEdit: return new PHILineEditItem();
     case PHITextAreaItem::TextArea: return new PHITextAreaItem();
+    case PHIPasswordItem::Password: return new PHIPasswordItem();
+    case PHICheckBoxItem::Checkbox: return new PHICheckBoxItem();
     }
     return 0;
 }
 
 inline QStringList PHIInput::keys() const
 {
-    return QStringList() << QStringLiteral( "lineedit" ) << QStringLiteral( "textarea" );
+    return QStringList() << QStringLiteral( "lineedit" ) << QStringLiteral( "textarea" )
+        << QStringLiteral( "password" ) << QStringLiteral( "checkbox" );
 }
 
 inline PHIWID PHIInput::wid( const QString &key ) const
 {
     if ( key==QLatin1String( "lineedit" ) ) return PHILineEditItem::LineEdit;
     if ( key==QLatin1String( "textarea" ) ) return PHITextAreaItem::TextArea;
+    if ( key==QLatin1String( "password" ) ) return PHIPasswordItem::Password;
+    if ( key==QLatin1String( "checkbox" ) ) return PHICheckBoxItem::Checkbox;
     return 0;
 }
 

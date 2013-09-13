@@ -24,6 +24,7 @@ PHILineEditItem::PHILineEditItem()
     : PHIAbstractInputItem()
 {
     QLineEdit *edit=new QLineEdit();
+    if ( isIdeItem() ) edit->setReadOnly( true );
     setWidget( edit );
 }
 
@@ -50,4 +51,20 @@ void PHITextAreaItem::setWidgetText( const QString &t )
     QPlainTextEdit *edit=qobject_cast<QPlainTextEdit*>(widget());
     Q_ASSERT( edit );
     edit->setPlainText( t );
+}
+
+PHIPasswordItem::PHIPasswordItem()
+    : PHIAbstractInputItem()
+{
+    QLineEdit *pwd=new QLineEdit();
+    if ( isIdeItem() ) pwd->setReadOnly( true );
+    pwd->setEchoMode( QLineEdit::PasswordEchoOnEdit );
+    setWidget( pwd );
+}
+
+void PHIPasswordItem::setWidgetText( const QString &s )
+{
+    QLineEdit *pwd=qobject_cast<QLineEdit*>(widget());
+    Q_ASSERT( pwd );
+    pwd->setText( s );
 }

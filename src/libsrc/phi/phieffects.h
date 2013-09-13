@@ -23,13 +23,13 @@
 #include <QGraphicsEffect>
 #include "phi.h"
 
-class PHIEXPORT PHISurfaceEffect : public QGraphicsEffect
+class PHIEXPORT PHIReflectionEffect : public QGraphicsEffect
 {
     Q_OBJECT
 
 public:
-    explicit PHISurfaceEffect( QObject *parent=0 );
-    virtual ~PHISurfaceEffect();
+    explicit PHIReflectionEffect( QObject *parent=0 );
+    virtual ~PHIReflectionEffect();
     inline virtual qreal yOffset() const { return _yOff; }
     inline virtual qreal size() const { return _size; }
     virtual QRectF boundingRectFor( const QRectF &sourceRect ) const;

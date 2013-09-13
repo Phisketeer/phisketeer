@@ -54,4 +54,20 @@ protected:
     virtual void setWidgetText( const QString &t );
 };
 
+class PHIPasswordItem : public PHIAbstractInputItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { Password=3 };
+    explicit PHIPasswordItem();
+    virtual QString listName() const { return tr( "Password" ); }
+    virtual QString description() const { return tr( "Line edit with input type <password>" ); }
+    virtual PHIWID wid() const { return Password; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/password" ) ); }
+
+protected:
+    virtual void setWidgetText( const QString &s );
+};
+
 #endif // PHIINPUTITEMS_H

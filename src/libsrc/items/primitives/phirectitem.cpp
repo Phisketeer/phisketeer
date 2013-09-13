@@ -105,8 +105,8 @@ PHIRectItem::PHIRectItem()
 
 void PHIRectItem::drawShape( QPainter *p, const QRectF& )
 {
-    bool b=( borderRadius() || hasTransformation() ) ? true : false;
-    p->setRenderHint( QPainter::Antialiasing, b );
+    //bool b=( borderRadius() || hasTransformation() ) ? true : false;
+    p->setRenderHint( QPainter::Antialiasing, hasTransformation() ? true : false );
     if ( borderRadius() ) p->drawRoundedRect( rect(), borderRadius(), borderRadius() );
     else p->drawRect( rect() );
 }

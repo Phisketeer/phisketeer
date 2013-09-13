@@ -19,27 +19,9 @@
 #include <QDataStream>
 #include "phieffect.h"
 
-PHIEffect::PHIEffect() : _effects( PHIEffect::ENone )
+PHIEffect::PHIEffect()
+    : _effects( ENone )
 {
-    //qDebug( "PHIEffect::PHIEffect()" );
-}
-
-PHIEffect::~PHIEffect()
-{
-    //qDebug( "PHIEffect::~PHIEffect()" );
-}
-
-PHIEffect& PHIEffect::operator =( const PHIEffect &eff )
-{
-    _effects=eff._effects;
-    _v=eff._v;
-    return *this;
-}
-
-PHIEffect::PHIEffect( const PHIEffect &eff )
-{
-    _effects=eff._effects;
-    _v=eff._v;
 }
 
 void PHIEffect::setFadeIn( qint32 start, qint32 duration, qreal maxOpac, quint8 ease )
@@ -115,7 +97,7 @@ void PHIEffect::setSurface( qreal yOff, qreal size )
     else _v.remove( DYOffset );
     if ( size!=30. ) _v.insert( DXOffset, size );
     else _v.remove( DXOffset );
-    _v.insert( DGraphicsType, static_cast<quint8>(GTSurface) );
+    _v.insert( DGraphicsType, static_cast<quint8>(GTReflection) );
 }
 
 void PHIEffect::setMoveTo( qint32 start, qint32 duration, qint32 left, qint32 top, quint8 ease )
@@ -187,8 +169,9 @@ void PHIEffect::setRotate( quint8 axis, qreal stepX, qreal stepY, qreal stepZ )
     else _v.remove( DRotateStepZ );
 }
 
-QByteArray PHIEffect::save() const
+QByteArray PHIEffect::save( int version ) const
 {
+    Q_UNUSED( version )
     QByteArray data;
     QDataStream ds( &data, QIODevice::WriteOnly );
     ds.setVersion( PHI_DSV );
@@ -249,8 +232,9 @@ QByteArray PHIEffect::save() const
     return data;
 }
 
-void PHIEffect::load( const QByteArray &data )
+void PHIEffect::load(const QByteArray &data , int version )
 {
+    Q_UNUSED( version );
     QByteArray d=data;
     QDataStream ds( &d, QIODevice::ReadOnly );
     ds.setVersion( PHI_DSV );

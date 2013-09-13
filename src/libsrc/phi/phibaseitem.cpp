@@ -34,6 +34,7 @@
 #include "phiitemstylecss.h"
 #include "phisrequest.h"
 #include "phiitemdata.h"
+#include "phieffects.h"
 
 QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem* const &it )
 {
@@ -60,6 +61,7 @@ static QStringList _myproperties( const QObject *obj )
 PHIBaseItem::PHIBaseItem()
     : QObject( 0 ), _type( TUndefined ), _gw( 0 ), _flags( FNone )
 {
+    _effect=new PHIEffect();
     _visibleData=new PHIBooleanData();
     _visibleData->setBoolean( true );
     _titleData=new PHITextData();
@@ -74,6 +76,7 @@ PHIBaseItem::PHIBaseItem()
 
 PHIBaseItem::~PHIBaseItem()
 {
+    delete _effect;
     delete _visibleData;
     delete _titleData;
     delete _styleSheetData;
@@ -127,7 +130,6 @@ void PHIBaseItem::privateSqueeze()
     if ( url().isEmpty() ) _variants.remove( DUrl );
     if ( label().isEmpty() ) _variants.remove( DLabel );
     if ( value().isEmpty() ) _variants.remove( DValue );
-    if ( text().isEmpty() ) _variants.remove( DText );
     if ( hasDelimiter() && delimiter()==L1( "\n" ) ) _variants.remove( DDelimiter );
     else if ( !hasDelimiter() ) _variants.remove( DDelimiter );
     if ( tabIndex()==0 ) _variants.remove( DTabIndex );
@@ -154,6 +156,11 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     if ( _flags & FUseStyleSheet ) in >> _styleSheetData;
     if ( _flags & FStoreTitleData ) in >> _titleData;
     if ( _flags & FStoreVisibleData ) in >> _visibleData;
+    if ( _flags & FStoreEffectData ) {
+        QByteArray effData;
+        in >> effData;
+        _effect->load( effData, version );
+    }
     loadItemData( in, version );
 
     setTransformPos( _variants.value( DTransformPos, 1 ).value<quint8>() );
@@ -162,6 +169,7 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     resize( preserve );
     updateText( page()->currentLang() );
     updateData();
+    updateEffect();
     if ( _gw ) {
         _gw->setPos( _x, _y );
         _gw->setTransform( computeTransformation() );
@@ -175,6 +183,7 @@ QByteArray PHIBaseItem::save( int version )
     QDataStream out( &arr, QIODevice::WriteOnly );
     out.setVersion( PHI_DSV2 );
     Q_ASSERT( version>2 );
+    Q_ASSERT( page() );
     privateSqueeze();
     if ( _xRot ) _variants.insert( DXRot, _xRot );
     if ( _yRot ) _variants.insert( DYRot, _yRot );
@@ -188,13 +197,18 @@ QByteArray PHIBaseItem::save( int version )
     else _flags |= FStoreVisibleData;
     if ( _titleData->unparsedStatic() && _titleData->text().isEmpty() ) _flags &= ~FStoreTitleData;
     else _flags |= FStoreTitleData;
+    if ( _effect->effects()==PHIEffect::ENone ) _flags &= ~FStoreEffectData;
+    else _flags |= FStoreEffectData;
     if ( _flags!=FNone ) storeFlags();
     out << _x << _y << _width << _height << _zIndex << _variants;
     if ( _flags & FUseStyleSheet ) out << _styleSheetData; // toggled by IDE
     if ( _flags & FStoreTitleData ) out << _titleData;
     if ( _flags & FStoreVisibleData ) out << _visibleData;
+    if ( _flags & FStoreEffectData ) out << _effect->save( version );
     saveItemData( out, version );
-    updateData();
+    updateText( page()->currentLang() ); // restore text data possibly stored in _variants
+    updateData(); // restore all dynamic item data cleaned by squeeze()
+    updateEffect();
     return arr;
 }
 
@@ -240,7 +254,10 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     if ( attributes & ADynamicData ) in >> dynData;
     if ( attributes & AExtensionData ) in >> extensions >> extensionData;
     else extensions=0;
-    if ( attributes & AEffectData ) in >> effectData;
+    if ( attributes & AEffectData ) {
+        in >> effectData;
+        _effect->load( effectData, 1 );
+    }
     if ( attributes & AEditorData ) in >> editorData;
     // loading preset palette color IDs from editorData:
     if ( !editorData.isEmpty() ) loadEditorData1_x( editorData );
@@ -287,6 +304,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         else if ( g.type()==QGradient::RadialGradient ) setGradient( d.radialGradient() );
     }
     updateData();
+    updateEffect();
 }
 
 void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
@@ -390,6 +408,7 @@ void PHIBaseItem::setFont( const QFont &font )
         _gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
         _height=_gw->size().height();
     }
+    updateData();
 }
 
 QFont PHIBaseItem::font() const
@@ -641,6 +660,7 @@ void PHIBaseItem::setGradient( QLinearGradient g )
     _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
     _variants.insert( DGradientStopPoints, qVariantFromValue( g.stops() ) );
     _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
+    updateData();
     update();
 }
 
@@ -651,6 +671,7 @@ void PHIBaseItem::setGradient( QConicalGradient g )
     _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
     _variants.insert( DGradientStopPoints, qVariantFromValue( g.stops() ) );
     _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
+    updateData();
     update();
 }
 
@@ -662,6 +683,7 @@ void PHIBaseItem::setGradient( QRadialGradient g )
     _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
     _variants.insert( DGradientStopPoints, qVariantFromValue( g.stops() ) );
     _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
+    updateData();
     update();
 }
 
@@ -727,6 +749,52 @@ QRadialGradient PHIBaseItem::radialGradient() const
     return g;
 }
 
+void PHIBaseItem::updateEffect()
+{
+    if ( !_gw ) return;
+    if ( _effect->effects() & PHIEffect::EGraphics ) {
+        qreal eStrength, eRadius, eXOff, eYOff;
+        QColor eColor;
+        switch ( _effect->graphicsType() ) {
+        case PHIEffect::GTBlur: {
+            _effect->blur( eRadius );
+            QGraphicsBlurEffect *blur=new QGraphicsBlurEffect();
+            blur->setBlurHints( QGraphicsBlurEffect::AnimationHint );
+            blur->setBlurRadius( eRadius );
+            _gw->setGraphicsEffect( blur );
+            break;
+        }
+        case PHIEffect::GTColorize: {
+            _effect->colorize( eColor, eStrength );
+            QGraphicsColorizeEffect *colorize=new QGraphicsColorizeEffect();
+            colorize->setStrength( eStrength );
+            colorize->setColor( eColor );
+            _gw->setGraphicsEffect( colorize );
+            break;
+        }
+        case PHIEffect::GTShadow: {
+            _effect->shadow( eColor, eXOff, eYOff, eRadius );
+            QGraphicsDropShadowEffect *shadow=new QGraphicsDropShadowEffect();
+            shadow->setBlurRadius( eRadius*2. );
+            shadow->setColor( eColor );
+            shadow->setXOffset( eXOff );
+            shadow->setYOffset( eYOff );
+            _gw->setGraphicsEffect( shadow );
+            break;
+        }
+        case PHIEffect::GTReflection: {
+            _effect->surface( eYOff, eRadius );
+            PHIReflectionEffect *surface=new PHIReflectionEffect();
+            surface->setYOffset( eYOff );
+            surface->setSize( eRadius );
+            _gw->setGraphicsEffect( surface );
+            break;
+        }
+        default:;
+        }
+    } else _gw->setGraphicsEffect( 0 );
+}
+
 /*
 void PHIBaseItem::setAlignment( quint8 a )
 {
@@ -737,28 +805,6 @@ void PHIBaseItem::setAlignment( quint8 a )
     }
     _variants.insert( DAlignment, a );
     _properties |= PHIItem::PAlignment;
-}
-
-void PHIBaseItem::setStartAngle( qint16 a )
-{
-    if ( a==0 ) {
-        _variants.remove( DStartAngle );
-        _properties&= ~PHIItem::PStartAngle;
-        return;
-    }
-    _variants.insert( DStartAngle, a );
-    _properties|= PHIItem::PStartAngle;
-}
-
-void PHIBaseItem::setSpanAngle( qint16 a )
-{
-    if ( a==5760 ) {
-        _variants.remove( DSpanAngle );
-        _properties&= ~PHIItem::PSpanAngle;
-        return;
-    }
-    _variants.insert( DSpanAngle, a );
-    _properties|= PHIItem::PSpanAngle;
 }
 
 QDataStream& operator<<( QDataStream &out, const PHIBaseItem *it )

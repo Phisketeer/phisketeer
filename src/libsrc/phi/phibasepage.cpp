@@ -262,12 +262,14 @@ QStringList PHIBasePage::itemIds() const
 
 QString PHIBasePage::nextFreeId( const QString &requestedId ) const
 {
-    PHIBaseItem *it=findChild<PHIBaseItem*>(requestedId);
-    if ( !it ) return requestedId;
+    QString rid=requestedId.simplified();
+    rid.replace( L1( " " ), QString() );
+    PHIBaseItem *it=findChild<PHIBaseItem*>(rid);
+    if ( !it ) return rid;
     int i=1;
-    QString id=requestedId+L1( "_" )+QString::number( ++i );
+    QString id=rid+L1( "_" )+QString::number( ++i );
     while ( findChild<PHIBaseItem*>(id) ) {
-        id=requestedId+L1( "_" )+QString::number( ++i );
+        id=rid+L1( "_" )+QString::number( ++i );
     }
     return id;
 }

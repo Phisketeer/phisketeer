@@ -32,23 +32,20 @@ class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
     Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
 
 public:
-    enum ItemData { DColor=-100, DBackgroundColor=-101, DTmpColor=-102, DTmpBackgroundColor=-103 };
+    enum ItemData { DColor=-100, DBackgroundColor=-101, DText=-102, DTmpColor=-103, DTmpBackgroundColor=-104 };
     explicit PHIAbstractTextItem();
     virtual ~PHIAbstractTextItem();
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
 
-public:
-    virtual bool hasText() const { return true; }
-    virtual void setText( const QString &t, const QByteArray &lang );
-    virtual QString text( const QByteArray &lang ) const;
-
 public slots:
     inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
     inline void setBackgroundColor( const QColor &col ) { setColor( PHIPalette::WidgetBase, _backgroundColorRole, col ); }
     inline QColor color() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
     inline QColor backgroundColor() const { return data( DBackgroundColor, QColor( Qt::white ) ).value<QColor>(); }
+    inline QString text() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
+    inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); setWidgetText( s ); }
 
 protected:
     virtual bool isSingleLine() const { return true; }
@@ -58,12 +55,19 @@ protected:
     virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
+    virtual bool hasText() const { return true; }
+    virtual void setText( const QString &t, const QByteArray &lang );
+    virtual QString text( const QByteArray &lang ) const;
     virtual PHITextData* textData() const { return _textData; }
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
     virtual void updateText( const QByteArray &lang );
     virtual PHIConfigWidget* configWidget();
+    inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
+    inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
+    inline void setBackgroundColorRole( PHIPalette::ColorRole cr ) { _backgroundColorRole=cr; }
+    inline PHIPalette::ColorRole backgroundColorRole() const { return _backgroundColorRole; }
 
 private:
     PHIPalette::ColorRole _colorRole, _backgroundColorRole;
@@ -119,6 +123,10 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
     virtual PHIConfigWidget* configWidget();
+    inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
+    inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
+    inline void setOutlineColorRole( PHIPalette::ColorRole cr ) { _outlineColorRole=cr; }
+    inline PHIPalette::ColorRole outlineColorRole() const { return _outlineColorRole; }
 
 protected:
     PHIPalette::ColorRole _colorRole, _outlineColorRole;

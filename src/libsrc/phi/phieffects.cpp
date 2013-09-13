@@ -22,23 +22,23 @@
 #include "phieffects.h"
 #include "phi.h"
 
-PHISurfaceEffect::PHISurfaceEffect( QObject *parent )
+PHIReflectionEffect::PHIReflectionEffect( QObject *parent )
     : QGraphicsEffect( parent )
 {
-    qDebug( "PHISurfaceEffect::PHISurfaceEffect()" );
+    qDebug( "PHIReflectionEffect::PHIReflectionEffect()" );
 }
 
-PHISurfaceEffect::~PHISurfaceEffect()
+PHIReflectionEffect::~PHIReflectionEffect()
 {
-    qDebug( "PHISurfaceEffect::~PHISurfaceEffect()" );
+    qDebug( "PHIReflectionEffect::~PHIReflectionEffect()" );
 }
 
-void PHISurfaceEffect::sourceChanged( QGraphicsEffect::ChangeFlags flags )
+void PHIReflectionEffect::sourceChanged( QGraphicsEffect::ChangeFlags flags )
 {
     QGraphicsEffect::sourceChanged( flags );
 }
 
-void PHISurfaceEffect::draw( QPainter *painter )
+void PHIReflectionEffect::draw( QPainter *painter )
 {
     /*
     QPoint offset;
@@ -88,12 +88,9 @@ void PHISurfaceEffect::draw( QPainter *painter )
     painter->drawImage( 0, 0, img );
 }
 
-QRectF PHISurfaceEffect::boundingRectFor( const QRectF &sourceRect ) const
+QRectF PHIReflectionEffect::boundingRectFor( const QRectF &sourceRect ) const
 {
     QRectF r=sourceRect;
-    //qDebug( "device %f %f %f %f", r.x(), r.y(), r.width(), r.height() );
-    //QRectF r2=sourceBoundingRect();
-    //qDebug( "device %f %f %f %f", r2.x(), r2.y(), r2.width(), r2.height() );
     r.setHeight( sourceRect.height()+2*_size+2*_yOff );
     return r;
 }
