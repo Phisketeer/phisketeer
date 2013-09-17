@@ -145,6 +145,7 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     in.setVersion( PHI_DSV2 );
     in >> _x >> _y >> _width >> _height >> _zIndex >> _variants;
     setObjectName( QString::fromUtf8( _id ) );
+    QSizeF preserve=QSizeF( _width, _height );
     _xRot=_variants.value( DXRot, 0 ).toReal();
     _yRot=_variants.value( DYRot, 0 ).toReal();
     _zRot=_variants.value( DZRot, 0 ).toReal();
@@ -164,7 +165,6 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     loadItemData( in, version );
 
     setTransformPos( _variants.value( DTransformPos, 1 ).value<quint8>() );
-    QSizeF preserve=QSizeF( _width, _height );
     setFont( font() ); // setFont may change height depending on sizeHint
     resize( preserve );
     updateText( page()->currentLang() );
@@ -200,6 +200,8 @@ QByteArray PHIBaseItem::save( int version )
     if ( _effect->effects()==PHIEffect::ENone ) _flags &= ~FStoreEffectData;
     else _flags |= FStoreEffectData;
     if ( _flags!=FNone ) storeFlags();
+    qDebug() << "save" << id() << pos() << size() << _gw->pos() << _gw->size();
+    if ( pos()!=_gw->pos() ) qDebug() << "PROBLEM";
     out << _x << _y << _width << _height << _zIndex << _variants;
     if ( _flags & FUseStyleSheet ) out << _styleSheetData; // toggled by IDE
     if ( _flags & FStoreTitleData ) out << _titleData;
@@ -302,6 +304,15 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         if ( g.type()==QGradient::ConicalGradient ) setGradient( d.conicalGradient() );
         else if ( g.type()==QGradient::LinearGradient ) setGradient( d.linearGradient() );
         else if ( g.type()==QGradient::RadialGradient ) setGradient( d.radialGradient() );
+    }
+    if ( property( "childIds" ).isValid() ) { // linear layout
+        setProperty( "childIds", qVariantFromValue( d.childIds() ) );
+        setProperty( "line", 0 );
+        setProperty( "pattern", 0 );
+        setProperty( "leftMargin", 0 );
+        setProperty( "topMargin", 0 );
+        setProperty( "rightMargin", 0 );
+        setProperty( "bottomMargin", 0 );
     }
     updateData();
     updateEffect();

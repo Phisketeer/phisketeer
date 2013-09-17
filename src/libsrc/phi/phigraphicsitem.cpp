@@ -62,6 +62,7 @@ PHIGraphicsItem::PHIGraphicsItem( PHIBaseItem *it )
         setAcceptHoverEvents( false );
     }
     setCacheMode( NoCache );
+    setOwnedByLayout( false );
 }
 
 QPainterPath PHIGraphicsItem::shape() const

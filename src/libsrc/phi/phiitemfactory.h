@@ -43,6 +43,7 @@ public:
 
 protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual bool isPrivateItem() const { return true; }
 
 private:
     PHIWID _requestedWID;

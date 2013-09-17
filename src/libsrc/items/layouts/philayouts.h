@@ -16,17 +16,15 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PHIPRIMITIVES_H
-#define PHIPRIMITIVES_H
+#ifndef PHILAYOUTS_H
+#define PHILAYOUTS_H
 #include "phiitemplugin.h"
-#include "phiellipseitem.h"
-#include "phirectitem.h"
-#include "phigraphictext.h"
+#include "philayoutitems.h"
 
-class PHIPrimitives : public PHIItemPlugin
+class PHILayouts : public PHIItemPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.phisketeer.phi.items.primitives" FILE "phiprimitives.json")
+    Q_PLUGIN_METADATA(IID "org.phisketeer.phi.items.layouts" FILE "philayouts.json")
     Q_CLASSINFO( "Author", "Marius Schumacher" )
     Q_CLASSINFO( "Url", "http://www.phisketeer.org" )
     Q_CLASSINFO( "Version", "1.0" )
@@ -37,33 +35,28 @@ public:
     virtual PHIBaseItem* create( PHIWID wid ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
-    virtual QString category() const { return tr( "Shapes" ); }
+    virtual QString category() const { return tr( "Layouts" ); }
 };
 
-inline PHIBaseItem* PHIPrimitives::create( PHIWID wid ) const
+inline PHIBaseItem* PHILayouts::create( PHIWID wid ) const
 {
     switch ( wid ) {
-    case PHIRectItem::Rect: return new PHIRectItem();
-    case PHIRoundedRectItem::RoundedRect: return new PHIRoundedRectItem();
-    case PHIEllipseItem::Ellipse: return new PHIEllipseItem();
-    case PHIGraphicText::GraphText: return new PHIGraphicText();
+    case PHIVerticalLayoutItem::VerticalLayout: return new PHIVerticalLayoutItem();
+    case PHIHorizontalLayoutItem::HorizontalLayout: return new PHIHorizontalLayoutItem();
     }
     return 0;
 }
 
-inline QStringList PHIPrimitives::keys() const
+inline QStringList PHILayouts::keys() const
 {
-    return QStringList() << QStringLiteral( "rect" ) << QStringLiteral( "ellipse" )
-        << QStringLiteral( "roundedrect" ) << QStringLiteral( "graphtext" );
+    return QStringList() << QStringLiteral( "hboxlayout" ) << QStringLiteral( "vboxlayout" );
 }
 
-inline PHIWID PHIPrimitives::wid( const QString &key ) const
+inline PHIWID PHILayouts::wid( const QString &key ) const
 {
-    if ( key==QLatin1String( "rect" ) ) return PHIRectItem::Rect;
-    if ( key==QLatin1String( "ellipse" ) ) return PHIEllipseItem::Ellipse;
-    if ( key==QLatin1String( "roundedrect" ) ) return PHIRoundedRectItem::RoundedRect;
-    if ( key==QLatin1String( "graphtext" ) ) return PHIGraphicText::GraphText;
+    if ( key==QLatin1String( "hboxlayout" ) ) return PHIHorizontalLayoutItem::HorizontalLayout;
+    if ( key==QLatin1String( "vboxlayout" ) ) return PHIVerticalLayoutItem::VerticalLayout;
     return 0;
 }
 
-#endif // PHIPRIMITIVES_H
+#endif // PHILAYOUTS_H

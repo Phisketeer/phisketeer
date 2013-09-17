@@ -15,5 +15,9 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS += primitives input layouts
-TEMPLATE = subdirs
+include( ../items.pri )
+HEADERS += philayouts.h \
+    philayoutitems.h
+SOURCES += philayoutitems.cpp
+TARGET = philayouts
+OTHER_FILES = philayouts.json

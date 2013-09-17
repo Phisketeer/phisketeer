@@ -24,6 +24,7 @@
 
 class PHIBasePage;
 class PHITextData;
+class QGraphicsGridLayout;
 
 class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 {
@@ -94,7 +95,9 @@ public:
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
-    virtual bool hasGradient() const { return true; }
+    inline virtual bool hasGradient() const { return true; }
+    inline virtual bool isDraggable() const { return true; }
+    inline virtual bool isDroppable() const { return true; }
 
 public slots:
     void setLine( quint8 l );
@@ -107,8 +110,6 @@ public slots:
     inline QColor color() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
     inline QColor outlineColor() const { return data( DOutlineColor, QColor( Qt::black ) ).value<QColor>(); }
     inline qreal penWidth() const { return data( DPenWidth, 1. ).toReal(); }
-    inline virtual bool isDraggable() const { return true; }
-    inline virtual bool isDroppable() const { return true; }
 
 protected:
     virtual QRectF boundingRect() const;
@@ -131,6 +132,77 @@ protected:
 protected:
     PHIPalette::ColorRole _colorRole, _outlineColorRole;
     static qreal _dropRegion;
+};
+
+class PHIEXPORT PHIAbstractLayoutItem : public PHIAbstractShapeItem
+{
+    Q_OBJECT
+    Q_PROPERTY( qreal topLeftRadius READ topLeftRadius WRITE setTopLeftRadius )
+    Q_PROPERTY( qreal topRightRadius READ topRightRadius WRITE setTopRightRadius )
+    Q_PROPERTY( qreal bottomLeftRadius READ bottomLeftRadius WRITE setBottomLeftRadius )
+    Q_PROPERTY( qreal bottomRightRadius READ bottomRightRadius WRITE setBottomRightRadius )
+    Q_PROPERTY( qreal leftMargin READ leftMargin WRITE setLeftMargin )
+    Q_PROPERTY( qreal topMargin READ topMargin WRITE setTopMargin )
+    Q_PROPERTY( qreal rightMargin READ rightMargin WRITE setRightMargin )
+    Q_PROPERTY( qreal bottomMargin READ bottomMargin WRITE setBottomMargin )
+
+public:
+    enum ItemData { DRadiusTopLeft=-99, DRadiusTopRight=-98, DRadiusBottomLeft=-97,
+        DRadiusBottomRight=-96, DVerticalSpacing=-95, DHorizontalSpacing=-94,
+        DPaddingLeft=-93, DPaddingTop=-93, DPaddingRight=-92, DPaddingBottom=-91,
+        DBorderWidthLeft=-90, DBorderWidthTop=-89, DBorderWidthRight=-88,
+        DBorderWidthBottom=-87, DMarginLeft=-86, DMarginTop=-85, DMarginRight=-84,
+        DMarginBottom=-83 };
+    explicit PHIAbstractLayoutItem();
+    inline virtual bool isLayoutItem() const { return true; }
+    inline virtual bool isFocusable() const { return true; }
+    virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
+    virtual void activateLayout()=0; // called once after page loading
+    inline const QList<PHIBaseItem*>& childItems() const { return _children; }
+    void breakLayout();
+
+public slots:
+    inline qreal topLeftRadius() const { return data( DRadiusTopLeft, 0 ).toReal(); }
+    inline void setTopLeftRadius( qreal r ) { setData( DRadiusTopLeft, r ); update(); }
+    inline qreal topRightRadius() const { return data( DRadiusTopRight, 0 ).toReal(); }
+    inline void setTopRightRadius( qreal r ) { setData( DRadiusTopRight, r ); update(); }
+    inline qreal bottomRightRadius() const { return data( DRadiusBottomRight, 0 ).toReal(); }
+    inline void setBottomRightRadius( qreal r ) { setData( DRadiusBottomRight, r ); update(); }
+    inline qreal bottomLeftRadius() const { return data( DRadiusBottomLeft, 0 ).toReal(); }
+    inline void setBottomLeftRadius( qreal r ) { setData( DRadiusBottomLeft, r ); update(); }
+    inline qreal leftMargin() const { return data( DMarginLeft, 6 ).toReal(); }
+    inline void setLeftMargin( qreal m ) { setData( DMarginLeft, m ); update(); }
+    inline qreal topMargin() const { return data( DMarginTop, 6 ).toReal(); }
+    inline void setTopMargin( qreal m ) { setData( DMarginTop, m ); update(); }
+    inline qreal rightMargin() const { return data( DMarginRight, 6 ).toReal(); }
+    inline void setRightMargin( qreal m ) { setData( DMarginRight, m ); update(); }
+    inline qreal bottomMargin() const { return data( DMarginBottom, 6 ).toReal(); }
+    inline void setBottomMargin( qreal m ) { setData( DMarginBottom, m ); update(); }
+
+protected:
+    virtual void squeeze();
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void updateData();
+    virtual void paint( QPainter *p, const QRectF &exposed );
+    virtual void drawShape( QPainter *p, const QRectF &exposed );
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    const QGraphicsGridLayout* layout() const { return _l; }
+    QGraphicsGridLayout* layout() { return _l; }
+    void insertBaseItem( PHIBaseItem *it, int row, int column=0, int rowSpan=1, int columnSpan=1 );
+
+private slots:
+    void synchronizeGeometry( PHIBaseItem *it );
+
+signals:
+    void updateGeometry( PHIBaseItem *it );
+
+private:
+    void setChildItem( PHIBaseItem *it );
+    void releaseItem( PHIBaseItem *it );
+
+    QGraphicsGridLayout *_l;
+    QList <PHIBaseItem*> _children;
 };
 
 #endif // PHIABSTRACTITEMS_H

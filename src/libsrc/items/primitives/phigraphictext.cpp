@@ -132,6 +132,13 @@ void PHIGraphicText::squeeze()
     removeData( DText );
 }
 
+QSizeF PHIGraphicText::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    Q_UNUSED( which )
+    Q_UNUSED( constraint )
+    return boundingRect().size();
+}
+
 PHIConfigWidget* PHIGraphicText::configWidget()
 {
     return new PHIColorConfig( this );

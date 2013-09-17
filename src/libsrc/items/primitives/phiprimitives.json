@@ -1,1 +1,1 @@
-{ "Keys": [ "rect", "ellipse" ] }
+{ "Keys": [ "rect", "roundedrect", "ellipse", "graphtext" ] }

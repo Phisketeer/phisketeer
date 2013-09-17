@@ -48,6 +48,7 @@ class PHIEXPORT PHIBaseItem : public QObject
 {
     friend class PHIGraphicsItem;
     friend class PHIGraphicsScene;
+    friend class PHIAbstractLayoutItem;
     friend class PHIAGraphicsItem;
     friend class PHIAGraphicsScene;
     friend class ARTGraphicsScene;
@@ -55,6 +56,8 @@ class PHIEXPORT PHIBaseItem : public QObject
     friend class ARTUndoData;
     friend class ARTUndoProperty;
     friend class ARTUndoEffect;
+    friend class ARTUndoAddLayout;
+    friend class ARTUndoDelLayout;
     friend class ARTItemSettings;
     friend class ARTItemProperties;
     friend class ARTItemCSS;
@@ -102,7 +105,7 @@ public:
     /*
     enum Widget { NO_ITEM=0, RADIO_BUTTON=5, BUTTON=6,
         SUBMIT_BUTTON=7, RESET_BUTTON=8, FILE_BUTTON=9, COMBO_BOX=10, HIDDEN=11, IMAGE_BUTTON=12,
-        LINE=15, IMAGE=16, LAYOUT_LOGIN=17, LIST=18, LAYOUT_GRID=19, LAYOUT_VBOX=20, LAYOUT_HBOX=21,
+        LINE=15, IMAGE=16, LAYOUT_LOGIN=17, LIST=18, LAYOUT_GRID=19,
         LAYOUT_FORM=22, LINK=23, TAB=24, HSPACE=26, VSPACE=27, TEXT=29,
         LABEL=30, DATEEDIT=31, CALENDAR=32, LANG_SELECTOR=33, LAYOUT_ADDRESS=34, LAYOUT_DELIVERY=35,
         LAYOUT_CREDIT_CARD=36, ROLLOVER_BUTTON=37, LAYOUT_CONTACT=38, LAYOUT_PERIOD=39, LAYOUT_REGISTER=40,
@@ -200,6 +203,7 @@ public: // not usable by script engine
     virtual QPixmap pixmap() const=0;
     virtual QString listName() const=0;
     virtual QString description() const=0;
+    virtual bool isPrivateItem() const { return false; }
 
 public slots: // usable by script engine
     inline qreal x() const { return _x; }
@@ -324,12 +328,12 @@ private:
     inline PHITextData* titleData() const { return _titleData; }
     inline PHIBooleanData* visibleData() const { return _visibleData; }
     inline PHIEffect* effect() { return _effect; }
+    inline QGraphicsWidget* gw() { return _gw; }
 
     // IDE related members
     void loadEditorData1_x( const QByteArray &arr );
     inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
     inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
-    inline QGraphicsWidget* gw() const { return _gw; }
     virtual PHIConfigWidget* configWidget() { return 0; }
     virtual PHIIntData* intData_1() const { return 0; }
     virtual PHIIntData* intData_2() const { return 0; }

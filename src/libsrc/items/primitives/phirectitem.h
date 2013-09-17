@@ -53,7 +53,7 @@ class PHIRectItem : public PHIAbstractShapeItem
 
 public:
     enum ItemData { DBorderRadius=1 };
-    enum Wid { Rect=14, RoundedRect=25 };
+    enum Wid { Rect=14 };
     explicit PHIRectItem();
     inline virtual PHIWID wid() const { return Rect; }
     inline PHIIntData* radiusData() { return &_radiusData; }
@@ -81,6 +81,20 @@ private:
 
 private:
     PHIIntData _radiusData;
+};
+
+class PHIRoundedRectItem : public PHIRectItem
+{
+public:
+    enum Wid { RoundedRect=25 };
+    explicit PHIRoundedRectItem();
+    inline virtual PHIWID wid() const { return Rect; }
+    virtual QString listName() const { return tr( "Rounded rect" ); }
+    virtual QString description() const { return tr( "Draws a box with rounded courners" ); }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/roundedrect" ) ); }
+
+protected:
+    virtual bool isPrivateItem() const { return true; }
 };
 
 #endif // PHIRECTITEM_H

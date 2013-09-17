@@ -22,6 +22,7 @@
 #include <QMimeData>
 #include <QUndoStack>
 #include <QWidget>
+#include <QGraphicsGridLayout>
 #include "phiabstractitems.h"
 #include "phidatasources.h"
 #include "phicolorconfig.h"
@@ -85,14 +86,14 @@ void PHIAbstractTextItem::updateText( const QByteArray &lang )
 QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     if ( which==Qt::MinimumSize ) {
-        if ( isSingleLine() ) return QSizeF( 20, 21 );
-        return QSizeF( 20, 21 );
+        if ( isSingleLine() ) return QSizeF( 20, 22 );
+        return QSizeF( 20, 36 );
     }
     if ( which==Qt::PreferredSize ) {
         QFont f=font();
         f.setPointSizeF( PHI::adjustedFontSize( font().pointSizeF() ) );
         QFontMetricsF m( f );
-        if ( isSingleLine() ) return QSizeF( 160, qMax( 21., m.height()+4 ) );
+        if ( isSingleLine() ) return QSizeF( 160, qMax( 22., m.height()+4 ) );
         return QSizeF( 160, qMax( m.height()+4, 96. ) );
     }
     return PHIBaseItem::sizeHint( which, constraint );
@@ -509,4 +510,145 @@ void PHIAbstractShapeItem::saveItemData( QDataStream &out, int version )
 {
     Q_UNUSED( version )
     out << static_cast<quint8>(_colorRole) << static_cast<quint8>(_outlineColorRole);
+}
+
+PHIAbstractLayoutItem::PHIAbstractLayoutItem()
+    : PHIAbstractShapeItem(), _l( 0 )
+{
+    if ( gw() ) {
+        _l=new QGraphicsGridLayout();
+        _l->setContentsMargins( leftMargin(), topMargin(), rightMargin(), bottomMargin() );
+        gw()->setLayout( _l );
+    }
+    connect( this, &PHIAbstractLayoutItem::updateGeometry, this, &PHIAbstractLayoutItem::synchronizeGeometry, Qt::QueuedConnection );
+}
+
+void PHIAbstractLayoutItem::synchronizeGeometry( PHIBaseItem *it )
+{
+    it->setPos( it->gw()->pos() );
+    it->resize( it->gw()->size() );
+    PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+    if ( !lit ) return;
+    if ( lit==this ) return;
+    foreach ( PHIBaseItem *cit, lit->childItems() ) synchronizeGeometry( cit );
+}
+
+void PHIAbstractLayoutItem::updateData()
+{
+    if ( !_l ) return;
+    _l->setContentsMargins( leftMargin(), topMargin(), rightMargin(), bottomMargin() );
+    _l->invalidate();
+    update();
+}
+
+void PHIAbstractLayoutItem::squeeze()
+{
+    PHIAbstractShapeItem::squeeze();
+    if ( data( DRadiusTopLeft ).toReal()==0 ) removeData( DRadiusTopLeft );
+    if ( data( DRadiusTopRight ).toReal()==0 ) removeData( DRadiusTopRight );
+    if ( data( DRadiusBottomLeft ).toReal()==0 ) removeData( DRadiusBottomLeft );
+    if ( data( DRadiusBottomRight ).toReal()==0 ) removeData( DRadiusBottomRight );
+    if ( data( DMarginLeft ).toReal()==6 ) removeData( DMarginLeft );
+    if ( data( DMarginTop ).toReal()==6 ) removeData( DMarginTop );
+    if ( data( DMarginRight ).toReal()==6 ) removeData( DMarginRight );
+    if ( data( DMarginBottom ).toReal()==6 ) removeData( DMarginBottom );
+}
+
+void PHIAbstractLayoutItem::loadItemData( QDataStream &in, int version )
+{
+    PHIAbstractShapeItem::loadItemData( in, version );
+}
+
+void PHIAbstractLayoutItem::saveItemData( QDataStream &out, int version )
+{
+    PHIAbstractShapeItem::saveItemData( out, version );
+}
+
+void PHIAbstractLayoutItem::insertBaseItem( PHIBaseItem *it, int row, int column, int rowSpan, int columnSpan )
+{
+    Q_ASSERT( _l );
+    _children.append( it );
+    setChildItem( it );
+    _l->addItem( it->gw(), row, column, rowSpan, columnSpan );
+    _l->invalidate();
+    emit updateGeometry( it );
+    update();
+}
+
+void PHIAbstractLayoutItem::setChildItem( PHIBaseItem *it )
+{
+    Q_ASSERT( gw() );
+    it->setParentId( id() );
+    it->setFlag( PHIBaseItem::FChild, true );
+    it->gw()->setFlag( QGraphicsItem::ItemIsMovable, false );
+    it->gw()->setFlag( QGraphicsItem::ItemIsSelectable, false );
+    it->gw()->setFlag( QGraphicsItem::ItemIsFocusable, false );
+    it->gw()->setAcceptHoverEvents( false );
+}
+
+void PHIAbstractLayoutItem::releaseItem( PHIBaseItem *it )
+{
+    Q_ASSERT( gw() );
+    it->setFlag( PHIBaseItem::FChild, false );
+    it->setParentId( QByteArray() );
+    it->gw()->setFlag( QGraphicsItem::ItemIsMovable, true );
+    it->gw()->setFlag( QGraphicsItem::ItemIsSelectable, true );
+    it->gw()->setFlag( QGraphicsItem::ItemIsFocusable, true );
+    it->gw()->setAcceptHoverEvents( true );
+    it->gw()->setParentItem( 0 );
+}
+
+void PHIAbstractLayoutItem::drawShape(QPainter *p, const QRectF &exposed )
+{
+    Q_UNUSED( exposed )
+    if ( p->pen().style()==Qt::NoPen && p->brush().style()==Qt::NoBrush ) return;
+    qreal rtl=data( DRadiusTopLeft, 0 ).toReal();
+    qreal rtr=data( DRadiusTopRight, 0 ).toReal();
+    qreal rbr=data( DRadiusBottomRight, 0 ).toReal();
+    qreal rbl=data( DRadiusBottomLeft, 0 ).toReal();
+    QRectF cr=QRectF( QPointF( 0, 0 ), size() );
+    QPainterPath path;
+    path.moveTo( cr.x(), cr.y()+rtl );
+    path.arcTo( cr.x(), cr.y(), rtl*2, rtl*2, 180., -90. );
+    path.lineTo( cr.width()-rtr, cr.y() );
+    path.arcTo( cr.width()-rtr*2, cr.y(), rtr*2, rtr*2, 90., -90. );
+    path.lineTo( cr.width(), cr.height()-rbr );
+    path.arcTo( cr.width()-rbr*2, cr.height()-rbr*2, rbr*2, rbr*2, 0, -90. );
+    path.lineTo( rbl, cr.height() );
+    path.arcTo( cr.x(), cr.height()-rbl*2, rbl*2, rbl*2, -90., -90. );
+    path.lineTo( cr.x(), cr.y()+rtl );
+    p->setRenderHint( QPainter::Antialiasing, hasTransformation() );
+    p->drawPath( path );
+}
+
+void PHIAbstractLayoutItem::paint( QPainter *p, const QRectF &exposed )
+{
+    PHIAbstractShapeItem::paint( p, exposed ); // draw background
+    PHIBaseItem::paint( p, exposed ); // draw children
+}
+
+QSizeF PHIAbstractLayoutItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( !_l ) return PHIAbstractShapeItem::sizeHint( which, constraint );
+    switch( which ) {
+    case Qt::PreferredSize: return _l->preferredSize();
+    case Qt::MinimumSize: return _l->minimumSize();
+    case Qt::MaximumSize: return _l->maximumSize();
+    default:;
+    }
+    return QSizeF();
+}
+
+void PHIAbstractLayoutItem::breakLayout()
+{
+    Q_ASSERT( _gw );
+    foreach ( PHIBaseItem *it, _children ) {
+        _l->removeItem( it->gw() );
+        releaseItem( it );
+        emit updateGeometry( it );
+    }
+    _children.clear();
+    _l->invalidate();
+    update();
+    emit updateGeometry( this );
 }

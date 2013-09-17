@@ -27,6 +27,7 @@
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
 #include "phipalette.h"
+#include "phiabstractitems.h"
 
 PHIGraphicsScene::PHIGraphicsScene( QObject *parent )
     : QGraphicsScene( parent ), _page( 0 )
@@ -39,8 +40,12 @@ PHIGraphicsScene::PHIGraphicsScene( QObject *parent )
 
 PHIGraphicsScene::~PHIGraphicsScene()
 {
+    foreach ( PHIBaseItem *it, _page->items() ) {
+        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+        if ( lit ) lit->breakLayout();
+    }
     // don't let delete _page with usual QObject parent mechanism
-    // graphics items must be deleted before via the PHIBasePage destructor!
+    // graphics items must be deleted before (via the PHIBasePage destructor!)
     delete _page;
     qDebug( "PHIGraphicsScene::~PHIGraphicsScene()" );
 }

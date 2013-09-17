@@ -141,3 +141,8 @@ PHIConfigWidget* PHIRectItem::configWidget()
 {
     return new PHIRectConfig( this );
 }
+
+PHIRoundedRectItem::PHIRoundedRectItem()
+    : PHIRectItem()
+{
+}

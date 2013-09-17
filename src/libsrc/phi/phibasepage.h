@@ -144,6 +144,7 @@ public:
     QImage favicon() const { return _favicon; }
     QList <PHIBaseItem*> items() const;
     PHIBaseItem* findItem( const QString &id ) const;
+    inline PHIBaseItem* findItem( const QByteArray &id ) const { return findItem( QString::fromUtf8( id ) ); }
     QString nextFreeId( const QString &requestedId ) const;
     QRect rect() const { return QRect( QPoint(), QSize( _width, _height ) ); }
     quint8 gridSize() const { return _variants.value( DGridSize, 16 ).value<quint8>(); }

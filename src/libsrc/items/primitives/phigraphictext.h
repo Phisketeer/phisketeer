@@ -59,6 +59,7 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
     virtual QRectF boundingRect() const;
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 
 private:
     PHITextData *_textData;
