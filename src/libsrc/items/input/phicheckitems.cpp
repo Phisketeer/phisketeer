@@ -25,11 +25,11 @@ PHICheckBoxItem::PHICheckBoxItem()
     : PHIAbstractInputItem(), _checkedData( 0 )
 {
     _checkedData=new PHIBooleanData();
-    QCheckBox *cb=new QCheckBox();
-    setWidget( cb );
+    setWidget( new QCheckBox() );
     textData()->setText( tr( "Checkbox label" ) );
     setBackgroundColorRole( PHIPalette::Window );
     setColorRole( PHIPalette::WindowText );
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::CheckBox ) );
 }
 
 PHICheckBoxItem::~PHICheckBoxItem()
@@ -92,4 +92,5 @@ void PHICheckBoxItem::updateData()
     } else {
         cb->setChecked( flags() & FChecked );
     }
+    PHIAbstractInputItem::updateData();
 }

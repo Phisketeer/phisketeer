@@ -31,7 +31,6 @@ public:
     virtual QString description() const { return tr( "Line edit with input type <text>" ); }
     virtual PHIWID wid() const { return LineEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
-    //virtual bool isHeightChangeable() const { return false; }
 
 protected:
     virtual void setWidgetText( const QString &s );

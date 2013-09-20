@@ -29,11 +29,13 @@ class QGraphicsGridLayout;
 class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 {
     Q_OBJECT
-    Q_PROPERTY( QColor color READ color WRITE setColor )
+    Q_PROPERTY( QColor textColor READ color WRITE setColor )
     Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
+    Q_PROPERTY( QString text READ text WRITE setText )
+    Q_PROPERTY( quint16 align READ alignment WRITE setAlignment )
 
 public:
-    enum ItemData { DColor=-100, DBackgroundColor=-101, DText=-102, DTmpColor=-103, DTmpBackgroundColor=-104 };
+    enum ItemData { DColor=-100, DBackgroundColor=-101, DText=-102, DTmpColor=-103, DTmpBackgroundColor=-104, DAlignment=-105 };
     explicit PHIAbstractTextItem();
     virtual ~PHIAbstractTextItem();
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
@@ -46,7 +48,9 @@ public slots:
     inline QColor color() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
     inline QColor backgroundColor() const { return data( DBackgroundColor, QColor( Qt::white ) ).value<QColor>(); }
     inline QString text() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
-    inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); setWidgetText( s ); }
+    inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); setWidgetText( s ); updateData(); }
+    inline quint16 alignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
+    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); updateData(); }
 
 protected:
     virtual bool isSingleLine() const { return true; }
@@ -63,7 +67,7 @@ protected:
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
-    virtual void updateText( const QByteArray &lang );
+    virtual void updateData();
     virtual PHIConfigWidget* configWidget();
     inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
     inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
@@ -137,6 +141,7 @@ protected:
 class PHIEXPORT PHIAbstractLayoutItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
+    Q_PROPERTY( quint16 align READ alignment WRITE setAlignment )
     Q_PROPERTY( qreal topLeftRadius READ topLeftRadius WRITE setTopLeftRadius )
     Q_PROPERTY( qreal topRightRadius READ topRightRadius WRITE setTopRightRadius )
     Q_PROPERTY( qreal bottomLeftRadius READ bottomLeftRadius WRITE setBottomLeftRadius )
@@ -145,6 +150,9 @@ class PHIEXPORT PHIAbstractLayoutItem : public PHIAbstractShapeItem
     Q_PROPERTY( qreal topMargin READ topMargin WRITE setTopMargin )
     Q_PROPERTY( qreal rightMargin READ rightMargin WRITE setRightMargin )
     Q_PROPERTY( qreal bottomMargin READ bottomMargin WRITE setBottomMargin )
+    Q_PROPERTY( qreal horizontalSpacing READ horizontalSpacing WRITE setHorizontalSpacing )
+    Q_PROPERTY( qreal verticalSpacing READ verticalSpacing WRITE setVerticalSpacing )
+    Q_PROPERTY( bool enableHeader READ enableHeader WRITE setEnableHeader )
 
 public:
     enum ItemData { DRadiusTopLeft=-99, DRadiusTopRight=-98, DRadiusBottomLeft=-97,
@@ -152,16 +160,21 @@ public:
         DPaddingLeft=-93, DPaddingTop=-93, DPaddingRight=-92, DPaddingBottom=-91,
         DBorderWidthLeft=-90, DBorderWidthTop=-89, DBorderWidthRight=-88,
         DBorderWidthBottom=-87, DMarginLeft=-86, DMarginTop=-85, DMarginRight=-84,
-        DMarginBottom=-83 };
+        DMarginBottom=-83, DAlignment=-82 };
     explicit PHIAbstractLayoutItem();
+    virtual ~PHIAbstractLayoutItem();
     inline virtual bool isLayoutItem() const { return true; }
     inline virtual bool isFocusable() const { return true; }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
     virtual void activateLayout()=0; // called once after page loading
+    virtual void updateChildId( const QString &oldId, const QString &newId )=0;
     inline const QList<PHIBaseItem*>& childItems() const { return _children; }
     void breakLayout();
+    void invalidateLayout();
 
 public slots:
+    inline quint16 alignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
+    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); update(); }
     inline qreal topLeftRadius() const { return data( DRadiusTopLeft, 0 ).toReal(); }
     inline void setTopLeftRadius( qreal r ) { setData( DRadiusTopLeft, r ); update(); }
     inline qreal topRightRadius() const { return data( DRadiusTopRight, 0 ).toReal(); }
@@ -171,31 +184,43 @@ public slots:
     inline qreal bottomLeftRadius() const { return data( DRadiusBottomLeft, 0 ).toReal(); }
     inline void setBottomLeftRadius( qreal r ) { setData( DRadiusBottomLeft, r ); update(); }
     inline qreal leftMargin() const { return data( DMarginLeft, 6 ).toReal(); }
-    inline void setLeftMargin( qreal m ) { setData( DMarginLeft, m ); update(); }
+    inline void setLeftMargin( qreal m ) { setData( DMarginLeft, m ); invalidateLayout(); }
     inline qreal topMargin() const { return data( DMarginTop, 6 ).toReal(); }
-    inline void setTopMargin( qreal m ) { setData( DMarginTop, m ); update(); }
+    inline void setTopMargin( qreal m ) { setData( DMarginTop, m ); invalidateLayout(); }
     inline qreal rightMargin() const { return data( DMarginRight, 6 ).toReal(); }
-    inline void setRightMargin( qreal m ) { setData( DMarginRight, m ); update(); }
+    inline void setRightMargin( qreal m ) { setData( DMarginRight, m ); invalidateLayout(); }
     inline qreal bottomMargin() const { return data( DMarginBottom, 6 ).toReal(); }
-    inline void setBottomMargin( qreal m ) { setData( DMarginBottom, m ); update(); }
+    inline void setBottomMargin( qreal m ) { setData( DMarginBottom, m ); invalidateLayout(); }
+    inline qreal horizontalSpacing() const { return data( DHorizontalSpacing, 6 ).toReal(); }
+    inline void setHorizontalSpacing( qreal h ) { setData( DHorizontalSpacing, h ); invalidateLayout(); }
+    inline qreal verticalSpacing() const { return data( DVerticalSpacing, 6 ).toReal(); }
+    inline void setVerticalSpacing( qreal v ) { setData( DVerticalSpacing, v ); invalidateLayout(); }
+    inline bool enableHeader() const { return flags() & PHIBaseItem::FLayoutHeader; }
+    inline void setEnableHeader( bool b ) { setFlag( PHIBaseItem::FLayoutHeader, b ); invalidateLayout(); }
 
 protected:
     virtual void squeeze();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void updateData();
+    virtual bool hasText() const { return true; }
+    virtual void setText( const QString &t, const QByteArray &lang );
+    virtual QString text( const QByteArray &lang ) const;
+    virtual PHITextData* textData() const { return _textData; }
     virtual void paint( QPainter *p, const QRectF &exposed );
     virtual void drawShape( QPainter *p, const QRectF &exposed );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual PHIConfigWidget* configWidget();
+
     const QGraphicsGridLayout* layout() const { return _l; }
-    QGraphicsGridLayout* layout() { return _l; }
+    //QGraphicsGridLayout* layout() { return _l; }
     void insertBaseItem( PHIBaseItem *it, int row, int column=0, int rowSpan=1, int columnSpan=1 );
 
 private slots:
-    void synchronizeGeometry( PHIBaseItem *it );
+    void updateLayoutGeometry();
 
 signals:
-    void updateGeometry( PHIBaseItem *it );
+    void layoutChanged();
 
 private:
     void setChildItem( PHIBaseItem *it );
@@ -203,6 +228,7 @@ private:
 
     QGraphicsGridLayout *_l;
     QList <PHIBaseItem*> _children;
+    PHITextData *_textData;
 };
 
 #endif // PHIABSTRACTITEMS_H

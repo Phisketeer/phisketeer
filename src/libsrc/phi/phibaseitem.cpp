@@ -35,6 +35,7 @@
 #include "phisrequest.h"
 #include "phiitemdata.h"
 #include "phieffects.h"
+#include "phiabstractitems.h"
 
 QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem* const &it )
 {
@@ -91,6 +92,17 @@ PHIBaseItem::~PHIBaseItem()
 const PHIBasePage* PHIBaseItem::page() const
 {
     return qobject_cast<const PHIBasePage*>(parent());
+}
+
+void PHIBaseItem::setId( const QString &id )
+{
+    if ( isChild() ) {
+        PHIBaseItem *it=page()->findItem( parentName() );
+        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+        if ( lit ) lit->updateChildId( objectName(), id );
+    }
+    _id=id.toLatin1();
+    setObjectName( id );
 }
 
 void PHIBaseItem::setVisible( bool b )
@@ -167,7 +179,6 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     setTransformPos( _variants.value( DTransformPos, 1 ).value<quint8>() );
     setFont( font() ); // setFont may change height depending on sizeHint
     resize( preserve );
-    updateText( page()->currentLang() );
     updateData();
     updateEffect();
     if ( _gw ) {
@@ -200,15 +211,13 @@ QByteArray PHIBaseItem::save( int version )
     if ( _effect->effects()==PHIEffect::ENone ) _flags &= ~FStoreEffectData;
     else _flags |= FStoreEffectData;
     if ( _flags!=FNone ) storeFlags();
-    qDebug() << "save" << id() << pos() << size() << _gw->pos() << _gw->size();
-    if ( pos()!=_gw->pos() ) qDebug() << "PROBLEM";
+    if ( pos()!=_gw->pos() ) qDebug() << "PROBLEM" << id();
     out << _x << _y << _width << _height << _zIndex << _variants;
     if ( _flags & FUseStyleSheet ) out << _styleSheetData; // toggled by IDE
     if ( _flags & FStoreTitleData ) out << _titleData;
     if ( _flags & FStoreVisibleData ) out << _visibleData;
     if ( _flags & FStoreEffectData ) out << _effect->save( version );
     saveItemData( out, version );
-    updateText( page()->currentLang() ); // restore text data possibly stored in _variants
     updateData(); // restore all dynamic item data cleaned by squeeze()
     updateEffect();
     return arr;
@@ -289,7 +298,6 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     if ( d.font()!=PHI::invalidFont() ) setFont( d.font() );
     else setFont( page() ? page()->font() : QGuiApplication::font() );
     resize( s );
-    updateText( page()->currentLang() );
     setColor( PHIPalette::Foreground, colorRole( PHIPalette::Foreground ), d.color() );
     setColor( PHIPalette::Background, colorRole( PHIPalette::Background ), d.outlineColor() );
     setTabIndex( static_cast<qint16>( d.tabOrder() ) );
@@ -305,8 +313,12 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         else if ( g.type()==QGradient::LinearGradient ) setGradient( d.linearGradient() );
         else if ( g.type()==QGradient::RadialGradient ) setGradient( d.radialGradient() );
     }
-    if ( property( "childIds" ).isValid() ) { // linear layout
-        setProperty( "childIds", qVariantFromValue( d.childIds() ) );
+    if ( isLayoutItem() ) {
+        if ( property( "childIds" ).isValid() ) { // linear layout
+            setProperty( "childIds", qVariantFromValue( d.childIds() ) );
+        } else if ( property( "childRects" ).isValid() ) { // grid or form layout
+            setProperty( "childRects", qVariantFromValue( d.gridLayoutInfo() ) );
+        }
         setProperty( "line", 0 );
         setProperty( "pattern", 0 );
         setProperty( "leftMargin", 0 );
@@ -314,8 +326,8 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         setProperty( "rightMargin", 0 );
         setProperty( "bottomMargin", 0 );
     }
-    updateData();
     updateEffect();
+    updateData();
 }
 
 void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )

@@ -42,14 +42,11 @@ public:
     explicit PHIConfigWidget( PHIBaseItem *it, QWidget *parent=0 ) : QWidget( parent ), _item( it ) {;}
     virtual QToolBar* toolBar() const { return 0; }
     virtual bool storeData()=0; // return false if data is unchanged
-    // properties which are needed to be updated in undo stack:
+    // properties which are needed to be updated in undo stack and are NOT stored in _variants:
     virtual PHIConfigProperties oldProperties() const { return PHIConfigProperties(); }
     virtual PHIConfigColors oldColors() const { return PHIConfigColors(); }
     // PHIConfData: QHash <PHIData *ref, PHIData *oldData>
     virtual PHIConfigData oldData() const { return PHIConfigData(); }
-    //virtual QList<PHIPalette::ItemRole> itemPaletteRoles() const { return QList<PHIPalette::ItemRole>(); }
-    //virtual PHIPalette::ColorRole oldColorRole( PHIPalette::ItemRole ir ) const { Q_UNUSED( ir ); return PHIPalette::NoRole; }
-    //virtual QColor oldColor( PHIPalette::ItemRole ir ) const { Q_UNUSED( ir ); return QColor(); }
 
 signals:
     void requestTextConfig( PHIData* );

@@ -144,6 +144,7 @@ PHIEllipseItem::PHIEllipseItem()
     qDebug( "PHIEllipseItem::PHIEllipseItem()" );
     _startData.setInteger( 0 );
     _spanData.setInteger( 5760 );
+    //setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
 }
 
 void PHIEllipseItem::drawShape( QPainter *p, const QRectF& )

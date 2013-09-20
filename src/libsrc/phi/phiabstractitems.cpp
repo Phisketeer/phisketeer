@@ -20,12 +20,14 @@
 #include <QGraphicsSceneDragDropEvent>
 #include <QPainter>
 #include <QMimeData>
-#include <QUndoStack>
 #include <QWidget>
 #include <QGraphicsGridLayout>
 #include "phiabstractitems.h"
 #include "phidatasources.h"
 #include "phicolorconfig.h"
+#include "philayoutconfig.h"
+#include "phibasepage.h"
+#include "phigraphicsitem.h"
 
 qreal PHIAbstractTextItem::_dropRegion=7.;
 
@@ -69,6 +71,11 @@ void PHIAbstractTextItem::setText( const QString &t, const QByteArray &lang )
         _textData->setText( t, lang );
         setWidgetText( t );
     } else setWidgetText( _textData->text() );
+    if ( isChild() ) {
+        PHIBaseItem *it=page()->findItem( parentId() );
+        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+        if ( lit ) lit->invalidateLayout();
+    }
 }
 
 QString PHIAbstractTextItem::text( const QByteArray &lang ) const
@@ -77,23 +84,37 @@ QString PHIAbstractTextItem::text( const QByteArray &lang ) const
     return _textData->text();
 }
 
-void PHIAbstractTextItem::updateText( const QByteArray &lang )
+void PHIAbstractTextItem::updateData()
 {
-    if ( _textData->translated() ) setWidgetText( _textData->text( lang ) );
+    if ( widget() && widget()->property( "alignment" ).isValid() )
+        widget()->setProperty( "alignment", alignment() );
+    if ( _textData->translated() ) setWidgetText( _textData->text( page()->currentLang() ) );
     else setWidgetText( _textData->text() );
+    if ( isChild() ) {
+        PHIBaseItem *it=page()->findItem( parentId() );
+        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+        if ( lit ) lit->invalidateLayout();
+    }
 }
 
 QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     if ( which==Qt::MinimumSize ) {
-        if ( isSingleLine() ) return QSizeF( 20, 22 );
+        if ( isSingleLine() ) return QSizeF( 20, 21 );
         return QSizeF( 20, 36 );
     }
     if ( which==Qt::PreferredSize ) {
         QFont f=font();
         f.setPointSizeF( PHI::adjustedFontSize( font().pointSizeF() ) );
         QFontMetricsF m( f );
-        if ( isSingleLine() ) return QSizeF( 160, qMax( 22., m.height()+4 ) );
+        if ( isSingleLine() ) {
+            qreal minWidth=72;
+            foreach ( QString l, page()->languages() ) {
+                l=text( l.toLatin1() );
+                if ( m.width( l )>minWidth ) minWidth=m.width( l );
+            }
+            return QSizeF( minWidth+8, qMax( 22., m.height()+4 ) );
+        }
         return QSizeF( 160, qMax( m.height()+4, 96. ) );
     }
     return PHIBaseItem::sizeHint( which, constraint );
@@ -199,6 +220,7 @@ void PHIAbstractTextItem::squeeze()
     removeData( DTmpColor );
     if ( color()==QColor( Qt::black ) ) removeData( DColor );
     if ( backgroundColor()==QColor( Qt::white ) ) removeData( DBackgroundColor );
+    if ( alignment()==static_cast<quint16>(Qt::AlignLeft|Qt::AlignVCenter) ) removeData( DAlignment );
 }
 
 void PHIAbstractTextItem::loadItemData( QDataStream &in, int version )
@@ -248,6 +270,7 @@ PHIAbstractShapeItem::PHIAbstractShapeItem()
     _colorRole=PHIPalette::Black;
     _outlineColorRole=PHIPalette::Black;
     resize( sizeHint( Qt::PreferredSize, QSizeF() ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored ) );
 }
 
 PHIConfigWidget* PHIAbstractShapeItem::configWidget()
@@ -345,8 +368,10 @@ QRectF PHIAbstractShapeItem::boundingRect() const
 QSizeF PHIAbstractShapeItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     Q_UNUSED( constraint )
-    if ( which==Qt::PreferredSize ) return QSizeF( 96, 96 );
-    if ( which==Qt::MinimumSize ) return QSizeF( 16, 16 );
+    if ( isChild() ) return size();
+    if ( which==Qt::PreferredSize ) return QSizeF( 96., 96. );
+    if ( which==Qt::MinimumSize ) return QSizeF( 16., 16. );
+    if ( which==Qt::MaximumSize ) return QSizeF( 8000., 8000. );
     return QSizeF();
 }
 
@@ -456,7 +481,6 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
             emit pushUndoStack( "line", newLineStyle );
             emit pushUndoStack( "penWidth", newPenWidth );
             emit endUndoStackMacro();
-            //undoStack()->endMacro();
             update();
             return;
         }
@@ -513,55 +537,104 @@ void PHIAbstractShapeItem::saveItemData( QDataStream &out, int version )
 }
 
 PHIAbstractLayoutItem::PHIAbstractLayoutItem()
-    : PHIAbstractShapeItem(), _l( 0 )
+    : PHIAbstractShapeItem(), _l( 0 ), _textData( 0 )
 {
+    _textData=new PHITextData();
     if ( gw() ) {
         _l=new QGraphicsGridLayout();
         _l->setContentsMargins( leftMargin(), topMargin(), rightMargin(), bottomMargin() );
         gw()->setLayout( _l );
     }
-    connect( this, &PHIAbstractLayoutItem::updateGeometry, this, &PHIAbstractLayoutItem::synchronizeGeometry, Qt::QueuedConnection );
+    setOutlineColorRole( PHIPalette::WindowText );
+    setColorRole( PHIPalette::Window );
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    connect( this, &PHIAbstractLayoutItem::layoutChanged, this, &PHIAbstractLayoutItem::updateLayoutGeometry, Qt::QueuedConnection );
 }
 
-void PHIAbstractLayoutItem::synchronizeGeometry( PHIBaseItem *it )
+PHIAbstractLayoutItem::~PHIAbstractLayoutItem()
 {
-    it->setPos( it->gw()->pos() );
-    it->resize( it->gw()->size() );
-    PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
-    if ( !lit ) return;
-    if ( lit==this ) return;
-    foreach ( PHIBaseItem *cit, lit->childItems() ) synchronizeGeometry( cit );
+    delete _textData;
 }
 
 void PHIAbstractLayoutItem::updateData()
 {
+    PHIAbstractShapeItem::updateData();
     if ( !_l ) return;
     _l->setContentsMargins( leftMargin(), topMargin(), rightMargin(), bottomMargin() );
+    _l->setHorizontalSpacing( horizontalSpacing() );
+    _l->setVerticalSpacing( verticalSpacing() );
+    invalidateLayout();
+}
+
+void PHIAbstractLayoutItem::invalidateLayout()
+{
+    if ( !_l ) return;
     _l->invalidate();
+    emit layoutChanged(); // queued connection to updateLayoutGeometry()
+    foreach ( PHIBaseItem *it, childItems() ) {
+        PHIGraphicsItem *git=qgraphicsitem_cast<PHIGraphicsItem*>(it->gw());
+        Q_ASSERT( git );
+        git->updateGeometry();
+        if ( it->isLayoutItem() ) {
+            PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+            Q_ASSERT( lit );
+            lit->invalidateLayout();
+        }
+    }
+}
+
+void PHIAbstractLayoutItem::updateLayoutGeometry()
+{
+    foreach ( PHIBaseItem *it, childItems() ) {
+        it->setPos( it->gw()->pos() );
+        it->resize( it->gw()->size() );
+        it->update();
+    }
+    // hack to adjust layout size:
+    QSizeF oldSize=size();
+    QSizeF s=size();
+    if ( gw()->minimumWidth()>s.width() ) s.setWidth( gw()->minimumWidth() );
+    if ( gw()->minimumHeight()>s.height() ) s.setHeight( gw()->minimumHeight() );
+    if ( gw()->maximumWidth()<s.width() ) s.setWidth( gw()->maximumWidth() );
+    if ( gw()->maximumHeight()<s.height() ) s.setHeight( gw()->maximumHeight() );
+    resize( 1, 1 );
+    resize( s );
+    if ( s!=oldSize ) emit pushUndoStack( oldSize );
     update();
 }
 
 void PHIAbstractLayoutItem::squeeze()
 {
     PHIAbstractShapeItem::squeeze();
-    if ( data( DRadiusTopLeft ).toReal()==0 ) removeData( DRadiusTopLeft );
-    if ( data( DRadiusTopRight ).toReal()==0 ) removeData( DRadiusTopRight );
-    if ( data( DRadiusBottomLeft ).toReal()==0 ) removeData( DRadiusBottomLeft );
-    if ( data( DRadiusBottomRight ).toReal()==0 ) removeData( DRadiusBottomRight );
-    if ( data( DMarginLeft ).toReal()==6 ) removeData( DMarginLeft );
-    if ( data( DMarginTop ).toReal()==6 ) removeData( DMarginTop );
-    if ( data( DMarginRight ).toReal()==6 ) removeData( DMarginRight );
-    if ( data( DMarginBottom ).toReal()==6 ) removeData( DMarginBottom );
+    if ( topLeftRadius()==0 ) removeData( DRadiusTopLeft );
+    if ( topRightRadius()==0 ) removeData( DRadiusTopRight );
+    if ( bottomLeftRadius()==0 ) removeData( DRadiusBottomLeft );
+    if ( bottomRightRadius()==0 ) removeData( DRadiusBottomRight );
+    if ( leftMargin()==6 ) removeData( DMarginLeft );
+    if ( topMargin()==6 ) removeData( DMarginTop );
+    if ( rightMargin()==6 ) removeData( DMarginRight );
+    if ( horizontalSpacing()==6 ) removeData( DHorizontalSpacing );
+    if ( verticalSpacing()==6 ) removeData( DVerticalSpacing );
+    if ( bottomMargin()==6 ) removeData( DMarginBottom );
+    if ( alignment()==static_cast<quint16>(Qt::AlignLeft|Qt::AlignVCenter) ) removeData( DAlignment );
+    if ( line()==0 && pattern()==0 ) {
+        removeData( DRadiusTopLeft );
+        removeData( DRadiusTopRight );
+        removeData( DRadiusBottomLeft );
+        removeData( DRadiusBottomRight );
+    }
 }
 
 void PHIAbstractLayoutItem::loadItemData( QDataStream &in, int version )
 {
     PHIAbstractShapeItem::loadItemData( in, version );
+    if ( flags() & FLayoutHeader ) in >> _textData;
 }
 
 void PHIAbstractLayoutItem::saveItemData( QDataStream &out, int version )
 {
     PHIAbstractShapeItem::saveItemData( out, version );
+    if ( flags() & FLayoutHeader ) out << _textData;
 }
 
 void PHIAbstractLayoutItem::insertBaseItem( PHIBaseItem *it, int row, int column, int rowSpan, int columnSpan )
@@ -571,7 +644,6 @@ void PHIAbstractLayoutItem::insertBaseItem( PHIBaseItem *it, int row, int column
     setChildItem( it );
     _l->addItem( it->gw(), row, column, rowSpan, columnSpan );
     _l->invalidate();
-    emit updateGeometry( it );
     update();
 }
 
@@ -645,10 +717,33 @@ void PHIAbstractLayoutItem::breakLayout()
     foreach ( PHIBaseItem *it, _children ) {
         _l->removeItem( it->gw() );
         releaseItem( it );
-        emit updateGeometry( it );
     }
     _children.clear();
-    _l->invalidate();
-    update();
-    emit updateGeometry( this );
+    invalidateLayout();
+}
+
+void PHIAbstractLayoutItem::setText( const QString &t, const QByteArray &lang )
+{
+    if ( _textData->translated() ) {
+        _textData->setText( t, lang );
+    } else if ( _textData->unparsedStatic() ) {
+        _textData->setSource( PHIData::Translated );
+        _textData->setText( t, lang );
+    }
+    if ( isChild() ) {
+        PHIBaseItem *it=page()->findItem( parentId() );
+        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+        if ( lit ) lit->invalidateLayout();
+    }
+}
+
+QString PHIAbstractLayoutItem::text( const QByteArray &lang ) const
+{
+    if ( _textData->translated() ) return _textData->text( lang );
+    return _textData->text();
+}
+
+PHIConfigWidget* PHIAbstractLayoutItem::configWidget()
+{
+    return new PHILayoutConfig( this );
 }

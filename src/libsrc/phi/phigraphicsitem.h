@@ -34,6 +34,7 @@ public:
     explicit PHIGraphicsItem( PHIBaseItem* );
     virtual QRectF boundingRect() const;
     inline PHIBaseItem* baseItem() const { return _it; }
+    virtual void updateGeometry() { QGraphicsProxyWidget::updateGeometry(); }
 
 protected:
     virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget );

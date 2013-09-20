@@ -1,3 +1,4 @@
+/*
 #    Copyright (C) 2010-2013  Marius B. Schumacher
 #    Copyright (C) 2011-2013  Phisys AG, Switzerland
 #    Copyright (C) 2012-2013  Phisketeer.org team
@@ -14,6 +15,47 @@
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#ifndef PHILAYOUTCONFIG_H
+#define PHILAYOUTCONFIG_H
+#include <QWidget>
+#include "phicolorconfig.h"
+#include "phi.h"
+#include "ui_layoutconfig.h"
 
-SUBDIRS += primitives input layouts display
-TEMPLATE = subdirs
+class PHIAbstractLayoutItem;
+
+class PHIEXPORT PHILayoutWidget : public QWidget, Ui::LayoutConfig
+{
+    Q_OBJECT
+
+public:
+    explicit PHILayoutWidget( PHIAbstractLayoutItem *item, QWidget *parent=0 );
+    virtual void storeData();
+
+private slots:
+    void init();
+
+signals:
+    void enableHeaderChanged( bool );
+
+private:
+    PHIAbstractLayoutItem *_item;
+};
+
+class PHIEXPORT PHILayoutConfig : public PHIColorConfig
+{
+    Q_OBJECT
+
+public:
+    explicit PHILayoutConfig( PHIAbstractLayoutItem *item, QWidget *parent=0 );
+    virtual bool storeData();
+
+signals:
+    void enableHeaderChanged( bool );
+
+private:
+    PHILayoutWidget *_layoutWidget;
+};
+
+#endif // PHILAYOUTCONFIG_H

@@ -26,6 +26,7 @@ PHILineEditItem::PHILineEditItem()
     QLineEdit *edit=new QLineEdit();
     if ( isIdeItem() ) edit->setReadOnly( true );
     setWidget( edit );
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
 }
 
 void PHILineEditItem::setWidgetText( const QString &s )
@@ -60,6 +61,7 @@ PHIPasswordItem::PHIPasswordItem()
     if ( isIdeItem() ) pwd->setReadOnly( true );
     pwd->setEchoMode( QLineEdit::PasswordEchoOnEdit );
     setWidget( pwd );
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
 }
 
 void PHIPasswordItem::setWidgetText( const QString &s )

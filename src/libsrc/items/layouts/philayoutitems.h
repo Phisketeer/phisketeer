@@ -36,6 +36,7 @@ public:
     virtual QString description() const { return tr( "Manages a horizontal layout." ); }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list );
     virtual void activateLayout();
+    virtual void updateChildId( const QString &oldId, const QString &newId );
 
 protected:
     virtual void loadItemData( QDataStream &in, int version );
@@ -62,6 +63,35 @@ public:
     virtual QPixmap pixmap() const { return QPixmap(); }
     virtual QString description() const { return tr( "Manages a vertical layout." ); }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list );
+};
+
+class PHIFormLayoutItem : public PHIAbstractLayoutItem
+{
+    Q_OBJECT
+    Q_PROPERTY( PHIRectHash childRects READ childRects WRITE setChildRects SCRIPTABLE false )
+
+public:
+    enum Wid { FormLayout=22 };
+    explicit PHIFormLayoutItem();
+    virtual PHIWID wid() const { return FormLayout; }
+    virtual QString listName() const { return tr( "Form layout" ); }
+    virtual QPixmap pixmap() const { return QPixmap(); }
+    virtual QString description() const { return tr( "Manages a double column layout." ); }
+    virtual void addBaseItems( const QList <PHIBaseItem*> &list );
+    virtual void activateLayout();
+    virtual void updateChildId( const QString &oldId, const QString &newId );
+
+public slots:
+    inline void setChildRects( const PHIRectHash &r ) { _childRects=r; }
+    inline PHIRectHash childRects() const { return _childRects; }
+
+protected:
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual bool isPrivateItem() const { return true; }
+
+private:
+    PHIRectHash _childRects;
 };
 
 #endif // PHIABSTRACTLAYOUTITEM_H

@@ -16,15 +16,15 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PHILAYOUTS_H
-#define PHILAYOUTS_H
+#ifndef PHIDISPLAYITEMS_H
+#define PHIDISPLAYITEMS_H
 #include "phiitemplugin.h"
-#include "philayoutitems.h"
+#include "phitextitems.h"
 
-class PHILayouts : public PHIItemPlugin
+class PHIDisplayItems : public PHIItemPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.phisketeer.phi.items.layouts" FILE "philayouts.json")
+    Q_PLUGIN_METADATA(IID "org.phisketeer.phi.items.display" FILE "phidisplay.json")
     Q_CLASSINFO( "Author", "Marius Schumacher" )
     Q_CLASSINFO( "Url", "http://www.phisketeer.org" )
     Q_CLASSINFO( "Version", "1.0" )
@@ -35,31 +35,26 @@ public:
     virtual PHIBaseItem* create( PHIWID wid ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
-    virtual QString category() const { return tr( "Layouts" ); }
+    virtual QString category() const { return tr( "Display" ); }
 };
 
-inline PHIBaseItem* PHILayouts::create( PHIWID wid ) const
+inline PHIBaseItem* PHIDisplayItems::create( PHIWID wid ) const
 {
     switch ( wid ) {
-    case PHIVerticalLayoutItem::VerticalLayout: return new PHIVerticalLayoutItem();
-    case PHIHorizontalLayoutItem::HorizontalLayout: return new PHIHorizontalLayoutItem();
-    case PHIFormLayoutItem::FormLayout: return new PHIFormLayoutItem();
+    case PHILabelItem::Label: return new PHILabelItem();
     }
     return 0;
 }
 
-inline QStringList PHILayouts::keys() const
+inline QStringList PHIDisplayItems::keys() const
 {
-    return QStringList() << QStringLiteral( "hboxlayout" ) << QStringLiteral( "vboxlayout" )
-        << QStringLiteral( "formlayout" );
+    return QStringList() << QStringLiteral( "label" );
 }
 
-inline PHIWID PHILayouts::wid( const QString &key ) const
+inline PHIWID PHIDisplayItems::wid( const QString &key ) const
 {
-    if ( key==QLatin1String( "hboxlayout" ) ) return PHIHorizontalLayoutItem::HorizontalLayout;
-    if ( key==QLatin1String( "vboxlayout" ) ) return PHIVerticalLayoutItem::VerticalLayout;
-    if ( key==QLatin1String( "formlayout" ) ) return PHIFormLayoutItem::FormLayout;
+    if ( key==QLatin1String( "label" ) ) return PHILabelItem::Label;
     return 0;
 }
 
-#endif // PHILAYOUTS_H
+#endif // PHIDISPLAYITEMS_H

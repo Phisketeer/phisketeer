@@ -95,8 +95,8 @@ public:
         DGradientFinalStopPoint=-26, DGradientSpreadType=-27, DGradientAngle=-28,
         DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
-        FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20,
-        FReadOnly=0x40, FDisabled=0x80, FStoreEffectData=0x100 }; //quint32
+        FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
+        FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200 }; //quint32
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
 #else
@@ -106,8 +106,8 @@ public:
     enum Widget { NO_ITEM=0, RADIO_BUTTON=5, BUTTON=6,
         SUBMIT_BUTTON=7, RESET_BUTTON=8, FILE_BUTTON=9, COMBO_BOX=10, HIDDEN=11, IMAGE_BUTTON=12,
         LINE=15, IMAGE=16, LAYOUT_LOGIN=17, LIST=18, LAYOUT_GRID=19,
-        LAYOUT_FORM=22, LINK=23, TAB=24, HSPACE=26, VSPACE=27, TEXT=29,
-        LABEL=30, DATEEDIT=31, CALENDAR=32, LANG_SELECTOR=33, LAYOUT_ADDRESS=34, LAYOUT_DELIVERY=35,
+        LINK=23, TAB=24, HSPACE=26, VSPACE=27, TEXT=29,
+        DATEEDIT=31, CALENDAR=32, LANG_SELECTOR=33, LAYOUT_ADDRESS=34, LAYOUT_DELIVERY=35,
         LAYOUT_CREDIT_CARD=36, ROLLOVER_BUTTON=37, LAYOUT_CONTACT=38, LAYOUT_PERIOD=39, LAYOUT_REGISTER=40,
         RICH_TEXT=41, SVG=42, CHECK_LIST=43, DIA_SHOW=44, IMAGE_BOOK=45, TABLE=46, COUNTRY=47, PHISYS_LINK=48,
         HTML_DOC=49, SEARCH=50, EMAIL=51, DECIMAL=52, REALNUMBER=53, PHONE=54, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
@@ -123,10 +123,10 @@ signals:
     void opacityChanged( qreal );
 
 public: // not usable by script engine
+    void setId( const QString &id );
     inline QByteArray id() const { return _id; }
     inline QByteArray parentId() const { return _parentId; }
-    inline void setId( const QByteArray &id ) { _id=id; setObjectName( QString::fromUtf8( id ) ); }
-    inline void setId( const QString &id ) { _id=id.toLatin1(); setObjectName( id ); }
+    inline void setId( const QByteArray &id ) { setObjectName( QString::fromLatin1( id ) ); _id=id; }
     inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); }
     inline void setParentId( const QByteArray &pid ) { _parentId=pid; }
     inline void setFocus() { if ( _gw ) { _gw->setFocus(); _gw->setSelected( true ); } }
@@ -310,7 +310,6 @@ protected:
     //virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
 
     virtual void updatePageFont( const QFont &font );
-    virtual void updateText( const QByteArray &lang ) { Q_UNUSED( lang ) }
     virtual void setText( const QString &t, const QByteArray &lang );
     virtual QString text( const QByteArray &lang ) const;
 
@@ -342,6 +341,7 @@ signals:
     // IDE related signals
     void pushUndoStack( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newColor );
     void pushUndoStack( const char* property, const QVariant &newVariant );
+    void pushUndoStack( const QSizeF &oldSize );
     void beginUndoStackMacro( const QString &text );
     void endUndoStackMacro();
 

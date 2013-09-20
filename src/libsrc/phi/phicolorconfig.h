@@ -21,6 +21,7 @@
 #include <QWidget>
 #include "phiconfigwidget.h"
 #include "phipalette.h"
+#include "phi.h"
 #include "ui_colorconfig.h"
 
 class PHIBaseItem;
@@ -29,7 +30,7 @@ class QPlainTextEdit;
 class QGroupBox;
 class QLabel;
 
-class PHIColorPreview : public QWidget
+class PHIEXPORT PHIColorPreview : public QWidget
 {
     Q_OBJECT
 
@@ -44,7 +45,7 @@ private:
     QPlainTextEdit *_edit;
 };
 
-class PHIColorConfig : public PHIConfigWidget, protected Ui::ColorConfig
+class PHIEXPORT PHIColorConfig : public PHIConfigWidget, protected Ui::ColorConfig
 {
     Q_OBJECT
 

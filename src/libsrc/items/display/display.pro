@@ -15,5 +15,10 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS += primitives input layouts display
-TEMPLATE = subdirs
+include( ../items.pri )
+HEADERS += phidisplayitems.h \
+    phitextitems.h
+SOURCES += \
+    phitextitems.cpp
+TARGET = phidisplayitems
+OTHER_FILES = phidisplay.json

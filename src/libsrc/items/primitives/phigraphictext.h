@@ -29,10 +29,11 @@ class PHIGraphicText : public PHIAbstractShapeItem
 {
     Q_OBJECT
     Q_PROPERTY( QString text READ text WRITE setText )
+    Q_PROPERTY( quint16 align READ alignment WRITE setAlignment )
 
 public:
     enum Wid { GraphText=28 };
-    enum ItemData { DText=1 };
+    enum ItemData { DText=1, DAlignment=2 };
     explicit PHIGraphicText();
     virtual ~PHIGraphicText();
     inline virtual PHIWID wid() const { return GraphText; }
@@ -43,6 +44,8 @@ public:
 public slots:
     inline void setText( const QString &t ) { setData( DText, t.toUtf8() ); updateData(); }
     inline QString text() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
+    inline quint16 alignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
+    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); updateData(); }
 
 protected:
     virtual void updateData();
@@ -51,7 +54,6 @@ protected:
     virtual bool isHeightChangeable() const { return false; }
     virtual void setText( const QString &t, const QByteArray &lang );
     virtual QString text( const QByteArray &lang ) const;
-    virtual void updateText( const QByteArray &lang );
     virtual PHITextData* textData() const { return _textData; }
     virtual PHIConfigWidget* configWidget();
     virtual void drawShape( QPainter *painter, const QRectF &r );

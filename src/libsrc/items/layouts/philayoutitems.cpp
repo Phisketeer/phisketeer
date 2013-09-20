@@ -36,7 +36,6 @@ static bool yLessThan( const PHIBaseItem *it1, const PHIBaseItem *it2 )
 PHIHorizontalLayoutItem::PHIHorizontalLayoutItem()
     : PHIAbstractLayoutItem()
 {
-    qDebug( "PHIHorizontalLayoutItem::PHIHorizontalLayoutItem()" );
 }
 
 void PHIHorizontalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
@@ -52,6 +51,13 @@ void PHIHorizontalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
     }
     resize( layout()->preferredSize() );
     setPos( pos );
+}
+
+void PHIHorizontalLayoutItem::updateChildId( const QString &oldId, const QString &newId )
+{
+    int pos=_childIds.indexOf( oldId.toLatin1() );
+    Q_ASSERT( pos!=-1 );
+    _childIds.replace( pos, newId.toLatin1() );
 }
 
 void PHIHorizontalLayoutItem::loadItemData( QDataStream &in, int version )
@@ -81,7 +87,6 @@ void PHIHorizontalLayoutItem::activateLayout()
 PHIVerticalLayoutItem::PHIVerticalLayoutItem()
     : PHIHorizontalLayoutItem()
 {
-    qDebug( "PHIVerticalLayoutItem::PHIVerticalLayoutItem()" );
 }
 
 void PHIVerticalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
@@ -98,4 +103,60 @@ void PHIVerticalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
     setChildIds( childIds );
     resize( layout()->preferredSize() );
     setPos( pos );
+}
+
+PHIFormLayoutItem::PHIFormLayoutItem()
+    : PHIAbstractLayoutItem()
+{
+}
+
+void PHIFormLayoutItem::updateChildId( const QString &oldId, const QString &newId )
+{
+    QRect r=_childRects.take( oldId.toLatin1() );
+    Q_ASSERT( r.isValid() );
+    _childRects.insert( newId.toLatin1(), r );
+}
+
+void PHIFormLayoutItem::loadItemData( QDataStream &in, int version )
+{
+    PHIAbstractLayoutItem::loadItemData( in, version );
+    _childRects.clear();
+    QByteArray id;
+    quint8 row, col;
+    qint16 count;
+    in >> count;
+    for ( qint16 i=0; i<count; i++ ) {
+        in >> id >> row >> col;
+        QRect r( static_cast<int>(col), static_cast<int>(row), 1, 1 );
+        _childRects.insert( id, r );
+    }
+}
+
+void PHIFormLayoutItem::saveItemData( QDataStream &out, int version )
+{
+    PHIAbstractLayoutItem::saveItemData( out, version );
+    out << static_cast<qint16>(_childRects.count());
+    foreach ( QByteArray id, _childRects.keys() ) {
+        QRect r=_childRects.value( id );
+        out << id << static_cast<quint8>( r.y() ) << static_cast<quint8>( r.x() );
+        qDebug() << id << r.y() << r.x();
+    }
+}
+
+void PHIFormLayoutItem::activateLayout()
+{
+    qreal tmpWidth=width(); // preserve width
+    qreal tmpHeight=height(); // preserve height
+    foreach ( QByteArray id, _childRects.keys() ) {
+        PHIBaseItem *it=page()->findItem( id );
+        Q_ASSERT( it );
+        QRect r=_childRects.value( id );
+        insertBaseItem( it, r.y(), r.x() );
+    }
+    resize( tmpWidth, tmpHeight );
+}
+
+void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
+{
+
 }
