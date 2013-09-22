@@ -43,11 +43,28 @@ protected:
     virtual bool isCheckable() const { return true; }
     virtual void setWidgetText( const QString &s );
     virtual void setChecked( bool b );
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual PHIBooleanData* checkedData() const { return _checkedData; }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
 
 private:
     PHIBooleanData *_checkedData;
+};
+
+class PHIRadioButtonItem : public PHICheckBoxItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { RadioButton=5 };
+    explicit PHIRadioButtonItem();
+    virtual QString listName() const { return tr( "Radio button" ); }
+    virtual QString description() const { return tr( "Radio button with input type <radio>" ); }
+    virtual PHIWID wid() const { return RadioButton; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/radiobutton" ) ); }
+
+protected:
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 };
 
 #endif // PHICHECKITEMS_H

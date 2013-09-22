@@ -108,14 +108,14 @@ QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constrai
         f.setPointSizeF( PHI::adjustedFontSize( font().pointSizeF() ) );
         QFontMetricsF m( f );
         if ( isSingleLine() ) {
-            qreal minWidth=72;
+            qreal minWidth=64.;
             foreach ( QString l, page()->languages() ) {
                 l=text( l.toLatin1() );
-                if ( m.width( l )>minWidth ) minWidth=m.width( l );
+                if ( m.width( l )>minWidth ) minWidth=static_cast<int>(m.width( l ));
             }
-            return QSizeF( minWidth+8, qMax( 22., m.height()+4 ) );
+            return QSizeF( minWidth, qMax( 22., static_cast<int>(m.height())+8. ) );
         }
-        return QSizeF( 160, qMax( m.height()+4, 96. ) );
+        return QSizeF( 160, qMax( static_cast<int>(m.height())+8., 96. ) );
     }
     return PHIBaseItem::sizeHint( which, constraint );
 }

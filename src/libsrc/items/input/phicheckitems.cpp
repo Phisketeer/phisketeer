@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QCheckBox>
+#include <QRadioButton>
 #include "phicheckitems.h"
 #include "phidatasources.h"
 #include "phibasepage.h"
@@ -49,6 +50,13 @@ void PHICheckBoxItem::saveItemData(QDataStream &out, int version )
     out << _checkedData;
 }
 
+QSizeF PHICheckBoxItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    QSizeF s=PHIAbstractTextItem::sizeHint( which, constraint );
+    if ( which==Qt::PreferredSize ) s.setWidth( s.width()+18 );
+    return s;
+}
+
 void PHICheckBoxItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
 {
     if ( ir==PHIPalette::WidgetText ) {
@@ -70,27 +78,42 @@ void PHICheckBoxItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole c
 void PHICheckBoxItem::setChecked( bool b )
 {
     PHIAbstractInputItem::setChecked( b );
-    QCheckBox *cb=qobject_cast<QCheckBox*>(widget());
-    cb->setChecked( b );
+    QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
+    ab->setChecked( b );
 }
 
 void PHICheckBoxItem::setWidgetText( const QString &s )
 {
-    QCheckBox *cb=qobject_cast<QCheckBox*>(widget());
-    cb->setText( s );
+    QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
+    ab->setText( s );
 }
 
 void PHICheckBoxItem::updateData()
 {
-    QCheckBox *cb=qobject_cast<QCheckBox*>(widget());
+    QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
     if ( isIdeItem() ) {
         if ( _checkedData->unparsedStatic() )
-            cb->setChecked( _checkedData->boolean() );
+            ab->setChecked( _checkedData->boolean() );
         else if ( checkedData()->translated() )
-            cb->setChecked( _checkedData->boolean( page()->currentLang() ) );
-        else cb->setChecked( false );
+            ab->setChecked( _checkedData->boolean( page()->currentLang() ) );
+        else ab->setChecked( false );
     } else {
-        cb->setChecked( flags() & FChecked );
+        ab->setChecked( flags() & FChecked );
     }
     PHIAbstractInputItem::updateData();
+}
+
+PHIRadioButtonItem::PHIRadioButtonItem()
+    : PHICheckBoxItem()
+{
+    setWidget( new QRadioButton() );
+    textData()->setText( tr( "Radio button" ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::RadioButton ) );
+}
+
+QSizeF PHIRadioButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    QSizeF s=PHIAbstractTextItem::sizeHint( which, constraint );
+    if ( which==Qt::PreferredSize ) s.setWidth( s.width()+22 );
+    return s;
 }

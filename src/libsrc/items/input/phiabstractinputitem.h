@@ -23,15 +23,21 @@
 class PHIAbstractInputItem : public PHIAbstractTextItem
 {
     Q_OBJECT
-    Q_PROPERTY( QString value READ value WRITE setValue )
+    Q_PROPERTY( QString accessKey WRITE setAccessKey READ accessKey )
 
 public:
+    enum ItemData { DAccessKey=-99 };
     explicit PHIAbstractInputItem();
     virtual bool isFocusable() const { return true; }
 
+protected:
+    virtual void squeeze();
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void updateData();
+
 public slots:
-    virtual void setValue( const QString &v );
-    QString value() const;
+    inline QString accessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
+    inline virtual void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); updateData(); }
 };
 
 #endif // PHIABSTRACTINPUTITEM_H

@@ -136,14 +136,14 @@ void PHIBaseItem::privateSqueeze()
     }
     if ( styleSheet().isEmpty() ) _variants.remove( DStyleSheet );
     if ( title().isEmpty() ) _variants.remove( DTitle );
-    if ( accessKey().isEmpty() ) _variants.remove( DAccessKey );
-    if ( maxLength()==100 ) _variants.remove( DMaxLength );
+    //if ( accessKey().isEmpty() ) _variants.remove( DAccessKey );
+    //if ( maxLength()==100 ) _variants.remove( DMaxLength );
     if ( transformPos()==1 ) _variants.remove( DTransformPos );
-    if ( url().isEmpty() ) _variants.remove( DUrl );
-    if ( label().isEmpty() ) _variants.remove( DLabel );
-    if ( value().isEmpty() ) _variants.remove( DValue );
-    if ( hasDelimiter() && delimiter()==L1( "\n" ) ) _variants.remove( DDelimiter );
-    else if ( !hasDelimiter() ) _variants.remove( DDelimiter );
+    //if ( url().isEmpty() ) _variants.remove( DUrl );
+    //if ( label().isEmpty() ) _variants.remove( DLabel );
+    //if ( value().isEmpty() ) _variants.remove( DValue );
+    //if ( hasDelimiter() && delimiter()==L1( "\n" ) ) _variants.remove( DDelimiter );
+    //else if ( !hasDelimiter() ) _variants.remove( DDelimiter );
     if ( tabIndex()==0 ) _variants.remove( DTabIndex );
     _variants.squeeze();
 }
@@ -301,12 +301,12 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     setColor( PHIPalette::Foreground, colorRole( PHIPalette::Foreground ), d.color() );
     setColor( PHIPalette::Background, colorRole( PHIPalette::Background ), d.outlineColor() );
     setTabIndex( static_cast<qint16>( d.tabOrder() ) );
-    setProperty( "penWidth", d.penWidth() );
-    setProperty( "line", d.line() );
-    setProperty( "pattern", d.pattern() );
-    setAccessKey( d.shortCut() );
-    setLabel( d.label() );
-    setUrl( d.url() );
+    if ( property( "penWidth" ).isValid() ) setProperty( "penWidth", d.penWidth() );
+    if ( property( "line" ).isValid() ) setProperty( "line", d.line() );
+    if ( property( "pattern" ).isValid() ) setProperty( "pattern", d.pattern() );
+    if ( property( "label" ).isValid() ) setProperty( "label", d.label() );
+    if ( property( "url" ).isValid() ) setProperty( "url", d.url() );
+    if ( property( "accessKey" ).isValid() ) setProperty( "accessKey", d.shortCut() );
     if ( hasGradient() ) {
         QGradient g=d.gradient();
         if ( g.type()==QGradient::ConicalGradient ) setGradient( d.conicalGradient() );

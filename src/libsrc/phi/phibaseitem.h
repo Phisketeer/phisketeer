@@ -89,9 +89,8 @@ public:
     enum Wid { Unknown=0, User=1000 };
     enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4, DTransformPos=-5,
         DTransformOrigin=-6, DXRot=-7, DYRot=-8, DZRot=-9, DHSkew=-10, DVSkew=-11,
-        DParentId=-12, DFlags=-13, DVisibility=-14, DStyleSheet=-15, DUrl=-16,
-        DAccessKey=-17, DLabel=-18, DMaxLength=-19, DValue=-20,
-        DDelimiter=-22, DGradientType=-23, DGradientStartPoint=-24, DGradientStopPoints=-25,
+        DParentId=-12, DFlags=-13, DVisibility=-14, DStyleSheet=-15,
+        DGradientType=-23, DGradientStartPoint=-24, DGradientStopPoints=-25,
         DGradientFinalStopPoint=-26, DGradientSpreadType=-27, DGradientAngle=-28,
         DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
@@ -103,14 +102,14 @@ public:
     typedef quint32 Flags;
 #endif
     /*
-    enum Widget { NO_ITEM=0, RADIO_BUTTON=5, BUTTON=6,
-        SUBMIT_BUTTON=7, RESET_BUTTON=8, FILE_BUTTON=9, COMBO_BOX=10, HIDDEN=11, IMAGE_BUTTON=12,
+    enum Widget {
+        FILE_BUTTON=9, COMBO_BOX=10, HIDDEN=11, IMAGE_BUTTON=12,
         LINE=15, IMAGE=16, LAYOUT_LOGIN=17, LIST=18, LAYOUT_GRID=19,
         LINK=23, TAB=24, HSPACE=26, VSPACE=27, TEXT=29,
         DATEEDIT=31, CALENDAR=32, LANG_SELECTOR=33, LAYOUT_ADDRESS=34, LAYOUT_DELIVERY=35,
         LAYOUT_CREDIT_CARD=36, ROLLOVER_BUTTON=37, LAYOUT_CONTACT=38, LAYOUT_PERIOD=39, LAYOUT_REGISTER=40,
         RICH_TEXT=41, SVG=42, CHECK_LIST=43, DIA_SHOW=44, IMAGE_BOOK=45, TABLE=46, COUNTRY=47, PHISYS_LINK=48,
-        HTML_DOC=49, SEARCH=50, EMAIL=51, DECIMAL=52, REALNUMBER=53, PHONE=54, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
+        HTML_DOC=49, SEARCH=50, EMAIL=51, PHONE=54, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
         GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, CANVAS=61, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
     */
     explicit PHIBaseItem();
@@ -127,7 +126,7 @@ public: // not usable by script engine
     inline QByteArray id() const { return _id; }
     inline QByteArray parentId() const { return _parentId; }
     inline void setId( const QByteArray &id ) { setObjectName( QString::fromLatin1( id ) ); _id=id; }
-    inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); }
+    inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); } // updates parent layout if isChild()
     inline void setParentId( const QByteArray &pid ) { _parentId=pid; }
     inline void setFocus() { if ( _gw ) { _gw->setFocus(); _gw->setSelected( true ); } }
     inline const PHIEffect* effect() const { return _effect; }
@@ -240,18 +239,14 @@ public slots: // usable by script engine
 
     inline QString styleSheet() const { return QString::fromUtf8( _variants.value( DStyleSheet ).toByteArray() ); }
     inline virtual void setStyleSheet( const QString &s ) { _variants.insert( DStyleSheet, s.toUtf8() ); }
-    inline QString label() const { return QString::fromUtf8( _variants.value( DLabel ).toByteArray() ); }
-    inline virtual void setLabel( const QString &s ) { _variants.insert( DLabel, s.toUtf8() ); }
-    inline QString url() const { return QString::fromUtf8( _variants.value( DUrl ).toByteArray() ); }
-    inline virtual void setUrl( const QString &s ) { _variants.insert( DUrl, s.toUtf8() ); }
-    inline QString accessKey() const { return QString::fromUtf8( _variants.value( DAccessKey ).toByteArray() ); }
-    inline virtual void setAccessKey( const QString &s ) { _variants.insert( DAccessKey, s.left(1).toUtf8() ); }
-    inline QString value() const { return QString::fromUtf8( _variants.value( DValue ).toByteArray() ); }
-    inline virtual void setValue( const QString &s ) { _variants.insert( DValue, s.toUtf8() ); }
-    inline QString delimiter() const { return _variants.value( DDelimiter, L1( "\n" ) ).toString(); }
-    inline virtual void setDelimiter( const QString &s ) { _variants.insert( DDelimiter, s ); }
-    inline quint16 maxLength() const { return _variants.value( DMaxLength, 100 ).value<quint16>(); }
-    inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxLength, max ); }
+    //inline QString label() const { return QString::fromUtf8( _variants.value( DLabel ).toByteArray() ); }
+    //inline virtual void setLabel( const QString &s ) { _variants.insert( DLabel, s.toUtf8() ); }
+    //inline QString value() const { return QString::fromUtf8( _variants.value( DValue ).toByteArray() ); }
+    //inline virtual void setValue( const QString &s ) { _variants.insert( DValue, s.toUtf8() ); }
+    //inline QString delimiter() const { return _variants.value( DDelimiter, L1( "\n" ) ).toString(); }
+    //inline virtual void setDelimiter( const QString &s ) { _variants.insert( DDelimiter, s ); }
+    //inline quint16 maxLength() const { return _variants.value( DMaxLength, 100 ).value<quint16>(); }
+    //inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxLength, max ); }
     inline bool disabled() const { return _flags & FDisabled; }
     inline virtual void setDisabled( bool b ) { b ? _flags|= FDisabled : _flags&= ~FDisabled; }
     inline bool checked() const { return _flags & FChecked; }

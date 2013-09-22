@@ -18,7 +18,12 @@
 */
 #include <QLineEdit>
 #include <QPlainTextEdit>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
 #include "phiinputitems.h"
+#include "phidatasources.h"
+#include "phi.h"
 
 PHILineEditItem::PHILineEditItem()
     : PHIAbstractInputItem()
@@ -34,6 +39,17 @@ void PHILineEditItem::setWidgetText( const QString &s )
     QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
     Q_ASSERT( edit );
     edit->setText( s );
+}
+
+QSizeF PHILineEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( which==Qt::PreferredSize ) {
+        QSizeF s=PHIAbstractInputItem::sizeHint( which, constraint );
+        if ( s.height()<24. ) s.setHeight( 24. );
+        s.setWidth( 144 );
+        return s;
+    }
+    return PHIAbstractInputItem::sizeHint( which, constraint );
 }
 
 PHITextAreaItem::PHITextAreaItem()
@@ -54,19 +70,130 @@ void PHITextAreaItem::setWidgetText( const QString &t )
     edit->setPlainText( t );
 }
 
-PHIPasswordItem::PHIPasswordItem()
+PHINumberEditItem::PHINumberEditItem()
     : PHIAbstractInputItem()
 {
-    QLineEdit *pwd=new QLineEdit();
-    if ( isIdeItem() ) pwd->setReadOnly( true );
-    pwd->setEchoMode( QLineEdit::PasswordEchoOnEdit );
-    setWidget( pwd );
-    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
+    setWidget( new QSpinBox() );
+    textData()->setText( L1( "1:0:100:1" ) );
 }
 
-void PHIPasswordItem::setWidgetText( const QString &s )
+void PHINumberEditItem::setWidgetText( const QString &s )
 {
-    QLineEdit *pwd=qobject_cast<QLineEdit*>(widget());
-    Q_ASSERT( pwd );
-    pwd->setText( s );
+    int val, min, max, step;
+    PHI::extractNumbers( s.toLatin1(), val, min, max, step );
+    QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
+    Q_ASSERT( spin );
+    spin->setValue( val );
+    spin->setMinimum( min );
+    spin->setMaximum( max );
+    spin->setSingleStep( step );
+}
+
+QSizeF PHINumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( which==Qt::PreferredSize ) {
+        QSizeF s=PHIAbstractInputItem::sizeHint( which, constraint );
+        if ( s.height()<24. ) s.setHeight( 24. );
+        s.setWidth( 80 ); // todo: adjust width to max decimals
+        return s;
+    }
+    return PHIAbstractInputItem::sizeHint( which, constraint );
+}
+
+PHIRealNumberEditItem::PHIRealNumberEditItem()
+    : PHIAbstractInputItem()
+{
+    setWidget( new QDoubleSpinBox() );
+    textData()->setText( L1( "1.5:0:10.5:0.5:1" ) );
+}
+
+void PHIRealNumberEditItem::setWidgetText( const QString &s )
+{
+    qreal val, min, max, step;
+    int dec;
+    PHI::extractRealNumbers( s.toLatin1(), val, min, max, step, dec );
+    QDoubleSpinBox *spin=qobject_cast<QDoubleSpinBox*>(widget());
+    Q_ASSERT( spin );
+    spin->setValue( val );
+    spin->setMinimum( min );
+    spin->setMaximum( max );
+    spin->setSingleStep( step );
+    spin->setDecimals( dec );
+}
+
+QSizeF PHIRealNumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( which==Qt::PreferredSize ) {
+        QSizeF s=PHIAbstractInputItem::sizeHint( which, constraint );
+        if ( s.height()<24. ) s.setHeight( 24. );
+        s.setWidth( 80 ); // todo: adjust width to max decimals
+        return s;
+    }
+    return PHIAbstractInputItem::sizeHint( which, constraint );
+}
+
+PHIPasswordItem::PHIPasswordItem()
+    : PHILineEditItem()
+{
+    QLineEdit *pwd=new QLineEdit();
+    pwd->setEchoMode( QLineEdit::PasswordEchoOnEdit );
+    setWidget( pwd );
+}
+
+PHISubmitButtonItem::PHISubmitButtonItem()
+    : PHIAbstractInputItem()
+{
+    setWidget( new QPushButton() );
+    setColorRole( PHIPalette::ButtonText );
+    setBackgroundColorRole( PHIPalette::Button );
+    textData()->setText( tr( "Submit" ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::PushButton ) );
+}
+
+void PHISubmitButtonItem::setWidgetText( const QString &t )
+{
+    QPushButton *b=qobject_cast<QPushButton*>(widget());
+    b->setText( t );
+}
+
+QSizeF PHISubmitButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( which==Qt::MinimumSize ) return QSizeF( 34, 21 );
+    if ( which==Qt::PreferredSize ) {
+        QSizeF s=PHIAbstractTextItem::sizeHint( which, constraint );
+        if ( s.height()<23 ) s.setHeight( 23 );
+        s.setWidth( s.width()+28 );
+        return s;
+    }
+    return PHIAbstractTextItem::sizeHint( which, constraint );
+}
+
+void PHISubmitButtonItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
+{
+    if ( ir==PHIPalette::WidgetText ) {
+        setData( DColor, col );
+        setColorRole( cr );
+    } else if ( ir==PHIPalette::WidgetBase ) {
+        setData( DBackgroundColor, col );
+        setBackgroundColorRole( cr );
+    } else return;
+    QWidget *w=widget();
+    if ( !w ) return;
+    QPalette::ColorRole role=QPalette::ButtonText;
+    if ( ir==PHIPalette::WidgetBase ) role=QPalette::Button;
+    QPalette pal=w->palette();
+    pal.setColor( role, col );
+    w->setPalette( pal );
+}
+
+PHIResetButtonItem::PHIResetButtonItem()
+    : PHISubmitButtonItem()
+{
+    textData()->setText( tr( "Reset" ) );
+}
+
+PHIButtonItem::PHIButtonItem()
+    : PHISubmitButtonItem()
+{
+    textData()->setText( tr( "Button" ) );
 }

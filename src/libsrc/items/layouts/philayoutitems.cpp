@@ -40,7 +40,7 @@ PHIHorizontalLayoutItem::PHIHorizontalLayoutItem()
 
 void PHIHorizontalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
 {
-    if ( !list.count() ) return;
+    if ( !list.count()>1 ) return;
     _childIds.clear();
     QList <PHIBaseItem*>slist=list;
     qSort( slist.begin(), slist.end(), xLessThan );
@@ -158,5 +158,61 @@ void PHIFormLayoutItem::activateLayout()
 
 void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
 {
-
+    _childRects.clear();
+    qreal refX, refY;
+    QList <PHIBaseItem*> itemListX, itemListY, itemList1, itemList2;
+    PHIBaseItem *it;
+    QMap <qreal, PHIBaseItem*> orderedX, orderedY, col1, col2;
+    foreach ( it, list ) orderedX.insertMulti( it->x(), it );
+    foreach ( it, list ) orderedY.insertMulti( it->y(), it );
+    itemListX=orderedX.values();
+    itemListY=orderedY.values();
+    Q_ASSERT( itemListY.count()>1 );
+    if ( itemListY.count()==2 ) {
+        if ( itemListY.at( 0 )->x() < itemListY.at( 1 )->x() ) {
+            insertBaseItem( itemListY.at( 0 ), 0, 0 );
+            insertBaseItem( itemListY.at( 1 ), 0, 1 );
+        } else {
+            insertBaseItem( itemListY.at( 1 ), 0, 0 );
+            insertBaseItem( itemListY.at( 0 ), 0, 1 );
+        }
+        return;
+    }
+    refX=itemListX.at( 0 )->x();
+    refY=itemListY.at( 0 )->y();
+    qreal minWidth=qMin( 32., itemListX.at( 0 )->width() );
+    foreach ( it, list ) {
+        if ( it->x()>refX+minWidth-10 ) col2.insertMulti( it->y(), it );
+        else col1.insertMulti( it->y(), it );
+    }
+    itemList1=col1.values();
+    itemList2=col2.values();
+    QPointF pos;
+    if ( itemList1.count() ) pos=itemList1.at( 0 )->pos();
+    else pos=itemList2.at( 0 )->pos();
+    int srcRow1=0, srcRow2=0, destRow1=0, destRow2=0;
+    while ( srcRow1<itemList1.count() || srcRow2<itemList2.count() ) {
+        bool skip1=false, skip2=false;
+        qreal height1=0, height2=0, y1=0, y2=0;
+        if ( srcRow1<itemList1.count() ) {
+            height1=itemList1.at( srcRow1 )->height();
+            y1=itemList1.at( srcRow1 )->y();
+        }
+        if ( srcRow2<itemList2.count() ) {
+            height2=itemList2.at( srcRow2 )->height();
+            y2=itemList2.at( srcRow2 )->y();
+        }
+        if ( y1 > y2+height2 && height2>0 ) { destRow1++; skip1=true; }
+        else if ( y2 > y1+height1 && height1>0 ) { destRow2++; skip2=true; }
+        if ( !skip1 && height1>0 ) {
+            _childRects.insert( itemList1.at( srcRow1 )->id(), QRect( 0, destRow1, 1, 1 ) );
+            insertBaseItem( itemList1.at( srcRow1++ ), destRow1++, 0 );
+        }
+        if ( !skip2 && height2>0 ) {
+            _childRects.insert( itemList2.at( srcRow2 )->id(), QRect( 1, destRow2, 1, 1 ) );
+            insertBaseItem( itemList2.at( srcRow2++ ), destRow2++, 1 );
+        }
+    }
+    setPos( pos );
+    resize( layout()->preferredSize() );
 }

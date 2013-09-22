@@ -1,1 +1,2 @@
-{ "Keys": [ "lineedit", "textarea" ] }
+{ "Keys": [ "lineedit", "textarea", "password", "checkbox", "radiobutton", "button",
+        "submit", "reset", "number", "realnumber" ] }

@@ -23,12 +23,21 @@ PHIAbstractInputItem::PHIAbstractInputItem()
 {
 }
 
-QString PHIAbstractInputItem::value() const
+QSizeF PHIAbstractInputItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    return QString();
+    if ( which!=Qt::PreferredSize ) return PHIAbstractTextItem::sizeHint( which, constraint );
+    qreal height=PHIAbstractTextItem::sizeHint( which, constraint ).height();
+    return QSizeF( 120., height );
 }
 
-void PHIAbstractInputItem::setValue( const QString &v )
+void PHIAbstractInputItem::squeeze()
 {
-    Q_UNUSED( v )
+    if ( data( DAccessKey ).toString().isEmpty() ) removeData( DAccessKey );
+    PHIAbstractTextItem::squeeze();
+}
+
+void PHIAbstractInputItem::updateData()
+{
+    PHIAbstractTextItem::updateData();
+    // todo: implement short cut with QShortcut
 }

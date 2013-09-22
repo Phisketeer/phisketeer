@@ -43,9 +43,15 @@ inline PHIBaseItem* PHIInput::create( PHIWID wid ) const
 {
     switch ( wid ) {
     case PHILineEditItem::LineEdit: return new PHILineEditItem();
-    case PHITextAreaItem::TextArea: return new PHITextAreaItem();
-    case PHIPasswordItem::Password: return new PHIPasswordItem();
     case PHICheckBoxItem::Checkbox: return new PHICheckBoxItem();
+    case PHIRadioButtonItem::RadioButton: return new PHIRadioButtonItem();
+    case PHITextAreaItem::TextArea: return new PHITextAreaItem();
+    case PHISubmitButtonItem::SubmitButton: return new PHISubmitButtonItem();
+    case PHIButtonItem::Button: return new PHIButtonItem();
+    case PHIPasswordItem::Password: return new PHIPasswordItem();
+    case PHINumberEditItem::NumberEdit: return new PHINumberEditItem();
+    case PHIRealNumberEditItem::RealNumberEdit: return new PHIRealNumberEditItem();
+    case PHIResetButtonItem::ResetButton: return new PHIResetButtonItem();
     }
     return 0;
 }
@@ -53,7 +59,9 @@ inline PHIBaseItem* PHIInput::create( PHIWID wid ) const
 inline QStringList PHIInput::keys() const
 {
     return QStringList() << QStringLiteral( "lineedit" ) << QStringLiteral( "textarea" )
-        << QStringLiteral( "password" ) << QStringLiteral( "checkbox" );
+        << QStringLiteral( "password" ) << QStringLiteral( "checkbox" ) << QStringLiteral( "radiobutton" )
+        << QStringLiteral( "button" ) << QStringLiteral( "reset" ) << QStringLiteral( "submit" )
+        << QStringLiteral( "number" ) << QStringLiteral( "realnumber" );
 }
 
 inline PHIWID PHIInput::wid( const QString &key ) const
@@ -62,6 +70,12 @@ inline PHIWID PHIInput::wid( const QString &key ) const
     if ( key==QLatin1String( "textarea" ) ) return PHITextAreaItem::TextArea;
     if ( key==QLatin1String( "password" ) ) return PHIPasswordItem::Password;
     if ( key==QLatin1String( "checkbox" ) ) return PHICheckBoxItem::Checkbox;
+    if ( key==QLatin1String( "radiobutton" ) ) return PHIRadioButtonItem::RadioButton;
+    if ( key==QLatin1String( "button" ) ) return PHIButtonItem::Button;
+    if ( key==QLatin1String( "submit" ) ) return PHISubmitButtonItem::SubmitButton;
+    if ( key==QLatin1String( "number" ) ) return PHINumberEditItem::NumberEdit;
+    if ( key==QLatin1String( "realnumber" ) ) return PHIRealNumberEditItem::RealNumberEdit;
+    if ( key==QLatin1String( "reset" ) ) return PHIResetButtonItem::ResetButton;
     return 0;
 }
 
