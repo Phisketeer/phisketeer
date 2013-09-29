@@ -30,10 +30,10 @@ class PHIHorizontalLayoutItem : public PHIAbstractLayoutItem
 public:
     enum Wid { HorizontalLayout=21 };
     explicit PHIHorizontalLayoutItem();
-    virtual PHIWID wid() const { return HorizontalLayout; }
-    virtual QString listName() const { return tr( "HBox layout" ); }
-    virtual QPixmap pixmap() const { return QPixmap(); }
-    virtual QString description() const { return tr( "Manages a horizontal layout." ); }
+    inline virtual PHIWID wid() const { return HorizontalLayout; }
+    inline virtual QString listName() const { return tr( "HBox layout" ); }
+    inline virtual QPixmap pixmap() const { return QPixmap(); }
+    inline virtual QString description() const { return tr( "Manages a horizontal layout." ); }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list );
     virtual void activateLayout();
     virtual void updateChildId( const QString &oldId, const QString &newId );
@@ -58,10 +58,10 @@ class PHIVerticalLayoutItem : public PHIHorizontalLayoutItem
 public:
     enum Wid { VerticalLayout=20 };
     explicit PHIVerticalLayoutItem();
-    virtual PHIWID wid() const { return VerticalLayout; }
-    virtual QString listName() const { return tr( "VBox layout" ); }
-    virtual QPixmap pixmap() const { return QPixmap(); }
-    virtual QString description() const { return tr( "Manages a vertical layout." ); }
+    inline virtual PHIWID wid() const { return VerticalLayout; }
+    inline virtual QString listName() const { return tr( "VBox layout" ); }
+    inline virtual QPixmap pixmap() const { return QPixmap(); }
+    inline virtual QString description() const { return tr( "Manages a vertical layout." ); }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list );
 };
 
@@ -73,10 +73,10 @@ class PHIFormLayoutItem : public PHIAbstractLayoutItem
 public:
     enum Wid { FormLayout=22 };
     explicit PHIFormLayoutItem();
-    virtual PHIWID wid() const { return FormLayout; }
-    virtual QString listName() const { return tr( "Form layout" ); }
-    virtual QPixmap pixmap() const { return QPixmap(); }
-    virtual QString description() const { return tr( "Manages a double column layout." ); }
+    inline virtual PHIWID wid() const { return FormLayout; }
+    inline virtual QString listName() const { return tr( "Form layout" ); }
+    inline virtual QPixmap pixmap() const { return QPixmap(); }
+    inline virtual QString description() const { return tr( "Manages a double column layout." ); }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list );
     virtual void activateLayout();
     virtual void updateChildId( const QString &oldId, const QString &newId );
@@ -92,6 +92,24 @@ protected:
 
 private:
     PHIRectHash _childRects;
+};
+
+class PHIGridLayoutItem : public PHIFormLayoutItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { GridLayout=19 };
+    explicit PHIGridLayoutItem();
+    inline virtual PHIWID wid() const { return GridLayout; }
+    inline virtual QString listName() const { return tr( "Grid layout" ); }
+    inline virtual QPixmap pixmap() const { return QPixmap(); }
+    inline virtual QString description() const { return tr( "Manages items in a grid layout." ); }
+    virtual void addBaseItems( const QList <PHIBaseItem*> &list );
+
+protected:
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void saveItemData( QDataStream &out, int version );
 };
 
 #endif // PHIABSTRACTLAYOUTITEM_H

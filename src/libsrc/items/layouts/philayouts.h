@@ -44,6 +44,7 @@ inline PHIBaseItem* PHILayouts::create( PHIWID wid ) const
     case PHIVerticalLayoutItem::VerticalLayout: return new PHIVerticalLayoutItem();
     case PHIHorizontalLayoutItem::HorizontalLayout: return new PHIHorizontalLayoutItem();
     case PHIFormLayoutItem::FormLayout: return new PHIFormLayoutItem();
+    case PHIGridLayoutItem::GridLayout: return new PHIGridLayoutItem();
     }
     return 0;
 }
@@ -51,7 +52,7 @@ inline PHIBaseItem* PHILayouts::create( PHIWID wid ) const
 inline QStringList PHILayouts::keys() const
 {
     return QStringList() << QStringLiteral( "hboxlayout" ) << QStringLiteral( "vboxlayout" )
-        << QStringLiteral( "formlayout" );
+        << QStringLiteral( "formlayout" ) << QStringLiteral( "gridlayout" );
 }
 
 inline PHIWID PHILayouts::wid( const QString &key ) const
@@ -59,6 +60,7 @@ inline PHIWID PHILayouts::wid( const QString &key ) const
     if ( key==QLatin1String( "hboxlayout" ) ) return PHIHorizontalLayoutItem::HorizontalLayout;
     if ( key==QLatin1String( "vboxlayout" ) ) return PHIVerticalLayoutItem::VerticalLayout;
     if ( key==QLatin1String( "formlayout" ) ) return PHIFormLayoutItem::FormLayout;
+    if ( key==QLatin1String( "gridlayout" ) ) return PHIGridLayoutItem::GridLayout;
     return 0;
 }
 

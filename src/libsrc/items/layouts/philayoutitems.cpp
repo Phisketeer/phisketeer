@@ -138,8 +138,7 @@ void PHIFormLayoutItem::saveItemData( QDataStream &out, int version )
     out << static_cast<qint16>(_childRects.count());
     foreach ( QByteArray id, _childRects.keys() ) {
         QRect r=_childRects.value( id );
-        out << id << static_cast<quint8>( r.y() ) << static_cast<quint8>( r.x() );
-        qDebug() << id << r.y() << r.x();
+        out << id << static_cast<quint8>(r.y()) << static_cast<quint8>(r.x());
     }
 }
 
@@ -151,7 +150,7 @@ void PHIFormLayoutItem::activateLayout()
         PHIBaseItem *it=page()->findItem( id );
         Q_ASSERT( it );
         QRect r=_childRects.value( id );
-        insertBaseItem( it, r.y(), r.x() );
+        insertBaseItem( it, r.y(), r.x(), r.height(), r.width() );
     }
     resize( tmpWidth, tmpHeight );
 }
@@ -160,13 +159,16 @@ void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
 {
     _childRects.clear();
     qreal refX, refY;
-    QList <PHIBaseItem*> itemListX, itemListY, itemList1, itemList2;
+    QList <PHIBaseItem*> itemListX=list, itemListY=list, itemList1, itemList2;
+    qSort( itemListX.begin(), itemListX.end(), xLessThan );
+    qSort( itemListY.begin(), itemListY.end(), yLessThan );
     PHIBaseItem *it;
-    QMap <qreal, PHIBaseItem*> orderedX, orderedY, col1, col2;
-    foreach ( it, list ) orderedX.insertMulti( it->x(), it );
-    foreach ( it, list ) orderedY.insertMulti( it->y(), it );
-    itemListX=orderedX.values();
-    itemListY=orderedY.values();
+    QMap <qreal, PHIBaseItem*> col1, col2;
+    //QMap <qreal, PHIBaseItem*> orderedX, orderedY, col1, col2;
+    //foreach ( it, list ) orderedX.insertMulti( it->x(), it );
+    //foreach ( it, list ) orderedY.insertMulti( it->y(), it );
+    //itemListX=orderedX.values();
+    //itemListY=orderedY.values();
     Q_ASSERT( itemListY.count()>1 );
     if ( itemListY.count()==2 ) {
         if ( itemListY.at( 0 )->x() < itemListY.at( 1 )->x() ) {
@@ -214,5 +216,126 @@ void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
         }
     }
     setPos( pos );
+    resize( layout()->preferredSize() );
+}
+
+PHIGridLayoutItem::PHIGridLayoutItem()
+    : PHIFormLayoutItem()
+{
+}
+
+void PHIGridLayoutItem::loadItemData( QDataStream &in, int version )
+{
+    PHIAbstractLayoutItem::loadItemData( in, version );
+    PHIRectHash childRects;
+    QByteArray id;
+    quint8 row, col, rowspan, colspan;
+    qint16 count;
+    in >> count;
+    for ( qint16 i=0; i<count; i++ ) {
+        in >> id >> row >> col >> rowspan >> colspan;
+        QRect r( static_cast<int>(col), static_cast<int>(row), static_cast<int>(colspan), static_cast<int>(rowspan) );
+        childRects.insert( id, r );
+    }
+    setChildRects( childRects );
+}
+
+void PHIGridLayoutItem::saveItemData( QDataStream &out, int version )
+{
+    const PHIRectHash rects=childRects();
+    PHIAbstractLayoutItem::saveItemData( out, version );
+    out << static_cast<qint16>(rects.count());
+    foreach ( QByteArray id, rects.keys() ) {
+        QRect r=rects.value( id );
+        out << id << static_cast<quint8>(r.y()) << static_cast<quint8>(r.x())
+            << static_cast<quint8>(r.height()) << static_cast<quint8>(r.width());
+        qDebug() << id << r.y() << r.x() << r.height() << r.width();
+    }
+}
+
+void PHIGridLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
+{
+    PHIBaseItem *it;
+    QMap <qreal, PHIBaseItem*> map;
+    foreach( it, list ) {
+        map.insertMulti( it->x(), it );
+        map.insertMulti( it->x()+it->width(), it );
+    }
+    QMap <int, PHIBaseItem*> xmap;
+    int col=0;
+    qreal x=map.keys().first(), last=-100000.;
+    foreach( qreal curx, map.keys() ) {
+        if ( last==curx ) continue;
+        if ( x+20<curx ) {
+            x=curx;
+            col++;
+        }
+        QList <PHIBaseItem*> items=map.values( curx );
+        foreach ( it, items ) xmap.insertMulti( col, it );
+        last=curx;
+    }
+    x=map.keys().first();
+    map.clear();
+    foreach( it, list ) {
+        map.insertMulti( it->y(), it );
+        map.insertMulti( it->y()+it->height(), it );
+    }
+    QMap <int, PHIBaseItem*> ymap;
+    qreal y=map.keys().first();
+    last=-100000.;
+    int row=0;
+    foreach( qreal cury, map.keys() ) {
+        if ( last==cury ) continue;
+        if ( y+20<cury ) {
+            y=cury;
+            row++;
+        }
+        QList <PHIBaseItem*> items=map.values( cury );
+        foreach ( it, items ) ymap.insertMulti( row, it );
+        last=cury;
+    }
+    y=map.keys().first();
+    QHash <PHIBaseItem*, QPoint> matrix;
+    QHash <PHIBaseItem*, QPoint> size;
+    for ( row=0; row<=ymap.keys().last(); row++ ) {
+        QList <PHIBaseItem*> rItems=ymap.values( row );
+        for ( col=0; col<=xmap.keys().last(); col++ ) {
+            QList <PHIBaseItem*> cItems=xmap.values( col );
+            foreach ( PHIBaseItem *yItem, rItems ) {
+                foreach ( PHIBaseItem *xItem, cItems ) {
+                    if ( yItem==xItem ) {
+                        // this equals four times for each item (x,y and width,height)
+                        if ( !matrix.contains( yItem ) )
+                            matrix.insert( yItem, QPoint( col, row ) );
+                        else {
+                            if ( matrix.value( yItem )!=QPoint( col, row ) )
+                                size.insert( yItem, QPoint( col, row ) );
+                        }
+                    }
+                }
+            }
+        }
+    }
+    PHIRectHash rects;
+    for ( row=0; row<=ymap.keys().last(); row++ ) {
+        for ( col=0; col<=xmap.keys().last(); col++ ) {
+            foreach( it, matrix.keys() ) {
+                QPoint m=matrix.value( it );
+                if ( m==QPoint( col, row ) ) {
+                    m=size.value( it );
+                    qDebug() << row << col << it->id();
+                    qDebug() << m.y() << m.x() << it->id();
+                    int spanx=m.x()-col;
+                    if ( spanx<1 ) spanx=1;
+                    int spany=m.y()-row;
+                    if ( spany<1 ) spany=1;
+                    insertBaseItem( it, row, col, spany, spanx );
+                    rects.insert( it->id(), QRect( col, row, spanx, spany ) );
+                }
+            }
+        }
+    }
+    setChildRects( rects );
+    setPos( x, y );
     resize( layout()->preferredSize() );
 }
