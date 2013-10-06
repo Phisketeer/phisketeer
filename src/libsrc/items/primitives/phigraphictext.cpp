@@ -23,17 +23,22 @@
 #include "phicolorconfig.h"
 #include "phibasepage.h"
 
-PHIGraphicText::PHIGraphicText()
-    : PHIAbstractShapeItem(), _textData( 0 )
+PHIGraphicText::PHIGraphicText( const PHIBaseItemPrivate &p )
+    : PHIAbstractShapeItem( p ), _textData( 0 )
 {
     _textData=new PHITextData();
-    _textData->setText( tr( "Graphical text" ) );
     setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
 }
 
 PHIGraphicText::~PHIGraphicText()
 {
     delete _textData;
+}
+
+void PHIGraphicText::initIDE()
+{
+    PHIAbstractShapeItem::initIDE();
+    _textData->setText( tr( "Graphical text" ) );
 }
 
 void PHIGraphicText::updateData()

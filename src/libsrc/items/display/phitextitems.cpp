@@ -19,16 +19,21 @@
 #include <QLabel>
 #include "phitextitems.h"
 #include "phidatasources.h"
+#include "phibasepage.h"
 #include "phi.h"
 
-PHILabelItem::PHILabelItem()
-    : PHIAbstractTextItem()
+PHILabelItem::PHILabelItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractTextItem( p )
 {
     setWidget( new QLabel() );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+}
+
+void PHILabelItem::initIDE()
+{
     textData()->setText( L1( "Label" ) );
-    setBackgroundColorRole( PHIPalette::Window );
-    setColorRole( PHIPalette::WindowText );
+    setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+    setColor( PHIPalette::WidgetText, PHIPalette::WindowText, page()->phiPalette().color( PHIPalette::WindowText ) );
 }
 
 void PHILabelItem::setWidgetText( const QString &t )

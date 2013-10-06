@@ -43,17 +43,22 @@ static void _extractColorRole( const QString &s, PHIPalette::ColorRole &cr )
     }
 }
 
-PHIAbstractTextItem::PHIAbstractTextItem()
-    : PHIBaseItem()
+PHIAbstractTextItem::PHIAbstractTextItem( const PHIBaseItemPrivate &p )
+    : PHIBaseItem( p )
 {
     _textData=new PHITextData();
-    _colorRole=PHIPalette::Text;
-    _backgroundColorRole=PHIPalette::Base;
 }
 
 PHIAbstractTextItem::~PHIAbstractTextItem()
 {
     delete _textData;
+}
+
+void PHIAbstractTextItem::initIDE()
+{
+    setColor( PHIPalette::WidgetText, PHIPalette::Text, page()->phiPalette().color( PHIPalette::Text ) );
+    setColor( PHIPalette::WidgetBase, PHIPalette::Base, page()->phiPalette().color( PHIPalette::Base ) );
+    textData()->setText( L1( "Example text" ) );
 }
 
 PHIConfigWidget* PHIAbstractTextItem::configWidget()
@@ -109,9 +114,11 @@ QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constrai
         QFontMetricsF m( f );
         if ( isSingleLine() ) {
             qreal minWidth=64.;
-            foreach ( QString l, page()->languages() ) {
-                l=text( l.toLatin1() );
-                if ( m.width( l )>minWidth ) minWidth=static_cast<int>(m.width( l ));
+            if ( page() ) {
+                foreach ( QString l, page()->languages() ) {
+                    l=text( l.toLatin1() );
+                    if ( m.width( l )>minWidth ) minWidth=static_cast<int>(m.width( l ));
+                }
             }
             return QSizeF( minWidth, qMax( 22., static_cast<int>(m.height())+8. ) );
         }
@@ -264,18 +271,23 @@ static void _extractShapeDefs( const QString &s, PHIPalette::ColorRole &cr, quin
     }
 }
 
-PHIAbstractShapeItem::PHIAbstractShapeItem()
-    : PHIBaseItem()
+PHIAbstractShapeItem::PHIAbstractShapeItem( const PHIBaseItemPrivate &p )
+    : PHIBaseItem( p )
 {
-    _colorRole=PHIPalette::Black;
-    _outlineColorRole=PHIPalette::Black;
-    resize( sizeHint( Qt::PreferredSize, QSizeF() ) );
     setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored ) );
 }
 
 PHIConfigWidget* PHIAbstractShapeItem::configWidget()
 {
     return new PHIColorConfig( this );
+}
+
+void PHIAbstractShapeItem::initIDE()
+{
+    setColor( PHIPalette::Foreground, PHIPalette::Black, page()->phiPalette().color( PHIPalette::Black ) );
+    setColor( PHIPalette::Background, PHIPalette::Black, page()->phiPalette().color( PHIPalette::Black ) );
+    setLine( 1 );
+    setPattern( 15 );
 }
 
 void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
@@ -325,7 +337,6 @@ void PHIAbstractShapeItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorR
         _outlineColorRole=cr;
         setData( DOutlineColor, col );
     }
-    updateData();
     update();
 }
 
@@ -336,7 +347,6 @@ void PHIAbstractShapeItem::setPattern( quint8 p )
     else s=static_cast<Qt::BrushStyle>(p);
     setData( DPatternStyle, static_cast<quint8>(s) );
     if ( s==Qt::SolidPattern ) removeData( DPatternStyle );
-    updateData();
     update();
 }
 
@@ -344,7 +354,6 @@ void PHIAbstractShapeItem::setPenWidth( qreal w )
 {
     if ( w==1. ) removeData( DPenWidth );
     else setData( DPenWidth, w );
-    updateData();
     update();
 }
 
@@ -355,7 +364,6 @@ void PHIAbstractShapeItem::setLine( quint8 l )
     else s=static_cast<Qt::PenStyle>(l);
     setData( DLineStyle, static_cast<quint8>(s) );
     if ( s==Qt::NoPen ) removeData( DLineStyle );
-    updateData();
     update();
 }
 
@@ -368,7 +376,7 @@ QRectF PHIAbstractShapeItem::boundingRect() const
 QSizeF PHIAbstractShapeItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     Q_UNUSED( constraint )
-    if ( isChild() ) return size();
+    //if ( isChild() ) return size();
     if ( which==Qt::PreferredSize ) return QSizeF( 96., 96. );
     if ( which==Qt::MinimumSize ) return QSizeF( 16., 16. );
     if ( which==Qt::MaximumSize ) return QSizeF( 8000., 8000. );
@@ -536,8 +544,8 @@ void PHIAbstractShapeItem::saveItemData( QDataStream &out, int version )
     out << static_cast<quint8>(_colorRole) << static_cast<quint8>(_outlineColorRole);
 }
 
-PHIAbstractLayoutItem::PHIAbstractLayoutItem()
-    : PHIAbstractShapeItem(), _l( 0 ), _textData( 0 )
+PHIAbstractLayoutItem::PHIAbstractLayoutItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractShapeItem( p ), _l( 0 ), _textData( 0 )
 {
     _textData=new PHITextData();
     if ( gw() ) {
@@ -545,8 +553,6 @@ PHIAbstractLayoutItem::PHIAbstractLayoutItem()
         _l->setContentsMargins( leftMargin(), topMargin(), rightMargin(), bottomMargin() );
         gw()->setLayout( _l );
     }
-    setOutlineColorRole( PHIPalette::WindowText );
-    setColorRole( PHIPalette::Window );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
     connect( this, &PHIAbstractLayoutItem::layoutChanged, this, &PHIAbstractLayoutItem::updateLayoutGeometry, Qt::QueuedConnection );
 }
@@ -554,6 +560,14 @@ PHIAbstractLayoutItem::PHIAbstractLayoutItem()
 PHIAbstractLayoutItem::~PHIAbstractLayoutItem()
 {
     delete _textData;
+}
+
+void PHIAbstractLayoutItem::initIDE()
+{
+    setColor( PHIPalette::Foreground, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+    setColor( PHIPalette::Background, PHIPalette::Black, page()->phiPalette().color( PHIPalette::Black ) );
+    setLine( 1 );
+    setPattern( 1 );
 }
 
 void PHIAbstractLayoutItem::updateData()
@@ -746,4 +760,27 @@ QString PHIAbstractLayoutItem::text( const QByteArray &lang ) const
 PHIConfigWidget* PHIAbstractLayoutItem::configWidget()
 {
     return new PHILayoutConfig( this );
+}
+
+PHIAbstractInputItem::PHIAbstractInputItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractTextItem( p )
+{
+}
+
+QSizeF PHIAbstractInputItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( which!=Qt::PreferredSize ) return PHIAbstractTextItem::sizeHint( which, constraint );
+    return QSizeF( 120., PHIAbstractTextItem::sizeHint( which, constraint ).height() );
+}
+
+void PHIAbstractInputItem::squeeze()
+{
+    if ( data( DAccessKey ).toString().isEmpty() ) removeData( DAccessKey );
+    PHIAbstractTextItem::squeeze();
+}
+
+void PHIAbstractInputItem::updateData()
+{
+    PHIAbstractTextItem::updateData();
+    // @todo: implement short cut with QShortcut
 }

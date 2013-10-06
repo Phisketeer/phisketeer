@@ -58,7 +58,7 @@ class PHIEllipseItem : public PHIAbstractShapeItem
 public:
     enum ItemData { DStartAngle=1, DSpanAngle=2 };
     enum Wid { Ellipse=13 };
-    explicit PHIEllipseItem();
+    explicit PHIEllipseItem( const PHIBaseItemPrivate &p );
     inline virtual PHIWID wid() const { return Ellipse; }
     virtual QString listName() const { return tr( "Ellipse" ); }
     virtual QString description() const { return tr( "Draws an ellipse, pie or circle" ); }
@@ -66,6 +66,7 @@ public:
     inline PHIIntData* startData() { return &_startData; }
     inline PHIIntData* spanData() { return &_spanData; }
     virtual void updateData();
+    virtual void initIDE();
 
 public slots:
     inline void setStartAngle( int a ) { setData( DStartAngle, a ); update(); }

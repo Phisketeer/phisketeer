@@ -34,19 +34,19 @@ class PHIPrimitives : public PHIItemPlugin
     Q_CLASSINFO( "Copyright", "2013 Phisys AG, 2013 Phisketeer Team" )
 
 public:
-    virtual PHIBaseItem* create( PHIWID wid ) const;
+    virtual PHIBaseItem* create( PHIWID wid, const PHIBaseItemPrivate &p ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
     virtual QString category() const { return tr( "Shapes" ); }
 };
 
-inline PHIBaseItem* PHIPrimitives::create( PHIWID wid ) const
+inline PHIBaseItem* PHIPrimitives::create( PHIWID wid, const PHIBaseItemPrivate &p ) const
 {
     switch ( wid ) {
-    case PHIRectItem::Rect: return new PHIRectItem();
-    case PHIRoundedRectItem::RoundedRect: return new PHIRoundedRectItem();
-    case PHIEllipseItem::Ellipse: return new PHIEllipseItem();
-    case PHIGraphicText::GraphText: return new PHIGraphicText();
+    case PHIRectItem::Rect: return new PHIRectItem( p );
+    case PHIRoundedRectItem::RoundedRect: return new PHIRoundedRectItem( p );
+    case PHIEllipseItem::Ellipse: return new PHIEllipseItem( p );
+    case PHIGraphicText::GraphText: return new PHIGraphicText( p );
     }
     return 0;
 }

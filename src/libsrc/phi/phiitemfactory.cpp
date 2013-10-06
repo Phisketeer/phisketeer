@@ -95,8 +95,8 @@ QString PHIItemFactory::category( const QString &key ) const
     return QString();
 }
 
-PHIUnknownItem::PHIUnknownItem( PHIWID requestedWID )
-    : PHIBaseItem(), _requestedWID( requestedWID )
+PHIUnknownItem::PHIUnknownItem( const PHIBaseItemPrivate &p, PHIWID requestedWID )
+    : PHIBaseItem( p ), _requestedWID( requestedWID )
 {
 }
 

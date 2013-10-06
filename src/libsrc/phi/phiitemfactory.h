@@ -33,7 +33,7 @@ class PHIEXPORT PHIUnknownItem : public PHIBaseItem
     Q_OBJECT
 
 public:
-    explicit PHIUnknownItem( PHIWID requestedWID );
+    explicit PHIUnknownItem( const PHIBaseItemPrivate &p, PHIWID requestedWID );
     virtual PHIWID wid() const { return 0; }
     virtual QPixmap pixmap() const;
     virtual QString listName() const;
@@ -63,8 +63,8 @@ public:
     inline QStringList categoryList() const { QReadLocker l( &_lock ); return _categories.toList(); }
     inline QPixmap pixmapForCategory( const QString &cat ) const {
         QReadLocker l( &_lock ); return _pixmapForCategory.value( cat ); }
-    PHIBaseItem* item( const QString &key ) const;
-    PHIBaseItem* item( PHIWID wid ) const;
+    PHIBaseItem* item( const QString &key, const PHIBaseItemPrivate &p ) const;
+    PHIBaseItem* item( PHIWID wid, const PHIBaseItemPrivate &p ) const;
     QString category( const QString &key ) const;
     QStringList keysForCategory( const QString &cat ) const;
     
@@ -80,28 +80,28 @@ private:
     QHash <QString, QPixmap> _pixmapForCategory;
 };
 
-inline PHIBaseItem* PHIItemFactory::item( const QString &key ) const
+inline PHIBaseItem* PHIItemFactory::item( const QString &key, const PHIBaseItemPrivate &p ) const
 {
     QReadLocker l( &_lock );
     PHIItemPlugin *plugin=_plugins.value( key, 0 );
     PHIWID wid( 0 );
     if ( plugin ) {
-        PHIBaseItem *it=plugin->create( plugin->wid( key ) );
+        PHIBaseItem *it=plugin->create( plugin->wid( key ), p );
         if ( it ) return it;
         wid=plugin->wid( key );
     }
-    return new PHIUnknownItem( wid );
+    return new PHIUnknownItem( p, wid );
 }
 
-inline PHIBaseItem* PHIItemFactory::item( PHIWID wid ) const
+inline PHIBaseItem* PHIItemFactory::item( PHIWID wid, const PHIBaseItemPrivate &p ) const
 {
     QReadLocker l( &_lock );
     PHIItemPlugin *plugin=_wids.value( wid, 0 );
     if ( plugin ) {
-        PHIBaseItem *it=plugin->create( wid );
+        PHIBaseItem *it=plugin->create( wid, p );
         if ( it ) return it;
     }
-    return new PHIUnknownItem( wid );
+    return new PHIUnknownItem( p, wid );
 }
 
 inline QStringList PHIItemFactory::keysForCategory( const QString &cat ) const

@@ -28,8 +28,9 @@
 PHIGraphicsItemProvider* PHIGraphicsItemProvider::_instance=0;
 
 PHIGraphicsItemProvider::PHIGraphicsItemProvider( QObject *parent )
-    : QObject( parent ), _page( 0 )
+    : QObject( parent )
 {
+    Q_ASSERT( _instance==0 );
     _instance=this;
 }
 
@@ -38,8 +39,14 @@ PHIGraphicsItemProvider::~PHIGraphicsItemProvider()
     _instance=0;
 }
 
-PHIGraphicsItem::PHIGraphicsItem( PHIBaseItem *it )
-    : QGraphicsProxyWidget(), _it( it )
+PHIGraphicsItem::PHIGraphicsItem()
+    : QGraphicsProxyWidget(), _it( 0 )
+{
+    setCacheMode( NoCache );
+    setOwnedByLayout( false );
+}
+
+void PHIGraphicsItem::setBaseItem( PHIBaseItem *it )
 {
     Q_ASSERT( it );
     if ( it->isIdeItem() ) {
@@ -61,8 +68,7 @@ PHIGraphicsItem::PHIGraphicsItem( PHIBaseItem *it )
         setAcceptDrops( false );
         setAcceptHoverEvents( false );
     }
-    setCacheMode( NoCache );
-    setOwnedByLayout( false );
+    _it=it;
 }
 
 QPainterPath PHIGraphicsItem::shape() const

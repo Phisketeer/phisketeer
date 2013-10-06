@@ -155,8 +155,9 @@ PHIBasePage::PHIBasePage( QObject *parent )
     _id=arr.mid( 5, 10 );
     _currentLang="en";
     _dbPort=3306;
-    _dbDriver=L1( "QSQLITE" );
-    _favicon=QImage( L1( ":/file/phiappview" ) );
+    _dbDriver=SL( "QSQLITE" );
+    _favicon=QImage( SL( ":/file/phiappview" ) );
+    setObjectName( QString::fromLatin1( _id ) );
 }
 
 PHIBasePage::~PHIBasePage()
@@ -241,7 +242,8 @@ PHIBaseItem* PHIBasePage::createElementById( PHIWID wid, const QString &id,
     qreal x, qreal y, qreal width, qreal height )
 {
     if ( containsItemId( id ) ) return 0;
-    PHIBaseItem *it=PHIItemFactory::instance()->item( wid );
+    PHIBaseItemPrivate p( PHIBaseItemPrivate::TServerItem, this, 0 );
+    PHIBaseItem *it=PHIItemFactory::instance()->item( wid, p );
     if ( !it ) return 0;
     it->setId( id );
     it->setX( x );

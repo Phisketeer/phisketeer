@@ -18,7 +18,7 @@
 */
 #ifndef PHIINPUTITEMS_H
 #define PHIINPUTITEMS_H
-#include "phiabstractinputitem.h"
+#include "phiabstractitems.h"
 
 class PHILineEditItem : public PHIAbstractInputItem
 {
@@ -26,15 +26,42 @@ class PHILineEditItem : public PHIAbstractInputItem
 
 public:
     enum Wid { LineEdit=1 };
-    explicit PHILineEditItem();
+    explicit PHILineEditItem( const PHIBaseItemPrivate &p );
     virtual QString listName() const { return tr( "Line edit" ); }
     virtual QString description() const { return tr( "Line edit with input type <text>" ); }
     virtual PHIWID wid() const { return LineEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
+    virtual void initIDE();
 
 protected:
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+};
+
+class PHIEmailItem : public PHILineEditItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { Email=51 };
+    explicit PHIEmailItem( const PHIBaseItemPrivate &p );
+    virtual QString listName() const { return tr( "Email address" ); }
+    virtual QString description() const { return tr( "Line edit with input type <email>" ); }
+    virtual PHIWID wid() const { return Email; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
+};
+
+class PHIPhoneItem : public PHILineEditItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { Phone=54 };
+    explicit PHIPhoneItem( const PHIBaseItemPrivate &p );
+    virtual QString listName() const { return tr( "Phone number" ); }
+    virtual QString description() const { return tr( "Line edit with input type <phone>" ); }
+    virtual PHIWID wid() const { return Phone; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
 };
 
 class PHITextAreaItem : public PHIAbstractInputItem
@@ -43,11 +70,12 @@ class PHITextAreaItem : public PHIAbstractInputItem
 
 public:
     enum Wid { TextArea=2 };
-    explicit PHITextAreaItem();
+    explicit PHITextAreaItem( const PHIBaseItemPrivate &p );
     virtual QString listName() const { return tr( "Textarea" ); }
     virtual QString description() const { return tr( "Input type <textarea>" ); }
     virtual PHIWID wid() const { return TextArea; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/textarea" ) ); }
+    virtual void initIDE();
 
 protected:
     virtual bool isSingleLine() const { return false; }
@@ -60,7 +88,7 @@ class PHIPasswordItem : public PHILineEditItem
 
 public:
     enum Wid { Password=3 };
-    explicit PHIPasswordItem();
+    explicit PHIPasswordItem( const PHIBaseItemPrivate &p );
     virtual QString listName() const { return tr( "Password" ); }
     virtual QString description() const { return tr( "Line edit with input type <password>" ); }
     virtual PHIWID wid() const { return Password; }
@@ -73,11 +101,12 @@ class PHINumberEditItem : public PHIAbstractInputItem
 
 public:
     enum Wid { NumberEdit=52 };
-    explicit PHINumberEditItem();
+    explicit PHINumberEditItem( const PHIBaseItemPrivate &p );
     virtual QString listName() const { return tr( "Decimal number" ); }
     virtual QString description() const { return tr( "Decimal number edit with input type <number>" ); }
     virtual PHIWID wid() const { return NumberEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
+    virtual void initIDE();
 
 protected:
     virtual void setWidgetText( const QString &s );
@@ -90,11 +119,12 @@ class PHIRealNumberEditItem : public PHIAbstractInputItem
 
 public:
     enum Wid { RealNumberEdit=53 };
-    explicit PHIRealNumberEditItem();
+    explicit PHIRealNumberEditItem( const PHIBaseItemPrivate &p );
     virtual QString listName() const { return tr( "Real number" ); }
     virtual QString description() const { return tr( "Real number edit with input type <number>" ); }
     virtual PHIWID wid() const { return RealNumberEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
+    virtual void initIDE();
 
 protected:
     virtual void setWidgetText( const QString &s );
@@ -107,11 +137,12 @@ class PHISubmitButtonItem : public PHIAbstractInputItem
 
 public:
     enum Wid { SubmitButton=7 };
-    explicit PHISubmitButtonItem();
+    explicit PHISubmitButtonItem( const PHIBaseItemPrivate &p );
     virtual QString listName() const { return tr( "Submit button" ); }
     virtual QString description() const { return tr( "Submit button with input type <submit>" ); }
     virtual PHIWID wid() const { return SubmitButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/submit" ) ); }
+    virtual void initIDE();
 
 protected:
     virtual void setWidgetText( const QString &t );
@@ -125,11 +156,12 @@ class PHIResetButtonItem : public PHISubmitButtonItem
 
 public:
     enum Wid { ResetButton=8 };
-    explicit PHIResetButtonItem();
+    explicit PHIResetButtonItem( const PHIBaseItemPrivate &p );
     virtual QString listName() const { return tr( "Reset button" ); }
     virtual QString description() const { return tr( "Reset button with input type <reset>" ); }
     virtual PHIWID wid() const { return ResetButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/reset" ) ); }
+    virtual void initIDE();
 };
 
 class PHIButtonItem : public PHISubmitButtonItem
@@ -140,12 +172,13 @@ class PHIButtonItem : public PHISubmitButtonItem
 public:
     enum Wid { Button=6 };
     enum ItemData { DUrl=1 };
-    explicit PHIButtonItem();
+    explicit PHIButtonItem( const PHIBaseItemPrivate &p );
     virtual QString listName() const { return tr( "Button" ); }
     virtual QString description() const { return tr( "Native button with input type <button>" ); }
     virtual PHIWID wid() const { return Button; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/button" ) ); }
     virtual bool hasUrl() const { return true; }
+    virtual void initIDE();
 
 public slots:
     QString url() const { return QString::fromUtf8( data( DUrl, QString() ).toByteArray() ); }

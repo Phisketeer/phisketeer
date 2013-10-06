@@ -26,14 +26,15 @@ class PHILabelItem : public PHIAbstractTextItem
 
 public:
     enum Wid { Label=30 };
-    explicit PHILabelItem();
+    explicit PHILabelItem( const PHIBaseItemPrivate &p );
     virtual QString listName() const { return tr( "Label" ); }
     virtual QString description() const { return tr( "Displays a label (single line)" ); }
     virtual PHIWID wid() const { return Label; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/label" ) ); }
+    virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
+    virtual void initIDE();
 
 protected:
-    virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual void setWidgetText( const QString &t );
 };
 

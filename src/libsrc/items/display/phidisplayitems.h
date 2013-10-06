@@ -20,6 +20,7 @@
 #define PHIDISPLAYITEMS_H
 #include "phiitemplugin.h"
 #include "phitextitems.h"
+#include "phi.h"
 
 class PHIDisplayItems : public PHIItemPlugin
 {
@@ -32,28 +33,28 @@ class PHIDisplayItems : public PHIItemPlugin
     Q_CLASSINFO( "Copyright", "2013 Phisys AG, 2013 Phisketeer Team" )
 
 public:
-    virtual PHIBaseItem* create( PHIWID wid ) const;
+    virtual PHIBaseItem* create( PHIWID wid, const PHIBaseItemPrivate &p ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
     virtual QString category() const { return tr( "Display" ); }
 };
 
-inline PHIBaseItem* PHIDisplayItems::create( PHIWID wid ) const
+inline PHIBaseItem* PHIDisplayItems::create( PHIWID wid, const PHIBaseItemPrivate &p ) const
 {
     switch ( wid ) {
-    case PHILabelItem::Label: return new PHILabelItem();
+    case PHILabelItem::Label: return new PHILabelItem( p );
     }
     return 0;
 }
 
 inline QStringList PHIDisplayItems::keys() const
 {
-    return QStringList() << QStringLiteral( "label" );
+    return QStringList() << SL( "label" );
 }
 
 inline PHIWID PHIDisplayItems::wid( const QString &key ) const
 {
-    if ( key==QLatin1String( "label" ) ) return PHILabelItem::Label;
+    if ( key==L1( "label" ) ) return PHILabelItem::Label;
     return 0;
 }
 

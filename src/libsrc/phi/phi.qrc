@@ -35,4 +35,7 @@
         <file alias="table">images/table.png</file>
         <file alias="vspacer">images/vertical_spacer.png</file>
     </qresource>
+    <qresource prefix="/">
+        <file alias="countries">countries.txt</file>
+    </qresource>
 </RCC>

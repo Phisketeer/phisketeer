@@ -23,15 +23,23 @@
 #include <QDoubleSpinBox>
 #include "phiinputitems.h"
 #include "phidatasources.h"
+#include "phibasepage.h"
 #include "phi.h"
 
-PHILineEditItem::PHILineEditItem()
-    : PHIAbstractInputItem()
+PHILineEditItem::PHILineEditItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractInputItem( p )
 {
-    QLineEdit *edit=new QLineEdit();
-    if ( isIdeItem() ) edit->setReadOnly( true );
-    setWidget( edit );
+    setWidget( new QLineEdit() );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
+}
+
+void PHILineEditItem::initIDE()
+{
+    PHIAbstractInputItem::initIDE();
+    QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
+    Q_ASSERT( edit );
+    edit->setReadOnly( true );
+    textData()->setText( QString() );
 }
 
 void PHILineEditItem::setWidgetText( const QString &s )
@@ -52,15 +60,36 @@ QSizeF PHILineEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint )
     return PHIAbstractInputItem::sizeHint( which, constraint );
 }
 
-PHITextAreaItem::PHITextAreaItem()
-    : PHIAbstractInputItem()
+PHIPhoneItem::PHIPhoneItem( const PHIBaseItemPrivate &p )
+    : PHILineEditItem( p )
+{
+    QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
+    if ( edit ) edit->setValidator( new QRegExpValidator( QRegExp( QString::fromLatin1( PHI::phoneNumberRegExp() ) ), edit ) );
+}
+
+PHIEmailItem::PHIEmailItem( const PHIBaseItemPrivate &p )
+    : PHILineEditItem( p )
+{
+    QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
+    if ( edit ) edit->setValidator( new QRegExpValidator( QRegExp( QString::fromLatin1( PHI::emailRegExp() ) ), edit ) );
+}
+
+PHITextAreaItem::PHITextAreaItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractInputItem( p )
 {
     QPlainTextEdit *edit=new QPlainTextEdit();
-    if ( isIdeItem() ) edit->setReadOnly( true );
 #ifdef Q_OS_MAC
     edit->setFrameStyle( QFrame::Box );
 #endif
     setWidget( edit );
+}
+
+void PHITextAreaItem::initIDE()
+{
+    PHIAbstractInputItem::initIDE();
+    QPlainTextEdit *edit=qobject_cast<QPlainTextEdit*>(widget());
+    Q_ASSERT( edit );
+    edit->setReadOnly( true );
 }
 
 void PHITextAreaItem::setWidgetText( const QString &t )
@@ -70,10 +99,15 @@ void PHITextAreaItem::setWidgetText( const QString &t )
     edit->setPlainText( t );
 }
 
-PHINumberEditItem::PHINumberEditItem()
-    : PHIAbstractInputItem()
+PHINumberEditItem::PHINumberEditItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractInputItem( p )
 {
     setWidget( new QSpinBox() );
+}
+
+void PHINumberEditItem::initIDE()
+{
+    PHIAbstractInputItem::initIDE();
     textData()->setText( L1( "1:0:100:1" ) );
 }
 
@@ -94,16 +128,21 @@ QSizeF PHINumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint
     if ( which==Qt::PreferredSize ) {
         QSizeF s=PHIAbstractInputItem::sizeHint( which, constraint );
         if ( s.height()<24. ) s.setHeight( 24. );
-        s.setWidth( 80 ); // todo: adjust width to max decimals
+        s.setWidth( 80 ); // @todo: adjust width to max decimals
         return s;
     }
     return PHIAbstractInputItem::sizeHint( which, constraint );
 }
 
-PHIRealNumberEditItem::PHIRealNumberEditItem()
-    : PHIAbstractInputItem()
+PHIRealNumberEditItem::PHIRealNumberEditItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractInputItem( p )
 {
     setWidget( new QDoubleSpinBox() );
+}
+
+void PHIRealNumberEditItem::initIDE()
+{
+    PHIAbstractInputItem::initIDE();
     textData()->setText( L1( "1.5:0:10.5:0.5:1" ) );
 }
 
@@ -126,28 +165,31 @@ QSizeF PHIRealNumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constr
     if ( which==Qt::PreferredSize ) {
         QSizeF s=PHIAbstractInputItem::sizeHint( which, constraint );
         if ( s.height()<24. ) s.setHeight( 24. );
-        s.setWidth( 80 ); // todo: adjust width to max decimals
+        s.setWidth( 80 ); // @todo: adjust width to max decimals
         return s;
     }
     return PHIAbstractInputItem::sizeHint( which, constraint );
 }
 
-PHIPasswordItem::PHIPasswordItem()
-    : PHILineEditItem()
+PHIPasswordItem::PHIPasswordItem( const PHIBaseItemPrivate &p )
+    : PHILineEditItem( p )
 {
-    QLineEdit *pwd=new QLineEdit();
-    pwd->setEchoMode( QLineEdit::PasswordEchoOnEdit );
-    setWidget( pwd );
+    QLineEdit *pwd=qobject_cast<QLineEdit*>(widget());
+    if ( pwd ) pwd->setEchoMode( QLineEdit::PasswordEchoOnEdit );
 }
 
-PHISubmitButtonItem::PHISubmitButtonItem()
-    : PHIAbstractInputItem()
+PHISubmitButtonItem::PHISubmitButtonItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractInputItem( p )
 {
     setWidget( new QPushButton() );
-    setColorRole( PHIPalette::ButtonText );
-    setBackgroundColorRole( PHIPalette::Button );
-    textData()->setText( tr( "Submit" ) );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::PushButton ) );
+}
+
+void PHISubmitButtonItem::initIDE()
+{
+    textData()->setText( tr( "Submit" ) );
+    setColor( PHIPalette::WidgetBase, PHIPalette::Button, page()->phiPalette().color( PHIPalette::Button ) );
+    setColor( PHIPalette::WidgetText, PHIPalette::ButtonText, page()->phiPalette().color( PHIPalette::ButtonText ) );
 }
 
 void PHISubmitButtonItem::setWidgetText( const QString &t )
@@ -186,14 +228,24 @@ void PHISubmitButtonItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRo
     w->setPalette( pal );
 }
 
-PHIResetButtonItem::PHIResetButtonItem()
-    : PHISubmitButtonItem()
+PHIResetButtonItem::PHIResetButtonItem( const PHIBaseItemPrivate &p )
+    : PHISubmitButtonItem( p )
 {
+}
+
+void PHIResetButtonItem::initIDE()
+{
+    PHISubmitButtonItem::initIDE();
     textData()->setText( tr( "Reset" ) );
 }
 
-PHIButtonItem::PHIButtonItem()
-    : PHISubmitButtonItem()
+PHIButtonItem::PHIButtonItem( const PHIBaseItemPrivate &p )
+    : PHISubmitButtonItem( p )
 {
+}
+
+void PHIButtonItem::initIDE()
+{
+    PHISubmitButtonItem::initIDE();
     textData()->setText( tr( "Button" ) );
 }

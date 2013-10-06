@@ -59,9 +59,23 @@ static QStringList _myproperties( const QObject *obj )
     return properties;
 }
 
-PHIBaseItem::PHIBaseItem()
-    : QObject( 0 ), _type( TUndefined ), _gw( 0 ), _flags( FNone )
+PHIBaseItemPrivate::PHIBaseItemPrivate( const PHIBasePage *page )
+    : _type( TIDEItem ), _page( const_cast<PHIBasePage*>(page) )
 {
+    PHIGraphicsItemProvider *provider=PHIGraphicsItemProvider::instance();
+    Q_ASSERT( provider );
+    _gw=provider->createGraphicsItem();
+}
+
+PHIBaseItemPrivate::PHIBaseItemPrivate( Type type, PHIBasePage *page, PHIGraphicsItem *gw )
+    : _type( type ), _page( page ), _gw( gw )
+{
+}
+
+PHIBaseItem::PHIBaseItem( const PHIBaseItemPrivate &p )
+    : QObject( p.page() ), _type( p.type() ), _gw( p.gw() ), _flags( FNone )
+{
+    if ( p.gw() ) p.gw()->setBaseItem( this );
     _effect=new PHIEffect();
     _visibleData=new PHIBooleanData();
     _visibleData->setBoolean( true );
@@ -69,10 +83,6 @@ PHIBaseItem::PHIBaseItem()
     _styleSheetData=new PHITextData();
     _x=_y=_xRot=_yRot=_zRot=_hSkew=_vSkew=0;
     setTransformPos( PHI::TopLeft );
-    if ( !PHIGraphicsItemProvider::instance() ) return;
-    setParent( PHIGraphicsItemProvider::instance()->currentBasePage() );
-    _type=PHIGraphicsItemProvider::instance()->currentItemType();
-    _gw=PHIGraphicsItemProvider::instance()->createGraphicsItem( this );
 }
 
 PHIBaseItem::~PHIBaseItem()
@@ -136,14 +146,7 @@ void PHIBaseItem::privateSqueeze()
     }
     if ( styleSheet().isEmpty() ) _variants.remove( DStyleSheet );
     if ( title().isEmpty() ) _variants.remove( DTitle );
-    //if ( accessKey().isEmpty() ) _variants.remove( DAccessKey );
-    //if ( maxLength()==100 ) _variants.remove( DMaxLength );
     if ( transformPos()==1 ) _variants.remove( DTransformPos );
-    //if ( url().isEmpty() ) _variants.remove( DUrl );
-    //if ( label().isEmpty() ) _variants.remove( DLabel );
-    //if ( value().isEmpty() ) _variants.remove( DValue );
-    //if ( hasDelimiter() && delimiter()==L1( "\n" ) ) _variants.remove( DDelimiter );
-    //else if ( !hasDelimiter() ) _variants.remove( DDelimiter );
     if ( tabIndex()==0 ) _variants.remove( DTabIndex );
     _variants.squeeze();
 }
@@ -179,12 +182,12 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     setTransformPos( _variants.value( DTransformPos, 1 ).value<quint8>() );
     setFont( font() ); // setFont may change height depending on sizeHint
     resize( preserve );
-    updateData();
-    updateEffect();
+    if ( isIdeItem() ) updateData();
     if ( _gw ) {
         _gw->setPos( _x, _y );
         _gw->setTransform( computeTransformation() );
         _gw->update();
+        updateEffect();
     }
 }
 
@@ -218,7 +221,7 @@ QByteArray PHIBaseItem::save( int version )
     if ( _flags & FStoreVisibleData ) out << _visibleData;
     if ( _flags & FStoreEffectData ) out << _effect->save( version );
     saveItemData( out, version );
-    updateData(); // restore all dynamic item data cleaned by squeeze()
+    if ( isIdeItem() ) updateData(); // restore all dynamic item data cleaned by squeeze()
     updateEffect();
     return arr;
 }
@@ -327,7 +330,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         setProperty( "bottomMargin", 0 );
     }
     updateEffect();
-    updateData();
+    if ( isIdeItem() ) updateData();
 }
 
 void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
@@ -363,20 +366,15 @@ QStringList PHIBaseItem::properties() const
 void PHIBaseItem::setWidget( QWidget *w )
 {
     QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_gw);
-    if ( !proxy ) return;
+    if ( !proxy ) {
+        delete w;
+        return;
+    }
     proxy->setWidget( w );
     if ( !w ) return;
-    if ( sizeHint( Qt::PreferredSize ).isValid() )
-        resize( sizeHint( Qt::PreferredSize ) );
+    if ( sizeHint( Qt::PreferredSize ).isValid() ) resize( sizeHint( Qt::PreferredSize ) );
     else resize( w->sizeHint() );
     proxy->setCacheMode( QGraphicsItem::ItemCoordinateCache );
-}
-
-QWidget* PHIBaseItem::widget() const
-{
-    QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_gw);
-    if ( !proxy ) return 0;
-    return proxy->widget();
 }
 
 QTransform PHIBaseItem::computeTransformation() const
@@ -415,7 +413,7 @@ void PHIBaseItem::updatePageFont( const QFont &f )
 
 void PHIBaseItem::setFont( const QFont &font )
 {
-    if ( _type==TTemplateItem ) return;
+    if ( _type==PHIBaseItemPrivate::TTemplateItem ) return;
     QFont pf=QGuiApplication::font();
     if ( !page() ) qWarning( "setFont: page not set" );
     if ( page() ) pf=page()->font();
@@ -431,7 +429,7 @@ void PHIBaseItem::setFont( const QFont &font )
         _gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
         _height=_gw->size().height();
     }
-    updateData();
+    if ( isIdeItem() ) updateData();
 }
 
 QFont PHIBaseItem::font() const
@@ -451,8 +449,7 @@ void PHIBaseItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, c
 
 void PHIBaseItem::phiPaletteChanged( const PHIPalette &pal )
 {
-    QWidget *w=widget();
-    if ( w ) w->setPalette( pal.palette() );
+    if ( widget() ) widget()->setPalette( pal.palette() );
     for ( int i=0; i<PHIPalette::ItemRoleMax; i++ ) {
         PHIPalette::ItemRole itemRole=static_cast<PHIPalette::ItemRole>(i);
         PHIPalette::ColorRole role=colorRole( itemRole );
@@ -512,12 +509,14 @@ void PHIBaseItem::setTransformation( qreal hs, qreal vs, qreal xRot, qreal yRot,
 
 void PHIBaseItem::setText( const QString &t, const QByteArray &lang )
 {
+    // used in IDE only
     Q_UNUSED( t )
     Q_UNUSED( lang )
 }
 
 QString PHIBaseItem::text( const QByteArray &lang ) const
 {
+    // used in IDE only
     Q_UNUSED( lang )
     return QString();
 }
@@ -585,7 +584,7 @@ void PHIBaseItem::saveItemData( QDataStream &out, int version )
 
 bool PHIBaseItem::sceneEvent( QEvent *e )
 {
-    if ( _type==TIDEItem ) {
+    if ( _type==PHIBaseItemPrivate::TIDEItem ) {
         switch ( e->type() ) {
         case QEvent::GraphicsSceneResize:
             ideResizeEvent( static_cast<QGraphicsSceneResizeEvent*>(e) );
@@ -681,9 +680,9 @@ void PHIBaseItem::setGradient( QLinearGradient g )
     _variants.insert( DGradientStartPoint, g.start() );
     _variants.insert( DGradientFinalStopPoint, g.finalStop() );
     _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
-    _variants.insert( DGradientStopPoints, qVariantFromValue( g.stops() ) );
+    _variants.insert( DGradientStopPoints, qVariantFromValue(g.stops()) );
     _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
-    updateData();
+    if ( isIdeItem() ) updateData();
     update();
 }
 
@@ -692,9 +691,9 @@ void PHIBaseItem::setGradient( QConicalGradient g )
     _variants.insert( DGradientAngle, g.angle() );
     _variants.insert( DGradientCenterPoint, g.center() );
     _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
-    _variants.insert( DGradientStopPoints, qVariantFromValue( g.stops() ) );
+    _variants.insert( DGradientStopPoints, qVariantFromValue(g.stops()) );
     _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
-    updateData();
+    if ( isIdeItem() ) updateData();
     update();
 }
 
@@ -704,9 +703,9 @@ void PHIBaseItem::setGradient( QRadialGradient g )
     _variants.insert( DGradientRadius, g.radius() );
     _variants.insert( DGradientCenterPoint, g.center() );
     _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
-    _variants.insert( DGradientStopPoints, qVariantFromValue( g.stops() ) );
+    _variants.insert( DGradientStopPoints, qVariantFromValue(g.stops()) );
     _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
-    updateData();
+    if ( isIdeItem() ) updateData();
     update();
 }
 
@@ -819,17 +818,6 @@ void PHIBaseItem::updateEffect()
 }
 
 /*
-void PHIBaseItem::setAlignment( quint8 a )
-{
-    if ( a==0 ) {
-        _variants.remove( DAlignment );
-        _properties &= ~PHIItem::PAlignment;
-        return;
-    }
-    _variants.insert( DAlignment, a );
-    _properties |= PHIItem::PAlignment;
-}
-
 QDataStream& operator<<( QDataStream &out, const PHIBaseItem *it )
 {
     quint8 vid;

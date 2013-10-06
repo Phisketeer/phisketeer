@@ -23,18 +23,32 @@
 #include "phigraphicsscene.h"
 #include "phibaseitem.h"
 
+class PHIGraphicsItem;
 class PHIBasePage;
 class QEvent;
+
+class PHIEXPORT PHIGraphicsItemProvider : public QObject
+{
+public:
+    explicit PHIGraphicsItemProvider( QObject *parent );
+    virtual ~PHIGraphicsItemProvider();
+    virtual PHIGraphicsItem* createGraphicsItem() { return 0; }
+    static PHIGraphicsItemProvider* instance() { return _instance; }
+
+private:
+    static PHIGraphicsItemProvider *_instance;
+};
 
 class PHIEXPORT PHIGraphicsItem : public QGraphicsProxyWidget
 {
     Q_OBJECT
 
 public:
-    explicit PHIGraphicsItem( PHIBaseItem* );
+    explicit PHIGraphicsItem();
     virtual QRectF boundingRect() const;
-    inline PHIBaseItem* baseItem() const { return _it; }
     virtual void updateGeometry() { QGraphicsProxyWidget::updateGeometry(); }
+    inline PHIBaseItem* baseItem() const { return _it; }
+    virtual void setBaseItem( PHIBaseItem *it );
 
 protected:
     virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget );
@@ -44,28 +58,6 @@ protected:
 
 private:
     PHIBaseItem *_it;
-};
-
-class PHIEXPORT PHIGraphicsItemProvider : public QObject
-{
-    Q_OBJECT
-
-public:
-    static PHIGraphicsItemProvider* instance() { return _instance; }
-    virtual QGraphicsWidget* createGraphicsItem( PHIBaseItem* )=0;
-    inline PHIBasePage* currentBasePage() const { return _page; }
-    inline void setCurrentBasePage( PHIBasePage *page ) { _page=page; }
-    inline void setCurrentItemType( PHIBaseItem::Type t ) { _type=t; }
-    inline PHIBaseItem::Type currentItemType() const { return _type; }
-    virtual ~PHIGraphicsItemProvider();
-
-protected:
-    explicit PHIGraphicsItemProvider( QObject *parent );
-    static PHIGraphicsItemProvider *_instance;
-
-private:
-    PHIBasePage *_page;
-    PHIBaseItem::Type _type;
 };
 
 #endif // PHIGRAPHICSITEM_H

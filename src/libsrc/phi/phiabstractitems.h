@@ -36,11 +36,13 @@ class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 
 public:
     enum ItemData { DColor=-100, DBackgroundColor=-101, DText=-102, DTmpColor=-103, DTmpBackgroundColor=-104, DAlignment=-105 };
-    explicit PHIAbstractTextItem();
+    explicit PHIAbstractTextItem( const PHIBaseItemPrivate &p );
     virtual ~PHIAbstractTextItem();
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
+    virtual void initIDE();
+    virtual void updateData();
 
 public slots:
     inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
@@ -48,9 +50,9 @@ public slots:
     inline QColor color() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
     inline QColor backgroundColor() const { return data( DBackgroundColor, QColor( Qt::white ) ).value<QColor>(); }
     inline QString text() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
-    inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); setWidgetText( s ); updateData(); }
+    inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); setWidgetText( s ); }
     inline quint16 alignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
-    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); updateData(); }
+    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); }
 
 protected:
     virtual bool isSingleLine() const { return true; }
@@ -61,20 +63,21 @@ protected:
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual bool hasText() const { return true; }
-    virtual void setText( const QString &t, const QByteArray &lang );
-    virtual QString text( const QByteArray &lang ) const;
     virtual PHITextData* textData() const { return _textData; }
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
-    virtual void updateData();
     virtual PHIConfigWidget* configWidget();
+
     inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
     inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
     inline void setBackgroundColorRole( PHIPalette::ColorRole cr ) { _backgroundColorRole=cr; }
     inline PHIPalette::ColorRole backgroundColorRole() const { return _backgroundColorRole; }
 
 private:
+    virtual void setText( const QString &t, const QByteArray &lang );
+    virtual QString text( const QByteArray &lang ) const;
+
     PHIPalette::ColorRole _colorRole, _backgroundColorRole;
     static qreal _dropRegion;
     PHITextData *_textData;
@@ -95,13 +98,14 @@ public:
         DColor=-103, DOutlineColor=-104, DPenWidth=-105, DTmpColor=-106,
         DTmpOutlineColor=-107, DTmpPatternStyle=-108, DTmpLineStyle=-109,
         DTmpPenWidth=-110 };
-    explicit PHIAbstractShapeItem();
+    explicit PHIAbstractShapeItem( const PHIBaseItemPrivate &p );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
     inline virtual bool hasGradient() const { return true; }
     inline virtual bool isDraggable() const { return true; }
     inline virtual bool isDroppable() const { return true; }
+    virtual void initIDE();
 
 public slots:
     void setLine( quint8 l );
@@ -118,22 +122,23 @@ public slots:
 protected:
     virtual QRectF boundingRect() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void paint( QPainter *p, const QRectF &exposed );
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void drawShape( QPainter *p, const QRectF &exposed )=0;
-    virtual void paint( QPainter *p, const QRectF &exposed );
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
     virtual PHIConfigWidget* configWidget();
+
     inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
     inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
     inline void setOutlineColorRole( PHIPalette::ColorRole cr ) { _outlineColorRole=cr; }
     inline PHIPalette::ColorRole outlineColorRole() const { return _outlineColorRole; }
 
-protected:
+private:
     PHIPalette::ColorRole _colorRole, _outlineColorRole;
     static qreal _dropRegion;
 };
@@ -161,13 +166,15 @@ public:
         DBorderWidthLeft=-90, DBorderWidthTop=-89, DBorderWidthRight=-88,
         DBorderWidthBottom=-87, DMarginLeft=-86, DMarginTop=-85, DMarginRight=-84,
         DMarginBottom=-83, DAlignment=-82 };
-    explicit PHIAbstractLayoutItem();
+    explicit PHIAbstractLayoutItem( const PHIBaseItemPrivate &p );
     virtual ~PHIAbstractLayoutItem();
     inline virtual bool isLayoutItem() const { return true; }
     inline virtual bool isFocusable() const { return true; }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
     virtual void activateLayout()=0; // called once after page loading
     virtual void updateChildId( const QString &oldId, const QString &newId )=0;
+    virtual void updateData();
+    virtual void initIDE();
     inline const QList<PHIBaseItem*>& childItems() const { return _children; }
     void breakLayout();
     void invalidateLayout();
@@ -202,10 +209,7 @@ protected:
     virtual void squeeze();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
-    virtual void updateData();
     virtual bool hasText() const { return true; }
-    virtual void setText( const QString &t, const QByteArray &lang );
-    virtual QString text( const QByteArray &lang ) const;
     virtual PHITextData* textData() const { return _textData; }
     virtual void paint( QPainter *p, const QRectF &exposed );
     virtual void drawShape( QPainter *p, const QRectF &exposed );
@@ -213,7 +217,6 @@ protected:
     virtual PHIConfigWidget* configWidget();
 
     const QGraphicsGridLayout* layout() const { return _l; }
-    //QGraphicsGridLayout* layout() { return _l; }
     void insertBaseItem( PHIBaseItem *it, int row, int column=0, int rowSpan=1, int columnSpan=1 );
 
 private slots:
@@ -223,12 +226,34 @@ signals:
     void layoutChanged();
 
 private:
+    virtual void setText( const QString &t, const QByteArray &lang );
+    virtual QString text( const QByteArray &lang ) const;
     void setChildItem( PHIBaseItem *it );
     void releaseItem( PHIBaseItem *it );
 
     QGraphicsGridLayout *_l;
     QList <PHIBaseItem*> _children;
     PHITextData *_textData;
+};
+
+class PHIAbstractInputItem : public PHIAbstractTextItem
+{
+    Q_OBJECT
+    Q_PROPERTY( QString accessKey WRITE setAccessKey READ accessKey )
+
+public:
+    enum ItemData { DAccessKey=-99 };
+    explicit PHIAbstractInputItem( const PHIBaseItemPrivate &p );
+    virtual bool isFocusable() const { return true; }
+    virtual void updateData();
+
+protected:
+    virtual void squeeze();
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+
+public slots:
+    inline QString accessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
+    inline virtual void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); updateData(); }
 };
 
 #endif // PHIABSTRACTITEMS_H

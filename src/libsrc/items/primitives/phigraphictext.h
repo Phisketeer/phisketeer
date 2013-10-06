@@ -34,21 +34,22 @@ class PHIGraphicText : public PHIAbstractShapeItem
 public:
     enum Wid { GraphText=28 };
     enum ItemData { DText=1, DAlignment=2 };
-    explicit PHIGraphicText();
+    explicit PHIGraphicText( const PHIBaseItemPrivate &p );
     virtual ~PHIGraphicText();
     inline virtual PHIWID wid() const { return GraphText; }
     virtual QString listName() const { return tr( "Graphic text" ); }
     virtual QString description() const { return tr( "Draws colored graphical text." ); }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/graphtext" ) ); }
+    virtual void initIDE();
+    virtual void updateData();
 
 public slots:
-    inline void setText( const QString &t ) { setData( DText, t.toUtf8() ); updateData(); }
+    inline void setText( const QString &t ) { setData( DText, t.toUtf8() ); }
     inline QString text() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
     inline quint16 alignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
-    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); updateData(); }
+    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); }
 
 protected:
-    virtual void updateData();
     virtual bool hasText() const { return true; }
     virtual bool isWidthChangeable() const { return false; }
     virtual bool isHeightChangeable() const { return false; }

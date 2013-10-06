@@ -23,7 +23,7 @@
 class PHIEXPORT PHIItemPluginIF
 {
 public:
-    virtual PHIBaseItem* create( PHIWID ) const=0;
+    virtual PHIBaseItem* create( PHIWID, const PHIBaseItemPrivate& ) const=0;
     virtual QStringList keys() const=0;
     virtual PHIWID wid( const QString &key ) const=0;
     virtual QString category() const=0;
@@ -38,7 +38,7 @@ class PHIEXPORT PHIItemPlugin : public QObject, public PHIItemPluginIF
     Q_INTERFACES( PHIItemPluginIF )
 
 public:
-    virtual PHIBaseItem* create( PHIWID wid ) const=0;
+    virtual PHIBaseItem* create( PHIWID wid, const PHIBaseItemPrivate &p ) const=0;
     virtual QStringList keys() const=0;
     virtual PHIWID wid( const QString &key ) const=0;
     virtual QString category() const=0;

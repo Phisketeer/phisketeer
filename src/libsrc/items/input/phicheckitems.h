@@ -18,7 +18,7 @@
 */
 #ifndef PHICHECKITEMS_H
 #define PHICHECKITEMS_H
-#include "phiabstractinputitem.h"
+#include "phiabstractitems.h"
 #include "phipalette.h"
 
 class PHIBooleanData;
@@ -26,23 +26,27 @@ class PHIBooleanData;
 class PHICheckBoxItem : public PHIAbstractInputItem
 {
     Q_OBJECT
+    Q_PROPERTY( bool checked READ checked WRITE setChecked )
 
 public:
     enum Wid { Checkbox=4 };
-    explicit PHICheckBoxItem();
+    explicit PHICheckBoxItem( const PHIBaseItemPrivate &p );
     virtual ~PHICheckBoxItem();
     virtual QString listName() const { return tr( "Checkbox" ); }
     virtual QString description() const { return tr( "Check box with input type <checkbox>" ); }
     virtual PHIWID wid() const { return Checkbox; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/checkbox" ) ); }
+    virtual void initIDE();
+    virtual void updateData();
+
+public slots:
+    virtual void setChecked( bool b );
 
 protected:
-    virtual void updateData();
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual bool isCheckable() const { return true; }
     virtual void setWidgetText( const QString &s );
-    virtual void setChecked( bool b );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual PHIBooleanData* checkedData() const { return _checkedData; }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
@@ -57,11 +61,12 @@ class PHIRadioButtonItem : public PHICheckBoxItem
 
 public:
     enum Wid { RadioButton=5 };
-    explicit PHIRadioButtonItem();
+    explicit PHIRadioButtonItem( const PHIBaseItemPrivate &p );
     virtual QString listName() const { return tr( "Radio button" ); }
     virtual QString description() const { return tr( "Radio button with input type <radio>" ); }
     virtual PHIWID wid() const { return RadioButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/radiobutton" ) ); }
+    virtual void initIDE();
 
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;

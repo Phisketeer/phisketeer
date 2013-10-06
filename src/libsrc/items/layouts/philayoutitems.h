@@ -29,7 +29,7 @@ class PHIHorizontalLayoutItem : public PHIAbstractLayoutItem
 
 public:
     enum Wid { HorizontalLayout=21 };
-    explicit PHIHorizontalLayoutItem();
+    explicit PHIHorizontalLayoutItem( const PHIBaseItemPrivate &p );
     inline virtual PHIWID wid() const { return HorizontalLayout; }
     inline virtual QString listName() const { return tr( "HBox layout" ); }
     inline virtual QPixmap pixmap() const { return QPixmap(); }
@@ -57,7 +57,7 @@ class PHIVerticalLayoutItem : public PHIHorizontalLayoutItem
 
 public:
     enum Wid { VerticalLayout=20 };
-    explicit PHIVerticalLayoutItem();
+    explicit PHIVerticalLayoutItem( const PHIBaseItemPrivate &p );
     inline virtual PHIWID wid() const { return VerticalLayout; }
     inline virtual QString listName() const { return tr( "VBox layout" ); }
     inline virtual QPixmap pixmap() const { return QPixmap(); }
@@ -72,7 +72,7 @@ class PHIFormLayoutItem : public PHIAbstractLayoutItem
 
 public:
     enum Wid { FormLayout=22 };
-    explicit PHIFormLayoutItem();
+    explicit PHIFormLayoutItem( const PHIBaseItemPrivate &p );
     inline virtual PHIWID wid() const { return FormLayout; }
     inline virtual QString listName() const { return tr( "Form layout" ); }
     inline virtual QPixmap pixmap() const { return QPixmap(); }
@@ -100,7 +100,7 @@ class PHIGridLayoutItem : public PHIFormLayoutItem
 
 public:
     enum Wid { GridLayout=19 };
-    explicit PHIGridLayoutItem();
+    explicit PHIGridLayoutItem( const PHIBaseItemPrivate &p );
     inline virtual PHIWID wid() const { return GridLayout; }
     inline virtual QString listName() const { return tr( "Grid layout" ); }
     inline virtual QPixmap pixmap() const { return QPixmap(); }

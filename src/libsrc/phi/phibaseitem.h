@@ -35,6 +35,7 @@
 class QGraphicsSceneEvent;
 class QKeyEvent;
 class PHIBasePage;
+class PHIGraphicsItem;
 class PHISRequest;
 class PHISDataParser;
 class PHIBooleanData;
@@ -43,6 +44,24 @@ class PHIImageData;
 class PHIImageBookData;
 class PHIIntData;
 class PHIConfigWidget;
+
+class PHIEXPORT PHIBaseItemPrivate
+{
+public:
+    enum Type { TUndefined=0, TIDEItem=1, TTemplateItem=2, TServerItem=3,
+        TServerParserItem=4, TClientItem=5 };
+    explicit PHIBaseItemPrivate( Type type, PHIBasePage *page, PHIGraphicsItem *gi );
+    explicit PHIBaseItemPrivate( const PHIBasePage *page=0 ); // ctor for IDE only
+
+    inline PHIBasePage* page() const { return _page; }
+    inline PHIGraphicsItem* gw() const { return _gw; }
+    inline Type type() const { return _type; }
+
+private:
+    Type _type;
+    PHIBasePage *_page;
+    PHIGraphicsItem *_gw;
+};
 
 class PHIEXPORT PHIBaseItem : public QObject
 {
@@ -54,7 +73,6 @@ class PHIEXPORT PHIBaseItem : public QObject
     friend class ARTGraphicsScene;
     friend class ARTGraphicsItem;
     friend class ARTUndoData;
-    friend class ARTUndoProperty;
     friend class ARTUndoEffect;
     friend class ARTUndoAddLayout;
     friend class ARTUndoDelLayout;
@@ -84,8 +102,6 @@ class PHIEXPORT PHIBaseItem : public QObject
     Q_PROPERTY( QString styleSheet READ styleSheet WRITE setStyleSheet )
 
 public:
-    enum Type { TUndefined=0, TIDEItem=1, TTemplateItem=2, TServerItem=3,
-        TServerParserItem=4, TClientItem=5 };
     enum Wid { Unknown=0, User=1000 };
     enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4, DTransformPos=-5,
         DTransformOrigin=-6, DXRot=-7, DYRot=-8, DZRot=-9, DHSkew=-10, DVSkew=-11,
@@ -103,16 +119,16 @@ public:
 #endif
     /*
     enum Widget {
-        FILE_BUTTON=9, COMBO_BOX=10, HIDDEN=11, IMAGE_BUTTON=12,
-        LINE=15, IMAGE=16, LAYOUT_LOGIN=17, LIST=18,
+        FILE_BUTTON=9, HIDDEN=11, IMAGE_BUTTON=12,
+        LINE=15, IMAGE=16
         LINK=23, TAB=24, HSPACE=26, VSPACE=27, TEXT=29,
-        DATEEDIT=31, CALENDAR=32, LANG_SELECTOR=33, LAYOUT_ADDRESS=34, LAYOUT_DELIVERY=35,
-        LAYOUT_CREDIT_CARD=36, ROLLOVER_BUTTON=37, LAYOUT_CONTACT=38, LAYOUT_PERIOD=39, LAYOUT_REGISTER=40,
-        RICH_TEXT=41, SVG=42, CHECK_LIST=43, DIA_SHOW=44, IMAGE_BOOK=45, TABLE=46, COUNTRY=47, PHISYS_LINK=48,
-        HTML_DOC=49, SEARCH=50, EMAIL=51, PHONE=54, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
+        LANG_SELECTOR=33, LAYOUT_DELIVERY=35,
+        ROLLOVER_BUTTON=37, LAYOUT_PERIOD=39,
+        RICH_TEXT=41, SVG=42, CHECK_LIST=43, DIA_SHOW=44, IMAGE_BOOK=45, TABLE=46, PHISYS_LINK=48,
+        HTML_DOC=49, SEARCH=50, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
         GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, CANVAS=61, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
     */
-    explicit PHIBaseItem();
+    explicit PHIBaseItem( const PHIBaseItemPrivate &p );
     virtual ~PHIBaseItem();
 
 signals:
@@ -148,10 +164,10 @@ public: // not usable by script engine
     inline qreal hSkew() const { return _hSkew; }
     inline qreal vSkew() const { return _vSkew; }
     inline bool hasTransformation() const { return _xRot+_yRot+_zRot+_hSkew+_vSkew? true : false; }
-    inline bool isIdeItem() const { return _type==TIDEItem; }
-    inline bool isTemplateItem() const { return _type==TTemplateItem; }
-    inline bool isClientItem() const { return _type==TClientItem; }
-    inline bool isServerItem() const { return _type==TServerItem; }
+    inline bool isIdeItem() const { return _type==PHIBaseItemPrivate::TIDEItem; }
+    inline bool isTemplateItem() const { return _type==PHIBaseItemPrivate::TTemplateItem; }
+    inline bool isClientItem() const { return _type==PHIBaseItemPrivate::TClientItem; }
+    inline bool isServerItem() const { return _type==PHIBaseItemPrivate::TServerItem; }
     inline bool isChild() const { return _flags & FChild; }
     inline Flags flags() const { return _flags; }
     inline PHIKeyHash data() { storeFlags(); return _variants; }
@@ -202,7 +218,10 @@ public: // not usable by script engine
     virtual QPixmap pixmap() const=0;
     virtual QString listName() const=0;
     virtual QString description() const=0;
-    virtual bool isPrivateItem() const { return false; }
+    inline virtual bool isPrivateItem() const { return false; }
+    inline virtual PHITextData* textData() const { return 0; }
+    inline virtual void updateData() {;}
+    inline virtual void initIDE() {;}
 
 public slots: // usable by script engine
     inline qreal x() const { return _x; }
@@ -255,7 +274,6 @@ public slots: // usable by script engine
     inline virtual void setReadOnly( bool b ) { b ? _flags|= FReadOnly : _flags&= ~FReadOnly; }
 
 protected:
-    virtual void updateData() {;}
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual void squeeze() {;} // free unused data
@@ -273,7 +291,6 @@ protected:
     inline virtual PHIBooleanData* checkedData() const { return 0; }
     inline virtual PHIBooleanData* readOnlyData() const { return 0; }
     inline virtual PHIBooleanData* disabledData() const { return 0; }
-    inline virtual PHITextData* textData() const { return 0; }
     inline virtual PHIImageData* imageData() const { return 0; }
     inline virtual PHIImageBookData* imageBookData() const { return 0; }
 
@@ -303,10 +320,7 @@ protected:
     //virtual void ideHoverEnterEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverMoveEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
-
     virtual void updatePageFont( const QFont &font );
-    virtual void setText( const QString &t, const QByteArray &lang );
-    virtual QString text( const QByteArray &lang ) const;
 
 private:
     void privateSqueeze();
@@ -331,6 +345,8 @@ private:
     virtual PHIConfigWidget* configWidget() { return 0; }
     virtual PHIIntData* intData_1() const { return 0; }
     virtual PHIIntData* intData_2() const { return 0; }
+    virtual void setText( const QString &t, const QByteArray &lang );
+    virtual QString text( const QByteArray &lang ) const;
 
 signals:
     // IDE related signals
@@ -341,7 +357,7 @@ signals:
     void endUndoStackMacro();
 
 private:
-    Type _type;
+    PHIBaseItemPrivate::Type _type;
     QGraphicsWidget *_gw;
     QByteArray _id, _parentId;
     qreal _x, _y, _width, _height, _xRot, _yRot, _zRot, _hSkew, _vSkew;
@@ -403,6 +419,13 @@ inline void PHIBaseItem::setZIndex( qint16 idx )
 {
     _zIndex=qBound(static_cast<qint16>(-PHI::maxZIndex()), idx, PHI::maxZIndex());
     if ( _gw ) _gw->setZValue( static_cast<qreal>(idx) );
+}
+
+inline QWidget* PHIBaseItem::widget() const
+{
+    QGraphicsProxyWidget *proxy=qobject_cast<QGraphicsProxyWidget*>(_gw);
+    if ( !proxy ) return 0;
+    return proxy->widget();
 }
 
 /*

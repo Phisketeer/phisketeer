@@ -138,13 +138,17 @@ bool PHIEllipseConfig::storeData()
     return changed;
 }
 
-PHIEllipseItem::PHIEllipseItem()
-    : PHIAbstractShapeItem()
+PHIEllipseItem::PHIEllipseItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractShapeItem( p )
 {
-    qDebug( "PHIEllipseItem::PHIEllipseItem()" );
+    setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
+}
+
+void PHIEllipseItem::initIDE()
+{
+    PHIAbstractShapeItem::initIDE();
     _startData.setInteger( 0 );
     _spanData.setInteger( 5760 );
-    //setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
 }
 
 void PHIEllipseItem::drawShape( QPainter *p, const QRectF& )

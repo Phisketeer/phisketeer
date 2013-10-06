@@ -33,8 +33,8 @@ static bool yLessThan( const PHIBaseItem *it1, const PHIBaseItem *it2 )
     return it1->y() < it2->y();
 }
 
-PHIHorizontalLayoutItem::PHIHorizontalLayoutItem()
-    : PHIAbstractLayoutItem()
+PHIHorizontalLayoutItem::PHIHorizontalLayoutItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractLayoutItem( p )
 {
 }
 
@@ -84,8 +84,8 @@ void PHIHorizontalLayoutItem::activateLayout()
     resize( tmpWidth, tmpHeight );
 }
 
-PHIVerticalLayoutItem::PHIVerticalLayoutItem()
-    : PHIHorizontalLayoutItem()
+PHIVerticalLayoutItem::PHIVerticalLayoutItem( const PHIBaseItemPrivate &p )
+    : PHIHorizontalLayoutItem( p )
 {
 }
 
@@ -105,8 +105,8 @@ void PHIVerticalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
     setPos( pos );
 }
 
-PHIFormLayoutItem::PHIFormLayoutItem()
-    : PHIAbstractLayoutItem()
+PHIFormLayoutItem::PHIFormLayoutItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractLayoutItem( p )
 {
 }
 
@@ -158,17 +158,12 @@ void PHIFormLayoutItem::activateLayout()
 void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
 {
     _childRects.clear();
-    qreal refX, refY;
     QList <PHIBaseItem*> itemListX=list, itemListY=list, itemList1, itemList2;
     qSort( itemListX.begin(), itemListX.end(), xLessThan );
     qSort( itemListY.begin(), itemListY.end(), yLessThan );
+    QPointF ref( itemListX.at( 0 )->x(), itemListY.at( 0 )->y() );
     PHIBaseItem *it;
     QMap <qreal, PHIBaseItem*> col1, col2;
-    //QMap <qreal, PHIBaseItem*> orderedX, orderedY, col1, col2;
-    //foreach ( it, list ) orderedX.insertMulti( it->x(), it );
-    //foreach ( it, list ) orderedY.insertMulti( it->y(), it );
-    //itemListX=orderedX.values();
-    //itemListY=orderedY.values();
     Q_ASSERT( itemListY.count()>1 );
     if ( itemListY.count()==2 ) {
         if ( itemListY.at( 0 )->x() < itemListY.at( 1 )->x() ) {
@@ -178,20 +173,17 @@ void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
             insertBaseItem( itemListY.at( 1 ), 0, 0 );
             insertBaseItem( itemListY.at( 0 ), 0, 1 );
         }
+        setPos( ref );
+        resize( layout()->preferredSize() );
         return;
     }
-    refX=itemListX.at( 0 )->x();
-    refY=itemListY.at( 0 )->y();
     qreal minWidth=qMin( 32., itemListX.at( 0 )->width() );
     foreach ( it, list ) {
-        if ( it->x()>refX+minWidth-10 ) col2.insertMulti( it->y(), it );
+        if ( it->x()>ref.x()+minWidth-10 ) col2.insertMulti( it->y(), it );
         else col1.insertMulti( it->y(), it );
     }
     itemList1=col1.values();
     itemList2=col2.values();
-    QPointF pos;
-    if ( itemList1.count() ) pos=itemList1.at( 0 )->pos();
-    else pos=itemList2.at( 0 )->pos();
     int srcRow1=0, srcRow2=0, destRow1=0, destRow2=0;
     while ( srcRow1<itemList1.count() || srcRow2<itemList2.count() ) {
         bool skip1=false, skip2=false;
@@ -215,12 +207,12 @@ void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
             insertBaseItem( itemList2.at( srcRow2++ ), destRow2++, 1 );
         }
     }
-    setPos( pos );
+    setPos( ref );
     resize( layout()->preferredSize() );
 }
 
-PHIGridLayoutItem::PHIGridLayoutItem()
-    : PHIFormLayoutItem()
+PHIGridLayoutItem::PHIGridLayoutItem( const PHIBaseItemPrivate &p )
+    : PHIFormLayoutItem( p )
 {
 }
 

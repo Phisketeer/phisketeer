@@ -50,7 +50,7 @@ public:
         User5_160=62, User5_180=63, User6_20=64, User6_40=65,
         User6_60=66, User6_80=67, User6_100=68, User6_120=69, User6_140=70,
         User6_160=71, User6_180=72, Black=73, White=74,
-        Error=75, ErrorBackground=76, ColorRoleMax=77 };
+        Error=75, ErrorText=76, ColorRoleMax=77 };
     enum ItemRole { Foreground=0, Background=1, Hover, HoverBackground,
         Url, WidgetText, WidgetBase, User1, User2, User3, User4, User5, User6,
         ItemRoleMax };

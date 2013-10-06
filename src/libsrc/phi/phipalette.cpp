@@ -31,8 +31,8 @@ PHIPalette::PHIPalette()
     _userColors.insert( Custom, Qt::black );
     _userColors.insert( Black, Qt::black );
     _userColors.insert( White, Qt::white );
-    _userColors.insert( Error, QColor( 180, 0, 0 ) );
-    _userColors.insert( ErrorBackground, QColor( 255, 250, 230 ) );
+    _userColors.insert( Error, QColor( 255, 250, 230 ) );
+    _userColors.insert( ErrorText, QColor( 180, 0, 0 ) );
     createPercentColors( User1_100, QColor( 255, 0, 0 ) );
     createPercentColors( User2_100, QColor( 0, 255, 0 ) );
     createPercentColors( User3_100, QColor( 0, 0, 255 ) );
@@ -111,7 +111,7 @@ void PHIPalette::setColor( ColorRole role, const QColor &col )
         _pal.setColor( static_cast<QPalette::ColorRole>(num), col );
         return;
     }
-    if ( role==Error || role==ErrorBackground ) {
+    if ( role==Error || role==ErrorText ) {
         _userColors.insert( role, col );
         return;
     }
@@ -134,7 +134,7 @@ QDataStream& operator<<( QDataStream &out, const PHIPalette &p )
         << p.color( PHIPalette::User2_100 ) << p.color( PHIPalette::User3_100 )
         << p.color( PHIPalette::User4_100 ) << p.color( PHIPalette::User5_100 )
         << p.color( PHIPalette::User6_100 ) << p.color( PHIPalette::Error )
-        << p.color( PHIPalette::ErrorBackground )
+        << p.color( PHIPalette::ErrorText )
         << QColor() << QColor();
     return out;
 }
@@ -153,7 +153,7 @@ QDataStream& operator>>( QDataStream &in, PHIPalette &p )
     in >> c; p.setColor( PHIPalette::User5_100, c );
     in >> c; p.setColor( PHIPalette::User6_100, c );
     in >> c; p.setColor( PHIPalette::Error, c );
-    in >> c; p.setColor( PHIPalette::ErrorBackground, c );
+    in >> c; p.setColor( PHIPalette::ErrorText, c );
     in >> c >> c; // reserved
     return in;
 }

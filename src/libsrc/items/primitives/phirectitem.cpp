@@ -97,10 +97,9 @@ PHIConfigData PHIRectConfig::oldData() const
     return cd;
 }
 
-PHIRectItem::PHIRectItem()
-    : PHIAbstractShapeItem()
+PHIRectItem::PHIRectItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractShapeItem( p )
 {
-    qDebug( "PHIRectItem::PHIRectItem()" );
 }
 
 void PHIRectItem::drawShape( QPainter *p, const QRectF& )
@@ -142,7 +141,7 @@ PHIConfigWidget* PHIRectItem::configWidget()
     return new PHIRectConfig( this );
 }
 
-PHIRoundedRectItem::PHIRoundedRectItem()
-    : PHIRectItem()
+PHIRoundedRectItem::PHIRoundedRectItem( const PHIBaseItemPrivate &p )
+    : PHIRectItem( p )
 {
 }

@@ -22,20 +22,24 @@
 #include "phidatasources.h"
 #include "phibasepage.h"
 
-PHICheckBoxItem::PHICheckBoxItem()
-    : PHIAbstractInputItem(), _checkedData( 0 )
+PHICheckBoxItem::PHICheckBoxItem( const PHIBaseItemPrivate &p )
+    : PHIAbstractInputItem( p ), _checkedData( 0 )
 {
     _checkedData=new PHIBooleanData();
     setWidget( new QCheckBox() );
-    textData()->setText( tr( "Checkbox label" ) );
-    setBackgroundColorRole( PHIPalette::Window );
-    setColorRole( PHIPalette::WindowText );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::CheckBox ) );
 }
 
 PHICheckBoxItem::~PHICheckBoxItem()
 {
     delete _checkedData;
+}
+
+void PHICheckBoxItem::initIDE()
+{
+    setColor( PHIPalette::WidgetText, PHIPalette::WindowText, page()->phiPalette().color( PHIPalette::WindowText ) );
+    setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+    textData()->setText( tr( "Checkbox label" ) );
 }
 
 void PHICheckBoxItem::loadItemData( QDataStream &in, int version )
@@ -53,7 +57,7 @@ void PHICheckBoxItem::saveItemData(QDataStream &out, int version )
 QSizeF PHICheckBoxItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     QSizeF s=PHIAbstractTextItem::sizeHint( which, constraint );
-    if ( which==Qt::PreferredSize ) s.setWidth( s.width()+18 );
+    if ( which==Qt::PreferredSize ) s.setWidth( s.width()+20 );
     return s;
 }
 
@@ -75,40 +79,44 @@ void PHICheckBoxItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole c
     w->setPalette( pal );
 }
 
-void PHICheckBoxItem::setChecked( bool b )
+void PHICheckBoxItem::setChecked( bool check )
 {
-    PHIAbstractInputItem::setChecked( b );
+    PHIBaseItem::setChecked( check );
     QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
-    ab->setChecked( b );
+    Q_ASSERT( ab );
+    ab->setChecked( check );
 }
 
 void PHICheckBoxItem::setWidgetText( const QString &s )
 {
     QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
+    Q_ASSERT( ab );
     ab->setText( s );
 }
 
 void PHICheckBoxItem::updateData()
 {
     QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
-    if ( isIdeItem() ) {
-        if ( _checkedData->unparsedStatic() )
-            ab->setChecked( _checkedData->boolean() );
-        else if ( checkedData()->translated() )
-            ab->setChecked( _checkedData->boolean( page()->currentLang() ) );
-        else ab->setChecked( false );
-    } else {
-        ab->setChecked( flags() & FChecked );
-    }
+    Q_ASSERT( ab );
+    if ( _checkedData->unparsedStatic() )
+        ab->setChecked( _checkedData->boolean() );
+    else if ( checkedData()->translated() )
+        ab->setChecked( _checkedData->boolean( page()->currentLang() ) );
+    else ab->setChecked( false );
     PHIAbstractInputItem::updateData();
 }
 
-PHIRadioButtonItem::PHIRadioButtonItem()
-    : PHICheckBoxItem()
+PHIRadioButtonItem::PHIRadioButtonItem( const PHIBaseItemPrivate &p )
+    : PHICheckBoxItem( p )
 {
     setWidget( new QRadioButton() );
-    textData()->setText( tr( "Radio button" ) );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::RadioButton ) );
+}
+
+void PHIRadioButtonItem::initIDE()
+{
+    PHICheckBoxItem::initIDE();
+    textData()->setText( tr( "Radio button" ) );
 }
 
 QSizeF PHIRadioButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
