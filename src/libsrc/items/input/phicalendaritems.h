@@ -29,7 +29,10 @@ class PHICalendarItem : public PHIAbstractInputItem
 
 public:
     enum Wid { Calendar=32 };
-    explicit PHICalendarItem( const PHIBaseItemPrivate &p );
+    explicit PHICalendarItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHICalendarItem( const PHICalendarItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHICalendarItem() {}
+
     virtual QString listName() const { return tr( "Calendar" ); }
     virtual QString description() const { return tr( "Calendar item." ); }
     virtual PHIWID wid() const { return Calendar; }
@@ -41,6 +44,9 @@ protected:
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+
+private:
+    void initWidget();
 };
 
 class PHIDateEditItem : public PHIAbstractInputItem
@@ -49,7 +55,10 @@ class PHIDateEditItem : public PHIAbstractInputItem
 
 public:
     enum Wid { DateEdit=31 };
-    explicit PHIDateEditItem( const PHIBaseItemPrivate &p );
+    explicit PHIDateEditItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIDateEditItem( const PHIDateEditItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIDateEditItem() {}
+
     virtual QString listName() const { return tr( "Date edit" ); }
     virtual QString description() const { return tr( "Date edit item with calendar popup." ); }
     virtual PHIWID wid() const { return DateEdit; }
@@ -62,6 +71,7 @@ protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 
 private:
+    void initWidget();
     QDateEdit *_date;
     QToolButton *_button;
 };

@@ -266,6 +266,7 @@ QString PHIBasePage::nextFreeId( const QString &requestedId ) const
 {
     QString rid=requestedId.simplified();
     rid.replace( L1( " " ), QString() );
+    rid.replace( QRegExp( L1( "_[0-9]*$" ) ), QString() );
     PHIBaseItem *it=findChild<PHIBaseItem*>(rid);
     if ( !it ) return rid;
     int i=1;

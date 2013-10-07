@@ -37,6 +37,7 @@ class PHIInput : public PHIItemPlugin
 
 public:
     virtual PHIBaseItem* create( PHIWID wid, const PHIBaseItemPrivate &p ) const;
+    virtual PHIBaseItem* copy( const PHIBaseItem *it ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
     virtual QString category() const { return tr( "Input" ); }
@@ -62,6 +63,30 @@ inline PHIBaseItem* PHIInput::create( PHIWID wid , const PHIBaseItemPrivate &p )
     case PHIResetButtonItem::ResetButton: return new PHIResetButtonItem( p );
     case PHIDateEditItem::DateEdit: return new PHIDateEditItem( p );
     case PHICalendarItem::Calendar: return new PHICalendarItem( p );
+    }
+    return 0;
+}
+
+inline PHIBaseItem* PHIInput::copy( const PHIBaseItem *it ) const
+{
+    switch ( it->wid() ) {
+    case PHILineEditItem::LineEdit: return new PHILineEditItem( *qobject_cast<const PHILineEditItem*>(it) );
+    case PHICheckBoxItem::Checkbox: return new PHICheckBoxItem( *qobject_cast<const PHICheckBoxItem*>(it) );
+    case PHIRadioButtonItem::RadioButton: return new PHIRadioButtonItem( *qobject_cast<const PHIRadioButtonItem*>(it) );
+    case PHITextAreaItem::TextArea: return new PHITextAreaItem( *qobject_cast<const PHITextAreaItem*>(it) );
+    case PHISelectItem::Select: return new PHISelectItem( *qobject_cast<const PHISelectItem*>(it) );
+    case PHIMultiSelectItem::MultiSelect: return new PHIMultiSelectItem( *qobject_cast<const PHIMultiSelectItem*>(it) );
+    case PHISubmitButtonItem::SubmitButton: return new PHISubmitButtonItem( *qobject_cast<const PHISubmitButtonItem*>(it) );
+    case PHIButtonItem::Button: return new PHIButtonItem( *qobject_cast<const PHIButtonItem*>(it) );
+    case PHIPasswordItem::Password: return new PHIPasswordItem( *qobject_cast<const PHIPasswordItem*>(it) );
+    case PHIEmailItem::Email: return new PHIEmailItem( *qobject_cast<const PHIEmailItem*>(it) );
+    case PHINumberEditItem::NumberEdit: return new PHINumberEditItem( *qobject_cast<const PHINumberEditItem*>(it) );
+    case PHIRealNumberEditItem::RealNumberEdit: return new PHIRealNumberEditItem( *qobject_cast<const PHIRealNumberEditItem*>(it) );
+    case PHIPhoneItem::Phone: return new PHIPhoneItem( *qobject_cast<const PHIPhoneItem*>(it) );
+    case PHISelectCountryItem::CountrySelect: return new PHISelectCountryItem( *qobject_cast<const PHISelectCountryItem*>(it) );
+    case PHIResetButtonItem::ResetButton: return new PHIResetButtonItem( *qobject_cast<const PHIResetButtonItem*>(it) );
+    case PHIDateEditItem::DateEdit: return new PHIDateEditItem( *qobject_cast<const PHIDateEditItem*>(it) );
+    case PHICalendarItem::Calendar: return new PHICalendarItem( *qobject_cast<const PHICalendarItem*>(it) );
     }
     return 0;
 }

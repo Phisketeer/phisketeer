@@ -54,7 +54,10 @@ class PHIRectItem : public PHIAbstractShapeItem
 public:
     enum ItemData { DBorderRadius=1 };
     enum Wid { Rect=14 };
-    explicit PHIRectItem( const PHIBaseItemPrivate &p );
+    explicit PHIRectItem( const PHIBaseItemPrivate &p ) : PHIAbstractShapeItem( p ) {}
+    PHIRectItem( const PHIRectItem &it ) : PHIAbstractShapeItem( it ), _radiusData( it._radiusData ) {}
+    virtual ~PHIRectItem() {}
+
     inline virtual PHIWID wid() const { return Rect; }
     inline PHIIntData* radiusData() { return &_radiusData; }
     virtual QString listName() const { return tr( "Rect" ); }
@@ -77,7 +80,7 @@ signals:
     void borderRadiusChanged( qint16 );
 
 private:
-    virtual PHIIntData* intData_1() const { return const_cast<PHIIntData*>(&_radiusData); }
+    virtual PHIIntData* intData_1() { return &_radiusData; }
 
 private:
     PHIIntData _radiusData;
@@ -85,15 +88,18 @@ private:
 
 class PHIRoundedRectItem : public PHIRectItem
 {
+    Q_OBJECT
+
 public:
     enum Wid { RoundedRect=25 };
-    explicit PHIRoundedRectItem( const PHIBaseItemPrivate &p );
+    explicit PHIRoundedRectItem( const PHIBaseItemPrivate &p ) : PHIRectItem( p ) {}
+    PHIRoundedRectItem( const PHIRoundedRectItem &it ) : PHIRectItem( it ) {}
+    virtual ~PHIRoundedRectItem() {}
+
     inline virtual PHIWID wid() const { return Rect; }
     virtual QString listName() const { return tr( "Rounded rect" ); }
     virtual QString description() const { return tr( "Draws a box with rounded courners" ); }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/roundedrect" ) ); }
-
-protected:
     virtual bool isPrivateItem() const { return true; }
 };
 

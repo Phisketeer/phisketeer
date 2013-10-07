@@ -22,8 +22,7 @@
 #include "phibasepage.h"
 #include "phidatasources.h"
 
-PHISelectItem::PHISelectItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractInputItem( p )
+void PHISelectItem::initWidget()
 {
     setWidget( new QComboBox() );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::ComboBox ) );
@@ -76,16 +75,13 @@ void PHISelectItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr,
 QSizeF PHISelectItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     QSizeF s=PHIAbstractTextItem::sizeHint( which, constraint );
-    if ( which==Qt::PreferredSize ) {
+    if ( which==Qt::MinimumSize ) {
+        s.setWidth( qMax( s.width(), 32. ) );
+    } else if ( which==Qt::PreferredSize ) {
         s.setHeight( qMax( s.height(), 24. ) );
         s.setWidth( 96. );
     }
     return s;
-}
-
-PHISelectCountryItem::PHISelectCountryItem( const PHIBaseItemPrivate &p )
-    : PHISelectItem( p )
-{
 }
 
 void PHISelectCountryItem::initIDE()
@@ -114,8 +110,7 @@ void PHISelectCountryItem::initIDE()
     textData()->setText( countries );
 }
 
-PHIMultiSelectItem::PHIMultiSelectItem( const PHIBaseItemPrivate &p )
-    : PHISelectItem( p )
+void PHIMultiSelectItem::initWidget()
 {
     QListWidget *lw=new QListWidget();
     lw->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );

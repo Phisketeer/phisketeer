@@ -34,6 +34,7 @@ class PHIDisplayItems : public PHIItemPlugin
 
 public:
     virtual PHIBaseItem* create( PHIWID wid, const PHIBaseItemPrivate &p ) const;
+    virtual PHIBaseItem* copy( const PHIBaseItem *it ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
     virtual QString category() const { return tr( "Display" ); }
@@ -43,6 +44,14 @@ inline PHIBaseItem* PHIDisplayItems::create( PHIWID wid, const PHIBaseItemPrivat
 {
     switch ( wid ) {
     case PHILabelItem::Label: return new PHILabelItem( p );
+    }
+    return 0;
+}
+
+inline PHIBaseItem* PHIDisplayItems::copy( const PHIBaseItem *it ) const
+{
+    switch ( it->wid() ) {
+    case PHILabelItem::Label: return new PHILabelItem( *qobject_cast<const PHILabelItem*>(it) );
     }
     return 0;
 }

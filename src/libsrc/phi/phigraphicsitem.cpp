@@ -68,6 +68,8 @@ void PHIGraphicsItem::setBaseItem( PHIBaseItem *it )
         setAcceptDrops( false );
         setAcceptHoverEvents( false );
     }
+    setFlag( ItemSendsGeometryChanges, false );
+    setFlag( ItemUsesExtendedStyleOption, false );
     _it=it;
 }
 

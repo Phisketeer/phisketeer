@@ -22,17 +22,10 @@
 #include "phidatasources.h"
 #include "phibasepage.h"
 
-PHICheckBoxItem::PHICheckBoxItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractInputItem( p ), _checkedData( 0 )
+void PHICheckBoxItem::initWidget()
 {
-    _checkedData=new PHIBooleanData();
     setWidget( new QCheckBox() );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::CheckBox ) );
-}
-
-PHICheckBoxItem::~PHICheckBoxItem()
-{
-    delete _checkedData;
 }
 
 void PHICheckBoxItem::initIDE()
@@ -45,13 +38,13 @@ void PHICheckBoxItem::initIDE()
 void PHICheckBoxItem::loadItemData( QDataStream &in, int version )
 {
     PHIAbstractInputItem::loadItemData( in, version );
-    in >> _checkedData;
+    in >> &_checkedData;
 }
 
 void PHICheckBoxItem::saveItemData(QDataStream &out, int version )
 {
     PHIAbstractInputItem::saveItemData( out, version );
-    out << _checkedData;
+    out << &_checkedData;
 }
 
 QSizeF PHICheckBoxItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
@@ -96,18 +89,17 @@ void PHICheckBoxItem::setWidgetText( const QString &s )
 
 void PHICheckBoxItem::updateData()
 {
+    PHIAbstractInputItem::updateData();
     QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
     Q_ASSERT( ab );
-    if ( _checkedData->unparsedStatic() )
-        ab->setChecked( _checkedData->boolean() );
+    if ( _checkedData.unparsedStatic() )
+        ab->setChecked( _checkedData.boolean() );
     else if ( checkedData()->translated() )
-        ab->setChecked( _checkedData->boolean( page()->currentLang() ) );
+        ab->setChecked( _checkedData.boolean( page()->currentLang() ) );
     else ab->setChecked( false );
-    PHIAbstractInputItem::updateData();
 }
 
-PHIRadioButtonItem::PHIRadioButtonItem( const PHIBaseItemPrivate &p )
-    : PHICheckBoxItem( p )
+void PHIRadioButtonItem::initWidget()
 {
     setWidget( new QRadioButton() );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::RadioButton ) );

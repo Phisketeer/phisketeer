@@ -28,7 +28,10 @@ class PHISelectItem : public PHIAbstractInputItem
 public:
     enum Wid { Select=10 };
     enum ItemData { DDelimiter=1 };
-    explicit PHISelectItem( const PHIBaseItemPrivate &p );
+    explicit PHISelectItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHISelectItem( const PHISelectItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHISelectItem() {}
+
     virtual QString listName() const { return tr( "Select" ); }
     virtual QString description() const { return tr( "Input type <select>" ); }
     virtual PHIWID wid() const { return Select; }
@@ -40,6 +43,7 @@ public slots:
     inline QString delimiter() const { return QString::fromUtf8( data( DDelimiter, L1( "\n" ) ).toByteArray() ); }
 
 protected:
+    virtual void initWidget();
     virtual bool hasDelimiter() const { return true; }
     virtual void squeeze();
     virtual void setWidgetText( const QString &t );
@@ -53,7 +57,10 @@ class PHISelectCountryItem : public PHISelectItem
 
 public:
     enum Wid { CountrySelect=47 };
-    explicit PHISelectCountryItem( const PHIBaseItemPrivate &p );
+    explicit PHISelectCountryItem( const PHIBaseItemPrivate &p ) : PHISelectItem( p ) {}
+    PHISelectCountryItem( const PHISelectCountryItem &it ) : PHISelectItem( it ) {}
+    virtual ~PHISelectCountryItem() {}
+
     virtual QString listName() const { return tr( "Country" ); }
     virtual QString description() const { return tr( "Displays a list of countries for selection." ); }
     virtual PHIWID wid() const { return CountrySelect; }
@@ -67,7 +74,10 @@ class PHIMultiSelectItem : public PHISelectItem
 
 public:
     enum Wid { MultiSelect=18 };
-    explicit PHIMultiSelectItem( const PHIBaseItemPrivate &p );
+    explicit PHIMultiSelectItem( const PHIBaseItemPrivate &p ) : PHISelectItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIMultiSelectItem( const PHIMultiSelectItem &it ) : PHISelectItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIMultiSelectItem() {}
+
     virtual QString listName() const { return tr( "List box" ); }
     virtual QString description() const { return tr( "Displays a list box with input type <select>." ); }
     virtual PHIWID wid() const { return MultiSelect; }
@@ -75,6 +85,7 @@ public:
     virtual void initIDE();
 
 protected:
+    virtual void initWidget();
     inline virtual bool isSingleLine() const { return false; }
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );

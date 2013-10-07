@@ -35,6 +35,7 @@ class PHILayouts : public PHIItemPlugin
 
 public:
     virtual PHIBaseItem* create( PHIWID wid, const PHIBaseItemPrivate &p ) const;
+    virtual PHIBaseItem* copy( const PHIBaseItem *it ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
     virtual QString category() const { return tr( "Layouts" ); }
@@ -51,7 +52,25 @@ inline PHIBaseItem* PHILayouts::create( PHIWID wid, const PHIBaseItemPrivate &p 
     case PHILoginContainerItem::LoginContainer: return new PHILoginContainerItem( p );
     case PHICCContainerItem::CreditCardContainer: return new PHICCContainerItem( p );
     case PHIContactContainerItem::ContactContainer: return new PHIContactContainerItem( p );
+    case PHIPeriodContainerItem::PeriodContainer: return new PHIPeriodContainerItem( p );
     case PHIRegisterUserContainerItem::RegisterUserContainer: return new PHIRegisterUserContainerItem( p );
+    }
+    return 0;
+}
+
+inline PHIBaseItem* PHILayouts::copy( const PHIBaseItem *it ) const
+{
+    switch ( it->wid() ) {
+    case PHIVerticalLayoutItem::VerticalLayout: return new PHIVerticalLayoutItem( *qobject_cast<const PHIVerticalLayoutItem*>(it) );
+    case PHIHorizontalLayoutItem::HorizontalLayout: return new PHIHorizontalLayoutItem( *qobject_cast<const PHIHorizontalLayoutItem*>(it) );
+    case PHIFormLayoutItem::FormLayout: return new PHIFormLayoutItem( *qobject_cast<const PHIFormLayoutItem*>(it) );
+    case PHIGridLayoutItem::GridLayout: return new PHIGridLayoutItem( *qobject_cast<const PHIGridLayoutItem*>(it) );
+    case PHIAddressContainerItem::AddressContainer: return new PHIAddressContainerItem( *qobject_cast<const PHIAddressContainerItem*>(it) );
+    case PHILoginContainerItem::LoginContainer: return new PHILoginContainerItem( *qobject_cast<const PHILoginContainerItem*>(it) );
+    case PHICCContainerItem::CreditCardContainer: return new PHICCContainerItem( *qobject_cast<const PHICCContainerItem*>(it) );
+    case PHIContactContainerItem::ContactContainer: return new PHIContactContainerItem( *qobject_cast<const PHIContactContainerItem*>(it) );
+    case PHIPeriodContainerItem::PeriodContainer: return new PHIPeriodContainerItem( *qobject_cast<const PHIPeriodContainerItem*>(it) );
+    case PHIRegisterUserContainerItem::RegisterUserContainer: return new PHIRegisterUserContainerItem( *qobject_cast<const PHIRegisterUserContainerItem*>(it) );
     }
     return 0;
 }
@@ -61,7 +80,7 @@ inline QStringList PHILayouts::keys() const
     return QStringList() << SL( "hboxlayout" ) << SL( "vboxlayout" )
         << SL( "formlayout" ) << SL( "gridlayout" ) << SL( "login" )
         << SL( "address" ) << SL( "creditcard" ) << SL( "registeruser" )
-        << SL( "contact" );
+        << SL( "contact" ) << SL( "period" );
 }
 
 inline PHIWID PHILayouts::wid( const QString &key ) const
@@ -74,6 +93,7 @@ inline PHIWID PHILayouts::wid( const QString &key ) const
     if ( key==L1( "login" ) ) return PHILoginContainerItem::LoginContainer;
     if ( key==L1( "creditcard" ) ) return PHICCContainerItem::CreditCardContainer;
     if ( key==L1( "contact" ) ) return PHIContactContainerItem::ContactContainer;
+    if ( key==L1( "period" ) ) return PHIPeriodContainerItem::PeriodContainer;
     if ( key==L1( "registeruser" ) ) return PHIRegisterUserContainerItem::RegisterUserContainer;
     return 0;
 }

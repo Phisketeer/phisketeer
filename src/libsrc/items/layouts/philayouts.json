@@ -1,2 +1,2 @@
 { "Keys": [ "hboxlayout", "vboxlayout", "formlayout", "gridlayout",
-        "login", "address", "creditcard", "registeruser", "contact" ] }
+    "login", "address", "creditcard", "registeruser", "contact", "period" ] }

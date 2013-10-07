@@ -138,12 +138,6 @@ bool PHIEllipseConfig::storeData()
     return changed;
 }
 
-PHIEllipseItem::PHIEllipseItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractShapeItem( p )
-{
-    setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
-}
-
 void PHIEllipseItem::initIDE()
 {
     PHIAbstractShapeItem::initIDE();

@@ -97,11 +97,6 @@ PHIConfigData PHIRectConfig::oldData() const
     return cd;
 }
 
-PHIRectItem::PHIRectItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractShapeItem( p )
-{
-}
-
 void PHIRectItem::drawShape( QPainter *p, const QRectF& )
 {
     //bool b=( borderRadius() || hasTransformation() ) ? true : false;
@@ -139,9 +134,4 @@ void PHIRectItem::updateData()
 PHIConfigWidget* PHIRectItem::configWidget()
 {
     return new PHIRectConfig( this );
-}
-
-PHIRoundedRectItem::PHIRoundedRectItem( const PHIBaseItemPrivate &p )
-    : PHIRectItem( p )
-{
 }

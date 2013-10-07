@@ -31,6 +31,7 @@
 #include "phi.h"
 #include "phipalette.h"
 #include "phieffect.h"
+#include "phidatasources.h"
 
 class QGraphicsSceneEvent;
 class QKeyEvent;
@@ -38,11 +39,6 @@ class PHIBasePage;
 class PHIGraphicsItem;
 class PHISRequest;
 class PHISDataParser;
-class PHIBooleanData;
-class PHITextData;
-class PHIImageData;
-class PHIImageBookData;
-class PHIIntData;
 class PHIConfigWidget;
 
 class PHIEXPORT PHIBaseItemPrivate
@@ -81,7 +77,6 @@ class PHIEXPORT PHIBaseItem : public QObject
     friend class ARTItemCSS;
 
     Q_OBJECT
-    Q_DISABLE_COPY( PHIBaseItem )
     Q_PROPERTY( QString id READ name )
     Q_PROPERTY( QString name READ name )
     Q_PROPERTY( quint16 type READ type ) // type==WID (to keep old code working)
@@ -123,12 +118,13 @@ public:
         LINE=15, IMAGE=16
         LINK=23, TAB=24, HSPACE=26, VSPACE=27, TEXT=29,
         LANG_SELECTOR=33, LAYOUT_DELIVERY=35,
-        ROLLOVER_BUTTON=37, LAYOUT_PERIOD=39,
+        ROLLOVER_BUTTON=37,
         RICH_TEXT=41, SVG=42, CHECK_LIST=43, DIA_SHOW=44, IMAGE_BOOK=45, TABLE=46, PHISYS_LINK=48,
         HTML_DOC=49, SEARCH=50, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
         GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, CANVAS=61, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
     */
     explicit PHIBaseItem( const PHIBaseItemPrivate &p );
+    PHIBaseItem( const PHIBaseItem &it );
     virtual ~PHIBaseItem();
 
 signals:
@@ -168,6 +164,7 @@ public: // not usable by script engine
     inline bool isTemplateItem() const { return _type==PHIBaseItemPrivate::TTemplateItem; }
     inline bool isClientItem() const { return _type==PHIBaseItemPrivate::TClientItem; }
     inline bool isServerItem() const { return _type==PHIBaseItemPrivate::TServerItem; }
+    inline bool isGuiItem() const { return _gw ? true : false; }
     inline bool isChild() const { return _flags & FChild; }
     inline Flags flags() const { return _flags; }
     inline PHIKeyHash data() { storeFlags(); return _variants; }
@@ -219,9 +216,9 @@ public: // not usable by script engine
     virtual QString listName() const=0;
     virtual QString description() const=0;
     inline virtual bool isPrivateItem() const { return false; }
-    inline virtual PHITextData* textData() const { return 0; }
-    inline virtual void updateData() {;}
-    inline virtual void initIDE() {;}
+    inline virtual PHITextData* textData() { return 0; }
+    inline virtual void updateData() {}
+    inline virtual void initIDE() {}
 
 public slots: // usable by script engine
     inline qreal x() const { return _x; }
@@ -233,7 +230,7 @@ public slots: // usable by script engine
     inline qint16 tabIndex() const { return _variants.value( DTabIndex, 0 ).value<qint16>(); }
     inline qreal opacity() const { return _variants.value( DOpacity, 1. ).toReal(); }
     inline QString title() const { return QString::fromUtf8( _variants.value( DTitle ).toByteArray() ); }
-    inline QString name() const { return objectName(); }
+    inline QString name() const { return QString::fromLatin1( _id ); }
     inline QString parentName() const { return QString::fromLatin1( _parentId ); }
     inline PHIWID type() const { return wid(); }
     inline bool visible() const { return _variants.value( DVisibility, true ).toBool(); }
@@ -276,7 +273,7 @@ public slots: // usable by script engine
 protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
-    virtual void squeeze() {;} // free unused data
+    virtual void squeeze() {} // free unused data
     void setWidget( QWidget* );
     QWidget* widget() const;
     //inline const QGraphicsWidget* graphicsWidget() const { return _gw; }
@@ -288,15 +285,15 @@ protected:
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
     inline void update( const QRectF &r=QRectF() ) { if ( _gw ) _gw->update( r ); }
 
-    inline virtual PHIBooleanData* checkedData() const { return 0; }
-    inline virtual PHIBooleanData* readOnlyData() const { return 0; }
-    inline virtual PHIBooleanData* disabledData() const { return 0; }
-    inline virtual PHIImageData* imageData() const { return 0; }
-    inline virtual PHIImageBookData* imageBookData() const { return 0; }
+    inline virtual PHIBooleanData* checkedData() { return 0; }
+    inline virtual PHIBooleanData* readOnlyData() { return 0; }
+    inline virtual PHIBooleanData* disabledData() { return 0; }
+    inline virtual PHIImageData* imageData() { return 0; }
+    inline virtual PHIImageBookData* imageBookData() { return 0; }
 
     // Phis server related members
     // create all cached language dependend images and transformed images:
-    virtual void createCachedItems() {;}
+    virtual void createCachedItems() {}
     // create a srtict HTML 4 for old browser versions:
     virtual void strictHtml( const PHISRequest* const req, QByteArray &out, const QByteArray &indent );
     // create new HTML5 content:
@@ -323,6 +320,7 @@ protected:
     virtual void updatePageFont( const QFont &font );
 
 private:
+    PHIBaseItem& operator=( const PHIBaseItem& );
     void privateSqueeze();
     void updateEffect();
     void loadVersion1_x( const QByteArray &arr );
@@ -332,9 +330,9 @@ private:
     QTransform computeTransformation() const;
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
     void phiPaletteChanged( const PHIPalette &pal );
-    inline PHITextData* styleSheetData() const { return _styleSheetData; }
-    inline PHITextData* titleData() const { return _titleData; }
-    inline PHIBooleanData* visibleData() const { return _visibleData; }
+    inline PHITextData* styleSheetData() { return &_styleSheetData; }
+    inline PHITextData* titleData() { return &_titleData; }
+    inline PHIBooleanData* visibleData() { return &_visibleData; }
     inline PHIEffect* effect() { return _effect; }
     inline QGraphicsWidget* gw() { return _gw; }
 
@@ -343,8 +341,8 @@ private:
     inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
     inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
     virtual PHIConfigWidget* configWidget() { return 0; }
-    virtual PHIIntData* intData_1() const { return 0; }
-    virtual PHIIntData* intData_2() const { return 0; }
+    virtual PHIIntData* intData_1() { return 0; }
+    virtual PHIIntData* intData_2() { return 0; }
     virtual void setText( const QString &t, const QByteArray &lang );
     virtual QString text( const QByteArray &lang ) const;
 
@@ -365,8 +363,8 @@ private:
     QPointF _transformOrigin;
     PHIKeyHash _variants;
     Flags _flags;
-    PHIBooleanData *_visibleData;
-    PHITextData *_titleData, *_styleSheetData;
+    PHIBooleanData _visibleData;
+    PHITextData _titleData, _styleSheetData;
     PHIEffect *_effect;
 };
 

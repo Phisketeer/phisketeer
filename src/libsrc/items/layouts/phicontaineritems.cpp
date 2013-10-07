@@ -22,11 +22,6 @@
 #include "phibasepage.h"
 #include "phidatasources.h"
 
-PHILoginContainerItem::PHILoginContainerItem( const PHIBaseItemPrivate &p )
-    : PHIFormLayoutItem( p )
-{
-}
-
 void PHILoginContainerItem::initIDE()
 {
     PHIBaseItem *it;
@@ -80,12 +75,7 @@ void PHILoginContainerItem::initIDE()
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->updateData();
-    resize( layout()->preferredSize() );
-}
-
-PHIRegisterUserContainerItem::PHIRegisterUserContainerItem( const PHIBaseItemPrivate &p )
-    : PHILoginContainerItem( p )
-{
+    PHIAbstractLayoutItem::initIDE();
 }
 
 void PHIRegisterUserContainerItem::initIDE()
@@ -175,12 +165,7 @@ void PHIRegisterUserContainerItem::initIDE()
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->updateData();
-    resize( layout()->preferredSize() );
-}
-
-PHIAddressContainerItem::PHIAddressContainerItem( const PHIBaseItemPrivate &p )
-    : PHILoginContainerItem( p )
-{
+    PHIAbstractLayoutItem::initIDE();
 }
 
 void PHIAddressContainerItem::initIDE()
@@ -382,12 +367,7 @@ void PHIAddressContainerItem::initIDE()
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->updateData();
-    resize( layout()->preferredSize() );
-}
-
-PHIContactContainerItem::PHIContactContainerItem( const PHIBaseItemPrivate &p )
-    : PHILoginContainerItem( p )
-{
+    PHIAbstractLayoutItem::initIDE();
 }
 
 void PHIContactContainerItem::initIDE()
@@ -517,12 +497,65 @@ void PHIContactContainerItem::initIDE()
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->updateData();
-    resize( layout()->preferredSize() );
+    PHIAbstractLayoutItem::initIDE();
 }
 
-PHICCContainerItem::PHICCContainerItem( const PHIBaseItemPrivate &p )
-    : PHIGridLayoutItem( p )
+void PHIPeriodContainerItem::initIDE()
 {
+    PHIBaseItem *it;
+    PHIRectHash rects;
+    PHIItemFactory* f=PHIItemFactory::instance();
+
+    it=f->item( 30, PHIBaseItemPrivate( page() ) );
+    it->setId( page()->nextFreeId( L1( "periodlabel" ) ) );
+    it->initIDE();
+    it->setProperty( "align", static_cast<quint16>(Qt::AlignCenter) );
+    it->textData()->setSource( PHIData::Translated );
+    it->textData()->setText( QT_TR_NOOP( L1( "Date period" ) ) );
+    it->textData()->setText( L1( "Date period" ), "en" );
+    it->textData()->setText( L1( "Zeitraum" ), "de" );
+    insertBaseItem( it, 0, 0, 1, 2 );
+    rects.insert( it->id(), QRect( 0, 0, 2, 1 ) );
+
+    it=f->item( 30, PHIBaseItemPrivate( page() ) );
+    it->setId( page()->nextFreeId( L1( "startlabel" ) ) );
+    it->initIDE();
+    it->textData()->setSource( PHIData::Translated );
+    it->textData()->setText( QT_TR_NOOP( L1( "Start date" ) ) );
+    it->textData()->setText( L1( "Start date" ), "en" );
+    it->textData()->setText( L1( "Begin" ), "de" );
+    insertBaseItem( it, 1, 0 );
+    rects.insert( it->id(), QRect( 0, 1, 1, 1 ) );
+
+    it=f->item( 31, PHIBaseItemPrivate( page() ) );
+    it->setId( page()->nextFreeId( L1( "phistart" ) ) );
+    it->initIDE();
+    it->textData()->setOption( PHIData::Parse );
+    it->textData()->setText( L1( "$PHISERVER[today][1]:$PHISERVER[today]:9999-12-31" ) );
+    insertBaseItem( it, 1, 1 );
+    rects.insert( it->id(), QRect( 1, 1, 1, 1 ) );
+
+    it=f->item( 30, PHIBaseItemPrivate( page() ) );
+    it->setId( page()->nextFreeId( L1( "endlabel" ) ) );
+    it->initIDE();
+    it->textData()->setSource( PHIData::Translated );
+    it->textData()->setText( QT_TR_NOOP( L1( "End date" ) ) );
+    it->textData()->setText( L1( "End date" ), "en" );
+    it->textData()->setText( L1( "Ende" ), "de" );
+    insertBaseItem( it, 2, 0 );
+    rects.insert( it->id(), QRect( 0, 2, 1, 1 ) );
+
+    it=f->item( 31, PHIBaseItemPrivate( page() ) );
+    it->setId( page()->nextFreeId( L1( "phiend" ) ) );
+    it->initIDE();
+    it->textData()->setOption( PHIData::Parse );
+    it->textData()->setText( L1( "$PHISERVER[today][1]:$PHISERVER[today]:9999-12-31" ) );
+    insertBaseItem( it, 2, 1 );
+    rects.insert( it->id(), QRect( 1, 2, 1, 1 ) );
+
+    setChildRects( rects );
+    foreach ( it, childItems() ) it->updateData();
+    PHIAbstractLayoutItem::initIDE();
 }
 
 void PHICCContainerItem::initIDE()
@@ -642,5 +675,5 @@ void PHICCContainerItem::initIDE()
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->updateData();
-    resize( layout()->preferredSize() );
+    PHIAbstractLayoutItem::initIDE();
 }

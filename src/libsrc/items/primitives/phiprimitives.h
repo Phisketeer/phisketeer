@@ -35,6 +35,7 @@ class PHIPrimitives : public PHIItemPlugin
 
 public:
     virtual PHIBaseItem* create( PHIWID wid, const PHIBaseItemPrivate &p ) const;
+    virtual PHIBaseItem* copy( const PHIBaseItem *it ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
     virtual QString category() const { return tr( "Shapes" ); }
@@ -46,7 +47,18 @@ inline PHIBaseItem* PHIPrimitives::create( PHIWID wid, const PHIBaseItemPrivate 
     case PHIRectItem::Rect: return new PHIRectItem( p );
     case PHIRoundedRectItem::RoundedRect: return new PHIRoundedRectItem( p );
     case PHIEllipseItem::Ellipse: return new PHIEllipseItem( p );
-    case PHIGraphicText::GraphText: return new PHIGraphicText( p );
+    case PHIGraphicTextItem::GraphText: return new PHIGraphicTextItem( p );
+    }
+    return 0;
+}
+
+inline PHIBaseItem* PHIPrimitives::copy( const PHIBaseItem *it ) const
+{
+    switch ( it->wid() ) {
+    case PHIRectItem::Rect: return new PHIRectItem( *qobject_cast<const PHIRectItem*>(it) );
+    case PHIRoundedRectItem::RoundedRect: return new PHIRoundedRectItem( *qobject_cast<const PHIRoundedRectItem*>(it) );
+    case PHIEllipseItem::Ellipse: return new PHIEllipseItem( *qobject_cast<const PHIEllipseItem*>(it) );
+    case PHIGraphicTextItem::GraphText: return new PHIGraphicTextItem( *qobject_cast<const PHIGraphicTextItem*>(it) );
     }
     return 0;
 }
@@ -62,7 +74,7 @@ inline PHIWID PHIPrimitives::wid( const QString &key ) const
     if ( key==QLatin1String( "rect" ) ) return PHIRectItem::Rect;
     if ( key==QLatin1String( "ellipse" ) ) return PHIEllipseItem::Ellipse;
     if ( key==QLatin1String( "roundedrect" ) ) return PHIRoundedRectItem::RoundedRect;
-    if ( key==QLatin1String( "graphtext" ) ) return PHIGraphicText::GraphText;
+    if ( key==QLatin1String( "graphtext" ) ) return PHIGraphicTextItem::GraphText;
     return 0;
 }
 

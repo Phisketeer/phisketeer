@@ -21,11 +21,11 @@
 #include <QWidget>
 #include <QImage>
 #include "phiabstractitems.h"
+#include "phidatasources.h"
 
-class PHITextData;
 class QGraphicsSimpleTextItem;
 
-class PHIGraphicText : public PHIAbstractShapeItem
+class PHIGraphicTextItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
     Q_PROPERTY( QString text READ text WRITE setText )
@@ -34,29 +34,30 @@ class PHIGraphicText : public PHIAbstractShapeItem
 public:
     enum Wid { GraphText=28 };
     enum ItemData { DText=1, DAlignment=2 };
-    explicit PHIGraphicText( const PHIBaseItemPrivate &p );
-    virtual ~PHIGraphicText();
+    explicit PHIGraphicTextItem( const PHIBaseItemPrivate &p ) : PHIAbstractShapeItem( p ) {}
+    PHIGraphicTextItem( const PHIGraphicTextItem &it ) : PHIAbstractShapeItem( it ), _textData( it._textData ) {}
+    virtual ~PHIGraphicTextItem() {}
+
     inline virtual PHIWID wid() const { return GraphText; }
     virtual QString listName() const { return tr( "Graphic text" ); }
     virtual QString description() const { return tr( "Draws colored graphical text." ); }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/graphtext" ) ); }
     virtual void initIDE();
     virtual void updateData();
+    virtual PHITextData* textData() { return &_textData; }
 
 public slots:
-    inline void setText( const QString &t ) { setData( DText, t.toUtf8() ); }
+    inline void setText( const QString &t ) { setData( DText, t.toUtf8() ); updateGeometry(); }
     inline QString text() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
     inline quint16 alignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
-    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); }
+    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); updateContent(); }
 
 protected:
+    void updateContent();
+    void updateGeometry();
     virtual bool hasText() const { return true; }
     virtual bool isWidthChangeable() const { return false; }
     virtual bool isHeightChangeable() const { return false; }
-    virtual void setText( const QString &t, const QByteArray &lang );
-    virtual QString text( const QByteArray &lang ) const;
-    virtual PHITextData* textData() const { return _textData; }
-    virtual PHIConfigWidget* configWidget();
     virtual void drawShape( QPainter *painter, const QRectF &r );
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
@@ -65,7 +66,11 @@ protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 
 private:
-    PHITextData *_textData;
+    virtual void setText( const QString &t, const QByteArray &lang );
+    virtual QString text( const QByteArray &lang ) const;
+    virtual PHIConfigWidget* configWidget();
+
+    PHITextData _textData;
     QImage _image;
 };
 

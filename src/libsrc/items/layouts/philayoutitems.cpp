@@ -33,11 +33,6 @@ static bool yLessThan( const PHIBaseItem *it1, const PHIBaseItem *it2 )
     return it1->y() < it2->y();
 }
 
-PHIHorizontalLayoutItem::PHIHorizontalLayoutItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractLayoutItem( p )
-{
-}
-
 void PHIHorizontalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
 {
     if ( !list.count()>1 ) return;
@@ -84,11 +79,6 @@ void PHIHorizontalLayoutItem::activateLayout()
     resize( tmpWidth, tmpHeight );
 }
 
-PHIVerticalLayoutItem::PHIVerticalLayoutItem( const PHIBaseItemPrivate &p )
-    : PHIHorizontalLayoutItem( p )
-{
-}
-
 void PHIVerticalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
 {
     if ( !list.count() ) return;
@@ -103,11 +93,6 @@ void PHIVerticalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
     setChildIds( childIds );
     resize( layout()->preferredSize() );
     setPos( pos );
-}
-
-PHIFormLayoutItem::PHIFormLayoutItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractLayoutItem( p )
-{
 }
 
 void PHIFormLayoutItem::updateChildId( const QString &oldId, const QString &newId )
@@ -209,11 +194,6 @@ void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
     }
     setPos( ref );
     resize( layout()->preferredSize() );
-}
-
-PHIGridLayoutItem::PHIGridLayoutItem( const PHIBaseItemPrivate &p )
-    : PHIFormLayoutItem( p )
-{
 }
 
 void PHIGridLayoutItem::loadItemData( QDataStream &in, int version )

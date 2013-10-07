@@ -20,10 +20,10 @@
 #define PHIABSTRACTITEMS_H
 #include "phibaseitem.h"
 #include "phipalette.h"
+#include "phidatasources.h"
 #include "phi.h"
 
 class PHIBasePage;
-class PHITextData;
 class QGraphicsGridLayout;
 
 class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
@@ -36,8 +36,11 @@ class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 
 public:
     enum ItemData { DColor=-100, DBackgroundColor=-101, DText=-102, DTmpColor=-103, DTmpBackgroundColor=-104, DAlignment=-105 };
-    explicit PHIAbstractTextItem( const PHIBaseItemPrivate &p );
-    virtual ~PHIAbstractTextItem();
+    explicit PHIAbstractTextItem( const PHIBaseItemPrivate &p ) : PHIBaseItem( p ) {}
+    PHIAbstractTextItem( const PHIAbstractTextItem &it ) : PHIBaseItem( it ), _colorRole( it._colorRole ),
+        _backgroundColorRole( it._backgroundColorRole ), _textData( it._textData ) {}
+    virtual ~PHIAbstractTextItem() {}
+
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
@@ -63,7 +66,7 @@ protected:
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual bool hasText() const { return true; }
-    virtual PHITextData* textData() const { return _textData; }
+    virtual PHITextData* textData() { return &_textData; }
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
@@ -80,7 +83,7 @@ private:
 
     PHIPalette::ColorRole _colorRole, _backgroundColorRole;
     static qreal _dropRegion;
-    PHITextData *_textData;
+    PHITextData _textData;
 };
 
 class PHIEXPORT PHIAbstractShapeItem : public PHIBaseItem
@@ -98,7 +101,11 @@ public:
         DColor=-103, DOutlineColor=-104, DPenWidth=-105, DTmpColor=-106,
         DTmpOutlineColor=-107, DTmpPatternStyle=-108, DTmpLineStyle=-109,
         DTmpPenWidth=-110 };
-    explicit PHIAbstractShapeItem( const PHIBaseItemPrivate &p );
+    explicit PHIAbstractShapeItem( const PHIBaseItemPrivate &p ) : PHIBaseItem( p ) {}
+    PHIAbstractShapeItem( const PHIAbstractShapeItem &it ) : PHIBaseItem( it ),
+        _colorRole( it._colorRole ), _outlineColorRole( it._outlineColorRole ) {}
+    virtual ~PHIAbstractShapeItem() {}
+
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
@@ -166,8 +173,11 @@ public:
         DBorderWidthLeft=-90, DBorderWidthTop=-89, DBorderWidthRight=-88,
         DBorderWidthBottom=-87, DMarginLeft=-86, DMarginTop=-85, DMarginRight=-84,
         DMarginBottom=-83, DAlignment=-82 };
-    explicit PHIAbstractLayoutItem( const PHIBaseItemPrivate &p );
-    virtual ~PHIAbstractLayoutItem();
+    explicit PHIAbstractLayoutItem( const PHIBaseItemPrivate &p ) : PHIAbstractShapeItem( p ), _l( 0 ) { if ( isGuiItem() ) initLayout(); }
+    PHIAbstractLayoutItem( const PHIAbstractLayoutItem &it ) : PHIAbstractShapeItem( it ), _l( 0 ),
+        _children( it._children ), _textData( it._textData ) { if ( isGuiItem() ) initLayout(); }
+    virtual ~PHIAbstractLayoutItem() {}
+
     inline virtual bool isLayoutItem() const { return true; }
     inline virtual bool isFocusable() const { return true; }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
@@ -210,13 +220,13 @@ protected:
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual bool hasText() const { return true; }
-    virtual PHITextData* textData() const { return _textData; }
+    virtual PHITextData* textData() { return &_textData; }
     virtual void paint( QPainter *p, const QRectF &exposed );
     virtual void drawShape( QPainter *p, const QRectF &exposed );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual PHIConfigWidget* configWidget();
 
-    const QGraphicsGridLayout* layout() const { return _l; }
+    inline const QGraphicsGridLayout* layout() const { return _l; }
     void insertBaseItem( PHIBaseItem *it, int row, int column=0, int rowSpan=1, int columnSpan=1 );
 
 private slots:
@@ -230,10 +240,11 @@ private:
     virtual QString text( const QByteArray &lang ) const;
     void setChildItem( PHIBaseItem *it );
     void releaseItem( PHIBaseItem *it );
+    void initLayout();
 
     QGraphicsGridLayout *_l;
     QList <PHIBaseItem*> _children;
-    PHITextData *_textData;
+    PHITextData _textData;
 };
 
 class PHIAbstractInputItem : public PHIAbstractTextItem
@@ -243,7 +254,10 @@ class PHIAbstractInputItem : public PHIAbstractTextItem
 
 public:
     enum ItemData { DAccessKey=-99 };
-    explicit PHIAbstractInputItem( const PHIBaseItemPrivate &p );
+    explicit PHIAbstractInputItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ) {}
+    PHIAbstractInputItem( const PHIAbstractInputItem &it ) : PHIAbstractTextItem( it ) {}
+    virtual ~PHIAbstractInputItem() {}
+
     virtual bool isFocusable() const { return true; }
     virtual void updateData();
 

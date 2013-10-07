@@ -75,22 +75,36 @@ PHIBaseItemPrivate::PHIBaseItemPrivate( Type type, PHIBasePage *page, PHIGraphic
 PHIBaseItem::PHIBaseItem( const PHIBaseItemPrivate &p )
     : QObject( p.page() ), _type( p.type() ), _gw( p.gw() ), _flags( FNone )
 {
-    if ( p.gw() ) p.gw()->setBaseItem( this );
+    if ( _gw ) p.gw()->setBaseItem( this );
     _effect=new PHIEffect();
-    _visibleData=new PHIBooleanData();
-    _visibleData->setBoolean( true );
-    _titleData=new PHITextData();
-    _styleSheetData=new PHITextData();
+    _visibleData.setBoolean( true );
     _x=_y=_xRot=_yRot=_zRot=_hSkew=_vSkew=0;
     setTransformPos( PHI::TopLeft );
+}
+
+PHIBaseItem::PHIBaseItem( const PHIBaseItem &it )
+    : QObject( it.parent() ), _type( it._type ), _gw( 0 ),
+      _id( it._id ), _parentId( it._parentId ), _x( it._x ), _y( it._y ),
+      _width( it._width ), _height( it._height ), _xRot( it._xRot ), _yRot( it._yRot ),
+      _zRot( it._zRot ), _hSkew( it._hSkew ), _vSkew( it._vSkew ),
+      _zIndex( it._zIndex ), _transformOrigin( it._transformOrigin ),
+      _variants( it._variants ), _flags( it.flags() ), _visibleData( it._visibleData ),
+      _titleData( it._titleData ), _styleSheetData( it._styleSheetData ),
+      _effect( new PHIEffect() )
+{
+    *_effect=*it._effect;
+    if ( _type==PHIBaseItemPrivate::TIDEItem ) {
+        PHIGraphicsItemProvider *provider=PHIGraphicsItemProvider::instance();
+        Q_ASSERT( provider );
+        PHIGraphicsItem *gw=provider->createGraphicsItem();
+        gw->setBaseItem( this );
+        _gw=gw;
+    }
 }
 
 PHIBaseItem::~PHIBaseItem()
 {
     delete _effect;
-    delete _visibleData;
-    delete _titleData;
-    delete _styleSheetData;
     if ( _gw ) {
         QGraphicsScene *s=_gw->scene();
         if ( s ) s->removeItem( _gw ); // get ownership back from scene
@@ -169,9 +183,9 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     _transformOrigin=_variants.value( DTransformOrigin, QPointF() ).toPointF();
     _parentId=_variants.value( DParentId, QByteArray() ).toByteArray();
     _flags=static_cast<Flags>(_variants.value( DFlags, 0 ).value<quint32>());
-    if ( _flags & FUseStyleSheet ) in >> _styleSheetData;
-    if ( _flags & FStoreTitleData ) in >> _titleData;
-    if ( _flags & FStoreVisibleData ) in >> _visibleData;
+    if ( _flags & FUseStyleSheet ) in >> &_styleSheetData;
+    if ( _flags & FStoreTitleData ) in >> &_titleData;
+    if ( _flags & FStoreVisibleData ) in >> &_visibleData;
     if ( _flags & FStoreEffectData ) {
         QByteArray effData;
         in >> effData;
@@ -207,18 +221,18 @@ QByteArray PHIBaseItem::save( int version )
     if ( _transformOrigin!=QPointF() ) _variants.insert( DTransformOrigin, _transformOrigin );
     if ( !_parentId.isEmpty() ) _variants.insert( DParentId, _parentId );
 
-    if ( _visibleData->unparsedStatic() && _visibleData->boolean() ) _flags &= ~FStoreVisibleData;
+    if ( _visibleData.unparsedStatic() && _visibleData.boolean() ) _flags &= ~FStoreVisibleData;
     else _flags |= FStoreVisibleData;
-    if ( _titleData->unparsedStatic() && _titleData->text().isEmpty() ) _flags &= ~FStoreTitleData;
+    if ( _titleData.unparsedStatic() && _titleData.text().isEmpty() ) _flags &= ~FStoreTitleData;
     else _flags |= FStoreTitleData;
     if ( _effect->effects()==PHIEffect::ENone ) _flags &= ~FStoreEffectData;
     else _flags |= FStoreEffectData;
     if ( _flags!=FNone ) storeFlags();
     if ( pos()!=_gw->pos() ) qDebug() << "PROBLEM" << id();
     out << _x << _y << _width << _height << _zIndex << _variants;
-    if ( _flags & FUseStyleSheet ) out << _styleSheetData; // toggled by IDE
-    if ( _flags & FStoreTitleData ) out << _titleData;
-    if ( _flags & FStoreVisibleData ) out << _visibleData;
+    if ( _flags & FUseStyleSheet ) out << &_styleSheetData; // flag toggled by IDE
+    if ( _flags & FStoreTitleData ) out << &_titleData;
+    if ( _flags & FStoreVisibleData ) out << &_visibleData;
     if ( _flags & FStoreEffectData ) out << _effect->save( version );
     saveItemData( out, version );
     if ( isIdeItem() ) updateData(); // restore all dynamic item data cleaned by squeeze()
@@ -285,9 +299,9 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
 
     PHIItemData d;
     d.load( properties, dynData );
-    *_visibleData=*d.visibleData();
-    *_titleData=*d.toolTipData();
-    *_styleSheetData=*d.styleSheetData();
+    _visibleData=*d.visibleData();
+    _titleData=*d.toolTipData();
+    _styleSheetData=*d.styleSheetData();
     if ( textData() ) *textData()=*d.textData();
     if ( readOnlyData() ) *readOnlyData()=*d.readOnlyData();
     if ( disabledData() ) *disabledData()=*d.disabledData();
@@ -371,10 +385,8 @@ void PHIBaseItem::setWidget( QWidget *w )
         return;
     }
     proxy->setWidget( w );
-    if ( !w ) return;
-    if ( sizeHint( Qt::PreferredSize ).isValid() ) resize( sizeHint( Qt::PreferredSize ) );
-    else resize( w->sizeHint() );
     proxy->setCacheMode( QGraphicsItem::ItemCoordinateCache );
+    proxy->setFlag( QGraphicsItem::ItemUsesExtendedStyleOption, true );
 }
 
 QTransform PHIBaseItem::computeTransformation() const

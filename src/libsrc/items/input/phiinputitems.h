@@ -26,7 +26,10 @@ class PHILineEditItem : public PHIAbstractInputItem
 
 public:
     enum Wid { LineEdit=1 };
-    explicit PHILineEditItem( const PHIBaseItemPrivate &p );
+    explicit PHILineEditItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHILineEditItem( const PHILineEditItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHILineEditItem() {}
+
     virtual QString listName() const { return tr( "Line edit" ); }
     virtual QString description() const { return tr( "Line edit with input type <text>" ); }
     virtual PHIWID wid() const { return LineEdit; }
@@ -34,6 +37,7 @@ public:
     virtual void initIDE();
 
 protected:
+    virtual void initWidget();
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 };
@@ -44,11 +48,17 @@ class PHIEmailItem : public PHILineEditItem
 
 public:
     enum Wid { Email=51 };
-    explicit PHIEmailItem( const PHIBaseItemPrivate &p );
+    explicit PHIEmailItem( const PHIBaseItemPrivate &p ) : PHILineEditItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIEmailItem( const PHIEmailItem &it ) : PHILineEditItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIEmailItem() {}
+
     virtual QString listName() const { return tr( "Email address" ); }
     virtual QString description() const { return tr( "Line edit with input type <email>" ); }
     virtual PHIWID wid() const { return Email; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
+
+private:
+    virtual void initWidget();
 };
 
 class PHIPhoneItem : public PHILineEditItem
@@ -57,11 +67,17 @@ class PHIPhoneItem : public PHILineEditItem
 
 public:
     enum Wid { Phone=54 };
-    explicit PHIPhoneItem( const PHIBaseItemPrivate &p );
+    explicit PHIPhoneItem( const PHIBaseItemPrivate &p ) : PHILineEditItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIPhoneItem( const PHIPhoneItem &it ) : PHILineEditItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIPhoneItem() {}
+
     virtual QString listName() const { return tr( "Phone number" ); }
     virtual QString description() const { return tr( "Line edit with input type <phone>" ); }
     virtual PHIWID wid() const { return Phone; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
+
+private:
+    virtual void initWidget();
 };
 
 class PHITextAreaItem : public PHIAbstractInputItem
@@ -70,7 +86,10 @@ class PHITextAreaItem : public PHIAbstractInputItem
 
 public:
     enum Wid { TextArea=2 };
-    explicit PHITextAreaItem( const PHIBaseItemPrivate &p );
+    explicit PHITextAreaItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHITextAreaItem( const PHITextAreaItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHITextAreaItem() {}
+
     virtual QString listName() const { return tr( "Textarea" ); }
     virtual QString description() const { return tr( "Input type <textarea>" ); }
     virtual PHIWID wid() const { return TextArea; }
@@ -80,6 +99,9 @@ public:
 protected:
     virtual bool isSingleLine() const { return false; }
     virtual void setWidgetText( const QString &t );
+
+private:
+    void initWidget();
 };
 
 class PHIPasswordItem : public PHILineEditItem
@@ -88,11 +110,17 @@ class PHIPasswordItem : public PHILineEditItem
 
 public:
     enum Wid { Password=3 };
-    explicit PHIPasswordItem( const PHIBaseItemPrivate &p );
+    explicit PHIPasswordItem( const PHIBaseItemPrivate &p ) : PHILineEditItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIPasswordItem( const PHIPasswordItem &it ) : PHILineEditItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIPasswordItem() {}
+
     virtual QString listName() const { return tr( "Password" ); }
     virtual QString description() const { return tr( "Line edit with input type <password>" ); }
     virtual PHIWID wid() const { return Password; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/password" ) ); }
+
+private:
+    virtual void initWidget();
 };
 
 class PHINumberEditItem : public PHIAbstractInputItem
@@ -101,8 +129,11 @@ class PHINumberEditItem : public PHIAbstractInputItem
 
 public:
     enum Wid { NumberEdit=52 };
-    explicit PHINumberEditItem( const PHIBaseItemPrivate &p );
-    virtual QString listName() const { return tr( "Decimal number" ); }
+    explicit PHINumberEditItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHINumberEditItem( const PHINumberEditItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHINumberEditItem() {}
+
+    virtual QString listName() const { return tr( "Number" ); }
     virtual QString description() const { return tr( "Decimal number edit with input type <number>" ); }
     virtual PHIWID wid() const { return NumberEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
@@ -111,6 +142,9 @@ public:
 protected:
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+
+private:
+    void initWidget();
 };
 
 class PHIRealNumberEditItem : public PHIAbstractInputItem
@@ -119,7 +153,10 @@ class PHIRealNumberEditItem : public PHIAbstractInputItem
 
 public:
     enum Wid { RealNumberEdit=53 };
-    explicit PHIRealNumberEditItem( const PHIBaseItemPrivate &p );
+    explicit PHIRealNumberEditItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIRealNumberEditItem( const PHIRealNumberEditItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIRealNumberEditItem() {}
+
     virtual QString listName() const { return tr( "Real number" ); }
     virtual QString description() const { return tr( "Real number edit with input type <number>" ); }
     virtual PHIWID wid() const { return RealNumberEdit; }
@@ -129,6 +166,9 @@ public:
 protected:
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+
+private:
+    void initWidget();
 };
 
 class PHISubmitButtonItem : public PHIAbstractInputItem
@@ -137,7 +177,10 @@ class PHISubmitButtonItem : public PHIAbstractInputItem
 
 public:
     enum Wid { SubmitButton=7 };
-    explicit PHISubmitButtonItem( const PHIBaseItemPrivate &p );
+    explicit PHISubmitButtonItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHISubmitButtonItem( const PHISubmitButtonItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHISubmitButtonItem() {}
+
     virtual QString listName() const { return tr( "Submit button" ); }
     virtual QString description() const { return tr( "Submit button with input type <submit>" ); }
     virtual PHIWID wid() const { return SubmitButton; }
@@ -145,6 +188,7 @@ public:
     virtual void initIDE();
 
 protected:
+    virtual void initWidget();
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -156,7 +200,10 @@ class PHIResetButtonItem : public PHISubmitButtonItem
 
 public:
     enum Wid { ResetButton=8 };
-    explicit PHIResetButtonItem( const PHIBaseItemPrivate &p );
+    explicit PHIResetButtonItem( const PHIBaseItemPrivate &p ) : PHISubmitButtonItem( p ) {}
+    PHIResetButtonItem( const PHIResetButtonItem &it ) : PHISubmitButtonItem( it ) {}
+    virtual ~PHIResetButtonItem() {}
+
     virtual QString listName() const { return tr( "Reset button" ); }
     virtual QString description() const { return tr( "Reset button with input type <reset>" ); }
     virtual PHIWID wid() const { return ResetButton; }
@@ -172,7 +219,10 @@ class PHIButtonItem : public PHISubmitButtonItem
 public:
     enum Wid { Button=6 };
     enum ItemData { DUrl=1 };
-    explicit PHIButtonItem( const PHIBaseItemPrivate &p );
+    explicit PHIButtonItem( const PHIBaseItemPrivate &p ) : PHISubmitButtonItem( p ) {}
+    PHIButtonItem( const PHIButtonItem &it ) : PHISubmitButtonItem( it ) {}
+    virtual ~PHIButtonItem() {}
+
     virtual QString listName() const { return tr( "Button" ); }
     virtual QString description() const { return tr( "Native button with input type <button>" ); }
     virtual PHIWID wid() const { return Button; }

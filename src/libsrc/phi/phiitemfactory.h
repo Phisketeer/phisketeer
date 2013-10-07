@@ -65,6 +65,7 @@ public:
         QReadLocker l( &_lock ); return _pixmapForCategory.value( cat ); }
     PHIBaseItem* item( const QString &key, const PHIBaseItemPrivate &p ) const;
     PHIBaseItem* item( PHIWID wid, const PHIBaseItemPrivate &p ) const;
+    PHIBaseItem* copy( const PHIBaseItem *it ) const;
     QString category( const QString &key ) const;
     QStringList keysForCategory( const QString &cat ) const;
     
@@ -102,6 +103,14 @@ inline PHIBaseItem* PHIItemFactory::item( PHIWID wid, const PHIBaseItemPrivate &
         if ( it ) return it;
     }
     return new PHIUnknownItem( p, wid );
+}
+
+inline PHIBaseItem* PHIItemFactory::copy( const PHIBaseItem *it ) const
+{
+    QReadLocker l( &_lock );
+    PHIItemPlugin *plugin=_wids.value( it->wid(), 0 );
+    if ( !plugin ) return 0;
+    return plugin->copy( it );
 }
 
 inline QStringList PHIItemFactory::keysForCategory( const QString &cat ) const

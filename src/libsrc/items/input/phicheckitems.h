@@ -21,8 +21,6 @@
 #include "phiabstractitems.h"
 #include "phipalette.h"
 
-class PHIBooleanData;
-
 class PHICheckBoxItem : public PHIAbstractInputItem
 {
     Q_OBJECT
@@ -30,8 +28,10 @@ class PHICheckBoxItem : public PHIAbstractInputItem
 
 public:
     enum Wid { Checkbox=4 };
-    explicit PHICheckBoxItem( const PHIBaseItemPrivate &p );
-    virtual ~PHICheckBoxItem();
+    explicit PHICheckBoxItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHICheckBoxItem( const PHICheckBoxItem &it ) : PHIAbstractInputItem( it ), _checkedData( it._checkedData ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHICheckBoxItem() {}
+
     virtual QString listName() const { return tr( "Checkbox" ); }
     virtual QString description() const { return tr( "Check box with input type <checkbox>" ); }
     virtual PHIWID wid() const { return Checkbox; }
@@ -43,16 +43,17 @@ public slots:
     virtual void setChecked( bool b );
 
 protected:
+    virtual void initWidget();
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual bool isCheckable() const { return true; }
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual PHIBooleanData* checkedData() const { return _checkedData; }
+    virtual PHIBooleanData* checkedData() { return &_checkedData; }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
 
 private:
-    PHIBooleanData *_checkedData;
+    PHIBooleanData _checkedData;
 };
 
 class PHIRadioButtonItem : public PHICheckBoxItem
@@ -61,7 +62,10 @@ class PHIRadioButtonItem : public PHICheckBoxItem
 
 public:
     enum Wid { RadioButton=5 };
-    explicit PHIRadioButtonItem( const PHIBaseItemPrivate &p );
+    explicit PHIRadioButtonItem( const PHIBaseItemPrivate &p ) : PHICheckBoxItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIRadioButtonItem( const PHIRadioButtonItem &it ) : PHICheckBoxItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIRadioButtonItem() {}
+
     virtual QString listName() const { return tr( "Radio button" ); }
     virtual QString description() const { return tr( "Radio button with input type <radio>" ); }
     virtual PHIWID wid() const { return RadioButton; }
@@ -69,6 +73,7 @@ public:
     virtual void initIDE();
 
 protected:
+    virtual void initWidget();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 };
 

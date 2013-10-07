@@ -25,8 +25,7 @@
 #include "phidatasources.h"
 #include "phibasepage.h"
 
-PHICalendarItem::PHICalendarItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractInputItem( p )
+void PHICalendarItem::initWidget()
 {
     setWidget( new QCalendarWidget() );
     setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
@@ -48,7 +47,7 @@ void PHICalendarItem::updateData()
 {
     PHIAbstractInputItem::updateData();
     QCalendarWidget *cw=qobject_cast<QCalendarWidget*>(widget());
-    cw->setLocale( QLocale( QString::fromLatin1( page()->currentLang() ) ) );
+    cw->setLocale( QLocale( page()->lang() ) );
 }
 
 void PHICalendarItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
@@ -63,8 +62,7 @@ QSizeF PHICalendarItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint )
     return PHIAbstractInputItem::sizeHint( which, constraint );
 }
 
-PHIDateEditItem::PHIDateEditItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractInputItem( p )
+void PHIDateEditItem::initWidget()
 {
     QWidget *w=new QWidget();
     _date=new QDateEdit();

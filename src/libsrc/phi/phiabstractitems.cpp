@@ -23,7 +23,6 @@
 #include <QWidget>
 #include <QGraphicsGridLayout>
 #include "phiabstractitems.h"
-#include "phidatasources.h"
 #include "phicolorconfig.h"
 #include "philayoutconfig.h"
 #include "phibasepage.h"
@@ -43,17 +42,6 @@ static void _extractColorRole( const QString &s, PHIPalette::ColorRole &cr )
     }
 }
 
-PHIAbstractTextItem::PHIAbstractTextItem( const PHIBaseItemPrivate &p )
-    : PHIBaseItem( p )
-{
-    _textData=new PHITextData();
-}
-
-PHIAbstractTextItem::~PHIAbstractTextItem()
-{
-    delete _textData;
-}
-
 void PHIAbstractTextItem::initIDE()
 {
     setColor( PHIPalette::WidgetText, PHIPalette::Text, page()->phiPalette().color( PHIPalette::Text ) );
@@ -66,16 +54,17 @@ PHIConfigWidget* PHIAbstractTextItem::configWidget()
     return new PHIColorConfig( this );
 }
 
+// called form IDE only:
 void PHIAbstractTextItem::setText( const QString &t, const QByteArray &lang )
 {
-    if ( _textData->translated() ) {
-        _textData->setText( t, lang );
+    if ( _textData.translated() ) {
+        _textData.setText( t, lang );
         setWidgetText( t );
-    } else if ( _textData->unparsedStatic() ) {
-        _textData->setSource( PHIData::Translated );
-        _textData->setText( t, lang );
+    } else if ( _textData.unparsedStatic() ) {
+        _textData.setSource( PHIData::Translated );
+        _textData.setText( t, lang );
         setWidgetText( t );
-    } else setWidgetText( _textData->text() );
+    } else setWidgetText( _textData.text() );
     if ( isChild() ) {
         PHIBaseItem *it=page()->findItem( parentId() );
         PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
@@ -85,16 +74,16 @@ void PHIAbstractTextItem::setText( const QString &t, const QByteArray &lang )
 
 QString PHIAbstractTextItem::text( const QByteArray &lang ) const
 {
-    if ( _textData->translated() ) return _textData->text( lang );
-    return _textData->text();
+    if ( _textData.translated() ) return _textData.text( lang );
+    return _textData.text();
 }
 
 void PHIAbstractTextItem::updateData()
 {
     if ( widget() && widget()->property( "alignment" ).isValid() )
         widget()->setProperty( "alignment", alignment() );
-    if ( _textData->translated() ) setWidgetText( _textData->text( page()->currentLang() ) );
-    else setWidgetText( _textData->text() );
+    if ( _textData.translated() ) setWidgetText( _textData.text( page()->currentLang() ) );
+    else setWidgetText( _textData.text() );
     if ( isChild() ) {
         PHIBaseItem *it=page()->findItem( parentId() );
         PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
@@ -234,7 +223,7 @@ void PHIAbstractTextItem::loadItemData( QDataStream &in, int version )
 {
     Q_UNUSED( version )
     quint8 cr, bgcr;
-    in >> _textData >> cr >> bgcr;
+    in >> &_textData >> cr >> bgcr;
     _colorRole=static_cast<PHIPalette::ColorRole>(cr);
     _backgroundColorRole=static_cast<PHIPalette::ColorRole>(bgcr);
 }
@@ -242,7 +231,7 @@ void PHIAbstractTextItem::loadItemData( QDataStream &in, int version )
 void PHIAbstractTextItem::saveItemData( QDataStream &out, int version )
 {
     Q_UNUSED( version )
-    out << _textData << static_cast<quint8>(_colorRole) << static_cast<quint8>(_backgroundColorRole);
+    out << &_textData << static_cast<quint8>(_colorRole) << static_cast<quint8>(_backgroundColorRole);
 }
 
 qreal PHIAbstractShapeItem::_dropRegion=7.;
@@ -269,12 +258,6 @@ static void _extractShapeDefs( const QString &s, PHIPalette::ColorRole &cr, quin
             continue;
         }
     }
-}
-
-PHIAbstractShapeItem::PHIAbstractShapeItem( const PHIBaseItemPrivate &p )
-    : PHIBaseItem( p )
-{
-    setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored ) );
 }
 
 PHIConfigWidget* PHIAbstractShapeItem::configWidget()
@@ -376,7 +359,7 @@ QRectF PHIAbstractShapeItem::boundingRect() const
 QSizeF PHIAbstractShapeItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     Q_UNUSED( constraint )
-    //if ( isChild() ) return size();
+    if ( isChild() ) return size();
     if ( which==Qt::PreferredSize ) return QSizeF( 96., 96. );
     if ( which==Qt::MinimumSize ) return QSizeF( 16., 16. );
     if ( which==Qt::MaximumSize ) return QSizeF( 8000., 8000. );
@@ -544,22 +527,13 @@ void PHIAbstractShapeItem::saveItemData( QDataStream &out, int version )
     out << static_cast<quint8>(_colorRole) << static_cast<quint8>(_outlineColorRole);
 }
 
-PHIAbstractLayoutItem::PHIAbstractLayoutItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractShapeItem( p ), _l( 0 ), _textData( 0 )
+void PHIAbstractLayoutItem::initLayout()
 {
-    _textData=new PHITextData();
-    if ( gw() ) {
-        _l=new QGraphicsGridLayout();
-        _l->setContentsMargins( leftMargin(), topMargin(), rightMargin(), bottomMargin() );
-        gw()->setLayout( _l );
-    }
-    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    _l=new QGraphicsGridLayout();
+    _l->setContentsMargins( leftMargin(), topMargin(), rightMargin(), bottomMargin() );
+    gw()->setLayout( _l );
+    setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
     connect( this, &PHIAbstractLayoutItem::layoutChanged, this, &PHIAbstractLayoutItem::updateLayoutGeometry, Qt::QueuedConnection );
-}
-
-PHIAbstractLayoutItem::~PHIAbstractLayoutItem()
-{
-    delete _textData;
 }
 
 void PHIAbstractLayoutItem::initIDE()
@@ -642,13 +616,13 @@ void PHIAbstractLayoutItem::squeeze()
 void PHIAbstractLayoutItem::loadItemData( QDataStream &in, int version )
 {
     PHIAbstractShapeItem::loadItemData( in, version );
-    if ( flags() & FLayoutHeader ) in >> _textData;
+    if ( flags() & FLayoutHeader ) in >> &_textData;
 }
 
 void PHIAbstractLayoutItem::saveItemData( QDataStream &out, int version )
 {
     PHIAbstractShapeItem::saveItemData( out, version );
-    if ( flags() & FLayoutHeader ) out << _textData;
+    if ( flags() & FLayoutHeader ) out << &_textData;
 }
 
 void PHIAbstractLayoutItem::insertBaseItem( PHIBaseItem *it, int row, int column, int rowSpan, int columnSpan )
@@ -738,11 +712,11 @@ void PHIAbstractLayoutItem::breakLayout()
 
 void PHIAbstractLayoutItem::setText( const QString &t, const QByteArray &lang )
 {
-    if ( _textData->translated() ) {
-        _textData->setText( t, lang );
-    } else if ( _textData->unparsedStatic() ) {
-        _textData->setSource( PHIData::Translated );
-        _textData->setText( t, lang );
+    if ( _textData.translated() ) {
+        _textData.setText( t, lang );
+    } else if ( _textData.unparsedStatic() ) {
+        _textData.setSource( PHIData::Translated );
+        _textData.setText( t, lang );
     }
     if ( isChild() ) {
         PHIBaseItem *it=page()->findItem( parentId() );
@@ -753,18 +727,13 @@ void PHIAbstractLayoutItem::setText( const QString &t, const QByteArray &lang )
 
 QString PHIAbstractLayoutItem::text( const QByteArray &lang ) const
 {
-    if ( _textData->translated() ) return _textData->text( lang );
-    return _textData->text();
+    if ( _textData.translated() ) return _textData.text( lang );
+    return _textData.text();
 }
 
 PHIConfigWidget* PHIAbstractLayoutItem::configWidget()
 {
     return new PHILayoutConfig( this );
-}
-
-PHIAbstractInputItem::PHIAbstractInputItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractTextItem( p )
-{
 }
 
 QSizeF PHIAbstractInputItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
