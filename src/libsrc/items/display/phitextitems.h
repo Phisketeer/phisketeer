@@ -26,7 +26,10 @@ class PHILabelItem : public PHIAbstractTextItem
 
 public:
     enum Wid { Label=30 };
-    explicit PHILabelItem( const PHIBaseItemPrivate &p );
+    explicit PHILabelItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHILabelItem( const PHILabelItem &it ) : PHIAbstractTextItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHILabelItem() {}
+
     virtual QString listName() const { return tr( "Label" ); }
     virtual QString description() const { return tr( "Displays a label (single line)" ); }
     virtual PHIWID wid() const { return Label; }
@@ -36,6 +39,9 @@ public:
 
 protected:
     virtual void setWidgetText( const QString &t );
+
+private:
+    void initWidget();
 };
 
 #endif // PHITEXTITEMS_H

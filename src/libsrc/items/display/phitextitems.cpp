@@ -22,8 +22,7 @@
 #include "phibasepage.h"
 #include "phi.h"
 
-PHILabelItem::PHILabelItem( const PHIBaseItemPrivate &p )
-    : PHIAbstractTextItem( p )
+void PHILabelItem::initWidget()
 {
     setWidget( new QLabel() );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
