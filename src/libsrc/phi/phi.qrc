@@ -37,5 +37,6 @@
     </qresource>
     <qresource prefix="/">
         <file alias="countries">countries.txt</file>
+        <file alias="sponsor">images/poweredby.png</file>
     </qresource>
 </RCC>

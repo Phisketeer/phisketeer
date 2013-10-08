@@ -150,6 +150,35 @@ private:
     static qreal _dropRegion;
 };
 
+class PHIEXPORT PHIAbstractImageItem : public PHIAbstractShapeItem
+{
+    Q_OBJECT
+    Q_PROPERTY( QImage image READ image WRITE setImage SCRIPTABLE false )
+
+public:
+    enum ItemData { DImage=-99 };
+    explicit PHIAbstractImageItem( const PHIBaseItemPrivate &p ) : PHIAbstractShapeItem( p ) {}
+    PHIAbstractImageItem( const PHIAbstractImageItem &it ) : PHIAbstractShapeItem( it ), _imageData( it._imageData ) {}
+    virtual ~PHIAbstractImageItem() {}
+    virtual void updateData();
+    virtual bool hasImage() const { return true; }
+
+public slots:
+    QImage image() const { return data( DImage, QImage() ).value<QImage>(); }
+    virtual void setImage( const QImage &img ) { setData( DImage, img ); }
+
+protected:
+    virtual PHIImageData* imageData() { return &_imageData; }
+    virtual void squeeze();
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void drawShape( QPainter *p, const QRectF &exposed );
+
+private:
+    PHIImageData _imageData;
+};
+
 class PHIEXPORT PHIAbstractLayoutItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
@@ -175,7 +204,7 @@ public:
         DMarginBottom=-83, DAlignment=-82 };
     explicit PHIAbstractLayoutItem( const PHIBaseItemPrivate &p ) : PHIAbstractShapeItem( p ), _l( 0 ) { if ( isGuiItem() ) initLayout(); }
     PHIAbstractLayoutItem( const PHIAbstractLayoutItem &it ) : PHIAbstractShapeItem( it ), _l( 0 ),
-        _children( it._children ), _textData( it._textData ) { if ( isGuiItem() ) initLayout(); }
+        _textData( it._textData ) { if ( isGuiItem() ) initLayout(); } // _children must not be copied!
     virtual ~PHIAbstractLayoutItem() {}
 
     inline virtual bool isLayoutItem() const { return true; }
@@ -185,7 +214,7 @@ public:
     virtual void updateChildId( const QString &oldId, const QString &newId )=0;
     virtual void updateData();
     virtual void initIDE();
-    inline const QList<PHIBaseItem*>& childItems() const { return _children; }
+    const QList<PHIBaseItem*>& childItems() const { return _children; }
     void breakLayout();
     void invalidateLayout();
 

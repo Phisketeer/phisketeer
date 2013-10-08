@@ -20,6 +20,7 @@
 #define PHIDISPLAYITEMS_H
 #include "phiitemplugin.h"
 #include "phitextitems.h"
+#include "phiimageitems.h"
 #include "phi.h"
 
 class PHIDisplayItems : public PHIItemPlugin
@@ -44,6 +45,7 @@ inline PHIBaseItem* PHIDisplayItems::create( PHIWID wid, const PHIBaseItemPrivat
 {
     switch ( wid ) {
     case PHILabelItem::Label: return new PHILabelItem( p );
+    case PHIPhisysItem::Phisys: return new PHIPhisysItem( p );
     }
     return 0;
 }
@@ -52,18 +54,20 @@ inline PHIBaseItem* PHIDisplayItems::copy( const PHIBaseItem *it ) const
 {
     switch ( it->wid() ) {
     case PHILabelItem::Label: return new PHILabelItem( *qobject_cast<const PHILabelItem*>(it) );
+    case PHIPhisysItem::Phisys: return new PHIPhisysItem( *qobject_cast<const PHIPhisysItem*>(it) );
     }
     return 0;
 }
 
 inline QStringList PHIDisplayItems::keys() const
 {
-    return QStringList() << SL( "label" );
+    return QStringList() << SL( "label" ) << SL( "phisys" );
 }
 
 inline PHIWID PHIDisplayItems::wid( const QString &key ) const
 {
     if ( key==L1( "label" ) ) return PHILabelItem::Label;
+    if ( key==L1( "phisys" ) ) return PHIPhisysItem::Phisys;
     return 0;
 }
 

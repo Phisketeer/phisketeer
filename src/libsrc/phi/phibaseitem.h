@@ -46,7 +46,8 @@ class PHIEXPORT PHIBaseItemPrivate
 public:
     enum Type { TUndefined=0, TIDEItem=1, TTemplateItem=2, TServerItem=3,
         TServerParserItem=4, TClientItem=5 };
-    explicit PHIBaseItemPrivate( Type type, PHIBasePage *page, PHIGraphicsItem *gi );
+    explicit PHIBaseItemPrivate( Type type, PHIBasePage *page, PHIGraphicsItem *gw )
+        : _type( type ), _page( page ), _gw( gw ) {}
     explicit PHIBaseItemPrivate( const PHIBasePage *page=0 ); // ctor for IDE only
 
     inline PHIBasePage* page() const { return _page; }
@@ -119,7 +120,7 @@ public:
         LINK=23, TAB=24, HSPACE=26, VSPACE=27, TEXT=29,
         LANG_SELECTOR=33, LAYOUT_DELIVERY=35,
         ROLLOVER_BUTTON=37,
-        RICH_TEXT=41, SVG=42, CHECK_LIST=43, DIA_SHOW=44, IMAGE_BOOK=45, TABLE=46, PHISYS_LINK=48,
+        RICH_TEXT=41, SVG=42, CHECK_LIST=43, DIA_SHOW=44, IMAGE_BOOK=45, TABLE=46
         HTML_DOC=49, SEARCH=50, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
         GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, CANVAS=61, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
     */
@@ -138,7 +139,7 @@ public: // not usable by script engine
     inline QByteArray id() const { return _id; }
     inline QByteArray parentId() const { return _parentId; }
     inline void setId( const QByteArray &id ) { setObjectName( QString::fromLatin1( id ) ); _id=id; }
-    inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); } // updates parent layout if isChild()
+    inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); }
     inline void setParentId( const QByteArray &pid ) { _parentId=pid; }
     inline void setFocus() { if ( _gw ) { _gw->setFocus(); _gw->setSelected( true ); } }
     inline const PHIEffect* effect() const { return _effect; }
@@ -219,6 +220,7 @@ public: // not usable by script engine
     inline virtual PHITextData* textData() { return 0; }
     inline virtual void updateData() {}
     inline virtual void initIDE() {}
+    inline const QGraphicsWidget* gw() const { return _gw; }
 
 public slots: // usable by script engine
     inline qreal x() const { return _x; }

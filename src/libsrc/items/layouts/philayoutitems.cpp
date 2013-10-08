@@ -133,6 +133,11 @@ void PHIFormLayoutItem::activateLayout()
     qreal tmpHeight=height(); // preserve height
     foreach ( QByteArray id, _childRects.keys() ) {
         PHIBaseItem *it=page()->findItem( id );
+        if ( !it ) {
+            _childRects.remove( id );
+            continue;
+        }
+        qDebug() << id;
         Q_ASSERT( it );
         QRect r=_childRects.value( id );
         insertBaseItem( it, r.y(), r.x(), r.height(), r.width() );

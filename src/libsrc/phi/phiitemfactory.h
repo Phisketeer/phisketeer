@@ -33,7 +33,12 @@ class PHIEXPORT PHIUnknownItem : public PHIBaseItem
     Q_OBJECT
 
 public:
-    explicit PHIUnknownItem( const PHIBaseItemPrivate &p, PHIWID requestedWID );
+    explicit PHIUnknownItem( const PHIBaseItemPrivate &p, PHIWID requestedWID )
+        : PHIBaseItem( p ), _requestedWID( requestedWID ) {}
+    PHIUnknownItem( const PHIUnknownItem &it ) : PHIBaseItem( it ),
+        _requestedWID( it._requestedWID ) {}
+    virtual ~PHIUnknownItem() {}
+
     virtual PHIWID wid() const { return 0; }
     virtual QPixmap pixmap() const;
     virtual QString listName() const;
@@ -44,6 +49,7 @@ public:
 protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual bool isPrivateItem() const { return true; }
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 
 private:
     PHIWID _requestedWID;

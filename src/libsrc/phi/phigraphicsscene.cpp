@@ -42,7 +42,10 @@ PHIGraphicsScene::~PHIGraphicsScene()
 {
     foreach ( PHIBaseItem *it, _page->items() ) {
         PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
-        if ( lit ) lit->breakLayout(); // break all page containing layouts
+        if ( lit ) {
+            qDebug() << "breaklayout" << _page << lit;
+            lit->breakLayout(); // break all page containing layouts
+        }
     }
     // don't let delete _page with usual QObject parent mechanism
     // graphics items must be deleted before (via the PHIBasePage destructor!)

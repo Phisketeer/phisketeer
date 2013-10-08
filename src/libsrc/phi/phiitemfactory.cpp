@@ -95,11 +95,6 @@ QString PHIItemFactory::category( const QString &key ) const
     return QString();
 }
 
-PHIUnknownItem::PHIUnknownItem( const PHIBaseItemPrivate &p, PHIWID requestedWID )
-    : PHIBaseItem( p ), _requestedWID( requestedWID )
-{
-}
-
 QPixmap PHIUnknownItem::pixmap() const
 {
     return QPixmap( L1( ":/items/rect" ) );
@@ -122,4 +117,11 @@ void PHIUnknownItem::paint( QPainter *painter, const QRectF &exposed )
     painter->fillRect( r, QColor( Qt::lightGray ) );
     painter->setPen( Qt::darkGray );
     painter->drawText( r, Qt::AlignCenter, tr( "Unknown" )+QString( L1( "\nWID %1" ) ).arg( _requestedWID ) );
+}
+
+QSizeF PHIUnknownItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    Q_UNUSED( which )
+    Q_UNUSED( constraint )
+    return size();
 }

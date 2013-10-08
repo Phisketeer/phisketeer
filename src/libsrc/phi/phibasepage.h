@@ -112,8 +112,15 @@ public:
 #endif
 
     explicit PHIBasePage( QObject *parent );
-    virtual ~PHIBasePage();
-    PHIBasePage( const PHIBasePage &p );
+    virtual ~PHIBasePage() { delete _pageData; }
+    PHIBasePage( const PHIBasePage &p ) : QObject( p.parent() ),
+        _pageData( new PHIDynPageData() ), _id( p._id ), _currentLang( p._currentLang ),
+        _width( p._width ), _height( p._height ), _variants( p._variants ),
+        _dbName( p._dbName ), _dbHost( p._dbHost ), _dbPasswd( p._dbPasswd ),
+        _dbUser( p._dbUser ), _dbDriver( p._dbDriver ), _dbOptions( p._dbOptions ),
+        _dbFileName( p._dbFileName ), _dbPort( p._dbPort ), _favicon( p._favicon ),
+        _font( p._font ), _bgColor( p._bgColor), _menuEntries( p._menuEntries ),
+        _flags( p._flags ), _pal( p._pal ) { *_pageData=*p._pageData; }
     PHIBasePage& operator=( const PHIBasePage &p );
     bool operator==( const PHIBasePage &p );
     inline bool operator!=( const PHIBasePage &p ) { return !operator==(p); }
@@ -133,8 +140,8 @@ public:
     inline PHIPalette phiPalette() const { return _pal; }
     inline void setPhiPalette( const PHIPalette &p ) { _pal=p; emit phiPaletteChanged( _pal ); }
     inline void addMenuEntry( const PHIPageMenuEntry &e ) { _menuEntries.append( e ); }
-    inline void setId( const QByteArray &id ) { _id=id; }
-    inline void setId( const QString &id ) { _id=id.toLatin1(); }
+    inline void setId( const QByteArray &id ) { _id=id; setObjectName( QString::fromLatin1( id ) ); }
+    inline void setId( const QString &id ) { _id=id.toLatin1(); setObjectName( id ); }
     inline Geometry geometry() const { return static_cast<Geometry>(_variants.value( DGeometry, 0 ).value<quint8>()); }
     inline void setServerModules( qint32 s ) { _variants.insert( DServerModules, s ); }
     inline qint32 serverModules() const { return _variants.value( DServerModules, 0 ).value<qint32>(); }

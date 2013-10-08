@@ -50,7 +50,7 @@ void PHICheckBoxItem::saveItemData(QDataStream &out, int version )
 QSizeF PHICheckBoxItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     QSizeF s=PHIAbstractTextItem::sizeHint( which, constraint );
-    if ( which==Qt::PreferredSize ) s.setWidth( s.width()+20 );
+    if ( which==Qt::PreferredSize ) s.setWidth( s.width()+22 );
     return s;
 }
 

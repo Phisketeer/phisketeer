@@ -67,23 +67,17 @@ PHIBaseItemPrivate::PHIBaseItemPrivate( const PHIBasePage *page )
     _gw=provider->createGraphicsItem();
 }
 
-PHIBaseItemPrivate::PHIBaseItemPrivate( Type type, PHIBasePage *page, PHIGraphicsItem *gw )
-    : _type( type ), _page( page ), _gw( gw )
-{
-}
-
-PHIBaseItem::PHIBaseItem( const PHIBaseItemPrivate &p )
-    : QObject( p.page() ), _type( p.type() ), _gw( p.gw() ), _flags( FNone )
+PHIBaseItem::PHIBaseItem( const PHIBaseItemPrivate &p ) : QObject( p.page() ),
+    _type( p.type() ), _gw( p.gw() ), _flags( FNone ), _effect( new PHIEffect() )
 {
     if ( _gw ) p.gw()->setBaseItem( this );
-    _effect=new PHIEffect();
     _visibleData.setBoolean( true );
     _x=_y=_xRot=_yRot=_zRot=_hSkew=_vSkew=0;
     setTransformPos( PHI::TopLeft );
 }
 
 PHIBaseItem::PHIBaseItem( const PHIBaseItem &it )
-    : QObject( it.parent() ), _type( it._type ), _gw( 0 ),
+    : QObject( 0 ), _type( it._type ), _gw( 0 ),
       _id( it._id ), _parentId( it._parentId ), _x( it._x ), _y( it._y ),
       _width( it._width ), _height( it._height ), _xRot( it._xRot ), _yRot( it._yRot ),
       _zRot( it._zRot ), _hSkew( it._hSkew ), _vSkew( it._vSkew ),
@@ -123,7 +117,12 @@ void PHIBaseItem::setId( const QString &id )
     if ( isChild() ) {
         PHIBaseItem *it=page()->findItem( parentName() );
         PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
-        if ( lit ) lit->updateChildId( objectName(), id );
+        if ( lit ) lit->updateChildId( name(), id );
+    }
+    if ( isLayoutItem() ) {
+        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(this);
+        Q_ASSERT( lit );
+        foreach ( PHIBaseItem *it, lit->childItems() ) it->setParentId( id );
     }
     _id=id.toLatin1();
     setObjectName( id );
@@ -447,7 +446,7 @@ void PHIBaseItem::setFont( const QFont &font )
 QFont PHIBaseItem::font() const
 {
     QFont f=QGuiApplication::font();
-    if ( !page() ) qWarning( "font: page not set" );
+    if ( !page() ) qWarning( "font: page not set for %s", id().constData() );
     if ( page() ) f=page()->font();
     return _variants.value( DFont, f ).value<QFont>();
 }

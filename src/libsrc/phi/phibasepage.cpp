@@ -63,7 +63,6 @@ PHIDynPageData::~PHIDynPageData()
 
 PHIDynPageData::PHIDynPageData( const PHIDynPageData &p )
 {
-    qDebug( "PHISPage::PHISPage( const PHISPage& )" );
     _title=new PHITextData();
     _styleSheet=new PHITextData();
     _author=new PHITextData();
@@ -143,11 +142,10 @@ QDataStream& operator>>( QDataStream &in, PHIDynPageData *p )
 PHIBasePage::PHIBasePage( QObject *parent )
     : QObject( parent ), _font( PHI::defaultFont() )
 {
-    qDebug( "PHIBasePage::PHIBasePage()" );
     _pageData=new PHIDynPageData();
     setGeometry( G4_3 );
-    _variants.insert( DLanguages, QStringList() << QStringLiteral( "en" ) );
-    _variants.insert( DDefaultLang, QByteArrayLiteral( "en" ) );
+    _variants.insert( DLanguages, QStringList() << SL( "en" ) );
+    _variants.insert( DDefaultLang, BL( "en" ) );
     _bgColor=QColor( Qt::white );
     _font=PHI::defaultFont();
     QByteArray arr=QUuid::createUuid().toByteArray();
@@ -157,20 +155,6 @@ PHIBasePage::PHIBasePage( QObject *parent )
     _dbPort=3306;
     _dbDriver=SL( "QSQLITE" );
     _favicon=QImage( SL( ":/file/phiappview" ) );
-    setObjectName( QString::fromLatin1( _id ) );
-}
-
-PHIBasePage::~PHIBasePage()
-{
-    delete _pageData;
-    qDebug( "PHIBasePage::~PHIBasePage()" );
-}
-
-PHIBasePage::PHIBasePage( const PHIBasePage &p )
-    : QObject( p.parent() )
-{
-    _pageData=new PHIDynPageData();
-    operator=(p);
 }
 
 PHIBasePage& PHIBasePage::operator=( const PHIBasePage &p )

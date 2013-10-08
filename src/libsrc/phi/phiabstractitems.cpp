@@ -527,6 +527,48 @@ void PHIAbstractShapeItem::saveItemData( QDataStream &out, int version )
     out << static_cast<quint8>(_colorRole) << static_cast<quint8>(_outlineColorRole);
 }
 
+void PHIAbstractImageItem::updateData()
+{
+    if ( _imageData.unparsedStatic() ) setImage( _imageData.image() );
+    else if ( _imageData.translated() ) setImage( _imageData.image( page()->currentLang() ) );
+    else setImage( QImage() );
+}
+
+void PHIAbstractImageItem::squeeze()
+{
+    PHIAbstractShapeItem::squeeze();
+    removeData( DImage );
+}
+
+void PHIAbstractImageItem::saveItemData( QDataStream &out, int version )
+{
+    PHIAbstractShapeItem::saveItemData( out, version );
+    out << &_imageData;
+}
+
+void PHIAbstractImageItem::loadItemData( QDataStream &in, int version )
+{
+    PHIAbstractShapeItem::loadItemData( in, version );
+    in >> &_imageData;
+}
+
+QSizeF PHIAbstractImageItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( isChild() ) return size();
+    if ( which==Qt::MinimumSize ) return QSizeF( 16, 16 );
+    if ( which==Qt::PreferredSize ) {
+        if ( !image().isNull() ) return QSizeF( image().size() );
+        return QSizeF( 96., 96. );
+    }
+    return PHIAbstractShapeItem::sizeHint( which, constraint );
+}
+
+void PHIAbstractImageItem::drawShape( QPainter *p, const QRectF &exposed )
+{
+    Q_UNUSED( exposed )
+    p->drawImage( 0, 0, image() );
+}
+
 void PHIAbstractLayoutItem::initLayout()
 {
     _l=new QGraphicsGridLayout();
@@ -579,7 +621,7 @@ void PHIAbstractLayoutItem::updateLayoutGeometry()
         it->update();
     }
     // hack to adjust layout size:
-    QSizeF oldSize=size();
+    // QSizeF oldSize=size();
     QSizeF s=size();
     if ( gw()->minimumWidth()>s.width() ) s.setWidth( gw()->minimumWidth() );
     if ( gw()->minimumHeight()>s.height() ) s.setHeight( gw()->minimumHeight() );
@@ -587,7 +629,7 @@ void PHIAbstractLayoutItem::updateLayoutGeometry()
     if ( gw()->maximumHeight()<s.height() ) s.setHeight( gw()->maximumHeight() );
     resize( 1, 1 );
     resize( s );
-    if ( s!=oldSize ) emit pushUndoStack( oldSize );
+    //if ( s!=oldSize ) emit pushUndoStack( oldSize );
     update();
 }
 
