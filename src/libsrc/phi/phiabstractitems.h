@@ -150,30 +150,33 @@ private:
     static qreal _dropRegion;
 };
 
-class PHIEXPORT PHIAbstractImageItem : public PHIAbstractShapeItem
+class PHIEXPORT PHIAbstractImageItem : public PHIBaseItem
 {
     Q_OBJECT
     Q_PROPERTY( QImage image READ image WRITE setImage SCRIPTABLE false )
 
 public:
-    enum ItemData { DImage=-99 };
-    explicit PHIAbstractImageItem( const PHIBaseItemPrivate &p ) : PHIAbstractShapeItem( p ) {}
-    PHIAbstractImageItem( const PHIAbstractImageItem &it ) : PHIAbstractShapeItem( it ), _imageData( it._imageData ) {}
+    enum ItemData { DImage=-99, DTmpImage=-98 };
+    explicit PHIAbstractImageItem( const PHIBaseItemPrivate &p ) : PHIBaseItem( p ) {}
+    PHIAbstractImageItem( const PHIAbstractImageItem &it ) : PHIBaseItem( it ), _imageData( it._imageData ) {}
     virtual ~PHIAbstractImageItem() {}
     virtual void updateData();
     virtual bool hasImage() const { return true; }
+    virtual PHIImageData* imageData() { return &_imageData; }
 
 public slots:
     QImage image() const { return data( DImage, QImage() ).value<QImage>(); }
     virtual void setImage( const QImage &img ) { setData( DImage, img ); }
 
 protected:
-    virtual PHIImageData* imageData() { return &_imageData; }
     virtual void squeeze();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual void drawShape( QPainter *p, const QRectF &exposed );
+    virtual void paint( QPainter *p, const QRectF &exposed );
+    virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
 
 private:
     PHIImageData _imageData;

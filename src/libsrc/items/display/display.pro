@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 include( ../items.pri )
+QT += svg
 HEADERS += phidisplayitems.h \
     phitextitems.h \
     phiimageitems.h

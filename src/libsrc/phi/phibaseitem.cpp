@@ -119,11 +119,8 @@ void PHIBaseItem::setId( const QString &id )
         PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
         if ( lit ) lit->updateChildId( name(), id );
     }
-    if ( isLayoutItem() ) {
-        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(this);
-        Q_ASSERT( lit );
-        foreach ( PHIBaseItem *it, lit->childItems() ) it->setParentId( id );
-    }
+    PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(this);
+    if ( lit ) foreach ( PHIBaseItem *it, lit->childItems() ) it->setParentId( id );
     _id=id.toLatin1();
     setObjectName( id );
 }
@@ -826,6 +823,66 @@ void PHIBaseItem::updateEffect()
         default:;
         }
     } else _gw->setGraphicsEffect( 0 );
+}
+
+PHIWID PHIBaseItem::widFromMimeData( const QMimeData *md )
+{
+    Q_ASSERT( md );
+    if ( md->hasFormat( QLatin1String( "application/x-phi-wid" ) ) ) {
+        QByteArray arr=md->data( QLatin1String( "application/x-phi-wid" ) );
+        QDataStream ds( &arr, QIODevice::ReadOnly );
+        int id;
+        ds >> id;
+        if ( id ) return static_cast<PHIWID>( id );
+    }
+    return 0;
+}
+
+QImage PHIBaseItem::imageFromMimeData( const QMimeData *md )
+{
+    Q_ASSERT( md );
+    if ( md->hasImage() ) return md->imageData().value<QImage>();
+    QImage img( pathFromMimeData( md ) );
+    if ( !img.isNull() ) return img;
+    QUrl url=urlFromMimeData( md );
+    img=QImage( url.toLocalFile() );
+    return img;
+}
+
+QString PHIBaseItem::pathFromMimeData( const QMimeData *md )
+{
+    Q_ASSERT( md );
+    if ( md->hasText() ) {
+        QString file=md->text();
+        if ( file.startsWith( L1( "file://" ) ) ) {
+            file=file.mid( 7 );
+            qDebug( "file=%s", qPrintable( file ) );
+            return file;
+        }
+    }
+    return QString();
+}
+
+QUrl PHIBaseItem::urlFromMimeData( const QMimeData *md )
+{
+    Q_ASSERT( md );
+    if ( md->hasUrls() ) {
+        QList<QUrl> list=md->urls();
+        QUrl url=list.first();
+        qDebug( "url=%s", qPrintable( url.toLocalFile() ) );
+        return url;
+    }
+    return QUrl();
+}
+
+QColor PHIBaseItem::colorFromMimeData( const QMimeData *md )
+{
+    Q_ASSERT( md );
+    if ( md->hasColor() ) {
+        QColor c=md->colorData().value<QColor>();
+        return c;
+    }
+    return QColor();
 }
 
 /*

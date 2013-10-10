@@ -532,23 +532,45 @@ void PHIAbstractImageItem::updateData()
     if ( _imageData.unparsedStatic() ) setImage( _imageData.image() );
     else if ( _imageData.translated() ) setImage( _imageData.image( page()->currentLang() ) );
     else setImage( QImage() );
+    update();
 }
 
 void PHIAbstractImageItem::squeeze()
 {
-    PHIAbstractShapeItem::squeeze();
+    if ( _imageData.translated() ) {
+        foreach ( QByteArray lang, _imageData.keys() ) {
+            QImage img=_imageData.image( lang );
+            if ( img.isNull() ) _imageData.remove( lang );
+            else {
+                img=img.scaled( size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+                _imageData.setImage( img, lang );
+            }
+        }
+    } else {
+        QImage img=_imageData.image();
+        if ( img.isNull() ) _imageData.remove( _imageData.c() );
+        else {
+            foreach( QByteArray key, _imageData.keys() ) {
+                if ( key.startsWith( "#" ) ) continue;
+                _imageData.remove( key );
+            }
+            img=img.scaled( size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+            _imageData.setImage( img );
+        }
+    }
     removeData( DImage );
+    removeData( DTmpImage );
 }
 
 void PHIAbstractImageItem::saveItemData( QDataStream &out, int version )
 {
-    PHIAbstractShapeItem::saveItemData( out, version );
+    Q_UNUSED( version )
     out << &_imageData;
 }
 
 void PHIAbstractImageItem::loadItemData( QDataStream &in, int version )
 {
-    PHIAbstractShapeItem::loadItemData( in, version );
+    Q_UNUSED( version )
     in >> &_imageData;
 }
 
@@ -560,13 +582,47 @@ QSizeF PHIAbstractImageItem::sizeHint( Qt::SizeHint which, const QSizeF &constra
         if ( !image().isNull() ) return QSizeF( image().size() );
         return QSizeF( 96., 96. );
     }
-    return PHIAbstractShapeItem::sizeHint( which, constraint );
+    return PHIBaseItem::sizeHint( which, constraint );
 }
 
-void PHIAbstractImageItem::drawShape( QPainter *p, const QRectF &exposed )
+void PHIAbstractImageItem::paint( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
-    p->drawImage( 0, 0, image() );
+    if ( image().isNull() ) {
+        p->fillRect( rect(), QBrush( Qt::lightGray ) );
+        QFont f=font();
+        f.setPointSizeF( PHI::adjustedFontSize( 10. ) );
+        p->setFont( f );
+        p->setPen( Qt::darkGray );
+        if ( isIdeItem() ) p->drawText( rect(), tr( "Image not available" ), QTextOption( Qt::AlignCenter ) );
+        else p->drawText( rect(), tr( "Image is loading..." ) );
+    } else {
+        p->setRenderHint( QPainter::SmoothPixmapTransform );
+        p->drawImage( rect(), image() );
+    }
+}
+
+void PHIAbstractImageItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
+{
+    QImage img=imageFromMimeData( e->mimeData() );
+    if ( img.isNull() ) e->ignore();
+    setData( DTmpImage, data( DImage ) );
+    setData( DImage, img );
+    update();
+}
+
+void PHIAbstractImageItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
+{
+    Q_UNUSED( e )
+    setData( DImage, data( DTmpImage ) );
+    update();
+}
+
+void PHIAbstractImageItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
+{
+    QImage img=imageFromMimeData( e->mimeData() );
+    setData( DImage, data( DTmpImage ) );
+    emit pushUndoStack( img );
 }
 
 void PHIAbstractLayoutItem::initLayout()

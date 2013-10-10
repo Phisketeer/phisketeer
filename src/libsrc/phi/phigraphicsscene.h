@@ -43,12 +43,6 @@ public:
     QList<PHIBaseItem*> selectedBaseItems() const;
     PHIBaseItem* focusBaseItem() const;
 
-    static PHIWID widFromMimeData( const QMimeData *md );
-    static QPixmap pixmapFromMimeData( const QMimeData *md );
-    static QString pathFromMimeData( const QMimeData *md );
-    static QUrl urlFromMimeData( const QMimeData *md );
-    static QColor colorFromMimeData( const QMimeData *md );
-
 protected slots:
     virtual void documentSizeChanged();
     virtual void setAlignment( Qt::Alignment );

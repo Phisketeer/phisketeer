@@ -45,7 +45,9 @@ inline PHIBaseItem* PHIDisplayItems::create( PHIWID wid, const PHIBaseItemPrivat
 {
     switch ( wid ) {
     case PHILabelItem::Label: return new PHILabelItem( p );
-    case PHIPhisysItem::Phisys: return new PHIPhisysItem( p );
+    case PHIImageItem::Image: return new PHIImageItem( p );
+    case PHISvgItem::Svg: return new PHISvgItem( p );
+    case PHISponsorItem::Sponsor: return new PHISponsorItem( p );
     }
     return 0;
 }
@@ -54,20 +56,25 @@ inline PHIBaseItem* PHIDisplayItems::copy( const PHIBaseItem *it ) const
 {
     switch ( it->wid() ) {
     case PHILabelItem::Label: return new PHILabelItem( *qobject_cast<const PHILabelItem*>(it) );
-    case PHIPhisysItem::Phisys: return new PHIPhisysItem( *qobject_cast<const PHIPhisysItem*>(it) );
+    case PHIImageItem::Image: return new PHIImageItem( *qobject_cast<const PHIImageItem*>(it) );
+    case PHISvgItem::Svg: return new PHISvgItem( *qobject_cast<const PHISvgItem*>(it) );
+    case PHISponsorItem::Sponsor: return new PHISponsorItem( *qobject_cast<const PHISponsorItem*>(it) );
     }
     return 0;
 }
 
 inline QStringList PHIDisplayItems::keys() const
 {
-    return QStringList() << SL( "label" ) << SL( "phisys" );
+    return QStringList() << SL( "label" ) << SL( "image" )  << SL( "svg" )
+        << SL( "sponsor" );
 }
 
 inline PHIWID PHIDisplayItems::wid( const QString &key ) const
 {
     if ( key==L1( "label" ) ) return PHILabelItem::Label;
-    if ( key==L1( "phisys" ) ) return PHIPhisysItem::Phisys;
+    if ( key==L1( "image" ) ) return PHIImageItem::Image;
+    if ( key==L1( "svg" ) ) return PHISvgItem::Svg;
+    if ( key==L1( "sponsor" ) ) return PHISponsorItem::Sponsor;
     return 0;
 }
 

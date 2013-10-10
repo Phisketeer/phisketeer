@@ -60,10 +60,9 @@ QStringList PHI::properties( const QObject *obj )
 QByteArray PHI::mimeTypeForFile( const QFileInfo &file )
 {
     static QMimeDatabase db;
-    static QString phis=QString::fromLatin1( "phis" );
     static QByteArray phismime="application/x-phis";
-    if ( file.suffix()==phis ) return phismime;
-    return db.mimeTypeForFile( file ).name().toUtf8();
+    if ( file.suffix()==L1( "phis" ) ) return phismime;
+    return db.mimeTypeForFile( file ).name().toLatin1();
 }
 
 QString PHI::tag( const QString &tag, const QString &msg )

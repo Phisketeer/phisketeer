@@ -261,6 +261,13 @@ inline PHIImageData::PHIImageData( const QImage &im )
     _data.insert( _c, im );
 }
 
+inline QImage PHIImageData::image( const QByteArray &l ) const
+{
+    QVariant v=_data.value( l );
+    if ( v.isValid() && v.canConvert<QImage>() ) return v.value<QImage>();
+    return QImage();
+}
+
 inline QDataStream& operator>>( QDataStream &in, PHIImageData *phiData )
 {
     return PHIData::readData( in, phiData );

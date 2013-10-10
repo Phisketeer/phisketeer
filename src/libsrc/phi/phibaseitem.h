@@ -116,11 +116,11 @@ public:
     /*
     enum Widget {
         FILE_BUTTON=9, HIDDEN=11, IMAGE_BUTTON=12,
-        LINE=15, IMAGE=16
-        LINK=23, TAB=24, HSPACE=26, VSPACE=27, TEXT=29,
+        LINE=15
+        LINK=23, TAB=24, TEXT=29,
         LANG_SELECTOR=33, LAYOUT_DELIVERY=35,
         ROLLOVER_BUTTON=37,
-        RICH_TEXT=41, SVG=42, CHECK_LIST=43, DIA_SHOW=44, IMAGE_BOOK=45, TABLE=46
+        RICH_TEXT=41, CHECK_LIST=43, DIA_SHOW=44, IMAGE_BOOK=45, TABLE=46
         HTML_DOC=49, SEARCH=50, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
         GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, CANVAS=61, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
     */
@@ -218,9 +218,17 @@ public: // not usable by script engine
     virtual QString description() const=0;
     inline virtual bool isPrivateItem() const { return false; }
     inline virtual PHITextData* textData() { return 0; }
+    inline virtual PHIImageData* imageData() { return 0; }
+    inline virtual PHIImageBookData* imageBookData() { return 0; }
     inline virtual void updateData() {}
     inline virtual void initIDE() {}
     inline const QGraphicsWidget* gw() const { return _gw; }
+
+    static PHIWID widFromMimeData( const QMimeData *md );
+    static QImage imageFromMimeData( const QMimeData *md );
+    static QString pathFromMimeData( const QMimeData *md );
+    static QUrl urlFromMimeData( const QMimeData *md );
+    static QColor colorFromMimeData( const QMimeData *md );
 
 public slots: // usable by script engine
     inline qreal x() const { return _x; }
@@ -261,8 +269,6 @@ public slots: // usable by script engine
     //inline virtual void setLabel( const QString &s ) { _variants.insert( DLabel, s.toUtf8() ); }
     //inline QString value() const { return QString::fromUtf8( _variants.value( DValue ).toByteArray() ); }
     //inline virtual void setValue( const QString &s ) { _variants.insert( DValue, s.toUtf8() ); }
-    //inline QString delimiter() const { return _variants.value( DDelimiter, L1( "\n" ) ).toString(); }
-    //inline virtual void setDelimiter( const QString &s ) { _variants.insert( DDelimiter, s ); }
     //inline quint16 maxLength() const { return _variants.value( DMaxLength, 100 ).value<quint16>(); }
     //inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxLength, max ); }
     inline bool disabled() const { return _flags & FDisabled; }
@@ -278,7 +284,6 @@ protected:
     virtual void squeeze() {} // free unused data
     void setWidget( QWidget* );
     QWidget* widget() const;
-    //inline const QGraphicsWidget* graphicsWidget() const { return _gw; }
     const PHIBasePage* page() const;
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
@@ -290,8 +295,6 @@ protected:
     inline virtual PHIBooleanData* checkedData() { return 0; }
     inline virtual PHIBooleanData* readOnlyData() { return 0; }
     inline virtual PHIBooleanData* disabledData() { return 0; }
-    inline virtual PHIImageData* imageData() { return 0; }
-    inline virtual PHIImageBookData* imageBookData() { return 0; }
 
     // Phis server related members
     // create all cached language dependend images and transformed images:
@@ -353,6 +356,7 @@ signals:
     void pushUndoStack( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newColor );
     void pushUndoStack( const char* property, const QVariant &newVariant );
     void pushUndoStack( const QSizeF &oldSize );
+    void pushUndoStack( const QImage &image, int i=-1 );
     void beginUndoStackMacro( const QString &text );
     void endUndoStackMacro();
 

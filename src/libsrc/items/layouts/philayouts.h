@@ -21,6 +21,7 @@
 #include "phiitemplugin.h"
 #include "philayoutitems.h"
 #include "phicontaineritems.h"
+#include "phispaceritems.h"
 #include "phi.h"
 
 class PHILayouts : public PHIItemPlugin
@@ -38,7 +39,7 @@ public:
     virtual PHIBaseItem* copy( const PHIBaseItem *it ) const;
     virtual QStringList keys() const;
     virtual PHIWID wid( const QString &key ) const;
-    virtual QString category() const { return tr( "Layouts" ); }
+    virtual QString category() const { return tr( "Layout" ); }
 };
 
 inline PHIBaseItem* PHILayouts::create( PHIWID wid, const PHIBaseItemPrivate &p ) const
@@ -48,6 +49,8 @@ inline PHIBaseItem* PHILayouts::create( PHIWID wid, const PHIBaseItemPrivate &p 
     case PHIHorizontalLayoutItem::HorizontalLayout: return new PHIHorizontalLayoutItem( p );
     case PHIFormLayoutItem::FormLayout: return new PHIFormLayoutItem( p );
     case PHIGridLayoutItem::GridLayout: return new PHIGridLayoutItem( p );
+    case PHIHSpacerItem::HorizontalSpacer: return new PHIHSpacerItem( p );
+    case PHIVSpacerItem::VerticalSpacer: return new PHIVSpacerItem( p );
     case PHIAddressContainerItem::AddressContainer: return new PHIAddressContainerItem( p );
     case PHILoginContainerItem::LoginContainer: return new PHILoginContainerItem( p );
     case PHICCContainerItem::CreditCardContainer: return new PHICCContainerItem( p );
@@ -65,6 +68,8 @@ inline PHIBaseItem* PHILayouts::copy( const PHIBaseItem *it ) const
     case PHIHorizontalLayoutItem::HorizontalLayout: return new PHIHorizontalLayoutItem( *qobject_cast<const PHIHorizontalLayoutItem*>(it) );
     case PHIFormLayoutItem::FormLayout: return new PHIFormLayoutItem( *qobject_cast<const PHIFormLayoutItem*>(it) );
     case PHIGridLayoutItem::GridLayout: return new PHIGridLayoutItem( *qobject_cast<const PHIGridLayoutItem*>(it) );
+    case PHIHSpacerItem::HorizontalSpacer: return new PHIHSpacerItem( *qobject_cast<const PHIHSpacerItem*>(it) );
+    case PHIVSpacerItem::VerticalSpacer: return new PHIVSpacerItem( *qobject_cast<const PHIVSpacerItem*>(it) );
     case PHIAddressContainerItem::AddressContainer: return new PHIAddressContainerItem( *qobject_cast<const PHIAddressContainerItem*>(it) );
     case PHILoginContainerItem::LoginContainer: return new PHILoginContainerItem( *qobject_cast<const PHILoginContainerItem*>(it) );
     case PHICCContainerItem::CreditCardContainer: return new PHICCContainerItem( *qobject_cast<const PHICCContainerItem*>(it) );
@@ -80,7 +85,7 @@ inline QStringList PHILayouts::keys() const
     return QStringList() << SL( "hboxlayout" ) << SL( "vboxlayout" )
         << SL( "formlayout" ) << SL( "gridlayout" ) << SL( "login" )
         << SL( "address" ) << SL( "creditcard" ) << SL( "registeruser" )
-        << SL( "contact" ) << SL( "period" );
+        << SL( "contact" ) << SL( "period" ) << SL( "vspacer" ) << SL( "hspacer" );
 }
 
 inline PHIWID PHILayouts::wid( const QString &key ) const
@@ -89,6 +94,8 @@ inline PHIWID PHILayouts::wid( const QString &key ) const
     if ( key==L1( "vboxlayout" ) ) return PHIVerticalLayoutItem::VerticalLayout;
     if ( key==L1( "formlayout" ) ) return PHIFormLayoutItem::FormLayout;
     if ( key==L1( "gridlayout" ) ) return PHIGridLayoutItem::GridLayout;
+    if ( key==L1( "hspacer" ) ) return PHIHSpacerItem::HorizontalSpacer;
+    if ( key==L1( "vspacer" ) ) return PHIVSpacerItem::VerticalSpacer;
     if ( key==L1( "address" ) ) return PHIAddressContainerItem::AddressContainer;
     if ( key==L1( "login" ) ) return PHILoginContainerItem::LoginContainer;
     if ( key==L1( "creditcard" ) ) return PHICCContainerItem::CreditCardContainer;

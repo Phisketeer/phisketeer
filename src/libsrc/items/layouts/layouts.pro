@@ -18,8 +18,10 @@
 include( ../items.pri )
 HEADERS += philayouts.h \
     philayoutitems.h \
-    phicontaineritems.h
+    phicontaineritems.h \
+    phispaceritems.h
 SOURCES += philayoutitems.cpp \
-    phicontaineritems.cpp
+    phicontaineritems.cpp \
+    phispaceritems.cpp
 TARGET = philayouts
 OTHER_FILES = philayouts.json

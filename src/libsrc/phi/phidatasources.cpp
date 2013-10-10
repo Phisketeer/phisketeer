@@ -16,17 +16,16 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QBuffer>
-#include <QPixmap>
 #include "phidatasources.h"
 
 const QByteArray PHIData::_c=QByteArray( "C" );
 
 void PHIData::squeeze()
 {
-    QByteArray k;
-    foreach( k, _data.keys() ) {
-        if ( _data.value( k ).toByteArray().isEmpty() ) _data.remove( k );
+    if ( type()==Text || type()==Integer || type()==Boolean ) {
+        foreach( QByteArray k, _data.keys() ) {
+            if ( _data.value( k ).toByteArray().isEmpty() ) _data.remove( k );
+        }
     }
     _data.squeeze();
 }
@@ -65,10 +64,7 @@ QDataStream& operator<<( QDataStream &out, PHIData *phiData )
 {
     out << static_cast<quint8>(phiData->type()) << static_cast<quint8>(phiData->source())
         << static_cast<quint8>(phiData->options());
-    QByteArray key;
-    foreach ( key, phiData->_data.keys() ) {
-        if ( phiData->_data.value( key ).toByteArray().isEmpty() ) phiData->_data.remove( key );
-    }
+    phiData->squeeze();
     if ( phiData->type()==PHIData::Image && (phiData->options() & PHIData::DontSaveImage) ) {
         phiData->_data.remove( PHIData::c() );
     } else if ( phiData->type()==PHIData::ImageBook && (phiData->options() & PHIData::DontSaveImage) ) {
@@ -76,16 +72,4 @@ QDataStream& operator<<( QDataStream &out, PHIData *phiData )
     }
     out << phiData->_data;
     return out;
-}
-
-QImage PHIImageData::image( const QByteArray &l ) const
-{
-    QVariant v=_data.value( l );
-    QImage img;
-    if ( v.isValid() && v.canConvert<QImage>() ) img=v.value<QImage>();
-    else {
-        QPixmap pix( SL( ":/svg/brokenimage" ) );
-        img=pix.toImage();
-    }
-    return img;
 }
