@@ -21,7 +21,7 @@
 PHIGraphicsView::PHIGraphicsView( PHIGraphicsScene *scene, QWidget *parent )
     : QGraphicsView( scene, parent )
 {
-    qDebug( "PHIGraphicsView::PHIGraphicsView()" );
+    // qDebug( "PHIGraphicsView::PHIGraphicsView()" );
     setAcceptDrops( true );
     setInteractive( true );
     setDragMode( RubberBandDrag );

@@ -137,8 +137,6 @@ void PHIFormLayoutItem::activateLayout()
             _childRects.remove( id );
             continue;
         }
-        qDebug() << id;
-        Q_ASSERT( it );
         QRect r=_childRects.value( id );
         insertBaseItem( it, r.y(), r.x(), r.height(), r.width() );
     }

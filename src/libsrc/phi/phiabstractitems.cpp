@@ -625,6 +625,67 @@ void PHIAbstractImageItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
     emit pushUndoStack( img );
 }
 
+void PHIAbstractImageBookItem::updateData()
+{
+    QVariant v;
+    if ( _imageBookData.translated() ) v.setValue( _imageBookData.imageBook( page()->currentLang() ) );
+    else v.setValue( _imageBookData.imageBook() );
+    setData( DImages, v );
+}
+
+void PHIAbstractImageBookItem::squeeze()
+{
+    removeData( DImages );
+    removeData( DTmpImages );
+}
+
+void PHIAbstractImageBookItem::loadItemData( QDataStream &in, int version )
+{
+    Q_UNUSED( version )
+    QByteArray arr;
+    in >> arr;
+    arr=qUncompress( arr );
+    QDataStream ds( &arr, QIODevice::ReadOnly );
+    ds.setVersion( QDataStream::Qt_5_1 );
+    ds >> &_imageBookData;
+}
+
+void PHIAbstractImageBookItem::saveItemData( QDataStream &out, int version )
+{
+    Q_UNUSED( version )
+    QByteArray arr;
+    QDataStream ds( &arr, QIODevice::WriteOnly );
+    ds.setVersion( QDataStream::Qt_5_1 );
+    ds << &_imageBookData;
+    out << qCompress( arr, 9 );
+}
+
+void PHIAbstractImageBookItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
+{
+    e->ignore();
+}
+
+void PHIAbstractImageBookItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *e )
+{
+    Q_UNUSED( e )
+}
+
+void PHIAbstractImageBookItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
+{
+    Q_UNUSED( e )
+}
+
+QSizeF PHIAbstractImageBookItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( isChild() ) return size();
+    if ( which==Qt::MinimumSize ) return QSizeF( 16, 16 );
+    if ( which==Qt::PreferredSize ) {
+        if ( !images().isEmpty() ) return QSizeF( images().values().first().size() );
+        return QSizeF( 96., 96. );
+    }
+    return PHIBaseItem::sizeHint( which, constraint );
+}
+
 void PHIAbstractLayoutItem::initLayout()
 {
     _l=new QGraphicsGridLayout();

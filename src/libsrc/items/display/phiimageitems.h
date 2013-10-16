@@ -21,6 +21,8 @@
 #include <QSvgRenderer>
 #include "phiabstractitems.h"
 
+class QTimer;
+
 class PHIImageItem : public PHIAbstractImageItem
 {
     Q_OBJECT
@@ -35,6 +37,9 @@ public:
     virtual QString description() const { return tr( "Displays an image." ); }
     virtual PHIWID wid() const { return Image; }
     virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/image" ) ); }
+
+protected:
+    virtual void updateImage();
 };
 
 class PHISvgItem : public PHIBaseItem
@@ -79,6 +84,72 @@ private:
 
     PHITextData _textData;
     QSvgRenderer _renderer;
+};
+
+class PHISlideShowItem : public PHIAbstractImageBookItem
+{
+    Q_OBJECT
+    Q_PROPERTY( int fadeInterval READ fadeInterval WRITE setFadeInterval )
+    Q_PROPERTY( int fadeTime READ fadeTime WRITE setFadeTime )
+    Q_PROPERTY( int fadeIntervalMS READ fadeIntervalMS WRITE setFadeIntervalMS )
+    Q_PROPERTY( int fadeTimeMS READ fadeTimeMS WRITE setFadeTimeMS )
+    Q_PROPERTY( QStringList titles READ titles WRITE setTitles )
+
+public:
+    enum Wid { SlideShow=44 };
+    enum ItemData { DInterval=1, DFadeTime=2, DCurrentOpacity=3, DCurrentStep=4, DCurrentImageNum=5, DTitles=6 };
+    explicit PHISlideShowItem( const PHIBaseItemPrivate &p ) : PHIAbstractImageBookItem( p ), _fadeTimer( 0 ),
+        _pauseTimer( 0 ) { if ( isGuiItem() ) initWidget(); }
+    PHISlideShowItem( const PHISlideShowItem &it ) : PHIAbstractImageBookItem( it ),
+        _intervalData( it._intervalData ), _fadeTimeData( it._fadeTimeData ), _fadeTimer( 0 ),
+        _pauseTimer( 0 ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHISlideShowItem() {}
+
+    virtual QString listName() const { return tr( "Slide show" ); }
+    virtual QString description() const { return tr( "Displays a slide show with changing images." ); }
+    virtual PHIWID wid() const { return SlideShow; }
+    virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/imagebutton" ) ); }
+    virtual void updateData();
+    inline void setTitleList( const QString &toolTip ) { setData( DTitles, toolTip.split( QLatin1Char( ':' ), QString::KeepEmptyParts ) ); }
+    inline QString titleList() const { return data( DTitles ).toStringList().join( L1( ":" ) ); }
+
+public slots:
+    inline void setFadeInterval( int i ) { setData( DInterval, qMax( fadeTimeMS(), i*1000 ) ); updateImages(); }
+    inline int fadeInterval() const { return data( DInterval, 4000 ).toInt()/1000; }
+    inline void setFadeTime( int i ) { setData( DFadeTime, i*1000 ); updateImages(); }
+    inline int fadeTime() const { return data( DFadeTime, 2000 ).toInt()/1000; }
+    inline void setFadeIntervalMS( int i ) { setData( DInterval, qMax( fadeTimeMS(), i ) ); updateImages(); }
+    inline int fadeIntervalMS() const { return data( DInterval, 4000 ).toInt(); }
+    inline void setFadeTimeMS( int i ) { setData( DFadeTime, qMax( 50, i ) ); updateImages(); }
+    inline int fadeTimeMS() const { return data( DFadeTime, 2000 ).toInt(); }
+    inline void setTitles( const QStringList &l ) { setData( DTitles, l ); }
+    inline QStringList titles() const { return data( DTitles ).toStringList(); }
+
+protected:
+    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual void updateImages();
+    virtual void squeeze();
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual PHIIntData* intData_1() { return &_intervalData; }
+    virtual PHIIntData* intData_2() { return &_fadeTimeData; }
+    virtual void initIDE();
+    void initWidget();
+    inline qreal step() const { return data( DCurrentStep, 50. ).toReal(); }
+    inline void setStep( qreal s ) { setData( DCurrentStep, s ); }
+    inline int currentImageNum() const { return data( DCurrentImageNum, 0 ).toInt(); }
+    inline void setCurrentImageNum( int i ) { setData( DCurrentImageNum, i ); }
+    inline qreal currentOpacity() const { return data( DCurrentOpacity, 1. ).toReal(); }
+    inline void setCurrentOpacity( qreal o ) { setData( DCurrentOpacity, o ); }
+
+protected slots:
+    void pauseTimeout();
+    void fadeTimeout();
+
+private:
+    PHIIntData _intervalData;
+    PHIIntData _fadeTimeData;
+    QTimer *_fadeTimer, *_pauseTimer;
 };
 
 class PHISponsorItem : public PHIBaseItem

@@ -81,8 +81,7 @@ void PHIItemFactory::invalidate()
         }
     }
 #ifdef PHIDEBUG
-    qDebug() << _keys;
-    qDebug() << _categories;
+    qDebug() << "Available items:" << _keys;
 #endif
     _lock.unlock();
 }

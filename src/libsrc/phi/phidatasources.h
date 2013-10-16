@@ -47,7 +47,7 @@ public:
 #endif
 
     PHIData();
-    virtual ~PHIData(){;}
+    virtual ~PHIData(){}
     PHIData( const PHIData& );
     PHIData& operator=( const PHIData& );
     bool operator==( const PHIData& );
@@ -127,8 +127,8 @@ PHIEXPORT QDataStream& operator<<( QDataStream&, PHIData* );
 class PHIEXPORT PHITextData : public PHIData
 {
 public:
-    PHITextData( const QString &t=QString() );
-    virtual ~PHITextData(){;}
+    explicit PHITextData( const QString &t=QString() );
+    virtual ~PHITextData(){}
     inline virtual Type type() const { return Text; }
     inline void setText( const QString &t, const QByteArray &l=_c ) { if ( t.isEmpty() ) _data.remove( l ); else _data.insert( l, t.toUtf8() ); }
     inline QString text( const QByteArray &l=_c ) const { return _data.value( l ).type()==12 ?
@@ -141,11 +141,12 @@ Q_DECLARE_METATYPE( PHITextData )
 class PHIEXPORT PHIImageData : public PHIData
 {
 public:
-    PHIImageData( const QImage &im=QImage() );
-    virtual ~PHIImageData(){;}
+    explicit PHIImageData( const QImage &im=QImage() );
+    virtual ~PHIImageData(){}
     inline virtual Type type() const { return Image; }
     QImage image( const QByteArray &l=_c ) const;
-    inline void setImage( const QImage &im, const QByteArray &l=_c ) { _data.insert( l, im ); }
+    inline void setImage( const QImage &im, const QByteArray &l=_c )
+    { if ( im.isNull() ) _data.remove( l ); else _data.insert( l, im ); }
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIImageData* );
@@ -154,12 +155,12 @@ Q_DECLARE_METATYPE( PHIImageData )
 class PHIEXPORT PHIImageBookData : public PHIData
 {
 public:
-    PHIImageBookData( const PHIImageHash &book=PHIImageHash() );
-    virtual ~PHIImageBookData(){;}
+    explicit PHIImageBookData( const PHIImageHash &book=PHIImageHash() );
+    virtual ~PHIImageBookData(){}
     inline virtual Type type() const { return ImageBook; }
     PHIImageHash imageBook( const QByteArray &l=_c ) const;
-    inline void setImageBook( PHIImageHash &book, const QByteArray &l=_c )
-        { QVariant v; v.setValue( book ); _data.insert( l, v ); }
+    inline void setImageBook( const PHIImageHash &book, const QByteArray &l=_c )
+    { QVariant v; v.setValue( book ); if ( book.isEmpty() ) _data.remove( l ); else _data.insert( l, v ); }
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIImageBookData* );
@@ -168,8 +169,8 @@ Q_DECLARE_METATYPE( PHIImageBookData )
 class PHIEXPORT PHIIntData : public PHIData
 {
 public:
-    PHIIntData( qint32 i=0 );
-    virtual ~PHIIntData(){;}
+    explicit PHIIntData( qint32 i=0 );
+    virtual ~PHIIntData(){}
     inline virtual Type type() const { return Integer; }
     inline qint32 integer( const QByteArray &l=_c ) const { return static_cast<qint32>(_data.value( l, 0 ).toInt()); }
     inline void setInteger( qint32 i, const QByteArray &l=_c ) { if ( i ) _data.insert( l, i ); else _data.remove( l ); }
@@ -183,8 +184,8 @@ Q_DECLARE_METATYPE( PHIIntData )
 class PHIEXPORT PHIBooleanData : public PHIData
 {
 public:
-    PHIBooleanData( bool b=false );
-    virtual ~PHIBooleanData(){;}
+    explicit PHIBooleanData( bool b=false );
+    virtual ~PHIBooleanData(){}
     inline virtual Type type() const { return Boolean; }
     inline bool boolean( const QByteArray &l=_c ) const { return _data.value( l, false ).toBool(); }
     inline void setBoolean( bool b, const QByteArray &l=_c ) { if ( b ) _data.insert( l, b ); else _data.remove( l ); }
@@ -198,8 +199,8 @@ Q_DECLARE_METATYPE( PHIBooleanData )
 class PHIEXPORT PHIStringListData : public PHIData
 {
 public:
-    PHIStringListData( const QStringList &l=QStringList() );
-    virtual ~PHIStringListData(){;}
+    explicit PHIStringListData( const QStringList &l=QStringList() );
+    virtual ~PHIStringListData(){}
     inline virtual Type type() const { return StringList; }
     inline QStringList stringList( const QByteArray &l=_c ) const { return _data.value( l ).toStringList(); }
     inline void setStringList( const QStringList &sl, const QByteArray &l=_c ) { _data.insert( l, sl ); }

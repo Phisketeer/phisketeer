@@ -64,7 +64,8 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     Q_ASSERT( argc>0 );
     _instance=this;
     setObjectName( QString::fromLatin1( name ) );
-    const QString phis=QLatin1String( "phis" );
+    const QString phis=L1( "phis" );
+    _usrDocPath=QStandardPaths::writableLocation( QStandardPaths::DocumentsLocation );
     QDir rootDir;
 
 #ifdef PHIAPPSTORE
@@ -81,33 +82,33 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     rootDir=QFileInfo( qAppFileName() ).dir();
     rootDir.cdUp();
     _rootPath=rootDir.canonicalPath();
-    _binPath=_rootPath+QLatin1String( "/bin" );
+    _binPath=_rootPath+L1( "/bin" );
     _libPath=_binPath;
-    _pluginsPath=_binPath+QLatin1String( "/plugins" );
-    _modulesPath=_pluginsPath+QLatin1String( "/modules" );
-    _itemsPath=_pluginsPath+QLatin1String( "/items" );
-    _tsPath=_rootPath+QLatin1String( "/ts" );
-    _serverBin=_binPath+QLatin1String( "/Phis.exe" );
-    _appBin=_binPath+QLatin1String( "/PhiApp.exe" );
+    _pluginsPath=_binPath+L1( "/plugins" );
+    _modulesPath=_pluginsPath+L1( "/modules" );
+    _itemsPath=_pluginsPath+L1( "/items" );
+    _tsPath=_rootPath+L1( "/ts" );
+    _serverBin=_binPath+L1( "/Phis.exe" );
+    _appBin=_binPath+L1( "/PhiApp.exe" );
 #elif defined Q_OS_MAC
     _serverSettings=new QSettings( domain, phis, this );
     rootDir=QFileInfo( QString::fromLocal8Bit( argv[0] ) ).dir(); // bundleID/Contents/MacOS
     _binPath=rootDir.canonicalPath();
     rootDir.cdUp(); // bundleID/Contents
-    _libPath=rootDir.canonicalPath()+QLatin1String( "/Frameworks" );
+    _libPath=rootDir.canonicalPath()+L1( "/Frameworks" );
     rootDir.cdUp(); // bundleID
     _rootPath=rootDir.canonicalPath();
-    _pluginsPath=_rootPath+QLatin1String( "/Contents/PlugIns" );
-    _modulesPath=_pluginsPath+QLatin1String( "/modules" );
-    _itemsPath=_pluginsPath+QLatin1String( "/items" );
-    _tsPath=_rootPath+QLatin1String( "/Contents/Resources/ts" );
-    _serverBin=_binPath+QLatin1String( "/Phis" );
-    _appBin=_binPath+QLatin1String( "/PhiApp" );
+    _pluginsPath=_rootPath+L1( "/Contents/PlugIns" );
+    _modulesPath=_pluginsPath+L1( "/modules" );
+    _itemsPath=_pluginsPath+L1( "/items" );
+    _tsPath=_rootPath+L1( "/Contents/Resources/ts" );
+    _serverBin=_binPath+L1( "/Phis" );
+    _appBin=_binPath+L1( "/PhiApp" );
 #elif defined Q_OS_LINUX
     QString conf;
-    if ( PHISysInfo::effUserId()==0 ) conf=QLatin1String( "/etc/phi/phis.conf" );
+    if ( PHISysInfo::effUserId()==0 ) conf=L1( "/etc/phi/phis.conf" );
     else conf=QStandardPaths::writableLocation( QStandardPaths::HomeLocation )
-        +QLatin1String( "/.phi/phis.conf" );
+        +L1( "/.phi/phis.conf" );
     _serverSettings=new QSettings( conf, QSettings::IniFormat, this );
     if ( type!=ApacheModule ) { // normal application
         qFatal( "not implemented" );
@@ -116,32 +117,32 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
         else rootDir=QFileInfo( QString::fromLocal8Bit( argv[0] ) ).dir();
     } else { // Apache module
         conf="/opt/phi/bin"; // fallback
-        _binPath=_serverSettings->value( QLatin1String( "BinDir" ), conf ).toString();
+        _binPath=_serverSettings->value( L1( "BinDir" ), conf ).toString();
         conf="/opt/phi/plugins"; // fallback
-        _pluginsPath=_serverSettings->value( QLatin1String( "PluginsPath" ), conf ).toString();
+        _pluginsPath=_serverSettings->value( L1( "PluginsPath" ), conf ).toString();
         rootDir.setPath( _binPath );
         rootDir.cdUp();
     }
     _rootPath=rootDir.canonicalPath();
-    if ( _pluginsPath.isEmpty() ) _pluginsPath=_rootPath+QLatin1String( "/plugins" );
-    _modulesPath=_pluginsPath+QLatin1String( "/modules" );
-    _itemsPath=_pluginsPath+QLatin1String( "/items" );
-    _libPath=_rootPath+QLatin1String( "/lib" );
-    _tsPath=_rootPath+QLatin1String( "/ts" );
-    _serverBin=_binPath+QLatin1String( "/phis" );
-    _appBin=_binPath+QLatin1String( "/phiapp" );
+    if ( _pluginsPath.isEmpty() ) _pluginsPath=_rootPath+L1( "/plugins" );
+    _modulesPath=_pluginsPath+L1( "/modules" );
+    _itemsPath=_pluginsPath+L1( "/items" );
+    _libPath=_rootPath+L1( "/lib" );
+    _tsPath=_rootPath+L1( "/ts" );
+    _serverBin=_binPath+L1( "/phis" );
+    _appBin=_binPath+L1( "/phiapp" );
 #else
 #error Unsupported system
 #endif
 
     Q_ASSERT( _serverSettings );
-    // Fix QPA (Qt5 needs to find platform plugins - better way could be qt.conf)
-    _pluginsPath=_serverSettings->value( QLatin1String( "PluginsPath" ), _pluginsPath ).toString();
+    // Fix for QPA (Qt5 needs to find platform plugins - better way could be qt.conf)
+    _pluginsPath=_serverSettings->value( L1( "PluginsPath" ), _pluginsPath ).toString();
     qputenv( "QT_PLUGIN_PATH", _pluginsPath.toLatin1() );
 
     if ( type==ApacheModule ) {
         QStringList argList;
-        argList << _libPath+QLatin1String( "/libmod_phi.so" );
+        argList << _libPath+L1( "/libmod_phi.so" );
         argList << QStringLiteral( "-platform" ) << QStringLiteral( "offscreen" );
         int p_argc=argList.size();
         QVector<char *> p_argv( p_argc );
@@ -196,19 +197,19 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
 
 #ifdef PHIDEBUG
-    _pluginsPath=QLatin1String( PHIDIR )+QLatin1String( "/plugins" );
-    _itemsPath=_pluginsPath+QLatin1String( "/items" );
-    _serverBin=QLatin1String( PHIDIR )+QLatin1String( "/bin/Phisd" );
-    _appBin=QLatin1String( PHIDIR )+QLatin1String( "/bin/PhiAppd" );
-    _tsPath=QLatin1String( PHIDIR )+QLatin1String( "/src/ts" );
-    _libPath=QLatin1String( PHIDIR )+QLatin1String( "/lib" );
+    _pluginsPath=L1( PHIDIR )+L1( "/plugins" );
+    _itemsPath=_pluginsPath+L1( "/items" );
+    _serverBin=L1( PHIDIR )+L1( "/bin/Phisd" );
+    _appBin=L1( PHIDIR )+L1( "/bin/PhiAppd" );
+    _tsPath=L1( PHIDIR )+L1( "/src/ts" );
+    _libPath=L1( PHIDIR )+L1( "/lib" );
 #ifdef Q_OS_WIN
-    _libPath=QLatin1String( PHIDIR )+QLatin1String( "/bin" );
-    _serverBin=QLatin1String( PHIDIR )+QLatin1String( "/bin/Phisd.exe" );
-    _appBin=QLatin1String( PHIDIR )+QLatin1String( "/bin/PhiAppd.exe" );
+    _libPath=L1( PHIDIR )+L1( "/bin" );
+    _serverBin=L1( PHIDIR )+L1( "/bin/Phisd.exe" );
+    _appBin=L1( PHIDIR )+L1( "/bin/PhiAppd.exe" );
 #elif defined Q_OS_LINUX
-    _serverBin=QLatin1String( PHIDIR )+QLatin1String( "/bin/phis_debug" );
-    _appBin=QLatin1String( PHIDIR )+QLatin1String( "/bin/phiapp_debug" );
+    _serverBin=L1( PHIDIR )+L1( "/bin/phis_debug" );
+    _appBin=L1( PHIDIR )+L1( "/bin/phiapp_debug" );
 #endif
     qWarning( "Application name: %s", name );
     qWarning( "Version: %s", version );
@@ -223,8 +224,8 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qWarning( "Lib dir: %s", qPrintable( _libPath ) );
     qWarning( "Tmp dir: %s", qPrintable( _tmpPath ) );
     qWarning( "Cache dir: %s", qPrintable( _cachePath ) );
+    qWarning( "User doc dir: %s", qPrintable( _usrDocPath ) );
 #endif
-    _usrDocPath=QStandardPaths::writableLocation( QStandardPaths::DocumentsLocation );
     loadTranslations();
     new PHIItemFactory( _itemsPath, this );
 }
@@ -253,36 +254,36 @@ void PHIApplication::loadTranslations()
     QLocale::setDefault( QLocale( _lang ) );
     qDebug( "SETTING LOCALE %s", qPrintable( _lang ) );
     QTranslator *tr=new QTranslator( _app );
-    if ( !tr->load( QLatin1String( "qt_" )+_lang, _tsPath ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qt_" )+_lang ), qPrintable( _tsPath ) );
+    if ( !tr->load( L1( "qt_" )+_lang, _tsPath ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( L1( "qt_" )+_lang ), qPrintable( _tsPath ) );
         delete tr;
     } else {
         _app->installTranslator( tr );
     }
     tr=new QTranslator( _app );
-    if ( !tr->load( QLatin1String( "qtbase_" )+_lang, _tsPath ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qtbase_" )+_lang ), qPrintable( _tsPath ) );
+    if ( !tr->load( L1( "qtbase_" )+_lang, _tsPath ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( L1( "qtbase_" )+_lang ), qPrintable( _tsPath ) );
         delete tr;
     } else {
         _app->installTranslator( tr );
     }
     tr=new QTranslator( _app );
-    if ( !tr->load( QLatin1String( "qtscript_" )+_lang, _tsPath ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qtscript_" )+_lang ), qPrintable( _tsPath ) );
+    if ( !tr->load( L1( "qtscript_" )+_lang, _tsPath ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( L1( "qtscript_" )+_lang ), qPrintable( _tsPath ) );
         delete tr;
     } else {
         _app->installTranslator( tr );
     }
     tr=new QTranslator( _app );
-    if ( !tr->load( QLatin1String( "qtmultimedia_" )+_lang, _tsPath ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "qtmultimedia_" )+_lang ), qPrintable( _tsPath ) );
+    if ( !tr->load( L1( "qtmultimedia_" )+_lang, _tsPath ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( L1( "qtmultimedia_" )+_lang ), qPrintable( _tsPath ) );
         delete tr;
     } else {
         _app->installTranslator( tr );
     }
     tr=new QTranslator( _app );
-    if ( !tr->load( QLatin1String( "phia_" )+_lang, _tsPath ) ) {
-        qDebug( "Could not load %s in %s", qPrintable( QLatin1String( "phia_" )+_lang ), qPrintable( _tsPath ) );
+    if ( !tr->load( L1( "phia_" )+_lang, _tsPath ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( L1( "phia_" )+_lang ), qPrintable( _tsPath ) );
         delete tr;
     } else {
         _app->installTranslator( tr );
@@ -346,9 +347,9 @@ bool PHIApplication::startPhisService()
     // Sandboxing in Mac OS X requires a little hack: we check if the server responds
     // to a QNetworkRequest to determine if the phis service is running
     s->beginGroup( defaultString() );
-    const QString baseDir=s->value( QLatin1String( "BaseDir" ) ).toString();
-    s->beginGroup( QLatin1String( "localhost" ) );
-    const QString root=s->value( QLatin1String( "DocumentRoot" ), baseDir+QLatin1String( "/localhost" ) ).toString();
+    const QString baseDir=s->value( L1( "BaseDir" ) ).toString();
+    s->beginGroup( L1( "localhost" ) );
+    const QString root=s->value( L1( "DocumentRoot" ), baseDir+L1( "/localhost" ) ).toString();
     s->endGroup();
     s->endGroup();
 #endif

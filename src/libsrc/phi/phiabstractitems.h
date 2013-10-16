@@ -166,7 +166,7 @@ public:
 
 public slots:
     QImage image() const { return data( DImage, QImage() ).value<QImage>(); }
-    virtual void setImage( const QImage &img ) { setData( DImage, img ); }
+    void setImage( const QImage &img ) { setData( DImage, img ); updateImage(); }
 
 protected:
     virtual void squeeze();
@@ -177,9 +177,42 @@ protected:
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void updateImage()=0;
 
 private:
     PHIImageData _imageData;
+};
+
+class PHIEXPORT PHIAbstractImageBookItem : public PHIBaseItem
+{
+    Q_OBJECT
+    Q_PROPERTY( PHIImageHash images READ images WRITE setImages SCRIPTABLE false )
+
+public:
+    enum ItemData { DImages=-99, DTmpImages=-98 };
+    explicit PHIAbstractImageBookItem( const PHIBaseItemPrivate &p ) : PHIBaseItem( p ) {}
+    PHIAbstractImageBookItem( const PHIAbstractImageBookItem &it ) : PHIBaseItem( it ), _imageBookData( it._imageBookData ) {}
+    virtual ~PHIAbstractImageBookItem() {}
+    virtual void updateData();
+    virtual bool hasImages() const { return true; }
+    virtual PHIImageBookData* imageBookData() { return &_imageBookData; }
+
+public slots:
+    PHIImageHash images() const { return data( DImages ).value<PHIImageHash>(); }
+    void setImages( const PHIImageHash &imgs ) { QVariant v; v.setValue( imgs ); setData( DImages, v ); updateImages(); }
+
+protected:
+    virtual void squeeze();
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void updateImages()=0;
+
+private:
+    PHIImageBookData _imageBookData;
 };
 
 class PHIEXPORT PHIAbstractLayoutItem : public PHIAbstractShapeItem

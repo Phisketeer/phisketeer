@@ -17,8 +17,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QPainter>
+#include <QTimer>
 #include "phiimageitems.h"
 #include "phibasepage.h"
+
+void PHIImageItem::updateImage()
+{
+    update();
+}
 
 QString PHISvgItem::svgDefaultSource()
 {
@@ -168,6 +174,124 @@ void PHISvgItem::paint( QPainter *p, const QRectF &exposed )
         p->setPen( Qt::darkGray );
         p->drawText( rect(), tr( "SVG" ), QTextOption( Qt::AlignCenter ) );
     }
+}
+
+void PHISlideShowItem::initIDE()
+{
+    PHIAbstractImageBookItem::initIDE();
+    QImage img( L1( ":/misc/clipart" ) );
+    PHIImageHash hash;
+    hash.insert( QByteArray::number( 0 ), img );
+    imageBookData()->setImageBook( hash );
+    _intervalData.setInteger( 4 );
+    _fadeTimeData.setInteger( 2 );
+}
+
+void PHISlideShowItem::updateData()
+{
+    if ( _intervalData.translated() ) setData( DInterval, _intervalData.integer( page()->currentLang() ) );
+    else setData( DInterval, _intervalData.integer()>1 ? _intervalData.integer()*1000 : 4000 );
+    if ( _fadeTimeData.translated() ) setData( DFadeTime, _fadeTimeData.integer( page()->currentLang() ) );
+    else setData( DFadeTime, _fadeTimeData.integer()>1 ? _fadeTimeData.integer()*1000 : 2000 );
+    PHIAbstractImageBookItem::updateData();
+    updateImages();
+}
+
+void PHISlideShowItem::initWidget()
+{
+    _fadeTimer=new QTimer( this );
+    _fadeTimer->setInterval( 50 );
+    _pauseTimer=new QTimer( this );
+    connect( _fadeTimer, &QTimer::timeout, this, &PHISlideShowItem::fadeTimeout );
+    connect( _pauseTimer, &QTimer::timeout, this, &PHISlideShowItem::pauseTimeout );
+    updateImages();
+}
+
+void PHISlideShowItem::fadeTimeout()
+{
+    setCurrentOpacity( currentOpacity()-step() );
+    if ( currentOpacity()<0 ) {
+        setCurrentOpacity( 1. );
+        _fadeTimer->stop();
+        setCurrentImageNum( currentImageNum()+1 );
+        if ( currentImageNum()>=images().count() ) setCurrentImageNum( 0 );
+        if ( currentImageNum() < titles().count() ) setTitle( titles().at( currentImageNum() ) );
+        else if ( titles().count()>1 ) setTitle( QString() );
+        else setTitle( titles().count() ? titles().first() : QString() );
+    }
+    update();
+}
+
+void PHISlideShowItem::pauseTimeout()
+{
+    Q_ASSERT( _pauseTimer );
+    Q_ASSERT( _fadeTimer );
+    _fadeTimer->stop();
+    _pauseTimer->stop();
+    _fadeTimer->start();
+    _pauseTimer->start();
+}
+
+void PHISlideShowItem::paint( QPainter *painter, const QRectF &exposed )
+{
+    Q_UNUSED( exposed )
+    if ( !images().count() ) {
+        QFont f=font();
+        f.setPointSizeF( PHI::adjustedFontSize( 10.) );
+        painter->setFont( f );
+        if ( isIdeItem() ) painter->drawText( rect(), tr( "Image not available" ), QTextOption( Qt::AlignCenter ) );
+        else painter->drawText( rect(), tr( "loading..." ), QTextOption( Qt::AlignCenter ) );
+        return;
+    }
+    painter->setRenderHint( QPainter::Antialiasing, false );
+    painter->setRenderHint( QPainter::SmoothPixmapTransform, true );
+    QImage img1, img2;
+    int next=currentImageNum()+1;
+    if ( next>=images().count() ) next=0;
+    img1=images().value( QByteArray::number( currentImageNum() ) );
+    img2=images().value( QByteArray::number( next ) );
+    painter->setOpacity( currentOpacity() );
+    if ( !img1.isNull() ) painter->drawImage( rect(), img1 );
+    painter->setOpacity( 1.-currentOpacity() );
+    if ( !img2.isNull() ) painter->drawImage( rect(), img2 );
+}
+
+void PHISlideShowItem::updateImages()
+{    
+    if ( !_pauseTimer || !_fadeTimer ) return;
+    _fadeTimer->stop();
+    _pauseTimer->stop();
+    _pauseTimer->setInterval( fadeIntervalMS() );
+    setCurrentImageNum( 0 );
+    setStep( 50./static_cast<qreal>(fadeTimeMS()) );
+    if ( !isIdeItem() && images().count()>1 ) {
+        _pauseTimer->start();
+    }
+}
+
+void PHISlideShowItem::squeeze()
+{
+    _pauseTimer->stop();
+    _fadeTimer->stop();
+    PHIAbstractImageBookItem::squeeze();
+    removeData( DInterval );
+    removeData( DFadeTime );
+    removeData( DCurrentImageNum );
+    removeData( DCurrentOpacity );
+    removeData( DCurrentStep );
+    removeData( DTitles );
+}
+
+void PHISlideShowItem::loadItemData( QDataStream &in, int version )
+{
+    PHIAbstractImageBookItem::loadItemData( in, version );
+    in >> &_intervalData >> &_fadeTimeData;
+}
+
+void PHISlideShowItem::saveItemData( QDataStream &out, int version )
+{
+    PHIAbstractImageBookItem::saveItemData( out, version );
+    out << &_intervalData << &_fadeTimeData;
 }
 
 QSizeF PHISponsorItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const

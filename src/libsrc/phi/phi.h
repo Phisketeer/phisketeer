@@ -93,8 +93,8 @@ public:
     static const QByteArray& nl();
     static const QByteArray& dtFormat();
     static const QString& dtFormatString();
-    static QByteArray isoDateFormat();
-    static QByteArray emailRegExp();
+    static QByteArray &isoDateFormat();
+    static QByteArray &emailRegExp();
     static const QByteArray& phoneNumberRegExp();
     static const QByteArray& phiMimeType();
     static QByteArray mimeTypeForFile( const QFileInfo &info );
@@ -160,7 +160,7 @@ inline QUrl PHI::createUrlForLink( const QUrl &ref, const QString &l )
 
 inline const QString& PHI::defaultString()
 {
-    static QString def=SL( "default" );
+    static QString def( L1( "default" ) );
     return def;
 }
 
@@ -176,13 +176,13 @@ inline const QString& PHI::dtFormatString()
     return dt;
 }
 
-inline QByteArray PHI::isoDateFormat()
+inline QByteArray& PHI::isoDateFormat()
 {
     static QByteArray isoDate=QByteArray::fromRawData( _phiDate, qstrlen( _phiDate ) );
     return isoDate;
 }
 
-inline QByteArray PHI::emailRegExp() {
+inline QByteArray& PHI::emailRegExp() {
     static QByteArray email=QByteArray::fromRawData( _emailRegExp, qstrlen( _emailRegExp ) );
     return email;
 }
