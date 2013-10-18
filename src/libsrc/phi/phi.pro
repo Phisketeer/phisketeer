@@ -39,7 +39,8 @@ HEADERS += phi.h \
     qpixmapfilter_p.h \
     phipagemenuentry.h \
     phiitemstylecss.h \
-    phisrequest.h \
+    phirequest.h \
+    phiresponserec.h \
     phitools.h \
     phiabstractitems.h \
     phiconfigwidget.h \
@@ -67,7 +68,8 @@ SOURCES += phi.cpp \
     phipalette.cpp \
     phipagemenuentry.cpp \
     phiitemstylecss.cpp \
-    phisrequest.cpp \
+    phirequest.cpp \
+    phiresponserec.cpp \
     phitools.cpp \
     phiabstractitems.cpp \
     phicolorconfig.cpp \

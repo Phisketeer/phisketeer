@@ -18,17 +18,17 @@
 */
 #include <QFileInfo>
 #include <QDir>
-#include "phisrequest.h"
+#include "phirequest.h"
 
-PHISRequest::PHISRequest()
-    : _agentEngine( PHISRequest::UnknownEngine ), _agentId( PHISRequest::UnknownAgent ),
-    _osType( PHISRequest::UnknownOS ), _engineMajorVersion( -1 ), _engineMinorVersion( -1 ),
+PHIRequest::PHIRequest()
+    : _agentEngine( PHIRequest::UnknownEngine ), _agentId( PHIRequest::UnknownAgent ),
+    _osType( PHIRequest::UnknownOS ), _engineMajorVersion( -1 ), _engineMinorVersion( -1 ),
     _philang( false ), _contentLength( 0 ), _started( QDateTime::currentDateTime() )
 {
-    //qDebug( "PHISRequest::PHISRequest" );
+    //qDebug( "PHIRequest::PHIRequest" );
 }
 
-PHISRequest::~PHISRequest()
+PHIRequest::~PHIRequest()
 {
     QTemporaryFile *tmpFile;
     foreach ( tmpFile, _tmpFiles ) {
@@ -37,10 +37,10 @@ PHISRequest::~PHISRequest()
         delete tmpFile;
     }
     _tmpFiles.clear();
-    //qDebug( "PHISRequest::~PHISRequest" );
+    //qDebug( "PHIRequest::~PHIRequest" );
 }
 
-quint8 PHISRequest::osType() const
+quint8 PHIRequest::osType() const
 {
     if ( _osType!=UnknownOS ) return _osType;
     const QByteArray arr=_headers.value( "User-Agent" );
@@ -58,7 +58,7 @@ quint8 PHISRequest::osType() const
     return _osType;
 }
 
-void PHISRequest::init() // should be executed AFTER all GET and POST var extractions
+void PHIRequest::init() // should be executed AFTER all GET and POST var extractions
 {
     QStringList list;
     QString str;
@@ -193,11 +193,11 @@ void PHISRequest::init() // should be executed AFTER all GET and POST var extrac
         if( pos>0 ) str=str.left( pos ); // remove qualifier
         _acceptedLangs.append( str.toLower() );
     }
-    if ( _acceptedLangs.isEmpty() ) _lang=QStringLiteral( "C" );
+    if ( _acceptedLangs.isEmpty() ) _lang=SL( "C" );
     else _lang=_acceptedLangs.first();
 
     // Extract cookies
-    QString philang=QStringLiteral( "philang" );
+    QString philang=SL( "philang" );
     list=QString::fromUtf8( _headers.value( "Cookie" ) ).split( QLatin1Char( ';' ), QString::SkipEmptyParts );
     if ( list.count()>0 ) {
         _cookies.clear();
@@ -228,22 +228,22 @@ void PHISRequest::init() // should be executed AFTER all GET and POST var extrac
     _langByteArray=_lang.toLatin1();
 }
 
-QString PHISRequest::serverValue( const QString &key ) const
+QString PHIRequest::serverValue( const QString &key ) const
 {
-    if ( key==QLatin1String( "documentroot" ) ) return documentRoot();
-    if ( key==QLatin1String( "self" ) ) return _url.path();
-    if ( key==QLatin1String( "url" ) ) return _url.toString();
-    if ( key==QLatin1String( "filename" ) ) return canonicalFilename();
-    if ( key==QLatin1String( "hostname" ) ) return hostname();
-    if ( key==QLatin1String( "tempdir" ) ) return tmpDir();
-    if ( key==QLatin1String( "contentlength" ) ) return QString::number( _contentLength );
-    if ( key==QLatin1String( "contenttype" ) ) {
+    if ( key==L1( "documentroot" ) ) return documentRoot();
+    if ( key==L1( "self" ) ) return _url.path();
+    if ( key==L1( "url" ) ) return _url.toString();
+    if ( key==L1( "filename" ) ) return canonicalFilename();
+    if ( key==L1( "hostname" ) ) return hostname();
+    if ( key==L1( "tempdir" ) ) return tmpDir();
+    if ( key==L1( "contentlength" ) ) return QString::number( _contentLength );
+    if ( key==L1( "contenttype" ) ) {
         QString tmp=contentType();
-        int pos=tmp.indexOf( QLatin1String( "; boundary" ) );
+        int pos=tmp.indexOf( L1( "; boundary" ) );
         if ( pos>0 ) tmp=tmp.left( pos ); // removing boundary=...
         return tmp;
     }
-    if ( key==QLatin1String( "postdata" ) ) {
+    if ( key==L1( "postdata" ) ) {
         QString key, tmp;
         QUrl url;
         QUrlQuery query;
@@ -255,40 +255,40 @@ QString PHISRequest::serverValue( const QString &key ) const
         url.setQuery( query );
         return url.toString();
     }
-    if ( key==QLatin1String( "lang" ) ) return _lang;
-    if ( key==QLatin1String( "agent" ) ) return QString::fromUtf8( _headers.value( "User-Agent" ) );
-    if ( key==QLatin1String( "started" ) ) return _started.toLocalTime().toString( PHI::dtFormatString() );
-    if ( key==QLatin1String( "today" ) ) return QDate::currentDate().toString( QString::fromLatin1( PHI::isoDateFormat() ) );
-    if ( key==QLatin1String( "nowutc" ) ) return QDateTime::currentDateTime().toUTC().toString( PHI::dtFormatString() );
-    if ( key==QLatin1String( "modified" ) ) return _modified.toLocalTime().toString( PHI::dtFormatString() );
-    if ( key==QLatin1String( "user" ) ) return user();
-    if ( key==QLatin1String( "password" ) ) return password();
-    if ( key==QLatin1String( "accept" ) ) return QString::fromUtf8( _headers.value( "Accept" ) );
-    if ( key==QLatin1String( "referer" ) ) return QString::fromUtf8( _headers.value( "Referer" ) );
-    if ( key==QLatin1String( "scheme" ) ) return scheme();
-    if ( key==QLatin1String( "method" ) ) return method();
-    if ( key==QLatin1String( "servername" ) ) return serverDescription();
-    if ( key==QLatin1String( "serverdef" ) ) return serverDefname();
-    if ( key==QLatin1String( "admin" ) ) return admin();
-    if ( key==QLatin1String( "serverhost" ) ) return serverHostname();
-    if ( key==QLatin1String( "port" ) ) return QString::number( _url.port() );
-    if ( key==QLatin1String( "keepalive" ) ) return QString::number( _keepAlive );
-    if ( key==QLatin1String( "localaddress" ) ) return _localIP.toString();
-    if ( key==QLatin1String( "remoteaddress" ) ) return _remoteIP.toString();
-    if ( key==QLatin1String( "version" ) ) return version();
-    if ( key==QLatin1String( "useragent" ) ) return userAgent();
-    if ( key==QLatin1String( "userengine" ) ) return userEngine();
-    if ( key==QLatin1String( "useros" ) ) return userOS();
+    if ( key==L1( "lang" ) ) return _lang;
+    if ( key==L1( "agent" ) ) return QString::fromUtf8( _headers.value( "User-Agent" ) );
+    if ( key==L1( "started" ) ) return _started.toLocalTime().toString( PHI::dtFormatString() );
+    if ( key==L1( "today" ) ) return QDate::currentDate().toString( QString::fromLatin1( PHI::isoDateFormat() ) );
+    if ( key==L1( "nowutc" ) ) return QDateTime::currentDateTime().toUTC().toString( PHI::dtFormatString() );
+    if ( key==L1( "modified" ) ) return _modified.toLocalTime().toString( PHI::dtFormatString() );
+    if ( key==L1( "user" ) ) return user();
+    if ( key==L1( "password" ) ) return password();
+    if ( key==L1( "accept" ) ) return QString::fromUtf8( _headers.value( "Accept" ) );
+    if ( key==L1( "referer" ) ) return QString::fromUtf8( _headers.value( "Referer" ) );
+    if ( key==L1( "scheme" ) ) return scheme();
+    if ( key==L1( "method" ) ) return method();
+    if ( key==L1( "servername" ) ) return serverDescription();
+    if ( key==L1( "serverdef" ) ) return serverDefname();
+    if ( key==L1( "admin" ) ) return admin();
+    if ( key==L1( "serverhost" ) ) return serverHostname();
+    if ( key==L1( "port" ) ) return QString::number( _url.port() );
+    if ( key==L1( "keepalive" ) ) return QString::number( _keepAlive );
+    if ( key==L1( "localaddress" ) ) return _localIP.toString();
+    if ( key==L1( "remoteaddress" ) ) return _remoteIP.toString();
+    if ( key==L1( "version" ) ) return version();
+    if ( key==L1( "useragent" ) ) return userAgent();
+    if ( key==L1( "userengine" ) ) return userEngine();
+    if ( key==L1( "useros" ) ) return userOS();
     return QString();
 }
 
-const QString& PHISRequest::userEngine() const
+const QString& PHIRequest::userEngine() const
 {
-    static QString trident=QStringLiteral( "Trident" );
-    static QString webkit=QStringLiteral( "WebKit" );
-    static QString gecko=QStringLiteral( "Gecko" );
-    static QString presto=QStringLiteral( "Presto" );
-    static QString unknown=QStringLiteral( "Unknown" );
+    static QString trident=SL( "Trident" );
+    static QString webkit=SL( "WebKit" );
+    static QString gecko=SL( "Gecko" );
+    static QString presto=SL( "Presto" );
+    static QString unknown=SL( "Unknown" );
 
     switch ( _agentEngine ) {
     case Trident: return trident;
@@ -301,42 +301,42 @@ const QString& PHISRequest::userEngine() const
 }
 
 /** @todo make them static */
-QString PHISRequest::userAgent() const
+QString PHIRequest::userAgent() const
 {
     switch( _agentId ) {
-    case IE: return QStringLiteral( "MSIE" );
-    case Safari: return QStringLiteral( "Safari" );
-    case Firefox: return QStringLiteral( "Firefox" );
-    case Chrome: return QStringLiteral( "Chrome" );
-    case Konqueror: return QStringLiteral( "Konqueror" );
-    case Opera: return QStringLiteral( "Opera" );
-    case SeaMonkey: return QStringLiteral( "SeaMonkey" );
-    case Amphibia: return QStringLiteral( "Amphibia" );
+    case IE: return SL( "MSIE" );
+    case Safari: return SL( "Safari" );
+    case Firefox: return SL( "Firefox" );
+    case Chrome: return SL( "Chrome" );
+    case Konqueror: return SL( "Konqueror" );
+    case Opera: return SL( "Opera" );
+    case SeaMonkey: return SL( "SeaMonkey" );
+    case Amphibia: return SL( "Amphibia" );
     default:;
     }
-    return QStringLiteral( "Unknown" );
+    return SL( "Unknown" );
 }
 
 /** @todo make them static */
-QString PHISRequest::userOS() const
+QString PHIRequest::userOS() const
 {
     switch( osType() ) {
-    case PHISRequest::Windows: return QStringLiteral( "Windows" );
-    case PHISRequest::MacOS: return QStringLiteral( "MacOSX" );
-    case PHISRequest::iOS: return QStringLiteral( "iOS" );
-    case PHISRequest::Android: return QStringLiteral( "Android" );
-    case PHISRequest::WindowsMobile: return QStringLiteral( "WindowsMobile" );
-    case PHISRequest::Linux: return QStringLiteral( "Linux" );
-    case PHISRequest::Symbian: return QStringLiteral( "Symbian" );
-    case PHISRequest::Solaris: return QStringLiteral( "Solaris" );
-    case PHISRequest::HPUX: return QStringLiteral( "HPUX" );
-    case PHISRequest::AIX: return QStringLiteral( "AIX" );
+    case PHIRequest::Windows: return SL( "Windows" );
+    case PHIRequest::MacOS: return SL( "MacOSX" );
+    case PHIRequest::iOS: return SL( "iOS" );
+    case PHIRequest::Android: return SL( "Android" );
+    case PHIRequest::WindowsMobile: return SL( "WindowsMobile" );
+    case PHIRequest::Linux: return SL( "Linux" );
+    case PHIRequest::Symbian: return SL( "Symbian" );
+    case PHIRequest::Solaris: return SL( "Solaris" );
+    case PHIRequest::HPUX: return SL( "HPUX" );
+    case PHIRequest::AIX: return SL( "AIX" );
     default:;
     }
-    return QStringLiteral( "Unknown" );
+    return SL( "Unknown" );
 }
 
-bool PHISRequest::setRedirectedFile( const QString &file )
+bool PHIRequest::setRedirectedFile( const QString &file )
 {
     QFileInfo info( _canonicalFilename );
     if ( file.startsWith( QLatin1Char( '/' ) ) || file.startsWith( QLatin1Char( '\\' ) ) ) {
@@ -356,13 +356,13 @@ bool PHISRequest::setRedirectedFile( const QString &file )
     return true;
 }
 
-QDateTime PHISRequest::dateTimeFromHeader( const QByteArray &modified )
+QDateTime PHIRequest::dateTimeFromHeader( const QByteArray &modified )
 {
     QByteArray tmp=modified.mid( 5 ), arr;
     if ( tmp.endsWith( " GMT" ) ) arr=tmp.left( tmp.length()-4 );
     else arr=tmp;
     tmp=arr.right( 8 );
-    QTime time=QTime::fromString( QString::fromLatin1( tmp ), QStringLiteral( "hh:mm:ss" ) ).addMSecs( 999 );
+    QTime time=QTime::fromString( QString::fromLatin1( tmp ), SL( "hh:mm:ss" ) ).addMSecs( 999 );
     if ( !time.isValid() ) {
         qDebug( "------------------>>>> If-Modified-Since is invalid" );
         return QDateTime( QDate( 1970, 1, 1 ) );
@@ -394,21 +394,21 @@ QDateTime PHISRequest::dateTimeFromHeader( const QByteArray &modified )
     return QDateTime( QDate ( y, m, d ), time, Qt::UTC );
 }
 
-void PHISRequest::dump() const
+void PHIRequest::dump() const
 {
     QStringList list;
     QString str, key;
     quint8 id;
     qWarning( "[Config]" );
     qWarning( "Started: %s", qPrintable( _started.toLocalTime().toString( PHI::dtFormatString() ) ) );
-    qWarning( "UTC: %s", qPrintable( serverValue( QStringLiteral( "nowutc" ) ) ) );
+    qWarning( "UTC: %s", qPrintable( serverValue( SL( "nowutc" ) ) ) );
     qWarning( "Filename: %s", qPrintable( _canonicalFilename ) );
     qWarning( "TmpDir: %s", qPrintable( _tmpDir ) );
     qWarning( "ImgDir: %s", qPrintable( _imgDir ) );
     qWarning( "Keep-Alive: %d", _keepAlive );
     qWarning( "DocumentRoot: %s", qPrintable( _documentRoot ) );
     qWarning( "URL: %s", _url.toEncoded().data() );
-    qWarning( "POST data: %s", qPrintable( serverValue( QStringLiteral( "postdata" ) ) ) );
+    qWarning( "POST data: %s", qPrintable( serverValue( SL( "postdata" ) ) ) );
     qWarning( "HTTP major: %d", _httpMajor );
     qWarning( "HTTP minor: %d", _httpMinor );
     qWarning( "Content length: %lld", _contentLength );

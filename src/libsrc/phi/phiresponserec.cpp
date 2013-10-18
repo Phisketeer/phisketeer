@@ -19,23 +19,25 @@
 #include <QDateTime>
 #include <QLocale>
 #include "phiresponserec.h"
-#include "phierror.h"
 
-static QByteArray _phiHtmlContentType="text/html; charset=utf-8";
+static const QByteArray _htmlContentType="text/html; charset=utf-8";
+static const QByteArray _xmlStartTag=QByteArray( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" );
+static const QByteArray _doctypeXhtml=QByteArray( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\n\
+ \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n" );
+static const QByteArray _doctypeHtml4=QByteArray( "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n\
+ \"http://www.w3.org/TR/html4/strict.dtd\">\n" );
+static const QByteArray _doctypeHtml5=QByteArray( "<!DOCTYPE HTML>\n" );
+static const QByteArray _htmlXmlStartTag=QByteArray( "<html xmlns=\"http://www.w3.org/1999/xhtml\"\
+ xml:lang=\"en\" >\n" );
+static const QByteArray _htmlStartTag=QByteArray( "<html>\n" );
 
-PHIResponseRec::PHIResponseRec() : _contentType( _phiHtmlContentType ), _contentLength( 0 )
+PHIResponseRec::PHIResponseRec() : _contentType( _htmlContentType ), _contentLength( 0 )
 {
-    qDebug( "PHIResponseRec::PHIResponseRec()" );
-}
-
-PHIResponseRec::~PHIResponseRec()
-{
-    qDebug( "PHIResponseRec::~PHIResponseRec()" );
 }
 
 void PHIResponseRec::clear()
 {
-    _contentType=_phiHtmlContentType;
+    _contentType=_htmlContentType;
     _contentLength=0;
     _body.clear();
     _error._desc.clear();
@@ -92,8 +94,8 @@ void PHIResponseRec::setCookie( const QString &name, const QString &value, int m
 QByteArray PHIResponseRec::createDocumentHeader() const
 {
     QByteArray tmp;
-    if ( _minorHttpVer>0 ) tmp=PHIS::xmlStartTag()+PHIS::doctypeXhtml()+PHIS::htmlXmlStartTag();
-    else tmp=PHIS::doctypeHtml4()+PHIS::htmlStartTag();
+    if ( _minorHttpVer>0 ) tmp=_xmlStartTag+_doctypeXhtml+_htmlXmlStartTag;
+    else tmp=_doctypeHtml4+_htmlStartTag;
     return tmp;
 }
 
@@ -103,7 +105,7 @@ QByteArray PHIResponseRec::createResponseHeader( PHIRC rc, const QString &server
     QLocale locale( QLocale::C );
     QDateTime dt=QDateTime::currentDateTime();
     QByteArray tmp="HTTP/1."+QByteArray::number( _minorHttpVer )+' '+QByteArray::number( static_cast<int>(rc) )
-        +' '+PHIS::textForHttpCode( rc )+"\r\n";
+        +' '+textForHttpCode( rc )+"\r\n";
     tmp+="Date: "+locale.dayName( dt.toUTC().date().dayOfWeek(), QLocale::ShortFormat ).toLatin1()
         +dt.toUTC().toString( QStringLiteral( ", dd " ) ).toLatin1()+locale.monthName( dt.toUTC().date().month(),
         QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( QStringLiteral( " yyyy HH:mm:ss" ) ).toLatin1()+" GMT\r\n";
@@ -134,11 +136,11 @@ QByteArray PHIResponseRec::createErrorResponse( PHIRC rc, const QString &err ) c
     QByteArray content=createDocumentHeader();
     _minorHttpVer=ver;
     content+="<head>\n<title>"+QByteArray::number( static_cast<int>(rc) )+' '
-        +PHIS::textForHttpCode( rc )+"</title>\n<meta http-equiv=\"content-type\" ";
+        +textForHttpCode( rc )+"</title>\n<meta http-equiv=\"content-type\" ";
     //if ( _minorHttpVer>0 ) content+="content=\"application/xhtml+xml;";
     content+="content=\"text/html;";
     content+=" charset=UTF-8\" />\n</head>\n<body>\n<h1>"+QByteArray::number( static_cast<int>(rc) );
-    content+=' '+PHIS::textForHttpCode( rc )+"</h1>\n<p>"+PHIError::instance()->longDesc( rc ).toUtf8()+"</p>\n";
+    content+=' '+textForHttpCode( rc )+"</h1>\n<p>"+PHIError::instance()->longDesc( rc ).toUtf8()+"</p>\n";
     content+="<p>"+err.toUtf8()+"</p>\n</body>\n</html>\n";
     return content;
 }
@@ -152,4 +154,51 @@ QByteArray PHIResponseRec::createErrorResponseHeader( PHIRC rc, const QString &s
     header+=" no-cache\r\n";
     if ( _minorHttpVer>0 ) header+="Connection: close\r\n";
     return header;
+}
+
+QByteArray PHIResponseRec::textForHttpCode( PHIRC rc )
+{
+    switch ( rc ) {
+    case 100: return QByteArray( "Continue" );
+    case 101: return QByteArray( "Switching Protocols" );
+    case 200: return QByteArray( "OK" );
+    case 201: return QByteArray( "Created" );
+    case 202: return QByteArray( "Accepted" );
+    case 203: return QByteArray( "Non-Authoritative Information" );
+    case 204: return QByteArray( "No Content" );
+    case 205: return QByteArray( "Reset Content" );
+    case 206: return QByteArray( "Partial Content" );
+    case 300: return QByteArray( "Multiple Choices" );
+    case 301: return QByteArray( "Moved Permanently" );
+    case 302: return QByteArray( "Found" );
+    case 303: return QByteArray( "See Other" );
+    case 304: return QByteArray( "Not Modified" );
+    case 305: return QByteArray( "Use Proxy" );
+    case 307: return QByteArray( "Temporary Redirect" );
+    case 400: return QByteArray( "Bad Request" );
+    case 401: return QByteArray( "Unauthorized" );
+    case 402: return QByteArray( "Payment Required" );
+    case 403: return QByteArray( "Forbidden" );
+    case 404: return QByteArray( "Not Found" );
+    case 405: return QByteArray( "Method Not Allowed" );
+    case 406: return QByteArray( "Not Acceptable" );
+    case 407: return QByteArray( "Proxy Authentication Required" );
+    case 408: return QByteArray( "Request Timeout" );
+    case 409: return QByteArray( "Conflict" );
+    case 410: return QByteArray( "Gone" );
+    case 411: return QByteArray( "Length Required" );
+    case 412: return QByteArray( "Precondition Failed" );
+    case 413: return QByteArray( "Request Entity Too Large" );
+    case 414: return QByteArray( "Request-URI Too Long" );
+    case 415: return QByteArray( "Unsupported Media Type" );
+    case 416: return QByteArray( "Requested Range Not Satisfiable" );
+    case 417: return QByteArray( "Expectation Failed" );
+    case 501: return QByteArray( "Not Implemented" );
+    case 502: return QByteArray( "Bad Gateway" );
+    case 503: return QByteArray( "Service Unavailable" );
+    case 504: return QByteArray( "Gateway Timeout" );
+    case 505: return QByteArray( "HTTP Version Not Supported" );
+    default:;
+    }
+    return QByteArray( "Unknown error" )+" "+QByteArray::number( rc );
 }

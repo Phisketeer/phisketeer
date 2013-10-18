@@ -32,7 +32,7 @@
 #include "phigraphicsitem.h"
 #include "qpixmapfilter_p.h"
 #include "phiitemstylecss.h"
-#include "phisrequest.h"
+#include "phirequest.h"
 #include "phiitemdata.h"
 #include "phieffects.h"
 #include "phiabstractitems.h"
@@ -660,24 +660,24 @@ void PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
     e->ignore();
 }
 
-void PHIBaseItem::html5( const PHISRequest* const req, QByteArray &out, const QByteArray& indent )
+void PHIBaseItem::html5( const PHIRequest* const req, QByteArray &out, const QByteArray& indent )
 {
     Q_UNUSED( req );
     out+=indent+"<div id=\""+_id+"\">Unknown WID "+QByteArray::number( wid() )+"</div>\n";
 }
 
-void PHIBaseItem::strictHtml( const PHISRequest* const req, QByteArray &out, const QByteArray &indent )
+void PHIBaseItem::strictHtml( const PHIRequest* const req, QByteArray &out, const QByteArray &indent )
 {
     return html5( req, out, indent );
 }
 
-void PHIBaseItem::jQuery( const PHISRequest* const req, QByteArray &out )
+void PHIBaseItem::jQuery( const PHIRequest* const req, QByteArray &out )
 {
     Q_UNUSED( req )
     Q_UNUSED( out )
 }
 
-void PHIBaseItem::css( const PHISRequest* const req, QByteArray &out )
+void PHIBaseItem::css( const PHIRequest* const req, QByteArray &out )
 {
     Q_UNUSED( req )
     Q_UNUSED( out )

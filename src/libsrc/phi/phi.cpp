@@ -176,6 +176,7 @@ QString PHI::linkStyleSheet( const QPalette &pal, bool underline )
         .arg( underline ? QStringLiteral( "underline" ) : QStringLiteral( "none" ) );
     return a;
 }
+*/
 
 void PHI::getItemCheckData( QString &data, QString &opt, bool &isChecked )
 {
@@ -201,7 +202,6 @@ void PHI::getItemCheckData( QString &data, QString &opt, bool &isChecked )
         data.truncate( start );
     }
 }
-*/
 
 QImage PHI::bluredImage( const QImage &img, qreal radius )
 {
@@ -393,6 +393,55 @@ QByteArray PHI::emptyYouTubeDoc()
 }
 */
 
+
+Qt::CursorShape PHI::toCursorShape( const QByteArray &s )
+{
+    if ( s=="crosshair" ) return Qt::CrossCursor;
+    if ( s=="default" ) return Qt::ArrowCursor;
+    if ( s=="e-resize" ) return Qt::SizeHorCursor;
+    if ( s=="help" ) return Qt::WhatsThisCursor;
+    if ( s=="move" ) return Qt::OpenHandCursor;
+    if ( s=="n-resize" ) return Qt::SizeVerCursor;
+    if ( s=="ne-resize" ) return Qt::SizeBDiagCursor;
+    if ( s=="nw-resize" ) return Qt::SizeFDiagCursor;
+    if ( s=="pointer" ) return Qt::PointingHandCursor;
+    if ( s=="progress" ) return Qt::BusyCursor;
+    if ( s=="s-resize" ) return Qt::SizeVerCursor;
+    if ( s=="se-resize" ) return Qt::SizeFDiagCursor;
+    if ( s=="sw-resize" ) return Qt::SizeBDiagCursor;
+    if ( s=="text" ) return Qt::IBeamCursor;
+    if ( s=="w-resize" ) return Qt::SizeHorCursor;
+    if ( s=="wait" ) return Qt::WaitCursor;
+    return Qt::ArrowCursor;
+}
+
+bool PHI::isUpToDate( const QString &localV, const QString &serverV )
+{
+    QString l=localV;
+    QString s=serverV;
+    int lm=l.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
+    int sm=s.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
+    if ( lm > sm ) return true;
+    if ( lm < sm ) return false;
+    l=localV.mid( l.length()+1 );
+    s=serverV.mid( s.length()+1 );
+    lm=l.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
+    sm=s.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
+    if ( lm > sm ) return true;
+    if ( lm < sm ) return false;
+    lm=localV.mid( localV.lastIndexOf( QLatin1Char( '.' ) )+1 ).toInt();
+    sm=serverV.mid( serverV.lastIndexOf( QLatin1Char( '.' ) )+1 ).toInt();
+    return lm >= sm;
+}
+
+QString PHI::toLocale( const QString &lang )
+{
+    if ( lang.length()==2 ) return lang.left( 2 ).toLower();
+    if ( lang.length()==5 ) return lang.left( 2 ).toLower()+QLatin1Char( '_' )+lang.right( 2 ).toUpper();
+    if ( lang.length()==6 ) return lang.left( 2 ).toLower()+QLatin1Char( '_' )+lang.right( 3 ).toUpper();
+    return lang.left( 2 ).toLower();
+}
+
 QByteArray PHI::toEasingCurveByteArray( quint8 ease )
 {
     QByteArray s;
@@ -474,87 +523,38 @@ QStringList PHI::availableEasingCurves()
 {
     static QStringList list;
     if ( list.count() ) return list;
-    list
-    << QStringLiteral( "linear" )
-    << QStringLiteral( "easeInQuad" )
-    << QStringLiteral( "easeOutQuad" )
-    << QStringLiteral( "easeInOutQuad" )
-    << QStringLiteral( "easeInCubic" )
-    << QStringLiteral( "easeOutCubic" )
-    << QStringLiteral( "easeInOutCubic" )
-    << QStringLiteral( "easeInQuart" )
-    << QStringLiteral( "easeOutQuart" )
-    << QStringLiteral( "easeInOutQuart" )
-    << QStringLiteral( "easeInQuint" )
-    << QStringLiteral( "easeOutQuint" )
-    << QStringLiteral( "easeInOutQuint" )
-    << QStringLiteral( "easeInSine" )
-    << QStringLiteral( "easeOutSine" )
-    << QStringLiteral( "easeInOutSine" )
-    << QStringLiteral( "easeInExpo" )
-    << QStringLiteral( "easeOutExpo" )
-    << QStringLiteral( "easeInOutExpo" )
-    << QStringLiteral( "easeInCirc" )
-    << QStringLiteral( "easeOutCirc" )
-    << QStringLiteral( "easeInOutCirc" )
-    << QStringLiteral( "easeInElastic" )
-    << QStringLiteral( "easeOutElastic" )
-    << QStringLiteral( "easeInOutElastic" )
-    << QStringLiteral( "easeInBack" )
-    << QStringLiteral( "easeOutBack" )
-    << QStringLiteral( "easeInOutBack" )
-    << QStringLiteral( "easeInBounce" )
-    << QStringLiteral( "easeOutBounce" )
-    << QStringLiteral( "easeInOutBounce" );
+    list << QStringLiteral( "linear" )
+        << QStringLiteral( "easeInQuad" )
+        << QStringLiteral( "easeOutQuad" )
+        << QStringLiteral( "easeInOutQuad" )
+        << QStringLiteral( "easeInCubic" )
+        << QStringLiteral( "easeOutCubic" )
+        << QStringLiteral( "easeInOutCubic" )
+        << QStringLiteral( "easeInQuart" )
+        << QStringLiteral( "easeOutQuart" )
+        << QStringLiteral( "easeInOutQuart" )
+        << QStringLiteral( "easeInQuint" )
+        << QStringLiteral( "easeOutQuint" )
+        << QStringLiteral( "easeInOutQuint" )
+        << QStringLiteral( "easeInSine" )
+        << QStringLiteral( "easeOutSine" )
+        << QStringLiteral( "easeInOutSine" )
+        << QStringLiteral( "easeInExpo" )
+        << QStringLiteral( "easeOutExpo" )
+        << QStringLiteral( "easeInOutExpo" )
+        << QStringLiteral( "easeInCirc" )
+        << QStringLiteral( "easeOutCirc" )
+        << QStringLiteral( "easeInOutCirc" )
+        << QStringLiteral( "easeInElastic" )
+        << QStringLiteral( "easeOutElastic" )
+        << QStringLiteral( "easeInOutElastic" )
+        << QStringLiteral( "easeInBack" )
+        << QStringLiteral( "easeOutBack" )
+        << QStringLiteral( "easeInOutBack" )
+        << QStringLiteral( "easeInBounce" )
+        << QStringLiteral( "easeOutBounce" )
+        << QStringLiteral( "easeInOutBounce" );
     return list;
-}
-
-Qt::CursorShape PHI::toCursorShape( const QByteArray &s )
-{
-    if ( s=="crosshair" ) return Qt::CrossCursor;
-    if ( s=="default" ) return Qt::ArrowCursor;
-    if ( s=="e-resize" ) return Qt::SizeHorCursor;
-    if ( s=="help" ) return Qt::WhatsThisCursor;
-    if ( s=="move" ) return Qt::OpenHandCursor;
-    if ( s=="n-resize" ) return Qt::SizeVerCursor;
-    if ( s=="ne-resize" ) return Qt::SizeBDiagCursor;
-    if ( s=="nw-resize" ) return Qt::SizeFDiagCursor;
-    if ( s=="pointer" ) return Qt::PointingHandCursor;
-    if ( s=="progress" ) return Qt::BusyCursor;
-    if ( s=="s-resize" ) return Qt::SizeVerCursor;
-    if ( s=="se-resize" ) return Qt::SizeFDiagCursor;
-    if ( s=="sw-resize" ) return Qt::SizeBDiagCursor;
-    if ( s=="text" ) return Qt::IBeamCursor;
-    if ( s=="w-resize" ) return Qt::SizeHorCursor;
-    if ( s=="wait" ) return Qt::WaitCursor;
-    return Qt::ArrowCursor;
-}
-
-bool PHI::isUpToDate( const QString &localV, const QString &serverV )
-{
-    QString l=localV;
-    QString s=serverV;
-    int lm=l.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
-    int sm=s.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
-    if ( lm > sm ) return true;
-    if ( lm < sm ) return false;
-    l=localV.mid( l.length()+1 );
-    s=serverV.mid( s.length()+1 );
-    lm=l.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
-    sm=s.replace( QRegExp( QStringLiteral( "\\..*" ) ), QString() ).toInt();
-    if ( lm > sm ) return true;
-    if ( lm < sm ) return false;
-    lm=localV.mid( localV.lastIndexOf( QLatin1Char( '.' ) )+1 ).toInt();
-    sm=serverV.mid( serverV.lastIndexOf( QLatin1Char( '.' ) )+1 ).toInt();
-    return lm >= sm;
-}
-
-QString PHI::toLocale( const QString &lang )
-{
-    if ( lang.length()==2 ) return lang.left( 2 ).toLower();
-    if ( lang.length()==5 ) return lang.left( 2 ).toLower()+QLatin1Char( '_' )+lang.right( 2 ).toUpper();
-    if ( lang.length()==6 ) return lang.left( 2 ).toLower()+QLatin1Char( '_' )+lang.right( 3 ).toUpper();
-    return lang.left( 2 ).toLower();
 }
 
 PHIRC PHI::socketError( QAbstractSocket::SocketError err )

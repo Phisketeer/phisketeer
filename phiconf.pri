@@ -37,19 +37,17 @@ else: DEFINES += QT_NO_DEBUG_OUTPUT
 unix {
     QMAKE_LFLAGS_RPATH =
     mac {
-        contains( PHICONF, macappstore ){
+        contains( PHICONF, macappstore ) {
             DEFINES += PHIAPPSTORE
-            # QMAKE_CFLAGS += -gdwarf-2 # not needed anymore with Qt5
             QMAKE_CFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
             QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO
-            QMAKE_OBJECTIVE_CFLAGS_RELEASE = $$QMAKE_OBJECTIVE_CFLAGS_RELEASE_WITH_DEBUGINFO\
-            #    -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
+            QMAKE_OBJECTIVE_CFLAGS_RELEASE = $$QMAKE_OBJECTIVE_CFLAGS_RELEASE_WITH_DEBUGINFO
             QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
         }
         QMAKE_MAC_SDK = macosx
         QMAKE_MACOSX_DEPLOYMENT_TARGET = $$PHIMACDEPLOY
         #QMAKE_CXXFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
         #QMAKE_LFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY
-        DEFINES += PHIMACFONT
+        DEFINES += PHIEMBEDSERVER
     }
 }

@@ -18,7 +18,6 @@
 */
 #ifndef PHISMODULEFACTORY_H
 #define PHISMODULEFACTORY_H
-
 #include <QObject>
 #include <QStringList>
 #include <QHash>

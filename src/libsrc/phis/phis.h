@@ -21,7 +21,6 @@
 
 #include <QByteArray>
 #include <QString>
-#include <QVariant>
 #include "phierror.h"
 
 #ifdef PHISLIB
@@ -35,18 +34,18 @@ class PHISEXPORT PHIS
     Q_DISABLE_COPY( PHIS )
 
 public:
-    static inline QByteArray xmlStartTag() { return _xmlStartTag; }
-    static inline QByteArray doctypeHtml4() { return _doctypeHtml4; }
-    static inline QByteArray doctypeHtml5() { return _doctypeHtml5; }
-    static inline QByteArray doctypeXhtml() { return _doctypeXhtml; }
-    static inline QByteArray htmlXmlStartTag() { return _htmlXmlStartTag; }
-    static inline QByteArray htmlStartTag() { return _htmlStartTag; }
-    static QString libVersion();
-    static QByteArray textForHttpCode( PHIRC rc );
+    static inline QByteArray& xmlStartTag() { return _xmlStartTag; }
+    static inline QByteArray& doctypeHtml4() { return _doctypeHtml4; }
+    static inline QByteArray& doctypeHtml5() { return _doctypeHtml5; }
+    static inline QByteArray& doctypeXhtml() { return _doctypeXhtml; }
+    static inline QByteArray& htmlXmlStartTag() { return _htmlXmlStartTag; }
+    static inline QByteArray& htmlStartTag() { return _htmlStartTag; }
+    static const QString& libVersion();
+    //static QByteArray textForHttpCode( PHIRC rc );
 
 protected:
-    PHIS();
-    ~PHIS();
+    PHIS() {}
+    ~PHIS() {}
 
 private:
     static QByteArray _xmlStartTag;

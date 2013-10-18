@@ -62,6 +62,7 @@ public:
     inline const QString& cachePath() const { return _cachePath; }
     inline const QString& appLanguage() const { return _lang; }
     inline const QString& userDocPath() const { return _usrDocPath; }
+    inline const QString& dataPath() const { return _dataPath; }
     inline QSettings* serverSettings() const { return _serverSettings; }
     inline QSettings* settings() const { return _settings; }
     inline int exec() { return _app->exec(); }
@@ -86,7 +87,7 @@ private:
     QSettings *_settings, *_serverSettings;
     QString _pluginsPath, _rootPath, _binPath, _libPath, _modulesPath, _lang;
     QString _itemsPath, _tsPath, _serverBin, _cachePath, _tmpPath, _appBin;
-    QString _usrDocPath;
+    QString _usrDocPath, _dataPath;
 };
 
 #endif // PHIAPPLICATION_H

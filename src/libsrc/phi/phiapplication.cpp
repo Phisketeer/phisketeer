@@ -90,6 +90,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _tsPath=_rootPath+L1( "/ts" );
     _serverBin=_binPath+L1( "/Phis.exe" );
     _appBin=_binPath+L1( "/PhiApp.exe" );
+    _dataPath=_rootPath+L1( "/data" );
 #elif defined Q_OS_MAC
     _serverSettings=new QSettings( domain, phis, this );
     rootDir=QFileInfo( QString::fromLocal8Bit( argv[0] ) ).dir(); // bundleID/Contents/MacOS
@@ -104,11 +105,11 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _tsPath=_rootPath+L1( "/Contents/Resources/ts" );
     _serverBin=_binPath+L1( "/Phis" );
     _appBin=_binPath+L1( "/PhiApp" );
+    _dataPath=QStandardPaths::writableLocation( QStandardPaths::DataLocation )+L1( "/" )+objectName();
 #elif defined Q_OS_LINUX
     QString conf;
     if ( PHISysInfo::effUserId()==0 ) conf=L1( "/etc/phi/phis.conf" );
-    else conf=QStandardPaths::writableLocation( QStandardPaths::HomeLocation )
-        +L1( "/.phi/phis.conf" );
+    else conf=QStandardPaths::writableLocation( QStandardPaths::HomeLocation )+L1( "/.phi/phis.conf" );
     _serverSettings=new QSettings( conf, QSettings::IniFormat, this );
     if ( type!=ApacheModule ) { // normal application
         qFatal( "not implemented" );
@@ -131,6 +132,8 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _tsPath=_rootPath+L1( "/ts" );
     _serverBin=_binPath+L1( "/phis" );
     _appBin=_binPath+L1( "/phiapp" );
+    if ( PHISysInfo::effUserId()==0 )  _dataPath=_rootPath+L1( "/var/phis/" );
+    else _dataPath=QStandardPaths::writableLocation( QStandardPaths::HomeLocation )+L1( ".phi/phis" );
 #else
 #error Unsupported system
 #endif
@@ -195,6 +198,8 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
     qRegisterMetaTypeStreamOperators<PHIImageHash>("PHIImageHash");
     qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
+    qRegisterMetaType<QDateTime>( "QDateTime" );
+    qRegisterMetaType<PHIRC>( "PHIRC" );
 
 #ifdef PHIDEBUG
     _pluginsPath=L1( PHIDIR )+L1( "/plugins" );
@@ -203,6 +208,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _appBin=L1( PHIDIR )+L1( "/bin/PhiAppd" );
     _tsPath=L1( PHIDIR )+L1( "/src/ts" );
     _libPath=L1( PHIDIR )+L1( "/lib" );
+    _modulesPath=_libPath+L1( "/modules" );
 #ifdef Q_OS_WIN
     _libPath=L1( PHIDIR )+L1( "/bin" );
     _serverBin=L1( PHIDIR )+L1( "/bin/Phisd.exe" );
@@ -211,12 +217,16 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _serverBin=L1( PHIDIR )+L1( "/bin/phis_debug" );
     _appBin=L1( PHIDIR )+L1( "/bin/phiapp_debug" );
 #endif
+#ifdef PHIEMBEDSERVER
+    _serverBin=QString();
+#endif
     qWarning( "Application name: %s", name );
     qWarning( "Version: %s", version );
     qWarning( "Settings file: %s", qPrintable( _settings->fileName() ) );
     qWarning( "Server settings file: %s", qPrintable( _serverSettings->fileName() ) );
     qWarning( "Plug-in dir: %s", qPrintable( _pluginsPath ) );
     qWarning( "Items dir: %s", qPrintable( _itemsPath ) );
+    qWarning( "Modules dir: %s", qPrintable( _modulesPath ) );
     qWarning( "Server bin: %s", qPrintable( _serverBin ) );
     qWarning( "PhiApp bin: %s", qPrintable( _appBin ) );
     qWarning( "TS dir: %s", qPrintable( _tsPath ) );
@@ -224,6 +234,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qWarning( "Lib dir: %s", qPrintable( _libPath ) );
     qWarning( "Tmp dir: %s", qPrintable( _tmpPath ) );
     qWarning( "Cache dir: %s", qPrintable( _cachePath ) );
+    qWarning( "Data dir: %s", qPrintable( _dataPath ) );
     qWarning( "User doc dir: %s", qPrintable( _usrDocPath ) );
 #endif
     loadTranslations();

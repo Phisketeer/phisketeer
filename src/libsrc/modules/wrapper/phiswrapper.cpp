@@ -49,8 +49,10 @@ QScriptValue PHISScriptItem::checked( const QScriptValue &v, const QScriptValue 
     if ( !v.isValid() && !c.isValid() ) return QScriptValue( _it->checked() );
     if ( v.isBool() ) { _it->setChecked( v.toBool() ); return self(); }
     if ( !v.isString() ) return self();
-    if ( _it->wid()!=PHI::CHECK_LIST ) return self();
-    QStringList list=_it->value().split( _it->delimiter(), QString::SkipEmptyParts );
+    if ( _it->wid()!=43 ) return self(); // checklist
+    const QString value=_it->property( "value" ).toString();
+    const QString delimiter=_it->property( "delimiter" ).toString();
+    QStringList list=value.split( delimiter, QString::SkipEmptyParts );
     if ( list.isEmpty() ) return self();
     QStringList destList;
     destList.append( list.takeFirst() ); // take header
@@ -75,7 +77,7 @@ QScriptValue PHISScriptItem::checked( const QScriptValue &v, const QScriptValue 
             found=true;
         }
     }
-    _it->setValue( destList.join( _it->delimiter() ) );
+    _it->setProperty( "value", destList.join( delimiter ) );
     return self();
 }
 
@@ -84,24 +86,26 @@ QScriptValue PHISScriptItem::selected( const QString &v, const QScriptValue &s )
     qDebug() << "selected " << v << s.toString();
     QString val, opt;
     bool isSelected;
+    const QString value=_it->property( "value" ).toString();
+    const QString delimiter=_it->property( "delimiter" ).toString();
     if ( v.isNull() && !s.isValid() ) {
         QScriptValue arr=engine()->newArray();
         quint32 l=0;
-        foreach ( val, _it->value().split( _it->delimiter(), QString::SkipEmptyParts ) ) {
+        foreach ( val, value.split( delimiter, QString::SkipEmptyParts ) ) {
             PHI::getItemCheckData( val, opt, isSelected );
             if ( isSelected ) arr.setProperty( l++, opt );
         }
         return arr;
     }
     if ( !s.isValid() ) {
-        foreach( val, _it->value().split( _it->delimiter(), QString::SkipEmptyParts ) ) {
+        foreach( val, value.split( delimiter, QString::SkipEmptyParts ) ) {
             PHI::getItemCheckData( val, opt, isSelected );
             if ( opt==v ) return QScriptValue( isSelected );
         }
     }
     QStringList destList;
     bool found=false;
-    foreach ( val, _it->value().split( _it->delimiter(), QString::SkipEmptyParts ) ) {
+    foreach ( val, value.split( delimiter, QString::SkipEmptyParts ) ) {
         destList.append( val );
         if ( found ) continue;
         PHI::getItemCheckData( val, opt, isSelected );
@@ -113,7 +117,7 @@ QScriptValue PHISScriptItem::selected( const QString &v, const QScriptValue &s )
             found=true;
         }
     }
-    _it->setValue( destList.join( _it->delimiter() ) );
+    _it->setProperty( "value", destList.join( delimiter ) );
     return self();
 }
 

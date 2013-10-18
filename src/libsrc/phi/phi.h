@@ -134,8 +134,7 @@ public:
     static inline qreal radToGrad( qreal r ) { return r*static_cast<qreal>(57.29577951309314); }
     static inline int defaultToolBarHeight() { return 24; }
 
-    // move to PHIBaseItem
-    static inline QString defaultEasingCurve() { return QStringLiteral( "easeOutQuad" ); }
+    static inline QString defaultEasingCurve() { return SL( "easeOutQuad" ); }
     static inline quint8 defaultEasingCurveType() {
         return static_cast<quint8>(toEasingCurveType(defaultEasingCurve())); }
     static inline QString toEasingCurveString( quint8 ease ) {

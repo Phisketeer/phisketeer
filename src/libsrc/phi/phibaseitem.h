@@ -20,9 +20,6 @@
 #define PHIBASEITEM_H
 
 #include <QObject>
-/*
-#include "phieffect.h"
-*/
 #include <QScriptValue>
 #include <QScriptEngine>
 #include <QDataStream>
@@ -37,7 +34,7 @@ class QGraphicsSceneEvent;
 class QKeyEvent;
 class PHIBasePage;
 class PHIGraphicsItem;
-class PHISRequest;
+class PHIRequest;
 class PHISDataParser;
 class PHIConfigWidget;
 
@@ -142,6 +139,7 @@ public: // not usable by script engine
     inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); }
     inline void setParentId( const QByteArray &pid ) { _parentId=pid; }
     inline void setFocus() { if ( _gw ) { _gw->setFocus(); _gw->setSelected( true ); } }
+    inline PHIEffect* effect() { return _effect; }
     inline const PHIEffect* effect() const { return _effect; }
     inline bool hasGraphicEffect() const { return _effect->effects() & PHIEffect::EGraphics; }
 
@@ -300,13 +298,13 @@ protected:
     // create all cached language dependend images and transformed images:
     virtual void createCachedItems() {}
     // create a srtict HTML 4 for old browser versions:
-    virtual void strictHtml( const PHISRequest* const req, QByteArray &out, const QByteArray &indent );
+    virtual void strictHtml( const PHIRequest* const req, QByteArray &out, const QByteArray &indent );
     // create new HTML5 content:
-    virtual void html5( const PHISRequest* const req, QByteArray &out, const QByteArray &indent );
+    virtual void html5( const PHIRequest* const req, QByteArray &out, const QByteArray &indent );
     // create jQuery related stuff, like onclick and other handlers:
-    virtual void jQuery( const PHISRequest* const req, QByteArray &out );
+    virtual void jQuery( const PHIRequest* const req, QByteArray &out );
     // create all none dynamic CSS styles:
-    virtual void css( const PHISRequest* const req, QByteArray &out );
+    virtual void css( const PHIRequest* const req, QByteArray &out );
 
     // IDE related members
     inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
@@ -338,7 +336,6 @@ private:
     inline PHITextData* styleSheetData() { return &_styleSheetData; }
     inline PHITextData* titleData() { return &_titleData; }
     inline PHIBooleanData* visibleData() { return &_visibleData; }
-    inline PHIEffect* effect() { return _effect; }
     inline QGraphicsWidget* gw() { return _gw; }
 
     // IDE related members

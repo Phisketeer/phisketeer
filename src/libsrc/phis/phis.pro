@@ -15,25 +15,37 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-HEADERS += phidatasources.h \
-    phiresponserec.h \
-    phiprocessor.h \
-    phispage.h \
+HEADERS += \
     phis.h \
-    phidataparser.h \
-    phiparent.h \
-    phispagecache.h \
-    phisscriptobjects.h \
-    phisitem.h \
-    phisitemcache.h \
-    phisitemdata.h \
-    phihtmlgenerator.h \
-    phigenerator.h \
-    phinetrequest.h \
-    phisession.h \
-    phisimagecache.h \
-    phisrequest.h \
-    phishtmlbase.h \
+    phisparent.h \
+    phismodule.h \
+    phismodulefactory.h \
+    phishttp.h \
+    phislistener.h \
+    phisconnthread.h \
+    phislogwriter.h \
+    phisserverrec.h \
+    phisserverrequest.h
+SOURCES += \
+    phis.cpp \
+    phisparent.cpp \
+    phismodule.cpp \
+    phismodulefactory.cpp \
+    phishttp.cpp \
+    phislistener.cpp \
+    phisconnthread.cpp \
+    phislogwriter.cpp \
+    phisserverrequest.cpp
+
+include( ../../../phiconf.pri )
+VERSION = $$PHIRELEASE
+TEMPLATE = lib
+TARGET = phis
+QT = gui core network sql svg script widgets
+INCLUDEPATH += ../phi
+DEFINES += PHISLIB PHISVERSION=\\\"$$VERSION\\\"
+RESOURCES += phis.qrc
+OTHER_FILES += js/phibase.js js/excanvas.js \
     phishtmlgeneric.h \
     phishtmlgecko19.h \
     phishtmlwebkit533.h \
@@ -47,16 +59,23 @@ HEADERS += phidatasources.h \
     phishtmltrident5.h \
     phishtmltrident6.h \
     phishtmlgecko100.h \
-    phismodule.h \
-    phismodulefactory.h
-SOURCES += \
+    phidataparser.h \
+    phiprocessor.h \
+    phispagecache.h \
+    phisscriptobjects.h \
+    phisitemcache.h \
+    phisitemdata.h \
+    phihtmlgenerator.h \
+    phigenerator.h \
+    phinetrequest.h \
+    phisession.h \
+    phisimagecache.h \
+    phishtmlbase.h \
     phidatasources.cpp \
     phiresponserec.cpp \
     phiprocessor.cpp \
-    phis.cpp \
     phispage.cpp \
     phidataparser.cpp \
-    phiparent.cpp \
     phispagecache.cpp \
     phisscriptobjects.cpp \
     phisitem.cpp \
@@ -82,19 +101,7 @@ SOURCES += \
     phishtmlwebkit534.cpp \
     phishtmltrident5.cpp \
     phishtmltrident6.cpp \
-    phishtmlgecko100.cpp \
-    phismodule.cpp \
-    phismodulefactory.cpp
-
-include( ../../../scripts/phiconf.pri )
-VERSION = $$PHIRELEASE
-TEMPLATE = lib
-TARGET = phis
-QT = gui core network sql svg script
-INCLUDEPATH += ../phi
-DEFINES += PHISLIB PHIVERSION=\\\"$$VERSION\\\"
-RESOURCES += phis.qrc
-OTHER_FILES += js/phibase.js js/excanvas.js
+    phishtmlgecko100.cpp
 
 win32 { 
     LIBS = -L../../../bin phi1.lib

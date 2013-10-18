@@ -20,6 +20,8 @@
 #define PHISWRAPPER_H
 #include "phismodule.h"
 #include "phibaseitem.h"
+#include "phipalette.h"
+#include "phi.h"
 
 class PHISWrapperModule : public PHISModule
 {
@@ -27,7 +29,7 @@ class PHISWrapperModule : public PHISModule
     Q_PLUGIN_METADATA(IID "org.phisketeer.phis.module.wrapper" FILE "phiswrapper.json")
     Q_CLASSINFO( "Author", "Marius Schumacher" )
     Q_CLASSINFO( "Url", "http://www.phisketeer.org" )
-    Q_CLASSINFO( "Version", "1.0" )
+    Q_CLASSINFO( "Version", "2.0" )
     Q_CLASSINFO( "License", "LGPL" )
     Q_CLASSINFO( "Copyright", "2013 Phisys AG, 2013 Phisketeer Team" )
 
@@ -125,45 +127,47 @@ inline QScriptValue PHISScriptItem::toggle()
 inline QScriptValue PHISScriptItem::moveBy( qint32 x, qint32 y, qint32 w, qint32 h, qint32 start,
     qint32 duration, const QString &ease )
 {
-    _it->setMoveBy( start, duration, x, y, w, h, ease );
+    _it->effect()->setMoveBy( start, duration, x, y, w, h, PHI::toEasingCurveType( ease ) );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::moveTo( qint32 left, qint32 top, qint32 start, qint32 duration,
     const QString &ease ) {
-    _it->setMoveTo( start, duration, left, top, ease );
+    _it->effect()->setMoveTo( start, duration, left, top, PHI::toEasingCurveType( ease ) );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::fadeOut( qint32 start, qint32 duration, qreal minOpac,
     const QString &ease ) {
-    _it->setFadeOut( start, duration, minOpac, ease );
+    _it->effect()->setFadeOut( start, duration, minOpac, PHI::toEasingCurveType( ease ) );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::fadeIn( qint32 start, qint32 duration, qreal maxOpac,
     const QString &ease ) {
-    _it->setFadeIn( start, duration, maxOpac, ease );
+    _it->effect()->setFadeIn( start, duration, maxOpac, PHI::toEasingCurveType( ease ) );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::selectOptions( const QString &v, const QString &d ) {
-    if ( v.isNull() && d.isNull() ) return QScriptValue( _it->value() );
-    if ( !d.isNull() ) _it->setDelimiter( d );
-    _it->setValue( v );
+    if ( v.isNull() && d.isNull() ) return QScriptValue( _it->property( "value" ).toString() );
+    if ( !d.isNull() ) _it->setProperty( "delimiter",  d );
+    _it->setProperty( "value", v );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::rotateIn( quint8 axis, qint32 start, qint32 duration,
     const QString &ease )
 {
-    _it->setRotateIn( axis, start, duration, ease );
+    // @todo: enable ease in rotateIn
+    _it->effect()->setRotateIn( axis, start, duration );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::rotateOut( quint8 axis, qint32 start, qint32 duration,
     const QString &ease ) {
-    _it->setRotateOut( axis, start, duration, ease );
+    // @todo: enable ease in rotateOut
+    _it->effect()->setRotateOut( axis, start, duration );
     return self();
 }
 
@@ -197,61 +201,65 @@ inline QScriptValue PHISScriptItem::height( const QScriptValue &h )
 
 inline QScriptValue PHISScriptItem::zIndex( const QScriptValue &i )
 {
-    if ( !i.isValid() ) return _it->zValue();
-    _it->setZValue( static_cast<qint16>(i.toInt32()) );
+    if ( !i.isValid() ) return _it->zIndex();
+    _it->setZIndex( static_cast<qint16>(i.toInt32()) );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::color( const QScriptValue &c )
 {
-    if ( !c.isValid() ) return _it->color().name();
-    _it->setColor( QColor( c.toString() ) );
+    if ( !c.isValid() ) return _it->property( "color" ).value<QColor>().name();
+    _it->setProperty( "color", QColor( c.toString() ) );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::bgColor( const QScriptValue &c )
 {
-    if ( !c.isValid() ) return _it->outlineColor().name();
-    _it->setOutlineColor( QColor( c.toString() ) );
+    if ( !c.isValid() ) return _it->property( "backgroundColor" ).value<QColor>().name();
+    _it->setProperty( "backgroundColor", QColor( c.toString() ) );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::dragEnabled( const QScriptValue &b )
 {
-    if ( !b.isValid() ) return _it->draggable();
-    _it->setDragable( b.toBool() );
+    // @todo: implement drag/drop
+    //if ( !b.isValid() ) return _it->draggable();
+    //_it->setDragable( b.toBool() );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::dropEnabled( const QScriptValue &b )
 {
-    if ( !b.isValid() ) return _it->droppable();
-    _it->setDropable( b.toBool() );
+    // @todo: implement drag/drop
+    //if ( !b.isValid() ) return _it->droppable();
+    //_it->setDropable( b.toBool() );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::progress( int p )
 {
-    if ( _it->wid()!=PHI::PROGRESSBAR ) return self();
-    if ( p==-1 ) return _it->value().toInt();
-    _it->setValue( QString::number( qBound( 0, p, 100 ) ) );
+    // @todo: implement progress bar
+    //if ( _it->wid()!=PHI::PROGRESSBAR ) return self();
+    if ( p==-1 ) return _it->property( "value" ).toInt();
+    _it->setProperty( "value", QString::number( qBound( 0, p, 100 ) ) );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::html( const QString &html )
 {
-    if ( _it->wid()!=PHI::RICH_TEXT && _it->wid()!=PHI::TEXT ) return self();
-    if ( html.isNull() ) return _it->value();
-    _it->setValue( html );
+    // @todo: implement html for rich text
+    //if ( _it->wid()!=PHI::RICH_TEXT && _it->wid()!=PHI::TEXT ) return self();
+    if ( html.isNull() ) return _it->property( "value" ).toString();
+    _it->setProperty( "value", html );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::val( const QScriptValue &v )
 {
-    if ( !PHI::isInputItem( static_cast<PHI::Widget>(_it->wid()) ) ) return self();
-    if ( _it->wid()==PHI::PROGRESSBAR ) return self();
-    if ( !v.isValid() ) return _it->value();
-    _it->setValue( v.toString() );
+    if ( !_it->isInputItem() ) return self();
+    // if ( _it->wid()==PHI::PROGRESSBAR ) return self();
+    if ( !v.isValid() ) return _it->property( "value" ).toString();
+    _it->setProperty( "value", v.toString() );
     return self();
 }
 
@@ -271,41 +279,48 @@ inline QScriptValue PHISScriptItem::opacity( qreal opac )
 
 inline QScriptValue PHISScriptItem::cursor( const QString &c )
 {
-    if ( c.isNull() ) return QString::fromLatin1( _it->cursor() );
-    _it->setCursor( c.toLatin1() );
+    // @todo: implement cursor
+    //if ( c.isNull() ) return QString::fromLatin1( _it->cursor() );
+    //_it->setCursor( c.toLatin1() );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::title( const QString &t )
 {
-    if ( t.isNull() ) return _it->toolTip();
-    _it->setToolTip( t );
+    if ( t.isNull() ) return _it->title();
+    _it->setTitle( t );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::text( const QScriptValue &t )
 {
-    if ( !t.isValid() ) return _it->value();
-    _it->setValue( t.toString() );
+    // @todo: check client script for property text
+    if ( _it->isInputItem() ) {
+        if ( !t.isValid() ) return _it->property( "value" ).toString();
+        _it->setProperty( "value", t.toString() );
+    } else {
+        if ( !t.isValid() ) return _it->property( "text" ).toString();
+        _it->setProperty( "text", t.toString() );
+    }
     return self();
 }
 
 inline QScriptValue PHISScriptItem::label( const QScriptValue &l )
 {
-    if ( !l.isValid() ) return _it->label();
-    _it->setLabel( l.toString() );
+    if ( !l.isValid() ) return _it->property( "label" ).toString();
+    _it->setProperty( "label", l.toString() );
     return self();
 }
 
 inline PHISScriptObj* PHISWrapperModule::create( const QString &key, const PHISInterface *interface ) const
 {
-    if ( key==QLatin1String( "wrapper" ) ) return new PHISWrapperObj( interface );
+    if ( key==L1( "wrapper" ) ) return new PHISWrapperObj( interface );
     return 0;
 }
 
 inline QStringList PHISWrapperModule::keys() const
 {
-    return QStringList() << QStringLiteral( "wrapper" );
+    return QStringList() << SL( "wrapper" );
 }
 
 #endif // PHISWRAPPER_H

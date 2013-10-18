@@ -16,15 +16,12 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QSettings>
-#include <QCoreApplication>
 #include <QDir>
 #include <QPluginLoader>
 #include <QMetaClassInfo>
 #include "phismodulefactory.h"
 #include "phismodule.h"
-#include "phi.h"
-#include "phierror.h"
+#include "phiapplication.h"
 
 PHISModuleFactory* PHISModuleFactory::_instance=0;
 
@@ -44,25 +41,11 @@ PHISModuleFactory::~PHISModuleFactory()
 void PHISModuleFactory::invalidate()
 {
     qDebug( "PHISModuleFactory::invalidate()" );
-    QSettings *s=PHI::globalSettings();
-    QString path=s->value( QStringLiteral( "PluginsPath" ), QString() ).toString();
-    QDir dir ( path+QDir::separator()+QLatin1String( "modules" ) );
+    _loadErorrs.clear();
+    QDir dir ( phiApp->modulesPath() );
     if ( !dir.exists() ) {
-        path=QCoreApplication::instance()->applicationDirPath();
-#ifdef Q_OS_WIN
-        dir.setPath( path+QDir::separator()+QLatin1String( "plugins" )
-            +QDir::separator()+QLatin1String( "modules" ) );
-#elif defined Q_OS_UNIX
-#ifdef Q_OS_MAC
-        dir.setPath( path ); // MacOS
-        dir.cdUp(); //
-        dir.setPath( dir.path()+QLatin1String( "/PlugIns/modules" ) );
-#endif
-#endif
-        if ( !dir.exists() ) {
-            qWarning( "Did not find modules path (%s)", qPrintable( dir.path() ) );
-            return;
-        }
+        _loadErorrs << tr( "Server module directory '%1' not found! " ).arg( phiApp->modulesPath() );
+        return;
     }
     QStringList files=dir.entryList( QDir::Files );
     QString file;

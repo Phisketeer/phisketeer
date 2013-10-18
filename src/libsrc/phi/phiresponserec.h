@@ -26,9 +26,9 @@
 #include <QFlags>
 #include <QDateTime>
 #include "phierror.h"
-#include "phis.h"
+#include "phi.h"
 
-class PHISEXPORT PHIResponseRecLogEntry
+class PHIEXPORT PHIResponseRecLogEntry
 {
 public:
     PHIRC _rc;
@@ -38,13 +38,12 @@ public:
     QString _desc;
 };
 
-class PHISEXPORT PHIResponseRec
+class PHIEXPORT PHIResponseRec
 {
     friend class PHIProcessor;
 
 public:
-    explicit PHIResponseRec();
-    virtual ~PHIResponseRec();
+    PHIResponseRec();
     enum Option { None=0x0, SendFile=0x1, HeaderOnly=0x2, NoCache=0x4, Redirect=0x8 };
     Q_DECLARE_FLAGS( Options, Option )
 
@@ -90,6 +89,8 @@ public:
         const QString &domain=QString(), bool secure=false, bool discard=false );
     void log( int type, const char* file, int line, const QDateTime&, PHIRC rc, const QString &desc );
     void clear();
+
+    static QByteArray textForHttpCode( PHIRC rc );
 
 private:
     QHash <QByteArray, QByteArray> _headersOut;

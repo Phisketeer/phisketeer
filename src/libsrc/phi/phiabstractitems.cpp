@@ -565,13 +565,22 @@ void PHIAbstractImageItem::squeeze()
 void PHIAbstractImageItem::saveItemData( QDataStream &out, int version )
 {
     Q_UNUSED( version )
-    out << &_imageData;
+    QByteArray arr;
+    QDataStream ds( &arr, QIODevice::WriteOnly );
+    ds.setVersion( QDataStream::Qt_5_1 );
+    ds << &_imageData;
+    out << qCompress( arr, 9 );
 }
 
 void PHIAbstractImageItem::loadItemData( QDataStream &in, int version )
 {
     Q_UNUSED( version )
-    in >> &_imageData;
+    QByteArray arr;
+    in >> arr;
+    arr=qUncompress( arr );
+    QDataStream ds( &arr, QIODevice::ReadOnly );
+    ds.setVersion( QDataStream::Qt_5_1 );
+    ds >> &_imageData;
 }
 
 QSizeF PHIAbstractImageItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const

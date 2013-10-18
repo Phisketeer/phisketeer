@@ -16,8 +16,8 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PHISREQUEST_H
-#define PHISREQUEST_H
+#ifndef PHIREQUEST_H
+#define PHIREQUEST_H
 
 #include <QByteArray>
 #include <QStringList>
@@ -28,13 +28,12 @@
 #include <QDateTime>
 #include <QTemporaryFile>
 #include <QHostAddress>
-//#include "phis.h"
 //#include "phiresponserec.h"
 #include "phi.h"
 
 class PHIResponseRec; // defined in libphis
 
-class PHIEXPORT PHISRequest
+class PHIEXPORT PHIRequest
 {
 public:
     enum AgentEngine { UnknownEngine=0, Trident=1, Gecko=2, WebKit=3, Presto=4, MaxAgentEngine=5 };
@@ -52,8 +51,8 @@ public:
     typedef qint32 ClientFeatures;
 #endif
 
-    explicit PHISRequest();
-    virtual ~PHISRequest();
+    explicit PHIRequest();
+    virtual ~PHIRequest();
 
     inline quint8 agentEngine() const { return _agentEngine; }
     inline void setAgentEngine( quint8 id ) const { id < MaxAgentEngine ? _agentEngine=id : _agentEngine=UnknownEngine; }
@@ -175,17 +174,17 @@ protected:
 };
 
 #ifdef PHIDEBUG
-Q_DECLARE_OPERATORS_FOR_FLAGS( PHISRequest::ClientFeatures )
+Q_DECLARE_OPERATORS_FOR_FLAGS( PHIRequest::ClientFeatures )
 #endif
 
-inline QDateTime PHISRequest::ifModifiedSince() const
+inline QDateTime PHIRequest::ifModifiedSince() const
 {
     QByteArray s=_headers.value( QByteArrayLiteral( "If-Modified-Since" ) );
     if ( s.isEmpty() ) return QDateTime( QDate( 1970, 1, 1 ) );
     return dateTimeFromHeader( s );
 }
 
-inline QStringList PHISRequest::getKeys() const
+inline QStringList PHIRequest::getKeys() const
 {
     QList <QPair <QString, QString> > list=QUrlQuery( _url ).queryItems();
     QPair <QString, QString> pair;
@@ -195,7 +194,7 @@ inline QStringList PHISRequest::getKeys() const
     return keys;
 }
 
-inline QStringList PHISRequest::headerKeys() const
+inline QStringList PHIRequest::headerKeys() const
 {
     QStringList list;
     QByteArray key;
@@ -203,7 +202,7 @@ inline QStringList PHISRequest::headerKeys() const
     return list;
 }
 
-inline QStringList PHISRequest::fileKeys() const
+inline QStringList PHIRequest::fileKeys() const
 {
     QStringList list;
     QByteArray key;
@@ -211,7 +210,7 @@ inline QStringList PHISRequest::fileKeys() const
     return list;
 }
 
-inline const QStringList& PHISRequest::serverKeys() const
+inline const QStringList& PHIRequest::serverKeys() const
 {
     static QStringList list=QStringList() << QStringLiteral( "documentroot" )
         << QStringLiteral( "self" ) << QStringLiteral( "url" ) << QStringLiteral( "filename" )
@@ -228,18 +227,18 @@ inline const QStringList& PHISRequest::serverKeys() const
     return list;
 }
 
-inline QString PHISRequest::requestValue( const QString &key ) const
+inline QString PHIRequest::requestValue( const QString &key ) const
 {
     if ( _cookies.contains( key ) ) return _cookies.value( key );
     if ( _postData.contains( key ) ) return _postData.value( key );
     return QUrlQuery( _url ).queryItemValue( key );
 }
 
-inline QStringList PHISRequest::requestValues( const QString &key ) const
+inline QStringList PHIRequest::requestValues( const QString &key ) const
 {
     if ( _cookies.contains( key ) ) return _cookies.values( key );
     if ( _postData.contains( key ) ) return _postData.values( key );
     return QUrlQuery( _url ).allQueryItemValues( key );
 }
 
-#endif // PHISREQUEST_H
+#endif // PHIREQUEST_H

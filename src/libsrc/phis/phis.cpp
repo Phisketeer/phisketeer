@@ -27,21 +27,13 @@ QByteArray PHIS::_htmlXmlStartTag=QByteArray( "<html xmlns=\"http://www.w3.org/1
  xml:lang=\"en\" >\n" );
 QByteArray PHIS::_htmlStartTag=QByteArray( "<html>\n" );
 
-PHIS::PHIS()
+const QString& PHIS::libVersion()
 {
-    qDebug( "PHIS::PHIS()" );
+    static QString v=QString( QLatin1String( PHISVERSION ) );
+    return v;
 }
 
-PHIS::~PHIS()
-{
-    qDebug( "PHIS::~PHIS()" );
-}
-
-QString PHIS::libVersion()
-{
-    return QStringLiteral( PHIVERSION );
-}
-
+/*
 QByteArray PHIS::textForHttpCode( PHIRC rc )
 {
     switch ( rc ) {
@@ -88,3 +80,4 @@ QByteArray PHIS::textForHttpCode( PHIRC rc )
     }
     return QByteArray( "Unknown error" )+" "+QByteArray::number( rc );
 }
+*/

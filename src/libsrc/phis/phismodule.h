@@ -25,9 +25,10 @@
 #include <QStringList>
 #include <QDateTime>
 #include <QSqlDatabase>
-#include "phisrequest.h"
-#include "phi.h"
+#include "phirequest.h"
+#include "phiresponserec.h"
 #include "phibasepage.h"
+#include "phi.h"
 
 #ifdef PHISLIB
 #define PHIS_EXPORT Q_DECL_EXPORT
@@ -53,11 +54,11 @@ class PHIS_EXPORT PHISInterface : public QObject
     friend class PHISGlobalScriptObj;
 
 protected:
-    explicit PHISInterface( const PHISRequest *req, PHIBasePage *page, const QSqlDatabase &db,
+    explicit PHISInterface( const PHIRequest *req, PHIBasePage *page, const QSqlDatabase &db,
         PHISInterfacePrivate *ifp=0 ) : QObject( page ), _req( req ), _db( db ), _d( ifp ) {}
 
 private:
-    const PHISRequest *_req;
+    const PHIRequest *_req;
     QSqlDatabase _db;
     PHISInterfacePrivate *_d; // reserved
 
