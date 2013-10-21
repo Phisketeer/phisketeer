@@ -193,6 +193,7 @@ QByteArray PHIResponseRec::textForHttpCode( PHIRC rc )
     case 415: return QByteArray( "Unsupported Media Type" );
     case 416: return QByteArray( "Requested Range Not Satisfiable" );
     case 417: return QByteArray( "Expectation Failed" );
+    case 500: return QByteArray( "Internal Server Error" );
     case 501: return QByteArray( "Not Implemented" );
     case 502: return QByteArray( "Bad Gateway" );
     case 503: return QByteArray( "Service Unavailable" );

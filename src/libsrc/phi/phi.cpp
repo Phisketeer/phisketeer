@@ -34,6 +34,10 @@
 #include "macfilebookmark.h"
 #endif
 
+#if ( QT_VERSION <= QT_VERSION_CHECK( 5, 1, 0 ) )
+#error To compile Phi(sketeer) successfully you need at least Qt 5.1.1
+#endif
+
 const char* PHI::_phiDT="yyyyMMddHHmmsszzz";
 const char* PHI::_phiDate="yyyy-MM-dd";
 const char* PHI::_phiMimeType="application/x-phi";

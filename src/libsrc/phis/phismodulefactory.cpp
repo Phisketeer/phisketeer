@@ -29,7 +29,6 @@ PHISModuleFactory::PHISModuleFactory( QObject *parent )
     : QObject( parent )
 {
     qDebug( "PHISModuleFactory::PHISModuleFactory()" );
-    invalidate();
 }
 
 PHISModuleFactory::~PHISModuleFactory()

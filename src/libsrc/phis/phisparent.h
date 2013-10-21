@@ -38,8 +38,6 @@ public:
     QString documentRoot( const QString &domain );
     void invalidate( const QString &domain=QString() );
     QVariant value( const QString &key ) const;
-    inline QStringList loadedModules() const { QReadLocker l( &_lock ); return _loadedModules; }
-    inline QStringList moduleLoadErrors() const { QReadLocker l( &_lock ); return _moduleLoadErrors; }
     inline QString index() const { QReadLocker lock( &_lock ); return _index; }
     inline qint32 keepAlive() const { QReadLocker lock( &_lock ); return _keepAlive; }
     inline QString admin() const { QReadLocker lock( &_lock ); return _admin; }
@@ -59,7 +57,6 @@ private:
     QHash <QString, QString> _tmpDirs;
     QHash <QString, QString> _docRootDirs;
     QDateTime _invalidateTouch;
-    QStringList _loadedModules, _moduleLoadErrors;
     QString _admin, _index;
     qint32 _keepAlive;
 };

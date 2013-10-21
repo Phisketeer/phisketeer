@@ -26,6 +26,7 @@
 #include "phismodulefactory.h"
 #include "phislogwriter.h"
 #include "phislistener.h"
+#include "phispagecache.h"
 
 PHISParent* PHISParent::_instance=0;
 
@@ -34,9 +35,7 @@ PHISParent::PHISParent( QObject *parent, const QString &name )
 {
     qDebug( "PHISParent::PHISParent()" );
     PHIError::instance( this );
-    _loadedModules=PHISModuleFactory::instance( this )->loadedModules();
-    _moduleLoadErrors=PHISModuleFactory::instance( this )->loadErrors();
-    _invalidateTouch=QDateTime::currentDateTime();
+    PHISModuleFactory::instance( this );
     QSettings *s=phiApp->serverSettings();
     s->setValue( SL( "RootDir" ), s->value( SL( "RootDir" ), phiApp->rootPath() ) );
     s->beginGroup( name );
@@ -59,11 +58,19 @@ PHISParent::PHISParent( QObject *parent, const QString &name )
     s->endGroup();
     s->sync();
     PHISLogWriterThread::instance()->init( this, name );
+    invalidate();
     QTimer::singleShot( 0, this, SLOT( initListener() ) );
 }
 
 PHISParent::~PHISParent()
 {
+    // delete listener before cleaning page cache
+    if ( value( SL( "SSLEnabled" ) ).toBool() ) {
+        delete PHISslListener::instance();
+    }
+    delete PHISListener::instance();
+
+    PHISPageCache::invalidate();
     _lock.lockForWrite();
     _instance=0;
     _lock.unlock();
@@ -72,12 +79,6 @@ PHISParent::~PHISParent()
 
 void PHISParent::initListener()
 {
-    foreach ( QString merr, _moduleLoadErrors ) {
-        PHISLogWriter::instance()->log( PHILOGTRACE, PHIRC_MODULE_LOAD_ERROR, merr );
-    }
-    foreach ( QString module, _loadedModules ) {
-        PHISLogWriter::instance()->log( PHILOGTRACE, PHIRC_MODULE_LOG, module );
-    }
     PHIRC rc=PHISListener::instance()->init( this );
     if ( rc==PHIRC_OK ) {
         PHISLogWriter::instance()->log( PHILOGTRACE, PHIRC_MGR_START,
@@ -134,35 +135,43 @@ QString PHISParent::documentRoot( const QString &domain )
     QString root;
     _lock.lockForRead();
     root=_docRootDirs.value( domain, QString() );
-    if ( !root.isNull() ) {
+    if ( !root.isEmpty() ) {
         _lock.unlock();
         return root;
     }
     _lock.unlock();
-    QSettings *s=phiApp->settings();
+    QSettings *s=phiApp->serverSettings();
     QWriteLocker l( &_lock );
     s->beginGroup( _name );
     s->beginGroup( domain );
     root=s->value( SL( "DocumentRoot" ), QString() ).toString();
     s->endGroup();
     s->endGroup();
-    if ( !root.isNull() ) _docRootDirs.insert( domain, root );
+    if ( !root.isEmpty() ) _docRootDirs.insert( domain, root );
     return root;
 }
 
 void PHISParent::invalidate( const QString &domain )
 {
     qDebug( "PHISParent::invalidate '%s'", qPrintable( domain.isEmpty() ? L1( "all" ) : domain ) );
-    PHISModuleFactory::instance( this )->invalidate();
-    QSettings *s=phiApp->serverSettings();
+    _invalidateTouch=QDateTime::currentDateTime();
+    PHISModuleFactory::instance()->invalidate();
+    PHISPageCache::invalidate();
     _lock.lockForWrite();
+    QSettings *s=phiApp->serverSettings();
     s->beginGroup( _name );
     _index=s->value( SL( "Index" ), SL( "index.phis" ) ).toString();
     _keepAlive=s->value( SL( "KeepAlive" ), 60000 ).value<qint32>();
     _admin=s->value( SL( "Admin" ), SL( "webmaster@localhost" ) ).toString();
     s->endGroup();
-    _loadedModules=PHISModuleFactory::instance( this )->loadedModules();
-    _moduleLoadErrors=PHISModuleFactory::instance( this )->loadErrors();
+    QStringList loadedModules=PHISModuleFactory::instance( this )->loadedModules();
+    QStringList moduleLoadErrors=PHISModuleFactory::instance( this )->loadErrors();
+    foreach ( QString merr, moduleLoadErrors ) {
+        PHISLogWriter::instance()->log( PHILOGTRACE, PHIRC_MODULE_LOAD_ERROR, merr );
+    }
+    foreach ( QString module, loadedModules ) {
+        PHISLogWriter::instance()->log( PHILOGTRACE, PHIRC_MODULE_LOG, module );
+    }
     if ( domain.isEmpty() ) {
         QString tmpDir;
         foreach( tmpDir, _tmpDirs ) clearTmpDir( tmpDir );

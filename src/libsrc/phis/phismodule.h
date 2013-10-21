@@ -135,7 +135,7 @@ public:
         _req->responseRec()->setCookie( name, value, expires, path, domain, secure, discard );
     }
     inline void setHttpHeader( const QString &name, const QString &value ) const {
-        _req->responseRec()->setHeader( name, value );
+        _req->responseRec()->setHeader( name.toLatin1(), value.toUtf8() );
     }
 };
 

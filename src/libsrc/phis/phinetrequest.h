@@ -18,13 +18,13 @@
 */
 #ifndef PHINETREQUEST_H
 #define PHINETREQUEST_H
-
 #include <QThread>
 #include <QSemaphore>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QImage>
 #include "phiresponserec.h"
+#include "phi.h"
 
 class PHINetRequest : public QObject
 {
@@ -32,7 +32,7 @@ class PHINetRequest : public QObject
 
 public:
     enum Type { Text, Image };
-    PHINetRequest( const QString &url, Type type, QSemaphore *sem, QObject *parent=0 );
+    explicit PHINetRequest( const QString &url, Type type, QSemaphore *sem, QObject *parent=0 );
     virtual ~PHINetRequest();
     inline QByteArray data() const { return _arr; }
     inline QByteArray codec() const { return _codec; }
@@ -51,12 +51,12 @@ private:
     QSemaphore *_sem;
 };
 
-class PHINetRequestThread : public QThread
+class PHIEXPORT PHINetRequestThread : public QThread
 {
     Q_OBJECT
 
 public:
-    PHINetRequestThread( PHIResponseRec *resp, QObject *parent=0 );
+    explicit PHINetRequestThread( PHIResponseRec *resp, QObject *parent=0 );
     virtual ~PHINetRequestThread();
     QString getText( const QString &url );
     QImage getImage( const QString &url );

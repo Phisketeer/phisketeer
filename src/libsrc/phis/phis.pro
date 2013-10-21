@@ -22,10 +22,12 @@ HEADERS += \
     phismodulefactory.h \
     phishttp.h \
     phislistener.h \
+    phispagecache.h \
     phisconnthread.h \
     phislogwriter.h \
     phisserverrec.h \
-    phisserverrequest.h
+    phisserverrequest.h \
+    phisprocessor.h
 SOURCES += \
     phis.cpp \
     phisparent.cpp \
@@ -35,7 +37,9 @@ SOURCES += \
     phislistener.cpp \
     phisconnthread.cpp \
     phislogwriter.cpp \
-    phisserverrequest.cpp
+    phispagecache.cpp \
+    phisserverrequest.cpp \
+    phisprocessor.cpp
 
 include( ../../../phiconf.pri )
 VERSION = $$PHIRELEASE
@@ -61,29 +65,24 @@ OTHER_FILES += js/phibase.js js/excanvas.js \
     phishtmlgecko100.h \
     phidataparser.h \
     phiprocessor.h \
-    phispagecache.h \
     phisscriptobjects.h \
     phisitemcache.h \
     phisitemdata.h \
     phihtmlgenerator.h \
     phigenerator.h \
-    phinetrequest.h \
     phisession.h \
     phisimagecache.h \
     phishtmlbase.h \
     phidatasources.cpp \
     phiresponserec.cpp \
     phiprocessor.cpp \
-    phispage.cpp \
     phidataparser.cpp \
-    phispagecache.cpp \
     phisscriptobjects.cpp \
     phisitem.cpp \
     phisitemcache.cpp \
     phisitemdata.cpp \
     phihtmlgenerator.cpp \
     phigenerator.cpp \
-    phinetrequest.cpp \
     phisession.cpp \
     phisimagecache.cpp \
     phisrequest.cpp \

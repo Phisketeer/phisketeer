@@ -57,6 +57,7 @@ public:
     QByteArray createErrorResponseHeader( PHIRC rc, const QString &serverString ) const;
     QByteArray timeEncoded( const QDateTime &dt ) const;
 
+    inline void setHeadRequestOnly() { _options |= HeaderOnly; }
     inline qint64 contentLength() const { return _contentLength; }
     inline void setContentLength( qint64 l ) { _contentLength=l; }
     inline QByteArray contentType() const { return _contentType; }
@@ -76,8 +77,8 @@ public:
     inline void setMinorHttpVer( quint8 ver ) { _minorHttpVer=ver; }
     inline void error( int type, const char* file, int line, const QDateTime &dt, PHIRC rc, const QString &desc )
         { _error._type=type; _error._file=file; _error._line=line; _error._dt=dt; _error._rc=rc; _error._desc=desc; }
-    inline void setHeader( const QString &name, const QString &content ) {
-        _headersOut.insert( name.toUtf8(), content.toUtf8() ); }
+    inline void setHeader( const QByteArray &name, const QByteArray &content ) {
+        _headersOut.insert( name, content ); }
     inline void redirect( const QString &file ) { _fileToSend=file; _options=Redirect; }
     inline void setFileName( const QString &file ) { _fileToSend=file;
         file.isEmpty() ? _options &= ~SendFile : _options |= SendFile; }

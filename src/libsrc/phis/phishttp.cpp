@@ -27,9 +27,9 @@
 #include <QCoreApplication>
 #include <QSqlDatabase>
 #include "phishttp.h"
-//#include "phiprocessor.h"
+#include "phisprocessor.h"
 #include "phisysinfo.h"
-//#include "phispagecache.h"
+#include "phispagecache.h"
 #include "phisparent.h"
 #include "phiapplication.h"
 #include "phislogwriter.h"
@@ -57,18 +57,14 @@ PHISHttp::~PHISHttp()
         } // remove db instance
         QSqlDatabase::removeDatabase( QString::number( _dbConnId ) );
     }
-    // @todo: remove DB ID from page cache
-    //PHISPageCache::removeDbId( _dbConnId );
+    PHISPageCache::removeDbId( _dbConnId );
     qDebug( "PHISHttp::~PHISHttp()" );
 }
 
 PHIRC PHISHttp::init( qintptr socketDesc, bool usessl, QString &err )
 {
     Q_UNUSED( err );
-    //qDebug( "PHISHttp::init()" );
-    // @todo: create DB ID
-    //_dbConnId=PHISPageCache::getDbId();
-    _dbConnId=1;
+    _dbConnId=PHISPageCache::getDbId();
     if ( usessl ) {
         _socket=new QSslSocket( this );
         _socket->setSocketDescriptor( socketDesc );
@@ -110,10 +106,9 @@ PHIRC PHISHttp::init( qintptr socketDesc, bool usessl, QString &err )
     try {
         _req=new PHISServerRequest( &_server, &_resp, this );
     } catch ( std::bad_alloc& ) {
-        emit log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, err=tr( "Could not init request. Out of memory." ) );
+        emit log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, err=tr( "Could not init request." ) );
         return PHIRC_OUT_OF_MEMORY;
     }
-    _req->dump();
     qDebug( "PHISHttp::init() - end" );
     return PHIRC_OK;
 }
@@ -146,9 +141,8 @@ PHIRC PHISHttp::sendResponse( QString &err )
     qWarning( "sendResponse %s", qPrintable( _req->url().toString() ) );
     QTime t=QTime::currentTime();
 #endif
-
-    //PHIProcessor proc( _req, _dbConnId );
-    //proc.run();
+    PHISProcessor proc( _req, _dbConnId );
+    proc.run();
 
 #ifdef PHIDEBUG
     qWarning( "Time elapsed: %d", t.msecsTo( QTime::currentTime() ) );

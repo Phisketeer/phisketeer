@@ -22,6 +22,7 @@
 #include "phibaseitem.h"
 #include "phiitemfactory.h"
 #include "phidatasources.h"
+#include "phidataparser.h"
 
 PHIDynPageData::PHIDynPageData()
 {

@@ -31,11 +31,11 @@ class PHISListener : public QTcpServer
 
 public:
     static PHISListener* instance();
+    virtual ~PHISListener();
     PHIRC init( QObject*, const QString &name=PHI::defaultString() );
 
 protected:
     explicit PHISListener( QObject *parent=0 );
-    virtual ~PHISListener();
     virtual void incomingConnection( qintptr );
 
 private:
@@ -51,11 +51,11 @@ class PHISslListener : public QTcpServer
 
 public:
     static PHISslListener* instance();
+    virtual ~PHISslListener();
     PHIRC init( QObject*, const QString &name=PHI::defaultString() );
 
 protected:
     PHISslListener( QObject *parent=0 );
-    virtual ~PHISslListener();
     virtual void incomingConnection( qintptr );
 
 private:

@@ -17,87 +17,120 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "phispagecache.h"
-#include "phisitemcache.h"
+#include "phibasepage.h"
+#include "phirequest.h"
+#include "phiresponserec.h"
+#include "phiitemfactory.h"
 
-QHash <QString, PageHash> PHISPageCache::_pages;
-QHash <QString, PageModified> PHISPageCache::_modified;
+QHash <QString, PageHash> PHISPageCache::_pages; // domain -> pages
+QHash <QString, PageModified> PHISPageCache::_modified; // domain -> page modification
 QSet <int> PHISPageCache::_dbIds;
 QMutex PHISPageCache::_dbLock;
 QReadWriteLock PHISPageCache::_lock;
 
-// must be read locked outside
-QDateTime PHISPageCache::modified( const PHISRequest *req, const QByteArray &pageId )
+static void _copyItems( PHIBasePage *dest, const PHIBasePage *source )
+{
+    Q_ASSERT( dest && source );
+    PHIBaseItem *it;
+    PHIBaseItem *copy;
+    foreach( it, source->items() ) {
+        copy=PHIItemFactory::instance()->copy( it );
+        Q_ASSERT( copy );
+        copy->setParent( dest );
+    }
+}
+
+QDateTime PHISPageCache::modified( const PHIRequest *req, const QString &pageId )
 {
     QDateTime dt;
+    _lock.lockForRead();
     dt=_modified.value( req->hostname() ).value( pageId, QDateTime() );
+    _lock.unlock();
     return dt;
 }
 
-// must be read locked outside
-PHISPage* PHISPageCache::page( const PHISRequest *req, const QString &id, const QDateTime &dt )
+PHIBasePage* PHISPageCache::page( const PHIRequest *req )
 {
-    PHISPage *p=_pages.value( req->hostname() ).value( id, 0 );
-    if ( !p ) return 0;
-    QDateTime stamp=_modified.value( req->hostname() ).value( p->internalId(), QDateTime() );
-    qDebug( "STAMP %s / %s", qPrintable( stamp.toString() ), qPrintable( dt.toString() ) );
-    if ( stamp != dt ) {        
-        _lock.unlock();
-        _lock.lockForWrite();
-        PHISItemCache::instance()->invalidate( req, p->internalId() );
-        qDebug( "%s has been updated", p->internalId().data() );
-
-        PageModified pm=_modified.take( req->hostname() );
-        pm.remove( p->internalId() );
-        _modified.insert( req->hostname(), pm );
-
-        PageHash ph=_pages.take( req->hostname() );
-        Q_ASSERT( p==ph.value( id, 0 ) );
-        ph.remove( id );
-        delete p;
-        _pages.insert( req->hostname(), ph );
-        return 0;
+    _lock.lockForRead();
+    const PHIBasePage *p=_pages.value( req->hostname() ).value( req->canonicalFilename(), 0 );
+    if ( p ) {
+        QDateTime stamp=_modified.value( req->hostname() ).value( p->id(), QDateTime() );
+        if ( stamp < req->lastModified() ) { // remove cached page
+            _lock.unlock();
+            _lock.lockForWrite();
+            PageModified pm=_modified.take( req->hostname() );
+            pm.remove( p->id() );
+            _modified.insert( req->hostname(), pm );
+            PageHash ph=_pages.take( req->hostname() );
+            Q_ASSERT( p==ph.value( p->id(), 0 ) );
+            ph.remove( req->canonicalFilename() );
+            _pages.insert( req->hostname(), ph );
+            delete p;
+            _lock.unlock();
+            return 0;
+        }
+        try {
+            PHIBasePage *copy=new PHIBasePage( *p );
+            _copyItems( copy, p );
+            Q_CHECK_PTR( copy );
+            _lock.unlock();
+            return copy;
+        } catch ( std::bad_alloc& ) {
+            req->responseRec()->log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, QObject::tr( "Could not copy page '%1'." ).arg( p->id() ) );
+        }
     }
-    qDebug( "found cached page" );
-    return p;
+    _lock.unlock();
+    return 0;
 }
 
-//must be read locked outside
-PHISPage* PHISPageCache::insert( const PHISRequest *req, PHISPage *p )
+PHIBasePage* PHISPageCache::insert( const PHIRequest *req, const PHIBasePage *p )
 {
-    return insert( req, req->canonicalFilename(), req->lastModified(), p );
-}
-
-//must be read locked outside
-PHISPage* PHISPageCache::insert( const PHISRequest *req, const QString &id, const QDateTime &dt, PHISPage *p )
-{
+    if ( p==0 ) return 0;
     PageModified pm;
     PageHash ph;
-    _lock.unlock();
     _lock.lockForWrite();
-    if ( _pages.value( req->hostname() ).contains( id ) ) {
+    if ( _pages.value( req->hostname() ).contains( req->canonicalFilename() ) ) {
         // race condition: another thread inserted page before
+        const PHIBasePage *p2=_pages.value( req->hostname() ).value( req->canonicalFilename(), 0 );
+        Q_ASSERT( p2 );
         delete p;
-        return _pages.value( req->hostname() ).value( id, 0 );
+        try {
+            PHIBasePage *copy=new PHIBasePage( *p2 );
+            _copyItems( copy, p2 );
+            _lock.unlock();
+            return copy;
+        } catch ( std::bad_alloc& ) {
+            req->responseRec()->log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, QObject::tr( "Could not copy page '%1'." ).arg( p->id() ) );
+        }
+        _lock.unlock();
+        return 0;
     }
-
     pm=_modified.take( req->hostname() );
-    pm.insert( p->internalId(), dt );
+    pm.insert( p->id(), req->lastModified() );
     _modified.insert( req->hostname(), pm );
 
     ph=_pages.take( req->hostname() );
-    Q_ASSERT( !ph.contains( id ) );
-    ph.insert( id, p );
+    Q_ASSERT( !ph.contains( req->canonicalFilename() ) );
+    ph.insert( req->canonicalFilename(), p );
     _pages.insert( req->hostname(), ph );
-    return p;
+    try {
+        PHIBasePage *copy=new PHIBasePage( *p );
+        _copyItems( copy, p );
+        _lock.unlock();
+        return copy;
+    } catch ( std::bad_alloc& ) {
+        req->responseRec()->log( PHILOGCRIT, PHIRC_OUT_OF_MEMORY, QObject::tr( "Could not copy page '%1'." ).arg( p->id() ) );
+    }
+    _lock.unlock();
+    return 0;
 }
 
 void PHISPageCache::invalidate()
 {
     qDebug( "PHISPageCache::invalidate()" );
     _lock.lockForWrite();
-    PHISItemCache::instance()->invalidate();
     PageHash ph;
-    PHISPage *page;
+    const PHIBasePage *page;
     foreach ( ph, _pages.values() ) {
         foreach ( page, ph.values() ) delete page;
         ph.clear();
@@ -108,24 +141,4 @@ void PHISPageCache::invalidate()
     foreach ( pm, _modified ) pm.clear();
     _modified.clear();
     _lock.unlock();
-}
-
-int PHISPageCache::getDbId()
-{
-    _dbLock.lock();
-    int i=-1;
-    while( 1 ) {
-        if ( _dbIds.contains( ++i ) ) continue;
-        break;
-    }
-    _dbIds.insert( i );
-    _dbLock.unlock();
-    return i;
-}
-
-void PHISPageCache::removeDbId( int id )
-{
-    _dbLock.lock();
-    _dbIds.remove( id );
-    _dbLock.unlock();
 }

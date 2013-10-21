@@ -132,7 +132,6 @@ PHIRC PHISServerRequest::setupHttpHeader( const QString &headerStr, QString &err
     }
     _keywords.insert( KServerHostname, key.toUtf8() );
     value=PHISParent::instance()->documentRoot( key );
-    QString index=PHISParent::instance()->index();
     if ( value.isEmpty() ) {
         err=tr( "Document root for virtual host name '%1' not found." ).arg( key );
         return PHIRC_HTTP_FORBIDDEN;
@@ -140,7 +139,7 @@ PHIRC PHISServerRequest::setupHttpHeader( const QString &headerStr, QString &err
     _documentRoot=value;
     _tmpDir=PHISParent::instance()->tempDir( key );
     _imgDir=_tmpDir+L1( "/img" );
-    _canonicalFilename=_documentRoot+_url.path();
+    _canonicalFilename=QDir::fromNativeSeparators( _documentRoot+_url.path() );
     //qDebug( "FILE %s %s", qPrintable( _canonicalFilename ), qPrintable( _url.toString() ) );
 
     if ( _canonicalFilename.endsWith( L1( "/phi.phis" ) ) ) {
@@ -148,13 +147,12 @@ PHIRC PHISServerRequest::setupHttpHeader( const QString &headerStr, QString &err
     } else {
         QFileInfo fi( _canonicalFilename );
         if ( fi.isDir() ) {
-            if ( _canonicalFilename.endsWith( QLatin1Char( '/' ) )
-                || _canonicalFilename.endsWith( QLatin1Char( '\\' ) ) )
-                _canonicalFilename.chop( 1 );
+            if ( _canonicalFilename.endsWith( QLatin1Char( '/' ) ) ) _canonicalFilename.chop( 1 );
+            QString index=PHISParent::instance()->index();
             index.replace( QRegExp( SL( "\\s" ) ), QString() );
             QStringList indexList=index.split( QLatin1Char( ',' ), QString::SkipEmptyParts );
             foreach ( index, indexList ) {
-                fi.setFile( _canonicalFilename+QDir::separator()+index );
+                fi.setFile( _canonicalFilename+QLatin1Char( '/' )+index );
                 if ( fi.exists() ) break;
             }
         }
