@@ -271,8 +271,6 @@ void PHISlideShowItem::updateImages()
 
 void PHISlideShowItem::squeeze()
 {
-    _pauseTimer->stop();
-    _fadeTimer->stop();
     PHIAbstractImageBookItem::squeeze();
     removeData( DInterval );
     removeData( DFadeTime );

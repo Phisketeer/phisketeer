@@ -18,23 +18,33 @@
 */
 #ifndef PHISIMAGECACHE_H
 #define PHISIMAGECACHE_H
-
 #include <QObject>
-#include "phiresponserec.h"
+#include <QSqlDatabase>
+#include "phierror.h"
+
+class PHIRequest;
 
 class PHISImageCache : public QObject
 {
+    Q_DISABLE_COPY( PHISImageCache )
     Q_OBJECT
 
 public:
-    PHISImageCache( PHIResponseRec *resp, const QString &tempDir, QObject *parent=0 );
+    static PHISImageCache* instance();
     virtual ~PHISImageCache();
-    QString createId();
+    QString createId( const PHIRequest *req );
+    const QString& lastError() const { return _lastError; }
+    PHIRC lastRC() const { return _rc; }
+    void cleanCache( const PHIRequest *req ) const;
+
+protected:
+    PHISImageCache( QObject *parent );
 
 private:
-    PHIResponseRec *_resp;
-    int _id;
-    QString _path;
+    static PHISImageCache *_instance;
+    QSqlDatabase _db;
+    PHIRC _rc;
+    QString _lastError, _name;
 };
 
 #endif // PHISIMAGECACHE_H

@@ -31,7 +31,7 @@ class PHIBaseItem;
 class PHIDynPageData;
 class PHITextData;
 class PHIImageData;
-class PHIRequest;
+class PHIDataParser;
 
 class PHIDynPageData
 {
@@ -94,13 +94,17 @@ public:
         DBgImageOptions=20, DBgImageXOff=21, DBgImageYOff=22, DDefaultLang=23,
         DGeometry=24, DDBUser=25, DDBName=26, DDBDriver=27, DDBPasswd=28,
         DDBPort=29, DDBOptions=30, DDBHost=31, DDBFileName=32, DServerModules=33,
-        DBgColor=34, DWidth=35, DHeight=36 }; // quint8
+        DBgColor=34, DWidth=35, DHeight=36, DServerscript=37 }; // quint8
     enum Flag { FNone=0x0, FUseOwnPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
         FUseOpenGraph=0x8, FHasAction=0x10, FUseSession=0x20, FHidePhiMenu=0x40,
         FUseMasterPalette=0x80, FUseBgImage=0x100, FNoUnderlinedLinks=0x200,
-        FHasMasterTemplate=0x400, FServerscript=0x800, FJavaScript=0x1000,
+        FHasMasterTemplate=0x400, FServerScript=0x800, FJavaScript=0x1000,
         FNoSystemCSS=0x2000, FNoUiThemeCSS=0x4000, FUseCSS=0x8000, FUseDB=0x10000,
-        FDBFile=0x20000, FServerModulesCombat=0x40000, FNeedsParsing=0x80000 }; // quint32
+        FDBFile=0x20000, FServerModulesCombat=0x40000 }; // quint32
+    enum DirtyFlag { DFClean=0x0, DFAction=0x1, DFVersion=0x2, DFCompany=0x4,
+        DFKeys=0x8, DFServerScript=0x10, DFJavaScript=0x20, DFMenuItems=0x40,
+        DFCopyright=0x80, DFStyleSheet=0x100, DFSize=0x200, DFFontFamily=0x400,
+        DFOpenGraph=0x800, DFDescription=0x1000, DFSessionRedirect=0x2000 };
     enum Geometry { GUnknown=0, GA4=1, GLetter=2, GCustom=3, GPhi=4, G4_3=5, G16_9=6, GiPad=7 };
     enum SessionOption { SNone=0x0, SRequiresLogin=0x1, SRequiresSession=0x2,
         SSessionCookie=0x4, SCreateSession=0x8 };
@@ -108,12 +112,14 @@ public:
 
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
+    Q_DECLARE_FLAGS( DirtyFlags, DirtyFlag )
 #else
     typedef quint32 Flags;
+    typedef quint32 DirtyFlags;
 #endif
 
     explicit PHIBasePage( QObject *parent );
-    virtual ~PHIBasePage() { delete _pageData; }
+    virtual ~PHIBasePage() { delete _pageData; qDebug() << "delete" << _id; }
     PHIBasePage( const PHIBasePage &p ) : QObject( p.parent() ),
         _pageData( new PHIDynPageData() ), _id( p._id ), _currentLang( p._currentLang ),
         _width( p._width ), _height( p._height ), _variants( p._variants ),
@@ -121,10 +127,10 @@ public:
         _dbUser( p._dbUser ), _dbDriver( p._dbDriver ), _dbOptions( p._dbOptions ),
         _dbFileName( p._dbFileName ), _dbPort( p._dbPort ), _favicon( p._favicon ),
         _font( p._font ), _bgColor( p._bgColor), _menuEntries( p._menuEntries ),
-        _flags( p._flags ), _pal( p._pal ) { *_pageData=*p._pageData; }
+        _flags( p._flags ), _dirtyFlags( p._dirtyFlags ), _pal( p._pal ) { *_pageData=*p._pageData; }
     PHIBasePage& operator=( const PHIBasePage &p );
-    bool operator==( const PHIBasePage &p );
-    inline bool operator!=( const PHIBasePage &p ) { return !operator==(p); }
+    bool operator==( const PHIBasePage &p ); // IDE only
+    inline bool operator!=( const PHIBasePage &p ) { return !operator==(p); } // IDE only
     inline Flags flags() const { return _flags; }
     inline void setFlag( Flag f, bool b=true ) { b ? _flags |= f : _flags &= ~f; }
     inline void setMenuEntries( const QList <PHIPageMenuEntry> &list ) { _menuEntries=list; }
@@ -160,7 +166,8 @@ public:
     quint16 load(QDataStream &in, qint32 version ); // returns item count
     void save( QDataStream &out, qint32 version );
     void squeeze();
-    void parseData( const PHIRequest &req );
+    void parseData( const PHIDataParser &parser );
+    void createTmpData( const PHIDataParser &parser );
 
     inline QString dbFileName() const { return _dbFileName; }
     inline void setDbFileName( const QString &fn ) { _dbFileName=fn; }
@@ -178,8 +185,9 @@ public:
     inline void setDbDriver( const QString &d ) { _dbDriver=d; }
     inline qint32 dbPort() const { return _dbPort; }
     inline void setDbPort( qint32 p ) { _dbPort=p; }
+    inline QString serverScript() const { return QString::fromLatin1( _variants.value( DServerscript ).toByteArray() ); }
 
-// Available for scripting
+    // Available for scripting
 public slots:
     inline QString id() const { return QString::fromLatin1( _id ); }
     inline void setTitle( const QString &s ) { _variants.insert( DTitle, s.toUtf8() ); }
@@ -296,11 +304,13 @@ private:
     QColor _bgColor;
     QList <PHIPageMenuEntry> _menuEntries;
     Flags _flags;
+    DirtyFlags _dirtyFlags;
     PHIPalette _pal;
 };
 
 #ifdef PHIDEBUG
     Q_DECLARE_OPERATORS_FOR_FLAGS( PHIBasePage::Flags )
+    Q_DECLARE_OPERATORS_FOR_FLAGS( PHIBasePage::DirtyFlags )
 #endif
 
 PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIBasePage* );

@@ -38,7 +38,7 @@ class PHIEXPORT PHIRequest
 public:
     enum AgentEngine { UnknownEngine=0, Trident=1, Gecko=2, WebKit=3, Presto=4, MaxAgentEngine=5 };
     enum AgentId { UnknownAgent=0, IE=1, Firefox=2, Konqueror=3, Safari=4, Chrome=5, Opera=6,
-        Amphibia=7, SeaMonkey=8, MaxAgentId=9 };
+        Amphibia=7, SeaMonkey=8, Phis=9, MaxAgentId=10 };
     enum OSType { UnknownOS=0, Windows=1, Linux=2, MacOS=3, iOS=4, Symbian=5, WindowsMobile=6,
         Android=7, Solaris=8, AIX=9, HPUX=10, MaxOSType=11 };
     enum Key { KMethod=1, KContentType, KDefName, KAdmin, KServerDesc, KServerHostname };
@@ -63,15 +63,17 @@ public:
     inline void setEngineMajorVersion( qint32 major ) const { _engineMajorVersion=major; }
     inline qint32 engineMinorVersion() const { return _engineMinorVersion; }
     inline void setEngineMinorVersion( qint32 minor ) const { _engineMinorVersion=minor; }
-    inline QString currentLang() const { return _lang; }
+    inline const QString& currentLang() const { return _lang; }
     inline void setCurrentLang( const QString &l ) const { _lang=l; _langByteArray=_lang.toLatin1(); }
-
+    inline void setCurrentLang( const QByteArray &l ) const { _langByteArray=l; _lang=QString::fromLatin1( l ); }
     inline const QByteArray& currentLangByteArray() const { return _langByteArray; }
     inline qint8 httpServerMajorVersion() const { return _httpMajor; }
     inline qint8 httpServerMinorVersion() const { return _httpMinor; }
     inline qint32 keepAlive() const { return _keepAlive; }
     inline qint64 contentLength() const { return _contentLength; }
     inline bool isPhiLangRequest() const { return _philang; }
+    inline const QByteArray& defaultLang() const { return _defaultLang; }
+    inline void setDefaultLang( const QByteArray &l ) const { _defaultLang=l; }
 
     //inline QTemporaryFile* tmpFile( const QString &key ) const { return _tmpFiles.value( key.toUtf8(), 0 ); }
     inline const QUrl& url() const { return _url; }
@@ -85,8 +87,8 @@ public:
     inline const QString& documentRoot() const { return _documentRoot; }
     inline const QString& tmpDir() const { return _tmpDir; }
     inline const QString& imgDir() const { return _imgDir; }
+    inline const QString& canonicalFilename() const { return _canonicalFilename; }
     inline QString header( const QString &key ) const { return QString::fromUtf8( _headers.value( key.toUtf8() ) ); }
-    inline QString canonicalFilename() const { return _canonicalFilename; }
     inline QString hostname() const { return _url.host(); }
     inline QString user() const { return _url.userName(); }
     inline QString password() const { return _url.password(); }
@@ -109,7 +111,7 @@ public:
     inline QString cookieValue( const QString &key ) const {  return _cookies.value( key ); }
     inline QString getValue( const QString &key ) const { return QUrlQuery( _url ).queryItemValue( key ); }
     inline QString postValue( const QString &key ) const { return _postData.value( key ); }
-    inline QString headerValue( const QString &key ) const { return QString::fromUtf8( _headers.value( key.toUtf8() ) ); }
+    inline QByteArray headerValue( const QByteArray &key ) const { return _headers.value( key ); }
     inline QStringList postKeys() const { return _postData.uniqueKeys(); }
     inline QStringList cookieKeys() const { return _cookies.uniqueKeys(); }
     inline QStringList requestKeys() const { return cookieKeys()+postKeys()+getKeys(); }
@@ -152,6 +154,7 @@ public:
     static QDateTime dateTimeFromHeader( const QByteArray &modified );
 
 protected:
+    mutable QByteArray _defaultLang;
     mutable QString _lang; // can be overwritten by the Serverscript engine
     mutable QByteArray _langByteArray; //                       "
     mutable quint8 _agentEngine, _agentId, _osType; //          "
@@ -212,18 +215,18 @@ inline QStringList PHIRequest::fileKeys() const
 
 inline const QStringList& PHIRequest::serverKeys() const
 {
-    static QStringList list=QStringList() << QStringLiteral( "documentroot" )
-        << QStringLiteral( "self" ) << QStringLiteral( "url" ) << QStringLiteral( "filename" )
-        << QStringLiteral( "hostname" ) << QStringLiteral( "tempdir" ) << QStringLiteral( "contentlength" )
-        << QStringLiteral( "contentType" ) << QStringLiteral( "postdata" ) << QStringLiteral( "agent" )
-        << QStringLiteral( "started" ) << QStringLiteral( "today" ) << QStringLiteral( "nowutc" )
-        << QStringLiteral( "modified" ) << QStringLiteral( "user" ) << QStringLiteral( "password" )
-        << QStringLiteral( "accept" ) << QStringLiteral( "scheme" ) << QStringLiteral( "method" )
-        << QStringLiteral( "servername" ) << QStringLiteral( "serverdef" ) << QStringLiteral( "admin" )
-        << QStringLiteral( "serverhost" ) << QStringLiteral( "port" ) << QStringLiteral( "keepalive" )
-        << QStringLiteral( "localaddress" ) << QStringLiteral( "remoteaddress" )
-        << QStringLiteral( "version" ) << QStringLiteral( "userengine" )
-        << QStringLiteral( "useragent" ) << QStringLiteral( "useros" );
+    static QStringList list=QStringList() << SL( "documentroot" )
+        << SL( "self" ) << SL( "url" ) << SL( "filename" )
+        << SL( "hostname" ) << SL( "tempdir" ) << SL( "contentlength" )
+        << SL( "contentType" ) << SL( "postdata" ) << SL( "agent" )
+        << SL( "started" ) << SL( "today" ) << SL( "nowutc" )
+        << SL( "modified" ) << SL( "user" ) << SL( "password" )
+        << SL( "accept" ) << SL( "scheme" ) << SL( "method" )
+        << SL( "servername" ) << SL( "serverdef" ) << SL( "admin" )
+        << SL( "serverhost" ) << SL( "port" ) << SL( "keepalive" )
+        << SL( "localaddress" ) << SL( "remoteaddress" )
+        << SL( "version" ) << SL( "userengine" )
+        << SL( "useragent" ) << SL( "useros" );
     return list;
 }
 

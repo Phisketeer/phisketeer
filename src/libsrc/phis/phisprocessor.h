@@ -19,9 +19,12 @@
 #ifndef PHISPROCESSOR_H
 #define PHISPROCESSOR_H
 #include <QCoreApplication>
+#include <QSqlDatabase>
 
 class PHIRequest;
 class PHIBasePage;
+class PHIBaseItem;
+class QFile;
 
 class PHISProcessor
 {
@@ -31,15 +34,17 @@ class PHISProcessor
 public:
     explicit PHISProcessor( const PHIRequest *req, int dbConnId )
         : _req( req ), _dbConnId( dbConnId ) {}
-    void run() const;
+    void run();
 
 protected:
-    PHIBasePage* loadPage() const;
+    PHIBasePage* loadPage( QFile &file );
+    void initDb( const PHIBasePage *page );
     void genSysItem() const;
 
 private:
     const PHIRequest *_req;
     const int _dbConnId;
+    QSqlDatabase _db;
 };
 
 #endif // PHISPROCESSOR_H

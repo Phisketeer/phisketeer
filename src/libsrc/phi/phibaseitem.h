@@ -37,6 +37,7 @@ class PHIGraphicsItem;
 class PHIRequest;
 class PHISDataParser;
 class PHIConfigWidget;
+class PHIDataParser;
 
 class PHIEXPORT PHIBaseItemPrivate
 {
@@ -73,6 +74,7 @@ class PHIEXPORT PHIBaseItem : public QObject
     friend class ARTItemSettings;
     friend class ARTItemProperties;
     friend class ARTItemCSS;
+    friend class PHISProcessor;
 
     Q_OBJECT
     Q_PROPERTY( QString id READ name )
@@ -98,17 +100,21 @@ public:
     enum Wid { Unknown=0, User=1000 };
     enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4, DTransformPos=-5,
         DTransformOrigin=-6, DXRot=-7, DYRot=-8, DZRot=-9, DHSkew=-10, DVSkew=-11,
-        DParentId=-12, DFlags=-13, DVisibility=-14, DStyleSheet=-15,
+        DParentId=-12, DFlags=-13, DVisibility=-14, DStyleSheet=-15, DParseData=-16,
         DGradientType=-23, DGradientStartPoint=-24, DGradientStopPoints=-25,
         DGradientFinalStopPoint=-26, DGradientSpreadType=-27, DGradientAngle=-28,
         DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200 }; //quint32
+    enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
+        DFEffect=0x8, DFPos=0x10, DFSize=0x20 };
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
+    Q_DECLARE_FLAGS( DirtyFlags, DirtyFlag )
 #else
     typedef quint32 Flags;
+    typedef quint32 DirtyFlags;
 #endif
     /*
     enum Widget {
@@ -243,8 +249,8 @@ public slots: // usable by script engine
     inline PHIWID type() const { return wid(); }
     inline bool visible() const { return _variants.value( DVisibility, true ).toBool(); }
 
-    inline void setX( qreal x ) { if ( _x==x ) return; _x=x; if ( _gw ) _gw->setX( x ); }
-    inline void setY( qreal y ) { if ( _y==y ) return; _y=y; if ( _gw ) _gw->setY( y ); }
+    inline void setX( qreal x ) { if ( _x==x ) return; _dirtyFlags|=DFPos; _x=x; if ( _gw ) _gw->setX( x ); }
+    inline void setY( qreal y ) { if ( _y==y ) return; _dirtyFlags|=DFPos; _y=y; if ( _gw ) _gw->setY( y ); }
     inline void setOpacity( qreal o ) { o=qBound( 0., o, 1. ); _variants.insert( DOpacity, o ); update(); }
     inline void setTitle( const QString &t ) { _variants.insert( DTitle, t.toUtf8() ); if ( _gw ) _gw->setToolTip( t ); }
     inline void setParentName( const QString &n ) { _parentId=n.toLatin1(); }
@@ -280,6 +286,8 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual void squeeze() {} // free unused data
+    virtual void parseData( const PHIDataParser &parser ) { Q_UNUSED( parser ) }
+    virtual void createTmpData( const PHIDataParser &parser ) { Q_UNUSED( parser ) }
     void setWidget( QWidget* );
     QWidget* widget() const;
     const PHIBasePage* page() const;
@@ -325,6 +333,8 @@ protected:
 private:
     PHIBaseItem& operator=( const PHIBaseItem& );
     void privateSqueeze();
+    void privateParseData( const PHIDataParser &parser );
+    void privateCreateTmpData( const PHIDataParser &parser );
     void updateEffect();
     void loadVersion1_x( const QByteArray &arr );
     inline void storeFlags() { _variants.insert( DFlags, static_cast<quint32>(_flags) ); }
@@ -366,6 +376,7 @@ private:
     QPointF _transformOrigin;
     PHIKeyHash _variants;
     Flags _flags;
+    DirtyFlags _dirtyFlags;
     PHIBooleanData _visibleData;
     PHITextData _titleData, _styleSheetData;
     PHIEffect *_effect;
@@ -373,6 +384,7 @@ private:
 
 #ifdef PHIDEBUG
 Q_DECLARE_OPERATORS_FOR_FLAGS( PHIBaseItem::Flags )
+Q_DECLARE_OPERATORS_FOR_FLAGS( PHIBaseItem::DirtyFlags )
 #endif
 Q_DECLARE_METATYPE( PHIBaseItem* )
 Q_DECLARE_METATYPE( const PHIBaseItem* )
@@ -388,12 +400,14 @@ inline void baseItemFromScriptValue( const QScriptValue &obj, PHIBaseItem* &it )
 inline void PHIBaseItem::setWidth( qreal w )
 {
     if ( w==_width ) return;
+    _dirtyFlags |= DFSize;
     resize( QSizeF( w, _height ) );
 }
 
 inline void PHIBaseItem::setHeight( qreal h )
 {
     if ( h==_height ) return;
+    _dirtyFlags |= DFSize;
     resize( QSizeF( _width, h ) );
 }
 
@@ -401,6 +415,7 @@ inline void PHIBaseItem::setPos( const QPointF &p )
 {
     _x=p.x();
     _y=p.y();
+    _dirtyFlags |= DFPos;
     if ( _gw ) _gw->setPos( p );
 }
 
@@ -413,6 +428,7 @@ inline void PHIBaseItem::resize( const QSizeF &s )
 {
     _width=s.width();
     _height=s.height();
+    _dirtyFlags |= DFSize;
     if ( _gw ) _gw->resize( s );
 }
 

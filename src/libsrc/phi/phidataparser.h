@@ -18,24 +18,55 @@
 */
 #ifndef PHIDATAPARSER_H
 #define PHIDATAPARSER_H
+#include <QSqlQuery>
+#include <QSqlDatabase>
+#include <QCoreApplication>
 #include "phidatasources.h"
 
 class PHIRequest;
 class PHIBasePage;
+class PHIBaseItem;
 
 class PHIDataParser
 {
+    Q_DECLARE_TR_FUNCTIONS( PHIDataParser )
+
 public:
-    explicit PHIDataParser( const PHIRequest *req, const PHIBasePage *page )
-        : _req( req ), _page( page ) {}
-    QString parseText( PHITextData *data );
-    int parseInt( PHIIntData *data );
-    QImage parseImage( PHIImageData *data );
-    PHIImageHash parseImageBook( PHIImageBookData *data );
+    explicit PHIDataParser( const PHIRequest *req, const QString &pageId, const QSqlDatabase &db )
+        : _req( req ), _pageId( pageId ), _query( db ), _currentItem( 0 )
+        { _query.setForwardOnly( true ); }
+    inline const PHIRequest* request() const { return _req; }
+    QVariant text( PHIData *data ) const;
+    void createTmpImages( PHIImageData *data ) const;
+    QString imagePath( PHIImageData *data ) const;
+    inline void setCurrentItem( const PHIBaseItem *it ) const { _currentItem=it; }
+    inline const PHIBaseItem* currentItem() const { return _currentItem; }
+    //PHIImageHash parseImageBook( PHIImageBookData *data );
+
+protected:
+    enum Type { Header, Cookie, Post, Get, Request, Server, All };
+    QString parseVariables( const QString &arr ) const;
+    QString findValue( const QString &key, int index, Type type ) const;
+    inline QString sqlValue( int index ) const { return _query.isValid() ?
+        _query.value( index ).toString() : QString(); }
+    QString replaceDefaultLangC( const QString &filename ) const;
+    QString loadTextFromFile( const QString &filename, const QString &codec ) const;
+    QString loadTextFromUrl( const QString &url ) const;
+    QString loadTextFromDB( const QString &statement, const QString &templateText ) const;
+    QByteArray loadFromProcess( const QString &procName, const QString &a ) const;
+    QImage loadImageFromFile( const QString &filename ) const;
+    QImage loadImageFromUrl( const QString &url ) const;
+    QImage loadImageFromDB( const QString &statement ) const;
+    QByteArray createImageId( const QByteArray &name, const QByteArray &lang=PHIData::c(), int num=0 ) const;
+    void saveImage( const QImage &img, const QByteArray &id ) const;
+    void saveImage( const QString &filename, const QByteArray &id ) const;
+    void cacheText( PHIData *data, const QString &t, const QByteArray &lang=PHIData::c() ) const;
 
 private:
     const PHIRequest *_req;
-    const PHIBasePage *_page;
+    const QString _pageId;
+    mutable QSqlQuery _query;
+    mutable const PHIBaseItem *_currentItem;
 };
 
 #endif // PHIDATAPARSER_H

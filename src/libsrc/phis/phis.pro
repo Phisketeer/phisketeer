@@ -25,6 +25,7 @@ HEADERS += \
     phispagecache.h \
     phisconnthread.h \
     phislogwriter.h \
+    phisimagecache.h \
     phisserverrec.h \
     phisserverrequest.h \
     phisprocessor.h
@@ -37,6 +38,7 @@ SOURCES += \
     phislistener.cpp \
     phisconnthread.cpp \
     phislogwriter.cpp \
+    phisimagecache.cpp \
     phispagecache.cpp \
     phisserverrequest.cpp \
     phisprocessor.cpp
@@ -63,7 +65,7 @@ OTHER_FILES += js/phibase.js js/excanvas.js \
     phishtmltrident5.h \
     phishtmltrident6.h \
     phishtmlgecko100.h \
-    phidataparser.h \
+    phidataparserold.h \
     phiprocessor.h \
     phisscriptobjects.h \
     phisitemcache.h \
@@ -71,12 +73,11 @@ OTHER_FILES += js/phibase.js js/excanvas.js \
     phihtmlgenerator.h \
     phigenerator.h \
     phisession.h \
-    phisimagecache.h \
     phishtmlbase.h \
     phidatasources.cpp \
     phiresponserec.cpp \
     phiprocessor.cpp \
-    phidataparser.cpp \
+    phidataparserold.cpp \
     phisscriptobjects.cpp \
     phisitem.cpp \
     phisitemcache.cpp \
@@ -84,7 +85,6 @@ OTHER_FILES += js/phibase.js js/excanvas.js \
     phihtmlgenerator.cpp \
     phigenerator.cpp \
     phisession.cpp \
-    phisimagecache.cpp \
     phisrequest.cpp \
     phishtmlbase.cpp \
     phishtmlgeneric.cpp \

@@ -90,7 +90,9 @@ void PHIRequest::init() // should be executed AFTER all GET and POST var extract
             else if ( arr.indexOf( "Konqueror" )!=-1 ) _agentId=Konqueror;
             else if ( arr.indexOf( "Android" )!=-1 ) _agentId=Chrome;
             else if ( arr.indexOf( "Safari" )!=-1 ) _agentId=Safari;
+            else if ( arr.indexOf( "Opera" )!=-1 ) _agentId=Opera;
             else if ( arr.indexOf( "Amphibia" )!=-1 ) _agentId=Amphibia;
+            else if ( arr.indexOf( "Phis" )!=-1 ) _agentId=Phis;
             else _agentId=UnknownAgent;
             _agentEngine=WebKit;
             pos+=7;
@@ -190,14 +192,15 @@ void PHIRequest::init() // should be executed AFTER all GET and POST var extract
     list=QString::fromLatin1( _headers.value( "Accept-Language" ) ).split( QLatin1Char( ',' ), QString::SkipEmptyParts );
     foreach ( str, list ) {
         pos=str.indexOf( QLatin1Char( ';' ) );
-        if( pos>0 ) str=str.left( pos ); // remove qualifier
+        if ( pos>0 ) str=str.left( pos ); // remove qualifier
+        if ( str.size()>2 ) str[2]=QLatin1Char( '_' );
         _acceptedLangs.append( str.toLower() );
     }
     if ( _acceptedLangs.isEmpty() ) _lang=SL( "C" );
     else _lang=_acceptedLangs.first();
 
     // Extract cookies
-    QString philang=SL( "philang" );
+    static const QString philang=L1( "philang" );
     list=QString::fromUtf8( _headers.value( "Cookie" ) ).split( QLatin1Char( ';' ), QString::SkipEmptyParts );
     if ( list.count()>0 ) {
         _cookies.clear();
@@ -435,7 +438,7 @@ void PHIRequest::dump() const
     foreach ( str, acceptedLanguages() ) qWarning( "%s", qPrintable( str ) );
     qWarning( "[Header]" );
     foreach ( str, headerKeys() ) {
-        qWarning( "%s=%s", qPrintable( str ), qPrintable( headerValue( str ) ) );
+        qWarning( "%s=%s", qPrintable( str ), headerValue( str.toLatin1() ).constData() );
     }
     qWarning( "[Cookies]" );
     foreach ( str, cookieKeys() ) {

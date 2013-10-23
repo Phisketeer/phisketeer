@@ -25,8 +25,7 @@
 #include <QEvent>
 #include <QGraphicsSceneEvent>
 #include <QMimeData>
-#include <QMatrix4x4>
-#include <QGuiApplication>
+//#include <QMatrix4x4>
 #include "phibaseitem.h"
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
@@ -36,6 +35,7 @@
 #include "phiitemdata.h"
 #include "phieffects.h"
 #include "phiabstractitems.h"
+#include "phidataparser.h"
 
 QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem* const &it )
 {
@@ -68,7 +68,8 @@ PHIBaseItemPrivate::PHIBaseItemPrivate( const PHIBasePage *page )
 }
 
 PHIBaseItem::PHIBaseItem( const PHIBaseItemPrivate &p ) : QObject( p.page() ),
-    _type( p.type() ), _gw( p.gw() ), _flags( FNone ), _effect( new PHIEffect() )
+    _type( p.type() ), _gw( p.gw() ), _flags( FNone ), _dirtyFlags( DFClean ),
+    _effect( new PHIEffect() )
 {
     if ( _gw ) p.gw()->setBaseItem( this );
     _visibleData.setBoolean( true );
@@ -82,9 +83,9 @@ PHIBaseItem::PHIBaseItem( const PHIBaseItem &it )
       _width( it._width ), _height( it._height ), _xRot( it._xRot ), _yRot( it._yRot ),
       _zRot( it._zRot ), _hSkew( it._hSkew ), _vSkew( it._vSkew ),
       _zIndex( it._zIndex ), _transformOrigin( it._transformOrigin ),
-      _variants( it._variants ), _flags( it.flags() ), _visibleData( it._visibleData ),
-      _titleData( it._titleData ), _styleSheetData( it._styleSheetData ),
-      _effect( new PHIEffect() )
+      _variants( it._variants ), _flags( it._flags ), _dirtyFlags( it._dirtyFlags ),
+      _visibleData( it._visibleData ), _titleData( it._titleData ),
+      _styleSheetData( it._styleSheetData ), _effect( new PHIEffect() )
 {
     *_effect=*it._effect;
     if ( _type==PHIBaseItemPrivate::TIDEItem ) {
@@ -143,6 +144,7 @@ void PHIBaseItem::privateSqueeze()
     _variants.remove( DVSkew );
     _variants.remove( DParentId );
     _variants.remove( DFlags );
+    _variants.remove( DParseData );
     if ( !hasGradient() || property( "pattern" ).value<quint8>()<15 ) {
         _variants.remove( DGradientType );
         _variants.remove( DGradientStartPoint );
@@ -163,7 +165,7 @@ void PHIBaseItem::privateSqueeze()
 
 void PHIBaseItem::load( const QByteArray &arr, int version )
 {
-    if ( version<3 ) return loadVersion1_x( arr );
+    if ( Q_UNLIKELY( version<3 ) ) return loadVersion1_x( arr );
     Q_ASSERT( page() );
     QByteArray a( arr );
     QDataStream in( &a, QIODevice::ReadOnly );
@@ -658,6 +660,30 @@ void PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
 {
     qDebug( "base item key press" );
     e->ignore();
+}
+
+void PHIBaseItem::privateCreateTmpData( const PHIDataParser &parser )
+{
+    _dirtyFlags=DFClean;
+    privateSqueeze();
+    if ( _titleData.unparsedStatic() ) _variants.insert( DTitle, _titleData.variant() );
+    else _dirtyFlags |= DFTitleData;
+    if ( _flags & FUseStyleSheet ) {
+        if ( _styleSheetData.unparsedStatic() ) _variants.insert( DStyleSheet, _styleSheetData.variant() );
+        else _dirtyFlags |= DFStyleSheetData;
+    }
+    if ( _visibleData.unparsedStatic() ) setVisible( _visibleData.boolean() );
+    else _dirtyFlags |= DFVisibleData;
+    createTmpData( parser );
+}
+
+void PHIBaseItem::privateParseData( const PHIDataParser &parser )
+{
+    parser.setCurrentItem( this );
+    if ( _dirtyFlags & DFTitleData ) _variants.insert( DTitle, parser.text( &_titleData ) );
+    if ( _dirtyFlags & DFStyleSheetData ) _variants.insert( DStyleSheet, parser.text( &_styleSheetData ) );
+    if ( _dirtyFlags & DFVisibleData ) setVisible( parser.text( &_visibleData ).toBool() );
+    parseData( parser );
 }
 
 void PHIBaseItem::html5( const PHIRequest* const req, QByteArray &out, const QByteArray& indent )

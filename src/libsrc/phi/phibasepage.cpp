@@ -64,44 +64,45 @@ PHIDynPageData::~PHIDynPageData()
 
 PHIDynPageData::PHIDynPageData( const PHIDynPageData &p )
 {
-    _title=new PHITextData();
-    _styleSheet=new PHITextData();
-    _author=new PHITextData();
-    _version=new PHITextData();
-    _company=new PHITextData();
-    _copyright=new PHITextData();
-    _template=new PHITextData();
-    _javascript=new PHITextData();
-    _serverscript=new PHITextData();
-    _action=new PHITextData();
-    _keys=new PHITextData();
-    _sessionRedirect=new PHITextData();
-    _description=new PHITextData();
-    _opengraph=new PHITextData();
-    _bgImage=new PHIImageData();
+    if ( p._title ) _title=new PHITextData();
+    if ( p._styleSheet ) _styleSheet=new PHITextData();
+    if ( p._author ) _author=new PHITextData();
+    if ( p._version ) _version=new PHITextData();
+    if ( p._company ) _company=new PHITextData();
+    if ( p._copyright ) _copyright=new PHITextData();
+    if ( p._template ) _template=new PHITextData();
+    if ( p._javascript ) _javascript=new PHITextData();
+    if ( p._serverscript ) _serverscript=new PHITextData();
+    if ( p._action ) _action=new PHITextData();
+    if ( p._keys ) _keys=new PHITextData();
+    if ( p._sessionRedirect ) _sessionRedirect=new PHITextData();
+    if ( p._description ) _description=new PHITextData();
+    if ( p._opengraph ) _opengraph=new PHITextData();
+    if ( p._bgImage ) _bgImage=new PHIImageData();
     operator=(p);
 }
 
 PHIDynPageData& PHIDynPageData::operator=( const PHIDynPageData &p )
 {
-    *_title=*p._title;
-    *_styleSheet=*p._styleSheet;
-    *_author=*p._author;
-    *_version=*p._version;
-    *_company=*p._company;
-    *_copyright=*p._copyright;
-    *_template=*p._template;
-    *_javascript=*p._javascript;
-    *_serverscript=*p._serverscript;
-    *_action=*p._action;
-    *_keys=*p._keys;
-    *_sessionRedirect=*p._sessionRedirect;
-    *_description=*p._description;
-    *_opengraph=*p._opengraph;
-    *_bgImage=*p._bgImage;
+    if ( p._title ) *_title=*p._title;
+    if ( p._styleSheet ) *_styleSheet=*p._styleSheet;
+    if ( p._author ) *_author=*p._author;
+    if ( p._version ) *_version=*p._version;
+    if ( p._company ) *_company=*p._company;
+    if ( p._copyright ) *_copyright=*p._copyright;
+    if ( p._template ) *_template=*p._template;
+    if ( p._javascript ) *_javascript=*p._javascript;
+    if ( p._serverscript ) *_serverscript=*p._serverscript;
+    if ( p._action ) *_action=*p._action;
+    if ( p._keys ) *_keys=*p._keys;
+    if ( p._sessionRedirect ) *_sessionRedirect=*p._sessionRedirect;
+    if ( p._description ) *_description=*p._description;
+    if ( p._opengraph ) *_opengraph=*p._opengraph;
+    if ( p._bgImage ) *_bgImage=*p._bgImage;
     return *this;
 }
 
+// IDE only
 bool PHIDynPageData::operator==( const PHIDynPageData &p )
 {
     if ( *_title!=*p._title ) return false;
@@ -156,6 +157,7 @@ PHIBasePage::PHIBasePage( QObject *parent )
     _dbPort=3306;
     _dbDriver=SL( "QSQLITE" );
     _favicon=QImage( SL( ":/file/phiappview" ) );
+    _dirtyFlags=DFClean;
 }
 
 PHIBasePage& PHIBasePage::operator=( const PHIBasePage &p )
@@ -179,6 +181,7 @@ PHIBasePage& PHIBasePage::operator=( const PHIBasePage &p )
     _bgColor=p._bgColor;
     _menuEntries=p._menuEntries;
     _flags=p._flags;
+    _dirtyFlags=p._dirtyFlags;
     _pal=p._pal;
     return *this;
 }
@@ -204,6 +207,7 @@ bool PHIBasePage::operator==( const PHIBasePage &p )
     if ( _bgColor!=p._bgColor ) return false;
     if ( _menuEntries!=p._menuEntries ) return false;
     if ( _flags!=p._flags ) return false;
+    if ( _dirtyFlags!=p._dirtyFlags ) return false;
     if ( _pal!=p._pal ) return false;
     return true;
 }
@@ -287,6 +291,87 @@ PHIBaseItem* PHIBasePage::findItem( const QString &id ) const
     return findChild<PHIBaseItem*>(id);
 }
 
+// only run once at loading time from server
+void PHIBasePage::createTmpData( const PHIDataParser &p )
+{
+    squeeze();
+    _dirtyFlags=DFClean;
+    p.createTmpImages( bgImageData() );
+    if ( companyData()->unparsedStatic() ) {
+        if ( !companyData()->text().isEmpty() ) _variants.insert( DCompany, companyData()->variant() );
+        delete _pageData->_company; _pageData->_company=0;
+    }
+    if ( titleData()->unparsedStatic() ) {
+        if ( !titleData()->text().isEmpty() ) _variants.insert( DTitle, titleData()->variant() );
+        delete _pageData->_title; _pageData->_title=0;
+    }
+    if ( styleSheetData()->unparsedStatic() ) {
+        if ( !styleSheetData()->text().isEmpty() ) _variants.insert( DStyleSheet, styleSheetData()->variant() );
+        delete _pageData->_styleSheet; _pageData->_styleSheet=0;
+    }
+    if ( versionData()->unparsedStatic() ) {
+        if ( !versionData()->text().isEmpty() ) _variants.insert( DVersion, versionData()->variant() );
+        delete _pageData->_version; _pageData->_version=0;
+    }
+    if ( opengraphData()->unparsedStatic() ) {
+        if ( !opengraphData()->text().isEmpty() ) _variants.insert( DOpenGraph, opengraphData()->variant() );
+        delete _pageData->_opengraph; _pageData->_opengraph=0;
+    }
+    if ( javascriptData()->unparsedStatic() ) {
+        if ( !javascriptData()->text().isEmpty() ) _variants.insert( DJavascript, javascriptData()->variant() );
+        delete _pageData->_javascript; _pageData->_javascript=0;
+    }
+    if ( serverscriptData()->unparsedStatic() ) {
+        if ( !serverscriptData()->text().isEmpty() ) _variants.insert( DServerscript, serverscriptData()->variant() );
+        delete _pageData->_serverscript; _pageData->_serverscript=0;
+    }
+    if ( authorData()->unparsedStatic() ) {
+        if ( !authorData()->text().isEmpty() ) _variants.insert( DAuthor, authorData()->variant() );
+        delete _pageData->_author; _pageData->_author=0;
+    }
+    if ( copyrightData()->unparsedStatic() ) {
+        if ( !copyrightData()->text().isEmpty() ) _variants.insert( DCopyright, copyrightData()->variant() );
+        delete _pageData->_copyright; _pageData->_copyright=0;
+    }
+    if ( sessionRedirectData()->unparsedStatic() ) {
+        if ( !sessionRedirectData()->text().isEmpty() ) _variants.insert( DSessionRedirect, sessionRedirectData()->variant() );
+        delete _pageData->_sessionRedirect; _pageData->_sessionRedirect=0;
+    }
+    if ( actionData()->unparsedStatic() ) {
+        if ( !actionData()->text().isEmpty() ) _variants.insert( DAction, actionData()->variant() );
+        delete _pageData->_action; _pageData->_action=0;
+    }
+    if ( templatePageData()->unparsedStatic() ) {
+        if ( !templatePageData()->text().isEmpty() ) _variants.insert( DTemplatePage, templatePageData()->variant() );
+        delete _pageData->_template; _pageData->_template=0;
+    }
+    if ( descriptionData()->unparsedStatic() ) {
+        if ( !descriptionData()->text().isEmpty() ) _variants.insert( DDescription, descriptionData()->variant() );
+        delete _pageData->_description; _pageData->_description=0;
+    }
+    if ( keywordsData()->unparsedStatic() ) {
+        if ( !keywordsData()->text().isEmpty() ) _variants.insert( DKeys, keywordsData()->variant() );
+        delete _pageData->_keys; _pageData->_keys=0;
+    }
+}
+
+void PHIBasePage::parseData( const PHIDataParser &p )
+{
+    if ( Q_LIKELY( titleData() ) ) _variants.insert( DTitle, p.text( titleData() ) );
+    if ( Q_UNLIKELY( companyData() ) ) _variants.insert( DCompany, p.text( companyData() ) );
+    if ( Q_UNLIKELY( styleSheetData() ) ) _variants.insert( DStyleSheet, p.text( styleSheetData() ) );
+    if ( Q_UNLIKELY( versionData() ) ) _variants.insert( DVersion, p.text( versionData() ) );
+    if ( Q_UNLIKELY( opengraphData() ) ) _variants.insert( DOpenGraph, p.text( opengraphData() ) );
+    if ( Q_UNLIKELY( javascriptData() ) ) _variants.insert( DJavascript, p.text( javascriptData() ) );
+    if ( Q_UNLIKELY( serverscriptData() ) ) _variants.insert( DServerscript, p.text( serverscriptData() ) );
+    if ( Q_UNLIKELY( authorData() ) ) _variants.insert( DAuthor, p.text( authorData() ) );
+    if ( Q_UNLIKELY( copyrightData() ) ) _variants.insert( DCopyright, p.text( copyrightData() ) );
+    if ( Q_UNLIKELY( sessionRedirectData() ) ) _variants.insert( DSessionRedirect, p.text( sessionRedirectData() ) );
+    if ( Q_UNLIKELY( actionData() ) ) _variants.insert( DAction, p.text( actionData() ) );
+    if ( Q_UNLIKELY( templatePageData() ) ) _variants.insert( DTemplatePage, p.text( templatePageData() ) );
+    if ( Q_UNLIKELY( keywordsData() ) ) _variants.insert( DKeys, p.text( keywordsData() ) );
+}
+
 void PHIBasePage::squeeze()
 {
     _variants.remove( DDBDriver );
@@ -334,7 +419,7 @@ void PHIBasePage::save( QDataStream &out, qint32 version )
 quint16 PHIBasePage::load( QDataStream &in, qint32 version )
 {
     Q_ASSERT( items().count()==0 );
-    if ( version<3 ) return loadVersion1_x( in );
+    if ( Q_UNLIKELY( version<3 ) ) return loadVersion1_x( in );
     in.setVersion( PHI_DSV2 );
     quint32 flags;
     quint16 itemCount;
@@ -461,7 +546,7 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in )
         if ( attributes & AStyleSheet ) _flags |= FUseCSS;
         if ( attributes & AJavascript ) _flags |= FJavaScript;
         if ( attributes & ADatabase ) _flags |= FUseDB;
-        if ( attributes & AServerscript ) _flags |= FServerscript;
+        if ( attributes & AServerscript ) _flags |= FServerScript;
         if ( attributes & AApplication ) _flags |= FApplicationMode;
         if ( attributes & AUseTemplatePalette ) _flags |= FUseMasterPalette;
         if ( attributes & ANoSystemCSS ) _flags |= FNoSystemCSS;

@@ -38,7 +38,8 @@ public:
     enum Type { Unknown=0, Text=1, Image=2, ImageBook=3, Audio=4, Video=5, Stream=6, Integer=7,
         Boolean=8, StringList=9 }; //quint8
     enum Source { Undefined=0, Static=1, Translated=2, Database=3, File=4, Url=5, Process=6, Library=7 }; // quint8
-    enum Option { None=0x0, Parse=0x1, FileName=Parse, NoCache=0x2, DontSaveImage=0x4 }; // quint8
+    enum Option { None=0x0, Parse=0x1, FileName=Parse, NoCache=0x2, DontSaveImage=0x4,
+        TmpObjCreated=0x8 /* used in server */ }; // quint8
 
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Options, Option )
@@ -146,7 +147,11 @@ public:
     inline virtual Type type() const { return Image; }
     QImage image( const QByteArray &l=_c ) const;
     inline void setImage( const QImage &im, const QByteArray &l=_c )
-    { if ( im.isNull() ) _data.remove( l ); else _data.insert( l, im ); }
+        { if ( im.isNull() ) _data.remove( l ); else _data.insert( l, im ); }
+    inline void setImageId( const QByteArray &id, const QByteArray &l=_c )
+        { _data.insert( l, id ); _options |= TmpObjCreated; }
+    inline QByteArray imageId( const QByteArray &l=_c )
+        { return _data.value( l ).toByteArray(); }
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIImageData* );

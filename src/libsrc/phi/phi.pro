@@ -89,7 +89,7 @@ isEmpty( PHIDOM ): error( PHIDOM is not specified )
 isEmpty( PHIORG ): error( PHIORG is not specified )
 TEMPLATE = lib
 TARGET = phi
-QT = core gui network script widgets
+QT = core gui network script widgets sql
 DEFINES += PHILIB PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
 RESOURCES += phi.qrc
 unix { 

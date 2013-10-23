@@ -124,7 +124,7 @@ public:
     inline QString uploadTmpFile( const QString &key ) const { return _req->tmpFile( key ); }
     inline qint64 uploadFileSize( const QString &key ) const { return _req->fileSize( key ).toLongLong(); }
     inline QStringList headerKeys() const { return _req->headerKeys(); }
-    inline QString headerValue( const QString &key ) const { return _req->headerValue( key ); }
+    inline QString headerValue( const QString &key ) const { return QString::fromUtf8( _req->headerValue( key.toLatin1() ) ); }
     inline void setFileName( const QString &p ) const { _req->responseRec()->setFileName( p ); }
     inline void setCookie( const QString &name, const QString &value, int maxage,
         const QString &path, const QString &domain, bool secure, bool discard ) const {
