@@ -25,6 +25,7 @@
 
 class PHIBasePage;
 class QGraphicsGridLayout;
+class PHIDataParser;
 
 class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 {
@@ -71,6 +72,7 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
     virtual PHIConfigWidget* configWidget();
+    virtual void parseData( const PHIDataParser &parser );
 
     inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
     inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
@@ -137,6 +139,7 @@ protected:
     virtual void drawShape( QPainter *p, const QRectF &exposed )=0;
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
+    virtual void createTmpData( const PHIDataParser &parser );
     virtual void squeeze();
     virtual PHIConfigWidget* configWidget();
 
@@ -178,6 +181,8 @@ protected:
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void updateImage()=0;
+    virtual void createTmpData( const PHIDataParser &parser );
+    virtual void parseData( const PHIDataParser &parser );
 
 private:
     PHIImageData _imageData;
@@ -210,6 +215,8 @@ protected:
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void updateImages()=0;
+    virtual void createTmpData( const PHIDataParser &parser );
+    virtual void parseData( const PHIDataParser &parser );
 
 private:
     PHIImageBookData _imageBookData;
@@ -230,6 +237,7 @@ class PHIEXPORT PHIAbstractLayoutItem : public PHIAbstractShapeItem
     Q_PROPERTY( qreal horizontalSpacing READ horizontalSpacing WRITE setHorizontalSpacing )
     Q_PROPERTY( qreal verticalSpacing READ verticalSpacing WRITE setVerticalSpacing )
     Q_PROPERTY( bool enableHeader READ enableHeader WRITE setEnableHeader )
+    Q_PROPERTY( QString header READ header WRITE setHeader )
 
 public:
     enum ItemData { DRadiusTopLeft=-99, DRadiusTopRight=-98, DRadiusBottomLeft=-97,
@@ -237,7 +245,7 @@ public:
         DPaddingLeft=-93, DPaddingTop=-93, DPaddingRight=-92, DPaddingBottom=-91,
         DBorderWidthLeft=-90, DBorderWidthTop=-89, DBorderWidthRight=-88,
         DBorderWidthBottom=-87, DMarginLeft=-86, DMarginTop=-85, DMarginRight=-84,
-        DMarginBottom=-83, DAlignment=-82 };
+        DMarginBottom=-83, DAlignment=-82, DHeader=-81 };
     explicit PHIAbstractLayoutItem( const PHIBaseItemPrivate &p ) : PHIAbstractShapeItem( p ), _l( 0 ) { if ( isGuiItem() ) initLayout(); }
     PHIAbstractLayoutItem( const PHIAbstractLayoutItem &it ) : PHIAbstractShapeItem( it ), _l( 0 ),
         _textData( it._textData ) { if ( isGuiItem() ) initLayout(); } // _children must not be copied!
@@ -279,6 +287,8 @@ public slots:
     inline void setVerticalSpacing( qreal v ) { setData( DVerticalSpacing, v ); invalidateLayout(); }
     inline bool enableHeader() const { return flags() & PHIBaseItem::FLayoutHeader; }
     inline void setEnableHeader( bool b ) { setFlag( PHIBaseItem::FLayoutHeader, b ); invalidateLayout(); }
+    inline void setHeader( const QString &h ) { setData( DHeader, h ); update(); }
+    inline QString header() const { return data( DHeader ).toString(); }
 
 protected:
     virtual void squeeze();
@@ -290,6 +300,8 @@ protected:
     virtual void drawShape( QPainter *p, const QRectF &exposed );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual PHIConfigWidget* configWidget();
+    virtual void parseData( const PHIDataParser &parser );
+    virtual void createTmpData( const PHIDataParser &parser );
 
     inline const QGraphicsGridLayout* layout() const { return _l; }
     void insertBaseItem( PHIBaseItem *it, int row, int column=0, int rowSpan=1, int columnSpan=1 );
@@ -316,6 +328,8 @@ class PHIAbstractInputItem : public PHIAbstractTextItem
 {
     Q_OBJECT
     Q_PROPERTY( QString accessKey WRITE setAccessKey READ accessKey )
+    Q_PROPERTY( bool readOnly READ readOnly WRITE setReadOnly )
+    Q_PROPERTY( bool disabled READ disabled WRITE setDisabled )
 
 public:
     enum ItemData { DAccessKey=-99 };
@@ -329,10 +343,19 @@ public:
 protected:
     virtual void squeeze();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual PHIBooleanData* disabledData() { return &_disabledData; }
+    virtual PHIBooleanData* readOnlyData() { return &_readOnlyData; }
+    virtual void parseData( const PHIDataParser &parser );
+    virtual void createTmpData( const PHIDataParser &parser );
 
 public slots:
     inline QString accessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
     inline virtual void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); updateData(); }
+
+private:
+    PHIBooleanData _disabledData, _readOnlyData;
 };
 
 #endif // PHIABSTRACTITEMS_H

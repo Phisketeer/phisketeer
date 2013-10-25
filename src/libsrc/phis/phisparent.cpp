@@ -27,7 +27,7 @@
 #include "phislogwriter.h"
 #include "phislistener.h"
 #include "phispagecache.h"
-#include "phisimagecache.h"
+#include "phiimagecache.h"
 
 PHISParent* PHISParent::_instance=0;
 
@@ -61,7 +61,7 @@ PHISParent::PHISParent( QObject *parent, const QString &name )
 
     PHISLogWriterThread::instance()->init( this, name );
     invalidate();
-    PHISImageCache::instance(); // create image cache
+    PHIImageCache::instance(); // create image cache
     QTimer::singleShot( 0, this, SLOT( initListener() ) );
 }
 
@@ -72,7 +72,7 @@ PHISParent::~PHISParent()
         delete PHISslListener::instance();
     }
     delete PHISListener::instance();
-    delete PHISImageCache::instance();
+    delete PHIImageCache::instance();
     PHISPageCache::invalidate(); // PHIPageCache is static only so invalidate only
     _lock.lockForWrite();
     _instance=0;
@@ -124,7 +124,7 @@ QString PHISParent::tempDir( const QString &domain )
     s->endGroup();
     _tmpDirs.insert( domain, tmp );
     QStringList subdirs;
-    subdirs << SL( "/img" ) << SL( "/css" ) << SL( "/db" ) << SL( "js" );
+    subdirs << SL( "/img" ) << SL( "/css" ) << SL( "/db" ) << SL( "/js" );
     foreach ( QString subdir, subdirs ) {
         QDir sub( tmp+subdir );
         sub.mkpath( tmp+subdir );

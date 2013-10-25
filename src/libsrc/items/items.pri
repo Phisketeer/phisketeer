@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-QT += core gui widgets script network
+QT += core gui widgets script network sql
 TEMPLATE = lib
 CONFIG += qt plugin thread largefile
 INCLUDEPATH += ../../../libsrc/phi #../../../libsrc/phis

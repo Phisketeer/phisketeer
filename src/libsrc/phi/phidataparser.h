@@ -33,34 +33,37 @@ class PHIDataParser
 
 public:
     explicit PHIDataParser( const PHIRequest *req, const QString &pageId, const QSqlDatabase &db )
-        : _req( req ), _pageId( pageId ), _query( db ), _currentItem( 0 )
-        { _query.setForwardOnly( true ); }
-    inline const PHIRequest* request() const { return _req; }
+        : _req( req ), _pageId( pageId ), _query( db ), _currentItem( 0 ) { _query.setForwardOnly( true ); }
     QVariant text( PHIData *data ) const;
     void createTmpImages( PHIImageData *data ) const;
-    QString imagePath( PHIImageData *data ) const;
+    void createTmpImages( PHIImageBookData *data ) const;
+    QByteArray imagePath( PHIImageData *data ) const;
+    PHIByteArrayList imagePathes( PHIImageBookData *data ) const;
+    QByteArray createTmpImage( QImage &img, const QByteArray &lang=PHIData::c(), int i=0 ) const;
     inline void setCurrentItem( const PHIBaseItem *it ) const { _currentItem=it; }
-    inline const PHIBaseItem* currentItem() const { return _currentItem; }
-    //PHIImageHash parseImageBook( PHIImageBookData *data );
 
 protected:
     enum Type { Header, Cookie, Post, Get, Request, Server, All };
     QString parseVariables( const QString &arr ) const;
     QString findValue( const QString &key, int index, Type type ) const;
-    inline QString sqlValue( int index ) const { return _query.isValid() ?
-        _query.value( index ).toString() : QString(); }
-    QString replaceDefaultLangC( const QString &filename ) const;
-    QString loadTextFromFile( const QString &filename, const QString &codec ) const;
+    QString replaceDefaultLangC( const QString &filename, QByteArray &matchedLang ) const;
+    QString loadTextFromFile( const QString &filename, const QString &codec, QByteArray &matchedLang ) const;
     QString loadTextFromUrl( const QString &url ) const;
     QString loadTextFromDB( const QString &statement, const QString &templateText ) const;
     QByteArray loadFromProcess( const QString &procName, const QString &a ) const;
-    QImage loadImageFromFile( const QString &filename ) const;
+    QImage loadImageFromFile( const QString &filename, QByteArray &matchedLang ) const;
     QImage loadImageFromUrl( const QString &url ) const;
     QImage loadImageFromDB( const QString &statement ) const;
+    QList <QImage> loadImagesFromDB( const QString &statement ) const;
     QByteArray createImageId( const QByteArray &name, const QByteArray &lang=PHIData::c(), int num=0 ) const;
+    QByteArray resolveImageFile( const QString &filename, QByteArray &matchedLang ) const;
+    QByteArray matchedLangForResolvedFilename( const QString &filename ) const;
+    QString resolvePath( const QString &path ) const;
     void saveImage( const QImage &img, const QByteArray &id ) const;
-    void saveImage( const QString &filename, const QByteArray &id ) const;
     void cacheText( PHIData *data, const QString &t, const QByteArray &lang=PHIData::c() ) const;
+    void cacheImageFile( PHIImageData *data, const QString &filename ) const;
+    void cacheImageFiles( PHIImageBookData *data, const QStringList &filenames ) const;
+    inline QString sqlValue( int index ) const { return _query.isValid() ? _query.value( index ).toString() : QString(); }
 
 private:
     const PHIRequest *_req;

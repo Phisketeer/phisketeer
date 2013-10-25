@@ -165,7 +165,11 @@ public:
     inline virtual Type type() const { return ImageBook; }
     PHIImageHash imageBook( const QByteArray &l=_c ) const;
     inline void setImageBook( const PHIImageHash &book, const QByteArray &l=_c )
-    { QVariant v; v.setValue( book ); if ( book.isEmpty() ) _data.remove( l ); else _data.insert( l, v ); }
+        { QVariant v; v.setValue( book ); if ( book.isEmpty() ) _data.remove( l ); else _data.insert( l, v ); }
+    inline void setImageIds( const PHIByteArrayList &list, const QByteArray &l=_c )
+        { QVariant v; v.setValue( list ); _data.insert( l, v ); _options |= TmpObjCreated; }
+    inline PHIByteArrayList imageIds( const QByteArray &l=_c )
+        { return _data.value( l ).value<PHIByteArrayList>(); }
 };
 
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIImageBookData* );

@@ -27,6 +27,7 @@
 #include "philayoutconfig.h"
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
+#include "phidataparser.h"
 
 qreal PHIAbstractTextItem::_dropRegion=7.;
 
@@ -89,6 +90,11 @@ void PHIAbstractTextItem::updateData()
         PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
         if ( lit ) lit->invalidateLayout();
     }
+}
+
+void PHIAbstractTextItem::parseData( const PHIDataParser &parser )
+{
+    setData( DText, parser.text( &_textData ) );
 }
 
 QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
@@ -271,6 +277,16 @@ void PHIAbstractShapeItem::initIDE()
     setColor( PHIPalette::Background, PHIPalette::Black, page()->phiPalette().color( PHIPalette::Black ) );
     setLine( 1 );
     setPattern( 15 );
+}
+
+void PHIAbstractShapeItem::createTmpData( const PHIDataParser &parser )
+{
+    QImage img( static_cast<int>(boundingRect().width()), static_cast<int>(boundingRect().height()), QImage::Format_ARGB32_Premultiplied );
+    img.fill( 0 );
+    QPainter p( &img );
+    paint( &p, QRectF() );
+    p.end();
+    setImagePath( parser.createTmpImage( img ) );
 }
 
 void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
@@ -551,7 +567,7 @@ void PHIAbstractImageItem::squeeze()
         if ( img.isNull() ) _imageData.remove( _imageData.c() );
         else {
             foreach( QByteArray key, _imageData.keys() ) {
-                if ( key.startsWith( "#" ) ) continue;
+                if ( key.startsWith( '#' ) ) continue;
                 _imageData.remove( key );
             }
             img=img.scaled( size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
@@ -611,6 +627,16 @@ void PHIAbstractImageItem::paint( QPainter *p, const QRectF &exposed )
     }
 }
 
+void PHIAbstractImageItem::createTmpData( const PHIDataParser &parser )
+{
+    parser.createTmpImages( &_imageData );
+}
+
+void PHIAbstractImageItem::parseData( const PHIDataParser &parser )
+{
+    setImagePath( parser.imagePath( &_imageData ) );
+}
+
 void PHIAbstractImageItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
 {
     QImage img=imageFromMimeData( e->mimeData() );
@@ -640,6 +666,16 @@ void PHIAbstractImageBookItem::updateData()
     if ( _imageBookData.translated() ) v.setValue( _imageBookData.imageBook( page()->currentLang() ) );
     else v.setValue( _imageBookData.imageBook() );
     setData( DImages, v );
+}
+
+void PHIAbstractImageBookItem::createTmpData( const PHIDataParser &parser )
+{
+    parser.createTmpImages( &_imageBookData );
+}
+
+void PHIAbstractImageBookItem::parseData( const PHIDataParser &parser )
+{
+    setImagePathes( parser.imagePathes( &_imageBookData ) );
 }
 
 void PHIAbstractImageBookItem::squeeze()
@@ -781,6 +817,19 @@ void PHIAbstractLayoutItem::squeeze()
     }
 }
 
+void PHIAbstractLayoutItem::createTmpData( const PHIDataParser &parser )
+{
+    PHIAbstractShapeItem::createTmpData( parser );
+    if ( _textData.unparsedStatic() ) setHeader( _textData.text() );
+    else setDirtyFlag( DFHeader );
+}
+
+void PHIAbstractLayoutItem::parseData( const PHIDataParser &parser )
+{
+    PHIAbstractShapeItem::parseData( parser );
+    if ( dirtyFlags() & DFHeader ) setHeader( parser.text( &_textData ).toString() );
+}
+
 void PHIAbstractLayoutItem::loadItemData( QDataStream &in, int version )
 {
     PHIAbstractShapeItem::loadItemData( in, version );
@@ -916,8 +965,41 @@ void PHIAbstractInputItem::squeeze()
     PHIAbstractTextItem::squeeze();
 }
 
+void PHIAbstractInputItem::loadItemData( QDataStream &in, int version )
+{
+    PHIAbstractTextItem::loadItemData( in, version );
+    in >> &_disabledData >> &_readOnlyData;
+}
+
+void PHIAbstractInputItem::saveItemData( QDataStream &out, int version )
+{
+    PHIAbstractTextItem::saveItemData( out, version );
+    out << &_disabledData << &_readOnlyData;
+}
+
 void PHIAbstractInputItem::updateData()
 {
     PHIAbstractTextItem::updateData();
-    // @todo: implement short cut with QShortcut
+    if ( _disabledData.unparsedStatic() ) setDisabled( _disabledData.boolean() );
+    else if ( _disabledData.translated() ) setDisabled( _disabledData.boolean( page()->currentLang() ) );
+    else setDisabled( false );
+    if ( _readOnlyData.unparsedStatic() ) setReadOnly( _readOnlyData.boolean() );
+    else if ( _readOnlyData.translated() ) setReadOnly( _readOnlyData.boolean( page()->currentLang() ) );
+    else setReadOnly( false );
+}
+
+void PHIAbstractInputItem::createTmpData( const PHIDataParser &parser )
+{
+    PHIAbstractTextItem::createTmpData( parser );
+    if ( _readOnlyData.unparsedStatic() ) setReadOnly( _readOnlyData.boolean() );
+    else setDirtyFlag( DFReadOnlyData );
+    if ( _disabledData.unparsedStatic() ) setDisabled( _disabledData.boolean() );
+    else setDirtyFlag( DFDisabledData );
+}
+
+void PHIAbstractInputItem::parseData( const PHIDataParser &parser )
+{
+    PHIAbstractTextItem::parseData( parser );
+    if ( dirtyFlags() & DFReadOnlyData ) setReadOnly( parser.text( &_readOnlyData ).toBool() );
+    if ( dirtyFlags() & DFDisabledData ) setDisabled( parser.text( &_disabledData ).toBool() );
 }

@@ -100,15 +100,18 @@ public:
     enum Wid { Unknown=0, User=1000 };
     enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4, DTransformPos=-5,
         DTransformOrigin=-6, DXRot=-7, DYRot=-8, DZRot=-9, DHSkew=-10, DVSkew=-11,
-        DParentId=-12, DFlags=-13, DVisibility=-14, DStyleSheet=-15, DParseData=-16,
+        DParentId=-12, DFlags=-13, DVisibility=-14, DStyleSheet=-15,
         DGradientType=-23, DGradientStartPoint=-24, DGradientStopPoints=-25,
         DGradientFinalStopPoint=-26, DGradientSpreadType=-27, DGradientAngle=-28,
-        DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31 };
+        DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31,
+        DImagePath=-32, DImagePathes=-33 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200 }; //quint32
     enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
-        DFEffect=0x8, DFPos=0x10, DFSize=0x20 };
+        DFEffect=0x8, DFPos=0x10, DFSize=0x20, DFText=0x40, DFTransform=0x80,
+        DFInt1=0x100, DFInt2=0x200, DFReadOnlyData=0x400, DFDisabledData=0x800,
+        DFHeader=0x1000, DFPlaceholder=DFHeader };
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
     Q_DECLARE_FLAGS( DirtyFlags, DirtyFlag )
@@ -224,6 +227,7 @@ public: // not usable by script engine
     inline virtual PHITextData* textData() { return 0; }
     inline virtual PHIImageData* imageData() { return 0; }
     inline virtual PHIImageBookData* imageBookData() { return 0; }
+    inline virtual PHITextData* placeholderData() { return 0; }
     inline virtual void updateData() {}
     inline virtual void initIDE() {}
     inline const QGraphicsWidget* gw() const { return _gw; }
@@ -276,7 +280,7 @@ public slots: // usable by script engine
     //inline quint16 maxLength() const { return _variants.value( DMaxLength, 100 ).value<quint16>(); }
     //inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxLength, max ); }
     inline bool disabled() const { return _flags & FDisabled; }
-    inline virtual void setDisabled( bool b ) { b ? _flags|= FDisabled : _flags&= ~FDisabled; }
+    virtual void setDisabled( bool b );
     inline bool checked() const { return _flags & FChecked; }
     inline virtual void setChecked( bool b ) { b ? _flags|= FChecked : _flags&= ~FChecked; }
     inline bool readOnly() const { return _flags & FReadOnly; }
@@ -291,20 +295,26 @@ protected:
     void setWidget( QWidget* );
     QWidget* widget() const;
     const PHIBasePage* page() const;
+    QImage createImage();
+    QImage createEffectImage();
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
     virtual bool sceneEvent( QEvent *event ); // return false to call basic implementation
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
     inline void update( const QRectF &r=QRectF() ) { if ( _gw ) _gw->update( r ); }
+    inline PHIByteArrayList imagePathes() const { return _variants.value( DImagePathes ).value<PHIByteArrayList>(); }
+    inline void setImagePathes( const PHIByteArrayList &list ) {  QVariant v; v.setValue( list ); _variants.insert( DImagePathes, v ); }
+    inline QByteArray imagePath() const { return _variants.value( DImagePath ).toByteArray(); }
+    inline void setImagePath( const QByteArray &path ) { _variants.insert( DImagePath, path ); }
+    inline void setDirtyFlag( DirtyFlag flag ) { _dirtyFlags |= flag; }
+    inline DirtyFlags dirtyFlags() const { return _dirtyFlags; }
 
     inline virtual PHIBooleanData* checkedData() { return 0; }
     inline virtual PHIBooleanData* readOnlyData() { return 0; }
     inline virtual PHIBooleanData* disabledData() { return 0; }
 
     // Phis server related members
-    // create all cached language dependend images and transformed images:
-    virtual void createCachedItems() {}
     // create a srtict HTML 4 for old browser versions:
     virtual void strictHtml( const PHIRequest* const req, QByteArray &out, const QByteArray &indent );
     // create new HTML5 content:

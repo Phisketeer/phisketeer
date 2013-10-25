@@ -144,7 +144,6 @@ void PHIBaseItem::privateSqueeze()
     _variants.remove( DVSkew );
     _variants.remove( DParentId );
     _variants.remove( DFlags );
-    _variants.remove( DParseData );
     if ( !hasGradient() || property( "pattern" ).value<quint8>()<15 ) {
         _variants.remove( DGradientType );
         _variants.remove( DGradientStartPoint );
@@ -474,6 +473,12 @@ QRectF PHIBaseItem::boundingRect() const
     return rect();
 }
 
+void PHIBaseItem::setDisabled( bool b )
+{
+    b ? _flags|= FDisabled : _flags&= ~FDisabled;
+    if ( widget() && !isIdeItem() ) widget()->setDisabled( b );
+}
+
 void PHIBaseItem::setTransformPos( quint8 position )
 {
     int p=qBound( 0, static_cast<int>(position), 9 );
@@ -563,7 +568,6 @@ void PHIBaseItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *opti
 
 void PHIBaseItem::paint( QPainter *painter, const QRectF &exposed )
 {
-    Q_ASSERT( _gw );
     QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_gw);
     if ( !proxy ) return;
     if ( !proxy->widget() ) return;
@@ -664,8 +668,9 @@ void PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
 
 void PHIBaseItem::privateCreateTmpData( const PHIDataParser &parser )
 {
-    _dirtyFlags=DFClean;
+    parser.setCurrentItem( this );
     privateSqueeze();
+    _dirtyFlags=DFClean;
     if ( _titleData.unparsedStatic() ) _variants.insert( DTitle, _titleData.variant() );
     else _dirtyFlags |= DFTitleData;
     if ( _flags & FUseStyleSheet ) {
@@ -849,6 +854,24 @@ void PHIBaseItem::updateEffect()
         default:;
         }
     } else _gw->setGraphicsEffect( 0 );
+}
+
+QImage PHIBaseItem::createImage()
+{
+    QImage img( static_cast<int>(boundingRect().width()),
+        static_cast<int>(boundingRect().height()), QImage::Format_ARGB32_Premultiplied );
+    img.fill( 0 );
+    QPainter p( &img );
+    QPointF off=boundingRect().topLeft();
+    p.translate( -off.x(), -off.y() );
+    paint( &p, QRectF() );
+    p.end();
+    return img;
+}
+
+QImage PHIBaseItem::createEffectImage()
+{
+    return QImage();
 }
 
 PHIWID PHIBaseItem::widFromMimeData( const QMimeData *md )

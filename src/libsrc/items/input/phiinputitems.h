@@ -23,11 +23,13 @@
 class PHILineEditItem : public PHIAbstractInputItem
 {
     Q_OBJECT
+    Q_PROPERTY( QString placeholder READ placeholder WRITE setPlaceholder )
 
 public:
     enum Wid { LineEdit=1 };
+    enum ItemData { DPlaceholder=1 };
     explicit PHILineEditItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
-    PHILineEditItem( const PHILineEditItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    PHILineEditItem( const PHILineEditItem &it ) : PHIAbstractInputItem( it ), _placeholderData( it._placeholderData ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHILineEditItem() {}
 
     virtual QString listName() const { return tr( "Line edit" ); }
@@ -35,11 +37,26 @@ public:
     virtual PHIWID wid() const { return LineEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
     virtual void initIDE();
+    virtual PHITextData* placeholderData() { return &_placeholderData; }
+
+public slots:
+    virtual void setReadOnly( bool b );
+    void setPlaceholder( const QString &t );
+    QString placeholder() const { return data( DPlaceholder ).toString(); }
 
 protected:
     virtual void initWidget();
     virtual void setWidgetText( const QString &s );
+    virtual void updateData();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void squeeze();
+    virtual void parseData( const PHIDataParser &parser );
+    virtual void createTmpData( const PHIDataParser &parser);
+
+private:
+    PHITextData _placeholderData;
 };
 
 class PHIEmailItem : public PHILineEditItem
@@ -96,6 +113,9 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/textarea" ) ); }
     virtual void initIDE();
 
+public slots:
+    virtual void setReadOnly( bool b );
+
 protected:
     virtual bool isSingleLine() const { return false; }
     virtual void setWidgetText( const QString &t );
@@ -139,6 +159,9 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
     virtual void initIDE();
 
+public slots:
+    virtual void setReadOnly( bool b );
+
 protected:
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -162,6 +185,9 @@ public:
     virtual PHIWID wid() const { return RealNumberEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
     virtual void initIDE();
+
+public slots:
+    virtual void setReadOnly( bool b );
 
 protected:
     virtual void setWidgetText( const QString &s );
@@ -192,6 +218,7 @@ protected:
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual PHIBooleanData* readOnlyData() { return 0; }
 };
 
 class PHIResetButtonItem : public PHISubmitButtonItem

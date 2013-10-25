@@ -24,6 +24,7 @@
 #include "phiinputitems.h"
 #include "phidatasources.h"
 #include "phibasepage.h"
+#include "phidataparser.h"
 #include "phi.h"
 
 void PHILineEditItem::initWidget()
@@ -56,6 +57,59 @@ QSizeF PHILineEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint )
         return s;
     }
     return PHIAbstractInputItem::sizeHint( which, constraint );
+}
+
+void PHILineEditItem::setReadOnly( bool b )
+{
+    PHIBaseItem::setReadOnly( b );
+    QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
+    Q_ASSERT( edit );
+    edit->setReadOnly( b );
+}
+
+void PHILineEditItem::squeeze()
+{
+    PHIAbstractInputItem::squeeze();
+    removeData( DPlaceholder );
+}
+
+void PHILineEditItem::saveItemData( QDataStream &out, int version )
+{
+    PHIAbstractInputItem::saveItemData( out, version );
+    out << &_placeholderData;
+}
+
+void PHILineEditItem::loadItemData(QDataStream &in, int version)
+{
+    PHIAbstractInputItem::loadItemData( in, version );
+    in >> &_placeholderData;
+}
+
+void PHILineEditItem::updateData()
+{
+    PHIAbstractInputItem::updateData();
+    if ( _placeholderData.translated() ) setPlaceholder( _placeholderData.text( page()->currentLang() ) );
+    else setPlaceholder( _placeholderData.text() );
+}
+
+void PHILineEditItem::createTmpData( const PHIDataParser &parser )
+{
+    PHIAbstractInputItem::createTmpData( parser );
+    if ( _placeholderData.unparsedStatic() ) setPlaceholder( _placeholderData.text() );
+    else setDirtyFlag( DFPlaceholder );
+}
+
+void PHILineEditItem::parseData( const PHIDataParser &parser )
+{
+    PHIAbstractInputItem::parseData( parser );
+    if ( dirtyFlags() & DFPlaceholder ) setPlaceholder( parser.text( &_placeholderData ).toString() );
+}
+
+void PHILineEditItem::setPlaceholder( const QString &t )
+{
+    QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
+    Q_ASSERT( edit );
+    edit->setPlaceholderText( t );
 }
 
 void PHIPhoneItem::initWidget()
@@ -96,6 +150,14 @@ void PHITextAreaItem::setWidgetText( const QString &t )
     edit->setPlainText( t );
 }
 
+void PHITextAreaItem::setReadOnly (bool b )
+{
+    PHIBaseItem::setReadOnly( b );
+    QPlainTextEdit *edit=qobject_cast<QPlainTextEdit*>(widget());
+    Q_ASSERT( edit );
+    edit->setReadOnly( b );
+}
+
 void PHINumberEditItem::initWidget()
 {
     setWidget( new QSpinBox() );
@@ -105,6 +167,14 @@ void PHINumberEditItem::initIDE()
 {
     PHIAbstractInputItem::initIDE();
     textData()->setText( L1( "1:0:100:1" ) );
+}
+
+void PHINumberEditItem::setReadOnly( bool b )
+{
+    PHIBaseItem::setReadOnly( b );
+    QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
+    Q_ASSERT( spin );
+    spin->setReadOnly( b );
 }
 
 void PHINumberEditItem::setWidgetText( const QString &s )
@@ -153,6 +223,14 @@ void PHIRealNumberEditItem::setWidgetText( const QString &s )
     spin->setMaximum( max );
     spin->setSingleStep( step );
     spin->setDecimals( dec );
+}
+
+void PHIRealNumberEditItem::setReadOnly( bool b )
+{
+    PHIBaseItem::setReadOnly( b );
+    QDoubleSpinBox *spin=qobject_cast<QDoubleSpinBox*>(widget());
+    Q_ASSERT( spin );
+    spin->setReadOnly( b );
 }
 
 QSizeF PHIRealNumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const

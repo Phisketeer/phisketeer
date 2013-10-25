@@ -16,35 +16,35 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PHISIMAGECACHE_H
-#define PHISIMAGECACHE_H
+#ifndef PHIIMAGECACHE_H
+#define PHIIMAGECACHE_H
 #include <QObject>
 #include <QSqlDatabase>
 #include "phierror.h"
 
 class PHIRequest;
 
-class PHISImageCache : public QObject
+class PHIImageCache : public QObject
 {
-    Q_DISABLE_COPY( PHISImageCache )
+    Q_DISABLE_COPY( PHIImageCache )
     Q_OBJECT
 
 public:
-    static PHISImageCache* instance();
-    virtual ~PHISImageCache();
-    QString createId( const PHIRequest *req );
+    static PHIImageCache* instance();
+    virtual ~PHIImageCache();
+    QByteArray createUid( const PHIRequest *req );
     const QString& lastError() const { return _lastError; }
     PHIRC lastRC() const { return _rc; }
     void cleanCache( const PHIRequest *req ) const;
 
 protected:
-    PHISImageCache( QObject *parent );
+    PHIImageCache( QObject *parent );
 
 private:
-    static PHISImageCache *_instance;
+    static PHIImageCache *_instance;
     QSqlDatabase _db;
     PHIRC _rc;
     QString _lastError, _name;
 };
 
-#endif // PHISIMAGECACHE_H
+#endif // PHIIMAGECACHE_H

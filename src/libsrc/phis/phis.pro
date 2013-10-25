@@ -25,7 +25,6 @@ HEADERS += \
     phispagecache.h \
     phisconnthread.h \
     phislogwriter.h \
-    phisimagecache.h \
     phisserverrec.h \
     phisserverrequest.h \
     phisprocessor.h
@@ -38,7 +37,6 @@ SOURCES += \
     phislistener.cpp \
     phisconnthread.cpp \
     phislogwriter.cpp \
-    phisimagecache.cpp \
     phispagecache.cpp \
     phisserverrequest.cpp \
     phisprocessor.cpp

@@ -22,7 +22,7 @@
 #include <QUuid>
 #include <QDir>
 #include <QThread>
-#include "phisimagecache.h"
+#include "phiimagecache.h"
 #include "phiapplication.h"
 #include "phirequest.h"
 #include "phiresponserec.h"
@@ -31,25 +31,25 @@
 #define PHICREATETABLE "CREATE TABLE imgcache ( cid TEXT NOT NULL, "\
     "dtime TEXT NOT NULL, tout INTEGER NOT NULL, path TEXT NOT NULL, PRIMARY KEY( cid ) )"
 
-PHISImageCache* PHISImageCache::_instance=0;
+PHIImageCache* PHIImageCache::_instance=0;
 
-PHISImageCache* PHISImageCache::instance()
+PHIImageCache* PHIImageCache::instance()
 {
     if ( _instance ) return _instance;
-    _instance=new PHISImageCache( phiApp );
+    _instance=new PHIImageCache( phiApp );
     return _instance;
 }
 
-PHISImageCache::PHISImageCache( QObject *parent )
+PHIImageCache::PHIImageCache( QObject *parent )
     : QObject( parent ), _rc( PHIRC_OK )
 {
-    qDebug( "PHISImageCache::PHISImageCache()" );
+    qDebug( "PHIImageCache::PHIImageCache()" );
     _name.sprintf( "%s%p", "phiimagecache", QThread::currentThread() );
     QString path=phiApp->tmpPath()+L1( "/db/" );
     QDir dir( path );
     if ( !dir.exists() ) dir.mkpath( path );
     path=path+_name;
-    qDebug() << "PHISImageCache DB name:" << path;
+    qDebug() << "PHIImageCache DB name:" << path;
     _db=QSqlDatabase::addDatabase( SL( "QSQLITE" ), _name );
     _db.setDatabaseName( path );
     if ( !_db.open() ) {
@@ -68,22 +68,22 @@ PHISImageCache::PHISImageCache( QObject *parent )
     }
 }
 
-PHISImageCache::~PHISImageCache()
+PHIImageCache::~PHIImageCache()
 {
     if ( _db.isValid() && _db.isOpen() ) _db.close();
     QFile::remove( _db.databaseName() );
     _db=QSqlDatabase();
     QSqlDatabase::removeDatabase( _name );
-    qDebug( "PHISImageCache::~PHISImageCache(): %s", qPrintable( _db.databaseName() ) );
+    qDebug( "PHIImageCache::~PHIImageCache(): %s", qPrintable( _db.databaseName() ) );
 }
 
-QString PHISImageCache::createId( const PHIRequest *req )
+QByteArray PHIImageCache::createUid( const PHIRequest *req )
 {
-    qDebug( "PHISImageCache::createId()" );
+    qDebug( "PHIImageCache::createId()" );
     if ( Q_UNLIKELY( !_db.isOpen() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_DB_ERROR,
             tr( "Image cache DB is not open. Cached images will not be automatically removed!" ) );
-        return PHI::createPngUuid();
+        return PHI::createPngUuid().toLatin1();
     }
     const QString uid=PHI::createPngUuid();
     const QString path=req->imgDir()+QDir::separator()+uid;
@@ -97,12 +97,12 @@ QString PHISImageCache::createId( const PHIRequest *req )
             tr( "Could not insert image cache key into DB. Image '%1' will not be removed automatically: '%2'." )
             .arg( path ).arg( query.lastError().text() ) );
     }
-    return uid;
+    return '$'+uid.toLatin1();
 }
 
-void PHISImageCache::cleanCache( const PHIRequest *req ) const
+void PHIImageCache::cleanCache( const PHIRequest *req ) const
 {
-    qDebug( "PHISImageCache::cleanCache()" );
+    qDebug( "PHIImageCache::cleanCache()" );
     if ( Q_UNLIKELY( !_db.isOpen() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_DB_ERROR,
             tr( "Image cache DB '%1' is not open. Could not clean the cache!" )
