@@ -39,7 +39,7 @@ public:
     virtual void initIDE();
 
 public slots:
-    inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); updateData(); }
+    inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
     inline QString delimiter() const { return QString::fromUtf8( data( DDelimiter, L1( "\n" ) ).toByteArray() ); }
 
 protected:

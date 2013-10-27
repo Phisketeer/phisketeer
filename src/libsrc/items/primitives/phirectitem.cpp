@@ -70,14 +70,14 @@ void PHIRectConfig::radiusToolClicked()
     if ( it->radiusData()->unparsedStatic() ) _radiusSpin->setValue( it->radiusData()->integer() );
     else _radiusSpin->setValue( 0 );
     _radiusSpin->blockSignals( false );
-    it->updateData();
+    it->privateUpdateData();
 }
 
 void PHIRectConfig::radiusSpinChanged( int r )
 {
     PHIRectItem *it=qobject_cast<PHIRectItem*>(item());
     it->radiusData()->setInteger( r );
-    it->updateData();
+    it->privateUpdateData();
     repaint();
 }
 

@@ -43,7 +43,6 @@ public:
     virtual QString description() const { return tr( "Draws colored graphical text." ); }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/graphtext" ) ); }
     virtual void initIDE();
-    virtual void updateData();
     virtual PHITextData* textData() { return &_textData; }
 
 public slots:
@@ -64,6 +63,7 @@ protected:
     virtual void squeeze();
     virtual QRectF boundingRect() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void updateData();
 
 private:
     virtual void setText( const QString &t, const QByteArray &lang );

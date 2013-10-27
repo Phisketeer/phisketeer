@@ -134,7 +134,7 @@ QScriptValue PHISScriptItem::pos( const QScriptValue &l, const QScriptValue &t )
         return self();
     }
     QScriptValue obj=engine()->newObject();
-    obj.setProperty( QStringLiteral( "left" ), _it->x() );
-    obj.setProperty( QStringLiteral( "top" ), _it->y() );
+    obj.setProperty( QStringLiteral( "left" ), _it->realX() );
+    obj.setProperty( QStringLiteral( "top" ), _it->realY() );
     return obj;
 }

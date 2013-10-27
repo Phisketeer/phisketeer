@@ -28,6 +28,7 @@
 #include "phipagemenuentry.h"
 #include "phipalette.h"
 
+class QScriptEngine;
 class PHIBaseItem;
 class PHIDynPageData;
 class PHITextData;
@@ -171,6 +172,7 @@ public:
     void parseData( const PHIDataParser &parser );
     void createTmpData( const PHIDataParser &parser );
     void copyMasterData( const PHIBasePage *master );
+    QScriptEngine* scriptEngine() const;
 
     inline QString dbFileName() const { return _dbFileName; }
     inline void setDbFileName( const QString &fn ) { _dbFileName=fn; }

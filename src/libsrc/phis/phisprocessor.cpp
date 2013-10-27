@@ -235,7 +235,7 @@ void PHISProcessor::parseMaster( PHIBasePage *master, PHIBasePage *page ) const
         }
         it->privateParseData( parser );
         it->setParent( page );
-        it->setZIndex( -10000+it->zIndex() );
+        it->setZIndex( -10000+it->realZIndex() );
     }
 }
 

@@ -87,7 +87,7 @@ void PHIColorPreview::paintEvent( QPaintEvent *e )
         return QWidget::paintEvent( e );
     }
     QPainter p( this );
-    QSizeF itemSize=_item->size();
+    QSizeF itemSize=_item->realSize();
     QSize widgetSize=size();
     QPointF off( widgetSize.width()/2.-(itemSize.width()/2.), widgetSize.height()/2.-(itemSize.height()/2.) );
     p.translate( off );

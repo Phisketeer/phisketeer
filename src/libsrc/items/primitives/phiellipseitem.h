@@ -69,7 +69,8 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/ellipse" ) ); }
     inline PHIIntData* startData() { return &_startData; }
     inline PHIIntData* spanData() { return &_spanData; }
-    virtual void updateData();
+    virtual PHIIntData* intData_1() { return &_startData; }
+    virtual PHIIntData* intData_2() { return &_spanData; }
     virtual void initIDE();
 
 public slots:
@@ -79,6 +80,7 @@ public slots:
     inline int spanAngle() const { return data( DSpanAngle, 5760 ).toInt(); }
 
 protected:
+    virtual void updateData();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
@@ -88,10 +90,6 @@ protected:
 signals:
     void startAngleChanged( int );
     void spanAngleChanged( int );
-
-private:
-    virtual PHIIntData* intData_1() { return &_startData; }
-    virtual PHIIntData* intData_2() { return &_spanData; }
 
 private:
     PHIIntData _startData, _spanData;

@@ -28,7 +28,7 @@ QSizeF PHIHSpacerItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) 
 {
     if ( which==Qt::MinimumSize ) return QSizeF( 20., 20. );
     if ( isChild() ) {
-        if ( which==Qt::PreferredSize ) return size();
+        if ( which==Qt::PreferredSize ) return realSize();
     } else {
         if ( which==Qt::PreferredSize ) return QSizeF( 80., 20. );
     }
@@ -42,10 +42,10 @@ void PHIHSpacerItem::paint( QPainter *painter, const QRectF &exposed )
     QPen pen( Qt::blue );
     pen.setWidthF( 1. );
     painter->setPen( pen );
-    painter->drawLine( 0, 0, 0, height() );
-    painter->drawLine( width(), 0, width(), height() );
+    painter->drawLine( 0, 0, 0, realHeight() );
+    painter->drawLine( realWidth(), 0, realWidth(), realHeight() );
     pen.setWidth( 2. );
-    painter->drawLine( 0, height()/2., width(), height()/2. );
+    painter->drawLine( 0, realHeight()/2., realWidth(), realHeight()/2. );
 }
 
 void PHIVSpacerItem::initWidget()
@@ -57,7 +57,7 @@ QSizeF PHIVSpacerItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) 
 {
     if ( which==Qt::MinimumSize ) return QSizeF( 20., 20. );
     if ( isChild() ) {
-        if ( which==Qt::PreferredSize ) return size();
+        if ( which==Qt::PreferredSize ) return realSize();
     } else {
         if ( which==Qt::PreferredSize ) return QSizeF( 20., 80. );
     }
@@ -71,8 +71,8 @@ void PHIVSpacerItem::paint( QPainter *painter, const QRectF &exposed )
     QPen pen( Qt::blue );
     pen.setWidthF( 1. );
     painter->setPen( pen );
-    painter->drawLine( 0, 0, width(), 0 );
-    painter->drawLine( 0, height(), width(), height() );
+    painter->drawLine( 0, 0, realWidth(), 0 );
+    painter->drawLine( 0, realHeight(), realWidth(), realHeight() );
     pen.setWidth( 2. );
-    painter->drawLine( width()/2., 0, width()/2., height() );
+    painter->drawLine( realWidth()/2., 0, realWidth()/2., realHeight() );
 }

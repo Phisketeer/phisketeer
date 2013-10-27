@@ -106,7 +106,7 @@ void PHIGraphicTextItem::updateContent()
     it.setBrush( brush );
     if ( isIdeItem() ) it.setText( text( page()->currentLang() ) );
     else it.setText( text() );
-    QSizeF s=size();
+    QSizeF s=realSize();
     QImage img( s.toSize(), QImage::Format_ARGB32_Premultiplied );
     QSizeF penSize=QSizeF( penWidth(), penWidth() );
     s-=it.boundingRect().size()+penSize;

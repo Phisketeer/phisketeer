@@ -37,12 +37,12 @@ public:
     virtual PHIWID wid() const { return Checkbox; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/checkbox" ) ); }
     virtual void initIDE();
-    virtual void updateData();
 
 public slots:
     virtual void setChecked( bool b );
 
 protected:
+    virtual void updateData();
     virtual void initWidget();
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );

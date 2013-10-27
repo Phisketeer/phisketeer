@@ -75,10 +75,9 @@ PHIBaseItem::PHIBaseItem( const PHIBaseItem &it )
       _zRot( it._zRot ), _hSkew( it._hSkew ), _vSkew( it._vSkew ),
       _zIndex( it._zIndex ), _transformOrigin( it._transformOrigin ),
       _variants( it._variants ), _flags( it._flags ), _dirtyFlags( it._dirtyFlags ),
-      _visibleData( it._visibleData ), _titleData( it._titleData ),
-      _styleSheetData( it._styleSheetData ), _effect( new PHIEffect() )
+      _visibleData( it._visibleData ), _disabledData( it._disabledData ), _titleData( it._titleData ),
+      _styleSheetData( it._styleSheetData ), _effect( new PHIEffect( *it._effect ) )
 {
-    *_effect=*it._effect;
     if ( _type==PHIBaseItemPrivate::TIDEItem ) {
         PHIGraphicsItemProvider *provider=PHIGraphicsItemProvider::instance();
         Q_ASSERT( provider );
@@ -124,6 +123,18 @@ void PHIBaseItem::setVisible( bool b )
     if ( !isIdeItem() && _gw ) _gw->setVisible( b );
 }
 
+void PHIBaseItem::privateUpdateData()
+{
+    Q_ASSERT( page() );
+    if ( _styleSheetData.unparsedStatic() ) setStyleSheet( _styleSheetData.text() );
+    else if ( _styleSheetData.translated() ) setStyleSheet( _styleSheetData.text( page()->currentLang() ) );
+    else setStyleSheet( QString() );
+    if ( _disabledData.unparsedStatic() ) setDisabled( _disabledData.boolean() );
+    else if ( _disabledData.translated() ) setDisabled( _disabledData.boolean( page()->currentLang() ) );
+    else setDisabled( false );
+    updateData();
+}
+
 void PHIBaseItem::privateSqueeze()
 {
     squeeze();
@@ -135,6 +146,8 @@ void PHIBaseItem::privateSqueeze()
     _variants.remove( DVSkew );
     _variants.remove( DParentId );
     _variants.remove( DFlags );
+    _variants.remove( DTitle );
+    _variants.remove( DStyleSheet );
     if ( !hasGradient() || property( "pattern" ).value<quint8>()<15 ) {
         _variants.remove( DGradientType );
         _variants.remove( DGradientStartPoint );
@@ -146,10 +159,8 @@ void PHIBaseItem::privateSqueeze()
         _variants.remove( DGradientCenterPoint );
         _variants.remove( DGradientRadius );
     }
-    if ( styleSheet().isEmpty() ) _variants.remove( DStyleSheet );
-    if ( title().isEmpty() ) _variants.remove( DTitle );
     if ( transformPos()==1 ) _variants.remove( DTransformPos );
-    if ( tabIndex()==0 ) _variants.remove( DTabIndex );
+    if ( realTabIndex()==0 ) _variants.remove( DTabIndex );
     _variants.squeeze();
 }
 
@@ -174,6 +185,7 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     if ( _flags & FUseStyleSheet ) in >> &_styleSheetData;
     if ( _flags & FStoreTitleData ) in >> &_titleData;
     if ( _flags & FStoreVisibleData ) in >> &_visibleData;
+    if ( _flags & FStoreDisabledData ) in >> &_disabledData;
     if ( _flags & FStoreEffectData ) {
         QByteArray effData;
         in >> effData;
@@ -184,7 +196,7 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     setTransformPos( _variants.value( DTransformPos, 1 ).value<quint8>() );
     setFont( font() ); // setFont may change height depending on sizeHint
     resize( preserve );
-    if ( isIdeItem() ) updateData();
+    if ( isIdeItem() ) privateUpdateData();
     if ( _gw ) {
         _gw->setPos( _x, _y );
         _gw->setTransform( computeTransformation() );
@@ -213,17 +225,20 @@ QByteArray PHIBaseItem::save( int version )
     else _flags |= FStoreVisibleData;
     if ( _titleData.unparsedStatic() && _titleData.text().isEmpty() ) _flags &= ~FStoreTitleData;
     else _flags |= FStoreTitleData;
+    if ( _disabledData.unparsedStatic() && !_disabledData.boolean() ) _flags &= ~FStoreDisabledData;
+    else _flags |= FStoreDisabledData;
     if ( _effect->effects()==PHIEffect::ENone ) _flags &= ~FStoreEffectData;
     else _flags |= FStoreEffectData;
     if ( _flags!=FNone ) storeFlags();
-    if ( pos()!=_gw->pos() ) qDebug() << "PROBLEM" << id();
+    if ( realPos()!=_gw->pos() ) qDebug() << "PROBLEM <-------------" << id();
     out << _x << _y << _width << _height << _zIndex << _variants;
     if ( _flags & FUseStyleSheet ) out << &_styleSheetData; // flag toggled by IDE
     if ( _flags & FStoreTitleData ) out << &_titleData;
     if ( _flags & FStoreVisibleData ) out << &_visibleData;
+    if ( _flags & FStoreDisabledData ) out << &_disabledData;
     if ( _flags & FStoreEffectData ) out << _effect->save( version );
     saveItemData( out, version );
-    if ( isIdeItem() ) updateData(); // restore all dynamic item data cleaned by squeeze()
+    if ( isIdeItem() ) privateUpdateData(); // restore all dynamic item data cleaned by squeeze()
     updateEffect();
     return arr;
 }
@@ -290,16 +305,16 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     _visibleData=*d.visibleData();
     _titleData=*d.toolTipData();
     _styleSheetData=*d.styleSheetData();
+    _disabledData=*d.disabledData();
     if ( textData() ) *textData()=*d.textData();
     if ( readOnlyData() ) *readOnlyData()=*d.readOnlyData();
-    if ( disabledData() ) *disabledData()=*d.disabledData();
     if ( checkedData() ) *checkedData()=*d.checkedData();
     if ( imageData() ) *imageData()=*d.imageData();
     if ( imageBookData() ) *imageBookData()=*d.imageBookData();
     if ( intData_1() ) *intData_1()=*d.startAngleData();
     if ( intData_2() ) *intData_2()=*d.spanAngleData();
     if ( properties & PHIItemData::PStyleSheet ) _flags |= FUseStyleSheet;
-    QSizeF s=size(); // preserve size
+    QSizeF s=realSize(); // preserve size
     if ( d.font()!=PHI::invalidFont() ) setFont( d.font() );
     else setFont( page() ? page()->font() : QGuiApplication::font() );
     resize( s );
@@ -332,7 +347,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         setProperty( "bottomMargin", 0 );
     }
     updateEffect();
-    if ( isIdeItem() ) updateData();
+    if ( isIdeItem() ) privateUpdateData();
 }
 
 void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
@@ -429,7 +444,7 @@ void PHIBaseItem::setFont( const QFont &font )
         _gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
         _height=_gw->size().height();
     }
-    if ( isIdeItem() ) updateData();
+    if ( isIdeItem() ) privateUpdateData();
 }
 
 QFont PHIBaseItem::font() const
@@ -470,6 +485,12 @@ void PHIBaseItem::setDisabled( bool b )
     if ( widget() && !isIdeItem() ) widget()->setDisabled( b );
 }
 
+void PHIBaseItem::setStyleSheet( const QString &s )
+{
+    _variants.insert( DStyleSheet, s.toUtf8() );
+    if ( widget() ) widget()->setStyleSheet( s );
+}
+
 void PHIBaseItem::setTransformPos( quint8 position )
 {
     int p=qBound( 0, static_cast<int>(position), 9 );
@@ -492,7 +513,7 @@ void PHIBaseItem::setTransformPos( quint8 position )
     _transformOrigin=o;
     QTransform t=computeTransformation();
     QPointF delta=t.map( o )-org; // new - old
-    setPos( pos()-delta );
+    setPos( realPos()-delta );
     if ( _gw ) _gw->setTransform( t );
 }
 
@@ -502,7 +523,7 @@ void PHIBaseItem::setTransformOrigin( const QPointF &position )
     _transformOrigin=position;
     QTransform t=computeTransformation();
     QPointF delta=t.map( QPointF() )-org; // new top left - old top left
-    setPos( pos()-delta );
+    setPos( realPos()-delta );
     if ( _gw ) _gw->setTransform( t );
     setTransformPos( 0 );
 }
@@ -552,7 +573,7 @@ void PHIBaseItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *opti
 {
     Q_UNUSED( widget );
     painter->save();
-    painter->setOpacity( opacity() );
+    painter->setOpacity( realOpacity() );
     paint( painter, options->exposedRect );
     painter->restore();
 }
@@ -670,6 +691,8 @@ void PHIBaseItem::privateCreateTmpData( const PHIDataParser &parser )
     }
     if ( _visibleData.unparsedStatic() ) setVisible( _visibleData.boolean() );
     else _dirtyFlags |= DFVisibleData;
+    if ( _disabledData.unparsedStatic() ) setDisabled( _disabledData.boolean() );
+    else _dirtyFlags |= DFDisabledData;
     createTmpData( parser );
 }
 
@@ -677,8 +700,9 @@ void PHIBaseItem::privateParseData( const PHIDataParser &parser )
 {
     parser.setCurrentItem( this );
     if ( _dirtyFlags & DFTitleData ) _variants.insert( DTitle, parser.text( &_titleData ) );
-    if ( _dirtyFlags & DFStyleSheetData ) _variants.insert( DStyleSheet, parser.text( &_styleSheetData ) );
-    if ( _dirtyFlags & DFVisibleData ) setVisible( parser.text( &_visibleData ).toBool() );
+    if ( Q_UNLIKELY( _dirtyFlags & DFStyleSheetData ) ) _variants.insert( DStyleSheet, parser.text( &_styleSheetData ) );
+    if ( Q_UNLIKELY( _dirtyFlags & DFVisibleData ) ) setVisible( parser.text( &_visibleData ).toBool() );
+    if ( Q_UNLIKELY( _dirtyFlags & DFDisabledData ) ) setDisabled( parser.text( &_disabledData ).toBool() );
     parseData( parser );
 }
 
@@ -712,7 +736,7 @@ void PHIBaseItem::setGradient( QLinearGradient g )
     _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
     _variants.insert( DGradientStopPoints, qVariantFromValue(g.stops()) );
     _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
-    if ( isIdeItem() ) updateData();
+    if ( isIdeItem() ) privateUpdateData();
     update();
 }
 
@@ -723,7 +747,7 @@ void PHIBaseItem::setGradient( QConicalGradient g )
     _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
     _variants.insert( DGradientStopPoints, qVariantFromValue(g.stops()) );
     _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
-    if ( isIdeItem() ) updateData();
+    if ( isIdeItem() ) privateUpdateData();
     update();
 }
 
@@ -735,7 +759,7 @@ void PHIBaseItem::setGradient( QRadialGradient g )
     _variants.insert( DGradientSpreadType, static_cast<quint8>(g.spread()) );
     _variants.insert( DGradientStopPoints, qVariantFromValue(g.stops()) );
     _variants.insert( DGradientType, static_cast<quint8>(g.type()) );
-    if ( isIdeItem() ) updateData();
+    if ( isIdeItem() ) privateUpdateData();
     update();
 }
 

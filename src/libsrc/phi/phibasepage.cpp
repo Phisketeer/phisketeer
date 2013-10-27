@@ -18,6 +18,7 @@
 */
 #include <QUuid>
 #include <QGuiApplication>
+#include <QScriptEngine>
 #include "phibasepage.h"
 #include "phibaseitem.h"
 #include "phiitemfactory.h"
@@ -298,6 +299,11 @@ void PHIBasePage::setGeometry( Geometry g )
 quint16 PHIBasePage::itemCount() const
 {
     return static_cast<quint16>(findChildren<PHIBaseItem*>().count());
+}
+
+QScriptEngine* PHIBasePage::scriptEngine() const
+{
+    return findChild<QScriptEngine*>();
 }
 
 PHIBaseItem* PHIBasePage::findItem( const QString &id ) const

@@ -25,12 +25,12 @@
 
 static bool xLessThan( const PHIBaseItem *it1, const PHIBaseItem *it2 )
 {
-    return it1->x() < it2->x();
+    return it1->realX() < it2->realX();
 }
 
 static bool yLessThan( const PHIBaseItem *it1, const PHIBaseItem *it2 )
 {
-    return it1->y() < it2->y();
+    return it1->realY() < it2->realY();
 }
 
 void PHIHorizontalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
@@ -39,7 +39,7 @@ void PHIHorizontalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
     _childIds.clear();
     QList <PHIBaseItem*>slist=list;
     qSort( slist.begin(), slist.end(), xLessThan );
-    QPointF pos=slist.first()->pos();
+    QPointF pos=slist.first()->realPos();
     for( int i=0; i<slist.count(); i++ ) {
         insertBaseItem( slist.at( i ), 0, i );
         _childIds.append( slist.at( i )->id() );
@@ -69,8 +69,8 @@ void PHIHorizontalLayoutItem::saveItemData( QDataStream &out, int version )
 
 void PHIHorizontalLayoutItem::activateLayout()
 {
-    qreal tmpWidth=width(); // preserve width
-    qreal tmpHeight=height(); // preserve height
+    qreal tmpWidth=realWidth(); // preserve width
+    qreal tmpHeight=realHeight(); // preserve height
     for ( int i=0; i<_childIds.count(); i++ ) {
         PHIBaseItem *it=page()->findItem( _childIds.at( i ) );
         Q_ASSERT( it );
@@ -85,7 +85,7 @@ void PHIVerticalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
     PHIByteArrayList childIds;
     QList <PHIBaseItem*>slist=list;
     qSort( slist.begin(), slist.end(), yLessThan );
-    QPointF pos=slist.first()->pos();
+    QPointF pos=slist.first()->realPos();
     for( int i=0; i<slist.count(); i++ ) {
         insertBaseItem( slist.at( i ), i );
         childIds.append( slist.at( i )->id() );
@@ -129,8 +129,8 @@ void PHIFormLayoutItem::saveItemData( QDataStream &out, int version )
 
 void PHIFormLayoutItem::activateLayout()
 {
-    qreal tmpWidth=width(); // preserve width
-    qreal tmpHeight=height(); // preserve height
+    qreal tmpWidth=realWidth(); // preserve width
+    qreal tmpHeight=realHeight(); // preserve height
     foreach ( QByteArray id, _childRects.keys() ) {
         PHIBaseItem *it=page()->findItem( id );
         if ( !it ) {
@@ -149,12 +149,12 @@ void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
     QList <PHIBaseItem*> itemListX=list, itemListY=list, itemList1, itemList2;
     qSort( itemListX.begin(), itemListX.end(), xLessThan );
     qSort( itemListY.begin(), itemListY.end(), yLessThan );
-    QPointF ref( itemListX.at( 0 )->x(), itemListY.at( 0 )->y() );
+    QPointF ref( itemListX.at( 0 )->realX(), itemListY.at( 0 )->realY() );
     PHIBaseItem *it;
     QMap <qreal, PHIBaseItem*> col1, col2;
     Q_ASSERT( itemListY.count()>1 );
     if ( itemListY.count()==2 ) {
-        if ( itemListY.at( 0 )->x() < itemListY.at( 1 )->x() ) {
+        if ( itemListY.at( 0 )->realX() < itemListY.at( 1 )->realX() ) {
             insertBaseItem( itemListY.at( 0 ), 0, 0 );
             insertBaseItem( itemListY.at( 1 ), 0, 1 );
         } else {
@@ -165,10 +165,10 @@ void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
         resize( layout()->preferredSize() );
         return;
     }
-    qreal minWidth=qMin( 32., itemListX.at( 0 )->width() );
+    qreal minWidth=qMin( 32., itemListX.at( 0 )->realWidth() );
     foreach ( it, list ) {
-        if ( it->x()>ref.x()+minWidth-10 ) col2.insertMulti( it->y(), it );
-        else col1.insertMulti( it->y(), it );
+        if ( it->realX()>ref.x()+minWidth-10 ) col2.insertMulti( it->realY(), it );
+        else col1.insertMulti( it->realY(), it );
     }
     itemList1=col1.values();
     itemList2=col2.values();
@@ -177,12 +177,12 @@ void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
         bool skip1=false, skip2=false;
         qreal height1=0, height2=0, y1=0, y2=0;
         if ( srcRow1<itemList1.count() ) {
-            height1=itemList1.at( srcRow1 )->height();
-            y1=itemList1.at( srcRow1 )->y();
+            height1=itemList1.at( srcRow1 )->realHeight();
+            y1=itemList1.at( srcRow1 )->realY();
         }
         if ( srcRow2<itemList2.count() ) {
-            height2=itemList2.at( srcRow2 )->height();
-            y2=itemList2.at( srcRow2 )->y();
+            height2=itemList2.at( srcRow2 )->realHeight();
+            y2=itemList2.at( srcRow2 )->realY();
         }
         if ( y1 > y2+height2 && height2>0 ) { destRow1++; skip1=true; }
         else if ( y2 > y1+height1 && height1>0 ) { destRow2++; skip2=true; }
@@ -233,8 +233,8 @@ void PHIGridLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
     PHIBaseItem *it;
     QMap <qreal, PHIBaseItem*> map;
     foreach( it, list ) {
-        map.insertMulti( it->x(), it );
-        map.insertMulti( it->x()+it->width(), it );
+        map.insertMulti( it->realX(), it );
+        map.insertMulti( it->realX()+it->realWidth(), it );
     }
     QMap <int, PHIBaseItem*> xmap;
     int col=0;
@@ -252,8 +252,8 @@ void PHIGridLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )
     x=map.keys().first();
     map.clear();
     foreach( it, list ) {
-        map.insertMulti( it->y(), it );
-        map.insertMulti( it->y()+it->height(), it );
+        map.insertMulti( it->realY(), it );
+        map.insertMulti( it->realY()+it->realHeight(), it );
     }
     QMap <int, PHIBaseItem*> ymap;
     qreal y=map.keys().first();

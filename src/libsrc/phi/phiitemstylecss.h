@@ -68,15 +68,15 @@ public:
 
 public slots:
     // offered by CSS 2.1 / 3.0
-    inline QString left() const { return QString::number( _it->x() )+QLatin1String( "px" ); }
+    inline QString left() const { return QString::number( _it->realX() )+QLatin1String( "px" ); }
     inline void setLeft( const QString &x ) { QString xx=x; _it->setX( xx.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
-    inline QString top() const { return QString::number( _it->y() )+QLatin1String( "px" ); }
+    inline QString top() const { return QString::number( _it->realY() )+QLatin1String( "px" ); }
     inline void setTop( const QString &y ) { QString yy=y; _it->setY( yy.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
-    inline qint16 zIndex() const { return _it->zIndex(); }
+    inline qint16 zIndex() const { return _it->realZIndex(); }
     inline void setZIndex( qint16 z ) { _it->setZIndex( z ); }
-    inline QString height() const { return QString::number( _it->height() )+QLatin1String( "px" ); }
+    inline QString height() const { return QString::number( _it->realHeight() )+QLatin1String( "px" ); }
     inline void setHeight( const QString &h ) { QString hh=h; _it->setHeight( hh.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
-    inline QString width() const { return QString::number( _it->width() )+QLatin1String( "px" ); }
+    inline QString width() const { return QString::number( _it->realWidth() )+QLatin1String( "px" ); }
     inline void setWidth( const QString &w ) { QString ww=w; _it->setWidth( ww.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
     /*
     inline void setColor( const QString &c ) { _it->setColor( c ); }
@@ -92,7 +92,7 @@ public slots:
     inline void setCursor( const QString &c ) { _it->setCursor( c.toLatin1() ); }
 */
     // PHI extensions
-    inline qreal opacity() const { return _it->opacity(); }
+    inline qreal opacity() const { return _it->realOpacity(); }
     inline void setOpacity( qreal o ) { _it->setOpacity( o ); }
 /*
     inline void setPattern( quint8 p ) { _it->setPattern( p ); }

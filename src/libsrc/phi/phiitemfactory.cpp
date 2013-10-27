@@ -112,7 +112,7 @@ QString PHIUnknownItem::listName() const
 void PHIUnknownItem::paint( QPainter *painter, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
-    QRectF r( 0, 0, width(), height() );
+    QRectF r( 0, 0, realWidth(), realHeight() );
     painter->fillRect( r, QColor( Qt::lightGray ) );
     painter->setPen( Qt::darkGray );
     painter->drawText( r, Qt::AlignCenter, tr( "Unknown" )+QString( L1( "\nWID %1" ) ).arg( _requestedWID ) );
@@ -122,5 +122,5 @@ QSizeF PHIUnknownItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) 
 {
     Q_UNUSED( which )
     Q_UNUSED( constraint )
-    return size();
+    return realSize();
 }

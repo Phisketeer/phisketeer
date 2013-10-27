@@ -82,7 +82,7 @@ void PHIEllipseConfig::startSpinChanged( int v )
 {
     PHIEllipseItem *eit=qobject_cast<PHIEllipseItem*>(item());
     eit->startData()->setInteger( v );
-    eit->updateData();
+    eit->privateUpdateData();
     repaint();
 }
 
@@ -90,7 +90,7 @@ void PHIEllipseConfig::spanSpinChanged( int v )
 {
     PHIEllipseItem *eit=qobject_cast<PHIEllipseItem*>(item());
     eit->spanData()->setInteger( v );
-    eit->updateData();
+    eit->privateUpdateData();
     repaint();
 }
 
@@ -113,7 +113,7 @@ void PHIEllipseConfig::startToolClicked()
     if ( it->startData()->unparsedStatic() ) _startSpin->setValue( it->startData()->integer() );
     else _startSpin->setValue( 0 );
     _startSpin->blockSignals( false );
-    it->updateData();
+    it->privateUpdateData();
 }
 
 void PHIEllipseConfig::spanToolClicked()
@@ -126,7 +126,7 @@ void PHIEllipseConfig::spanToolClicked()
     if ( it->spanData()->unparsedStatic() ) _spanSpin->setValue( it->spanData()->integer() );
     else _spanSpin->setValue( 5760 );
     _spanSpin->blockSignals( false );
-    it->updateData();
+    it->privateUpdateData();
 }
 
 bool PHIEllipseConfig::storeData()

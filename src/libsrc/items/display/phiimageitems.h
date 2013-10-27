@@ -59,7 +59,6 @@ public:
     virtual PHIWID wid() const { return Svg; }
     virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/roundedrect" ) ); }
     virtual void initIDE();
-    virtual void updateData();
     inline virtual bool isHeightChangeable() const { return false; }
     inline virtual bool isWidthChangeable() const { return false; }
     inline PHITextData* textData() { return &_textData; }
@@ -75,6 +74,7 @@ protected:
     virtual void squeeze();
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
+    virtual void updateData();
 
 private:
     static QString svgDefaultSource();
@@ -109,9 +109,10 @@ public:
     virtual QString description() const { return tr( "Displays a slide show with changing images." ); }
     virtual PHIWID wid() const { return SlideShow; }
     virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/imagebutton" ) ); }
-    virtual void updateData();
     inline void setTitleList( const QString &toolTip ) { setData( DTitles, toolTip.split( QLatin1Char( ':' ), QString::KeepEmptyParts ) ); }
     inline QString titleList() const { return data( DTitles ).toStringList().join( L1( ":" ) ); }
+    virtual PHIIntData* intData_1() { return &_intervalData; }
+    virtual PHIIntData* intData_2() { return &_fadeTimeData; }
 
 public slots:
     inline void setFadeInterval( int i ) { setData( DInterval, qMax( fadeTimeMS(), i*1000 ) ); updateImages(); }
@@ -131,8 +132,6 @@ protected:
     virtual void squeeze();
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
-    virtual PHIIntData* intData_1() { return &_intervalData; }
-    virtual PHIIntData* intData_2() { return &_fadeTimeData; }
     virtual void initIDE();
     void initWidget();
     inline qreal step() const { return data( DCurrentStep, 50. ).toReal(); }
@@ -141,6 +140,7 @@ protected:
     inline void setCurrentImageNum( int i ) { setData( DCurrentImageNum, i ); }
     inline qreal currentOpacity() const { return data( DCurrentOpacity, 1. ).toReal(); }
     inline void setCurrentOpacity( qreal o ) { setData( DCurrentOpacity, o ); }
+    virtual void updateData();
 
 protected slots:
     void pauseTimeout();

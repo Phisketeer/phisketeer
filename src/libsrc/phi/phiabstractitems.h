@@ -46,7 +46,6 @@ public:
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
     virtual void initIDE();
-    virtual void updateData();
 
 public slots:
     inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
@@ -61,6 +60,7 @@ public slots:
 protected:
     virtual bool isSingleLine() const { return true; }
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void updateData();
     virtual void setWidgetText( const QString &t )=0;
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
@@ -163,7 +163,6 @@ public:
     explicit PHIAbstractImageItem( const PHIBaseItemPrivate &p ) : PHIBaseItem( p ) {}
     PHIAbstractImageItem( const PHIAbstractImageItem &it ) : PHIBaseItem( it ), _imageData( it._imageData ) {}
     virtual ~PHIAbstractImageItem() {}
-    virtual void updateData();
     virtual bool hasImage() const { return true; }
     virtual PHIImageData* imageData() { return &_imageData; }
 
@@ -172,6 +171,7 @@ public slots:
     void setImage( const QImage &img ) { setData( DImage, img ); updateImage(); }
 
 protected:
+    virtual void updateData();
     virtual void squeeze();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
@@ -198,7 +198,6 @@ public:
     explicit PHIAbstractImageBookItem( const PHIBaseItemPrivate &p ) : PHIBaseItem( p ) {}
     PHIAbstractImageBookItem( const PHIAbstractImageBookItem &it ) : PHIBaseItem( it ), _imageBookData( it._imageBookData ) {}
     virtual ~PHIAbstractImageBookItem() {}
-    virtual void updateData();
     virtual bool hasImages() const { return true; }
     virtual PHIImageBookData* imageBookData() { return &_imageBookData; }
 
@@ -208,6 +207,7 @@ public slots:
 
 protected:
     virtual void squeeze();
+    virtual void updateData();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -256,7 +256,6 @@ public:
     virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
     virtual void activateLayout()=0; // called once after page loading
     virtual void updateChildId( const QString &oldId, const QString &newId )=0;
-    virtual void updateData();
     virtual void initIDE();
     const QList<PHIBaseItem*>& childItems() const { return _children; }
     void breakLayout();
@@ -302,6 +301,7 @@ protected:
     virtual PHIConfigWidget* configWidget();
     virtual void parseData( const PHIDataParser &parser );
     virtual void createTmpData( const PHIDataParser &parser );
+    virtual void updateData();
 
     inline const QGraphicsGridLayout* layout() const { return _l; }
     void insertBaseItem( PHIBaseItem *it, int row, int column=0, int rowSpan=1, int columnSpan=1 );
@@ -329,7 +329,6 @@ class PHIAbstractInputItem : public PHIAbstractTextItem
     Q_OBJECT
     Q_PROPERTY( QString accessKey WRITE setAccessKey READ accessKey )
     Q_PROPERTY( bool readOnly READ readOnly WRITE setReadOnly )
-    Q_PROPERTY( bool disabled READ disabled WRITE setDisabled )
 
 public:
     enum ItemData { DAccessKey=-99 };
@@ -338,24 +337,23 @@ public:
     virtual ~PHIAbstractInputItem() {}
 
     virtual bool isFocusable() const { return true; }
-    virtual void updateData();
 
 protected:
+    virtual void updateData();
     virtual void squeeze();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
-    virtual PHIBooleanData* disabledData() { return &_disabledData; }
     virtual PHIBooleanData* readOnlyData() { return &_readOnlyData; }
     virtual void parseData( const PHIDataParser &parser );
     virtual void createTmpData( const PHIDataParser &parser );
 
 public slots:
     inline QString accessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
-    inline virtual void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); updateData(); }
+    inline virtual void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); }
 
 private:
-    PHIBooleanData _disabledData, _readOnlyData;
+    PHIBooleanData _readOnlyData;
 };
 
 #endif // PHIABSTRACTITEMS_H

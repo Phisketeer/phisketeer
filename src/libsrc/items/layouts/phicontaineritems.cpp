@@ -74,7 +74,7 @@ void PHILoginContainerItem::initIDE()
     rects.insert( it->id(), QRect( 1, 2, 1, 1 ) );
 
     setChildRects( rects );
-    foreach ( it, childItems() ) it->updateData();
+    foreach ( it, childItems() ) it->privateUpdateData();
     PHIAbstractLayoutItem::initIDE();
 }
 
@@ -164,7 +164,7 @@ void PHIRegisterUserContainerItem::initIDE()
     rects.insert( it->id(), QRect( 1, 4, 1, 1 ) );
 
     setChildRects( rects );
-    foreach ( it, childItems() ) it->updateData();
+    foreach ( it, childItems() ) it->privateUpdateData();
     PHIAbstractLayoutItem::initIDE();
 }
 
@@ -366,7 +366,7 @@ void PHIAddressContainerItem::initIDE()
     rects.insert( it->id(), QRect( 1, 11, 1, 1 ) );
 
     setChildRects( rects );
-    foreach ( it, childItems() ) it->updateData();
+    foreach ( it, childItems() ) it->privateUpdateData();
     PHIAbstractLayoutItem::initIDE();
 }
 
@@ -496,7 +496,7 @@ void PHIContactContainerItem::initIDE()
     rects.insert( it->id(), QRect( 1, 6, 1, 1 ) );
 
     setChildRects( rects );
-    foreach ( it, childItems() ) it->updateData();
+    foreach ( it, childItems() ) it->privateUpdateData();
     PHIAbstractLayoutItem::initIDE();
 }
 
@@ -554,7 +554,7 @@ void PHIPeriodContainerItem::initIDE()
     rects.insert( it->id(), QRect( 1, 2, 1, 1 ) );
 
     setChildRects( rects );
-    foreach ( it, childItems() ) it->updateData();
+    foreach ( it, childItems() ) it->privateUpdateData();
     PHIAbstractLayoutItem::initIDE();
 }
 
@@ -674,6 +674,6 @@ void PHICCContainerItem::initIDE()
     rects.insert( it->id(), QRect( 1, 5, 1, 1 ) );
 
     setChildRects( rects );
-    foreach ( it, childItems() ) it->updateData();
+    foreach ( it, childItems() ) it->privateUpdateData();
     PHIAbstractLayoutItem::initIDE();
 }

@@ -167,7 +167,7 @@ void PHIAbstractTextItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return;
     QRectF r=QRectF( QPointF( _dropRegion, _dropRegion ),
-        QSizeF( width()-_dropRegion, height()-_dropRegion ) );
+        QSizeF( realWidth()-_dropRegion, realHeight()-_dropRegion ) );
     if ( !r.contains( e->pos() ) ) {
         setBackgroundColor( e->mimeData()->colorData().value<QColor>() );
         setColor( data( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
@@ -193,7 +193,7 @@ void PHIAbstractTextItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
     setColor( data( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
     setBackgroundColor( data( DTmpBackgroundColor, QColor( Qt::black ) ).value<QColor>() );
     QRectF r=QRectF( QPointF( _dropRegion, _dropRegion ),
-        QSizeF( width()-_dropRegion, height()-_dropRegion ) );
+        QSizeF( realWidth()-_dropRegion, realHeight()-_dropRegion ) );
     if ( e->mimeData()->hasText() ) {
         PHIPalette::ColorRole newCR=PHIPalette::Custom;
         _extractColorRole( e->mimeData()->text(), newCR );
@@ -369,13 +369,13 @@ void PHIAbstractShapeItem::setLine( quint8 l )
 QRectF PHIAbstractShapeItem::boundingRect() const
 {
     int off=static_cast<int>(penWidth()/2.)+1;
-    return QRectF( -off, -off, width()+2*off, height()+2*off );
+    return QRectF( -off, -off, realWidth()+2*off, realHeight()+2*off );
 }
 
 QSizeF PHIAbstractShapeItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     Q_UNUSED( constraint )
-    if ( isChild() ) return size();
+    if ( isChild() ) return realSize();
     if ( which==Qt::PreferredSize ) return QSizeF( 96., 96. );
     if ( which==Qt::MinimumSize ) return QSizeF( 16., 16. );
     if ( which==Qt::MaximumSize ) return QSizeF( 8000., 8000. );
@@ -400,7 +400,7 @@ void PHIAbstractShapeItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *e )
 {
     if ( !e->mimeData()->hasColor() ) return;
     QRectF r=QRectF( QPointF( _dropRegion, _dropRegion ),
-        QSizeF( width()-_dropRegion, height()-_dropRegion ) );
+        QSizeF( realWidth()-_dropRegion, realHeight()-_dropRegion ) );
     if ( e->mimeData()->hasText() ) {
         bool forceForeground=false;
         bool forceBackground=false;
@@ -458,7 +458,7 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
     setColor( data( DTmpColor, QColor( Qt::black ) ).value<QColor>() );
     setOutlineColor( data( DTmpOutlineColor, QColor( Qt::black ) ).value<QColor>() );
     QRectF r=QRectF( QPointF( _dropRegion, _dropRegion ),
-        QSizeF( width()-_dropRegion, height()-_dropRegion ) );
+        QSizeF( realWidth()-_dropRegion, realHeight()-_dropRegion ) );
     if ( e->mimeData()->hasText() ) {
         // restore old styles:
         setPattern( data( DTmpPatternStyle, 1 ).value<quint8>() );
@@ -558,7 +558,7 @@ void PHIAbstractImageItem::squeeze()
             QImage img=_imageData.image( lang );
             if ( img.isNull() ) _imageData.remove( lang );
             else {
-                img=img.scaled( size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+                img=img.scaled( realSize().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
                 _imageData.setImage( img, lang );
             }
         }
@@ -570,7 +570,7 @@ void PHIAbstractImageItem::squeeze()
                 if ( key.startsWith( '#' ) ) continue;
                 _imageData.remove( key );
             }
-            img=img.scaled( size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+            img=img.scaled( realSize().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
             _imageData.setImage( img );
         }
     }
@@ -601,7 +601,7 @@ void PHIAbstractImageItem::loadItemData( QDataStream &in, int version )
 
 QSizeF PHIAbstractImageItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( isChild() ) return size();
+    if ( isChild() ) return realSize();
     if ( which==Qt::MinimumSize ) return QSizeF( 16, 16 );
     if ( which==Qt::PreferredSize ) {
         if ( !image().isNull() ) return QSizeF( image().size() );
@@ -722,7 +722,7 @@ void PHIAbstractImageBookItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
 
 QSizeF PHIAbstractImageBookItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( isChild() ) return size();
+    if ( isChild() ) return realSize();
     if ( which==Qt::MinimumSize ) return QSizeF( 16, 16 );
     if ( which==Qt::PreferredSize ) {
         if ( !images().isEmpty() ) return QSizeF( images().values().first().size() );
@@ -784,7 +784,7 @@ void PHIAbstractLayoutItem::updateLayoutGeometry()
     }
     // hack to adjust layout size:
     // QSizeF oldSize=size();
-    QSizeF s=size();
+    QSizeF s=realSize();
     if ( gw()->minimumWidth()>s.width() ) s.setWidth( gw()->minimumWidth() );
     if ( gw()->minimumHeight()>s.height() ) s.setHeight( gw()->minimumHeight() );
     if ( gw()->maximumWidth()<s.width() ) s.setWidth( gw()->maximumWidth() );
@@ -883,7 +883,7 @@ void PHIAbstractLayoutItem::drawShape(QPainter *p, const QRectF &exposed )
     qreal rtr=data( DRadiusTopRight, 0 ).toReal();
     qreal rbr=data( DRadiusBottomRight, 0 ).toReal();
     qreal rbl=data( DRadiusBottomLeft, 0 ).toReal();
-    QRectF cr=QRectF( QPointF( 0, 0 ), size() );
+    QRectF cr=QRectF( QPointF( 0, 0 ), realSize() );
     QPainterPath path;
     path.moveTo( cr.x(), cr.y()+rtl );
     path.arcTo( cr.x(), cr.y(), rtl*2, rtl*2, 180., -90. );
@@ -968,21 +968,18 @@ void PHIAbstractInputItem::squeeze()
 void PHIAbstractInputItem::loadItemData( QDataStream &in, int version )
 {
     PHIAbstractTextItem::loadItemData( in, version );
-    in >> &_disabledData >> &_readOnlyData;
+    in >> &_readOnlyData;
 }
 
 void PHIAbstractInputItem::saveItemData( QDataStream &out, int version )
 {
     PHIAbstractTextItem::saveItemData( out, version );
-    out << &_disabledData << &_readOnlyData;
+    out << &_readOnlyData;
 }
 
 void PHIAbstractInputItem::updateData()
 {
     PHIAbstractTextItem::updateData();
-    if ( _disabledData.unparsedStatic() ) setDisabled( _disabledData.boolean() );
-    else if ( _disabledData.translated() ) setDisabled( _disabledData.boolean( page()->currentLang() ) );
-    else setDisabled( false );
     if ( _readOnlyData.unparsedStatic() ) setReadOnly( _readOnlyData.boolean() );
     else if ( _readOnlyData.translated() ) setReadOnly( _readOnlyData.boolean( page()->currentLang() ) );
     else setReadOnly( false );
@@ -993,13 +990,10 @@ void PHIAbstractInputItem::createTmpData( const PHIDataParser &parser )
     PHIAbstractTextItem::createTmpData( parser );
     if ( _readOnlyData.unparsedStatic() ) setReadOnly( _readOnlyData.boolean() );
     else setDirtyFlag( DFReadOnlyData );
-    if ( _disabledData.unparsedStatic() ) setDisabled( _disabledData.boolean() );
-    else setDirtyFlag( DFDisabledData );
 }
 
 void PHIAbstractInputItem::parseData( const PHIDataParser &parser )
 {
     PHIAbstractTextItem::parseData( parser );
     if ( dirtyFlags() & DFReadOnlyData ) setReadOnly( parser.text( &_readOnlyData ).toBool() );
-    if ( dirtyFlags() & DFDisabledData ) setDisabled( parser.text( &_disabledData ).toBool() );
 }

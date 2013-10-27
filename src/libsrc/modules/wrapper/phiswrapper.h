@@ -173,35 +173,35 @@ inline QScriptValue PHISScriptItem::rotateOut( quint8 axis, qint32 start, qint32
 
 inline QScriptValue PHISScriptItem::left( const QScriptValue &l )
 {
-    if ( !l.isValid() ) return _it->x();
+    if ( !l.isValid() ) return _it->realX();
     _it->setX( l.toInt32() );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::top( const QScriptValue &t )
 {
-    if ( !t.isValid() ) return _it->y();
+    if ( !t.isValid() ) return _it->realY();
     _it->setY( t.toInt32() );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::width( const QScriptValue &w )
 {
-    if ( !w.isValid() ) return _it->width();
+    if ( !w.isValid() ) return _it->realWidth();
     _it->setWidth( w.toInt32() );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::height( const QScriptValue &h )
 {
-    if ( !h.isValid() ) return _it->height();
+    if ( !h.isValid() ) return _it->realHeight();
     _it->setHeight( h.toInt32() );
     return self();
 }
 
 inline QScriptValue PHISScriptItem::zIndex( const QScriptValue &i )
 {
-    if ( !i.isValid() ) return _it->zIndex();
+    if ( !i.isValid() ) return _it->realZIndex();
     _it->setZIndex( static_cast<qint16>(i.toInt32()) );
     return self();
 }
@@ -272,7 +272,7 @@ inline QScriptValue PHISScriptItem::visible( const QScriptValue &b )
 
 inline QScriptValue PHISScriptItem::opacity( qreal opac )
 {
-    if ( opac==-1. ) return _it->opacity();
+    if ( opac==-1. ) return _it->realOpacity();
     _it->setOpacity( qBound( 0., opac, 1. ) );
     return self();
 }
@@ -287,7 +287,7 @@ inline QScriptValue PHISScriptItem::cursor( const QString &c )
 
 inline QScriptValue PHISScriptItem::title( const QString &t )
 {
-    if ( t.isNull() ) return _it->title();
+    if ( t.isNull() ) return _it->realTitle();
     _it->setTitle( t );
     return self();
 }
