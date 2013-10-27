@@ -149,9 +149,8 @@ PHIRC PHISHttp::sendResponse( QString &err )
 #endif
 
     PHIResponseRecLogEntry entry;
-    foreach ( entry, _resp.logEntries() )
-        emit log( entry._type, entry._file, entry._line, entry._dt, entry._rc, entry._desc );
-    if ( _resp.rc()!=PHIRC_OK ) {
+    foreach ( entry, _resp.logEntries() ) emit log( entry._type, entry._file, entry._line, entry._dt, entry._rc, entry._desc );
+    if ( Q_UNLIKELY( _resp.rc()!=PHIRC_OK ) ) {
         if ( _resp.rc()==PHIRC_HTTP_NOT_MODIFIED ) {
             //qDebug( "NOT MODIFIED %s", qPrintable( _req->url().toString() ) );
             if ( _resp.options() & PHIResponseRec::SendFile ) {
@@ -173,11 +172,10 @@ PHIRC PHISHttp::sendResponse( QString &err )
             return PHIRC_OK;
         }
         err=_resp.errorDesc();
-        emit log( _resp.errorType(), _resp.errorFile(), _resp.errorLine(), _resp.errorDT(),
-            _resp.rc(), _resp.errorDesc() );
+        emit log( _resp.errorType(), _resp.errorFile(), _resp.errorLine(), _resp.errorDT(), _resp.rc(), _resp.errorDesc() );
         return _resp.rc();
     }
-    if ( _resp.options() & PHIResponseRec::Redirect ) {
+    if ( Q_UNLIKELY( _resp.options() & PHIResponseRec::Redirect ) ) {
         if ( !_req->setRedirectedFile( _resp.fileName() ) ) {
             err=tr( "Redirected file '%1' not found." ).arg( _resp.fileName() );
             emit log( PHILOGERR, PHIRC_HTTP_NOT_FOUND, err );

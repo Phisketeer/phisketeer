@@ -341,16 +341,10 @@ QString PHIRequest::userOS() const
 
 bool PHIRequest::setRedirectedFile( const QString &file )
 {
-    QFileInfo info( _canonicalFilename );
-    if ( file.startsWith( QLatin1Char( '/' ) ) || file.startsWith( QLatin1Char( '\\' ) ) ) {
-        info.setFile( _documentRoot+file );
-        if ( !info.exists() ) return false;
-    } else {
-        info.setFile( info.absoluteDir(), file );
-        if ( !info.exists() ) return false;
-    }
-    _canonicalFilename=info.absoluteFilePath();
-    _modified=info.lastModified();
+    QFileInfo fi( file );
+    if ( !fi.exists() ) return false;
+    _canonicalFilename=fi.canonicalFilePath();
+    _modified=fi.lastModified();
     QString path=_canonicalFilename;
     qDebug( "path=%s (%s)", qPrintable( path ), qPrintable( _documentRoot ) );
     path.replace( _documentRoot, QString() );

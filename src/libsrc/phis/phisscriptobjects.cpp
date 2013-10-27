@@ -16,22 +16,18 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QMetaObject>
-#include <QMetaProperty>
-#include <QSqlRecord>
-#include <QProcess>
-#include <QTextCodec>
-#include <QHostAddress>
-#include <QHostInfo>
 #include <QDateTime>
+#include <QSqlDatabase>
+#include <QScriptEngine>
+#include <QScriptValue>
 #include "phisscriptobjects.h"
-#include "phi.h"
-#include "phierror.h"
-#include "phibaseitem.h"
+#include "phirequest.h"
 #include "phibasepage.h"
+#include "phibaseitem.h"
 #include "phidomimage.h"
 #include "phismodule.h"
 #include "phismodulefactory.h"
+#include "phi.h"
 
 #define PHISSCRIPTEXTENSION QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject |\
     QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater
@@ -39,7 +35,7 @@
 static QScriptValue print( QScriptContext *ctx, QScriptEngine* )
 {
     QScriptValue s=ctx->argument( 0 );
-    PHIError::instance()->print( PHIRC_USER, s.toString() );
+    qWarning() << s.toString();
     return QScriptValue();
 }
 
@@ -47,26 +43,43 @@ static QScriptValue newImage( QScriptContext*, QScriptEngine *engine )
 {
     return engine->newQObject( new PHIDomImage(), QScriptEngine::ScriptOwnership,
         QScriptEngine::PreferExistingWrapperObject |
-        QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater );
+        QScriptEngine::ExcludeSuperClassMethods |
+        QScriptEngine::ExcludeDeleteLater );
+}
+
+static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
+{
+    QScriptValue id=ctx->argument( 0 );
+    if ( id.isString() ) {
+        const PHIBasePage *page=qobject_cast<const PHIBasePage*>(engine->parent());
+        Q_ASSERT( page );
+        PHIBaseItem *it=page->getElementById( id.toString() );
+        if ( it ) qDebug() << "$" << it->id();
+        else qDebug() << "it failed";
+        if ( Q_UNLIKELY( !it ) ) return engine->undefinedValue();
+        return baseItemToScriptValue( engine, it );
+    } else if ( id.isObject() ) return id;
+    return engine->undefinedValue();
 }
 
 QScriptValue loadModule( QScriptContext *ctx, QScriptEngine *engine, void *args )
 {
     if ( !ctx->argument( 0 ).isString() ) return QScriptValue( false );
     QString m=ctx->argument( 0 ).toString();
+    if ( m==L1( "wrapper" ) ) return QScriptValue( true );
     PHISInterface *phisif=static_cast<PHISInterface*>(args);
     Q_ASSERT( phisif );
     PHISModuleFactory *factory=PHISModuleFactory::instance();
-    factory->lock(); //locking for read
+    factory->lock(); // locking for read
     PHISModule *mod=factory->module( m );
-    if ( !mod ) {
+    if ( Q_UNLIKELY( !mod ) ) {
         factory->unlock();
         phisif->log( PHISInterface::LTError, __FILE__, __LINE__, QDateTime::currentDateTime(),
             QObject::tr( "Could not find requested module '%1'." ).arg( m ) );
         return QScriptValue( false );
     }
     PHISScriptObj *obj=mod->create( m, phisif );
-    if ( obj ) {
+    if ( Q_LIKELY( obj ) ) {
         qDebug( "loadModule( %s )", qPrintable( m ) );
         obj->initObject( engine, m );
         factory->unlock();
@@ -79,20 +92,15 @@ QScriptValue loadModule( QScriptContext *ctx, QScriptEngine *engine, void *args 
     return QScriptValue( false );
 }
 
-PHISGlobalScriptObj::PHISGlobalScriptObj( PHIBasePage *page, const PHISRequest *req,
-    const QSqlDatabase &db, QScriptEngine *engine ) : QObject( page )
+PHISGlobalScriptObj::PHISGlobalScriptObj( PHIBasePage *page, const PHIRequest *req,
+    const QSqlDatabase &db, QScriptEngine *engine )
 {
-    qDebug( "PHISGlobalScriptObj::PHISGlobalScriptObj()" );
     PHISInterface *phisif=new PHISInterface( req, page, db ); // parent=page
     QScriptValue go=engine->globalObject();
-    go.setProperty( QStringLiteral( "loadModule" ), engine->newFunction( loadModule, (void*)phisif ) );
-    go.setProperty( QStringLiteral( "print" ), engine->newFunction( print, 1 ) );
-    go.setProperty( QStringLiteral( "Image" ), engine->newFunction( newImage, 0 ) );
-}
-
-PHISGlobalScriptObj::~PHISGlobalScriptObj()
-{
-    qDebug( "PHISGlobalScriptObj::~PHISGlobalScriptObj()" );
+    go.setProperty( SL( "loadModule" ), engine->newFunction( loadModule, static_cast<void*>(phisif) ) );
+    go.setProperty( SL( "print" ), engine->newFunction( print, 1 ) );
+    go.setProperty( SL( "Image" ), engine->newFunction( newImage, 0 ) );
+    go.setProperty( SL( "$" ), engine->newFunction( getItemFunc, 1 ) );
 }
 
 #undef PHISSCRIPTEXTENSION

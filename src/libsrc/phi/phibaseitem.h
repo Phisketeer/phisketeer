@@ -183,6 +183,7 @@ public: // not usable by script engine
     QConicalGradient conicalGradient() const;
     QRadialGradient radialGradient() const;
 
+    void phiPaletteChanged( const PHIPalette &pal );
     void setTransformPos( quint8 pos );
     void setTransformOrigin( const QPointF &pos );
     void setTransformation( qreal hs, qreal vs, qreal xRot, qreal yRot, qreal zRot );
@@ -352,7 +353,6 @@ private:
 
     QTransform computeTransformation() const;
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
-    void phiPaletteChanged( const PHIPalette &pal );
     inline PHITextData* styleSheetData() { return &_styleSheetData; }
     inline PHITextData* titleData() { return &_titleData; }
     inline PHIBooleanData* visibleData() { return &_visibleData; }
@@ -401,6 +401,12 @@ Q_DECLARE_METATYPE( const PHIBaseItem* )
 
 PHIEXPORT QScriptValue baseItemToScriptValue( QScriptEngine*, PHIBaseItem* const &in );
 PHIEXPORT void baseItemFromScriptValue( const QScriptValue&, PHIBaseItem* &out );
+
+inline QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem* const &it )
+{
+    return engine->newQObject( it, QScriptEngine::AutoOwnership,
+        QScriptEngine::PreferExistingWrapperObject | QScriptEngine::ExcludeDeleteLater );
+}
 
 inline void baseItemFromScriptValue( const QScriptValue &obj, PHIBaseItem* &it )
 {

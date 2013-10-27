@@ -22,13 +22,6 @@
 */
 #include <QDataStream>
 #include "phipagemenuentry.h"
-#include "phidatasources.h"
-
-PHIPageMenuEntry::PHIPageMenuEntry()
-{
-    qDebug( "PHIPageMenuEntry::PHIPageMenuEntry()" );
-    _textData=new PHITextData();
-}
 
 PHIPageMenuEntry::PHIPageMenuEntry( const QByteArray &id, const QByteArray &parent,
     const QImage &image, const QByteArray &text, Options options, const PHITextData *data )
@@ -37,17 +30,6 @@ PHIPageMenuEntry::PHIPageMenuEntry( const QByteArray &id, const QByteArray &pare
     qDebug( "PHIPageMenuEntry::PHIPageMenuEntry()" );
     _textData=new PHITextData();
     if ( data ) *_textData=*data;
-}
-
-PHIPageMenuEntry::PHIPageMenuEntry( const PHIPageMenuEntry &e )
-{
-    _id=e._id;
-    _parent=e._parent;
-    _img=e._img;
-    _text=e._text;
-    _options=e._options;
-    _textData=new PHITextData();
-    *_textData=*(e._textData);
 }
 
 PHIPageMenuEntry& PHIPageMenuEntry::operator=( const PHIPageMenuEntry &e )
@@ -71,12 +53,6 @@ bool PHIPageMenuEntry::operator==( const PHIPageMenuEntry &p )
     if ( _options!=p._options ) return false;
     if ( *_textData!=*(p._textData) ) return false;
     return true;
-}
-
-PHIPageMenuEntry::~PHIPageMenuEntry()
-{
-    delete _textData;
-    qDebug( "PHIPageMenuEntry::~PHIPageMenuEntry()" );
 }
 
 QDataStream& operator<<( QDataStream &out, const PHIPageMenuEntry &m )

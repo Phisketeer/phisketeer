@@ -19,19 +19,16 @@
 #ifndef PHISSCRIPTOBJECTS_H
 #define PHISSCRIPTOBJECTS_H
 
-#include <QObject>
-#include <QScriptEngine>
-#include <QSqlDatabase>
-#include "phisrequest.h"
-#include "phibasepage.h"
+class QSqlDatabase;
+class QScriptEngine;
+class PHIBasePage;
+class PHIRequest;
 
-class PHISGlobalScriptObj : public QObject
+class PHISGlobalScriptObj
 {
-    Q_OBJECT
-
 public:
-    explicit PHISGlobalScriptObj( PHIBasePage*, const PHISRequest *req, const QSqlDatabase &db, QScriptEngine* );
-    virtual ~PHISGlobalScriptObj();
+    explicit PHISGlobalScriptObj( PHIBasePage*, const PHIRequest *req, const QSqlDatabase &db, QScriptEngine* );
+    virtual ~PHISGlobalScriptObj() {}
 };
 
 #endif // PHISSCRIPTOBJECTS_H

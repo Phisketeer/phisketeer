@@ -49,7 +49,8 @@ HEADERS += phi.h \
     phinetrequest.h \
     phinetmanager.h \
     phidataparser.h \
-    phiimagecache.h
+    phiimagecache.h \
+    phisession.h
 SOURCES += phi.cpp \
     phiitemdata.cpp \
     phidatasources.cpp \
@@ -81,7 +82,8 @@ SOURCES += phi.cpp \
     phinetrequest.cpp \
     phinetmanager.cpp \
     phidataparser.cpp \
-    phiimagecache.cpp
+    phiimagecache.cpp \
+    phisession.cpp
 FORMS += colorconfig.ui \
     layoutconfig.ui
 

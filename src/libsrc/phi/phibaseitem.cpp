@@ -30,20 +30,11 @@
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
 #include "qpixmapfilter_p.h"
-#include "phiitemstylecss.h"
 #include "phirequest.h"
 #include "phiitemdata.h"
 #include "phieffects.h"
 #include "phiabstractitems.h"
 #include "phidataparser.h"
-
-QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem* const &it )
-{
-    new PHIItemStyleCSS( it );
-    return engine->newQObject( it, QScriptEngine::AutoOwnership,
-        QScriptEngine::PreferExistingWrapperObject
-        | QScriptEngine::ExcludeDeleteLater );
-}
 
 static QStringList _myproperties( const QObject *obj )
 {

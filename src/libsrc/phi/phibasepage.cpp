@@ -23,6 +23,7 @@
 #include "phiitemfactory.h"
 #include "phidatasources.h"
 #include "phidataparser.h"
+#include "phirequest.h"
 
 PHIDynPageData::PHIDynPageData()
 {
@@ -63,6 +64,10 @@ PHIDynPageData::~PHIDynPageData()
 }
 
 PHIDynPageData::PHIDynPageData( const PHIDynPageData &p )
+    : _title( 0 ), _styleSheet( 0 ), _author( 0 ), _version( 0 ),
+      _company( 0 ), _copyright( 0 ), _template( 0 ), _javascript( 0 ),
+      _serverscript( 0 ), _action( 0 ), _keys( 0 ), _sessionRedirect( 0 ),
+      _description( 0 ), _opengraph( 0 ), _bgImage( 0 )
 {
     if ( p._title ) _title=new PHITextData();
     if ( p._styleSheet ) _styleSheet=new PHITextData();
@@ -79,7 +84,7 @@ PHIDynPageData::PHIDynPageData( const PHIDynPageData &p )
     if ( p._description ) _description=new PHITextData();
     if ( p._opengraph ) _opengraph=new PHITextData();
     if ( p._bgImage ) _bgImage=new PHIImageData();
-    operator=(p);
+    operator=( p );
 }
 
 PHIDynPageData& PHIDynPageData::operator=( const PHIDynPageData &p )
@@ -251,6 +256,15 @@ QStringList PHIBasePage::itemIds() const
     return ids;
 }
 
+PHIByteArrayList PHIBasePage::itemIdsByteArray() const
+{
+    PHIByteArrayList ids;
+    PHIBaseItem *it;
+    QList <PHIBaseItem*> list=findChildren<PHIBaseItem*>();
+    foreach( it, list ) ids.append( it->id() );
+    return ids;
+}
+
 QString PHIBasePage::nextFreeId( const QString &requestedId ) const
 {
     QString rid=requestedId.simplified();
@@ -288,7 +302,20 @@ quint16 PHIBasePage::itemCount() const
 
 PHIBaseItem* PHIBasePage::findItem( const QString &id ) const
 {
-    return findChild<PHIBaseItem*>(id);
+    PHIBaseItem *it;
+    foreach( it, findChildren<PHIBaseItem*>() ) {
+        if ( it->name()==id ) return it;
+    }
+    return 0;
+}
+
+PHIBaseItem* PHIBasePage::findItem( const QByteArray &id ) const
+{
+    PHIBaseItem *it;
+    foreach( it, findChildren<PHIBaseItem*>() ) {
+        if ( it->id()==id ) return it;
+    }
+    return 0;
 }
 
 // only run once at loading time from server
@@ -296,7 +323,10 @@ void PHIBasePage::createTmpData( const PHIDataParser &p )
 {
     squeeze();
     _dirtyFlags=DFClean;
-    p.createTmpImages( bgImageData() );
+    if ( _flags & FUseBgImage ) p.createTmpImages( bgImageData() );
+    else {
+        delete _pageData->_bgImage; _pageData->_bgImage=0;
+    }
     if ( companyData()->unparsedStatic() ) {
         if ( !companyData()->text().isEmpty() ) _variants.insert( DCompany, companyData()->variant() );
         delete _pageData->_company; _pageData->_company=0;
@@ -321,8 +351,12 @@ void PHIBasePage::createTmpData( const PHIDataParser &p )
         if ( !javascriptData()->text().isEmpty() ) _variants.insert( DJavascript, javascriptData()->variant() );
         delete _pageData->_javascript; _pageData->_javascript=0;
     }
-    if ( serverscriptData()->unparsedStatic() ) {
-        if ( !serverscriptData()->text().isEmpty() ) _variants.insert( DServerscript, serverscriptData()->variant() );
+    if ( Q_LIKELY( serverscriptData()->unparsedStatic() || !(serverscriptData()->options() & PHIData::NoCache) ) ) {
+        // languages are ignored if 'PHIData::NoCache' is not specified however parsing
+        // every time is very expensive and a user can specifiy 'NoCache' if he really wants
+        // script execution based on different languages which should be a rare case...
+        QByteArray arr=p.text( serverscriptData() ).toByteArray();
+        if ( Q_LIKELY( !arr.isEmpty() ) ) _script=QScriptProgram( QString::fromUtf8( arr ) );
         delete _pageData->_serverscript; _pageData->_serverscript=0;
     }
     if ( authorData()->unparsedStatic() ) {
@@ -353,23 +387,89 @@ void PHIBasePage::createTmpData( const PHIDataParser &p )
         if ( !keywordsData()->text().isEmpty() ) _variants.insert( DKeys, keywordsData()->variant() );
         delete _pageData->_keys; _pageData->_keys=0;
     }
+    if ( !_favicon.isNull() ) {
+        _favicon.save( p.request()->imgDir()+QLatin1Char( '/' )+id()+L1( ".ico" ), "ICO" );
+        _favicon=QImage();
+    }
 }
 
 void PHIBasePage::parseData( const PHIDataParser &p )
 {
     if ( Q_LIKELY( titleData() ) ) _variants.insert( DTitle, p.text( titleData() ) );
     if ( Q_UNLIKELY( companyData() ) ) _variants.insert( DCompany, p.text( companyData() ) );
-    if ( Q_UNLIKELY( styleSheetData() ) ) _variants.insert( DStyleSheet, p.text( styleSheetData() ) );
     if ( Q_UNLIKELY( versionData() ) ) _variants.insert( DVersion, p.text( versionData() ) );
     if ( Q_UNLIKELY( opengraphData() ) ) _variants.insert( DOpenGraph, p.text( opengraphData() ) );
     if ( Q_UNLIKELY( javascriptData() ) ) _variants.insert( DJavascript, p.text( javascriptData() ) );
-    if ( Q_UNLIKELY( serverscriptData() ) ) _variants.insert( DServerscript, p.text( serverscriptData() ) );
     if ( Q_UNLIKELY( authorData() ) ) _variants.insert( DAuthor, p.text( authorData() ) );
     if ( Q_UNLIKELY( copyrightData() ) ) _variants.insert( DCopyright, p.text( copyrightData() ) );
     if ( Q_UNLIKELY( sessionRedirectData() ) ) _variants.insert( DSessionRedirect, p.text( sessionRedirectData() ) );
     if ( Q_UNLIKELY( actionData() ) ) _variants.insert( DAction, p.text( actionData() ) );
     if ( Q_UNLIKELY( templatePageData() ) ) _variants.insert( DTemplatePage, p.text( templatePageData() ) );
     if ( Q_UNLIKELY( keywordsData() ) ) _variants.insert( DKeys, p.text( keywordsData() ) );
+    if ( Q_UNLIKELY( descriptionData() ) ) _variants.insert( DDescription, p.text( descriptionData() ) );
+    if ( Q_UNLIKELY( serverscriptData() ) ) _script=QScriptProgram( QString::fromUtf8( p.text( serverscriptData() ).toByteArray() ) );
+    if ( Q_UNLIKELY( styleSheetData() ) ) {
+        _dirtyFlags |= DFStyleSheet;
+        _variants.insert( DStyleSheet, p.text( styleSheetData() ) );
+    }
+    if ( _flags & FUseBgImage ) {
+        _variants.insert( DBgImageUrl, p.imagePath( bgImageData() ) );
+    }
+    PHIPageMenuEntry entry;
+    foreach ( entry, _menuEntries ) {
+        entry.setText( p.text( entry.textData() ).toString() );
+    }
+}
+
+void PHIBasePage::copyMasterData( const PHIBasePage *m )
+{
+    if ( _flags & FUseMasterPalette ) {
+        _pal=m->phiPalette();
+        PHIBaseItem *it;
+        foreach( it, findChildren<PHIBaseItem*>() ) it->phiPaletteChanged( _pal );
+        _bgColor=m->backgroundColor();
+    }
+    if ( !_variants.value( DTitle ).isValid() ) _variants.insert( DTitle, m->data().value( DTitle ) );
+    if ( !_variants.value( DCopyright ).isValid() ) _variants.insert( DCopyright, m->data().value( DCopyright ) );
+    if ( !_variants.value( DAuthor ).isValid() ) _variants.insert( DAuthor, m->data().value( DAuthor ) );
+    if ( !_variants.value( DOpenGraph ).isValid() ) _variants.insert( DOpenGraph, m->data().value( DOpenGraph ) );
+    if ( !_variants.value( DCompany ).isValid() ) _variants.insert( DCompany, m->data().value( DCompany ) );
+    if ( !_variants.value( DSessionRedirect ).isValid() ) _variants.insert( DSessionRedirect, m->data().value( DSessionRedirect ) );
+    if ( !_variants.value( DVersion ).isValid() ) _variants.insert( DVersion, m->data().value( DVersion ) );
+    if ( !_variants.value( DKeys ).isValid() ) _variants.insert( DKeys, m->data().value( DKeys ) );
+    if ( !_variants.value( DAction ).isValid() ) _variants.insert( DAction, m->data().value( DAction ) );
+    if ( Q_LIKELY( m->data().value( DJavascript ).isValid() ) ) {
+        if ( Q_LIKELY( _variants.value( DJavascript ).isValid() ) ) {
+            _variants.insert( DJavascript, m->data().value( DJavascript ).toByteArray()
+                +'\n'+_variants.value( DJavascript ).toByteArray() );
+        } else {
+            _variants.insert( DJavascript, m->data().value( DJavascript ) );
+        }
+    }
+    if ( Q_UNLIKELY( m->data().value( DStyleSheet ).isValid() ) ) {
+        if ( Q_UNLIKELY( _variants.value( DStyleSheet ).isValid() ) ) {
+            _variants.insert( DStyleSheet, m->data().value( DStyleSheet ).toByteArray()
+                +'\n'+_variants.value( DStyleSheet ).toByteArray() );
+        } else {
+            _variants.insert( DStyleSheet, m->data().value( DStyleSheet ) );
+        }
+    }
+    if ( m->flags() & FUseBgImage ) {
+        if ( !(_flags & FUseBgImage ) ) {
+            _variants.insert( DBgImageUrl, m->data().value( DBgImageUrl ) );
+            _variants.insert( DBgImageXOff, m->data().value( DBgImageXOff ) );
+            _variants.insert( DBgImageYOff, m->data().value( DBgImageYOff ) );
+            _variants.insert( DBgImageOptions, m->data().value( DBgImageOptions ) );
+        }
+    }
+    if ( Q_UNLIKELY( m->flags() & FServerModulesCombat ) ) {
+        qint32 modules=serverModules();
+        modules |= m->serverModules();
+        setServerModules( modules );
+    }
+    if ( _menuEntries.count()==0 ) {
+        _menuEntries=m->menuEntries();
+    }
 }
 
 void PHIBasePage::squeeze()
@@ -384,6 +484,7 @@ void PHIBasePage::squeeze()
     _variants.remove( DWidth );
     _variants.remove( DHeight );
     _variants.remove( DGeometry );
+    if ( serverModules()==0 ) _variants.remove( DServerModules );
     _variants.squeeze();
     _pal.squeeze();
 }
@@ -454,8 +555,6 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in )
         ANoUnderlineLinks=0x10000000, ABgImage=0x20000000, AMax=0x40000000 }; // qint32
     enum Extension { ENone=0x0, EProgressBar=0x1, EHasFacebookLike=0x2, EHasTwitter=0x4,
         EHasGooglePlus=0x8, EHidePhiMenu=0x10, EHasCanvas=0x20 }; // qint32
-    enum ScriptModule { SNone=0x0, SDatabase=0x1, SFile=0x2, SSystem=0x4, SProcess=0x8,
-        SServer=0x10, SRequest=0x20, SEmail=0x40, SReply=0x80, SAll=0xFFFF }; // qint32
 
     qint32 attributes( 0 ), extensions( 0 ), modules( 0 );
     quint16 itemCount;
@@ -557,22 +656,11 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in )
         if ( attributes & ANoUnderlineLinks ) _flags |= FNoUnderlinedLinks;
         if ( extensions & EHidePhiMenu ) _flags |= FHidePhiMenu;
     }
-    // translate Serverscript modules
+    // store old Serverscript modules style
     {
         if ( modules ) {
-            if ( _pageData->_serverscript->unparsedStatic() ) {
-                QString script=_pageData->_serverscript->text();
-                QStringList list;
-                list << L1( "sql" ) << L1( "file") << L1( "email") << L1( "process" )
-                     << L1( "system") << L1( "server" ) << L1( "reply" ) << L1( "request" );
-                foreach ( QString s, list ) {
-                    QString tmp=QString( L1( "loadModule('%1');\n" ) ).arg( s );
-                    if ( !script.contains( tmp ) ) script.prepend( tmp );
-                }
-            } else {
-                setServerModules( modules );
-                _flags |= FServerModulesCombat;
-            }
+            setServerModules( modules );
+            _flags |= FServerModulesCombat;
         }
     }
     return itemCount;

@@ -23,6 +23,7 @@
 #include <QVariant>
 #include <QHash>
 #include <QDataStream>
+#include <QScriptProgram>
 #include "phi.h"
 #include "phipagemenuentry.h"
 #include "phipalette.h"
@@ -101,10 +102,7 @@ public:
         FHasMasterTemplate=0x400, FServerScript=0x800, FJavaScript=0x1000,
         FNoSystemCSS=0x2000, FNoUiThemeCSS=0x4000, FUseCSS=0x8000, FUseDB=0x10000,
         FDBFile=0x20000, FServerModulesCombat=0x40000 }; // quint32
-    enum DirtyFlag { DFClean=0x0, DFAction=0x1, DFVersion=0x2, DFCompany=0x4,
-        DFKeys=0x8, DFServerScript=0x10, DFJavaScript=0x20, DFMenuItems=0x40,
-        DFCopyright=0x80, DFStyleSheet=0x100, DFSize=0x200, DFFontFamily=0x400,
-        DFOpenGraph=0x800, DFDescription=0x1000, DFSessionRedirect=0x2000 };
+    enum DirtyFlag { DFClean=0x0, DFStyleSheet=0x1, DFSize=0x2, DFFontFamily=0x4 };
     enum Geometry { GUnknown=0, GA4=1, GLetter=2, GCustom=3, GPhi=4, G4_3=5, G16_9=6, GiPad=7 };
     enum SessionOption { SNone=0x0, SRequiresLogin=0x1, SRequiresSession=0x2,
         SSessionCookie=0x4, SCreateSession=0x8 };
@@ -121,13 +119,14 @@ public:
     explicit PHIBasePage( QObject *parent );
     virtual ~PHIBasePage() { delete _pageData; qDebug() << "delete" << _id; }
     PHIBasePage( const PHIBasePage &p ) : QObject( p.parent() ),
-        _pageData( new PHIDynPageData() ), _id( p._id ), _currentLang( p._currentLang ),
+        _pageData( new PHIDynPageData( *p._pageData ) ), _id( p._id ), _currentLang( p._currentLang ),
         _width( p._width ), _height( p._height ), _variants( p._variants ),
         _dbName( p._dbName ), _dbHost( p._dbHost ), _dbPasswd( p._dbPasswd ),
         _dbUser( p._dbUser ), _dbDriver( p._dbDriver ), _dbOptions( p._dbOptions ),
         _dbFileName( p._dbFileName ), _dbPort( p._dbPort ), _favicon( p._favicon ),
         _font( p._font ), _bgColor( p._bgColor), _menuEntries( p._menuEntries ),
-        _flags( p._flags ), _dirtyFlags( p._dirtyFlags ), _pal( p._pal ) { *_pageData=*p._pageData; }
+        _flags( p._flags ), _dirtyFlags( p._dirtyFlags ), _pal( p._pal ),
+        _script( p._script ) {}
     PHIBasePage& operator=( const PHIBasePage &p );
     bool operator==( const PHIBasePage &p ); // IDE only
     inline bool operator!=( const PHIBasePage &p ) { return !operator==(p); } // IDE only
@@ -152,22 +151,26 @@ public:
     inline Geometry geometry() const { return static_cast<Geometry>(_variants.value( DGeometry, 0 ).value<quint8>()); }
     inline void setServerModules( qint32 s ) { _variants.insert( DServerModules, s ); }
     inline qint32 serverModules() const { return _variants.value( DServerModules, 0 ).value<qint32>(); }
+    inline const QHash <quint8, QVariant>& data() const { return _variants; }
 
     void setGeometry( Geometry g );
     void setFavicon( const QImage &pix ) { _favicon=pix; }
     QImage favicon() const { return _favicon; }
     QList <PHIBaseItem*> items() const;
     PHIBaseItem* findItem( const QString &id ) const;
-    inline PHIBaseItem* findItem( const QByteArray &id ) const { return findItem( QString::fromUtf8( id ) ); }
+    PHIBaseItem* findItem( const QByteArray &id ) const;
+    QColor backgroundColor() const { return _bgColor; }
     QString nextFreeId( const QString &requestedId ) const;
     QRect rect() const { return QRect( QPoint(), QSize( _width, _height ) ); }
     quint8 gridSize() const { return _variants.value( DGridSize, 16 ).value<quint8>(); }
     void setGridSize( quint8 s ) { _variants.insert( DGridSize, s ); }
+    PHIByteArrayList itemIdsByteArray() const;
     quint16 load(QDataStream &in, qint32 version ); // returns item count
     void save( QDataStream &out, qint32 version );
     void squeeze();
     void parseData( const PHIDataParser &parser );
     void createTmpData( const PHIDataParser &parser );
+    void copyMasterData( const PHIBasePage *master );
 
     inline QString dbFileName() const { return _dbFileName; }
     inline void setDbFileName( const QString &fn ) { _dbFileName=fn; }
@@ -185,7 +188,7 @@ public:
     inline void setDbDriver( const QString &d ) { _dbDriver=d; }
     inline qint32 dbPort() const { return _dbPort; }
     inline void setDbPort( qint32 p ) { _dbPort=p; }
-    inline QString serverScript() const { return QString::fromLatin1( _variants.value( DServerscript ).toByteArray() ); }
+    inline const QScriptProgram& serverScript() const { return _script; }
 
     // Available for scripting
 public slots:
@@ -306,6 +309,7 @@ private:
     Flags _flags;
     DirtyFlags _dirtyFlags;
     PHIPalette _pal;
+    QScriptProgram _script;
 };
 
 #ifdef PHIDEBUG

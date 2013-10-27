@@ -27,6 +27,7 @@ HEADERS += \
     phislogwriter.h \
     phisserverrec.h \
     phisserverrequest.h \
+    phisscriptobjects.h \
     phisprocessor.h
 SOURCES += \
     phis.cpp \
@@ -39,6 +40,7 @@ SOURCES += \
     phislogwriter.cpp \
     phispagecache.cpp \
     phisserverrequest.cpp \
+    phisscriptobjects.cpp \
     phisprocessor.cpp
 
 include( ../../../phiconf.pri )
@@ -65,25 +67,13 @@ OTHER_FILES += js/phibase.js js/excanvas.js \
     phishtmlgecko100.h \
     phidataparserold.h \
     phiprocessor.h \
-    phisscriptobjects.h \
-    phisitemcache.h \
-    phisitemdata.h \
     phihtmlgenerator.h \
     phigenerator.h \
-    phisession.h \
     phishtmlbase.h \
-    phidatasources.cpp \
-    phiresponserec.cpp \
     phiprocessor.cpp \
     phidataparserold.cpp \
-    phisscriptobjects.cpp \
-    phisitem.cpp \
-    phisitemcache.cpp \
-    phisitemdata.cpp \
     phihtmlgenerator.cpp \
     phigenerator.cpp \
-    phisession.cpp \
-    phisrequest.cpp \
     phishtmlbase.cpp \
     phishtmlgeneric.cpp \
     phishtmlimgcreator.cpp \

@@ -37,8 +37,8 @@ class PHISPageCache
     Q_DISABLE_COPY( PHISPageCache )
 
 public:
-    static PHIBasePage* page( const PHIRequest *req ); // returns a copy
-    static PHIBasePage* insert( const PHIRequest *req, const PHIBasePage *p ); // returns a copy of p
+    static PHIBasePage* page( const PHIRequest *req, const QString &filename ); // returns a copy
+    static PHIBasePage* insert( const PHIRequest *req, const PHIBasePage *page, const QString &filename ); // returns a copy of p
     static QDateTime modified( const PHIRequest *req, const QString &pageId );
     static int getDbId();
     static void removeDbId( int );

@@ -118,6 +118,7 @@ public:
     inline QStringList getKeys() const { return _req->getKeys(); }
     inline QStringList getValues( const QString &key ) const { return _req->getValues( key ); }
     inline QStringList cookieKeys() const { return _req->cookieKeys(); }
+    inline QString referer() const { return _req->referer(); }
     inline QString cookieValue( const QString &key ) const { return _req->cookieValue( key ); }
     inline QStringList uploadFileKeys() const { return _req->fileKeys(); }
     inline QString uploadFileName( const QString &key ) const { return _req->fileName( key ); }

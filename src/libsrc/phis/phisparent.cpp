@@ -28,6 +28,7 @@
 #include "phislistener.h"
 #include "phispagecache.h"
 #include "phiimagecache.h"
+#include "phisession.h"
 
 PHISParent* PHISParent::_instance=0;
 
@@ -61,7 +62,12 @@ PHISParent::PHISParent( QObject *parent, const QString &name )
 
     PHISLogWriterThread::instance()->init( this, name );
     invalidate();
-    PHIImageCache::instance(); // create image cache
+    QString error;
+    PHIRC rc;
+    rc=PHIImageCache::instance()->init( error, this );
+    if ( rc!=PHIRC_OK ) PHISLogWriter::instance()->log( PHILOGCRIT, rc, error );
+    rc=PHISession::instance()->init( error, this );
+    if ( rc!=PHIRC_OK ) PHISLogWriter::instance()->log( PHILOGCRIT, rc, error );
     QTimer::singleShot( 0, this, SLOT( initListener() ) );
 }
 
@@ -71,9 +77,8 @@ PHISParent::~PHISParent()
     if ( value( SL( "SSLEnabled" ) ).toBool() ) {
         delete PHISslListener::instance();
     }
-    delete PHISListener::instance();
-    delete PHIImageCache::instance();
-    PHISPageCache::invalidate(); // PHIPageCache is static only so invalidate only
+    delete PHISListener::instance(); // disconnect all clients
+    PHISPageCache::invalidate(); // PHIPageCache is static so invalidate only
     _lock.lockForWrite();
     _instance=0;
     _lock.unlock();

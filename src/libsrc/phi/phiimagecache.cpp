@@ -26,46 +26,40 @@
 #include "phiapplication.h"
 #include "phirequest.h"
 #include "phiresponserec.h"
-#include "phi.h"
 
 #define PHICREATETABLE "CREATE TABLE imgcache ( cid TEXT NOT NULL, "\
     "dtime TEXT NOT NULL, tout INTEGER NOT NULL, path TEXT NOT NULL, PRIMARY KEY( cid ) )"
 
 PHIImageCache* PHIImageCache::_instance=0;
 
-PHIImageCache* PHIImageCache::instance()
+PHIRC PHIImageCache::init( QString &error, QObject *parent )
 {
-    if ( _instance ) return _instance;
-    _instance=new PHIImageCache( phiApp );
-    return _instance;
-}
-
-PHIImageCache::PHIImageCache( QObject *parent )
-    : QObject( parent ), _rc( PHIRC_OK )
-{
-    qDebug( "PHIImageCache::PHIImageCache()" );
-    _name.sprintf( "%s%p", "phiimagecache", QThread::currentThread() );
+    if ( parent ) setParent( parent );
+    else setParent( phiApp );
+    _name.sprintf( "%s-%p.db", "phiimagecache", QThread::currentThread() );
     QString path=phiApp->tmpPath()+L1( "/db/" );
     QDir dir( path );
     if ( !dir.exists() ) dir.mkpath( path );
     path=path+_name;
     qDebug() << "PHIImageCache DB name:" << path;
     _db=QSqlDatabase::addDatabase( SL( "QSQLITE" ), _name );
+    // because of multi threading we can not use storage type memory
+    // @todo: implement shared memory for speed up
     _db.setDatabaseName( path );
     if ( !_db.open() ) {
-        _rc=PHIRC_DB_ERROR;
-        _lastError=tr( "Could not create image cache DB '%1'" ).arg( path );
-        return;
+        error=tr( "Could not create image cache DB '%1'." ).arg( path );
+        return PHIRC_DB_ERROR;
     }
     QStringList tables=_db.tables();
     if ( tables.isEmpty() ) {
         QSqlQuery query( _db );
         if ( !query.exec( QString::fromLatin1( PHICREATETABLE ) ) ) {
-            _rc=PHIRC_QUERY_ERROR,
-            _lastError=tr( "Could not create image cache table: %1" )
+            error=tr( "Could not create image cache table: %1" )
                 .arg( query.lastError().text() );
+            return PHIRC_QUERY_ERROR;
         }
     }
+    return PHIRC_OK;
 }
 
 PHIImageCache::~PHIImageCache()

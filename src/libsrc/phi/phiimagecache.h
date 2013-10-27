@@ -21,10 +21,11 @@
 #include <QObject>
 #include <QSqlDatabase>
 #include "phierror.h"
+#include "phi.h"
 
 class PHIRequest;
 
-class PHIImageCache : public QObject
+class PHIEXPORT PHIImageCache : public QObject
 {
     Q_DISABLE_COPY( PHIImageCache )
     Q_OBJECT
@@ -32,19 +33,24 @@ class PHIImageCache : public QObject
 public:
     static PHIImageCache* instance();
     virtual ~PHIImageCache();
+    PHIRC init( QString &error, QObject *parent=0 );
     QByteArray createUid( const PHIRequest *req );
-    const QString& lastError() const { return _lastError; }
-    PHIRC lastRC() const { return _rc; }
     void cleanCache( const PHIRequest *req ) const;
 
 protected:
-    PHIImageCache( QObject *parent );
+    PHIImageCache() : QObject( 0 ) {}
 
 private:
     static PHIImageCache *_instance;
     QSqlDatabase _db;
-    PHIRC _rc;
-    QString _lastError, _name;
+    QString _name;
 };
+
+inline PHIImageCache* PHIImageCache::instance()
+{
+    if ( Q_LIKELY( _instance ) ) return _instance;
+    _instance=new PHIImageCache();
+    return _instance;
+}
 
 #endif // PHIIMAGECACHE_H

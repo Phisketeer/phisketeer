@@ -63,7 +63,7 @@ void PHILineEditItem::setReadOnly( bool b )
 {
     PHIBaseItem::setReadOnly( b );
     QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
-    Q_ASSERT( edit );
+    if ( !edit ) return;
     edit->setReadOnly( b );
 }
 
@@ -108,7 +108,7 @@ void PHILineEditItem::parseData( const PHIDataParser &parser )
 void PHILineEditItem::setPlaceholder( const QString &t )
 {
     QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
-    Q_ASSERT( edit );
+    if ( !edit ) return;
     edit->setPlaceholderText( t );
 }
 
@@ -150,11 +150,11 @@ void PHITextAreaItem::setWidgetText( const QString &t )
     edit->setPlainText( t );
 }
 
-void PHITextAreaItem::setReadOnly (bool b )
+void PHITextAreaItem::setReadOnly( bool b )
 {
     PHIBaseItem::setReadOnly( b );
     QPlainTextEdit *edit=qobject_cast<QPlainTextEdit*>(widget());
-    Q_ASSERT( edit );
+    if ( !edit ) return;
     edit->setReadOnly( b );
 }
 
@@ -173,7 +173,7 @@ void PHINumberEditItem::setReadOnly( bool b )
 {
     PHIBaseItem::setReadOnly( b );
     QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
-    Q_ASSERT( spin );
+    if ( !spin ) return;
     spin->setReadOnly( b );
 }
 
@@ -229,7 +229,7 @@ void PHIRealNumberEditItem::setReadOnly( bool b )
 {
     PHIBaseItem::setReadOnly( b );
     QDoubleSpinBox *spin=qobject_cast<QDoubleSpinBox*>(widget());
-    Q_ASSERT( spin );
+    if( !spin ) return;
     spin->setReadOnly( b );
 }
 

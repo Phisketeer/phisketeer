@@ -49,21 +49,21 @@ QDateTime PHISPageCache::modified( const PHIRequest *req, const QString &pageId 
     return dt;
 }
 
-PHIBasePage* PHISPageCache::page( const PHIRequest *req )
+PHIBasePage* PHISPageCache::page( const PHIRequest *req, const QString &filename )
 {
     _lock.lockForRead();
-    const PHIBasePage *p=_pages.value( req->hostname() ).value( req->canonicalFilename(), 0 );
-    if ( p ) {
+    const PHIBasePage *p=_pages.value( req->hostname() ).value( filename, 0 );
+    if ( Q_LIKELY( p ) ) {
         QDateTime stamp=_modified.value( req->hostname() ).value( p->id(), QDateTime() );
-        if ( stamp < req->lastModified() ) { // remove cached page
+        if ( Q_UNLIKELY( stamp < QFileInfo( filename ).lastModified() ) ) { // remove cached page
             _lock.unlock();
             _lock.lockForWrite();
             PageModified pm=_modified.take( req->hostname() );
             pm.remove( p->id() );
             _modified.insert( req->hostname(), pm );
             PageHash ph=_pages.take( req->hostname() );
-            Q_ASSERT( p==ph.value( p->id(), 0 ) );
-            ph.remove( req->canonicalFilename() );
+            Q_ASSERT( p==ph.value( filename, 0 ) );
+            ph.remove( filename );
             _pages.insert( req->hostname(), ph );
             delete p;
             _lock.unlock();
@@ -83,15 +83,15 @@ PHIBasePage* PHISPageCache::page( const PHIRequest *req )
     return 0;
 }
 
-PHIBasePage* PHISPageCache::insert( const PHIRequest *req, const PHIBasePage *p )
+PHIBasePage* PHISPageCache::insert( const PHIRequest *req, const PHIBasePage *p, const QString &filename )
 {
-    if ( p==0 ) return 0;
+    if ( Q_UNLIKELY( !p ) ) return 0;
     PageModified pm;
     PageHash ph;
     _lock.lockForWrite();
-    if ( _pages.value( req->hostname() ).contains( req->canonicalFilename() ) ) {
+    if ( Q_UNLIKELY( _pages.value( req->hostname() ).contains( filename ) ) ) {
         // race condition: another thread inserted page before
-        const PHIBasePage *p2=_pages.value( req->hostname() ).value( req->canonicalFilename(), 0 );
+        const PHIBasePage *p2=_pages.value( req->hostname() ).value( filename, 0 );
         Q_ASSERT( p2 );
         delete p;
         try {
@@ -106,12 +106,12 @@ PHIBasePage* PHISPageCache::insert( const PHIRequest *req, const PHIBasePage *p 
         return 0;
     }
     pm=_modified.take( req->hostname() );
-    pm.insert( p->id(), req->lastModified() );
+    pm.insert( p->id(), QFileInfo( filename ).lastModified() );
     _modified.insert( req->hostname(), pm );
 
     ph=_pages.take( req->hostname() );
-    Q_ASSERT( !ph.contains( req->canonicalFilename() ) );
-    ph.insert( req->canonicalFilename(), p );
+    Q_ASSERT( !ph.contains( filename ) );
+    ph.insert( filename, p );
     _pages.insert( req->hostname(), ph );
     try {
         PHIBasePage *copy=new PHIBasePage( *p );

@@ -18,24 +18,39 @@
 */
 #ifndef PHISESSION_H
 #define PHISESSION_H
-
 #include <QObject>
+#include <QSqlDatabase>
+#include "phierror.h"
+#include "phi.h"
 
-class PHIResponseRec;
+class PHIRequest;
 
-class PHISession : public QObject
+class PHIEXPORT PHISession : public QObject
 {
+    Q_DISABLE_COPY( PHISession )
     Q_OBJECT
 
 public:
-    PHISession( PHIResponseRec *resp, const QString &dbDir, QObject *parent=0 );
-    QString createSession( qint32 timeout, const QString &id=QString() );
-    bool validateSession( const QString &uid, qint32 timeout );
+    static PHISession* instance();
+    PHIRC init( QString &error, QObject *parent=0 );
+    QString createSession( const PHIRequest *req, qint32 timeout, const QString &sid=QString() ) const;
+    bool validateSession( const PHIRequest *req, qint32 timeout, const QString &sid ) const;
     virtual ~PHISession();
 
+protected:
+    PHISession() : QObject( 0 ) {}
+
 private:
-    PHIResponseRec *_resp;
-    int _id;
+    static PHISession *_instance;
+    QSqlDatabase _db;
+    QString _name;
 };
+
+inline PHISession* PHISession::instance()
+{
+    if ( Q_LIKELY( _instance ) ) return _instance;
+    _instance=new PHISession();
+    return _instance;
+}
 
 #endif // PHISESSION_H

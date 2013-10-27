@@ -41,6 +41,7 @@ public:
     PHIByteArrayList imagePathes( PHIImageBookData *data ) const;
     QByteArray createTmpImage( QImage &img, const QByteArray &lang=PHIData::c(), int i=0 ) const;
     inline void setCurrentItem( const PHIBaseItem *it ) const { _currentItem=it; }
+    inline const PHIRequest* request() const { return _req; }
 
 protected:
     enum Type { Header, Cookie, Post, Get, Request, Server, All };

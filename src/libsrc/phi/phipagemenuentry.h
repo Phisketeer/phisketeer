@@ -1,6 +1,4 @@
 /*
-#    Copyright (C) 2008  Trolltech AS
-#    Copyright (C) 2012  Digia Plc and/or its subsidiary(-ies).
 #    Copyright (C) 2010-2013  Marius B. Schumacher
 #    Copyright (C) 2011-2013  Phisys AG, Switzerland
 #    Copyright (C) 2012-2013  Phisketeer.org team
@@ -17,14 +15,12 @@
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#    Note: some parts are based on code provided by the Qt source.
 */
 #ifndef PHIPAGEMENUENTRY_H
 #define PHIPAGEMENUENTRY_H
+#include "phidatasources.h"
 #include "phi.h"
 
-class PHITextData;
 class QDataStream;
 
 class PHIEXPORT PHIPageMenuEntry
@@ -40,11 +36,13 @@ public:
     typedef quint8 Options;
 #endif
 
-    PHIPageMenuEntry();
+    PHIPageMenuEntry() : _textData( new PHITextData() ) {}
     PHIPageMenuEntry( const QByteArray &id, const QByteArray &parent, const QImage &image,
         const QByteArray &text, Options options, const PHITextData *data=0 );
-    virtual ~PHIPageMenuEntry();
-    PHIPageMenuEntry( const PHIPageMenuEntry& );
+    virtual ~PHIPageMenuEntry() { delete _textData; }
+    PHIPageMenuEntry( const PHIPageMenuEntry &e ) : _id( e._id ), _parent( e._parent ),
+        _text( e._text ), _img( e._img ), _options( e._options ),
+        _textData( new PHITextData( *e._textData ) ) {}
     PHIPageMenuEntry& operator=( const PHIPageMenuEntry& );
     bool operator==( const PHIPageMenuEntry &p );
     inline bool operator!=( const PHIPageMenuEntry &p ) { return !operator==(p); }
