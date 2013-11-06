@@ -61,9 +61,9 @@ void PHIEffect::setBlur( qreal r )
 void PHIEffect::shadow( QColor &c, qreal &xOff, qreal &yOff, qreal &radius ) const
 {
     c=_v.value( DColor, QColor( 63, 63, 63, 180 ) ).value<QColor>();
-    xOff=_v.value( DXOffset, 8. ).value<qreal>();
-    yOff=_v.value( DYOffset, 8. ).value<qreal>();
-    radius=_v.value( DBlurRadius, 1. ).value<qreal>();
+    xOff=_v.value( DXOffset, 8. ).toReal();
+    yOff=_v.value( DYOffset, 8. ).toReal();
+    radius=_v.value( DBlurRadius, 1. ).toReal();
 }
 
 void PHIEffect::setShadow( const QColor &c, qreal xOff, qreal yOff, qreal radius )
@@ -134,7 +134,7 @@ void PHIEffect::setMoveBy( qint32 start, qint32 duration, qint32 x, qint32 y, qi
     else _v.remove( DEaseMoveBy );
 }
 
-void PHIEffect::setRotateIn( quint8 axis, qint32 start, qint32 duration )
+void PHIEffect::setRotateIn( quint8 axis, qint32 start, qint32 duration, quint8 ease )
 {
     _effects |= ERotateIn;
     if ( axis!=0x2 ) _v.insert( DRotateInAxis, axis );
@@ -143,9 +143,11 @@ void PHIEffect::setRotateIn( quint8 axis, qint32 start, qint32 duration )
     else _v.remove( DRotateInStart );
     if ( duration!=1000 ) _v.insert( DRotateInDuration, duration );
     else _v.remove( DRotateInDuration );
+    if ( ease!=PHI::defaultEasingCurveType() ) _v.insert( DEaseRotateIn, ease );
+    else _v.remove( DEaseRotateIn );
 }
 
-void PHIEffect::setRotateOut( quint8 axis, qint32 start, qint32 duration )
+void PHIEffect::setRotateOut( quint8 axis, qint32 start, qint32 duration, quint8 ease )
 {
     _effects |= ERotateOut;
     if ( axis!=0x2 ) _v.insert( DRotateOutAxis, axis );
@@ -154,6 +156,8 @@ void PHIEffect::setRotateOut( quint8 axis, qint32 start, qint32 duration )
     else _v.remove( DRotateOutStart );
     if ( duration!=1000 ) _v.insert( DRotateOutDuration, duration );
     else _v.remove( DRotateOutDuration );
+    if ( ease!=PHI::defaultEasingCurveType() ) _v.insert( DEaseRotateOut, ease );
+    else _v.remove( DEaseRotateOut );
 }
 
 void PHIEffect::setRotate( quint8 axis, qreal stepX, qreal stepY, qreal stepZ )

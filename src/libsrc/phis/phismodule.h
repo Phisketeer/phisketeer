@@ -102,7 +102,7 @@ public:
     inline QDateTime started() const { return _req->started(); }
     inline QDateTime modified() const { return _req->lastModified(); }
     inline qint64 contentLength() const { return _req->contentLength(); }
-    inline QStringList acceptedLanguages() const { return _req->acceptedLanguages();  } // without qualifier ';q=x.x'
+    QStringList acceptedLanguages() const; // without qualifier ';q=x.x'
     inline quint8 osType() const { return _req->osType(); }
     inline void setOsType( quint8 type ) const { _req->setOSType( type ); }
     inline quint8 agentId() const { return _req->agentId(); }
@@ -183,6 +183,13 @@ public:
 inline void PHISInterface::setContent( const QByteArray &content ) const {
     _req->responseRec()->setBody( content );
     _req->responseRec()->setContentLength( content.size() );
+}
+
+inline QStringList PHISInterface::acceptedLanguages() const {
+    QStringList list;
+    QByteArray arr;
+    foreach ( arr, _req->acceptedLanguages() ) list.append( QString::fromLatin1( arr ) );
+    return list;
 }
 
 inline void PHISInterface::setContentType( const QByteArray &contenttype ) const {

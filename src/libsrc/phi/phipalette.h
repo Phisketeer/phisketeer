@@ -58,8 +58,8 @@ public:
     explicit PHIPalette();
     PHIPalette( const PHIPalette &p );
     PHIPalette& operator=( const PHIPalette &p );
-    bool operator==( const PHIPalette &p );
-    inline bool operator!=( const PHIPalette &p ) { return !operator==(p); }
+    bool operator==( const PHIPalette &p ) const;
+    inline bool operator!=( const PHIPalette &p ) const { return !operator==(p); }
 
     QColor color( ColorRole role ) const;
     void setColor( ColorRole role, const QColor &col );
@@ -79,5 +79,37 @@ Q_DECLARE_METATYPE( PHIPalette )
 
 PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIPalette& );
 PHIEXPORT QDataStream& operator>>( QDataStream&, PHIPalette& );
+
+inline PHIPalette::PHIPalette( const PHIPalette &p )
+    : _pal( p._pal ), _userColors( p._userColors )
+{
+}
+
+inline PHIPalette& PHIPalette::operator=( const PHIPalette &p )
+{
+    _pal=p._pal;
+    _userColors=p._userColors;
+    return *this;
+}
+
+inline bool PHIPalette::operator==( const PHIPalette &p ) const
+{
+    if ( _pal!=p._pal ) return false;
+    if ( _userColors!=p._userColors ) return false;
+    return true;
+}
+
+inline QColor PHIPalette::color( ColorRole role ) const
+{
+    quint8 num=static_cast<quint8>(role);
+    if ( num<17 ) return _pal.color( static_cast<QPalette::ColorRole>(num) );
+    return _userColors.value( num, QColor() );
+}
+
+inline void PHIPalette::setPalette( const QPalette &pal )
+{
+    _pal=pal;
+    _pal.setColor( QPalette::Window, Qt::transparent );
+}
 
 #endif // PHIPALETTE_H

@@ -17,16 +17,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "phiitemstylecss.h"
+#include "phidomitem.h"
 
-PHIItemStyleCSS::PHIItemStyleCSS( PHIBaseItem *parent )
-    : QObject( parent ), _it( parent )
+PHIDomEffect::PHIDomEffect( PHIDomItem *parent )
+    : QObject( parent ), _it( parent->baseItem() )
+{
+    qDebug( "PHIDomEffect::PHIDomEffect()" );
+    Q_ASSERT( _it );
+    setObjectName( L1( "effect" ) );
+}
+
+PHIItemStyleCSS::PHIItemStyleCSS( PHIDomItem *parent )
+    : QObject( parent ), _it( parent->baseItem() )
 {
     qDebug( "PHIItemStyleCSS::PHIItemStyleCSS()" );
     Q_ASSERT( _it );
-    setObjectName( QLatin1String( "style" ) );
-}
-
-PHIItemStyleCSS::~PHIItemStyleCSS()
-{
-    qDebug( "PHIItemStyleCSS::~PHIItemStyleCSS()" );
+    setObjectName( L1( "style" ) );
 }

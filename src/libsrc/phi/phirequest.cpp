@@ -20,26 +20,6 @@
 #include <QDir>
 #include "phirequest.h"
 
-PHIRequest::PHIRequest()
-    : _agentEngine( PHIRequest::UnknownEngine ), _agentId( PHIRequest::UnknownAgent ),
-    _osType( PHIRequest::UnknownOS ), _engineMajorVersion( -1 ), _engineMinorVersion( -1 ),
-    _philang( false ), _contentLength( 0 ), _started( QDateTime::currentDateTime() )
-{
-    //qDebug( "PHIRequest::PHIRequest" );
-}
-
-PHIRequest::~PHIRequest()
-{
-    QTemporaryFile *tmpFile;
-    foreach ( tmpFile, _tmpFiles ) {
-        qDebug( "Closing %s", qPrintable( tmpFile->fileName() ) );
-        tmpFile->close();
-        delete tmpFile;
-    }
-    _tmpFiles.clear();
-    //qDebug( "PHIRequest::~PHIRequest" );
-}
-
 quint8 PHIRequest::osType() const
 {
     if ( _osType!=UnknownOS ) return _osType;
@@ -58,61 +38,65 @@ quint8 PHIRequest::osType() const
     return _osType;
 }
 
-void PHIRequest::init() // should be executed AFTER all GET and POST var extractions
+void PHIRequest::init() // must be executed AFTER all GET and POST var extractions
 {
-    QStringList list;
-    QString str;
     int pos;
-
     _modified=QFileInfo( _canonicalFilename ).lastModified();
     // Extract user agent info
-    const QByteArray arr=_headers.value( "User-Agent" );
+    QByteArray arr=_headers.value( BL( "User-Agent" ) );
     if ( arr.isEmpty() ) {
         _agentEngine=UnknownEngine;
         _osType=UnknownOS;
         _agentId=UnknownAgent;
     } else {
-        if ( (pos=arr.indexOf( "MSIE" ))!=-1 ) {
+        if ( (pos=arr.indexOf( BL( "MSIE" ) ))!=-1 ) {
             _agentEngine=Trident;
             _agentId=IE;
             _engineMajorVersion=arr.mid( pos+5, 1 ).toInt();
             _engineMinorVersion=0;
-            if ( _engineMajorVersion==1 ) _engineMajorVersion=6; // MSIE 10
-            else if ( _engineMajorVersion>8 ) _engineMajorVersion=5;
-            else if ( _engineMajorVersion>7 ) _engineMajorVersion=4;
+            if ( _engineMajorVersion==1 ) {
+                if ( arr.mid( pos+6 ).toInt()>0 ) _engineMajorVersion=7; // MSIE 11
+                else _engineMajorVersion=6; // MSIE 10
+            } else if ( _engineMajorVersion>8 ) _engineMajorVersion=5; // MSIE 9
+            else if ( _engineMajorVersion>7 ) _engineMajorVersion=4; // MSIE 8
             else if ( _engineMajorVersion>5 ) {
-                _engineMajorVersion=3;
+                _engineMajorVersion=3; // MSIE 6-7
                 _engineMinorVersion=1;
-            } else _engineMajorVersion=2;
+            } else _engineMajorVersion=2; // MSIE <6
             pos=-1;
-        } else if ( (pos=arr.indexOf( "WebKit" ))!=-1 ) {
-            if ( arr.indexOf( "Chrome" )!=-1 ) _agentId=Chrome;
-            else if ( arr.indexOf( "Konqueror" )!=-1 ) _agentId=Konqueror;
-            else if ( arr.indexOf( "Android" )!=-1 ) _agentId=Chrome;
-            else if ( arr.indexOf( "Safari" )!=-1 ) _agentId=Safari;
-            else if ( arr.indexOf( "Opera" )!=-1 ) _agentId=Opera;
-            else if ( arr.indexOf( "Amphibia" )!=-1 ) _agentId=Amphibia;
-            else if ( arr.indexOf( "Phis" )!=-1 ) _agentId=Phis;
+        } else if ( (pos=arr.indexOf( BL( "WebKit" ) ))!=-1 ) {
+            if ( arr.indexOf( BL( "Chrome" ) )!=-1 ) _agentId=Chrome;
+            else if ( arr.indexOf( BL( "Konqueror" ) )!=-1 ) _agentId=Konqueror;
+            else if ( arr.indexOf( BL( "Android" ) )!=-1 ) _agentId=Chrome;
+            else if ( arr.indexOf( BL( "Safari" ) )!=-1 ) _agentId=Safari;
+            else if ( arr.indexOf( BL( "Opera" ) )!=-1 ) _agentId=Opera;
+            else if ( arr.indexOf( BL( "Amphibia" ) )!=-1 ) _agentId=Amphibia;
+            else if ( arr.indexOf( BL( "Phis" ) )!=-1 ) _agentId=Phis;
             else _agentId=UnknownAgent;
             _agentEngine=WebKit;
             pos+=7;
-        } else if ( (pos=arr.indexOf( "Firefox" ))!=-1 ) {
+        } else if ( (pos=arr.indexOf( BL( "Blink" ) ))!=-1 ) {
+            if ( arr.indexOf( BL( "Chrome" ) )!=-1 ) _agentId=Chrome;
+            else if ( arr.indexOf( BL( "Opera" ) )!=-1 ) _agentId=Opera;
+            _agentEngine=Blink;
+            pos+=6;
+        } else if ( (pos=arr.indexOf( BL( "Firefox" ) ))!=-1 ) {
             _agentEngine=Gecko;
             _agentId=Firefox;
             pos+=8;
-        } else if ( (pos=arr.indexOf( "Presto" ))!=-1 ) {
+        } else if ( (pos=arr.indexOf( BL( "Presto" ) ))!=-1 ) {
             _agentEngine=Presto;
             _agentId=Opera;
             pos+=7;
-        } else if ( (pos=arr.indexOf( "KHTML" ))!=-1 ) {
+        } else if ( (pos=arr.indexOf( BL( "KHTML" ) ))!=-1 ) {
             _agentEngine=WebKit;
             _agentId=Konqueror;
             pos+=6;
-        } else if ( (pos=arr.indexOf( "SeaMonkey"))!=-1 ) {
+        } else if ( (pos=arr.indexOf( BL( "SeaMonkey" ) ))!=-1 ) {
             _agentEngine=Gecko;
             _agentId=SeaMonkey;
             pos+=10;
-        } else if ( (pos=arr.indexOf( "Trident"))!=-1 ) {
+        } else if ( (pos=arr.indexOf( BL( "Trident" ) ))!=-1 ) {
             _agentEngine=Trident;
             _agentId=UnknownAgent;
             pos+=8;
@@ -189,20 +173,24 @@ void PHIRequest::init() // should be executed AFTER all GET and POST var extract
         }
     }
     // Extract languages (excluding qualifier ie. ';q=0.8')
-    list=QString::fromLatin1( _headers.value( "Accept-Language" ) ).split( QLatin1Char( ',' ), QString::SkipEmptyParts );
-    foreach ( str, list ) {
-        pos=str.indexOf( QLatin1Char( ';' ) );
-        if ( pos>0 ) str=str.left( pos ); // remove qualifier
-        if ( str.size()>2 ) str[2]=QLatin1Char( '_' );
-        _acceptedLangs.append( str.toLower() );
+    PHIByteArrayList langs=_headers.value( BL( "Accept-Language" ) ).split( ',' );
+    foreach ( arr, langs ) {
+        pos=arr.indexOf( ';' );
+        if ( pos>0 ) arr=arr.left( pos ); // remove qualifier
+        if ( arr.size()>4 ) {
+            QByteArray subLang=arr.mid( 3 ).toUpper();
+            arr=arr.left( 2 )+'_'+subLang;
+            _acceptedLangs.append( arr );
+        }
+        _acceptedLangs.append( arr.left( 2 ) );
     }
-    if ( _acceptedLangs.isEmpty() ) _lang=SL( "C" );
-    else _lang=_acceptedLangs.first();
+    if ( _acceptedLangs.isEmpty() ) _acceptedLangs.append( BL( "C" ) );
+    else _lang=QString::fromLatin1( _acceptedLangs.first() );
 
     // Extract cookies
     static const QString philang=L1( "philang" );
-    list=QString::fromUtf8( _headers.value( "Cookie" ) ).split( QLatin1Char( ';' ), QString::SkipEmptyParts );
-    if ( list.count()>0 ) {
+    if ( _headers.contains( BL( "Cookie" ) ) ) {
+        QStringList list=QString::fromUtf8( _headers.value( BL( "Cookie" ) ) ).split( QLatin1Char( ';' ), QString::SkipEmptyParts );
         _cookies.clear();
         QString value, cookie;
         int start;
@@ -215,7 +203,7 @@ void PHIRequest::init() // should be executed AFTER all GET and POST var extract
             if ( value.endsWith( QLatin1Char( '"' ) ) ) value.chop( 1 );
             _cookies.insert( cookie.left( start ), value );
         }
-        if ( _cookies.contains( philang ) ) {
+        if ( Q_UNLIKELY( _cookies.contains( philang ) ) ) {
             _lang=_cookies.value( philang );
             _philang=true;
         }
@@ -224,11 +212,64 @@ void PHIRequest::init() // should be executed AFTER all GET and POST var extract
         _lang=_postData.value( philang );
         _philang=true;
     }
-    if ( ! QUrlQuery( _url ).queryItemValue( philang ).isEmpty() ) {
+    if ( !QUrlQuery( _url ).queryItemValue( philang ).isEmpty() ) {
         _lang=QUrlQuery( _url ).queryItemValue( philang );
         _philang=true;
     }
     _langByteArray=_lang.toLatin1();
+
+    switch( _agentEngine ) {
+    case Trident:
+        _agentPrefix=BL( "-ms-" );
+        if ( Q_UNLIKELY( _engineMajorVersion < 5 ) ) { // IE678
+            _agentFeatures = None | IE678;
+        } else if ( Q_UNLIKELY( _engineMajorVersion==5 ) ) { // IE9
+            _agentFeatures = None | BoxShadow | RGBA | Transform2D
+            | BorderRadius | SVG | Canvas | H264 | Audio;
+        }
+        break;
+    case WebKit:
+        _agentPrefix=BL( "-webkit-" );
+        if ( Q_UNLIKELY( _engineMajorVersion < 534 ) ) { // Safari 4.0, Chrome 3 & 4
+            _agentFeatures = None | BoxShadow | TextShadow | RGBA | Transform2D
+            | Transform3D | Transitions | BorderRadius | Canvas | H264 | Audio;
+            if ( _engineMajorVersion==533 ) _agentFeatures |= HTML5;
+        } else {
+            if ( _agentId==Chrome ) _agentFeatures |= H264 | Ogg; // Chrome >= 10
+            else if ( _agentId==Safari ) _agentFeatures |= H264; // Safari >= 5.1
+            else if ( _agentId==Opera ) _agentFeatures |= Ogg; // Opera >= 15
+        }
+        break;
+    case Gecko:
+        _agentPrefix=BL( "-moz-" );
+        if ( Q_UNLIKELY( _engineMajorVersion < 2 ) ) {
+            if ( Q_UNLIKELY( _engineMinorVersion < 9 ) ) { // Firefox 2.x
+                _agentFeatures = None | RGBA | BorderRadius;
+            } else { // Firefox 3.x
+                _agentFeatures = None | BoxShadow | TextShadow | RGBA | Transform2D
+                | BorderRadius | Canvas | MathML | Ogg | Audio;
+            }
+        } else if ( Q_UNLIKELY( _engineMajorVersion < 10 ) ) { // Firefox 4-9
+                _agentFeatures &= ~Transform3D;
+                _agentFeatures |= Ogg;
+        } else { // Firefox >= 10
+            if ( _osType==Windows && _engineMajorVersion > 15 ) _agentFeatures |= H264;
+        }
+        break;
+    case Presto:
+        _agentPrefix=BL( "-o-" );
+        if ( Q_UNLIKELY( _engineMinorVersion < 3 ) ) { // Opera 9 & 10.0
+            _agentFeatures = None | TextShadow | Canvas;
+        } else if ( Q_UNLIKELY( _engineMinorVersion < 9 ) ) { // Opera 10.5-11.5
+            _agentFeatures &= ~Gradients & ~Transform3D;
+            _agentFeatures |= Ogg;
+        } else { // Opera 11.6-12.1 (Opera >=15 uses WebKit
+            _agentFeatures &= ~Transform3D;
+            _agentFeatures |= Ogg;
+        }
+        break;
+    default:;
+    }
 }
 
 QString PHIRequest::serverValue( const QString &key ) const
@@ -287,40 +328,50 @@ QString PHIRequest::serverValue( const QString &key ) const
 
 const QString& PHIRequest::userEngine() const
 {
-    static QString trident=SL( "Trident" );
-    static QString webkit=SL( "WebKit" );
-    static QString gecko=SL( "Gecko" );
-    static QString presto=SL( "Presto" );
-    static QString unknown=SL( "Unknown" );
+    static QString trident=L1( "Trident" );
+    static QString webkit=L1( "WebKit" );
+    static QString gecko=L1( "Gecko" );
+    static QString presto=L1( "Presto" );
+    static QString blink=L1( "Blink" );
+    static QString unknown=L1( "Unknown" );
 
     switch ( _agentEngine ) {
     case Trident: return trident;
     case WebKit: return webkit;
     case Gecko: return gecko;
+    case Blink: return blink;
     case Presto: return presto;
     default:;
     }
     return unknown;
 }
 
-/** @todo make them static */
-QString PHIRequest::userAgent() const
+const QString& PHIRequest::userAgent() const
 {
+    static QString msie=L1( "MSIE" );
+    static QString safari=L1( "Safari" );
+    static QString ff=L1( "Firefox" );
+    static QString chrome=L1( "Chrome" );
+    static QString konq=L1( "Konqueror" );
+    static QString opera=L1( "Opera" );
+    static QString sea=L1( "SeaMonkey" );
+    static QString amph=L1( "Amphibia" );
+
     switch( _agentId ) {
-    case IE: return SL( "MSIE" );
-    case Safari: return SL( "Safari" );
-    case Firefox: return SL( "Firefox" );
-    case Chrome: return SL( "Chrome" );
-    case Konqueror: return SL( "Konqueror" );
-    case Opera: return SL( "Opera" );
-    case SeaMonkey: return SL( "SeaMonkey" );
-    case Amphibia: return SL( "Amphibia" );
+    case IE: return msie;
+    case Safari: return safari;
+    case Firefox: return ff;
+    case Chrome: return chrome;
+    case Konqueror: return konq;
+    case Opera: return opera;
+    case SeaMonkey: return sea;
+    case Amphibia: return amph;
     default:;
     }
     return SL( "Unknown" );
 }
 
-/** @todo make them static */
+// @todo: make them static
 QString PHIRequest::userOS() const
 {
     switch( osType() ) {
@@ -429,7 +480,7 @@ void PHIRequest::dump() const
         qWarning( "%d %s", id, _keywords.value( id ).data() );
     }
     qWarning( "[Languages]" );
-    foreach ( str, acceptedLanguages() ) qWarning( "%s", qPrintable( str ) );
+    foreach ( QByteArray lang, acceptedLanguages() ) qWarning( "%s", lang.constData() );
     qWarning( "[Header]" );
     foreach ( str, headerKeys() ) {
         qWarning( "%s=%s", qPrintable( str ), headerValue( str.toLatin1() ).constData() );

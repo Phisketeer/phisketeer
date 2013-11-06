@@ -31,7 +31,7 @@ void PHILoginContainerItem::initIDE()
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "loginlabel" ) ) );
     it->initIDE();
-    it->setProperty( "align", static_cast<quint16>(Qt::AlignCenter) );
+    it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Login" ) ) );
     it->textData()->setText( L1( "Login" ), "en" );
@@ -87,7 +87,7 @@ void PHIRegisterUserContainerItem::initIDE()
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "registerlabel" ) ) );
     it->initIDE();
-    it->setProperty( "align", static_cast<quint16>(Qt::AlignCenter) );
+    it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Register user" ) ) );
     it->textData()->setText( L1( "Register user" ), "en" );
@@ -177,7 +177,7 @@ void PHIAddressContainerItem::initIDE()
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "addresslabel" ) ) );
     it->initIDE();
-    it->setProperty( "align", static_cast<quint16>(Qt::AlignCenter) );
+    it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Delivery address" ) ) );
     it->textData()->setText( L1( "Delivery address" ), "en" );
@@ -379,7 +379,7 @@ void PHIContactContainerItem::initIDE()
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "contactlabel" ) ) );
     it->initIDE();
-    it->setProperty( "align", static_cast<quint16>(Qt::AlignCenter) );
+    it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Contact information" ) ) );
     it->textData()->setText( L1( "Contact information" ), "en" );
@@ -509,7 +509,7 @@ void PHIPeriodContainerItem::initIDE()
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "periodlabel" ) ) );
     it->initIDE();
-    it->setProperty( "align", static_cast<quint16>(Qt::AlignCenter) );
+    it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Date period" ) ) );
     it->textData()->setText( L1( "Date period" ), "en" );
@@ -567,7 +567,7 @@ void PHICCContainerItem::initIDE()
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "cardlabel" ) ) );
     it->initIDE();
-    it->setProperty( "align", static_cast<quint16>(Qt::AlignCenter) );
+    it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Credit card" ) ) );
     it->textData()->setText( L1( "Credit card" ), "en" );

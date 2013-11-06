@@ -81,7 +81,9 @@ public:
     enum Origin { Custom=0, TopLeft=1, TopMid=2, TopRight=3, MidLeft=4, MidMid=5,
         Center=MidMid, MidRight=6, BottomLeft=7, BottomMid=8, BottomRight=9, Invalid=10 };
 
-    static Qt::Alignment toQtAlignment( quint8 );
+    //static Qt::Alignment toQtAlignment( quint8 oldPhiAlignment );
+    static Qt::Alignment textAlignToQtAlignment( const QString &a );
+    static QString qtAlignmentToTextAlign( Qt::Alignment a);
     static PHIRC socketError( QAbstractSocket::SocketError err );
     static QString tag( const QString &tag, const QString &msg ); // fast extractor <tag>msg</tag>
     static QStringList properties( const QObject* );

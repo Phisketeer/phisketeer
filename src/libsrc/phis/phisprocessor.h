@@ -50,6 +50,7 @@ protected:
     void genImage() const;
     void genCSS() const;
     void genJS() const;
+    void genScripts() const;
 
 private:
     const PHIRequest *_req;

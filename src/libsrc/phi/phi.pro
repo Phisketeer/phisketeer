@@ -50,7 +50,8 @@ HEADERS += phi.h \
     phinetmanager.h \
     phidataparser.h \
     phiimagecache.h \
-    phisession.h
+    phisession.h \
+    phidomitem.h
 SOURCES += phi.cpp \
     phiitemdata.cpp \
     phidatasources.cpp \

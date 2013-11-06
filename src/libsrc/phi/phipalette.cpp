@@ -17,8 +17,6 @@
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#    Note: some parts are based on code provided by the Qt source.
 */
 #include <QGuiApplication>
 #include <QDataStream>
@@ -39,26 +37,6 @@ PHIPalette::PHIPalette()
     createPercentColors( User4_100, QColor( 255, 255, 0 ) );
     createPercentColors( User5_100, QColor( 0, 255, 255 ) );
     createPercentColors( User6_100, QColor( 255, 0, 255 ) );
-}
-
-PHIPalette::PHIPalette( const PHIPalette &p )
-{
-    _pal=p._pal;
-    _userColors=p._userColors;
-}
-
-PHIPalette& PHIPalette::operator=( const PHIPalette &p )
-{
-    _pal=p._pal;
-    _userColors=p._userColors;
-    return *this;
-}
-
-bool PHIPalette::operator==( const PHIPalette &p )
-{
-    if ( _pal!=p._pal ) return false;
-    if ( _userColors!=p._userColors ) return false;
-    return true;
 }
 
 void PHIPalette::createPercentColors( ColorRole role, const QColor &col )
@@ -91,19 +69,6 @@ void PHIPalette::createPercentColors( ColorRole role, const QColor &col )
     }
 }
 
-QColor PHIPalette::color( ColorRole role ) const
-{
-    quint8 num=static_cast<quint8>(role);
-    if ( num<17 ) return _pal.color( static_cast<QPalette::ColorRole>(num) );
-    return _userColors.value( num, QColor() );
-}
-
-void PHIPalette::setPalette( const QPalette &pal )
-{
-    _pal=pal;
-    _pal.setColor( QPalette::Window, Qt::transparent );
-}
-
 void PHIPalette::setColor( ColorRole role, const QColor &col )
 {
     quint8 num=static_cast<quint8>(role);
@@ -123,7 +88,6 @@ void PHIPalette::setColor( ColorRole role, const QColor &col )
 
 void PHIPalette::squeeze()
 {
-    _userColors.clear();
     _userColors.squeeze();
 }
 

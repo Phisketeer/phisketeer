@@ -112,11 +112,11 @@ PHIColorConfig::PHIColorConfig( PHIBaseItem *item, QWidget *parent )
         _colorLabel->setText( tr( "Pattern color" ) );
         _outlineColorLabel->setText( tr( "Outline color" ) );
         _itemRoles << PHIPalette::Foreground << PHIPalette::Background;
-        if ( item->property( "pattern" ).value<quint8>()==15 ) {
+        if ( item->property( "_pattern" ).value<quint8>()==15 ) {
             _colorButton->setEnabled( false );
             _colorLabel->setEnabled( false );
         }
-        if ( item->property( "line" ).value<quint8>()==0 ) {
+        if ( item->property( "_line" ).value<quint8>()==0 ) {
             _outlineColorButton->setEnabled( false );
             _outlineColorLabel->setEnabled( false );
         }

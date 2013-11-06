@@ -55,8 +55,10 @@ QStringList PHI::properties( const QObject *obj )
     Q_ASSERT( obj );
     const QMetaObject *mo=obj->metaObject();
     QStringList properties;
-    for( int i=1; i < mo->propertyCount(); ++i )
+    for( int i=1; i < mo->propertyCount(); ++i ) {
+        if ( !mo->property( i ).isScriptable() ) continue;
         properties << QString::fromLatin1( mo->property( i ).name() );
+    }
     properties.sort();
     return properties;
 }
@@ -118,6 +120,22 @@ void PHI::extractRealNumbers( const QByteArray &s, qreal &value, qreal &min, qre
     if ( list.count()>4 ) prec=list.at(4).toInt();
     else prec=1;
     if ( prec>10 ) prec=10;
+}
+
+Qt::Alignment PHI::textAlignToQtAlignment( const QString &a )
+{
+    if ( a==L1( "right" ) ) return Qt::AlignRight;
+    if ( a==L1( "center" ) ) return Qt::AlignHCenter;
+    if ( a==L1( "justify" ) ) return Qt::AlignJustify;
+    return Qt::AlignLeft;
+}
+
+QString PHI::qtAlignmentToTextAlign( Qt::Alignment a )
+{
+    if ( a & Qt::AlignRight ) return SL( "right" );
+    if ( a & Qt::AlignHCenter || a & Qt::AlignCenter ) return SL( "center" );
+    if ( a & Qt::AlignJustify ) return SL( "justify" );
+    return SL( "left" );
 }
 
 /*

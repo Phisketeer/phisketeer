@@ -24,16 +24,18 @@
 #include <QHash>
 #include <QDataStream>
 #include <QScriptProgram>
+#include <QScriptValue>
+#include <QScriptEngine>
 #include "phi.h"
 #include "phipagemenuentry.h"
 #include "phipalette.h"
 
-class QScriptEngine;
 class PHIBaseItem;
 class PHIDynPageData;
 class PHITextData;
 class PHIImageData;
 class PHIDataParser;
+class PHIRequest;
 
 class PHIDynPageData
 {
@@ -84,7 +86,7 @@ class PHIEXPORT PHIBasePage : public QObject
     // default lang (initialized with philang or first matching lang from accepted languages of the browser)
     Q_PROPERTY( QString lang WRITE setLang READ lang )
     Q_PROPERTY( QString openGraph WRITE setOpenGraph READ openGraph )
-    Q_PROPERTY( QSize size READ size WRITE setSize )
+    // Q_PROPERTY( QSize size READ size WRITE setSize )
     Q_PROPERTY( quint8 sessionOptions READ sessionOptions WRITE setSessionOptions )
     Q_PROPERTY( qint32 sessionTimeout READ sessionTimeout WRITE setSessionTimeout )
 
@@ -103,7 +105,6 @@ public:
         FHasMasterTemplate=0x400, FServerScript=0x800, FJavaScript=0x1000,
         FNoSystemCSS=0x2000, FNoUiThemeCSS=0x4000, FUseCSS=0x8000, FUseDB=0x10000,
         FDBFile=0x20000, FServerModulesCombat=0x40000 }; // quint32
-    enum DirtyFlag { DFClean=0x0, DFStyleSheet=0x1, DFSize=0x2, DFFontFamily=0x4 };
     enum Geometry { GUnknown=0, GA4=1, GLetter=2, GCustom=3, GPhi=4, G4_3=5, G16_9=6, GiPad=7 };
     enum SessionOption { SNone=0x0, SRequiresLogin=0x1, SRequiresSession=0x2,
         SSessionCookie=0x4, SCreateSession=0x8 };
@@ -111,23 +112,20 @@ public:
 
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
-    Q_DECLARE_FLAGS( DirtyFlags, DirtyFlag )
 #else
     typedef quint32 Flags;
-    typedef quint32 DirtyFlags;
 #endif
 
     explicit PHIBasePage( QObject *parent );
     virtual ~PHIBasePage() { delete _pageData; qDebug() << "delete" << _id; }
     PHIBasePage( const PHIBasePage &p ) : QObject( p.parent() ),
         _pageData( new PHIDynPageData( *p._pageData ) ), _id( p._id ), _currentLang( p._currentLang ),
-        _width( p._width ), _height( p._height ), _variants( p._variants ),
+        _width( p._width ), _height( p._height ), _variants( p._variants ), _extensions( p._extensions ),
         _dbName( p._dbName ), _dbHost( p._dbHost ), _dbPasswd( p._dbPasswd ),
         _dbUser( p._dbUser ), _dbDriver( p._dbDriver ), _dbOptions( p._dbOptions ),
         _dbFileName( p._dbFileName ), _dbPort( p._dbPort ), _favicon( p._favicon ),
         _font( p._font ), _bgColor( p._bgColor), _menuEntries( p._menuEntries ),
-        _flags( p._flags ), _dirtyFlags( p._dirtyFlags ), _pal( p._pal ),
-        _script( p._script ) {}
+        _flags( p._flags ), _pal( p._pal ), _script( p._script ) {}
     PHIBasePage& operator=( const PHIBasePage &p );
     bool operator==( const PHIBasePage &p ); // IDE only
     inline bool operator!=( const PHIBasePage &p ) { return !operator==(p); } // IDE only
@@ -144,7 +142,7 @@ public:
     inline QByteArray defaultLanguage() const { return _variants.value( DDefaultLang ).toByteArray(); }
     inline QByteArray currentLang() const { return _currentLang; }
     inline bool containsItemId( const QString &id ) const { return findItem( id ) ? true : false; }
-    inline PHIPalette phiPalette() const { return _pal; }
+    inline const PHIPalette& phiPalette() const { return _pal; }
     inline void setPhiPalette( const PHIPalette &p ) { _pal=p; emit phiPaletteChanged( _pal ); }
     inline void addMenuEntry( const PHIPageMenuEntry &e ) { _menuEntries.append( e ); }
     inline void setId( const QByteArray &id ) { _id=id; setObjectName( QString::fromLatin1( id ) ); }
@@ -153,6 +151,7 @@ public:
     inline void setServerModules( qint32 s ) { _variants.insert( DServerModules, s ); }
     inline qint32 serverModules() const { return _variants.value( DServerModules, 0 ).value<qint32>(); }
     inline const QHash <quint8, QVariant>& data() const { return _variants; }
+    inline void insertExtension( PHIWID wid, const QByteArray &ext ) { if( !_extensions.contains( wid ) ) _extensions.insert( wid, ext ); }
 
     void setGeometry( Geometry g );
     void setFavicon( const QImage &pix ) { _favicon=pix; }
@@ -172,21 +171,25 @@ public:
     void parseData( const PHIDataParser &parser );
     void createTmpData( const PHIDataParser &parser );
     void copyMasterData( const PHIBasePage *master );
-    QScriptEngine* scriptEngine() const;
+    QScriptEngine* scriptEngine() const { return findChild<QScriptEngine*>(QString(), Qt::FindDirectChildrenOnly); }
+    void createCSSFile( const PHIRequest *req ) const;
+    void createDynCSS( const PHIRequest *req, QByteArray &out ) const;
+    void generateHtml( const PHIRequest *req, QByteArray &out ) const;
+    void genJQueryThemeFile( const PHIRequest *req ) const;
 
-    inline QString dbFileName() const { return _dbFileName; }
+    inline const QString& dbFileName() const { return _dbFileName; }
     inline void setDbFileName( const QString &fn ) { _dbFileName=fn; }
-    inline QString dbName() const { return _dbName; }
+    inline const QString& dbName() const { return _dbName; }
     inline void setDbName( const QString &n ) { _dbName=n; }
-    inline QString dbHost() const { return _dbHost; }
+    inline const QString& dbHost() const { return _dbHost; }
     inline void setDbHost( const QString &h ) { _dbHost=h; }
-    inline QString dbPasswd() const { return _dbPasswd; }
+    inline const QString& dbPasswd() const { return _dbPasswd; }
     inline void setDbPasswd( const QString &p ) { _dbPasswd=p; }
-    inline QString dbUser() const { return _dbUser; }
+    inline const QString& dbUser() const { return _dbUser; }
     inline void setDbUser( const QString &u ) { _dbUser=u; }
-    inline QString dbConnectOptions() const { return _dbOptions; }
+    inline const QString& dbConnectOptions() const { return _dbOptions; }
     inline void setDbConnectOptions( const QString &o ) { _dbOptions=o; }
-    inline QString dbDriver() const { return _dbDriver; }
+    inline const QString& dbDriver() const { return _dbDriver; }
     inline void setDbDriver( const QString &d ) { _dbDriver=d; }
     inline qint32 dbPort() const { return _dbPort; }
     inline void setDbPort( qint32 p ) { _dbPort=p; }
@@ -255,8 +258,8 @@ public slots:
     inline QString lang() const { return QString::fromLatin1( _currentLang ); }
 
     inline QStringList properties() const { return PHI::properties( this ); }
-    inline PHIBaseItem* getElementById( const QString &id ) const { return findItem( id ); }
-    PHIBaseItem* createElementById( quint16 type, const QString &id, qreal x, qreal y, qreal width=-1, qreal height=-1 );
+    QScriptValue getElementById( const QString &id ) const;
+    QScriptValue createElementById( quint16 type, const QString &id, qreal x, qreal y, qreal width=-1, qreal height=-1 );
     bool removeElementById( const QString &id );
     inline void setBgImageOptions( quint8 opts ) { if ( opts ) _variants.insert( DBgImageOptions, opts ); else _variants.remove( DBgImageOptions ); }
     inline quint8 bgImageOptions() const { return _variants.value( DBgImageOptions, 0 ).value<quint8>(); }
@@ -302,6 +305,7 @@ private:
     QByteArray _id, _currentLang;
     quint32 _width, _height;
     QHash <quint8, QVariant> _variants;
+    QHash <PHIWID, QByteArray> _extensions;
     QString _dbName, _dbHost, _dbPasswd, _dbUser, _dbDriver, _dbOptions, _dbFileName;
     qint32 _dbPort;
     QImage _favicon;
@@ -309,14 +313,12 @@ private:
     QColor _bgColor;
     QList <PHIPageMenuEntry> _menuEntries;
     Flags _flags;
-    DirtyFlags _dirtyFlags;
     PHIPalette _pal;
     QScriptProgram _script;
 };
 
 #ifdef PHIDEBUG
     Q_DECLARE_OPERATORS_FOR_FLAGS( PHIBasePage::Flags )
-    Q_DECLARE_OPERATORS_FOR_FLAGS( PHIBasePage::DirtyFlags )
 #endif
 
 PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIBasePage* );

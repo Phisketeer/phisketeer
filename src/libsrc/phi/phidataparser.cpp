@@ -32,11 +32,9 @@
 static QByteArray _matchingLanguage( const PHIRequest *req, const PHIData *data )
 {
     if ( data->keys().contains( req->currentLangByteArray() ) ) return req->currentLangByteArray();
-    QString lang;
+    QByteArray lang;
     foreach ( lang, req->acceptedLanguages() )
-        if ( data->keys().contains( lang.toLatin1() ) ) return lang.toLatin1();
-    foreach ( lang, req->acceptedLanguages() )
-        if ( data->keys().contains( lang.left( 2 ).toLatin1() ) ) return lang.left( 2 ).toLatin1();
+        if ( data->keys().contains( lang ) ) return lang;
     if ( data->keys().contains( req->defaultLang() ) ) return req->defaultLang();
     return PHIData::c();
 }
@@ -349,16 +347,11 @@ QByteArray PHIDataParser::matchedLangForResolvedFilename( const QString &filenam
     QString testfn( filename );
     testfn.replace( cmatch, QLatin1Char( '/' )+_req->currentLang()+QLatin1Char( '/' ) );
     if ( QFile::exists( testfn ) ) return _req->currentLangByteArray();
-    QString lang;
+    QByteArray lang;
     foreach ( lang, _req->acceptedLanguages() ) {
         testfn=filename;
-        testfn.replace( cmatch, QLatin1Char( '/' )+lang+QLatin1Char( '/' ) );
-        if ( QFile::exists( testfn ) ) return lang.toLatin1();
-    }
-    foreach ( lang, _req->acceptedLanguages() ) {
-        testfn=filename;
-        testfn.replace( cmatch, QLatin1Char( '/' )+lang.left( 2 )+QLatin1Char( '/' ) );
-        if ( QFile::exists( testfn ) ) return lang.left( 2 ).toLatin1();
+        testfn.replace( cmatch, QLatin1Char( '/' )+QString::fromLatin1( lang )+QLatin1Char( '/' ) );
+        if ( QFile::exists( testfn ) ) return lang;
     }
     testfn=filename;
     testfn.replace( cmatch, QLatin1Char( '/' )+QString::fromLatin1( _req->defaultLang() )+QLatin1Char( '/' ) );
@@ -692,7 +685,7 @@ QByteArray PHIDataParser::createImageId( const QByteArray &name, const QByteArra
     return arr;
 }
 
-QByteArray PHIDataParser::createTmpImage( QImage &img, const QByteArray &lang, int i ) const
+QByteArray PHIDataParser::createTmpImage( const QImage &img, const QByteArray &lang, int i ) const
 {
     Q_ASSERT( _currentItem );
     QByteArray id=createImageId( _currentItem->id(), lang, i );

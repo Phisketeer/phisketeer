@@ -28,27 +28,28 @@
 #include <QDateTime>
 #include <QTemporaryFile>
 #include <QHostAddress>
-//#include "phiresponserec.h"
 #include "phi.h"
 
-class PHIResponseRec; // defined in libphis
+class PHIResponseRec;
 
 class PHIEXPORT PHIRequest
 {
 public:
     enum AgentEngine { UnknownEngine=0, Trident=1, Gecko=2, WebKit=3, Presto=4, MaxAgentEngine=5 };
     enum AgentId { UnknownAgent=0, IE=1, Firefox=2, Konqueror=3, Safari=4, Chrome=5, Opera=6,
-        Amphibia=7, SeaMonkey=8, Phis=9, MaxAgentId=10 };
+        Amphibia=7, SeaMonkey=8, Phis=9, Blink=10, MaxAgentId=11 };
     enum OSType { UnknownOS=0, Windows=1, Linux=2, MacOS=3, iOS=4, Symbian=5, WindowsMobile=6,
         Android=7, Solaris=8, AIX=9, HPUX=10, MaxOSType=11 };
     enum Key { KMethod=1, KContentType, KDefName, KAdmin, KServerDesc, KServerHostname };
-    enum ClientFeature { CFNone=0, CFReal3D=0x01, CFSVG=0x02, CFRoundedCorners=0x04, CFCanvas=0x08,
-         CFTransitions=0x10 };
+    enum AgentFeature { None=0, HTML5=0x1, SVG=0x2, BorderRadius=0x4, Canvas=0x8,
+        Transitions=0x10, Gradients=0x20, Transform2D=0x40, RGBA=0x80, BoxShadow=0x100,
+        IE678=0x200, Transform3D=0x400, H264=0x800, Ogg=0x1000, MathML=0x2000,
+        Audio=0x4000, TextShadow=0x8000, All=0x0FFFFFFF };
 
 #ifdef PHIDEBUG
-    Q_DECLARE_FLAGS( ClientFeatures, ClientFeature ) // qint32
+    Q_DECLARE_FLAGS( AgentFeatures, AgentFeature ) // qint32
 #else
-    typedef qint32 ClientFeatures;
+    typedef quint32 AgentFeatures;
 #endif
 
     explicit PHIRequest();
@@ -74,6 +75,7 @@ public:
     inline bool isPhiLangRequest() const { return _philang; }
     inline const QByteArray& defaultLang() const { return _defaultLang; }
     inline void setDefaultLang( const QByteArray &l ) const { _defaultLang=l; }
+    inline const QByteArray& agentPrefix() const { return _agentPrefix; }
 
     //inline QTemporaryFile* tmpFile( const QString &key ) const { return _tmpFiles.value( key.toUtf8(), 0 ); }
     inline const QUrl& url() const { return _url; }
@@ -81,8 +83,9 @@ public:
     inline const QDateTime& started() const { return _started; }
     inline const QDateTime& lastModified() const { return _modified; }
     inline QByteArray keyword( Key k ) const { return _keywords.value( k ); }
-    inline const QStringList& acceptedLanguages() const { return _acceptedLangs; } // without qualifier ';q=x.x'
+    inline const PHIByteArrayList& acceptedLanguages() const { return _acceptedLangs; } // without qualifier ';q=x.x'
     inline PHIResponseRec* responseRec() const { return _resp; }
+    inline AgentFeatures agentFeatures() const { return _agentFeatures; }
 
     inline const QString& documentRoot() const { return _documentRoot; }
     inline const QString& tmpDir() const { return _tmpDir; }
@@ -137,7 +140,7 @@ public:
 
     QString serverValue( const QString &key ) const;
     QString requestValue( const QString &key ) const;
-    QString userAgent() const;
+    const QString& userAgent() const;
     const QString& userEngine() const;
     QString userOS() const;
     QStringList requestValues( const QString &key ) const;
@@ -154,7 +157,7 @@ public:
     static QDateTime dateTimeFromHeader( const QByteArray &modified );
 
 protected:
-    mutable QByteArray _defaultLang;
+    mutable QByteArray _defaultLang, _agentPrefix;
     mutable QString _lang; // can be overwritten by the Serverscript engine
     mutable QByteArray _langByteArray; //                       "
     mutable quint8 _agentEngine, _agentId, _osType; //          "
@@ -165,7 +168,7 @@ protected:
     qint32 _keepAlive;
     QDateTime _started, _modified;
     QUrl _url;
-    QStringList _acceptedLangs;
+    PHIByteArrayList _acceptedLangs;
     QString _documentRoot, _tmpDir, _imgDir, _canonicalFilename;
     QHostAddress _localIP, _remoteIP;
     QHash <QByteArray, QByteArray> _headers;
@@ -173,12 +176,32 @@ protected:
     QHash <QString, QString> _cookies, _postData;
     QHash <quint8, QByteArray> _keywords;
     PHIResponseRec *_resp;
-    ClientFeatures _clientFeatures;
+    AgentFeatures _agentFeatures;
 };
 
 #ifdef PHIDEBUG
-Q_DECLARE_OPERATORS_FOR_FLAGS( PHIRequest::ClientFeatures )
+Q_DECLARE_OPERATORS_FOR_FLAGS( PHIRequest::AgentFeatures )
 #endif
+
+inline PHIRequest::PHIRequest()
+    : _agentEngine( PHIRequest::UnknownEngine ), _agentId( PHIRequest::UnknownAgent ),
+    _osType( PHIRequest::UnknownOS ), _engineMajorVersion( -1 ), _engineMinorVersion( -1 ),
+    _philang( false ), _contentLength( 0 ), _started( QDateTime::currentDateTime() ),
+    _agentFeatures( All & ~IE678 & ~MathML & ~H264 & ~Ogg )
+{
+}
+
+inline PHIRequest::~PHIRequest()
+{
+    QTemporaryFile *tmpFile;
+    foreach ( tmpFile, _tmpFiles ) {
+        qDebug( "Closing %s", qPrintable( tmpFile->fileName() ) );
+        tmpFile->close();
+        delete tmpFile;
+    }
+    _tmpFiles.clear();
+    qDebug( "PHIRequest::~PHIRequest" );
+}
 
 inline QDateTime PHIRequest::ifModifiedSince() const
 {

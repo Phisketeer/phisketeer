@@ -24,7 +24,6 @@
 class PHICheckBoxItem : public PHIAbstractInputItem
 {
     Q_OBJECT
-    Q_PROPERTY( bool checked READ checked WRITE setChecked )
 
 public:
     enum Wid { Checkbox=4 };

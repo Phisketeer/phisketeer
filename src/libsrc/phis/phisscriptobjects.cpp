@@ -53,9 +53,8 @@ static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
     if ( id.isString() ) {
         const PHIBasePage *page=qobject_cast<const PHIBasePage*>(engine->parent());
         Q_ASSERT( page );
-        PHIBaseItem *it=page->getElementById( id.toString() );
+        PHIBaseItem *it=page->findItem( id.toString() );
         if ( it ) qDebug() << "$" << it->id();
-        else qDebug() << "it failed";
         if ( Q_UNLIKELY( !it ) ) return engine->undefinedValue();
         return baseItemToScriptValue( engine, it );
     } else if ( id.isObject() ) return id;

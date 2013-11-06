@@ -44,19 +44,19 @@ void PHIGraphicTextItem::updateGeometry()
     f.setPointSizeF( PHI::adjustedFontSize( f.pointSizeF() ) );
     it.setFont( f );
     QPen pen;
-    Qt::PenStyle style=static_cast<Qt::PenStyle>(line());
-    Qt::BrushStyle pat=static_cast<Qt::BrushStyle>(pattern());
+    Qt::PenStyle style=static_cast<Qt::PenStyle>(realLine());
+    Qt::BrushStyle pat=static_cast<Qt::BrushStyle>(realPattern());
     if ( style!=Qt::NoPen ) {
-        pen.setColor( outlineColor() );
-        pen.setWidthF( penWidth() );
+        pen.setColor( realOutlineColor() );
+        pen.setWidthF( realPenWidth() );
         pen.setJoinStyle( Qt::MiterJoin );
         pen.setCapStyle( Qt::FlatCap );
         pen.setStyle( style );
     } else pen.setStyle( Qt::NoPen );
     QBrush brush;
-    if ( pattern()<15 ) { // no gradient style
+    if ( realPattern()<15 ) { // no gradient style
         brush.setStyle( pat );
-        brush.setColor( color() );
+        brush.setColor( realColor() );
     } else brush=QBrush( gradient() );
     it.setPen( pen );
     it.setBrush( brush );
@@ -73,7 +73,7 @@ void PHIGraphicTextItem::updateGeometry()
         s.setHeight( qMax( it.boundingRect().size().height(), s.height() ) );
     }
     // @todo: respect old position and transform origin
-    s+=QSizeF( penWidth(), penWidth() );
+    s+=QSizeF( realPenWidth(), realPenWidth() );
     resize( s );
     updateContent();
 }
@@ -88,19 +88,19 @@ void PHIGraphicTextItem::updateContent()
     f.setPointSizeF( PHI::adjustedFontSize( f.pointSizeF() ) );
     it.setFont( f );
     QPen pen;
-    Qt::PenStyle style=static_cast<Qt::PenStyle>(line());
-    Qt::BrushStyle pat=static_cast<Qt::BrushStyle>(pattern());
+    Qt::PenStyle style=static_cast<Qt::PenStyle>(realLine());
+    Qt::BrushStyle pat=static_cast<Qt::BrushStyle>(realPattern());
     if ( style!=Qt::NoPen ) {
-        pen.setColor( outlineColor() );
-        pen.setWidthF( penWidth() );
+        pen.setColor( realOutlineColor() );
+        pen.setWidthF( realPenWidth() );
         pen.setJoinStyle( Qt::MiterJoin );
         pen.setCapStyle( Qt::FlatCap );
         pen.setStyle( style );
     } else pen.setStyle( Qt::NoPen );
     QBrush brush;
-    if ( pattern()<15 ) { // no gradient style
+    if ( realPattern()<15 ) { // no gradient style
         brush.setStyle( pat );
-        brush.setColor( color() );
+        brush.setColor( realColor() );
     } else brush=QBrush( gradient() );
     it.setPen( pen );
     it.setBrush( brush );
@@ -108,7 +108,7 @@ void PHIGraphicTextItem::updateContent()
     else it.setText( text() );
     QSizeF s=realSize();
     QImage img( s.toSize(), QImage::Format_ARGB32_Premultiplied );
-    QSizeF penSize=QSizeF( penWidth(), penWidth() );
+    QSizeF penSize=QSizeF( realPenWidth(), realPenWidth() );
     s-=it.boundingRect().size()+penSize;
     img.fill( 0 );
     QPainter p( &img );

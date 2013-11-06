@@ -30,10 +30,10 @@ class PHIDataParser;
 class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 {
     Q_OBJECT
-    Q_PROPERTY( QColor textColor READ color WRITE setColor )
-    Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
-    Q_PROPERTY( QString text READ text WRITE setText )
-    Q_PROPERTY( quint16 align READ alignment WRITE setAlignment )
+    Q_PROPERTY( QColor _textColor READ realColor WRITE setColor SCRIPTABLE false )
+    Q_PROPERTY( QColor _backgroundColor READ realBackgroundColor WRITE setBackgroundColor SCRIPTABLE false )
+    Q_PROPERTY( QString _text READ realText WRITE setText SCRIPTABLE false )
+    Q_PROPERTY( quint16 _align READ realAlignment WRITE setAlignment SCRIPTABLE false )
 
 public:
     enum ItemData { DColor=-100, DBackgroundColor=-101, DText=-102, DTmpColor=-103, DTmpBackgroundColor=-104, DAlignment=-105 };
@@ -42,20 +42,22 @@ public:
         _backgroundColorRole( it._backgroundColorRole ), _textData( it._textData ) {}
     virtual ~PHIAbstractTextItem() {}
 
+    inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
+    inline void setBackgroundColor( const QColor &col ) { setColor( PHIPalette::WidgetBase, _backgroundColorRole, col ); }
+    inline QColor realColor() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
+    inline QColor realBackgroundColor() const { return data( DBackgroundColor, QColor( Qt::white ) ).value<QColor>(); }
+    inline QString realText() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
+    inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); setWidgetText( s ); }
+    inline quint16 realAlignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
+    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); }
+
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
     virtual void initIDE();
 
 public slots:
-    inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
-    inline void setBackgroundColor( const QColor &col ) { setColor( PHIPalette::WidgetBase, _backgroundColorRole, col ); }
-    inline QColor color() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
-    inline QColor backgroundColor() const { return data( DBackgroundColor, QColor( Qt::white ) ).value<QColor>(); }
-    inline QString text() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
-    inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); setWidgetText( s ); }
-    inline quint16 alignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
-    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); }
+    QScriptValue textAlign( const QScriptValue &v=QScriptValue() );
 
 protected:
     virtual bool isSingleLine() const { return true; }
@@ -91,12 +93,11 @@ private:
 class PHIEXPORT PHIAbstractShapeItem : public PHIBaseItem
 {
     Q_OBJECT
-    Q_PROPERTY( quint8 line READ line WRITE setLine )
-    Q_PROPERTY( quint8 pattern READ pattern WRITE setPattern )
-    Q_PROPERTY( QColor color READ color WRITE setColor )
-    Q_PROPERTY( QColor backgroundColor READ outlineColor WRITE setOutlineColor )
-    Q_PROPERTY( QColor outlineColor READ outlineColor WRITE setOutlineColor )
-    Q_PROPERTY( qreal penWidth READ penWidth WRITE setPenWidth )
+    Q_PROPERTY( quint8 _line READ realLine WRITE setLine SCRIPTABLE false )
+    Q_PROPERTY( quint8 _pattern READ realPattern WRITE setPattern SCRIPTABLE false )
+    Q_PROPERTY( QColor _color READ realColor WRITE setColor SCRIPTABLE false )
+    Q_PROPERTY( QColor _outlineColor READ realOutlineColor WRITE setOutlineColor SCRIPTABLE false )
+    Q_PROPERTY( qreal _penWidth READ realPenWidth WRITE setPenWidth SCRIPTABLE false )
 
 public:
     enum ItemData { DLineStyle=-100, DPatternStyle=-101, DGradientType=-102,
@@ -116,17 +117,18 @@ public:
     inline virtual bool isDroppable() const { return true; }
     virtual void initIDE();
 
-public slots:
     void setLine( quint8 l );
     void setPattern( quint8 p );
     void setPenWidth( qreal w );
     inline void setColor( const QColor &col ) { setColor( PHIPalette::Foreground, _colorRole, col ); }
     inline void setOutlineColor( const QColor &col ) { setColor( PHIPalette::Background, _outlineColorRole, col ); }
-    inline quint8 line() const { return data( DLineStyle, 0 ).value<quint8>(); }
-    inline quint8 pattern() const { return data( DPatternStyle, 1 ).value<quint8>(); }
-    inline QColor color() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
-    inline QColor outlineColor() const { return data( DOutlineColor, QColor( Qt::black ) ).value<QColor>(); }
-    inline qreal penWidth() const { return data( DPenWidth, 1. ).toReal(); }
+    inline quint8 realLine() const { return data( DLineStyle, 0 ).value<quint8>(); }
+    inline quint8 realPattern() const { return data( DPatternStyle, 1 ).value<quint8>(); }
+    inline QColor realColor() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
+    inline QColor realOutlineColor() const { return data( DOutlineColor, QColor( Qt::black ) ).value<QColor>(); }
+    inline qreal realPenWidth() const { return data( DPenWidth, 1. ).toReal(); }
+
+public slots:
 
 protected:
     virtual QRectF boundingRect() const;
@@ -156,7 +158,6 @@ private:
 class PHIEXPORT PHIAbstractImageItem : public PHIBaseItem
 {
     Q_OBJECT
-    Q_PROPERTY( QImage image READ image WRITE setImage SCRIPTABLE false )
 
 public:
     enum ItemData { DImage=-99, DTmpImage=-98 };
@@ -165,10 +166,10 @@ public:
     virtual ~PHIAbstractImageItem() {}
     virtual bool hasImage() const { return true; }
     virtual PHIImageData* imageData() { return &_imageData; }
+    QImage realImage() const { return data( DImage, QImage() ).value<QImage>(); }
+    void setImage( const QImage &img ) { setData( DImage, img ); updateImage(); }
 
 public slots:
-    QImage image() const { return data( DImage, QImage() ).value<QImage>(); }
-    void setImage( const QImage &img ) { setData( DImage, img ); updateImage(); }
 
 protected:
     virtual void updateData();
@@ -191,7 +192,6 @@ private:
 class PHIEXPORT PHIAbstractImageBookItem : public PHIBaseItem
 {
     Q_OBJECT
-    Q_PROPERTY( PHIImageHash images READ images WRITE setImages SCRIPTABLE false )
 
 public:
     enum ItemData { DImages=-99, DTmpImages=-98 };
@@ -225,19 +225,19 @@ private:
 class PHIEXPORT PHIAbstractLayoutItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
-    Q_PROPERTY( quint16 align READ alignment WRITE setAlignment )
-    Q_PROPERTY( qreal topLeftRadius READ topLeftRadius WRITE setTopLeftRadius )
-    Q_PROPERTY( qreal topRightRadius READ topRightRadius WRITE setTopRightRadius )
-    Q_PROPERTY( qreal bottomLeftRadius READ bottomLeftRadius WRITE setBottomLeftRadius )
-    Q_PROPERTY( qreal bottomRightRadius READ bottomRightRadius WRITE setBottomRightRadius )
-    Q_PROPERTY( qreal leftMargin READ leftMargin WRITE setLeftMargin )
-    Q_PROPERTY( qreal topMargin READ topMargin WRITE setTopMargin )
-    Q_PROPERTY( qreal rightMargin READ rightMargin WRITE setRightMargin )
-    Q_PROPERTY( qreal bottomMargin READ bottomMargin WRITE setBottomMargin )
-    Q_PROPERTY( qreal horizontalSpacing READ horizontalSpacing WRITE setHorizontalSpacing )
-    Q_PROPERTY( qreal verticalSpacing READ verticalSpacing WRITE setVerticalSpacing )
-    Q_PROPERTY( bool enableHeader READ enableHeader WRITE setEnableHeader )
-    Q_PROPERTY( QString header READ header WRITE setHeader )
+    Q_PROPERTY( quint16 _align READ realAlignment WRITE setAlignment SCRIPTABLE false )
+    //Q_PROPERTY( qreal topLeftRadius READ topLeftRadius WRITE setTopLeftRadius )
+    //Q_PROPERTY( qreal topRightRadius READ topRightRadius WRITE setTopRightRadius )
+    //Q_PROPERTY( qreal bottomLeftRadius READ bottomLeftRadius WRITE setBottomLeftRadius )
+    //Q_PROPERTY( qreal bottomRightRadius READ bottomRightRadius WRITE setBottomRightRadius )
+    //Q_PROPERTY( qreal leftMargin READ leftMargin WRITE setLeftMargin )
+    //Q_PROPERTY( qreal topMargin READ topMargin WRITE setTopMargin )
+    //Q_PROPERTY( qreal rightMargin READ rightMargin WRITE setRightMargin )
+    //Q_PROPERTY( qreal bottomMargin READ bottomMargin WRITE setBottomMargin )
+    //Q_PROPERTY( qreal horizontalSpacing READ horizontalSpacing WRITE setHorizontalSpacing )
+    //Q_PROPERTY( qreal verticalSpacing READ verticalSpacing WRITE setVerticalSpacing )
+    //Q_PROPERTY( bool enableHeader READ enableHeader WRITE setEnableHeader )
+    //Q_PROPERTY( QString header READ header WRITE setHeader )
 
 public:
     enum ItemData { DRadiusTopLeft=-99, DRadiusTopRight=-98, DRadiusBottomLeft=-97,
@@ -261,8 +261,7 @@ public:
     void breakLayout();
     void invalidateLayout();
 
-public slots:
-    inline quint16 alignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
+    inline quint16 realAlignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
     inline void setAlignment( quint16 align ) { setData( DAlignment, align ); update(); }
     inline qreal topLeftRadius() const { return data( DRadiusTopLeft, 0 ).toReal(); }
     inline void setTopLeftRadius( qreal r ) { setData( DRadiusTopLeft, r ); update(); }
@@ -288,6 +287,9 @@ public slots:
     inline void setEnableHeader( bool b ) { setFlag( PHIBaseItem::FLayoutHeader, b ); invalidateLayout(); }
     inline void setHeader( const QString &h ) { setData( DHeader, h ); update(); }
     inline QString header() const { return data( DHeader ).toString(); }
+
+public slots:
+    QScriptValue textAlign( const QScriptValue &a=QScriptValue() );
 
 protected:
     virtual void squeeze();
@@ -327,16 +329,15 @@ private:
 class PHIAbstractInputItem : public PHIAbstractTextItem
 {
     Q_OBJECT
-    Q_PROPERTY( QString accessKey WRITE setAccessKey READ accessKey )
-    Q_PROPERTY( bool readOnly READ readOnly WRITE setReadOnly )
+    Q_PROPERTY( QString realAccessKey WRITE setAccessKey READ realAccessKey SCRIPTABLE false )
 
 public:
     enum ItemData { DAccessKey=-99 };
     explicit PHIAbstractInputItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ) {}
     PHIAbstractInputItem( const PHIAbstractInputItem &it ) : PHIAbstractTextItem( it ) {}
     virtual ~PHIAbstractInputItem() {}
-
     virtual bool isFocusable() const { return true; }
+    inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
 
 protected:
     virtual void updateData();
@@ -349,7 +350,6 @@ protected:
     virtual void createTmpData( const PHIDataParser &parser );
 
 public slots:
-    inline QString accessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
     inline virtual void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); }
 
 private:

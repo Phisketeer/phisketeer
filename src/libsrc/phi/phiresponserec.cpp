@@ -26,7 +26,6 @@ static const QByteArray _doctypeXhtml=QByteArray( "<!DOCTYPE html PUBLIC \"-//W3
  \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n" );
 static const QByteArray _doctypeHtml4=QByteArray( "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n\
  \"http://www.w3.org/TR/html4/strict.dtd\">\n" );
-static const QByteArray _doctypeHtml5=QByteArray( "<!DOCTYPE HTML>\n" );
 static const QByteArray _htmlXmlStartTag=QByteArray( "<html xmlns=\"http://www.w3.org/1999/xhtml\"\
  xml:lang=\"en\" >\n" );
 static const QByteArray _htmlStartTag=QByteArray( "<html>\n" );

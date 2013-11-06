@@ -38,22 +38,12 @@ static void _findMatchingLang( const PHIBasePage *p, const PHIRequest *req )
 {
     if ( p->languages().contains( req->currentLang() ) ) return;
     // document does not provide the requested language, look if we find a matching one
-    QString lang;
+    QByteArray lang;
     foreach ( lang, req->acceptedLanguages() ) { // provided by accept languages of the browser
-        if ( p->languages().contains( lang, Qt::CaseSensitive ) ) { // available langs in page
+        if ( p->languages().contains( QString::fromLatin1( lang ), Qt::CaseSensitive ) ) { // available langs in page
             req->setCurrentLang( lang ); //
-            qDebug( "setCurrentLang %s", qPrintable( lang ) );
+            qDebug( "setCurrentLang %s", lang.constData() );
             return;
-        }
-    }
-    foreach ( lang, req->acceptedLanguages() ) {
-        QString l;
-        foreach ( l, p->languages() ) {
-            if ( lang.startsWith( l, Qt::CaseInsensitive ) ) {
-                req->setCurrentLang( l );
-                qDebug( "setCurrentLang %s", qPrintable( l ) );
-                return;
-            }
         }
     }
     req->setCurrentLang( p->defaultLanguage() );
@@ -64,11 +54,11 @@ void PHISProcessor::run()
     _req->responseRec()->clear();
     _req->responseRec()->setMinorHttpVer( _req->httpServerMinorVersion() );
     if ( Q_UNLIKELY( _req->keyword( PHIRequest::KMethod )=="HEAD" ) ) _req->responseRec()->setHeadRequestOnly();
-    if ( _req->canonicalFilename().endsWith( L1( "/phi.phis" ) ) ) return genSysItem();
+    if ( _req->canonicalFilename().endsWith( SL( "phi.phis" ) ) ) return genSysItem();
     QFile f( _req->canonicalFilename() );
     if ( Q_UNLIKELY( !f.exists() ) ) return _req->responseRec()->error( PHILOGERR,
            PHIRC_HTTP_NOT_FOUND, tr( "File not found on server." ) );
-    if ( Q_UNLIKELY( !_req->canonicalFilename().endsWith( L1( "phis" ) ) ) ) {
+    if ( Q_UNLIKELY( !_req->canonicalFilename().endsWith( SL( "phis" ) ) ) ) {
         // not used in Apache (other file types are handled by Apache itself):
         _req->responseRec()->setFileName( _req->canonicalFilename() );
         _req->responseRec()->setContentLength( f.size() );
@@ -85,6 +75,7 @@ void PHISProcessor::run()
         PHIRC_HTTP_INTERNAL_SERVER_ERROR, tr( "Resource error." ) );
     _findMatchingLang( page, _req );
     _req->setDefaultLang( page->defaultLanguage() );
+    page->setLang( _req->currentLang() );
     PHIDataParser parser( _req, page->id(), _db );
     page->parseData( parser );
     PHIBaseItem *it;
@@ -143,10 +134,27 @@ void PHISProcessor::run()
             return;
         }
     }
-
-
-    _req->responseRec()->setBody( QByteArray( "<html><h1>Hello world</h1></html>" ) );
-    _req->responseRec()->setContentLength( _req->responseRec()->body().size() );
+    bool genPhi=false;
+    if ( Q_UNLIKELY( _req->requestKeys().contains( SL( "phis" ) ) ) ) {
+        if ( _req->requestValue( SL( "phis" ) ).toInt()==1 ) genPhi=true;
+    } else if ( Q_UNLIKELY( _req->serverValue( SL( "accept" ) ).contains( QString::fromLatin1( PHI::phiMimeType() ), Qt::CaseSensitive ) ) ) {
+        genPhi=true;
+    }
+    QByteArray out;
+    out.reserve( 50*1024 );
+    if ( Q_UNLIKELY( genPhi ) ) {
+        //PHIGenerator phiGenerator( _resp );
+        //arr=phiGenerator.genPhi( page );
+    } else {
+        QFileInfo cssinfo( _req->tmpDir()+SL( "/css/" )+page->id()+SL( ".css" ) );
+        if ( Q_LIKELY( cssinfo.exists() ) ) {
+            if ( Q_UNLIKELY( _req->lastModified() > cssinfo.lastModified() ) ) page->createCSSFile( _req );
+        } else page->createCSSFile( _req );
+        page->generateHtml( _req, out );
+    }
+    _req->responseRec()->setHeader( BL( "Cache-Control" ), BL( "no-cache" ) );
+    _req->responseRec()->setBody( out );
+    _req->responseRec()->setContentLength( out.size() );
     delete page;
 }
 
@@ -299,12 +307,15 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
             in >> arr;
             it->load( arr, static_cast<int>(version) );
             it->privateCreateTmpData( parser );
+            if ( !it->extension().isEmpty() ) page->insertExtension( it->wid(), it->extension() );
         } catch ( std::bad_alloc& ) {
             delete page;
             return 0;
         }
     }
     file.close();
+    page->genJQueryThemeFile( _req );
+    genScripts(); // @todo: make static and create once at server start
     return page;
 }
 
@@ -432,7 +443,7 @@ void PHISProcessor::genCSS() const
 void PHISProcessor::genJS() const
 {
     QString path=_req->getValue( SL( "phijs" ) );
-    path=_req->tmpDir()+QLatin1String( "/js/" )+path+QLatin1String( ".js" );
+    path=_req->tmpDir()+SL( "/js/" )+path+SL( ".js" );
     if ( Q_UNLIKELY( !QFile::exists( path ) ) ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
             tr( "Could not access JavaScript file '%1'." ).arg( path ) );
@@ -450,4 +461,48 @@ void PHISProcessor::genJS() const
     _req->responseRec()->setContentLength( fi.size() );
     _req->responseRec()->setHeader( BL( "Last-Modified" ), _req->responseRec()->timeEncoded( fi.lastModified() ) );
     _req->responseRec()->setHeader( BL( "Cache-Control" ), "public" );
+}
+
+void PHISProcessor::genScripts() const
+{
+    QFile f( _req->tmpDir()+SL( "/js/phibase.js" ) );
+    if ( Q_LIKELY( f.exists() ) ) return;
+    QFile tmp( L1( ":/phibase.js" ) );
+    if ( tmp.open( QIODevice::ReadOnly ) ) {
+        if ( Q_UNLIKELY( !f.open( QIODevice::WriteOnly ) ) ) {
+            _req->responseRec()->log( PHILOGCRIT, PHIRC_IO_FILE_CREATION_ERROR,
+                tr( "Could not create phibase JS '%1'." ).arg( f.fileName() ) );
+            tmp.close();
+        } else {
+            f.write( tmp.readAll() );
+            f.close();
+            tmp.close();
+        }
+    }
+    f.setFileName( _req->tmpDir()+L1( "/js/jquery.js" ) );
+    tmp.setFileName( L1( ":/jquery.js" ) );
+    if ( tmp.open( QIODevice::ReadOnly ) ) {
+        if ( Q_UNLIKELY( !f.open( QIODevice::WriteOnly ) ) ) {
+            _req->responseRec()->log( PHILOGCRIT, PHIRC_IO_FILE_CREATION_ERROR,
+                tr( "Could not create jQuery JS '%1'." ).arg( f.fileName() ) );
+            tmp.close();
+        } else {
+            f.write( tmp.readAll() );
+            f.close();
+            tmp.close();
+        }
+    }
+    f.setFileName( _req->tmpDir()+L1( "/js/jqueryiefix.js" ) );
+    tmp.setFileName( L1( ":/jqueryiefix.js" ) );
+    if ( tmp.open( QIODevice::ReadOnly ) ) {
+        if ( Q_UNLIKELY( !f.open( QIODevice::WriteOnly ) ) ) {
+            _req->responseRec()->log( PHILOGCRIT, PHIRC_IO_FILE_CREATION_ERROR,
+                tr( "Could not create jQuery IE678 fix JS '%1'." ).arg( f.fileName() ) );
+            tmp.close();
+        } else {
+            f.write( tmp.readAll() );
+            f.close();
+            tmp.close();
+        }
+    }
 }

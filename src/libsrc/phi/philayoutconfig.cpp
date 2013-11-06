@@ -28,7 +28,7 @@ PHILayoutWidget::PHILayoutWidget( PHIAbstractLayoutItem *item, QWidget *parent )
     setupUi( this );
     _headerBox->setEnabled( false );
     _enableHeader->setChecked( _item->enableHeader() );
-    _borderWidth->setValue( _item->penWidth() );
+    _borderWidth->setValue( _item->realPenWidth() );
     _top->setValue( _item->topMargin() );
     _left->setValue( _item->leftMargin() );
     _right->setValue( _item->rightMargin() );
@@ -39,7 +39,7 @@ PHILayoutWidget::PHILayoutWidget( PHIAbstractLayoutItem *item, QWidget *parent )
     _bottomRight->setValue( _item->bottomRightRadius() );
     _hspace->setValue( _item->horizontalSpacing() );
     _vspace->setValue( _item->verticalSpacing() );
-    if ( _item->line()==0 && _item->pattern()==0 ) _borderBox->setEnabled( false );
+    if ( _item->realLine()==0 && _item->realPattern()==0 ) _borderBox->setEnabled( false );
     else _borderBox->setEnabled( true );
     connect( _enableHeader, &QCheckBox::toggled, this, &PHILayoutWidget::enableHeaderChanged );
     QTimer::singleShot( 0, this, SLOT(init()) );

@@ -22,6 +22,61 @@
 #include <QObject>
 #include <QRegularExpression>
 #include "phibaseitem.h"
+#include "phieffect.h"
+#include "phi.h"
+
+class PHIDomItem;
+
+class PHIDomEffect : public QObject
+{
+    Q_OBJECT
+    Q_DISABLE_COPY( PHIDomEffect )
+
+    Q_PROPERTY( QStringList properties READ properties )
+    Q_PROPERTY( quint8 xAxis READ xAxis )
+    Q_PROPERTY( quint8 yAxis READ yAxis )
+    Q_PROPERTY( quint8 zAxis READ zAxis )
+
+public:
+    explicit PHIDomEffect( PHIDomItem *it );
+    virtual ~PHIDomEffect() { qDebug( "PHIDomEffect()::~PHIDomEffect()" ); }
+
+public slots:
+    inline quint8 xAxis() const { return 0x1; }
+    inline quint8 yAxis() const { return 0x2; }
+    inline quint8 zAxis() const { return 0x4; }
+    inline QStringList properties() const { return PHI::properties( this ); }
+    inline void fadeIn( qint32 start=0, qint32 duration=1000, qreal maxOpac=1.,
+        const QString &ease=PHI::defaultEasingCurve() )
+        { _it->effect()->setFadeIn( start, duration, maxOpac, PHI::toEasingCurveType( ease ) ); }
+    inline void fadeOut( qint32 start=0, qint32 duration=1000, qreal minOpac=0.,
+        const QString &ease=PHI::defaultEasingCurve() )
+        { _it->effect()->setFadeOut( start, duration, minOpac, PHI::toEasingCurveType( ease ) ); }
+    inline void shadow( const QString &color=QString::fromLatin1( "#3F3F3F" ), qreal opac=.7, qreal xOff=8.,
+        qreal yOff=8., qreal radius=1. ) { QColor c( color ); c.setAlphaF( qBound( 0., opac, 1. ) );
+        _it->effect()->setShadow( QColor( color ), xOff, yOff, radius ); }
+    inline void surface( qreal yOff=0., qreal size=30. ) { _it->effect()->setSurface( yOff, size ); }
+    inline void reflection( qreal yOff=0., qreal size=30. ) { _it->effect()->setSurface( yOff, size ); }
+    inline void blur( qreal radius=5. ) { _it->effect()->setBlur( radius ); }
+    inline void colorize( const QString &c=QString::fromLatin1( "#0000C0" ), qreal strength=1. ) {
+        _it->effect()->setColorize( QColor( c ), strength ); }
+    inline void moveTo( qint32 left, qint32 top, qint32 start=0, qint32 duration=1000,
+        const QString &ease=PHI::defaultEasingCurve() )
+        { _it->moveTo( start, duration, left, top, ease ); }
+    inline void rotateIn( quint8 axis=0x2, qint32 start=0, qint32 duration=1000,
+        const QString &ease=PHI::defaultEasingCurve() )
+        { _it->rotateIn( axis, start, duration, ease ); }
+    inline void rotateOut( quint8 axis=0x2, qint32 start=0, qint32 duration=1000,
+        const QString &ease=PHI::defaultEasingCurve() )
+        { _it->effect()->setRotateOut( axis, start, duration, PHI::toEasingCurveType( ease ) ); }
+    inline void rotate( quint8 axis=0x4, qreal stepx=0, qreal stepy=0, qreal stepz=1. )
+        { _it->rotate( axis, stepx, stepy, stepz ); }
+    inline void clear() { _it->clearEffects(); }
+    inline void stopAnimations() { /* @todo: stop anim */ }
+
+private:
+    PHIBaseItem *_it;
+};
 
 // this class provides the CSS style property (used for scripting only)
 class PHIItemStyleCSS : public QObject
@@ -63,21 +118,21 @@ class PHIItemStyleCSS : public QObject
     */
 
 public:
-    explicit PHIItemStyleCSS( PHIBaseItem* );
-    virtual ~PHIItemStyleCSS();
+    explicit PHIItemStyleCSS( PHIDomItem* );
+    virtual ~PHIItemStyleCSS(){ qDebug( "PHIItemStyleCSS::~PHIItemStyleCSS()" ); }
 
 public slots:
     // offered by CSS 2.1 / 3.0
     inline QString left() const { return QString::number( _it->realX() )+QLatin1String( "px" ); }
-    inline void setLeft( const QString &x ) { QString xx=x; _it->setX( xx.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
+    inline void setLeft( const QString &x ) { _it->setX( toReal( x ) ); }
     inline QString top() const { return QString::number( _it->realY() )+QLatin1String( "px" ); }
-    inline void setTop( const QString &y ) { QString yy=y; _it->setY( yy.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
+    inline void setTop( const QString &y ) { _it->setY( toReal( y ) ); }
     inline qint16 zIndex() const { return _it->realZIndex(); }
     inline void setZIndex( qint16 z ) { _it->setZIndex( z ); }
     inline QString height() const { return QString::number( _it->realHeight() )+QLatin1String( "px" ); }
-    inline void setHeight( const QString &h ) { QString hh=h; _it->setHeight( hh.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
+    inline void setHeight( const QString &h ) { _it->setHeight( toReal( h ) ); }
     inline QString width() const { return QString::number( _it->realWidth() )+QLatin1String( "px" ); }
-    inline void setWidth( const QString &w ) { QString ww=w; _it->setWidth( ww.replace( QStringLiteral( "px" ), QString() ).toDouble() ); }
+    inline void setWidth( const QString &w ) { _it->setWidth( toReal( w ) ); }
     /*
     inline void setColor( const QString &c ) { _it->setColor( c ); }
     inline QString color() const { return _it->color().name(); }
@@ -134,6 +189,7 @@ public slots:
 
 protected:
     static int toNumber( const QString &s );
+    static qreal toReal( const QString &s );
 
 private:
     PHIBaseItem *_it;
@@ -144,6 +200,13 @@ inline int PHIItemStyleCSS::toNumber( const QString &s )
     QString tmp=s;
     tmp.remove( QRegularExpression( QLatin1String( "\\D" ) ) );
     return tmp.toInt();
+}
+
+inline qreal PHIItemStyleCSS::toReal( const QString &s )
+{
+    QString tmp=s;
+    tmp.remove( QRegularExpression( QLatin1String( "\\D" ) ) );
+    return tmp.toDouble();
 }
 
 #endif // PHIITEMSTYLECSS_H

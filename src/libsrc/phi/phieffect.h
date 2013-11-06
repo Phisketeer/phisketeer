@@ -35,7 +35,8 @@ public:
         DRotateOutAxis=20, DRotateOutStart=21, DRotateOutDuration=22, DRotateAxis=23,
         DRotateStepX=24, DRotateStepY=25, DRotateStepZ=26, DEaseMoveTo=27, DEaseFadeIn=28,
         DEaseFadeOut=29, DEaseMoveBy=30, DMoveByX=31, DMoveByY=32, DMoveByWidth=33,
-        DMoveByHeight=34, DMoveByStart=35, DMoveByDuration=36 };
+        DMoveByHeight=34, DMoveByStart=35, DMoveByDuration=36, DEaseRotateIn=37,
+        DEaseRotateOut=38 };
     enum GraphicsType { GTUnknown=0, GTBlur=1, GTShadow=2, GTColorize=3, GTReflection=4 };
 
     PHIEffect();
@@ -114,8 +115,8 @@ public:
     void setColorize( const QColor &c, qreal strength );
     void setMoveTo( qint32 start, qint32 duration, qint32 left, qint32 top, quint8 ease );
     void setMoveBy( qint32 start, qint32 duration, qint32 x, qint32 y, qint32 w, qint32 h, quint8 ease );
-    void setRotateIn( quint8 axis, qint32 start, qint32 duration );
-    void setRotateOut( quint8 axis, qint32 start, qint32 duration );
+    void setRotateIn( quint8 axis, qint32 start, qint32 duration, quint8 ease );
+    void setRotateOut( quint8 axis, qint32 start, qint32 duration, quint8 ease );
     void setRotate( quint8 axis, qreal stepX, qreal stepY, qreal stepZ );
 
 protected:

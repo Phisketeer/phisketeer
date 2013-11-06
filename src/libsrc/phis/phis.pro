@@ -42,7 +42,6 @@ SOURCES += \
     phisserverrequest.cpp \
     phisscriptobjects.cpp \
     phisprocessor.cpp
-
 include( ../../../phiconf.pri )
 VERSION = $$PHIRELEASE
 TEMPLATE = lib

@@ -45,7 +45,6 @@ protected:
 class PHISvgItem : public PHIBaseItem
 {
     Q_OBJECT
-    Q_PROPERTY( QString text READ text WRITE setText )
 
 public:
     enum Wid { Svg=42 };

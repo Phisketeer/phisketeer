@@ -82,7 +82,7 @@ QString PHIAbstractTextItem::text( const QByteArray &lang ) const
 void PHIAbstractTextItem::updateData()
 {
     if ( widget() && widget()->property( "alignment" ).isValid() )
-        widget()->setProperty( "alignment", alignment() );
+        widget()->setProperty( "alignment", realAlignment() );
     if ( _textData.translated() ) setWidgetText( _textData.text( page()->currentLang() ) );
     else setWidgetText( _textData.text() );
     if ( isChild() ) {
@@ -142,8 +142,8 @@ void PHIAbstractTextItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRo
 
 QColor PHIAbstractTextItem::color( PHIPalette::ItemRole role ) const
 {
-    if ( role==PHIPalette::WidgetText ) return color();
-    if ( role==PHIPalette::WidgetBase ) return backgroundColor();
+    if ( role==PHIPalette::WidgetText ) return realColor();
+    if ( role==PHIPalette::WidgetBase ) return realBackgroundColor();
     return QColor();
 }
 
@@ -220,9 +220,9 @@ void PHIAbstractTextItem::squeeze()
     removeData( DText );
     removeData( DTmpBackgroundColor );
     removeData( DTmpColor );
-    if ( color()==QColor( Qt::black ) ) removeData( DColor );
-    if ( backgroundColor()==QColor( Qt::white ) ) removeData( DBackgroundColor );
-    if ( alignment()==static_cast<quint16>(Qt::AlignLeft|Qt::AlignVCenter) ) removeData( DAlignment );
+    if ( realColor()==QColor( Qt::black ) ) removeData( DColor );
+    if ( realBackgroundColor()==QColor( Qt::white ) ) removeData( DBackgroundColor );
+    if ( realAlignment()==static_cast<quint16>(Qt::AlignLeft|Qt::AlignVCenter) ) removeData( DAlignment );
 }
 
 void PHIAbstractTextItem::loadItemData( QDataStream &in, int version )
@@ -238,6 +238,13 @@ void PHIAbstractTextItem::saveItemData( QDataStream &out, int version )
 {
     Q_UNUSED( version )
     out << &_textData << static_cast<quint8>(_colorRole) << static_cast<quint8>(_backgroundColorRole);
+}
+
+QScriptValue PHIAbstractTextItem::textAlign( const QScriptValue &a )
+{
+    if ( !a.isValid() ) return PHI::qtAlignmentToTextAlign( static_cast<Qt::Alignment>(realAlignment()) );
+    setAlignment( PHI::textAlignToQtAlignment( a.toString() ) );
+    return self();
 }
 
 qreal PHIAbstractShapeItem::_dropRegion=7.;
@@ -281,30 +288,25 @@ void PHIAbstractShapeItem::initIDE()
 
 void PHIAbstractShapeItem::createTmpData( const PHIDataParser &parser )
 {
-    QImage img( static_cast<int>(boundingRect().width()), static_cast<int>(boundingRect().height()), QImage::Format_ARGB32_Premultiplied );
-    img.fill( 0 );
-    QPainter p( &img );
-    paint( &p, QRectF() );
-    p.end();
-    setImagePath( parser.createTmpImage( img ) );
+    setImagePath( parser.createTmpImage( createImage() ) );
 }
 
 void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
 {
     QPen pen;
-    Qt::PenStyle style=static_cast<Qt::PenStyle>(line());
-    Qt::BrushStyle pat=static_cast<Qt::BrushStyle>(pattern());
+    Qt::PenStyle style=static_cast<Qt::PenStyle>(realLine());
+    Qt::BrushStyle pat=static_cast<Qt::BrushStyle>(realPattern());
     if ( style!=Qt::NoPen ) {
-        pen.setColor( outlineColor() );
-        pen.setWidthF( penWidth() );
+        pen.setColor( realOutlineColor() );
+        pen.setWidthF( realPenWidth() );
         pen.setJoinStyle( Qt::MiterJoin );
         pen.setCapStyle( Qt::FlatCap );
         pen.setStyle( style );
     } else pen.setStyle( Qt::NoPen );
     QBrush brush;
-    if ( pattern()<15 ) { // no gradient style
+    if ( realPattern()<15 ) { // no gradient style
         brush.setStyle( pat );
-        brush.setColor( color() );
+        brush.setColor( realColor() );
     } else brush=QBrush( gradient() );
     p->setBrush( brush );
     p->setPen( pen );
@@ -314,8 +316,8 @@ void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
 
 QColor PHIAbstractShapeItem::color( PHIPalette::ItemRole role ) const
 {
-    if ( role==PHIPalette::Foreground ) return color();
-    if ( role==PHIPalette::Background ) return outlineColor();
+    if ( role==PHIPalette::Foreground ) return realColor();
+    if ( role==PHIPalette::Background ) return realOutlineColor();
     return QColor();
 }
 
@@ -368,7 +370,7 @@ void PHIAbstractShapeItem::setLine( quint8 l )
 
 QRectF PHIAbstractShapeItem::boundingRect() const
 {
-    int off=static_cast<int>(penWidth()/2.)+1;
+    int off=static_cast<int>(realPenWidth()/2.)+1;
     return QRectF( -off, -off, realWidth()+2*off, realHeight()+2*off );
 }
 
@@ -388,9 +390,9 @@ void PHIAbstractShapeItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
     setData( DTmpColor, data( DColor ) );
     setData( DTmpOutlineColor, data( DOutlineColor ) );
     if ( e->mimeData()->hasText() ) {
-        setData( DTmpPatternStyle, pattern() );
-        setData( DTmpLineStyle, line() );
-        setData( DTmpPenWidth, penWidth() );
+        setData( DTmpPatternStyle, realPattern() );
+        setData( DTmpLineStyle, realLine() );
+        setData( DTmpPenWidth, realPenWidth() );
     }
     e->setDropAction( Qt::CopyAction );
     e->accept();
@@ -468,25 +470,25 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
         bool forceForeground=false;
         bool forceBackground=false;
         PHIPalette::ColorRole newCR=PHIPalette::Custom;
-        qreal newPenWidth=penWidth();
-        quint8 newPattern=pattern();
-        quint8 newLineStyle=line();
+        qreal newPenWidth=realPenWidth();
+        quint8 newPattern=realPattern();
+        quint8 newLineStyle=realLine();
         _extractShapeDefs( e->mimeData()->text(), newCR, newPattern, newLineStyle, newPenWidth );
-        if ( newPenWidth!=penWidth() ) forceBackground=true;
-        if ( newPattern!=pattern() ) forceForeground=true;
-        if ( newLineStyle!=line() ) forceBackground=true;
+        if ( newPenWidth!=realPenWidth() ) forceBackground=true;
+        if ( newPattern!=realPattern() ) forceForeground=true;
+        if ( newLineStyle!=realLine() ) forceBackground=true;
         if ( forceForeground ) { // drag from pattern tool
             emit beginUndoStackMacro( tr( "Pattern" )+ut );
             emit pushUndoStack( PHIPalette::Foreground, newCR, e->mimeData()->colorData().value<QColor>() );
-            emit pushUndoStack( "pattern", newPattern );
+            emit pushUndoStack( "_pattern", newPattern );
             emit endUndoStackMacro();
             update();
             return;
         } else if ( forceBackground ) { // drag from pen tool
             emit beginUndoStackMacro( tr( "Outline" )+ut );
             emit pushUndoStack( PHIPalette::Background, newCR, e->mimeData()->colorData().value<QColor>() );
-            emit pushUndoStack( "line", newLineStyle );
-            emit pushUndoStack( "penWidth", newPenWidth );
+            emit pushUndoStack( "_line", newLineStyle );
+            emit pushUndoStack( "_penWidth", newPenWidth );
             emit endUndoStackMacro();
             update();
             return;
@@ -516,16 +518,16 @@ void PHIAbstractShapeItem::squeeze()
     removeData( DTmpOutlineColor);
     removeData( DTmpPenWidth );
     removeData( DTmpPatternStyle );
-    if ( penWidth()==1. ) removeData( DPenWidth );
-    if ( line()==0 ) {
+    if ( realPenWidth()==1. ) removeData( DPenWidth );
+    if ( realLine()==0 ) {
         removeData( DOutlineColor );
         removeData( DPenWidth );
         removeData( DLineStyle );
     }
-    if ( pattern()==1 ) removeData( DPatternStyle );
-    if ( pattern()==0 ) removeData( DColor );
-    if ( color()==QColor( Qt::black ) ) removeData( DColor );
-    if ( outlineColor()==QColor( Qt::black ) ) removeData( DOutlineColor );
+    if ( realPattern()==1 ) removeData( DPatternStyle );
+    if ( realPattern()==0 ) removeData( DColor );
+    if ( realColor()==QColor( Qt::black ) ) removeData( DColor );
+    if ( realOutlineColor()==QColor( Qt::black ) ) removeData( DOutlineColor );
 }
 
 void PHIAbstractShapeItem::loadItemData( QDataStream &in, int version )
@@ -604,7 +606,7 @@ QSizeF PHIAbstractImageItem::sizeHint( Qt::SizeHint which, const QSizeF &constra
     if ( isChild() ) return realSize();
     if ( which==Qt::MinimumSize ) return QSizeF( 16, 16 );
     if ( which==Qt::PreferredSize ) {
-        if ( !image().isNull() ) return QSizeF( image().size() );
+        if ( !realImage().isNull() ) return QSizeF( realImage().size() );
         return QSizeF( 96., 96. );
     }
     return PHIBaseItem::sizeHint( which, constraint );
@@ -613,7 +615,7 @@ QSizeF PHIAbstractImageItem::sizeHint( Qt::SizeHint which, const QSizeF &constra
 void PHIAbstractImageItem::paint( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
-    if ( image().isNull() ) {
+    if ( realImage().isNull() ) {
         p->fillRect( rect(), QBrush( Qt::lightGray ) );
         QFont f=font();
         f.setPointSizeF( PHI::adjustedFontSize( 10. ) );
@@ -623,7 +625,7 @@ void PHIAbstractImageItem::paint( QPainter *p, const QRectF &exposed )
         else p->drawText( rect(), tr( "Image is loading..." ) );
     } else {
         p->setRenderHint( QPainter::SmoothPixmapTransform );
-        p->drawImage( rect(), image() );
+        p->drawImage( rect(), realImage() );
     }
 }
 
@@ -808,8 +810,8 @@ void PHIAbstractLayoutItem::squeeze()
     if ( horizontalSpacing()==6 ) removeData( DHorizontalSpacing );
     if ( verticalSpacing()==6 ) removeData( DVerticalSpacing );
     if ( bottomMargin()==6 ) removeData( DMarginBottom );
-    if ( alignment()==static_cast<quint16>(Qt::AlignLeft|Qt::AlignVCenter) ) removeData( DAlignment );
-    if ( line()==0 && pattern()==0 ) {
+    if ( realAlignment()==static_cast<quint16>(Qt::AlignLeft|Qt::AlignVCenter) ) removeData( DAlignment );
+    if ( realLine()==0 && realPattern()==0 ) {
         removeData( DRadiusTopLeft );
         removeData( DRadiusTopRight );
         removeData( DRadiusBottomLeft );
@@ -840,6 +842,13 @@ void PHIAbstractLayoutItem::saveItemData( QDataStream &out, int version )
 {
     PHIAbstractShapeItem::saveItemData( out, version );
     if ( flags() & FLayoutHeader ) out << &_textData;
+}
+
+QScriptValue PHIAbstractLayoutItem::textAlign( const QScriptValue &a )
+{
+    if ( !a.isValid() ) return PHI::qtAlignmentToTextAlign( static_cast<Qt::Alignment>(realAlignment()) );
+    setAlignment( PHI::textAlignToQtAlignment( a.toString() ) );
+    return self();
 }
 
 void PHIAbstractLayoutItem::insertBaseItem( PHIBaseItem *it, int row, int column, int rowSpan, int columnSpan )

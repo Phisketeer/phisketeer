@@ -29,6 +29,7 @@
 #include "phipalette.h"
 #include "phieffect.h"
 #include "phidatasources.h"
+#include "phibasepage.h"
 
 class QGraphicsSceneEvent;
 class QKeyEvent;
@@ -71,11 +72,6 @@ class PHIEXPORT PHIBaseItem : public QObject
     friend class PHISProcessor;
 
     Q_OBJECT
-    Q_PROPERTY( QString id READ name )
-    Q_PROPERTY( QString name READ name )
-    Q_PROPERTY( quint16 type READ type ) // type==WID (to keep old code working)
-    Q_PROPERTY( QStringList properties READ properties )
-    Q_PROPERTY( QString parentName READ parentName WRITE setParentName )
     //Q_PROPERTY( qreal x READ x WRITE setX )
     //Q_PROPERTY( qreal y READ y WRITE setY )
     //Q_PROPERTY( qreal width READ width WRITE setWidth )
@@ -85,16 +81,9 @@ class PHIEXPORT PHIBaseItem : public QObject
     //Q_PROPERTY( QString title READ title WRITE setTitle NOTIFY titleChanged )
     //Q_PROPERTY( qint16 zIndex READ zIndex WRITE setZIndex NOTIFY zIndexChanged )
     //Q_PROPERTY( QPointF pos READ pos WRITE setPos )
-    Q_PROPERTY( quint8 transformPos READ transformPos WRITE setTransformPos )
-    Q_PROPERTY( QPointF transformOrigin READ transformOrigin WRITE setTransformOrigin )
-    Q_PROPERTY( QFont font READ font WRITE setFont SCRIPTABLE false )
-    Q_PROPERTY( QString styleSheet READ styleSheet WRITE setStyleSheet )
-
-    // HTML standard requires them as properties
-    Q_PROPERTY( bool readOnly READ readOnly WRITE setReadOnly )
-    Q_PROPERTY( bool disabled READ disabled WRITE setDisabled )
-    // defined in checkable items:
-    // Q_PROPERTY( bool checked READ checked WRITE setChecked )
+    //Q_PROPERTY( quint8 transformPos READ transformPos WRITE setTransformPos )
+    //Q_PROPERTY( QPointF transformOrigin READ transformOrigin WRITE setTransformOrigin )
+    Q_PROPERTY( QFont _font READ font WRITE setFont SCRIPTABLE false )
 
 public:
     enum Wid { Unknown=0, User=1000 };
@@ -104,7 +93,8 @@ public:
         DGradientType=-23, DGradientStartPoint=-24, DGradientStopPoints=-25,
         DGradientFinalStopPoint=-26, DGradientSpreadType=-27, DGradientAngle=-28,
         DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31,
-        DImagePath=-32, DImagePathes=-33 };
+        DImagePath=-32, DImagePathes=-33, DIEFilter=-34, DAdjustPos=-35,
+        DAdjustSize=-36 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
@@ -112,7 +102,7 @@ public:
     enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
         DFEffect=0x8, DFPos=0x10, DFSize=0x20, DFText=0x40, DFTransform=0x80,
         DFInt1=0x100, DFInt2=0x200, DFReadOnlyData=0x400, DFDisabledData=0x800,
-        DFHeader=0x1000, DFPlaceholder=DFHeader };
+        DFHeader=0x1000, DFPlaceholder=DFHeader }; // 0x10000 and above used for inherited
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
     Q_DECLARE_FLAGS( DirtyFlags, DirtyFlag )
@@ -139,6 +129,8 @@ public: // not usable by script engine
     void setId( const QString &id );
     inline QByteArray id() const { return _id; }
     inline QByteArray parentId() const { return _parentId; }
+    inline QString realParentName() const { return QString::fromLatin1( _parentId ); }
+    inline void setParentName( const QString &n ) { _parentId=n.toLatin1(); }
     inline void setId( const QByteArray &id ) { setObjectName( QString::fromLatin1( id ) ); _id=id; }
     inline void setParentId( const QString &pid ) { _parentId=pid.toLatin1(); }
     inline void setParentId( const QByteArray &pid ) { _parentId=pid; }
@@ -153,6 +145,13 @@ public: // not usable by script engine
     inline Flags flags() const { return _flags; }
     inline PHIKeyHash data() { storeFlags(); return _variants; }
     inline void setData( const PHIKeyHash &data ) { _variants=data; _flags=static_cast<Flags>(_variants.value( DFlags, 0 ).value<quint32>()); }
+    inline void setPos( qreal x, qreal y ) { setPos( QPointF( x, y ) ); }
+    void setWidth( qreal w );
+    void setHeight( qreal h );
+    void setPos( const QPointF &p );
+    void resize( qreal w, qreal h );
+    void resize( const QSizeF &s );
+    void setVisible( bool b );
 
     // prefixing with 'real' for internal using:
     inline qreal realX() const { return _x; }
@@ -165,13 +164,21 @@ public: // not usable by script engine
     inline qreal realOpacity() const { return _variants.value( DOpacity, 1. ).toReal(); }
     inline QString realTitle() const { return QString::fromUtf8( _variants.value( DTitle ).toByteArray() ); }
     inline qint16 realZIndex() const { return _zIndex; }
+    inline bool realDisabled() const { return _flags & FDisabled; }
+    inline bool realChecked() const { return _flags & FChecked; }
+    inline bool realReadOnly() const { return _flags & FReadOnly; }
 
     inline void setX( qreal x ) { if ( _x==x ) return; _dirtyFlags|=DFPos; _x=x; if ( _gw ) _gw->setX( x ); }
     inline void setY( qreal y ) { if ( _y==y ) return; _dirtyFlags|=DFPos; _y=y; if ( _gw ) _gw->setY( y ); }
     inline void setOpacity( qreal o ) { o=qBound( 0., o, 1. ); _variants.insert( DOpacity, o ); update(); }
     inline void setTitle( const QString &t ) { _variants.insert( DTitle, t.toUtf8() ); if ( _gw ) _gw->setToolTip( t ); }
-    inline void setParentName( const QString &n ) { _parentId=n.toLatin1(); }
     inline void setTabIndex( qint16 tab ) { if ( tab ) _variants.insert( DTabIndex, tab ); else _variants.remove( DTabIndex ); }
+    inline PHIByteArrayList imagePathes() const { return _variants.value( DImagePathes ).value<PHIByteArrayList>(); }
+    inline void setImagePathes( const PHIByteArrayList &list ) {  QVariant v; v.setValue( list ); _variants.insert( DImagePathes, v ); }
+    inline QByteArray imagePath() const { return _variants.value( DImagePath ).toByteArray(); }
+    inline void setImagePath( const QByteArray &path ) { _variants.insert( DImagePath, path ); }
+    inline QString styleSheet() const { return QString::fromUtf8( _variants.value( DStyleSheet ).toByteArray() ); }
+    virtual void setStyleSheet( const QString &s );
 
     inline QRectF rect() const { return QRectF( QPointF(), realSize() ); }
     inline quint8 transformPos() const { return _variants.value( DTransformPos, 1 ).value<quint8>(); }
@@ -207,6 +214,8 @@ public: // not usable by script engine
     void setZIndex( qint16 idx );
     void load( const QByteArray &in, int version );
     void privateUpdateData();
+    void privateStaticCSS( const PHIRequest *req, QByteArray &out ) const;
+    virtual void html( const PHIRequest* const req, QByteArray &out, QByteArray &jQuery, const QByteArray &indent ) const;
     QByteArray save( int version );
 
     //virtual functions
@@ -228,12 +237,16 @@ public: // not usable by script engine
     inline virtual bool isDroppable() const { return false; }
     inline virtual QColor color( PHIPalette::ItemRole ) const { return QColor(); }
     inline virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole ) const { return PHIPalette::NoRole; }
+    inline virtual QByteArray extension() const { return QByteArray(); }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color );
     virtual void setFont( const QFont &font );
     virtual void setGradient( QLinearGradient g );
     virtual void setGradient( QConicalGradient g );
     virtual void setGradient( QRadialGradient g );
     virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual void setDisabled( bool b );
+    virtual void setChecked( bool b ) { b ? _flags|= FChecked : _flags&= ~FChecked; }
+    virtual void setReadOnly( bool b ) { b ? _flags|= FReadOnly : _flags&= ~FReadOnly; }
     virtual PHIWID wid() const=0;
 
     // IDE related members
@@ -264,38 +277,37 @@ public: // not usable by script engine
 
 public slots: // usable by script engine
     inline QString name() const { return QString::fromLatin1( _id ); }
-    inline QString parentName() const { return QString::fromLatin1( _parentId ); }
-    inline PHIWID type() const { return wid(); }
-    inline bool visible() const { return _variants.value( DVisibility, true ).toBool(); }
+    QScriptValue visible( const QScriptValue &b=QScriptValue() );
+    QScriptValue opacity( const QScriptValue &o=QScriptValue() );
+    inline QScriptValue hide() { setVisible( false ); return self(); }
+    inline QScriptValue show() { setVisible( true ); return self(); }
+    inline QScriptValue clearEffects() { _effect->clearAll(); return self(); }
+    inline QScriptValue fadeIn( qint32 start, qint32 duration, qreal maxOpac, const QString &ease ) {
+        _effect->setFadeIn( start, duration, maxOpac, PHI::toEasingCurveType( ease ) ); return self(); }
+    inline QScriptValue fadeOut( qint32 start, qint32 duration, qreal minOpac, const QString &ease ) {
+        _effect->setFadeOut( start, duration, minOpac, PHI::toEasingCurveType( ease ) ); return self(); }
+    //inline void shadowEffect( const QColor &c, qreal xOff, qreal yOff, qreal radius ) { _effect->setShadow( c, xOff, yOff, radius ); }
+    //inline void reflectionEffect( qreal yOff, qreal size ) { _effect->setSurface( yOff, size ); }
+    //inline void blurEffect( qreal radius ) { _effect->setBlur( radius ); }
+    //inline void colorizeEffect( const QColor &c, qreal strength ) { _effect->setColorize( c, strength ); }
+    inline QScriptValue moveTo( qint32 start, qint32 duration, qint32 left, qint32 top, const QString &ease ) {
+        _effect->setMoveTo( start, duration, left, top, PHI::toEasingCurveType( ease ) ); return self(); }
+    inline QScriptValue moveBy( qint32 start, qint32 duration, qint32 x, qint32 y, qint32 w, qint32 h, const QString &ease ) {
+        _effect->setMoveBy( start, duration, x, y, w, h, PHI::toEasingCurveType( ease ) ); return self(); }
+    inline QScriptValue rotateIn( quint8 axis, qint32 start, qint32 duration, const QString &ease ) {
+        _effect->setRotateIn( axis, start, duration, PHI::toEasingCurveType( ease ) ); return self(); }
+    inline QScriptValue rotateOut( quint8 axis, qint32 start, qint32 duration, const QString &ease ) {
+        _effect->setRotateOut( axis, start, duration, PHI::toEasingCurveType( ease ) ); return self(); }
+    inline QScriptValue rotate( quint8 axis, qreal stepX, qreal stepY, qreal stepZ ) {
+        _effect->setRotate( axis, stepX, stepY, stepZ ); return self(); }
+    QScriptValue css( const QScriptValue &sheet=QScriptValue() );
 
-    inline void setPos( qreal x, qreal y ) { setPos( QPointF( x, y ) ); }
-    inline void hide() { setVisible( false ); }
-    inline void show() { setVisible( true ); }
-
-    void setWidth( qreal w );
-    void setHeight( qreal h );
-    void setPos( const QPointF &p );
-    void resize( qreal w, qreal h );
-    void resize( const QSizeF &s );
-    void setVisible( bool b );
-    QStringList properties() const;
-
-    inline QString styleSheet() const { return QString::fromUtf8( _variants.value( DStyleSheet ).toByteArray() ); }
-    virtual void setStyleSheet( const QString &s );
     //inline QString label() const { return QString::fromUtf8( _variants.value( DLabel ).toByteArray() ); }
     //inline virtual void setLabel( const QString &s ) { _variants.insert( DLabel, s.toUtf8() ); }
     //inline QString value() const { return QString::fromUtf8( _variants.value( DValue ).toByteArray() ); }
     //inline virtual void setValue( const QString &s ) { _variants.insert( DValue, s.toUtf8() ); }
     //inline quint16 maxLength() const { return _variants.value( DMaxLength, 100 ).value<quint16>(); }
     //inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxLength, max ); }
-
-    // needed as properties (HTML standard)
-    inline bool disabled() const { return _flags & FDisabled; }
-    virtual void setDisabled( bool b );
-    inline bool checked() const { return _flags & FChecked; }
-    virtual void setChecked( bool b ) { b ? _flags|= FChecked : _flags&= ~FChecked; }
-    inline bool readOnly() const { return _flags & FReadOnly; }
-    virtual void setReadOnly( bool b ) { b ? _flags|= FReadOnly : _flags&= ~FReadOnly; }
 
 protected:
     virtual void loadItemData( QDataStream &in, int version );
@@ -307,6 +319,7 @@ protected:
     void setWidget( QWidget* );
     QWidget* widget() const;
     const PHIBasePage* page() const;
+    QScriptValue self();
     QImage createImage();
     QImage createEffectImage();
     virtual void paintHighlight( QPainter *painter );
@@ -314,22 +327,13 @@ protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
     virtual bool sceneEvent( QEvent *event ); // return false to call basic implementation
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
-    inline PHIByteArrayList imagePathes() const { return _variants.value( DImagePathes ).value<PHIByteArrayList>(); }
-    inline void setImagePathes( const PHIByteArrayList &list ) {  QVariant v; v.setValue( list ); _variants.insert( DImagePathes, v ); }
-    inline QByteArray imagePath() const { return _variants.value( DImagePath ).toByteArray(); }
-    inline void setImagePath( const QByteArray &path ) { _variants.insert( DImagePath, path ); }
     inline void setDirtyFlag( DirtyFlag flag ) { _dirtyFlags |= flag; }
     inline DirtyFlags dirtyFlags() const { return _dirtyFlags; }
 
-    // Phis server related members
-    // create a srtict HTML 4 for old browser versions:
-    virtual void strictHtml( const PHIRequest* const req, QByteArray &out, const QByteArray &indent );
-    // create new HTML5 content:
-    virtual void html5( const PHIRequest* const req, QByteArray &out, const QByteArray &indent );
-    // create jQuery related stuff, like onclick and other handlers:
-    virtual void jQuery( const PHIRequest* const req, QByteArray &out );
-    // create all none dynamic CSS styles:
-    virtual void css( const PHIRequest* const req, QByteArray &out );
+    // HTML related members
+    virtual void staticCSS( const PHIRequest *req, QByteArray &out ) const;
+    void startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const; // includes id tag
+    virtual void addGraphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
 
     // IDE related members
     inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
@@ -382,12 +386,12 @@ private:
     qreal _x, _y, _width, _height, _xRot, _yRot, _zRot, _hSkew, _vSkew;
     qint16 _zIndex;
     QPointF _transformOrigin;
-    PHIKeyHash _variants;
     Flags _flags;
-    DirtyFlags _dirtyFlags;
     PHIBooleanData _visibleData, _disabledData;
     PHITextData _titleData, _styleSheetData;
     PHIEffect *_effect;
+    mutable DirtyFlags _dirtyFlags;
+    mutable PHIKeyHash _variants;
 };
 
 #ifdef PHIDEBUG
@@ -409,6 +413,17 @@ inline QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem* c
 inline void baseItemFromScriptValue( const QScriptValue &obj, PHIBaseItem* &it )
 {
     it=qobject_cast<PHIBaseItem*>(obj.toQObject());
+}
+
+inline const PHIBasePage* PHIBaseItem::page() const
+{
+    return qobject_cast<const PHIBasePage*>(parent());
+}
+
+inline QScriptValue PHIBaseItem::self()
+{
+    Q_ASSERT( page()->scriptEngine() );
+    return baseItemToScriptValue( page()->scriptEngine(), this );
 }
 
 inline void PHIBaseItem::setWidth( qreal w )
@@ -459,6 +474,27 @@ inline QWidget* PHIBaseItem::widget() const
     return proxy->widget();
 }
 
+inline QScriptValue PHIBaseItem::visible( const QScriptValue &b )
+{
+    if ( !b.isValid() ) return _variants.value( DVisibility, true ).toBool();
+    setVisible( b.toBool() );
+    return self();
+}
+
+inline QScriptValue PHIBaseItem::css( const QScriptValue &sheet )
+{
+    if ( !sheet.isValid() ) return styleSheet();
+    setStyleSheet( sheet.toString() );
+    return self();
+}
+
+inline QScriptValue PHIBaseItem::opacity( const QScriptValue &o )
+{
+    if ( !o.isValid() ) return realOpacity();
+    setOpacity( o.toNumber() );
+    return self();
+}
+
 /*
 class PHIEXPORT PHIBaseItem : public QObject, public PHIItem
 {
@@ -486,36 +522,6 @@ public: //not useable by script engine
     inline QPoint dragHotSpot() const { return _variants.value( DDragHotSpot, PHI::defaultHotSpot() ).toPoint(); }
 
     //set by PHIEffects
-    inline virtual void clearEffects() { _effect->clearAll(); }
-    inline virtual void setFadeIn( qint32 start, qint32 duration, qreal maxOpac, const QString &ease ) {
-        _effect->setFadeIn( start, duration, maxOpac, PHI::toEasingCurveType( ease ) ); }
-    inline virtual void fadeIn( qint32 &start, qint32 &duration, qreal &maxOpac, quint8 &ease ) const {
-        _effect->fadeIn( start, duration, maxOpac, ease ); }
-    inline virtual void setFadeOut( qint32 start, qint32 duration, qreal minOpac, const QString &ease ) {
-        _effect->setFadeOut( start, duration, minOpac, PHI::toEasingCurveType( ease ) ); }
-    inline virtual void fadeOut( qint32 &start, qint32 &duration, qreal &minOpac, quint8 &ease ) const {
-        _effect->fadeOut( start, duration, minOpac, ease ); }
-    inline virtual void setShadow( const QColor &c, qreal xOff, qreal yOff, qreal radius ) {
-        _effect->setShadow( c, xOff, yOff, radius ); }
-    inline virtual void setSurface( qreal yOff, qreal size ) {
-        _effect->setSurface( yOff, size ); }
-    inline virtual void setBlur( qreal radius ) {
-        _effect->setBlur( radius ); }
-    inline virtual void setColorize( const QColor &c, qreal strength ) {
-        _effect->setColorize( c, strength ); }
-    inline virtual void setMoveTo( qint32 start, qint32 duration, qint32 left, qint32 top, const QString &ease ) {
-        _effect->setMoveTo( start, duration, left, top, PHI::toEasingCurveType( ease ) ); }
-    inline virtual void setMoveBy( qint32 start, qint32 duration, qint32 x, qint32 y,
-            qint32 w, qint32 h, const QString &ease ) {
-        _effect->setMoveBy( start, duration, x, y, w, h, PHI::toEasingCurveType( ease ) ); }
-
-    inline virtual void setRotateIn( quint8 axis, qint32 start, qint32 duration, const QString& ) {
-        _effect->setRotateIn( axis, start, duration); }
-    inline virtual void setRotateOut( quint8 axis, qint32 start, qint32 duration, const QString& ) {
-        _effect->setRotateOut( axis, start, duration ); }
-    inline virtual void setRotate( quint8 axis, qreal stepX, qreal stepY, qreal stepZ, const QString& ) {
-        _effect->setRotate( axis, stepX, stepY, stepZ ); }
-    inline virtual void stopAnimations() {;}
 
     //misc
     inline virtual void resetItem() {;}
