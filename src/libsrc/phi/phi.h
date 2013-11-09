@@ -106,11 +106,11 @@ public:
     static const QString& defaultString(); // returns "default"
     static QUrl createUrlForLink( const QUrl &ref, const QString &link );
     static QString createPngUuid();
-    static QImage reflectedImage( const QImage &img, qreal off, qreal size );
-    static QImage colorizedImage( const QImage &img, const QColor &c, qreal strength );
+    static QImage reflectedImage( const QImage &img, qreal off, qreal size, QRect &br );
+    static QImage colorizedImage( const QImage &img, const QColor &c, qreal strength, QRect &br );
     static QImage dropShadowedImage( const QImage &img, const QColor &color,
-        qreal radius, qreal xOff, qreal yOff );
-    static QImage bluredImage( const QImage &img, qreal radius );
+        qreal radius, qreal xOff, qreal yOff, QRect &br );
+    static QImage bluredImage( const QImage &img, qreal radius, QRect &br );
     static QPixmap colorizedPixmap( const QPixmap &pix, const QColor &c=QColor( Qt::black ), qreal strength=1. );
     static QPixmap dropShadowedPixmap( const QPixmap &src, const QPointF &off=QPointF( 1., 2. ),
         const QColor &c=QColor( 0, 0, 0, 220 ), qreal radius=3. );

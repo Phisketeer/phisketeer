@@ -92,9 +92,16 @@ void PHIAbstractTextItem::updateData()
     }
 }
 
+void PHIAbstractTextItem::createTmpData( const PHIDataParser &parser )
+{
+    Q_UNUSED( parser );
+    if ( _textData.unparsedStatic() ) setText( _textData.text() );
+    else setDirtyFlag( DFText );
+}
+
 void PHIAbstractTextItem::parseData( const PHIDataParser &parser )
 {
-    setData( DText, parser.text( &_textData ) );
+    if ( dirtyFlags() & DFText ) setData( DText, parser.text( &_textData ) );
 }
 
 QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
@@ -370,7 +377,7 @@ void PHIAbstractShapeItem::setLine( quint8 l )
 
 QRectF PHIAbstractShapeItem::boundingRect() const
 {
-    int off=static_cast<int>(realPenWidth()/2.)+1;
+    int off=qRound(realPenWidth()); // border
     return QRectF( -off, -off, realWidth()+2*off, realHeight()+2*off );
 }
 
@@ -853,8 +860,8 @@ QScriptValue PHIAbstractLayoutItem::textAlign( const QScriptValue &a )
 
 void PHIAbstractLayoutItem::insertBaseItem( PHIBaseItem *it, int row, int column, int rowSpan, int columnSpan )
 {
-    Q_ASSERT( _l );
     _children.append( it );
+    if ( !_l ) return; // server
     setChildItem( it );
     _l->addItem( it->gw(), row, column, rowSpan, columnSpan );
     _l->invalidate();
@@ -884,7 +891,7 @@ void PHIAbstractLayoutItem::releaseItem( PHIBaseItem *it )
     it->gw()->setParentItem( 0 );
 }
 
-void PHIAbstractLayoutItem::drawShape(QPainter *p, const QRectF &exposed )
+void PHIAbstractLayoutItem::drawShape( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
     if ( p->pen().style()==Qt::NoPen && p->brush().style()==Qt::NoBrush ) return;
@@ -892,7 +899,8 @@ void PHIAbstractLayoutItem::drawShape(QPainter *p, const QRectF &exposed )
     qreal rtr=data( DRadiusTopRight, 0 ).toReal();
     qreal rbr=data( DRadiusBottomRight, 0 ).toReal();
     qreal rbl=data( DRadiusBottomLeft, 0 ).toReal();
-    QRectF cr=QRectF( QPointF( 0, 0 ), realSize() );
+    qreal off=realPenWidth()/2.+.5;
+    QRectF cr=QRectF( -off, -off, realWidth()+off, realHeight()+off );
     QPainterPath path;
     path.moveTo( cr.x(), cr.y()+rtl );
     path.arcTo( cr.x(), cr.y(), rtl*2, rtl*2, 180., -90. );
@@ -900,7 +908,7 @@ void PHIAbstractLayoutItem::drawShape(QPainter *p, const QRectF &exposed )
     path.arcTo( cr.width()-rtr*2, cr.y(), rtr*2, rtr*2, 90., -90. );
     path.lineTo( cr.width(), cr.height()-rbr );
     path.arcTo( cr.width()-rbr*2, cr.height()-rbr*2, rbr*2, rbr*2, 0, -90. );
-    path.lineTo( rbl, cr.height() );
+    path.lineTo( cr.x()+rbl, cr.height() );
     path.arcTo( cr.x(), cr.height()-rbl*2, rbl*2, rbl*2, -90., -90. );
     path.lineTo( cr.x(), cr.y()+rtl );
     p->setRenderHint( QPainter::Antialiasing, hasTransformation() );
@@ -966,6 +974,11 @@ QSizeF PHIAbstractInputItem::sizeHint( Qt::SizeHint which, const QSizeF &constra
 {
     if ( which!=Qt::PreferredSize ) return PHIAbstractTextItem::sizeHint( which, constraint );
     return QSizeF( 120., PHIAbstractTextItem::sizeHint( which, constraint ).height() );
+}
+
+QRectF PHIAbstractLayoutItem::boundingRect() const
+{
+    return PHIAbstractShapeItem::boundingRect();
 }
 
 void PHIAbstractInputItem::squeeze()

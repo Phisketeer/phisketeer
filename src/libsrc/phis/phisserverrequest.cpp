@@ -68,7 +68,7 @@ PHIRC PHISServerRequest::setupHttpHeader( const QString &headerStr, QString &err
         return PHIRC_HTTP_BAD_REQUEST;
     }
     QString line, key, value=SL( " GET POST HEAD PUT CREATE " );
-    if ( !lines.at(0).contains( SL( "HTTP/" ) ) ) {
+    if ( !lines.at( 0 ).contains( SL( "HTTP/" ) ) ) {
         err=tr( "Missing HTTP header." );
         return PHIRC_HTTP_BAD_REQUEST;
     }
@@ -85,8 +85,8 @@ PHIRC PHISServerRequest::setupHttpHeader( const QString &headerStr, QString &err
         err=tr( "Unknown HTTP protocol version (%1.%2)." ).arg( _httpMajor ).arg( _httpMinor );
         return PHIRC_HTTP_VERSION_NOT_SUPPORTED;
     }
-    _url=QUrl::fromEncoded( lines.at(0).mid( start+1,
-        lines.at(0).indexOf( QLatin1Char( ' ' ), start+1 )-start-1 ).toUtf8(), QUrl::StrictMode );
+    _url=QUrl::fromEncoded( lines.at( 0 ).mid( start+1,
+        lines.at( 0 ).indexOf( QLatin1Char( ' ' ), start+1 )-start-1 ).toUtf8(), QUrl::StrictMode );
     _url.setScheme( _server->_scheme );
     _url.setPort( _server->_port );
     lines.removeFirst();
@@ -102,6 +102,7 @@ PHIRC PHISServerRequest::setupHttpHeader( const QString &headerStr, QString &err
             return PHIRC_HTTP_BAD_REQUEST;
         }
         value=value.mid( start+2 );
+        // @todo: make header size configurable
         if ( value.size()>1024*100 ) {
             err=tr( "Too large header entry (%1)" ).arg( key );
             return PHIRC_HTTP_BAD_REQUEST;
@@ -138,11 +139,11 @@ PHIRC PHISServerRequest::setupHttpHeader( const QString &headerStr, QString &err
     }
     _documentRoot=value;
     _tmpDir=PHISParent::instance()->tempDir( key );
-    _imgDir=_tmpDir+L1( "/img" );
+    _imgDir=_tmpDir+SL( "/img" );
     _canonicalFilename=QDir::fromNativeSeparators( _documentRoot+_url.path() );
     //qDebug( "FILE %s %s", qPrintable( _canonicalFilename ), qPrintable( _url.toString() ) );
 
-    if ( _canonicalFilename.endsWith( L1( "/phi.phis" ) ) ) {
+    if ( _canonicalFilename.endsWith( SL( "/phi.phis" ) ) ) {
         _modified=QDateTime::currentDateTime();
     } else {
         QFileInfo fi( _canonicalFilename );

@@ -21,6 +21,7 @@
 #include "phirequest.h"
 #include "phiresponserec.h"
 #include "phiitemfactory.h"
+#include "phiabstractitems.h"
 
 QHash <QString, PageHash> PHISPageCache::_pages; // domain -> pages
 QHash <QString, PageModified> PHISPageCache::_modified; // domain -> page modification
@@ -33,10 +34,17 @@ static void _copyItems( PHIBasePage *dest, const PHIBasePage *source )
     Q_ASSERT( dest && source );
     PHIBaseItem *it;
     PHIBaseItem *copy;
+    PHIAbstractLayoutItem *ldest, *lsrc;
     foreach( it, source->items() ) {
         copy=PHIItemFactory::instance()->copy( it );
-        Q_ASSERT( copy );
+        if ( !copy ) continue;
         copy->setParent( dest );
+        // copy pointer to children
+        ldest=qobject_cast<PHIAbstractLayoutItem*>(copy);
+        if ( ldest ) {
+            lsrc=qobject_cast<PHIAbstractLayoutItem*>(it);
+            ldest->setChildItems( lsrc->childItems() );
+        }
     }
 }
 

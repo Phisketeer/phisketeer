@@ -47,7 +47,7 @@ public:
     inline QColor realColor() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
     inline QColor realBackgroundColor() const { return data( DBackgroundColor, QColor( Qt::white ) ).value<QColor>(); }
     inline QString realText() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
-    inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); setWidgetText( s ); }
+    inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); if ( !isServerItem() ) setWidgetText( s ); }
     inline quint16 realAlignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
     inline void setAlignment( quint16 align ) { setData( DAlignment, align ); }
 
@@ -74,6 +74,7 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
     virtual PHIConfigWidget* configWidget();
+    virtual void createTmpData( const PHIDataParser &parser );
     virtual void parseData( const PHIDataParser &parser );
 
     inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
@@ -116,6 +117,7 @@ public:
     inline virtual bool isDraggable() const { return true; }
     inline virtual bool isDroppable() const { return true; }
     virtual void initIDE();
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
     void setLine( quint8 l );
     void setPattern( quint8 p );
@@ -257,7 +259,11 @@ public:
     virtual void activateLayout()=0; // called once after page loading
     virtual void updateChildId( const QString &oldId, const QString &newId )=0;
     virtual void initIDE();
-    const QList<PHIBaseItem*>& childItems() const { return _children; }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    inline const QList<PHIBaseItem*>& childItems() const { return _children; }
+    inline void setChildItems( const QList<PHIBaseItem*> &list ) { _children=list; }
+    inline bool hasBorderRadius() const { return topLeftRadius()+topRightRadius()
+        +bottomLeftRadius()+bottomRightRadius() > 0 ? true : false; }
     void breakLayout();
     void invalidateLayout();
 
@@ -292,6 +298,7 @@ public slots:
     QScriptValue textAlign( const QScriptValue &a=QScriptValue() );
 
 protected:
+    virtual QRectF boundingRect() const;
     virtual void squeeze();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
@@ -326,10 +333,11 @@ private:
     PHITextData _textData;
 };
 
-class PHIAbstractInputItem : public PHIAbstractTextItem
+class PHIEXPORT PHIAbstractInputItem : public PHIAbstractTextItem
 {
     Q_OBJECT
-    Q_PROPERTY( QString realAccessKey WRITE setAccessKey READ realAccessKey SCRIPTABLE false )
+    Q_PROPERTY( QString _accessKey WRITE setAccessKey READ realAccessKey SCRIPTABLE false )
+    Q_PROPERTY( QString _value WRITE setText READ realText SCRIPTABLE false )
 
 public:
     enum ItemData { DAccessKey=-99 };
@@ -338,6 +346,9 @@ public:
     virtual ~PHIAbstractInputItem() {}
     virtual bool isFocusable() const { return true; }
     inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
+    inline void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); }
+    //inline QString realValue() const { return QString::fromUtf8( data( DValue ).toByteArray() ); }
+    //inline void setValue( const QString &v ) { setData( DValue, v.toUtf8() ); }
 
 protected:
     virtual void updateData();
@@ -348,9 +359,6 @@ protected:
     virtual PHIBooleanData* readOnlyData() { return &_readOnlyData; }
     virtual void parseData( const PHIDataParser &parser );
     virtual void createTmpData( const PHIDataParser &parser );
-
-public slots:
-    inline virtual void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); }
 
 private:
     PHIBooleanData _readOnlyData;

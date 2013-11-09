@@ -23,7 +23,7 @@
 class PHILineEditItem : public PHIAbstractInputItem
 {
     Q_OBJECT
-    Q_PROPERTY( QString placeholder READ placeholder WRITE setPlaceholder )
+    Q_PROPERTY( QString _placeholder READ realPlaceholder WRITE setPlaceholder SCRIPTABLE false )
 
 public:
     enum Wid { LineEdit=1 };
@@ -38,11 +38,12 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
     virtual void initIDE();
     virtual PHITextData* placeholderData() { return &_placeholderData; }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    void setPlaceholder( const QString &t );
+    QString realPlaceholder() const { return QString::fromUtf8( data( DPlaceholder ).toByteArray() ); }
 
 public slots:
     virtual void setReadOnly( bool b );
-    void setPlaceholder( const QString &t );
-    QString placeholder() const { return data( DPlaceholder ).toString(); }
 
 protected:
     virtual void initWidget();
@@ -53,7 +54,8 @@ protected:
     virtual void saveItemData( QDataStream &out, int version );
     virtual void squeeze();
     virtual void parseData( const PHIDataParser &parser );
-    virtual void createTmpData( const PHIDataParser &parser);
+    virtual void createTmpData( const PHIDataParser &parser );
+    void genHtml( const QByteArray &type, const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
 private:
     PHITextData _placeholderData;
@@ -73,6 +75,7 @@ public:
     virtual QString description() const { return tr( "Line edit with input type <email>" ); }
     virtual PHIWID wid() const { return Email; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
 private:
     virtual void initWidget();
@@ -92,6 +95,7 @@ public:
     virtual QString description() const { return tr( "Line edit with input type <phone>" ); }
     virtual PHIWID wid() const { return Phone; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
 private:
     virtual void initWidget();
@@ -138,6 +142,7 @@ public:
     virtual QString description() const { return tr( "Line edit with input type <password>" ); }
     virtual PHIWID wid() const { return Password; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/password" ) ); }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
 private:
     virtual void initWidget();

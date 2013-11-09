@@ -26,6 +26,7 @@
 class PHIRequest;
 class PHIBasePage;
 class PHIBaseItem;
+class QTransform;
 
 class PHIDataParser
 {
@@ -42,6 +43,8 @@ public:
     QByteArray createTmpImage( const QImage &img, const QByteArray &lang=PHIData::c(), int i=0 ) const;
     inline void setCurrentItem( const PHIBaseItem *it ) const { _currentItem=it; }
     inline const PHIRequest* request() const { return _req; }
+
+    static QByteArray createTransformedImageId( const PHIRequest *req, const PHIBaseItem *it, int i, QRectF &br );
 
 protected:
     enum Type { Header, Cookie, Post, Get, Request, Server, All };

@@ -21,6 +21,7 @@
 #include <QProcess>
 #include <QSqlError>
 #include <QCryptographicHash>
+#include <QTransform>
 #include "phidataparser.h"
 #include "phibasepage.h"
 #include "phibaseitem.h"
@@ -362,6 +363,7 @@ QByteArray PHIDataParser::matchedLangForResolvedFilename( const QString &filenam
 void PHIDataParser::cacheImageFile( PHIImageData *data, const QString &filename ) const
 {
     PHIImageData res;
+    res.setOption( PHIData::UseFilePath );
     res.setSource( PHIData::File );
     res.setFileName( filename );
     *data=res;
@@ -370,6 +372,7 @@ void PHIDataParser::cacheImageFile( PHIImageData *data, const QString &filename 
 void PHIDataParser::cacheImageFiles( PHIImageBookData *data, const QStringList &filenames ) const
 {
     PHIImageBookData res;
+    res.setOption( PHIData::UseFilePath );
     res.setSource( PHIData::File );
     res.setFileNames( filenames );
     *data=res;
@@ -544,6 +547,7 @@ QByteArray PHIDataParser::imagePath( PHIImageData *data ) const
             saveImage( loadImageFromFile( data->fileName(), matchedLang ), id );
             return id;
         } else {
+            data->setOption( PHIData::UseFilePath );
             QByteArray matchedLang;
             return resolveImageFile( data->fileName(), matchedLang );
         }
@@ -636,6 +640,7 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
             }
             return ids;
         } else {
+            data->setOption( PHIData::UseFilePath );
             QString fn;
             foreach( fn, data->fileNames() ) {
                 id=resolveImageFile( fn, matchedLang );
@@ -679,7 +684,7 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
 
 QByteArray PHIDataParser::createImageId( const QByteArray &name, const QByteArray &lang, int num ) const
 {
-    QByteArray arr=name+QByteArray::number( num )+lang+_req->canonicalFilename().toUtf8();
+    QByteArray arr=name+QByteArray::number( num )+lang+_req->url().toEncoded();
     arr=QCryptographicHash::hash( arr, QCryptographicHash::Md5 ).toHex();
     arr.squeeze(); // will be stored in memory so free space
     return arr;
@@ -692,6 +697,55 @@ QByteArray PHIDataParser::createTmpImage( const QImage &img, const QByteArray &l
     qDebug() << "createTmpImage" << id << _currentItem->id();
     saveImage( img, id );
     return id;
+}
+
+// static
+QByteArray PHIDataParser::createTransformedImageId( const PHIRequest *req, const PHIBaseItem *it, int num, QRectF &br )
+{
+    QTransform t=it->computeTransformation();
+    QByteArray arr;
+    if ( Q_UNLIKELY( it->flags() & PHIBaseItem::FDoNotCache ) ) {
+        arr=PHIImageCache::instance()->createUid( req ); // don't cache
+    } else {
+        arr=it->id()+QByteArray::number( num )+req->currentLangByteArray()+QByteArray::number( t.determinant() )
+        +QByteArray::number( it->hasGraphicEffect() ? 1 : 0 )+req->url().toEncoded();
+        arr=QCryptographicHash::hash( arr, QCryptographicHash::Md5 ).toHex();
+    }
+    if ( QFileInfo( req->imgDir()+QLatin1Char( '/')+QString::fromUtf8( arr )+SL( ".png" ) ).exists() ) {
+        qDebug() << "found cached transformed image for" << it->id();
+        return arr;
+    }
+    QString fn;
+    if ( it->hasImages() ) {
+        PHIByteArrayList imgIds=it->imagePathes();
+        if ( Q_UNLIKELY( num>=imgIds.count() ) ) {
+            req->responseRec()->log( PHILOGERR, PHIRC_OBJ_ACCESS_ERROR,
+                tr( "Could not resolve image path for item '%1'." ).arg( it->name() ) );
+            return QByteArray();
+        }
+        fn=QString::fromUtf8( imgIds.at( num ) );
+    } else fn=QString::fromUtf8( it->imagePath() );
+    if ( it->flags() & PHIBaseItem::FUseFilePath ) {
+        if ( fn.startsWith( QLatin1Char( '/' ) ) ) {
+            fn=req->documentRoot()+fn;
+        } else {
+            fn=QFileInfo( req->canonicalFilename() ).absolutePath()+QLatin1Char( '/' )+fn;
+        }
+    } else fn=req->imgDir()+QLatin1Char( '/' )+fn+SL( ".png" );
+    QImage img( fn );
+    if ( Q_UNLIKELY( img.isNull() ) ) {
+        req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
+            tr( "Could not load image '%1' for item '%2'." ).arg( fn ).arg( it->name() ) );
+        return QByteArray();
+    }
+    if ( it->hasGraphicEffect() ) {
+        switch ( it->effect()->graphicsType() ) {
+        default:;
+        }
+    }
+    QRectF r=t.mapRect( it->adjustedRect() );
+    qDebug() << r;
+    return arr;
 }
 
 void PHIDataParser::saveImage( const QImage &img, const QByteArray &id ) const

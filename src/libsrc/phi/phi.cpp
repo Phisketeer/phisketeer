@@ -75,7 +75,7 @@ QString PHI::tag( const QString &tag, const QString &msg )
 {
     // note: QRegExp is too slow!!
     QString startTag( QLatin1Char( '<' )+tag+QLatin1Char( '>' ) );
-    QString endTag( QLatin1String( "</" )+tag+QLatin1Char( '>' ) );
+    QString endTag( L1( "</" )+tag+QLatin1Char( '>' ) );
     qint32 start( msg.indexOf( startTag ) );
     if ( start==-1 ) return msg;
     qint32 end( msg.lastIndexOf( endTag ) );
@@ -88,7 +88,7 @@ QString PHI::createPngUuid()
     QString id=QUuid::createUuid().toString();
     id.remove( 0, 1 );
     id.chop( 1 );
-    id+=QLatin1String( ".png" );
+    id+=L1( ".png" );
     return id;
 }
 
@@ -218,21 +218,21 @@ void PHI::getItemCheckData( QString &data, QString &opt, bool &isChecked )
             end=data.indexOf( QLatin1Char( ']' ), startsel );
             if ( end>0 ) {
                 QString selected=data.mid( startsel+1, end-startsel-1 ).toLower();
-                if ( selected.toInt() || selected==QLatin1String( "true" ) ) isChecked=true;
+                if ( selected.toInt() || selected==L1( "true" ) ) isChecked=true;
             }
         }
         data.truncate( start );
     }
 }
 
-QImage PHI::bluredImage( const QImage &img, qreal radius )
+QImage PHI::bluredImage( const QImage &img, qreal radius, QRect &br )
 {
     if ( radius <=1. ) return img;
     QPixmapBlurFilter f;
     f.setRadius( radius );
     f.setBlurHints( QGraphicsBlurEffect::QualityHint );
-    QRect r=f.boundingRectFor( img.rect() ).toAlignedRect();
-    QImage dest=QImage( r.width(), r.height(), QImage::Format_ARGB32_Premultiplied );
+    br=f.boundingRectFor( img.rect() ).toAlignedRect();
+    QImage dest=QImage( br.width(), br.height(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
     QPainter p( &dest );
     f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
@@ -241,15 +241,15 @@ QImage PHI::bluredImage( const QImage &img, qreal radius )
 }
 
 QImage PHI::dropShadowedImage( const QImage &img, const QColor &color, qreal radius,
-    qreal xOff, qreal yOff )
+    qreal xOff, qreal yOff, QRect &br )
 {
     if ( radius <=1. ) return img;
     QPixmapDropShadowFilter f;
     f.setBlurRadius( radius );
     f.setColor( color );
     f.setOffset( xOff, yOff );
-    QRect r=f.boundingRectFor( img.rect() ).toAlignedRect();
-    QImage dest=QImage( r.width(), r.height(), QImage::Format_ARGB32_Premultiplied );
+    br=f.boundingRectFor( img.rect() ).toAlignedRect();
+    QImage dest=QImage( br.width(), br.height(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
     QPainter p( &dest );
     f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
@@ -257,13 +257,13 @@ QImage PHI::dropShadowedImage( const QImage &img, const QColor &color, qreal rad
     return dest;
 }
 
-QImage PHI::colorizedImage( const QImage &img, const QColor &c, qreal strength )
+QImage PHI::colorizedImage( const QImage &img, const QColor &c, qreal strength, QRect &br )
 {
     QPixmapColorizeFilter f;
     f.setColor( c );
     f.setStrength( strength );
-    QRect r=f.boundingRectFor( img.rect() ).toAlignedRect();
-    QImage dest=QImage( r.width(), r.height(), QImage::Format_ARGB32_Premultiplied );
+    br=f.boundingRectFor( img.rect() ).toAlignedRect();
+    QImage dest=QImage( br.width(), br.height(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
     QPainter p( &dest );
     f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
@@ -337,23 +337,19 @@ void PHI::grayscale( const QImage &image, QImage &dest, const QRect& rect )
 }
 */
 
-QImage PHI::reflectedImage( const QImage &img, qreal off, qreal size )
+QImage PHI::reflectedImage( const QImage &img, qreal off, qreal size, QRect &br )
 {
     if ( img.isNull() ) return img;
-    QImage newimg( img.width(), qMax( img.height(), img.height()+static_cast<int>(size+off) ),
-        QImage::Format_ARGB32_Premultiplied );
+    br=QRect( 0, 0, img.width(), qMax( img.height(), img.height()+qRound(size+off) ) );
+    QImage newimg( br.width(), br.height(), QImage::Format_ARGB32_Premultiplied );
     QPainter pixPainter;
     pixPainter.begin( &newimg );
-
-    pixPainter.setRenderHints( QPainter::Antialiasing
-        | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing );
+    pixPainter.setRenderHints( QPainter::Antialiasing | QPainter::SmoothPixmapTransform );
     pixPainter.setCompositionMode( QPainter::CompositionMode_Clear );
     pixPainter.fillRect( 0., 0., img.width(), newimg.height()+1, Qt::transparent );
     pixPainter.setCompositionMode( QPainter::CompositionMode_SourceOver );
     pixPainter.drawImage( 0, 0, img );
-
     //pixPainter.drawRect( brect );
-
     QTransform t;
     t.rotate( 180., Qt::XAxis );
     t.translate( 0., static_cast<qreal>(-img.height())*2.-off );
@@ -507,37 +503,37 @@ QByteArray PHI::toEasingCurveByteArray( quint8 ease )
 
 QEasingCurve::Type PHI::toEasingCurveType( const QString &name )
 {
-    if ( name==QLatin1String( "linear" ) ) return QEasingCurve::Linear;
-    if ( name==QLatin1String( "easeInQuad" ) ) return QEasingCurve::InQuad;
-    if ( name==QLatin1String( "easeOutQuad" ) ) return QEasingCurve::OutQuad;
-    if ( name==QLatin1String( "easeInOutQuad" ) ) return QEasingCurve::InOutQuad;
-    if ( name==QLatin1String( "easeInCubic" ) ) return QEasingCurve::InCubic;
-    if ( name==QLatin1String( "easeOutCubic" ) ) return QEasingCurve::OutCubic;
-    if ( name==QLatin1String( "easeInOutCubic" ) ) return QEasingCurve::InOutCubic;
-    if ( name==QLatin1String( "easeInQuart" ) ) return QEasingCurve::InQuart;
-    if ( name==QLatin1String( "easeOutQuart" ) ) return QEasingCurve::OutQuart;
-    if ( name==QLatin1String( "easeInOutQuart" ) ) return QEasingCurve::InOutQuart;
-    if ( name==QLatin1String( "easeInQuint" ) ) return QEasingCurve::InQuint;
-    if ( name==QLatin1String( "easeOutQuint" ) ) return QEasingCurve::OutQuint;
-    if ( name==QLatin1String( "easeInOutQuint" ) ) return QEasingCurve::InOutQuint;
-    if ( name==QLatin1String( "easeInSine" ) ) return QEasingCurve::InSine;
-    if ( name==QLatin1String( "easeOutSine" ) ) return QEasingCurve::OutSine;
-    if ( name==QLatin1String( "easeInOutSine" ) ) return QEasingCurve::InOutSine;
-    if ( name==QLatin1String( "easeInExpo" ) ) return QEasingCurve::InExpo;
-    if ( name==QLatin1String( "easeOutExpo" ) ) return QEasingCurve::OutExpo;
-    if ( name==QLatin1String( "easeInOutExpo" ) ) return QEasingCurve::InOutExpo;
-    if ( name==QLatin1String( "easeInCirc" ) ) return QEasingCurve::InCirc;
-    if ( name==QLatin1String( "easeOutCirc" ) ) return QEasingCurve::OutCirc;
-    if ( name==QLatin1String( "easeInOutCirc" ) ) return QEasingCurve::InOutCirc;
-    if ( name==QLatin1String( "easeInElastic" ) ) return QEasingCurve::InElastic;
-    if ( name==QLatin1String( "easeOutElastic" ) ) return QEasingCurve::OutElastic;
-    if ( name==QLatin1String( "easeInOutElastic" ) ) return QEasingCurve::InOutElastic;
-    if ( name==QLatin1String( "easeInBack" ) ) return QEasingCurve::InBack;
-    if ( name==QLatin1String( "easeOutBack" ) ) return QEasingCurve::OutBack;
-    if ( name==QLatin1String( "easeInOutBack" ) ) return QEasingCurve::InOutBack;
-    if ( name==QLatin1String( "easeInBounce" ) ) return QEasingCurve::InBounce;
-    if ( name==QLatin1String( "easeOutBounce" ) ) return QEasingCurve::OutBounce;
-    if ( name==QLatin1String( "easeInOutBounce" ) ) return QEasingCurve::InOutBounce;
+    if ( name==L1( "linear" ) ) return QEasingCurve::Linear;
+    if ( name==L1( "easeInQuad" ) ) return QEasingCurve::InQuad;
+    if ( name==L1( "easeOutQuad" ) ) return QEasingCurve::OutQuad;
+    if ( name==L1( "easeInOutQuad" ) ) return QEasingCurve::InOutQuad;
+    if ( name==L1( "easeInCubic" ) ) return QEasingCurve::InCubic;
+    if ( name==L1( "easeOutCubic" ) ) return QEasingCurve::OutCubic;
+    if ( name==L1( "easeInOutCubic" ) ) return QEasingCurve::InOutCubic;
+    if ( name==L1( "easeInQuart" ) ) return QEasingCurve::InQuart;
+    if ( name==L1( "easeOutQuart" ) ) return QEasingCurve::OutQuart;
+    if ( name==L1( "easeInOutQuart" ) ) return QEasingCurve::InOutQuart;
+    if ( name==L1( "easeInQuint" ) ) return QEasingCurve::InQuint;
+    if ( name==L1( "easeOutQuint" ) ) return QEasingCurve::OutQuint;
+    if ( name==L1( "easeInOutQuint" ) ) return QEasingCurve::InOutQuint;
+    if ( name==L1( "easeInSine" ) ) return QEasingCurve::InSine;
+    if ( name==L1( "easeOutSine" ) ) return QEasingCurve::OutSine;
+    if ( name==L1( "easeInOutSine" ) ) return QEasingCurve::InOutSine;
+    if ( name==L1( "easeInExpo" ) ) return QEasingCurve::InExpo;
+    if ( name==L1( "easeOutExpo" ) ) return QEasingCurve::OutExpo;
+    if ( name==L1( "easeInOutExpo" ) ) return QEasingCurve::InOutExpo;
+    if ( name==L1( "easeInCirc" ) ) return QEasingCurve::InCirc;
+    if ( name==L1( "easeOutCirc" ) ) return QEasingCurve::OutCirc;
+    if ( name==L1( "easeInOutCirc" ) ) return QEasingCurve::InOutCirc;
+    if ( name==L1( "easeInElastic" ) ) return QEasingCurve::InElastic;
+    if ( name==L1( "easeOutElastic" ) ) return QEasingCurve::OutElastic;
+    if ( name==L1( "easeInOutElastic" ) ) return QEasingCurve::InOutElastic;
+    if ( name==L1( "easeInBack" ) ) return QEasingCurve::InBack;
+    if ( name==L1( "easeOutBack" ) ) return QEasingCurve::OutBack;
+    if ( name==L1( "easeInOutBack" ) ) return QEasingCurve::InOutBack;
+    if ( name==L1( "easeInBounce" ) ) return QEasingCurve::InBounce;
+    if ( name==L1( "easeOutBounce" ) ) return QEasingCurve::OutBounce;
+    if ( name==L1( "easeInOutBounce" ) ) return QEasingCurve::InOutBounce;
     return QEasingCurve::OutQuad;
 }
 

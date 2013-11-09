@@ -698,7 +698,7 @@ void PHIBaseItem::privateParseData( const PHIDataParser &parser )
     parseData( parser );
 }
 
-void PHIBaseItem::html( const PHIRequest* const req, QByteArray &out, QByteArray &jquery, const QByteArray& indent ) const
+void PHIBaseItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray& indent ) const
 {
     out+=indent+"<div";
     startCSS( req, out, jquery );
@@ -707,25 +707,29 @@ void PHIBaseItem::html( const PHIRequest* const req, QByteArray &out, QByteArray
 
 void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) const
 {
-    const QRectF r=boundingRect();
     out+='#'+_id+BL( " {position:absolute;left:" )
-        +QByteArray::number(static_cast<int>(r.x()+_x))+BL( "px;top:" )
-        +QByteArray::number(static_cast<int>(r.y()+_y))+BL( "px;width:" )
-        +QByteArray::number(static_cast<int>(r.width()))+BL( "px;height:" )
-        +QByteArray::number(static_cast<int>(r.height()))+BL( "px;z-index:" )
-        +QByteArray::number(_zIndex)+';';
+        +QByteArray::number( qRound(_x) )+BL( "px;top:" )
+        +QByteArray::number( qRound(_y) )+BL( "px;width:" )
+        +QByteArray::number( qRound(_width) )+BL( "px;height:" )
+        +QByteArray::number( qRound(_height) )+BL( "px;z-index:" )
+        +QByteArray::number( _zIndex )+';';
     staticCSS( req, out );
     out+=BL( "}\n" );
-    if ( Q_UNLIKELY( _variants.value( DStyleSheet ).isValid() ) ) {
-        QByteArray el=_variants.value( DStyleSheet ).toByteArray().simplified();
-        PHIByteArrayList list=el.split( '}' );
-        if ( list.count()==1 ) {
-            if ( el.contains( '{' ) ) out+='#'+_id+' '+el+'\n';
-            else out+='#'+_id+BL( " {" )+el+BL( "}\n" );
-        } else {
-            foreach( el, list ) {
-                out+='#'+_id+' '+el+BL( "}\n" );
-            }
+    if ( _flags & FUseStyleSheet && !(_dirtyFlags & DFStyleSheetData) ) {
+        genCustomStyleSheet( out );
+    }
+}
+
+void PHIBaseItem::genCustomStyleSheet( QByteArray &out ) const
+{
+    QByteArray el=_variants.value( DStyleSheet ).toByteArray().simplified();
+    PHIByteArrayList list=el.split( '}' );
+    if ( list.count()==1 ) {
+        if ( el.contains( '{' ) ) out+='#'+_id+' '+el+'\n';
+        else out+='#'+_id+BL( " {" )+el+BL( "}\n" );
+    } else {
+        foreach( el, list ) {
+            out+='#'+_id+' '+el+BL( "}\n" );
         }
     }
 }
@@ -736,13 +740,13 @@ void PHIBaseItem::staticCSS( const PHIRequest *req, QByteArray &out ) const
     Q_UNUSED( out )
 }
 
-void PHIBaseItem::startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
+void PHIBaseItem::startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool useTransform ) const
 {
     if ( realOpacity()<1. ) jquery+=BL( "$('" )+_id+BL( "').opacity(" )
         +QByteArray::number( realOpacity(), 'f', 3 )+BL( ");\n" );
     out+=BL( " id=\"" )+_id+BL( "\" style=\"" );
-    if ( hasGraphicEffect() ) addGraphicEffectCSS( req, out, jquery );
-    if ( hasTransformation() ) {
+    if ( hasGraphicEffect() ) graphicEffectCSS( req, out, jquery );
+    if ( hasTransformation() && useTransform ) {
         QTransform t=computeTransformation();
         if ( Q_LIKELY( req->agentFeatures() & PHIRequest::Transform3D ) ) {
             QByteArray prefix=req->agentPrefix();
@@ -760,20 +764,29 @@ void PHIBaseItem::startCSS( const PHIRequest *req, QByteArray &out, QByteArray &
             if ( transformPos()!=1 ) {
                 QPointF o=transformOrigin();
                 out+=prefix+BL( "transform-origin:" )
-                    +QByteArray::number( static_cast<int>(o.x()) )+' '
-                    +QByteArray::number( static_cast<int>(o.y()) )+';';
+                    +QByteArray::number( qRound(o.x()) )+' '
+                    +QByteArray::number( qRound(o.y()) )+';';
             }
-
         } else if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
             QByteArray filter;
-            // Qt has row major ordering, MS has col major ordering so we swap m21 with m12
+            // Qt has row major ordering, MSIE has col major ordering so we need to swap m21 with m12
             filter+="progid:DXImageTransform.Microsoft.Matrix(M11="+QByteArray::number( t.m11(), 'f', 3 )
                  +",M12="+QByteArray::number( t.m21(), 'f', 3 )+",M21="+QByteArray::number( t.m12(), 'f', 3 )
                  +",M22="+QByteArray::number( t.m22(), 'f', 3 )+BL( ",sizingMethod='auto expand')" );
             if ( _variants.value( DIEFilter ).isValid() ) filter+=_variants.value( DIEFilter ).toByteArray();
             _variants.insert( DIEFilter, filter );
         } else { // 2D transformation
-
+            out+=req->agentPrefix()+BL( "transform-origin:0 0;" )
+                +req->agentPrefix()+BL( ":matrix(" )+QByteArray::number( t.m11(), 'f', 3 )
+                +','+QByteArray::number( t.m12(), 'f', 3 )+','+QByteArray::number( t.m21(), 'f', 3 )
+                +','+QByteArray::number( t.m22(), 'f', 3 )+','+QByteArray::number( qRound(t.m31()) )
+                +','+QByteArray::number( qRound(t.m32()) )+BL( ");" );
+            if ( transformPos()!=1 ) {
+                QPointF o=transformOrigin();
+                out+=req->agentPrefix()+BL( "transform-origin:" )
+                    +QByteArray::number( qRound(o.x()) )+' '
+                    +QByteArray::number( qRound(o.y()) )+';';
+            }
         }
     }
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
@@ -781,9 +794,10 @@ void PHIBaseItem::startCSS( const PHIRequest *req, QByteArray &out, QByteArray &
             out+=BL( "filter:" )+_variants.value( DIEFilter ).toByteArray()+';';
         }
     }
+    if ( Q_UNLIKELY( _dirtyFlags & DFStyleSheetData ) ) genCustomStyleSheet( out );
 }
 
-void PHIBaseItem::addGraphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
+void PHIBaseItem::graphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
 {
     if ( _effect->graphicsType()==PHIEffect::GTShadow ) {
         if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
@@ -793,7 +807,7 @@ void PHIBaseItem::addGraphicEffectCSS( const PHIRequest *req, QByteArray &out, Q
             _effect->shadow( c, xOff, yOff, radius );
             filter+="progid:DXImageTransform.Microsoft.DropShadow(Color='#";
             filter+=QByteArray::number( c.rgba(), 16 )+"',OffX="+QByteArray::number( xOff );
-            filter+=",OffY="+QByteArray::number( yOff )+")";
+            filter+=",OffY="+QByteArray::number( yOff )+')';
             if ( xOff<0 ) jquery+=BL( "$('" )+_id+BL( "').x(" )
                 +QByteArray::number( qRound(_x+xOff) )+BL( ");\n" );
             if ( yOff<0 ) jquery+=BL( "$('" )+_id+BL( "').y(" )
@@ -805,7 +819,12 @@ void PHIBaseItem::addGraphicEffectCSS( const PHIRequest *req, QByteArray &out, Q
             if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
             else if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()>534 ) prefix=QByteArray();
             else if ( req->agentEngine()==PHIRequest::Presto ) prefix=QByteArray();
-
+            QColor c;
+            qreal xOff, yOff, radius;
+            _effect->shadow( c, xOff, yOff, radius );
+            out+=prefix+BL( "box-shadow:" )+QByteArray::number( qRound(xOff) )+"px ";
+            out+=QByteArray::number( qRound(yOff) )+"px ";
+            out+=QByteArray::number( qRound(radius) )+"px "+rgba( c )+';';
         }
     } else if ( _effect->graphicsType()==PHIEffect::GTBlur ) {
         if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
@@ -917,6 +936,12 @@ QRadialGradient PHIBaseItem::radialGradient() const
     return g;
 }
 
+void PHIBaseItem::genLinearGradient( const PHIRequest *req, QByteArray &out ) const
+{
+    QLinearGradient g=linearGradient();
+
+}
+
 void PHIBaseItem::updateEffect()
 {
     if ( !_gw ) return;
@@ -965,8 +990,7 @@ void PHIBaseItem::updateEffect()
 
 QImage PHIBaseItem::createImage()
 {
-    QImage img( static_cast<int>(boundingRect().width()),
-        static_cast<int>(boundingRect().height()), QImage::Format_ARGB32_Premultiplied );
+    QImage img( qRound(boundingRect().width()), qRound(boundingRect().height()), QImage::Format_ARGB32_Premultiplied );
     img.fill( 0 );
     QPainter p( &img );
     QPointF off=boundingRect().topLeft();
@@ -974,11 +998,6 @@ QImage PHIBaseItem::createImage()
     paint( &p, QRectF() );
     p.end();
     return img;
-}
-
-QImage PHIBaseItem::createEffectImage()
-{
-    return QImage();
 }
 
 PHIWID PHIBaseItem::widFromMimeData( const QMimeData *md )

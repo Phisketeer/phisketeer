@@ -25,7 +25,7 @@
 #include "phidatasources.h"
 #include "phibasepage.h"
 #include "phidataparser.h"
-#include "phi.h"
+#include "phirequest.h"
 
 void PHILineEditItem::initWidget()
 {
@@ -102,11 +102,38 @@ void PHILineEditItem::createTmpData( const PHIDataParser &parser )
 void PHILineEditItem::parseData( const PHIDataParser &parser )
 {
     PHIAbstractInputItem::parseData( parser );
-    if ( dirtyFlags() & DFPlaceholder ) setPlaceholder( parser.text( &_placeholderData ).toString() );
+    if ( dirtyFlags() & DFPlaceholder ) setData( DPlaceholder, parser.text( &_placeholderData ) );
+    switch ( parser.request()->agentEngine() ) {
+    case PHIRequest::WebKit: setAdjustedRect( QRectF( 0, 0, realWidth()-6, realHeight()-6 ) ); break;
+    //case PHIRequest::Trident: setAdjustedRect( QRectF( 0, 0, 0, -6 ) ); break;
+    //case PHIRequest::Gecko: setAdjustedRect( QRectF( 0, 0, 0, 0 ) ); break;
+    //case PHIRequest::Presto: setAdjustedRect( QRectF( 0, 0, 0, 0 ) ); break;
+    //default: setAdjustedRect( QRectF( 0, 0, 0, 0 ) );
+    }
+}
+
+void PHILineEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+{
+    genHtml( BL( "text" ), req, out, jquery, indent );
+}
+
+void PHILineEditItem::genHtml( const QByteArray &type, const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+{
+    out+=indent+BL( "<input type=\"" )+type+BL( "\" name=\"" )+id()+'"';
+    QByteArray arr=data( DText ).toByteArray();
+    if ( !arr.isEmpty() ) out+=BL( " value=\"" )+arr+'"';
+    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::HTML5 ) ) {
+        arr=data( DPlaceholder ).toByteArray();
+        if ( !arr.isEmpty() ) out+=BL( " placeholder=\"" )+arr+'"';
+    }
+    startCSS( req, out, jquery );
+    out+=BL( "\">\n" );
+    genAdjustedSize( jquery );
 }
 
 void PHILineEditItem::setPlaceholder( const QString &t )
 {
+    setData( DPlaceholder, t.toUtf8() );
     QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
     if ( !edit ) return;
     edit->setPlaceholderText( t );
@@ -119,11 +146,25 @@ void PHIPhoneItem::initWidget()
     edit->setValidator( new QRegExpValidator( QRegExp( QString::fromLatin1( PHI::phoneNumberRegExp() ) ), edit ) );
 }
 
+void PHIPhoneItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+{
+    QByteArray arr=BL( "text" );
+    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::HTML5 ) ) arr=BL( "tel" );
+    genHtml( arr, req, out, jquery, indent );
+}
+
 void PHIEmailItem::initWidget()
 {
     QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
     Q_ASSERT( edit );
     edit->setValidator( new QRegExpValidator( QRegExp( QString::fromLatin1( PHI::emailRegExp() ) ), edit ) );
+}
+
+void PHIEmailItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+{
+    QByteArray arr=BL( "text" );
+    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::HTML5 ) ) arr=BL( "email" );
+    genHtml( arr, req, out, jquery, indent );
 }
 
 void PHITextAreaItem::initWidget()
@@ -249,6 +290,11 @@ void PHIPasswordItem::initWidget()
     QLineEdit *pwd=qobject_cast<QLineEdit*>(widget());
     Q_ASSERT( pwd );
     pwd->setEchoMode( QLineEdit::PasswordEchoOnEdit );
+}
+
+void PHIPasswordItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+{
+    genHtml( BL( "password" ), req, out, jquery, indent );
 }
 
 void PHISubmitButtonItem::initWidget()

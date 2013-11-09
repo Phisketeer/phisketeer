@@ -165,14 +165,16 @@ public:
     virtual QString description() const { return tr( "Displays the 'powered by' logo." ); }
     virtual PHIWID wid() const { return Sponsor; }
     virtual QPixmap pixmap() const { return QPixmap(); }
-    inline virtual bool isHeightChangeable() const { return false; }
-    inline virtual bool isWidthChangeable() const { return false; }
-    inline virtual bool isPrivateItem() const { return true; }
+    virtual bool isHeightChangeable() const { return false; }
+    virtual bool isWidthChangeable() const { return false; }
+    virtual bool isPrivateItem() const { return true; }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
 protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual void squeeze();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void createTmpData( const PHIDataParser &parser );
 
 private:
     QImage _image;

@@ -356,6 +356,7 @@ const QString& PHIRequest::userAgent() const
     static QString opera=L1( "Opera" );
     static QString sea=L1( "SeaMonkey" );
     static QString amph=L1( "Amphibia" );
+    static QString unknown=L1( "Unknown" );
 
     switch( _agentId ) {
     case IE: return msie;
@@ -368,7 +369,7 @@ const QString& PHIRequest::userAgent() const
     case Amphibia: return amph;
     default:;
     }
-    return SL( "Unknown" );
+    return unknown;
 }
 
 // @todo: make them static

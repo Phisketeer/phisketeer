@@ -39,7 +39,7 @@ public:
         Boolean=8, StringList=9 }; //quint8
     enum Source { Undefined=0, Static=1, Translated=2, Database=3, File=4, Url=5, Process=6, Library=7 }; // quint8
     enum Option { None=0x0, Parse=0x1, FileName=Parse, NoCache=0x2, DontSaveImage=0x4,
-        TmpObjCreated=0x8 /* used in server */ }; // quint8
+        /* used in server: */ TmpObjCreated=0x8, UseFilePath=0x10  }; // quint8
 
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Options, Option )

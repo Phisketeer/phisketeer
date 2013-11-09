@@ -77,13 +77,13 @@ class PHIEXPORT PHIBaseItem : public QObject
     //Q_PROPERTY( qreal width READ width WRITE setWidth )
     //Q_PROPERTY( qreal height READ height WRITE setHeight )
     //Q_PROPERTY( qint16 tabIndex READ tabIndex WRITE setTabIndex NOTIFY tabIndexChanged )
-    //Q_PROPERTY( qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged )
     //Q_PROPERTY( QString title READ title WRITE setTitle NOTIFY titleChanged )
     //Q_PROPERTY( qint16 zIndex READ zIndex WRITE setZIndex NOTIFY zIndexChanged )
     //Q_PROPERTY( QPointF pos READ pos WRITE setPos )
     //Q_PROPERTY( quint8 transformPos READ transformPos WRITE setTransformPos )
     //Q_PROPERTY( QPointF transformOrigin READ transformOrigin WRITE setTransformOrigin )
     Q_PROPERTY( QFont _font READ font WRITE setFont SCRIPTABLE false )
+    Q_PROPERTY( qreal _opacity READ realOpacity WRITE setOpacity SCRIPTABLE false )
 
 public:
     enum Wid { Unknown=0, User=1000 };
@@ -93,16 +93,16 @@ public:
         DGradientType=-23, DGradientStartPoint=-24, DGradientStopPoints=-25,
         DGradientFinalStopPoint=-26, DGradientSpreadType=-27, DGradientAngle=-28,
         DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31,
-        DImagePath=-32, DImagePathes=-33, DIEFilter=-34, DAdjustPos=-35,
-        DAdjustSize=-36 };
+        DImagePath=-32, DImagePathes=-33, DIEFilter=-34, DAdjustedRect=-35 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
-        FStoreDisabledData=0x200 }; //quint32
+        FStoreDisabledData=0x200, FUseFilePath=0x400 }; //quint32
     enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
         DFEffect=0x8, DFPos=0x10, DFSize=0x20, DFText=0x40, DFTransform=0x80,
         DFInt1=0x100, DFInt2=0x200, DFReadOnlyData=0x400, DFDisabledData=0x800,
-        DFHeader=0x1000, DFPlaceholder=DFHeader }; // 0x10000 and above used for inherited
+        DFHeader=0x1000, DFPlaceholder=DFHeader, DFCustom1=0x10000, DFCustom2=0x20000,
+        DFCustom3=0x40000, DFCustom4=0x80000 };
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
     Q_DECLARE_FLAGS( DirtyFlags, DirtyFlag )
@@ -127,8 +127,8 @@ public:
 
 public: // not usable by script engine
     void setId( const QString &id );
-    inline QByteArray id() const { return _id; }
-    inline QByteArray parentId() const { return _parentId; }
+    inline const QByteArray& id() const { return _id; }
+    inline const QByteArray& parentId() const { return _parentId; }
     inline QString realParentName() const { return QString::fromLatin1( _parentId ); }
     inline void setParentName( const QString &n ) { _parentId=n.toLatin1(); }
     inline void setId( const QByteArray &id ) { setObjectName( QString::fromLatin1( id ) ); _id=id; }
@@ -146,6 +146,8 @@ public: // not usable by script engine
     inline PHIKeyHash data() { storeFlags(); return _variants; }
     inline void setData( const PHIKeyHash &data ) { _variants=data; _flags=static_cast<Flags>(_variants.value( DFlags, 0 ).value<quint32>()); }
     inline void setPos( qreal x, qreal y ) { setPos( QPointF( x, y ) ); }
+    inline QRectF adjustedRect() const { return _variants.value( DAdjustedRect, boundingRect() ).toRectF(); }
+    inline void setAdjustedRect( const QRectF &r ) const { _variants.insert( DAdjustedRect, r ); }
     void setWidth( qreal w );
     void setHeight( qreal h );
     void setPos( const QPointF &p );
@@ -174,9 +176,9 @@ public: // not usable by script engine
     inline void setTitle( const QString &t ) { _variants.insert( DTitle, t.toUtf8() ); if ( _gw ) _gw->setToolTip( t ); }
     inline void setTabIndex( qint16 tab ) { if ( tab ) _variants.insert( DTabIndex, tab ); else _variants.remove( DTabIndex ); }
     inline PHIByteArrayList imagePathes() const { return _variants.value( DImagePathes ).value<PHIByteArrayList>(); }
-    inline void setImagePathes( const PHIByteArrayList &list ) {  QVariant v; v.setValue( list ); _variants.insert( DImagePathes, v ); }
+    inline void setImagePathes( const PHIByteArrayList &list ) const {  QVariant v; v.setValue( list ); _variants.insert( DImagePathes, v ); }
     inline QByteArray imagePath() const { return _variants.value( DImagePath ).toByteArray(); }
-    inline void setImagePath( const QByteArray &path ) { _variants.insert( DImagePath, path ); }
+    inline void setImagePath( const QByteArray &path ) const { _variants.insert( DImagePath, path ); }
     inline QString styleSheet() const { return QString::fromUtf8( _variants.value( DStyleSheet ).toByteArray() ); }
     virtual void setStyleSheet( const QString &s );
 
@@ -206,6 +208,7 @@ public: // not usable by script engine
     QLinearGradient linearGradient() const;
     QConicalGradient conicalGradient() const;
     QRadialGradient radialGradient() const;
+    QTransform computeTransformation() const;
 
     void phiPaletteChanged( const PHIPalette &pal );
     void setTransformPos( quint8 pos );
@@ -215,7 +218,7 @@ public: // not usable by script engine
     void load( const QByteArray &in, int version );
     void privateUpdateData();
     void privateStaticCSS( const PHIRequest *req, QByteArray &out ) const;
-    virtual void html( const PHIRequest* const req, QByteArray &out, QByteArray &jQuery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
     QByteArray save( int version );
 
     //virtual functions
@@ -269,6 +272,7 @@ public: // not usable by script engine
     inline PHIBooleanData* visibleData() { return &_visibleData; }
     inline PHIBooleanData* disabledData() { return &_disabledData; }
 
+    static QByteArray rgba( const QColor &c );
     static PHIWID widFromMimeData( const QMimeData *md );
     static QImage imageFromMimeData( const QMimeData *md );
     static QString pathFromMimeData( const QMimeData *md );
@@ -321,7 +325,6 @@ protected:
     const PHIBasePage* page() const;
     QScriptValue self();
     QImage createImage();
-    QImage createEffectImage();
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
@@ -332,8 +335,12 @@ protected:
 
     // HTML related members
     virtual void staticCSS( const PHIRequest *req, QByteArray &out ) const;
-    void startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const; // includes id tag
-    virtual void addGraphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
+    void startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool useTransform=true ) const; // includes id tag
+    virtual void graphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
+    void imageIEFilterCSS( const QByteArray &imgId ) const;
+    void genAdjustedPos( QByteArray &jquery ) const;
+    void genAdjustedSize( QByteArray &jquery ) const;
+    void genLinearGradient( const PHIRequest *req, QByteArray &out ) const;
 
     // IDE related members
     inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
@@ -357,8 +364,8 @@ private:
     void privateParseData( const PHIDataParser &parser );
     void privateCreateTmpData( const PHIDataParser &parser );
     void loadVersion1_x( const QByteArray &arr );
+    void genCustomStyleSheet( QByteArray &out ) const;
 
-    QTransform computeTransformation() const;
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
     inline QGraphicsWidget* gw() { return _gw; }
 
@@ -495,6 +502,39 @@ inline QScriptValue PHIBaseItem::opacity( const QScriptValue &o )
     return self();
 }
 
+inline QByteArray PHIBaseItem::rgba( const QColor &c )
+{
+    QByteArray arr;
+    arr.reserve( 50 );
+    arr+=BL( "rgba(" );
+    arr+=QByteArray::number( c.red() )+','+QByteArray::number( c.green() )+','
+        +QByteArray::number( c.blue() )+','+QByteArray::number( c.alphaF(), 'f', 3 )+')';
+    return arr;
+}
+
+inline void PHIBaseItem::genAdjustedPos( QByteArray &jquery ) const
+{
+    QRectF r=adjustedRect();
+    jquery+=BL( "$('" )+id()+BL( "').pos(" )+QByteArray::number( qRound(_x+r.x()) )
+        +','+QByteArray::number( qRound(_y+r.y()) )+BL( ");\n" );
+}
+
+inline void PHIBaseItem::genAdjustedSize( QByteArray &jquery ) const
+{
+    QRectF r=adjustedRect();
+    jquery+=BL( "$('" )+id()+BL( "').width(" )+QByteArray::number( qRound(r.width()) )
+        +BL( ").height(" )+QByteArray::number( qRound(r.height()) )+BL( ");\n" );
+}
+
+inline void PHIBaseItem::imageIEFilterCSS( const QByteArray &imgId ) const
+{
+    QByteArray tmp=BL( "&t=1" );
+    if ( _flags & FUseFilePath ) tmp=QByteArray();
+    tmp=BL( "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='phi.phis?i=" )+imgId+tmp+BL( "')" );
+    if ( _variants.value( DIEFilter ).isValid() ) tmp=tmp+_variants.value( DIEFilter ).toByteArray();
+    _variants.insert( DIEFilter, tmp );
+}
+
 /*
 class PHIEXPORT PHIBaseItem : public QObject, public PHIItem
 {
@@ -591,57 +631,6 @@ protected:
     PHIEffect *_effect;
     QByteArray _pageId;
 };
-
-PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIBaseItem* );
-PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBaseItem* );
-
-class PHIBaseEffect : public QObject
-{
-    Q_OBJECT
-    Q_DISABLE_COPY( PHIBaseEffect )
-
-    Q_PROPERTY( quint8 xAxis READ xAxis )
-    Q_PROPERTY( quint8 yAxis READ yAxis )
-    Q_PROPERTY( quint8 zAxis READ zAxis )
-    Q_PROPERTY( QStringList properties READ properties )
-
-public:
-    PHIBaseEffect( PHIBaseItem* );
-    virtual ~PHIBaseEffect();
-
-    // Available by script engine
-public slots:
-    inline quint8 xAxis() const { return 0x1; }
-    inline quint8 yAxis() const { return 0x2; }
-    inline quint8 zAxis() const { return 0x4; }
-    inline QStringList properties() const { return PHI::properties( this ); }
-    inline void fadeIn( qint32 start=0, qint32 duration=1000, qreal maxOpac=1.,
-        const QString &ease=PHI::defaultEasingCurve() )
-        { _it->setFadeIn( start, duration, maxOpac, ease ); }
-    inline void fadeOut( qint32 start=0, qint32 duration=1000, qreal minOpac=0.,
-        const QString &ease=PHI::defaultEasingCurve() )
-        { _it->setFadeOut( start, duration, minOpac, ease ); }
-    void shadow( const QString &color=QString::fromLatin1( "#3F3F3F" ), qreal opac=.7, qreal xOff=8.,
-        qreal yOff=8., qreal radius=1. );
-    inline void surface( qreal yOff=0., qreal size=30. ) { _it->setSurface( yOff, size ); }
-    inline void blur( qreal radius=5. ) { _it->setBlur( radius ); }
-    inline void colorize( const QString &c=QString::fromLatin1( "#0000C0" ), qreal strength=1. ) {
-        _it->setColorize( QColor( c ), strength ); }
-    inline void moveTo( qint32 left, qint32 top, qint32 start=0, qint32 duration=1000,
-        const QString &ease=PHI::defaultEasingCurve() )
-        { _it->setMoveTo( start, duration, left, top, ease ); }
-    inline void rotateIn( quint8 axis=0x2, qint32 start=0, qint32 duration=1000,
-        const QString &ease=PHI::defaultEasingCurve() )
-        { _it->setRotateIn( axis, start, duration, ease ); }
-    inline void rotateOut( quint8 axis=0x2, qint32 start=0, qint32 duration=1000,
-        const QString &ease=PHI::defaultEasingCurve() )
-        { _it->setRotateOut( axis, start, duration, ease ); }
-    void rotate( quint8 axis=0x4, qreal step=1., const QString &ease=PHI::defaultEasingCurve() );
-    inline void clear() { _it->clearEffects(); }
-    inline void stopAnimations() { _it->stopAnimations(); }
-
-protected:
-    PHIBaseItem *_it;
-};
 */
+
 #endif // PHIBASEITEM_H

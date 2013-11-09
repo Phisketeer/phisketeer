@@ -30,6 +30,7 @@
 #include "phiitemfactory.h"
 #include "phisscriptobjects.h"
 #include "phibaseitem.h"
+#include "phiabstractitems.h"
 #include "phidataparser.h"
 #include "phisession.h"
 #include "phi.h"
@@ -290,6 +291,8 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
     quint16 wid16;
     QByteArray id, arr;
     PHIBaseItem *it;
+    PHIAbstractLayoutItem *l;
+    QList <PHIAbstractLayoutItem*> layouts;
     for ( quint16 i=0; i<itemCount; i++ ) {
         in >> id >> wid;
         if ( Q_UNLIKELY( wid==0 ) ) in >> wid16;
@@ -308,12 +311,16 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
             it->load( arr, static_cast<int>(version) );
             it->privateCreateTmpData( parser );
             if ( !it->extension().isEmpty() ) page->insertExtension( it->wid(), it->extension() );
+            l=qobject_cast<PHIAbstractLayoutItem*>(it);
+            if ( l ) layouts.append( l );
         } catch ( std::bad_alloc& ) {
             delete page;
             return 0;
         }
     }
     file.close();
+    qDebug() << "layout child count" << layouts.count();
+    foreach ( l, layouts ) l->activateLayout();
     page->genJQueryThemeFile( _req );
     genScripts(); // @todo: make static and create once at server start
     return page;
@@ -385,17 +392,17 @@ void PHISProcessor::initDb( const PHIBasePage *page )
 void PHISProcessor::genSysItem() const
 {
     QStringList list=_req->getKeys();
-    if ( list.contains( SL( "phiimg" ) ) ) return genImage();
-    else if ( list.contains( SL( "phijs" ) ) ) return genJS();
-    else if ( list.contains( SL( "phicss" ) ) ) return genCSS();
+    if ( list.contains( SL( "i" ) ) ) return genImage();
+    else if ( list.contains( SL( "j" ) ) ) return genJS();
+    else if ( list.contains( SL( "s" ) ) ) return genCSS();
     return _req->responseRec()->error( PHILOGERR, PHIRC_HTTP_NOT_FOUND,
         tr( "Could not access requested phi* system item." ) );
 }
 
 void PHISProcessor::genImage() const
 {
-    bool useTmp=_req->getKeys().contains( SL( "phitmp" ) );
-    QString imgPath=_req->getValue( SL( "phiimg" ) );
+    bool useTmp=_req->getKeys().contains( SL( "t" ) );
+    QString imgPath=_req->getValue( SL( "i" ) );
     if ( Q_UNLIKELY( !useTmp ) ) {
         imgPath=resolveRelativeFile( imgPath );
     } else {
@@ -419,7 +426,7 @@ void PHISProcessor::genImage() const
 
 void PHISProcessor::genCSS() const
 {
-    QString path=_req->getValue( SL( "phicss" ) );
+    QString path=_req->getValue( SL( "s" ) );
     path=_req->tmpDir()+L1( "/css/" )+path+L1( ".css" );
     if ( Q_UNLIKELY( !QFile::exists( path ) ) ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
@@ -442,7 +449,7 @@ void PHISProcessor::genCSS() const
 
 void PHISProcessor::genJS() const
 {
-    QString path=_req->getValue( SL( "phijs" ) );
+    QString path=_req->getValue( SL( "j" ) );
     path=_req->tmpDir()+SL( "/js/" )+path+SL( ".js" );
     if ( Q_UNLIKELY( !QFile::exists( path ) ) ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,

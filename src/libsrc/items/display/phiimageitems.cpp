@@ -20,6 +20,8 @@
 #include <QTimer>
 #include "phiimageitems.h"
 #include "phibasepage.h"
+#include "phidataparser.h"
+#include "phirequest.h"
 
 void PHIImageItem::updateImage()
 {
@@ -312,4 +314,24 @@ void PHISponsorItem::paint( QPainter *painter, const QRectF &exposed )
     Q_UNUSED( exposed )
     painter->setRenderHint( QPainter::SmoothPixmapTransform );
     painter->drawImage( 0, 0, _image );
+}
+
+void PHISponsorItem::createTmpData( const PHIDataParser &parser )
+{
+    setImagePath( parser.createTmpImage( _image ) );
+}
+
+void PHISponsorItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+{
+    Q_UNUSED( jquery )
+    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
+        out+=indent+BL( "<div style=\"filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='phi.phis?i=" )
+            +imagePath()+BL( ".png&amp;t=1');z-index:50000;left:" )
+            +QByteArray::number( qRound(realX()) )+BL( "px;top:" )
+            +QByteArray::number( qRound(realY()) )+BL( "px;\"></div>\n" );
+    } else {
+        out+=indent+BL( "<img style=\"z-index:50000;position:absolute;left:" )
+            +QByteArray::number( qRound(realX()) )+BL( "px;top:" )+QByteArray::number( qRound(realY()) )
+            +BL( "px;\" src=\"phi.phis?i=" )+imagePath()+BL( ".png&amp;t=1\">\n" );
+    }
 }

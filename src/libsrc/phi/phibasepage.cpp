@@ -407,8 +407,8 @@ void PHIBasePage::createCSSFile( const PHIRequest *req ) const
 
 static QString _phireg( const QByteArray &s ) { return SL( " [^ ]*/\\*\\{" )
     +QString::fromLatin1( s )+SL( "\\}\\*/" ); }
-static QString _phiurl( const QByteArray &s ) { return SL( " url(phi.phis?phiimg=" )
-    +QString::fromLatin1( s )+SL( "&phitmp=1)" ); }
+static QString _phiurl( const QByteArray &s ) { return SL( " url(phi.phis?i=" )
+    +QString::fromLatin1( s )+SL( "&amp;t=1)" ); }
 
 void PHIBasePage::genJQueryThemeFile( const PHIRequest *req ) const
 {
@@ -528,14 +528,14 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         out+=BL( "\t<meta name=\"description\" content=\"" )+_variants.value( DDescription ).toByteArray()+eht;
     if ( _variants.value( DKeys ).isValid() )
         out+=BL( "\t<meta name=\"keywords\" content=\"" )+_variants.value( DKeys ).toByteArray()+eht;
-    out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?phicss=" )+_id+eht;
+    out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+eht;
     if ( Q_LIKELY( !(_flags & FNoUiThemeCSS ) ) )
-        out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?phicss=" )+_id+BL( "-theme" )+eht;
+        out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+BL( "-theme" )+eht;
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )
-        out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?phijs=jqueryiefix\"></script>\n" );
-    else out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?phijs=jquery\"></script>\n" );
-    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?phijs=phibase\"></script>\n" );
-    out+=BL( "</head>\n<body>\n<div id=\"phihtml\" class=\"phicontent\">" );
+        out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jqueryiefix\"></script>\n" );
+    else out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jquery\"></script>\n" );
+    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=phibase\"></script>\n" );
+    out+=BL( "</head>\n<body>\n<div id=\"phihtml\" class=\"phicontent\">\n" );
     QByteArray jquery, indent="\t";
     jquery.reserve( 4*1024 );
     const PHIBaseItem *it;

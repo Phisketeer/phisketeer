@@ -84,7 +84,8 @@ SOURCES += phi.cpp \
     phinetmanager.cpp \
     phidataparser.cpp \
     phiimagecache.cpp \
-    phisession.cpp
+    phisession.cpp \
+    phiabstractitemshtml.cpp
 FORMS += colorconfig.ui \
     layoutconfig.ui
 
