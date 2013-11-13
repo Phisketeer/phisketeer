@@ -225,45 +225,68 @@ void PHI::getItemCheckData( QString &data, QString &opt, bool &isChecked )
     }
 }
 
-QImage PHI::bluredImage( const QImage &img, qreal radius, QRect &br )
+QImage PHI::bluredImage( const QImage &img, qreal radius, QRectF &br )
 {
-    if ( radius <=1. ) return img;
     QPixmapBlurFilter f;
     f.setRadius( radius );
-    f.setBlurHints( QGraphicsBlurEffect::QualityHint );
-    br=f.boundingRectFor( img.rect() ).toAlignedRect();
-    QImage dest=QImage( br.width(), br.height(), QImage::Format_ARGB32_Premultiplied );
+    f.setBlurHints( QGraphicsBlurEffect::AnimationHint );
+    QRectF r=f.boundingRectFor( img.rect() );
+    br.setX( br.x()+r.x()+1 );
+    br.setY( br.y()+r.y()+1 );
+    br.setWidth( r.width()-3 );
+    br.setHeight( r.height()-3 );
+
+    QPixmap pix( r.width()-3, r.height()-3 );
+    pix.fill( Qt::transparent );
+    QPainter p( &pix );
+    p.drawImage( -r.x()-1, -r.y()-1, img );
+    p.end();
+
+    QImage dest( pix.size(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
-    QPainter p( &dest );
-    f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
+    p.begin( &dest );
+    f.draw( &p, QPointF(), pix );
+    //p.setPen( QPen( Qt::DotLine ) );
+    //p.drawRect( 0, 0, dest.width()-1, dest.height()-1 );
     p.end();
     return dest;
 }
 
 QImage PHI::dropShadowedImage( const QImage &img, const QColor &color, qreal radius,
-    qreal xOff, qreal yOff, QRect &br )
+    qreal xOff, qreal yOff, QRectF &br )
 {
-    if ( radius <=1. ) return img;
     QPixmapDropShadowFilter f;
-    f.setBlurRadius( radius );
+    f.setBlurRadius( radius*2. );
     f.setColor( color );
     f.setOffset( xOff, yOff );
-    br=f.boundingRectFor( img.rect() ).toAlignedRect();
-    QImage dest=QImage( br.width(), br.height(), QImage::Format_ARGB32_Premultiplied );
+    QRectF r=f.boundingRectFor( img.rect() );
+    if ( r.x()<0 ) br.setX( br.x()+r.x()+1 );
+    if ( r.y()<0 ) br.setY( br.y()+r.y()+1 );
+    br.setWidth( r.width()-1 );
+    br.setHeight( r.height()-1 );
+
+    QPixmap pix( r.width()-1, r.height()-1 );
+    pix.fill( Qt::transparent );
+    QPainter p( &pix );
+    p.drawImage( r.x()<0 ? -r.x()-1 : r.x(), r.y()<0 ? -r.y()-1 : r.y(), img );
+    p.end();
+
+    QImage dest( pix.size(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
-    QPainter p( &dest );
-    f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
+    p.begin( &dest );
+    f.draw( &p, QPointF(), pix );
+    //p.setPen( QPen( Qt::DotLine ) );
+    //p.drawRect( 0, 0, dest.width()-1, dest.height()-1 );
     p.end();
     return dest;
 }
 
-QImage PHI::colorizedImage( const QImage &img, const QColor &c, qreal strength, QRect &br )
+QImage PHI::colorizedImage( const QImage &img, const QColor &c, qreal strength, QRectF &br )
 {
     QPixmapColorizeFilter f;
     f.setColor( c );
     f.setStrength( strength );
-    br=f.boundingRectFor( img.rect() ).toAlignedRect();
-    QImage dest=QImage( br.width(), br.height(), QImage::Format_ARGB32_Premultiplied );
+    QImage dest( br.size().toSize(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
     QPainter p( &dest );
     f.draw( &p, QPointF(), QPixmap::fromImage( img ) );
@@ -289,7 +312,7 @@ QPixmap PHI::dropShadowedPixmap( const QPixmap &src, const QPointF &off, const Q
 {
     QPixmapDropShadowFilter f;
     f.setOffset( off );
-    f.setBlurRadius( radius );
+    f.setBlurRadius( radius*2. );
     f.setColor( c );
     QRect r=f.boundingRectFor( QRectF( QPointF(), QSize( src.width(), src.height() ) ) ).toAlignedRect();
     QPixmap dest( r.width(), r.height() );
@@ -300,76 +323,34 @@ QPixmap PHI::dropShadowedPixmap( const QPixmap &src, const QPointF &off, const Q
     return dest;
 }
 
-/*
-void PHI::grayscale( const QImage &image, QImage &dest, const QRect& rect )
-{
-    //qDebug() << image.width() << image.height() << dest.width() << dest.height() << image.format();
-    QRect destRect = rect;
-    QRect srcRect = rect;
-    if ( rect.isNull() ) {
-        srcRect = dest.rect();
-        destRect = dest.rect();
-    }
-    if ( &image!=&dest ) destRect.moveTo( QPoint(0, 0) );
-
-    unsigned int *data = (unsigned int*)image.bits();
-    unsigned int *outData = (unsigned int*)dest.bits();
-
-    if (dest.size() == image.size() && image.rect() == srcRect) {
-        // a bit faster loop for grayscaling everything
-        int pixels = dest.width() * dest.height();
-        for (int i = 0; i < pixels; ++i) {
-            int val = qGray(data[i]);
-            outData[i] = qRgba(val, val, val, qAlpha(data[i]));
-        }
-    } else {
-        int yd = destRect.top();
-        for (int y = srcRect.top(); y <= srcRect.bottom() && y < image.height(); y++) {
-            data = (unsigned int*)image.scanLine(y);
-            outData = (unsigned int*)dest.scanLine(yd++);
-            int xd = destRect.left();
-            for (int x = srcRect.left(); x <= srcRect.right() && x < image.width(); x++) {
-                int val = qGray(data[x]);
-                outData[xd++] = qRgba(val, val, val, qAlpha(data[x]));
-            }
-        }
-    }
-}
-*/
-
-QImage PHI::reflectedImage( const QImage &img, qreal off, qreal size, QRect &br )
+QImage PHI::reflectedImage( const QImage &img, qreal off, qreal size, QRectF &br )
 {
     if ( img.isNull() ) return img;
-    br=QRect( 0, 0, img.width(), qMax( img.height(), img.height()+qRound(size+off) ) );
-    QImage newimg( br.width(), br.height(), QImage::Format_ARGB32_Premultiplied );
-    QPainter pixPainter;
-    pixPainter.begin( &newimg );
-    pixPainter.setRenderHints( QPainter::Antialiasing | QPainter::SmoothPixmapTransform );
-    pixPainter.setCompositionMode( QPainter::CompositionMode_Clear );
-    pixPainter.fillRect( 0., 0., img.width(), newimg.height()+1, Qt::transparent );
-    pixPainter.setCompositionMode( QPainter::CompositionMode_SourceOver );
-    pixPainter.drawImage( 0, 0, img );
-    //pixPainter.drawRect( brect );
-    QTransform t;
-    t.rotate( 180., Qt::XAxis );
-    t.translate( 0., static_cast<qreal>(-img.height())*2.-off );
-    pixPainter.setTransform( t );
-    pixPainter.drawImage( 0, 1, img );
-    pixPainter.resetTransform();
-    pixPainter.translate( 0., static_cast<qreal>(img.height())+off );
+    br.setWidth( img.width() );
+    br.setHeight( qMax(img.height(), img.height()+qRound(size+off)) );
+    QImage dest( br.width(), br.height(), QImage::Format_ARGB32_Premultiplied );
+    dest.fill( 0 );
 
-    QLinearGradient gradient( 0., 0., 0., 1. );
-    gradient.setColorAt( 0., QColor( 0, 0, 0, 220 ) );
-    gradient.setColorAt( 0.78, QColor( 0, 0, 0, 30 ));
-    gradient.setColorAt( 1., Qt::transparent );
-    gradient.setCoordinateMode( QGradient::ObjectBoundingMode );
+    QPoint start( 0, 0 );
+    QPoint end( 0, qRound( size ) );
+    QLinearGradient gradient( start, end );
+    gradient.setColorAt( 0, Qt::white );
+    gradient.setColorAt( .9, Qt::black );
+    gradient.setColorAt( 1., Qt::black );
 
-    pixPainter.setCompositionMode( QPainter::CompositionMode_DestinationIn );
-    pixPainter.fillRect( 0., 0., static_cast<qreal>(img.width()), size+1, gradient );
-    //pixPainter.setCompositionMode( QPainter::CompositionMode_SourceOver );
-    //pixPainter.drawRect( 0., brect.height()-1., brect.width(), _size );
-    pixPainter.end();
-    return newimg;
+    QImage mask=img;
+    QPainter p( &mask );
+    p.fillRect( QRectF( 0, 0, img.width(), size ), gradient );
+    p.end();
+    QImage mirrored=img.mirrored();
+    mirrored.setAlphaChannel( mask );
+
+    p.begin( &dest );
+    p.drawImage( 0, 0, img );
+    p.setOpacity( 0.8 );
+    p.drawImage( QPointF( 0, img.height()-2+off ), mirrored, QRectF( 0, 0, img.width(), size ) );
+    p.end();
+    return dest;
 }
 
 /*
@@ -410,7 +391,6 @@ QByteArray PHI::emptyYouTubeDoc()
     return arr;
 }
 */
-
 
 Qt::CursorShape PHI::toCursorShape( const QByteArray &s )
 {

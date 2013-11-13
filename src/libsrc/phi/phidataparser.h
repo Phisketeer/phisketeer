@@ -21,6 +21,7 @@
 #include <QSqlQuery>
 #include <QSqlDatabase>
 #include <QCoreApplication>
+#include <QReadWriteLock>
 #include "phidatasources.h"
 
 class PHIRequest;
@@ -45,6 +46,10 @@ public:
     inline const PHIRequest* request() const { return _req; }
 
     static QByteArray createTransformedImageId( const PHIRequest *req, const PHIBaseItem *it, int i, QRectF &br );
+    static void insertTransformedImageRect( const QByteArray &imgId, const QRectF &r );
+    static QRectF transformedImageRect( const QByteArray &imgId );
+    static void insertGraphicsImageRect( const QByteArray &imgId, const QRectF &r );
+    static QRectF graphicsImageRect( const QByteArray &imgId );
 
 protected:
     enum Type { Header, Cookie, Post, Get, Request, Server, All };
@@ -74,6 +79,39 @@ private:
     const QString _pageId;
     mutable QSqlQuery _query;
     mutable const PHIBaseItem *_currentItem;
+    static QReadWriteLock _lock;
+    static QHash <QByteArray, QRectF> _imageTransformedRects;
+    static QHash <QByteArray, QRectF> _imageGraphicsRects;
 };
+
+inline void PHIDataParser::insertTransformedImageRect( const QByteArray &id, const QRectF &br )
+{
+    _lock.lockForWrite();
+    _imageTransformedRects.insert( id, br );
+    _lock.unlock();
+}
+
+inline QRectF PHIDataParser::transformedImageRect( const QByteArray &id )
+{
+    _lock.lockForRead();
+    QRectF br=_imageTransformedRects.value( id, QRectF() );
+    _lock.unlock();
+    return br;
+}
+
+inline void PHIDataParser::insertGraphicsImageRect( const QByteArray &id, const QRectF &br )
+{
+    _lock.lockForWrite();
+    _imageGraphicsRects.insert( id, br );
+    _lock.unlock();
+}
+
+inline QRectF PHIDataParser::graphicsImageRect( const QByteArray &id )
+{
+    _lock.lockForRead();
+    QRectF br=_imageGraphicsRects.value( id, QRectF() );
+    _lock.unlock();
+    return br;
+}
 
 #endif // PHIDATAPARSER_H

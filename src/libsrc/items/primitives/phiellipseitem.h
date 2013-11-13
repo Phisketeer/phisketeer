@@ -86,6 +86,9 @@ protected:
     virtual void squeeze();
     virtual PHIConfigWidget* configWidget();
     virtual void drawShape( QPainter *painter, const QRectF &r );
+    virtual QRectF boundingRect() const;
+    virtual void createTmpData( const PHIDataParser &parser );
+    virtual void parseData( const PHIDataParser &parser );
 
 signals:
     void startAngleChanged( int );

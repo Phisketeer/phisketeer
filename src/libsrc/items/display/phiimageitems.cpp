@@ -326,12 +326,12 @@ void PHISponsorItem::html( const PHIRequest *req, QByteArray &out, QByteArray &j
     Q_UNUSED( jquery )
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
         out+=indent+BL( "<div style=\"filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='phi.phis?i=" )
-            +imagePath()+BL( ".png&amp;t=1');z-index:50000;left:" )
+            +imagePath()+BL( "&t=1');z-index:" )+QByteArray::number( PHI::maxZIndex()+1 )+BL( ";position:absolute;left:" )
             +QByteArray::number( qRound(realX()) )+BL( "px;top:" )
             +QByteArray::number( qRound(realY()) )+BL( "px;\"></div>\n" );
     } else {
-        out+=indent+BL( "<img style=\"z-index:50000;position:absolute;left:" )
+        out+=indent+BL( "<img style=\"z-index:" )+QByteArray::number( PHI::maxZIndex()+1 )+BL( ";position:absolute;left:" )
             +QByteArray::number( qRound(realX()) )+BL( "px;top:" )+QByteArray::number( qRound(realY()) )
-            +BL( "px;\" src=\"phi.phis?i=" )+imagePath()+BL( ".png&amp;t=1\">\n" );
+            +BL( "px;\" src=\"phi.phis?i=" )+imagePath()+BL( "&amp;t=1\">\n" );
     }
 }

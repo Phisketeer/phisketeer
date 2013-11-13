@@ -407,18 +407,18 @@ void PHISProcessor::genImage() const
         imgPath=resolveRelativeFile( imgPath );
     } else {
         // @todo: remove tmp images from PHIImageCache
-        imgPath=_req->imgDir()+QDir::separator()+imgPath;
+        imgPath=_req->imgDir()+QDir::separator()+imgPath+SL( ".png" );
     }
     QFileInfo fi( imgPath );
     if ( !fi.isReadable() ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
-            tr( "Image file '%1' is not accessible.").arg( imgPath ) );
+            tr( "Image file '%1' is not accessible. Referer: '%2'.").arg( imgPath ).arg( _req->referer() ) );
         return _req->responseRec()->error( PHILOGERR, PHIRC_HTTP_NOT_FOUND,
-            tr( "Could not find image with id '%1'." ).arg( _req->getValue( SL( "phiimg" ) ) ) );
+            tr( "Could not find image with id '%1'." ).arg( _req->getValue( SL( "i" ) ) ) );
     }
     if ( fi.lastModified().toUTC() <= _req->ifModifiedSince() ) return _req->responseRec()->notModified();
     _req->responseRec()->setFileName( imgPath );
-    //_req->responseRec()->setContentType(); //automatically done by file ending
+    //_req->responseRec()->setContentType(); // automatically resolved mime type
     _req->responseRec()->setContentLength( fi.size() );
     _req->responseRec()->setHeader( BL( "Last-Modified" ), _req->responseRec()->timeEncoded( fi.lastModified() ) );
     _req->responseRec()->setHeader( BL( "Cache-Control" ), BL( "public" ) );

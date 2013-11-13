@@ -21,7 +21,10 @@
 
 #include <QObject>
 #include <QGraphicsEffect>
+#include <QPixmapCache>
 #include "phi.h"
+
+class PHIBaseItem;
 
 class PHIEXPORT PHIReflectionEffect : public QGraphicsEffect
 {
@@ -29,14 +32,15 @@ class PHIEXPORT PHIReflectionEffect : public QGraphicsEffect
 
 public:
     explicit PHIReflectionEffect( QObject *parent=0 );
-    virtual ~PHIReflectionEffect();
-    inline virtual qreal yOffset() const { return _yOff; }
-    inline virtual qreal size() const { return _size; }
+    virtual ~PHIReflectionEffect() {}
+    inline qreal yOffset() const { return _yOff; }
+    inline qreal size() const { return _size; }
     virtual QRectF boundingRectFor( const QRectF &sourceRect ) const;
 
 public slots:
-    inline virtual void setYOffset( qreal yOff ) { updateBoundingRect(); _yOff=yOff; }
-    inline virtual void setSize( qreal size ) { updateBoundingRect(); _size=size; }
+    inline void setYOffset( qreal yOff ) { _yOff=yOff; updateBoundingRect(); }
+    inline void setSize( qreal size ) { _size=size; updateBoundingRect(); }
+    inline void setBaseItem( const PHIBaseItem *it ) { _it=it; }
 
 protected:
     virtual void draw( QPainter *painter );
@@ -44,6 +48,8 @@ protected:
 
 private:
     qreal _yOff, _size;
+    const PHIBaseItem *_it;
+    QPixmapCache::Key _key;
 };
 
 #endif // PHIEFFECTS_H

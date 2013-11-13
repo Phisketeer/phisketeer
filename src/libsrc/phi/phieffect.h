@@ -73,7 +73,7 @@ public:
     }
     inline void blur( qreal &radius ) const {
         radius=_v.value( DBlurRadius, 5. ).value<qreal>(); }
-    inline void surface( qreal &yOff, qreal &size ) const {
+    inline void reflection( qreal &yOff, qreal &size ) const {
         yOff=_v.value( DYOffset, 0. ).value<qreal>();
         size=_v.value( DXOffset, 30 ).value<qreal>(); }
     inline void colorize( QColor &c, qreal &strength ) const {
@@ -111,7 +111,7 @@ public:
     void setFadeOut( qint32 start, qint32 duration, qreal minOpac, quint8 ease );
     void setBlur( qreal radius );
     void setShadow( const QColor &c, qreal xOff, qreal YOff, qreal radius );
-    void setSurface( qreal yOff, qreal size );
+    void setReflection( qreal yOff, qreal size );
     void setColorize( const QColor &c, qreal strength );
     void setMoveTo( qint32 start, qint32 duration, qint32 left, qint32 top, quint8 ease );
     void setMoveBy( qint32 start, qint32 duration, qint32 x, qint32 y, qint32 w, qint32 h, quint8 ease );

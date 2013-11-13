@@ -90,7 +90,7 @@ void PHIEffect::setColorize( const QColor &c, qreal strength )
     _v.insert( DGraphicsType, static_cast<quint8>(GTColorize) );
 }
 
-void PHIEffect::setSurface( qreal yOff, qreal size )
+void PHIEffect::setReflection( qreal yOff, qreal size )
 {
     _effects |= EGraphics;
     if ( yOff!=0. ) _v.insert( DYOffset, yOff );

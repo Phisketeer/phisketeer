@@ -144,6 +144,7 @@ protected:
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void createTmpData( const PHIDataParser &parser );
+    virtual void graphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
     virtual void squeeze();
     virtual PHIConfigWidget* configWidget();
 
@@ -170,6 +171,7 @@ public:
     virtual PHIImageData* imageData() { return &_imageData; }
     QImage realImage() const { return data( DImage, QImage() ).value<QImage>(); }
     void setImage( const QImage &img ) { setData( DImage, img ); updateImage(); }
+    void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
 public slots:
 

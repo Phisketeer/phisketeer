@@ -335,12 +335,13 @@ protected:
 
     // HTML related members
     virtual void staticCSS( const PHIRequest *req, QByteArray &out ) const;
-    void startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool useTransform=true ) const; // includes id tag
+    void startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool project3D=true ) const; // includes id tag
     virtual void graphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
     void imageIEFilterCSS( const QByteArray &imgId ) const;
     void genAdjustedPos( QByteArray &jquery ) const;
     void genAdjustedSize( QByteArray &jquery ) const;
     void genLinearGradient( const PHIRequest *req, QByteArray &out ) const;
+    void genHtmlImg( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
     // IDE related members
     inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
@@ -515,6 +516,7 @@ inline QByteArray PHIBaseItem::rgba( const QColor &c )
 inline void PHIBaseItem::genAdjustedPos( QByteArray &jquery ) const
 {
     QRectF r=adjustedRect();
+    if ( QPointF()==r.topLeft() ) return;
     jquery+=BL( "$('" )+id()+BL( "').pos(" )+QByteArray::number( qRound(_x+r.x()) )
         +','+QByteArray::number( qRound(_y+r.y()) )+BL( ");\n" );
 }
@@ -522,6 +524,7 @@ inline void PHIBaseItem::genAdjustedPos( QByteArray &jquery ) const
 inline void PHIBaseItem::genAdjustedSize( QByteArray &jquery ) const
 {
     QRectF r=adjustedRect();
+    if ( realSize()==r.size() ) return;
     jquery+=BL( "$('" )+id()+BL( "').width(" )+QByteArray::number( qRound(r.width()) )
         +BL( ").height(" )+QByteArray::number( qRound(r.height()) )+BL( ");\n" );
 }

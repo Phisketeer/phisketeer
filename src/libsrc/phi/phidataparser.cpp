@@ -22,6 +22,7 @@
 #include <QSqlError>
 #include <QCryptographicHash>
 #include <QTransform>
+#include <QPainter>
 #include "phidataparser.h"
 #include "phibasepage.h"
 #include "phibaseitem.h"
@@ -29,6 +30,10 @@
 #include "phiresponserec.h"
 #include "phinetrequest.h"
 #include "phiimagecache.h"
+
+QHash <QByteArray, QRectF> PHIDataParser::_imageTransformedRects;
+QHash <QByteArray, QRectF> PHIDataParser::_imageGraphicsRects;
+QReadWriteLock PHIDataParser::_lock;
 
 static QByteArray _matchingLanguage( const PHIRequest *req, const PHIData *data )
 {
@@ -53,21 +58,24 @@ QVariant PHIDataParser::text( PHIData *data ) const
     case PHIData::Database: {
         QString t=loadTextFromDB( data->sqlStatement(), data->templateText() );
         if ( Q_LIKELY( !parse ) ) return t;
-        return parseVariables( t ); }
+        return parseVariables( t );
+    }
     case PHIData::File: {
         // @todo: implement caching
         QByteArray matchedLang;
         QString t=loadTextFromFile( data->fileName(), data->textCodec(), matchedLang );
         if ( Q_UNLIKELY( parse ) ) t=parseVariables( t );
         t.squeeze();
-        return t; }
+        return t;
+    }
     case PHIData::Url: {
         QString t=loadTextFromUrl( data->url() );
         if ( Q_UNLIKELY( parse ) ) t=parseVariables( t );
         t.squeeze();
         if ( data->options() & PHIData::NoCache ) return t;
         cacheText( data, t );
-        return t; }
+        return t;
+    }
     case PHIData::Process: {
         // @todo: make codec configurable
         QString t=QString::fromUtf8( loadFromProcess( data->processName(), data->attributes() ) );
@@ -75,7 +83,8 @@ QVariant PHIDataParser::text( PHIData *data ) const
         t.squeeze();
         if ( data->options() & PHIData::NoCache ) return t;
         cacheText( data, t );
-        return t; }
+        return t;
+    }
     default:;
     }
     return QString();
@@ -89,17 +98,20 @@ void PHIDataParser::cacheText( PHIData *data, const QString &t, const QByteArray
         PHITextData d;
         d.setText( t, lang );
         *dynamic_cast<PHITextData*>(data)=d;
-        return; }
+        return;
+    }
     case PHIData::Integer: {
         PHIIntData d;
         d.setText( t, lang );
         *dynamic_cast<PHIIntData*>(data)=d;
-        return; }
+        return;
+    }
     case PHIData::Boolean: {
         PHIBooleanData d;
         d.setText( t, lang );
         *dynamic_cast<PHIBooleanData*>(data)=d;
-        return; }
+        return;
+    }
     default:;
     }
 }
@@ -702,6 +714,7 @@ QByteArray PHIDataParser::createTmpImage( const QImage &img, const QByteArray &l
 // static
 QByteArray PHIDataParser::createTransformedImageId( const PHIRequest *req, const PHIBaseItem *it, int num, QRectF &br )
 {
+    qDebug() << "createTransformedImage" << it->name();
     QTransform t=it->computeTransformation();
     QByteArray arr;
     if ( Q_UNLIKELY( it->flags() & PHIBaseItem::FDoNotCache ) ) {
@@ -710,10 +723,28 @@ QByteArray PHIDataParser::createTransformedImageId( const PHIRequest *req, const
         arr=it->id()+QByteArray::number( num )+req->currentLangByteArray()+QByteArray::number( t.determinant() )
         +QByteArray::number( it->hasGraphicEffect() ? 1 : 0 )+req->url().toEncoded();
         arr=QCryptographicHash::hash( arr, QCryptographicHash::Md5 ).toHex();
-    }
-    if ( QFileInfo( req->imgDir()+QLatin1Char( '/')+QString::fromUtf8( arr )+SL( ".png" ) ).exists() ) {
-        qDebug() << "found cached transformed image for" << it->id();
-        return arr;
+        qDebug() << "imgid" << arr;
+        QFileInfo fi( req->imgDir()+QLatin1Char( '/')+QString::fromUtf8( arr )+SL( ".png" ) );
+        if ( fi.exists() && fi.lastModified()>=req->lastModified() ) {
+            QRectF r=br;
+            qDebug() << "using cache" << br;
+            if ( it->hasTransformation() ) {
+                if ( Q_LIKELY( req->agentFeatures() & PHIRequest::Transform3D ) ) {
+                    br=graphicsImageRect( arr );
+                    if ( !br.isNull() ) return arr;
+                } else if ( t.isAffine() && req->agentFeatures() & PHIRequest::Transform2D ) {
+                    br=graphicsImageRect( arr );
+                    if ( !br.isNull() ) return arr;
+                } else {
+                    br=transformedImageRect( arr );
+                    if ( !br.isNull() ) return arr;
+                }
+            }
+            br=graphicsImageRect( arr );
+            qDebug() << "cached" << br;
+            if ( !br.isNull() ) return arr;
+            br=r;
+        }
     }
     QString fn;
     if ( it->hasImages() ) {
@@ -721,6 +752,7 @@ QByteArray PHIDataParser::createTransformedImageId( const PHIRequest *req, const
         if ( Q_UNLIKELY( num>=imgIds.count() ) ) {
             req->responseRec()->log( PHILOGERR, PHIRC_OBJ_ACCESS_ERROR,
                 tr( "Could not resolve image path for item '%1'." ).arg( it->name() ) );
+            br=it->adjustedRect();
             return QByteArray();
         }
         fn=QString::fromUtf8( imgIds.at( num ) );
@@ -729,22 +761,60 @@ QByteArray PHIDataParser::createTransformedImageId( const PHIRequest *req, const
         if ( fn.startsWith( QLatin1Char( '/' ) ) ) {
             fn=req->documentRoot()+fn;
         } else {
-            fn=QFileInfo( req->canonicalFilename() ).absolutePath()+QLatin1Char( '/' )+fn;
+            qDebug() << "referer" << req->referer();
+            fn=QFileInfo( req->referer() ).absolutePath()+QLatin1Char( '/' )+fn;
         }
     } else fn=req->imgDir()+QLatin1Char( '/' )+fn+SL( ".png" );
     QImage img( fn );
     if ( Q_UNLIKELY( img.isNull() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
             tr( "Could not load image '%1' for item '%2'." ).arg( fn ).arg( it->name() ) );
+        br=it->adjustedRect();
         return QByteArray();
     }
     if ( it->hasGraphicEffect() ) {
         switch ( it->effect()->graphicsType() ) {
+        case PHIEffect::GTShadow: {
+            QColor c;
+            qreal offx, offy, radius;
+            it->effect()->shadow( c, offx, offy, radius );
+            img=PHI::dropShadowedImage( img, c, radius, offx, offy, br );
+            break;
+        }
+        case PHIEffect::GTColorize: {
+            QColor c;
+            qreal strength;
+            it->effect()->colorize( c, strength );
+            img=PHI::colorizedImage( img, c, strength, br );
+            break;
+        }
+        case PHIEffect::GTBlur: {
+            qreal radius;
+            it->effect()->blur( radius );
+            img=PHI::bluredImage( img, radius, br );
+            break;
+        }
+        case PHIEffect::GTReflection: {
+            qreal offy, size;
+            it->effect()->reflection( offy, size );
+            img=PHI::reflectedImage( img, offy, size, br );
+            break;
+        }
         default:;
         }
     }
-    QRectF r=t.mapRect( it->adjustedRect() );
-    qDebug() << r;
+    insertGraphicsImageRect( arr, br );
+    if ( !t.isIdentity() ) {
+        if ( (!t.isAffine() && !(req->agentFeatures() & PHIRequest::Transform3D))
+            || (t.isAffine() && !(req->agentFeatures() & PHIRequest::Transform2D)) ) {
+            br=t.mapRect( br );
+            arr.prepend( "T" );
+            insertTransformedImageRect( arr, br );
+            img=img.transformed( t, Qt::SmoothTransformation );
+        }
+    }
+    qDebug() << "saving transformed image" << arr << br;
+    img.save( req->imgDir()+QLatin1Char( '/' )+QString::fromLatin1( arr )+SL( ".png" ), "PNG" );
     return arr;
 }
 
@@ -756,8 +826,10 @@ void PHIDataParser::saveImage( const QImage &img, const QByteArray &id ) const
             .arg( _req->canonicalFilename() ).arg( _currentItem ? _currentItem->name() : _pageId ) );
         return;
     }
-    img.convertToFormat( QImage::Format_ARGB32_Premultiplied )
-        .save( _req->imgDir()+QDir::separator()+QString::fromUtf8( id )+L1( ".png" ), "PNG" );
+    QString path( _req->imgDir()+QLatin1Char( '/' )+QString::fromLatin1( id )+SL( ".png" ) );
+    if ( img.format()!=QImage::Format_ARGB32_Premultiplied ) {
+        img.convertToFormat( QImage::Format_ARGB32_Premultiplied ).save( path, "PNG" );
+    } else img.save( path, "PNG" );
 }
 
 QString PHIDataParser::resolvePath( const QString &filename ) const

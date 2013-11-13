@@ -24,6 +24,7 @@
 #include <QLabel>
 #include "phiellipseitem.h"
 #include "phibasepage.h"
+#include "phidataparser.h"
 
 PHIEllipseConfig::PHIEllipseConfig( PHIBaseItem *it, QWidget *parent )
     : PHIColorConfig( it, parent )
@@ -185,4 +186,30 @@ void PHIEllipseItem::updateData()
     else if ( _spanData.translated() ) setData( DSpanAngle, _spanData.integer( page()->currentLang() ) );
     else setData( DSpanAngle, 5760 );
     update();
+}
+
+void PHIEllipseItem::createTmpData( const PHIDataParser &parser )
+{
+    if ( _startData.unparsedStatic() ) setData( DStartAngle, _startData.integer() );
+    else {
+        setDirtyFlag( DFInt1 );
+        setFlag( FDoNotCache );
+    }
+    if ( _spanData.unparsedStatic() ) setData( DSpanAngle, _spanData.integer() );
+    else {
+        setDirtyFlag( DFInt2 );
+        setFlag( FDoNotCache );
+    }
+    if ( !(flags() & FDoNotCache) ) PHIAbstractShapeItem::createTmpData( parser ); // create image
+}
+
+void PHIEllipseItem::parseData( const PHIDataParser &parser )
+{
+    if ( dirtyFlags() & DFInt1 ) setData( DStartAngle, parser.text( &_startData ).toInt() );
+    if ( dirtyFlags() & DFInt2 ) setData( DSpanAngle, parser.text( &_spanData ).toInt() );
+}
+
+QRectF PHIEllipseItem::boundingRect() const
+{
+    return PHIAbstractShapeItem::boundingRect().adjusted( -1, -1, 2, 2 );
 }

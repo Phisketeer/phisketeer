@@ -551,7 +551,6 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         out+=BL( "/* END custom script */\n" );
     }
     out+=BL( "/* ]]> */\n</script>\n</body>\n</html>\n" );
-    req->dump();
 }
 
 // only run once at loading time from server

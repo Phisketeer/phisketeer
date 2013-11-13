@@ -22,50 +22,26 @@
 
 void PHIAbstractShapeItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
 {
-    QTransform t;
-    bool needCalc=false, cssTrans=true;
-    if ( hasGraphicEffect() ) needCalc=true;
-    if ( hasTransformation() ) {
-        t=computeTransformation();
-        if ( !t.isAffine() ) {
-            if ( Q_UNLIKELY( !req->agentFeatures() & PHIRequest::Transform3D ) ) {
-                needCalc=true;
-                cssTrans=false;
-            }
-        } else if ( Q_UNLIKELY( !req->agentFeatures() & PHIRequest::Transform2D ) ) {
-            needCalc=true;
-            cssTrans=false;
-        }
-    }
-    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
-        if ( needCalc ) {
-            QRectF br=boundingRect();
-            imageIEFilterCSS( PHIDataParser::createTransformedImageId( req, this, 0, br ) );
-            setAdjustedRect( br );
-        } else imageIEFilterCSS( imagePath() );
-        out+=indent+BL( "<div" );
-        startCSS( req, out, jquery, t.isAffine() );
-        out+=BL( "\"></div>\n" );
-    } else {
-        QByteArray imgId;
-        if ( needCalc ) {
-            QRectF br=boundingRect();
-            imgId=PHIDataParser::createTransformedImageId( req, this, 0, br );
-            setAdjustedRect( br );
-        } else imgId=imagePath();
-        out+=indent+BL( "<img" );
-        startCSS( req, out, jquery, cssTrans );
-        out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( ".png&amp;t=1\">\n" );
-    }
-    if ( needCalc || !cssTrans ) genAdjustedPos( jquery );
-    if ( hasGraphicEffect() ) genAdjustedSize( jquery );
+    genHtmlImg( req, out, jquery, indent );
+}
+
+void PHIAbstractImageItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+{
+    genHtmlImg( req, out, jquery, indent );
+}
+
+void PHIAbstractShapeItem::graphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
+{
+    Q_UNUSED( req )
+    Q_UNUSED( out )
+    Q_UNUSED( jquery )
 }
 
 void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
 {
     bool needImage=false;
     out+=indent+BL( "<div" );
-    startCSS( req, out, jquery );
+    startCSS( req, out, jquery, true );
     if ( static_cast<Qt::BrushStyle>(realPattern())==Qt::SolidPattern ) {
         if ( Q_UNLIKELY( !( req->agentFeatures() & PHIRequest::RGBA ) ) ) needImage=true;
         else out+=BL( "background-color:" )+rgba( realColor() )+';';
@@ -107,7 +83,7 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
             out+=data( DIEFilter ).toByteArray();
             out+=BL( "\"></div>\n" );
         } else {
-            out+=indent+BL( "\t<img id=\"phibgi_" )+_id+BL( "\" src=\"" )+imgId+BL( "\">\n" );
+            out+=indent+BL( "\t<img id=\"phibgi_" )+_id+BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&amp;t=1\">\n" );
         }
     }
     PHIBaseItem *it;

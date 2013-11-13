@@ -377,7 +377,8 @@ void PHIAbstractShapeItem::setLine( quint8 l )
 
 QRectF PHIAbstractShapeItem::boundingRect() const
 {
-    int off=qRound(realPenWidth()); // border
+    qreal off=0;
+    if ( realLine()>0 ) off=realPenWidth(); // border
     return QRectF( -off, -off, realWidth()+2*off, realHeight()+2*off );
 }
 
@@ -566,6 +567,29 @@ void PHIAbstractImageItem::squeeze()
         foreach ( QByteArray lang, _imageData.keys() ) {
             QImage img=_imageData.image( lang );
             if ( img.isNull() ) _imageData.remove( lang );
+        }
+    } else {
+        QImage img=_imageData.image();
+        if ( img.isNull() ) _imageData.remove( _imageData.c() );
+        else {
+            foreach( QByteArray key, _imageData.keys() ) {
+                if ( key.startsWith( '#' ) ) continue;
+                _imageData.remove( key );
+            }
+            _imageData.setImage( img );
+        }
+    }
+    removeData( DImage );
+    removeData( DTmpImage );
+}
+
+void PHIAbstractImageItem::saveItemData( QDataStream &out, int version )
+{
+    Q_UNUSED( version )
+    if ( _imageData.translated() ) {
+        foreach ( QByteArray lang, _imageData.keys() ) {
+            QImage img=_imageData.image( lang );
+            if ( img.isNull() ) _imageData.remove( lang );
             else {
                 img=img.scaled( realSize().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
                 _imageData.setImage( img, lang );
@@ -583,13 +607,6 @@ void PHIAbstractImageItem::squeeze()
             _imageData.setImage( img );
         }
     }
-    removeData( DImage );
-    removeData( DTmpImage );
-}
-
-void PHIAbstractImageItem::saveItemData( QDataStream &out, int version )
-{
-    Q_UNUSED( version )
     QByteArray arr;
     QDataStream ds( &arr, QIODevice::WriteOnly );
     ds.setVersion( QDataStream::Qt_5_1 );
@@ -632,6 +649,7 @@ void PHIAbstractImageItem::paint( QPainter *p, const QRectF &exposed )
         else p->drawText( rect(), tr( "Image is loading..." ) );
     } else {
         p->setRenderHint( QPainter::SmoothPixmapTransform );
+        p->setRenderHint( QPainter::Antialiasing );
         p->drawImage( rect(), realImage() );
     }
 }

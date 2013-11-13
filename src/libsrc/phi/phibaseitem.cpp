@@ -705,6 +705,44 @@ void PHIBaseItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jque
     out+="background-color:gray\">Unknown WID "+QByteArray::number( wid() )+"</div>\n";
 }
 
+void PHIBaseItem::genHtmlImg( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+{
+    QTransform t;
+    bool needCalc=false;
+    if ( hasGraphicEffect() ) needCalc=true;
+    else if ( hasTransformation() ) {
+        t=computeTransformation();
+        if ( !t.isAffine() ) {
+            if ( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::Transform3D) ) ) {
+                needCalc=true;
+                qDebug() << "t is not affine" << id();
+            }
+        }
+    }
+    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
+        if ( needCalc ) {
+            QRectF br=boundingRect();
+            imageIEFilterCSS( PHIDataParser::createTransformedImageId( req, this, 0, br ) );
+            setAdjustedRect( br );
+        } else imageIEFilterCSS( imagePath() );
+        out+=indent+BL( "<div" );
+        startCSS( req, out, jquery, false );
+        out+=BL( "\"></div>\n" );
+    } else {
+        QByteArray imgId;
+        if ( needCalc ) {
+            QRectF br=boundingRect();
+            imgId=PHIDataParser::createTransformedImageId( req, this, 0, br );
+            setAdjustedRect( br );
+        } else imgId=imagePath();
+        out+=indent+BL( "<img" );
+        startCSS( req, out, jquery, false );
+        out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&amp;t=1\">\n" );
+    }
+    genAdjustedPos( jquery );
+    genAdjustedSize( jquery );
+}
+
 void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) const
 {
     out+='#'+_id+BL( " {position:absolute;left:" )
@@ -740,13 +778,13 @@ void PHIBaseItem::staticCSS( const PHIRequest *req, QByteArray &out ) const
     Q_UNUSED( out )
 }
 
-void PHIBaseItem::startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool useTransform ) const
+void PHIBaseItem::startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool project3D ) const
 {
     if ( realOpacity()<1. ) jquery+=BL( "$('" )+_id+BL( "').opacity(" )
         +QByteArray::number( realOpacity(), 'f', 3 )+BL( ");\n" );
     out+=BL( " id=\"" )+_id+BL( "\" style=\"" );
     if ( hasGraphicEffect() ) graphicEffectCSS( req, out, jquery );
-    if ( hasTransformation() && useTransform ) {
+    if ( hasTransformation() ) {
         QTransform t=computeTransformation();
         if ( Q_LIKELY( req->agentFeatures() & PHIRequest::Transform3D ) ) {
             QByteArray prefix=req->agentPrefix();
@@ -767,25 +805,27 @@ void PHIBaseItem::startCSS( const PHIRequest *req, QByteArray &out, QByteArray &
                     +QByteArray::number( qRound(o.x()) )+' '
                     +QByteArray::number( qRound(o.y()) )+';';
             }
-        } else if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
-            QByteArray filter;
-            // Qt has row major ordering, MSIE has col major ordering so we need to swap m21 with m12
-            filter+="progid:DXImageTransform.Microsoft.Matrix(M11="+QByteArray::number( t.m11(), 'f', 3 )
-                 +",M12="+QByteArray::number( t.m21(), 'f', 3 )+",M21="+QByteArray::number( t.m12(), 'f', 3 )
-                 +",M22="+QByteArray::number( t.m22(), 'f', 3 )+BL( ",sizingMethod='auto expand')" );
-            if ( _variants.value( DIEFilter ).isValid() ) filter+=_variants.value( DIEFilter ).toByteArray();
-            _variants.insert( DIEFilter, filter );
-        } else { // 2D transformation
-            out+=req->agentPrefix()+BL( "transform-origin:0 0;" )
-                +req->agentPrefix()+BL( ":matrix(" )+QByteArray::number( t.m11(), 'f', 3 )
-                +','+QByteArray::number( t.m12(), 'f', 3 )+','+QByteArray::number( t.m21(), 'f', 3 )
-                +','+QByteArray::number( t.m22(), 'f', 3 )+','+QByteArray::number( qRound(t.m31()) )
-                +','+QByteArray::number( qRound(t.m32()) )+BL( ");" );
-            if ( transformPos()!=1 ) {
-                QPointF o=transformOrigin();
-                out+=req->agentPrefix()+BL( "transform-origin:" )
-                    +QByteArray::number( qRound(o.x()) )+' '
-                    +QByteArray::number( qRound(o.y()) )+';';
+        } else if ( project3D || t.isAffine() ) {
+            if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
+                QByteArray filter;
+                // Qt uses row major ordering, MSIE uses col major ordering so we need to swap m21 with m12
+                filter+="progid:DXImageTransform.Microsoft.Matrix(M11="+QByteArray::number( t.m11(), 'f', 3 )
+                     +",M12="+QByteArray::number( t.m21(), 'f', 3 )+",M21="+QByteArray::number( t.m12(), 'f', 3 )
+                     +",M22="+QByteArray::number( t.m22(), 'f', 3 )+BL( ",sizingMethod='auto expand')" );
+                if ( _variants.value( DIEFilter ).isValid() ) filter+=_variants.value( DIEFilter ).toByteArray();
+                _variants.insert( DIEFilter, filter );
+            } else { // 2D transformation
+                out+=req->agentPrefix()+BL( "transform-origin:0 0;" )
+                    +req->agentPrefix()+BL( "transform:matrix(" )+QByteArray::number( t.m11(), 'f', 3 )
+                    +','+QByteArray::number( t.m12(), 'f', 3 )+','+QByteArray::number( t.m21(), 'f', 3 )
+                    +','+QByteArray::number( t.m22(), 'f', 3 )+','+QByteArray::number( qRound(t.m31()) )
+                    +','+QByteArray::number( qRound(t.m32()) )+BL( ");" );
+                if ( transformPos()!=1 ) {
+                    QPointF o=transformOrigin();
+                    out+=req->agentPrefix()+BL( "transform-origin:" )
+                        +QByteArray::number( qRound(o.x()) )+' '
+                        +QByteArray::number( qRound(o.y()) )+';';
+                }
             }
         }
     }
@@ -968,7 +1008,7 @@ void PHIBaseItem::updateEffect()
         case PHIEffect::GTShadow: {
             _effect->shadow( eColor, eXOff, eYOff, eRadius );
             QGraphicsDropShadowEffect *shadow=new QGraphicsDropShadowEffect();
-            shadow->setBlurRadius( eRadius );
+            shadow->setBlurRadius( eRadius*2.5 );
             shadow->setColor( eColor );
             shadow->setXOffset( eXOff );
             shadow->setYOffset( eYOff );
@@ -976,11 +1016,12 @@ void PHIBaseItem::updateEffect()
             break;
         }
         case PHIEffect::GTReflection: {
-            _effect->surface( eYOff, eRadius );
-            PHIReflectionEffect *surface=new PHIReflectionEffect();
-            surface->setYOffset( eYOff );
-            surface->setSize( eRadius );
-            _gw->setGraphicsEffect( surface );
+            _effect->reflection( eYOff, eRadius );
+            PHIReflectionEffect *reflection=new PHIReflectionEffect();
+            reflection->setYOffset( eYOff );
+            reflection->setSize( eRadius );
+            reflection->setBaseItem( this );
+            _gw->setGraphicsEffect( reflection );
             break;
         }
         default:;
@@ -990,6 +1031,7 @@ void PHIBaseItem::updateEffect()
 
 QImage PHIBaseItem::createImage()
 {
+    qDebug() << "createImage" << boundingRect() << rect();
     QImage img( qRound(boundingRect().width()), qRound(boundingRect().height()), QImage::Format_ARGB32_Premultiplied );
     img.fill( 0 );
     QPainter p( &img );

@@ -19,78 +19,47 @@
 #include <QPainter>
 #include <QLinearGradient>
 #include <QGraphicsOpacityEffect>
+#include "phibaseitem.h"
 #include "phieffects.h"
 #include "phi.h"
 
 PHIReflectionEffect::PHIReflectionEffect( QObject *parent )
-    : QGraphicsEffect( parent )
+    : QGraphicsEffect( parent ), _it( 0 )
 {
     qDebug( "PHIReflectionEffect::PHIReflectionEffect()" );
 }
 
-PHIReflectionEffect::~PHIReflectionEffect()
-{
-    qDebug( "PHIReflectionEffect::~PHIReflectionEffect()" );
-}
-
 void PHIReflectionEffect::sourceChanged( QGraphicsEffect::ChangeFlags flags )
 {
+    QPixmapCache::remove( _key );
     QGraphicsEffect::sourceChanged( flags );
 }
 
-void PHIReflectionEffect::draw( QPainter *painter )
+void PHIReflectionEffect::draw( QPainter *p )
 {
-    /*
-    QPoint offset;
-    QPixmap pixmap;
-    if ( sourceIsPixmap() ) {
-    // No point in drawing in device coordinates (pixmap will be scaled anyways).
-        pixmap=sourcePixmap( Qt::LogicalCoordinates, &offset );
-    } else {
-    // Draw pixmap in device coordinates to avoid pixmap scaling;
-        pixmap=sourcePixmap( Qt::DeviceCoordinates, &offset );
-        painter->setWorldTransform( QTransform() );
+    if ( !_it ) return;
+    QRectF br=_it->adjustedRect();
+    QPixmap pix;
+    if ( QPixmapCache::find( _key, &pix ) ) {
+        p->drawPixmap( br.x(), br.y(), pix );
+        return;
     }
-
-    QImage img=pixmap.toImage();
-    img=PHI::getSurfacedImage( img, _yOff, _size );
-    painter->drawImage( offset, img );
-*/
-    QRectF brect=sourceBoundingRect( Qt::LogicalCoordinates );
-    QImage img( static_cast<int>(brect.width()+1), static_cast<int>(brect.height()+_size+_yOff),
-        QImage::Format_ARGB32_Premultiplied );
-    QPainter pixPainter;
-    pixPainter.begin( &img );
-
-    pixPainter.setRenderHints( painter->renderHints() );
-    pixPainter.setCompositionMode( QPainter::CompositionMode_Clear );
-    pixPainter.fillRect( 0., 0., brect.width()+1., brect.height()+_size+_yOff+1, Qt::transparent );
-    pixPainter.setCompositionMode( QPainter::CompositionMode_SourceOver );
-    drawSource( &pixPainter );
-
-    QTransform t;
-    t.rotate( 180., Qt::XAxis );
-    t.translate( 0., (-brect.height()*2.)-_yOff+1. );
-    pixPainter.setTransform( t );
-    drawSource( &pixPainter );
-
-    pixPainter.resetTransform();
-    pixPainter.translate( 0., brect.height()+_yOff );
-    QLinearGradient gradient( 0., 0., 0., 1.0 );
-    gradient.setColorAt( 0., QColor( 0, 0, 0, 220 ) );
-    gradient.setColorAt( 0.78, QColor( 0, 0, 0, 30 ) );
-    gradient.setColorAt( 1., Qt::transparent );
-    gradient.setCoordinateMode( QGradient::ObjectBoundingMode );
-
-    pixPainter.setCompositionMode( QPainter::CompositionMode_DestinationIn );
-    pixPainter.fillRect( 0., 0., brect.width()+1, _size, gradient );
-    pixPainter.end();
-    painter->drawImage( 0, 0, img );
+    QImage dest( qRound(br.width()), qRound(br.height()), QImage::Format_ARGB32_Premultiplied );
+    dest.fill( 0 );
+    QPainter pp( &dest );
+    pp.translate( -br.x(), -br.y() );
+    drawSource( &pp );
+    pp.end();
+    QRectF r; // ignore adjustment:
+    dest=PHI::reflectedImage( dest, _yOff, _size, r );
+    p->drawImage( br.x(), br.y(), dest );
+    _key=QPixmapCache::insert( QPixmap::fromImage( dest ) );
+    if ( _it->isIdeItem() ) drawSource( p ); // draw complete grips in IDE
 }
 
 QRectF PHIReflectionEffect::boundingRectFor( const QRectF &sourceRect ) const
 {
     QRectF r=sourceRect;
-    r.setHeight( sourceRect.height()+2*_size+2*_yOff );
+    r.setHeight( qMax(sourceRect.height(), sourceRect.height()+_size+_yOff) );
     return r;
 }
