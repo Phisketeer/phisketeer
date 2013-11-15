@@ -70,14 +70,14 @@ public slots:
     inline virtual void setBorderRadius( qint16 r ) { setData( DBorderRadius, r ); update(); }
 
 protected:
-    virtual PHIConfigWidget* configWidget();
+    virtual PHIConfigWidget* ideConfigWidget();
     virtual void drawShape( QPainter *painter, const QRectF &r );
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
-    virtual void updateData();
-    virtual void parseData( const PHIDataParser &parser );
-    virtual void createTmpData( const PHIDataParser &parser);
+    virtual void ideUpdateData();
+    virtual void phisParseData( const PHIDataParser &parser );
+    virtual void phisCreateData( const PHIDataParser &parser);
 
 signals:
     void borderRadiusChanged( qint16 );

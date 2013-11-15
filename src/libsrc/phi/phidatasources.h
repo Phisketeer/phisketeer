@@ -61,9 +61,17 @@ public:
     inline void setOptions( Options o ) { _options=o; }
     inline void setOption( Option o ) { _options |= o; }
     inline void removeOption( Option o ) { _options &= ~o; }
-    inline bool unparsedStatic() const { return _source==Static && !(_options & Parse); }
-    inline bool translated() const { return _source==Translated; }
-    inline QList<QByteArray> keys() const { return _data.keys(); }
+    inline bool isStatic() const { return _source==Static; }
+    inline bool isTranslated() const { return _source==Translated; }
+    inline bool isUnparsedStatic() const { return _source==Static && !(_options & Parse); }
+    inline bool isUnparsedTranslated() const { return _source==Translated && !(_options & Parse); }
+    inline PHIByteArrayList keys() const { return _data.keys(); }
+    inline PHIByteArrayList langs() const {
+        PHIByteArrayList list;
+        QByteArray l;
+        foreach ( l, _data.keys() ) if ( !l.startsWith( '#' ) ) list.append( l );
+        return list;
+    }
     inline void remove( const QByteArray &l ) { _data.remove( l ); }
     inline PHIVariantHash data() const { return _data; }
 

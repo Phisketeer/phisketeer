@@ -22,7 +22,7 @@
 #include "phibasepage.h"
 #include "phidatasources.h"
 
-void PHILoginContainerItem::initIDE()
+void PHILoginContainerItem::ideInit()
 {
     PHIBaseItem *it;
     PHIRectHash rects;
@@ -30,7 +30,7 @@ void PHILoginContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "loginlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Login" ) ) );
@@ -41,7 +41,7 @@ void PHILoginContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "emaillabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Email" ) ) );
     it->textData()->setText( L1( "Email" ), "en" );
@@ -51,7 +51,7 @@ void PHILoginContainerItem::initIDE()
 
     it=f->item( 51, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiemail" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 1, 1 );
@@ -59,7 +59,7 @@ void PHILoginContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "passwordlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Password" ) ) );
     it->textData()->setText( L1( "Password" ), "en" );
@@ -69,16 +69,16 @@ void PHILoginContainerItem::initIDE()
 
     it=f->item( 3, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phipasswd" ) ) );
-    it->initIDE();
+    it->ideInit();
     insertBaseItem( it, 2, 1 );
     rects.insert( it->id(), QRect( 1, 2, 1, 1 ) );
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->privateUpdateData();
-    PHIAbstractLayoutItem::initIDE();
+    PHIAbstractLayoutItem::ideInit();
 }
 
-void PHIRegisterUserContainerItem::initIDE()
+void PHIRegisterUserContainerItem::ideInit()
 {
     PHIBaseItem *it;
     PHIRectHash rects;
@@ -86,7 +86,7 @@ void PHIRegisterUserContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "registerlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Register user" ) ) );
@@ -97,7 +97,7 @@ void PHIRegisterUserContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "namelabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Name" ) ) );
     it->textData()->setText( L1( "Name" ), "en" );
@@ -107,7 +107,7 @@ void PHIRegisterUserContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiname" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 1, 1 );
@@ -115,7 +115,7 @@ void PHIRegisterUserContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "emaillabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Email" ) ) );
     it->textData()->setText( L1( "Email" ), "en" );
@@ -125,7 +125,7 @@ void PHIRegisterUserContainerItem::initIDE()
 
     it=f->item( 51, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiemail" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 2, 1 );
@@ -133,7 +133,7 @@ void PHIRegisterUserContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "passwordlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Password" ) ) );
     it->textData()->setText( L1( "Password" ), "en" );
@@ -143,13 +143,13 @@ void PHIRegisterUserContainerItem::initIDE()
 
     it=f->item( 3, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phipasswd" ) ) );
-    it->initIDE();
+    it->ideInit();
     insertBaseItem( it, 3, 1 );
     rects.insert( it->id(), QRect( 1, 3, 1, 1 ) );
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "verifylabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Verify password" ) ) );
     it->textData()->setText( L1( "Verify password" ), "en" );
@@ -159,16 +159,16 @@ void PHIRegisterUserContainerItem::initIDE()
 
     it=f->item( 3, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiverify" ) ) );
-    it->initIDE();
+    it->ideInit();
     insertBaseItem( it, 4, 1 );
     rects.insert( it->id(), QRect( 1, 4, 1, 1 ) );
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->privateUpdateData();
-    PHIAbstractLayoutItem::initIDE();
+    PHIAbstractLayoutItem::ideInit();
 }
 
-void PHIAddressContainerItem::initIDE()
+void PHIAddressContainerItem::ideInit()
 {
     PHIBaseItem *it;
     PHIRectHash rects;
@@ -176,7 +176,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "addresslabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Delivery address" ) ) );
@@ -187,7 +187,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "titlelabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Title" ) ) );
     it->textData()->setText( L1( "Title" ), "en" );
@@ -197,7 +197,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phititle" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 1, 1 );
@@ -205,7 +205,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "firstnamelabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "First name" ) ) );
     it->textData()->setText( L1( "First name" ), "en" );
@@ -215,7 +215,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phifirstname" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 2, 1 );
@@ -223,7 +223,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "lastnamelabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Last name" ) ) );
     it->textData()->setText( L1( "Last name" ), "en" );
@@ -233,7 +233,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "philastname" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 3, 1 );
@@ -241,7 +241,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "organisationlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Organisation" ) ) );
     it->textData()->setText( L1( "Organisation" ), "en" );
@@ -251,7 +251,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiorg" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 4, 1 );
@@ -259,7 +259,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "unitlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Unit" ) ) );
     it->textData()->setText( L1( "Unit" ), "en" );
@@ -269,7 +269,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiunit" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 5, 1 );
@@ -277,7 +277,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "streetlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Street" ) ) );
     it->textData()->setText( L1( "Street" ), "en" );
@@ -287,7 +287,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phistreet" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 6, 1 );
@@ -295,7 +295,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "statelabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "State" ) ) );
     it->textData()->setText( L1( "State" ), "en" );
@@ -305,7 +305,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phistate" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 7, 1 );
@@ -313,7 +313,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "citylabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "City" ) ) );
     it->textData()->setText( L1( "City" ), "en" );
@@ -323,7 +323,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phicity" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 9, 1 );
@@ -331,7 +331,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "ziplabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Zip code" ) ) );
     it->textData()->setText( L1( "Zip code" ), "en" );
@@ -341,7 +341,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phizip" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 10, 1 );
@@ -349,7 +349,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "countrylabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Country" ) ) );
     it->textData()->setText( L1( "Country" ), "en" );
@@ -359,7 +359,7 @@ void PHIAddressContainerItem::initIDE()
 
     it=f->item( 47, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phicountry" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 11, 1 );
@@ -367,10 +367,10 @@ void PHIAddressContainerItem::initIDE()
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->privateUpdateData();
-    PHIAbstractLayoutItem::initIDE();
+    PHIAbstractLayoutItem::ideInit();
 }
 
-void PHIContactContainerItem::initIDE()
+void PHIContactContainerItem::ideInit()
 {
     PHIBaseItem *it;
     PHIRectHash rects;
@@ -378,7 +378,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "contactlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Contact information" ) ) );
@@ -389,7 +389,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "namelabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Name" ) ) );
     it->textData()->setText( L1( "Name" ), "en" );
@@ -399,7 +399,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiname" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 1, 1 );
@@ -407,7 +407,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "emaillabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Email" ) ) );
     it->textData()->setText( L1( "Email" ), "en" );
@@ -417,7 +417,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 51, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiemail" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 2, 1 );
@@ -425,7 +425,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "mobilelabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Mobile number" ) ) );
     it->textData()->setText( L1( "Mobile number" ), "en" );
@@ -435,7 +435,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 54, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phimobile" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 3, 1 );
@@ -443,7 +443,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phonelabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Phone number" ) ) );
     it->textData()->setText( L1( "Phone number" ), "en" );
@@ -453,7 +453,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 54, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiphone" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 4, 1 );
@@ -461,7 +461,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "faxlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Fax" ) ) );
     it->textData()->setText( L1( "Fax" ), "en" );
@@ -471,7 +471,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 54, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phifax" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 5, 1 );
@@ -479,7 +479,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "urllabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "URL" ) ) );
     it->textData()->setText( L1( "URL" ), "en" );
@@ -489,7 +489,7 @@ void PHIContactContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiurl" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 6, 1 );
@@ -497,10 +497,10 @@ void PHIContactContainerItem::initIDE()
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->privateUpdateData();
-    PHIAbstractLayoutItem::initIDE();
+    PHIAbstractLayoutItem::ideInit();
 }
 
-void PHIPeriodContainerItem::initIDE()
+void PHIPeriodContainerItem::ideInit()
 {
     PHIBaseItem *it;
     PHIRectHash rects;
@@ -508,7 +508,7 @@ void PHIPeriodContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "periodlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Date period" ) ) );
@@ -519,7 +519,7 @@ void PHIPeriodContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "startlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Start date" ) ) );
     it->textData()->setText( L1( "Start date" ), "en" );
@@ -529,7 +529,7 @@ void PHIPeriodContainerItem::initIDE()
 
     it=f->item( 31, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phistart" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHISERVER[today][1]:$PHISERVER[today]:9999-12-31" ) );
     insertBaseItem( it, 1, 1 );
@@ -537,7 +537,7 @@ void PHIPeriodContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "endlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "End date" ) ) );
     it->textData()->setText( L1( "End date" ), "en" );
@@ -547,7 +547,7 @@ void PHIPeriodContainerItem::initIDE()
 
     it=f->item( 31, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phiend" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHISERVER[today][1]:$PHISERVER[today]:9999-12-31" ) );
     insertBaseItem( it, 2, 1 );
@@ -555,10 +555,10 @@ void PHIPeriodContainerItem::initIDE()
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->privateUpdateData();
-    PHIAbstractLayoutItem::initIDE();
+    PHIAbstractLayoutItem::ideInit();
 }
 
-void PHICCContainerItem::initIDE()
+void PHICCContainerItem::ideInit()
 {
     PHIBaseItem *it;
     PHIRectHash rects;
@@ -566,7 +566,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "cardlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->setProperty( "_align", static_cast<quint16>(Qt::AlignCenter) );
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Credit card" ) ) );
@@ -577,7 +577,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "cardtypelabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Type" ) ) );
     it->textData()->setText( L1( "Type" ), "en" );
@@ -587,7 +587,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 10, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phicardtype" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "Mastercard[M]\nVISA[V]\nAmerican Express[A]\nDiners Club[D]" ) );
     insertBaseItem( it, 1, 1 );
@@ -595,7 +595,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "cardnamelabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Name" ) ) );
     it->textData()->setText( L1( "Name" ), "en" );
@@ -605,7 +605,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phicardname" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 2, 1, 1, 2 );
@@ -613,7 +613,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "cardnumberlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Number" ) ) );
     it->textData()->setText( L1( "Number" ), "en" );
@@ -623,7 +623,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phicardnumber" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 3, 1, 1, 2 );
@@ -631,7 +631,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "cardvalidlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "Valid thru" ) ) );
     it->textData()->setText( L1( "Valid thru" ), "en" );
@@ -641,7 +641,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 10, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phicardmonth" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHISERVER[monthlist]" ) );
     insertBaseItem( it, 4, 1 );
@@ -649,7 +649,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 10, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phicardyear" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHISERVER[yearlist][20]" ) );
     insertBaseItem( it, 4, 2 );
@@ -657,7 +657,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 30, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "cardcivlabel" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setSource( PHIData::Translated );
     it->textData()->setText( QT_TR_NOOP( L1( "CIV" ) ) );
     it->textData()->setText( L1( "CIV" ), "en" );
@@ -667,7 +667,7 @@ void PHICCContainerItem::initIDE()
 
     it=f->item( 1, PHIBaseItemPrivate( page() ) );
     it->setId( page()->nextFreeId( L1( "phicardciv" ) ) );
-    it->initIDE();
+    it->ideInit();
     it->textData()->setOption( PHIData::Parse );
     it->textData()->setText( L1( "$PHIREQUEST[$PHIID]" ) );
     insertBaseItem( it, 5, 1 );
@@ -675,5 +675,5 @@ void PHICCContainerItem::initIDE()
 
     setChildRects( rects );
     foreach ( it, childItems() ) it->privateUpdateData();
-    PHIAbstractLayoutItem::initIDE();
+    PHIAbstractLayoutItem::ideInit();
 }

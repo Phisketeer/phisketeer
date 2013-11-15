@@ -28,7 +28,7 @@ void PHICheckBoxItem::initWidget()
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::CheckBox ) );
 }
 
-void PHICheckBoxItem::initIDE()
+void PHICheckBoxItem::ideInit()
 {
     setColor( PHIPalette::WidgetText, PHIPalette::WindowText, page()->phiPalette().color( PHIPalette::WindowText ) );
     setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
@@ -87,14 +87,14 @@ void PHICheckBoxItem::setWidgetText( const QString &s )
     ab->setText( s );
 }
 
-void PHICheckBoxItem::updateData()
+void PHICheckBoxItem::ideUpdateData()
 {
-    PHIAbstractInputItem::updateData();
+    PHIAbstractInputItem::ideUpdateData();
     QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
     Q_ASSERT( ab );
-    if ( _checkedData.unparsedStatic() )
+    if ( _checkedData.isUnparsedStatic() )
         ab->setChecked( _checkedData.boolean() );
-    else if ( checkedData()->translated() )
+    else if ( checkedData()->isUnparsedTranslated() )
         ab->setChecked( _checkedData.boolean( page()->currentLang() ) );
     else ab->setChecked( false );
 }
@@ -105,9 +105,9 @@ void PHIRadioButtonItem::initWidget()
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::RadioButton ) );
 }
 
-void PHIRadioButtonItem::initIDE()
+void PHIRadioButtonItem::ideInit()
 {
-    PHICheckBoxItem::initIDE();
+    PHICheckBoxItem::ideInit();
     textData()->setText( tr( "Radio button" ) );
 }
 

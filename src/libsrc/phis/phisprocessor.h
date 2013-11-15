@@ -46,6 +46,7 @@ protected:
     void parseMaster( PHIBasePage *master, PHIBasePage *page ) const;
     // returns true if user has set own content during script execution:
     bool runScript( const PHIBasePage *master, PHIBasePage *page ) const;
+    void createJS( const QString &name ) const;
     void genSysItem() const;
     void genImage() const;
     void genCSS() const;

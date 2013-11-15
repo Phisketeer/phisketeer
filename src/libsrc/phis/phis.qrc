@@ -19,15 +19,12 @@
         <file alias="ui-progressbar.css">css/jquery.ui.progressbar.css</file>
         <file alias="ui-theme.css">css/jquery.ui.theme.css</file>
         <file alias="iconsHighlight">images/ui-icons_2e83ff_256x240.png</file>
-        <file alias="ui-core.js">js/jquery.ui.core.min.js</file>
         <file alias="ui-datepicker.js">js/jquery.ui.datepicker.min.js</file>
-        <file alias="ui-widget.js">js/jquery.ui.widget.min.js</file>
-        <file alias="ui-droppable.js">js/jquery.ui.droppable.min.js</file>
-        <file alias="ui-draggable.js">js/jquery.ui.draggable.min.js</file>
-        <file alias="ui-mouse.js">js/jquery.ui.mouse.min.js</file>
         <file alias="ui-progressbar.js">js/jquery.ui.progressbar.min.js</file>
         <file alias="ui-effects.js">js/jquery.ui.effect.min.js</file>
         <file alias="excanvas.js">js/excanvas.js</file>
+        <file alias="ui-core.js">js/uicore.js</file>
+        <file alias="jqueryiefix.js">js/jqueryiefix.js</file>
     </qresource>
     <qresource prefix="/gnome">
         <file alias="brokenimage">../../icons/scalable/stock/gtk-brokenimage.svg</file>

@@ -35,10 +35,14 @@ public:
     virtual PHIWID wid() const { return Label; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/label" ) ); }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
-    virtual void initIDE();
+    virtual void ideInit();
 
 protected:
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
     virtual void setWidgetText( const QString &t );
+    virtual void setWidgetAligment( Qt::Alignment align );
+    virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
+    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
 
 private:
     void initWidget();

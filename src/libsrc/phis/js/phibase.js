@@ -288,6 +288,7 @@ function PhiBase(){
 };
 jQuery.noConflict();
 var phi=new PhiBase();
+jQuery(function($){$(window).on('load',phi.onload);});
 var $=function(id){
   var o;
   if ( typeof(id)==='string' ) o=phi.getElementById(id);

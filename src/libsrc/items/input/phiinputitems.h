@@ -36,7 +36,7 @@ public:
     virtual QString description() const { return tr( "Line edit with input type <text>" ); }
     virtual PHIWID wid() const { return LineEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
     virtual PHITextData* placeholderData() { return &_placeholderData; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
     void setPlaceholder( const QString &t );
@@ -48,13 +48,13 @@ public slots:
 protected:
     virtual void initWidget();
     virtual void setWidgetText( const QString &s );
-    virtual void updateData();
+    virtual void ideUpdateData();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual void squeeze();
-    virtual void parseData( const PHIDataParser &parser );
-    virtual void createTmpData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
+    virtual void phisCreateData( const PHIDataParser &parser );
     void genHtml( const QByteArray &type, const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
 private:
@@ -115,7 +115,7 @@ public:
     virtual QString description() const { return tr( "Input type <textarea>" ); }
     virtual PHIWID wid() const { return TextArea; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/textarea" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 
 public slots:
     virtual void setReadOnly( bool b );
@@ -162,7 +162,7 @@ public:
     virtual QString description() const { return tr( "Decimal number edit with input type <number>" ); }
     virtual PHIWID wid() const { return NumberEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 
 public slots:
     virtual void setReadOnly( bool b );
@@ -189,7 +189,7 @@ public:
     virtual QString description() const { return tr( "Real number edit with input type <number>" ); }
     virtual PHIWID wid() const { return RealNumberEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 
 public slots:
     virtual void setReadOnly( bool b );
@@ -216,7 +216,7 @@ public:
     virtual QString description() const { return tr( "Submit button with input type <submit>" ); }
     virtual PHIWID wid() const { return SubmitButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/submit" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 
 protected:
     virtual void initWidget();
@@ -240,7 +240,7 @@ public:
     virtual QString description() const { return tr( "Reset button with input type <reset>" ); }
     virtual PHIWID wid() const { return ResetButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/reset" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 };
 
 class PHIButtonItem : public PHISubmitButtonItem
@@ -260,7 +260,7 @@ public:
     virtual PHIWID wid() const { return Button; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/button" ) ); }
     virtual bool hasUrl() const { return true; }
-    virtual void initIDE();
+    virtual void ideInit();
 
 public slots:
     QString url() const { return QString::fromUtf8( data( DUrl, QString() ).toByteArray() ); }

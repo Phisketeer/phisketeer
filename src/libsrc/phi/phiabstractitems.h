@@ -49,12 +49,12 @@ public:
     inline QString realText() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
     inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); if ( !isServerItem() ) setWidgetText( s ); }
     inline quint16 realAlignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
-    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); }
+    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); if ( !isServerItem() ) setWidgetAligment( static_cast<Qt::Alignment>(align) ); }
 
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
-    virtual void initIDE();
+    virtual void ideInit();
 
 public slots:
     QScriptValue textAlign( const QScriptValue &v=QScriptValue() );
@@ -62,8 +62,9 @@ public slots:
 protected:
     virtual bool isSingleLine() const { return true; }
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual void updateData();
+    virtual void ideUpdateData();
     virtual void setWidgetText( const QString &t )=0;
+    virtual void setWidgetAligment( Qt::Alignment )=0;
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
@@ -73,9 +74,9 @@ protected:
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
-    virtual PHIConfigWidget* configWidget();
-    virtual void createTmpData( const PHIDataParser &parser );
-    virtual void parseData( const PHIDataParser &parser );
+    virtual PHIConfigWidget* ideConfigWidget();
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
 
     inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
     inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
@@ -83,8 +84,8 @@ protected:
     inline PHIPalette::ColorRole backgroundColorRole() const { return _backgroundColorRole; }
 
 private:
-    virtual void setText( const QString &t, const QByteArray &lang );
-    virtual QString text( const QByteArray &lang ) const;
+    virtual void ideSetText( const QString &t, const QByteArray &lang );
+    virtual QString ideText( const QByteArray &lang ) const;
 
     PHIPalette::ColorRole _colorRole, _backgroundColorRole;
     static qreal _dropRegion;
@@ -116,7 +117,7 @@ public:
     inline virtual bool hasGradient() const { return true; }
     inline virtual bool isDraggable() const { return true; }
     inline virtual bool isDroppable() const { return true; }
-    virtual void initIDE();
+    virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
     void setLine( quint8 l );
@@ -143,10 +144,10 @@ protected:
     virtual void drawShape( QPainter *p, const QRectF &exposed )=0;
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
-    virtual void createTmpData( const PHIDataParser &parser );
-    virtual void graphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
     virtual void squeeze();
-    virtual PHIConfigWidget* configWidget();
+    virtual PHIConfigWidget* ideConfigWidget();
 
     inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
     inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
@@ -176,7 +177,7 @@ public:
 public slots:
 
 protected:
-    virtual void updateData();
+    virtual void ideUpdateData();
     virtual void squeeze();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
@@ -186,8 +187,8 @@ protected:
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void updateImage()=0;
-    virtual void createTmpData( const PHIDataParser &parser );
-    virtual void parseData( const PHIDataParser &parser );
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
 
 private:
     PHIImageData _imageData;
@@ -211,7 +212,7 @@ public slots:
 
 protected:
     virtual void squeeze();
-    virtual void updateData();
+    virtual void ideUpdateData();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -219,8 +220,8 @@ protected:
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void updateImages()=0;
-    virtual void createTmpData( const PHIDataParser &parser );
-    virtual void parseData( const PHIDataParser &parser );
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
 
 private:
     PHIImageBookData _imageBookData;
@@ -260,7 +261,7 @@ public:
     virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
     virtual void activateLayout()=0; // called once after page loading
     virtual void updateChildId( const QString &oldId, const QString &newId )=0;
-    virtual void initIDE();
+    virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
     inline const QList<PHIBaseItem*>& childItems() const { return _children; }
     inline void setChildItems( const QList<PHIBaseItem*> &list ) { _children=list; }
@@ -309,10 +310,10 @@ protected:
     virtual void paint( QPainter *p, const QRectF &exposed );
     virtual void drawShape( QPainter *p, const QRectF &exposed );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual PHIConfigWidget* configWidget();
-    virtual void parseData( const PHIDataParser &parser );
-    virtual void createTmpData( const PHIDataParser &parser );
-    virtual void updateData();
+    virtual PHIConfigWidget* ideConfigWidget();
+    virtual void phisParseData( const PHIDataParser &parser );
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void ideUpdateData();
 
     inline const QGraphicsGridLayout* layout() const { return _l; }
     void insertBaseItem( PHIBaseItem *it, int row, int column=0, int rowSpan=1, int columnSpan=1 );
@@ -324,8 +325,8 @@ signals:
     void layoutChanged();
 
 private:
-    virtual void setText( const QString &t, const QByteArray &lang );
-    virtual QString text( const QByteArray &lang ) const;
+    virtual void ideSetText( const QString &t, const QByteArray &lang );
+    virtual QString ideText( const QByteArray &lang ) const;
     void setChildItem( PHIBaseItem *it );
     void releaseItem( PHIBaseItem *it );
     void initLayout();
@@ -353,14 +354,15 @@ public:
     //inline void setValue( const QString &v ) { setData( DValue, v.toUtf8() ); }
 
 protected:
-    virtual void updateData();
+    virtual void ideUpdateData();
     virtual void squeeze();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual PHIBooleanData* readOnlyData() { return &_readOnlyData; }
-    virtual void parseData( const PHIDataParser &parser );
-    virtual void createTmpData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void setWidgetAligment( Qt::Alignment align ) { Q_UNUSED( align );}
 
 private:
     PHIBooleanData _readOnlyData;

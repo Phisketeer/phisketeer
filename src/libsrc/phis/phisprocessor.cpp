@@ -78,9 +78,9 @@ void PHISProcessor::run()
     _req->setDefaultLang( page->defaultLanguage() );
     page->setLang( _req->currentLang() );
     PHIDataParser parser( _req, page->id(), _db );
-    page->parseData( parser );
+    page->phisParseData( parser );
     PHIBaseItem *it;
-    foreach( it, page->items() ) it->privateParseData( parser );
+    foreach( it, page->items() ) it->phisPrivateParseData( parser );
 
     // master template
     PHIBasePage *master( 0 );
@@ -144,7 +144,7 @@ void PHISProcessor::run()
     QByteArray out;
     out.reserve( 50*1024 );
     if ( Q_UNLIKELY( genPhi ) ) {
-        //PHIGenerator phiGenerator( _resp );
+        //PHIGenerator phiGenerator( _req->responseRec() );
         //arr=phiGenerator.genPhi( page );
     } else {
         QFileInfo cssinfo( _req->tmpDir()+SL( "/css/" )+page->id()+SL( ".css" ) );
@@ -230,7 +230,7 @@ void PHISProcessor::parseMaster( PHIBasePage *master, PHIBasePage *page ) const
             .arg( _req->canonicalFilename() ).arg( master->id() ) );
     }
     PHIDataParser parser( _req, master->id(), _db );
-    master->parseData( parser );
+    master->phisParseData( parser );
     page->copyMasterData( master );
     PHIBaseItem *it;
     PHIByteArrayList itemIds=page->itemIdsByteArray();
@@ -242,7 +242,7 @@ void PHISProcessor::parseMaster( PHIBasePage *master, PHIBasePage *page ) const
                 .arg( _req->canonicalFilename() ).arg( it->name() ).arg( master->id() ) );
             continue;
         }
-        it->privateParseData( parser );
+        it->phisPrivateParseData( parser );
         it->setParent( page );
         it->setZIndex( -10000+it->realZIndex() );
     }
@@ -282,7 +282,7 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
     }
     PHIDataParser parser( _req, page->id(), _db );
     try {
-        page->createTmpData( parser );
+        page->phisCreateData( parser );
     } catch ( std::bad_alloc& ) {
         delete page;
         return 0;
@@ -309,7 +309,7 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
             arr.clear();
             in >> arr;
             it->load( arr, static_cast<int>(version) );
-            it->privateCreateTmpData( parser );
+            it->phisPrivateCreateData( parser );
             if ( !it->extension().isEmpty() ) page->insertExtension( it->wid(), it->extension() );
             l=qobject_cast<PHIAbstractLayoutItem*>(it);
             if ( l ) layouts.append( l );
@@ -404,10 +404,13 @@ void PHISProcessor::genImage() const
     bool useTmp=_req->getKeys().contains( SL( "t" ) );
     QString imgPath=_req->getValue( SL( "i" ) );
     if ( Q_UNLIKELY( !useTmp ) ) {
+        _req->dump();
         imgPath=resolveRelativeFile( imgPath );
     } else {
         // @todo: remove tmp images from PHIImageCache
-        imgPath=_req->imgDir()+QDir::separator()+imgPath+SL( ".png" );
+        if ( imgPath.endsWith( SL( ".ico" ) ) )
+            imgPath=_req->imgDir()+QDir::separator()+imgPath;
+        else imgPath=_req->imgDir()+QDir::separator()+imgPath+SL( ".png" );
     }
     QFileInfo fi( imgPath );
     if ( !fi.isReadable() ) {
@@ -436,7 +439,7 @@ void PHISProcessor::genCSS() const
     QFileInfo fi( path );
     if ( Q_UNLIKELY( !fi.isReadable() ) ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
-            QObject::tr( "Could not access CSS file '%1'." ).arg( path ) );
+            tr( "Could not access CSS file '%1'." ).arg( path ) );
         return _req->responseRec()->error( PHILOGERR, PHIRC_HTTP_NOT_FOUND, tr( "Could not access CSS file." ) );
     }
     _req->responseRec()->setContentType( BL( "text/css" ) );
@@ -474,42 +477,50 @@ void PHISProcessor::genScripts() const
 {
     QFile f( _req->tmpDir()+SL( "/js/phibase.js" ) );
     if ( Q_LIKELY( f.exists() ) ) return;
-    QFile tmp( L1( ":/phibase.js" ) );
-    if ( tmp.open( QIODevice::ReadOnly ) ) {
-        if ( Q_UNLIKELY( !f.open( QIODevice::WriteOnly ) ) ) {
-            _req->responseRec()->log( PHILOGCRIT, PHIRC_IO_FILE_CREATION_ERROR,
-                tr( "Could not create phibase JS '%1'." ).arg( f.fileName() ) );
-            tmp.close();
-        } else {
-            f.write( tmp.readAll() );
-            f.close();
-            tmp.close();
-        }
+    createJS( L1( "phibase.js" ) );
+    createJS( L1( "jquery.js" ) );
+    createJS( L1( "jqueryiefix.js" ) );
+    createJS( L1( "excanvas.js" ) );
+    createJS( L1( "ui-core.js" ) );
+    //createJS( L1( "ui-widget.js" ) );
+    //createJS( L1( "ui-datepicker.js" ) );
+    createJS( L1( "ui-progressbar.js" ) );
+    createJS( L1( "ui-effects.js" ) );
+    //createJS( L1( "ui-mouse.js" ) );
+    //createJS( L1( "ui-draggable.js" ) );
+    //createJS( L1( "ui-droppable.js" ) );
+}
+
+void PHISProcessor::createJS( const QString &name ) const
+{
+    QFile src( L1( ":/" )+name );
+    if ( !src.open( QIODevice::ReadOnly ) ) {
+        _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
+            tr( "Could not read JavaScript data '%1'." ).arg( name ) );
+        return;
     }
-    f.setFileName( _req->tmpDir()+L1( "/js/jquery.js" ) );
-    tmp.setFileName( L1( ":/jquery.js" ) );
-    if ( tmp.open( QIODevice::ReadOnly ) ) {
-        if ( Q_UNLIKELY( !f.open( QIODevice::WriteOnly ) ) ) {
-            _req->responseRec()->log( PHILOGCRIT, PHIRC_IO_FILE_CREATION_ERROR,
-                tr( "Could not create jQuery JS '%1'." ).arg( f.fileName() ) );
-            tmp.close();
-        } else {
-            f.write( tmp.readAll() );
-            f.close();
-            tmp.close();
-        }
+    QFile f( _req->tmpDir()+L1( "/js/" )+name );
+    if ( !f.open( QIODevice::WriteOnly ) ) {
+        _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
+            tr( "Could not write JavaScript file '%1'." ).arg( f.fileName() ) );
+        return;
     }
-    f.setFileName( _req->tmpDir()+L1( "/js/jqueryiefix.js" ) );
-    tmp.setFileName( L1( ":/jqueryiefix.js" ) );
-    if ( tmp.open( QIODevice::ReadOnly ) ) {
-        if ( Q_UNLIKELY( !f.open( QIODevice::WriteOnly ) ) ) {
-            _req->responseRec()->log( PHILOGCRIT, PHIRC_IO_FILE_CREATION_ERROR,
-                tr( "Could not create jQuery IE678 fix JS '%1'." ).arg( f.fileName() ) );
-            tmp.close();
-        } else {
-            f.write( tmp.readAll() );
-            f.close();
-            tmp.close();
-        }
-    }
+    if ( name==L1( "phibase.js" ) ) {
+        QString str=QString::fromUtf8( src.readAll() );
+        // minimize:
+        str.replace( QRegExp( L1( " {2,}" ) ), QString() );
+        str.replace( L1( " (" ), L1( "(" ) );
+        str.replace( L1( "( " ), L1( "(" ) );
+        str.replace( L1( " )" ), L1( ")" ) );
+        str.replace( L1( ") " ), L1( ")" ) );
+        str.replace( L1( ", " ), L1( "," ) );
+        str.replace( L1( " {" ), L1( "{" ) );
+        str.replace( L1( "{ " ), L1( "{" ) );
+        str.replace( L1( " }" ), L1( "}" ) );
+        str.replace( L1( "} " ), L1( "}" ) );
+#ifndef PHIDEBUG
+        str.replace( QRegExp( L1( "\n{1,1}" ) ), QString() );
+#endif
+        f.write( str.toLatin1() );
+    } else f.write( src.readAll() );
 }

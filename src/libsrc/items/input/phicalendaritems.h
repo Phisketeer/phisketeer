@@ -37,10 +37,10 @@ public:
     virtual QString description() const { return tr( "Calendar item." ); }
     virtual PHIWID wid() const { return Calendar; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/calendar" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 
 protected:
-    virtual void updateData();
+    virtual void ideUpdateData();
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -63,10 +63,10 @@ public:
     virtual QString description() const { return tr( "Date edit item with calendar popup." ); }
     virtual PHIWID wid() const { return DateEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/dateedit" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 
 protected:
-    virtual void updateData();
+    virtual void ideUpdateData();
     virtual void setWidgetText( const QString &t );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 

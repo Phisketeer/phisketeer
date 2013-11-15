@@ -239,7 +239,6 @@ void PHIRequest::init() // must be executed AFTER all GET and POST var extractio
             else if ( _agentId==Safari ) _agentFeatures |= H264; // Safari >= 5.1
             else if ( _agentId==Opera ) _agentFeatures |= Ogg; // Opera >= 15
         }
-        _agentFeatures &= ~Transform3D;
         break;
     case Gecko:
         _agentPrefix=BL( "-moz-" );

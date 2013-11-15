@@ -51,9 +51,9 @@ PHIRectConfig::PHIRectConfig( PHIBaseItem *it, QWidget *parent )
 
     PHIRectItem *rit=qobject_cast<PHIRectItem*>(it);
     *_oldRadiusData=*rit->radiusData();
-    _radiusSpin->setEnabled( rit->radiusData()->unparsedStatic() );
-    _radiusLabel->setEnabled( rit->radiusData()->unparsedStatic() );
-    _radiusSpin->setValue( rit->radiusData()->unparsedStatic() ? rit->radiusData()->integer() : 0 );
+    _radiusSpin->setEnabled( rit->radiusData()->isUnparsedStatic() );
+    _radiusLabel->setEnabled( rit->radiusData()->isUnparsedStatic() );
+    _radiusSpin->setValue( rit->radiusData()->isUnparsedStatic() ? rit->radiusData()->integer() : 0 );
     connect( _radiusSpin, SIGNAL(valueChanged(int)), this, SLOT(radiusSpinChanged(int)) );
 }
 
@@ -66,10 +66,10 @@ void PHIRectConfig::radiusToolClicked()
 {
     PHIRectItem *it=qobject_cast<PHIRectItem*>(item());
     emit requestTextConfig( it->radiusData() );
-    _radiusSpin->setEnabled( it->radiusData()->unparsedStatic() );
-    _radiusLabel->setEnabled( it->radiusData()->unparsedStatic() );
+    _radiusSpin->setEnabled( it->radiusData()->isUnparsedStatic() );
+    _radiusLabel->setEnabled( it->radiusData()->isUnparsedStatic() );
     _radiusSpin->blockSignals( true );
-    if ( it->radiusData()->unparsedStatic() ) _radiusSpin->setValue( it->radiusData()->integer() );
+    if ( it->radiusData()->isUnparsedStatic() ) _radiusSpin->setValue( it->radiusData()->integer() );
     else _radiusSpin->setValue( 0 );
     _radiusSpin->blockSignals( false );
     it->privateUpdateData();
@@ -125,20 +125,20 @@ void PHIRectItem::drawShape( QPainter *p, const QRectF& )
     }
 }
 
-void PHIRectItem::createTmpData( const PHIDataParser &parser )
+void PHIRectItem::phisCreateData( const PHIDataParser &parser )
 {
-    if ( _radiusData.unparsedStatic() ) {
-        setData( DBorderRadius, _radiusData.integer() );
-        PHIAbstractShapeItem::createTmpData( parser ); // create image
-    } else {
+    setData( DBorderRadius, parser.text( &_radiusData ) );
+    if ( !_radiusData.isUnparsedStatic() ) {
         setDirtyFlag( DFInt1 );
         setFlag( FDoNotCache );
     }
+    // create image only if we are not able to cache
+    if ( !(flags() & FDoNotCache) ) PHIAbstractShapeItem::phisCreateData( parser );
 }
 
-void PHIRectItem::parseData( const PHIDataParser &parser )
+void PHIRectItem::phisParseData( const PHIDataParser &parser )
 {
-    if ( dirtyFlags() & DFInt1 ) setData( DBorderRadius, parser.text( &_radiusData ).toInt() );
+    if ( dirtyFlags() & DFInt1 ) setData( DBorderRadius, parser.text( &_radiusData ) );
 }
 
 void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
@@ -164,10 +164,9 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jque
     }
     if ( Q_LIKELY( !needImage ) ) {
         out+=indent+BL( "<div" );
-        startCSS( req, out, jquery, true );
-        if ( realPattern()==1 ) out+=BL( "background-color:" )+rgba( realColor() )+';';
-        else if ( realPattern()==15 ) genLinearGradient( req, out );
-        qDebug() << borderRadius();
+        htmlBase( req, out, jquery, true );
+        if ( realPattern()==1 ) out+=BL( "background-color:" )+cssRgba( realColor() )+';';
+        else if ( realPattern()==15 ) cssLinearGradient( req, out );
         if ( borderRadius() ) { // rounded corners
             QByteArray prefix=QByteArray();
             if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()<534 ) prefix=req->agentPrefix();
@@ -178,9 +177,9 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jque
             QByteArray style=BL( "solid" );
             if ( realLine()==2 ) style=BL( "dashed" );
             else if ( realLine()==3 ) style=BL( "dotted" );
-            out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+' '+rgba( realOutlineColor() )+';';
+            out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+' '+cssRgba( realOutlineColor() )+';';
             setAdjustedRect( QRectF( -realPenWidth(), -realPenWidth(), realWidth(), realHeight() ) );
-            genAdjustedPos( jquery );
+            htmlAdjustedPos( jquery );
         }
         if ( effect()->graphicsType()==PHIEffect::GTShadow ) {
             QByteArray prefix=req->agentPrefix();
@@ -192,18 +191,18 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jque
             effect()->shadow( c, xOff, yOff, radius );
             out+=prefix+BL( "box-shadow:" )+QByteArray::number( qRound(xOff) )+"px ";
             out+=QByteArray::number( qRound(yOff) )+"px ";
-            out+=QByteArray::number( qRound(radius) )+"px "+rgba( c )+';';
+            out+=QByteArray::number( qRound(radius) )+"px "+cssRgba( c )+';';
         }
         out+=BL( "\"></div>\n" );
     } else {
         out+=indent+BL( "<img" );
-        startCSS( req, out, jquery, false );
+        htmlBase( req, out, jquery, false );
         QRectF br=boundingRect();
-        QByteArray imgId=PHIDataParser::createTransformedImageId( req, this, 0, br );
-        out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&amp;t=1\">\n" );
+        QByteArray imgId=PHIDataParser::createTransformedImage( req, this, 0, br );
+        out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
         setAdjustedRect( br );
-        genAdjustedPos( jquery );
-        genAdjustedSize( jquery );
+        htmlAdjustedPos( jquery );
+        htmlAdjustedSize( jquery );
     }
 }
 
@@ -225,15 +224,15 @@ void PHIRectItem::squeeze()
     removeData( DBorderRadius );
 }
 
-void PHIRectItem::updateData()
+void PHIRectItem::ideUpdateData()
 {
-    if ( _radiusData.unparsedStatic() ) setData( DBorderRadius, _radiusData.integer() );
-    else if ( _radiusData.translated() ) setData( DBorderRadius, _radiusData.integer( page()->currentLang() ) );
+    if ( _radiusData.isUnparsedStatic() ) setData( DBorderRadius, _radiusData.integer() );
+    else if ( _radiusData.isUnparsedTranslated() ) setData( DBorderRadius, _radiusData.integer( page()->currentLang() ) );
     else setData( DBorderRadius, 0 );
     update();
 }
 
-PHIConfigWidget* PHIRectItem::configWidget()
+PHIConfigWidget* PHIRectItem::ideConfigWidget()
 {
     return new PHIRectConfig( this );
 }

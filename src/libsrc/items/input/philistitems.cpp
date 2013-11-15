@@ -28,7 +28,7 @@ void PHISelectItem::initWidget()
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::ComboBox ) );
 }
 
-void PHISelectItem::initIDE()
+void PHISelectItem::ideInit()
 {
     QComboBox *cb=qobject_cast<QComboBox*>(widget());
     Q_ASSERT( cb );
@@ -84,9 +84,9 @@ QSizeF PHISelectItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) c
     return s;
 }
 
-void PHISelectCountryItem::initIDE()
+void PHISelectCountryItem::ideInit()
 {
-    PHISelectItem::initIDE();
+    PHISelectItem::ideInit();
     QFile f( L1( ":/countries" ) );
     if ( !f.open( QIODevice::ReadOnly ) ) return;
     QTextStream t( &f );
@@ -122,7 +122,7 @@ void PHIMultiSelectItem::initWidget()
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, QSizePolicy::Frame ) );
 }
 
-void PHIMultiSelectItem::initIDE()
+void PHIMultiSelectItem::ideInit()
 {
     textData()->setText( L1( "select_1[s1][true]\nselect_2[s2]\nselect_3[s3][1]" ) );
     setColor( PHIPalette::WidgetBase, PHIPalette::Base, page()->phiPalette().color( PHIPalette::Base ) );

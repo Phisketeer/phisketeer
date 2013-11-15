@@ -20,16 +20,12 @@
 #include <QDir>
 #include <QProcess>
 #include <QSqlError>
-#include <QCryptographicHash>
 #include <QTransform>
 #include <QPainter>
 #include "phidataparser.h"
 #include "phibasepage.h"
-#include "phibaseitem.h"
-#include "phirequest.h"
 #include "phiresponserec.h"
 #include "phinetrequest.h"
-#include "phiimagecache.h"
 
 QHash <QByteArray, QRectF> PHIDataParser::_imageTransformedRects;
 QHash <QByteArray, QRectF> PHIDataParser::_imageGraphicsRects;
@@ -390,7 +386,7 @@ void PHIDataParser::cacheImageFiles( PHIImageBookData *data, const QStringList &
     *data=res;
 }
 
-void PHIDataParser::createTmpImages( PHIImageData *data ) const
+void PHIDataParser::createImages( PHIImageData *data ) const
 {
     Q_ASSERT( data );
     if ( data->options() & PHIData::NoCache ) return;
@@ -404,7 +400,7 @@ void PHIDataParser::createTmpImages( PHIImageData *data ) const
     {
         PHIImageData trans;
         trans.setSource( PHIData::Translated );
-        foreach ( QByteArray lang, data->data().keys() ) {
+        foreach ( QByteArray lang, data->keys() ) {
             if ( lang.startsWith( '#' ) ) continue; // meta data
             id=createImageId( name, lang );
             saveImage( data->image( lang ), id );
@@ -444,7 +440,7 @@ void PHIDataParser::createTmpImages( PHIImageData *data ) const
     *data=res; // implicitly frees image memory if any
 }
 
-void PHIDataParser::createTmpImages( PHIImageBookData *data ) const
+void PHIDataParser::createImages( PHIImageBookData *data ) const
 {
     Q_ASSERT( data );
     if ( data->options() & PHIData::NoCache ) return;
@@ -469,7 +465,7 @@ void PHIDataParser::createTmpImages( PHIImageBookData *data ) const
     {
         PHIImageBookData trans;
         trans.setSource( PHIData::Translated );
-        foreach ( QByteArray lang, data->data().keys() ) {
+        foreach ( QByteArray lang, data->keys() ) {
             if ( lang.startsWith( '#' ) ) continue; // meta data
             PHIImageHash images=data->imageBook( lang );
             for ( int i=0; i<images.count(); i++ ) {
@@ -694,25 +690,8 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
     return ids;
 }
 
-QByteArray PHIDataParser::createImageId( const QByteArray &name, const QByteArray &lang, int num ) const
-{
-    QByteArray arr=name+QByteArray::number( num )+lang+_req->url().toEncoded();
-    arr=QCryptographicHash::hash( arr, QCryptographicHash::Md5 ).toHex();
-    arr.squeeze(); // will be stored in memory so free space
-    return arr;
-}
-
-QByteArray PHIDataParser::createTmpImage( const QImage &img, const QByteArray &lang, int i ) const
-{
-    Q_ASSERT( _currentItem );
-    QByteArray id=createImageId( _currentItem->id(), lang, i );
-    qDebug() << "createTmpImage" << id << _currentItem->id();
-    saveImage( img, id );
-    return id;
-}
-
 // static
-QByteArray PHIDataParser::createTransformedImageId( const PHIRequest *req, const PHIBaseItem *it, int num, QRectF &br )
+QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const PHIBaseItem *it, int num, QRectF &br )
 {
     qDebug() << "createTransformedImage" << it->name();
     QTransform t=it->computeTransformation();
@@ -723,7 +702,6 @@ QByteArray PHIDataParser::createTransformedImageId( const PHIRequest *req, const
         arr=it->id()+QByteArray::number( num )+req->currentLangByteArray()+QByteArray::number( t.determinant() )
         +QByteArray::number( it->hasGraphicEffect() ? 1 : 0 )+req->url().toEncoded();
         arr=QCryptographicHash::hash( arr, QCryptographicHash::Md5 ).toHex();
-        qDebug() << "imgid" << arr;
         QFileInfo fi( req->imgDir()+QLatin1Char( '/')+QString::fromUtf8( arr )+SL( ".png" ) );
         if ( fi.exists() && fi.lastModified()>=req->lastModified() ) {
             QRectF r=br;

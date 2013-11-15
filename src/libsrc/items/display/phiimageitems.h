@@ -57,7 +57,7 @@ public:
     virtual QString description() const { return tr( "Displays scaleable vector graphics." ); }
     virtual PHIWID wid() const { return Svg; }
     virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/roundedrect" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
     inline virtual bool isHeightChangeable() const { return false; }
     inline virtual bool isWidthChangeable() const { return false; }
     inline PHITextData* textData() { return &_textData; }
@@ -73,13 +73,13 @@ protected:
     virtual void squeeze();
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
-    virtual void updateData();
+    virtual void ideUpdateData();
 
 private:
     static QString svgDefaultSource();
     void initWidget();
-    virtual void setText( const QString &s, const QByteArray &lang );
-    virtual QString text( const QByteArray &lang ) const;
+    virtual void ideSetText( const QString &s, const QByteArray &lang );
+    virtual QString ideText( const QByteArray &lang ) const;
 
     PHITextData _textData;
     QSvgRenderer _renderer;
@@ -131,7 +131,7 @@ protected:
     virtual void squeeze();
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
-    virtual void initIDE();
+    virtual void ideInit();
     void initWidget();
     inline qreal step() const { return data( DCurrentStep, 50. ).toReal(); }
     inline void setStep( qreal s ) { setData( DCurrentStep, s ); }
@@ -139,7 +139,7 @@ protected:
     inline void setCurrentImageNum( int i ) { setData( DCurrentImageNum, i ); }
     inline qreal currentOpacity() const { return data( DCurrentOpacity, 1. ).toReal(); }
     inline void setCurrentOpacity( qreal o ) { setData( DCurrentOpacity, o ); }
-    virtual void updateData();
+    virtual void ideUpdateData();
 
 protected slots:
     void pauseTimeout();
@@ -174,7 +174,7 @@ protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual void squeeze();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual void createTmpData( const PHIDataParser &parser );
+    virtual void phisCreateData( const PHIDataParser &parser );
 
 private:
     QImage _image;

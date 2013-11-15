@@ -105,30 +105,30 @@ QString PHISvgItem::svgDefaultSource()
     return QString::fromLatin1( svg );
 }
 
-void PHISvgItem::initIDE()
+void PHISvgItem::ideInit()
 {
     _textData.setText( svgDefaultSource() );
 }
 
-void PHISvgItem::updateData()
+void PHISvgItem::ideUpdateData()
 {
-    if ( _textData.unparsedStatic() ) setData( DSvgSource, _textData.text().toLatin1() );
-    else if ( _textData.translated() )
+    if ( _textData.isUnparsedStatic() ) setData( DSvgSource, _textData.text().toLatin1() );
+    else if ( _textData.isUnparsedTranslated() )
         setData( DSvgSource, _textData.text( page()->currentLang() ).toLatin1() );
     else setData( DSvgSource, QByteArray() );
     initWidget();
 }
 
-void PHISvgItem::setText( const QString &s, const QByteArray &lang )
+void PHISvgItem::ideSetText( const QString &s, const QByteArray &lang )
 {
-    if ( _textData.translated() ) _textData.setText( s, lang );
+    if ( _textData.isTranslated() ) _textData.setText( s, lang );
     else _textData.setText( s );
-    updateData();
+    ideUpdateData();
 }
 
-QString PHISvgItem::text( const QByteArray &lang ) const
+QString PHISvgItem::ideText( const QByteArray &lang ) const
 {
-    if ( _textData.translated() ) return _textData.text( lang );
+    if ( _textData.isTranslated() ) return _textData.text( lang );
     return _textData.text();
 }
 
@@ -178,9 +178,9 @@ void PHISvgItem::paint( QPainter *p, const QRectF &exposed )
     }
 }
 
-void PHISlideShowItem::initIDE()
+void PHISlideShowItem::ideInit()
 {
-    PHIAbstractImageBookItem::initIDE();
+    PHIAbstractImageBookItem::ideInit();
     QImage img( L1( ":/misc/clipart" ) );
     PHIImageHash hash;
     hash.insert( QByteArray::number( 0 ), img );
@@ -189,13 +189,13 @@ void PHISlideShowItem::initIDE()
     _fadeTimeData.setInteger( 2 );
 }
 
-void PHISlideShowItem::updateData()
+void PHISlideShowItem::ideUpdateData()
 {
-    if ( _intervalData.translated() ) setData( DInterval, _intervalData.integer( page()->currentLang() ) );
+    if ( _intervalData.isUnparsedTranslated() ) setData( DInterval, _intervalData.integer( page()->currentLang() ) );
     else setData( DInterval, _intervalData.integer()>1 ? _intervalData.integer()*1000 : 4000 );
-    if ( _fadeTimeData.translated() ) setData( DFadeTime, _fadeTimeData.integer( page()->currentLang() ) );
+    if ( _fadeTimeData.isUnparsedTranslated() ) setData( DFadeTime, _fadeTimeData.integer( page()->currentLang() ) );
     else setData( DFadeTime, _fadeTimeData.integer()>1 ? _fadeTimeData.integer()*1000 : 2000 );
-    PHIAbstractImageBookItem::updateData();
+    PHIAbstractImageBookItem::ideUpdateData();
     updateImages();
 }
 
@@ -316,9 +316,9 @@ void PHISponsorItem::paint( QPainter *painter, const QRectF &exposed )
     painter->drawImage( 0, 0, _image );
 }
 
-void PHISponsorItem::createTmpData( const PHIDataParser &parser )
+void PHISponsorItem::phisCreateData( const PHIDataParser &parser )
 {
-    setImagePath( parser.createTmpImage( _image ) );
+    setImagePath( parser.createImage( _image ) );
 }
 
 void PHISponsorItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
@@ -332,6 +332,6 @@ void PHISponsorItem::html( const PHIRequest *req, QByteArray &out, QByteArray &j
     } else {
         out+=indent+BL( "<img style=\"z-index:" )+QByteArray::number( PHI::maxZIndex()+1 )+BL( ";position:absolute;left:" )
             +QByteArray::number( qRound(realX()) )+BL( "px;top:" )+QByteArray::number( qRound(realY()) )
-            +BL( "px;\" src=\"phi.phis?i=" )+imagePath()+BL( "&amp;t=1\">\n" );
+            +BL( "px;\" src=\"phi.phis?i=" )+imagePath()+BL( "&t=1\">\n" );
     }
 }

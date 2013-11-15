@@ -20,6 +20,7 @@
 #include "phitextitems.h"
 #include "phidatasources.h"
 #include "phibasepage.h"
+#include "phirequest.h"
 #include "phi.h"
 
 void PHILabelItem::initWidget()
@@ -28,7 +29,7 @@ void PHILabelItem::initWidget()
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
 
-void PHILabelItem::initIDE()
+void PHILabelItem::ideInit()
 {
     textData()->setText( L1( "Label" ) );
     setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
@@ -39,6 +40,72 @@ void PHILabelItem::setWidgetText( const QString &t )
 {
     QLabel *l=qobject_cast<QLabel*>(widget());
     l->setText( t );
+}
+
+void PHILabelItem::setWidgetAligment( Qt::Alignment align )
+{
+    QLabel *l=qobject_cast<QLabel*>(widget());
+    Q_ASSERT( l );
+    l->setAlignment( align );
+}
+
+void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+{
+    out+=indent+BL( "<div" );
+    htmlBase( req, out, jquery );
+    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
+        if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
+            out+=BL( "background-color:" )+cssRgba( realBackgroundColor() )+';';
+        if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text )
+            out+=BL( "color:" )+cssRgba( realColor() )+';';
+    }
+    out+=BL( "\"><table><tr><td style=\"" );
+    Qt::Alignment a=static_cast<Qt::Alignment>(realAlignment());
+    if ( data( DFont ).isValid() ) {
+        QFont f=data( DFont ).value<QFont>();
+        if ( f.underline() ) {
+            out+=BL( "text-decoration:underline;" );
+        }
+    }
+    if ( a & Qt::AlignJustify ) out+=BL( "vertical-align:top;" );
+    else out+=BL( "vertical-align:middle;" );
+    if ( a & Qt::AlignHCenter ) out+=BL( "text-align:center;" );
+    else if ( a & Qt::AlignRight ) out+=BL( "text-align:right;" );
+    out+=BL( "\">" )+data( DText ).toByteArray().replace( '\n', BL( "<br>" ) )
+        +BL( "</td></tr></table></div>\n" );
+}
+
+void PHILabelItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
+{
+    Q_UNUSED( req )
+    out+=BL( "overflow:hidden;white-space:nowrap;" );
+    // fallback:
+    if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::WindowText ) out+=BL( "color:" )+realColor().name().toLatin1()+';';
+    if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window ) out+=BL( "background-color:" )+realBackgroundColor().name().toLatin1()+';';
+}
+
+void PHILabelItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
+{
+    if ( effect()->graphicsType()==PHIEffect::GTShadow && !(req->agentFeatures() & PHIRequest::IE678) ) {
+        QColor c;
+        qreal radius, xoff, yoff;
+        effect()->shadow( c, xoff, yoff, radius );
+        QByteArray col=cssRgba( c );
+        if ( !(req->agentFeatures() & PHIRequest::RGBA) ) col=c.name().toLatin1();
+        if ( colorRole( PHIPalette::WidgetBase )==PHIPalette::Window ) {
+            out+=BL( "text-shadow:" )+QByteArray::number( qRound(xoff) )
+                +BL( "px " )+QByteArray::number( qRound(yoff) )+BL( "px " )
+                +QByteArray::number( qRound(radius) )+BL( "px " )+col+';';
+        } else {
+            QByteArray prefix=req->agentPrefix();
+            if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
+            else if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()>534 ) prefix=QByteArray();
+            else if ( req->agentEngine()==PHIRequest::Presto ) prefix=QByteArray();
+            out+=prefix+BL( "box-shadow:" )+QByteArray::number( qRound(xoff) )+"px ";
+            out+=QByteArray::number( qRound(yoff) )+"px ";
+            out+=QByteArray::number( qRound(radius) )+"px "+col+';';
+        }
+    } else PHIAbstractTextItem::cssGraphicEffect( req, out, jquery );
 }
 
 void PHILabelItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )

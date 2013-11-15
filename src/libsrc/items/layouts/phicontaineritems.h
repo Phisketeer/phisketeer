@@ -35,7 +35,7 @@ public:
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/login" ) ); }
     inline virtual QString description() const { return tr( "Login layout container." ); }
     inline virtual bool isPrivateItem() const { return false; }
-    virtual void initIDE();
+    virtual void ideInit();
 };
 
 class PHIRegisterUserContainerItem : public PHILoginContainerItem
@@ -52,7 +52,7 @@ public:
     inline virtual QString listName() const { return tr( "Register user" ); }
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/user" ) ); }
     inline virtual QString description() const { return tr( "Regsister user layout container." ); }
-    virtual void initIDE();
+    virtual void ideInit();
 };
 
 class PHIAddressContainerItem : public PHILoginContainerItem
@@ -69,7 +69,7 @@ public:
     inline virtual QString listName() const { return tr( "Address" ); }
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/address" ) ); }
     inline virtual QString description() const { return tr( "Address layout container." ); }
-    virtual void initIDE();
+    virtual void ideInit();
 };
 
 class PHIContactContainerItem : public PHILoginContainerItem
@@ -86,7 +86,7 @@ public:
     inline virtual QString listName() const { return tr( "Contact" ); }
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/contact" ) ); }
     inline virtual QString description() const { return tr( "Contact layout container." ); }
-    virtual void initIDE();
+    virtual void ideInit();
 };
 
 class PHIPeriodContainerItem : public PHILoginContainerItem
@@ -103,7 +103,7 @@ public:
     inline virtual QString listName() const { return tr( "Period" ); }
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/period" ) ); }
     inline virtual QString description() const { return tr( "Date period layout container." ); }
-    virtual void initIDE();
+    virtual void ideInit();
 };
 
 class PHICCContainerItem : public PHIGridLayoutItem
@@ -121,7 +121,7 @@ public:
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/creditcard" ) ); }
     inline virtual QString description() const { return tr( "Credit card layout container." ); }
     inline virtual bool isPrivateItem() const { return false; }
-    virtual void initIDE();
+    virtual void ideInit();
 };
 
 #endif // PHICONTAINERITEMS_H

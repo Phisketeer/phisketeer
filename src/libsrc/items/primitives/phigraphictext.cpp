@@ -21,23 +21,36 @@
 #include "phigraphictext.h"
 #include "phicolorconfig.h"
 #include "phibasepage.h"
+#include "phidataparser.h"
 
-void PHIGraphicTextItem::initIDE()
+void PHIGraphicTextItem::ideInit()
 {
-    PHIAbstractShapeItem::initIDE();
+    PHIAbstractShapeItem::ideInit();
     _textData.setText( tr( "Graphical text" ) );
     QFont f=font();
     f.setPointSizeF( 28. );
     setFont( f );
-    updateGeometry();
 }
 
-void PHIGraphicTextItem::updateData()
+void PHIGraphicTextItem::ideUpdateData()
 {
-    updateGeometry();
+    QString t=ideText( page()->currentLang() );
+    setText( t );
+    QSizeF s( 16., 16. );
+    if ( _textData.isUnparsedStatic() ) resize( graphicSize( t ) );
+    else if ( _textData.isUnparsedTranslated() ) {
+        foreach( QByteArray l, _textData.langs() ) {
+            QSizeF ls=graphicSize( _textData.text( l ) );
+            if ( ls.width()>s.width() ) s.setWidth( ls.width() );
+            if ( ls.height()>s.height() ) s.setHeight( ls.height() );
+        }
+        resize( s );
+    }
+    _image=graphicImage( t );
+    update();
 }
 
-void PHIGraphicTextItem::updateGeometry()
+QSizeF PHIGraphicTextItem::graphicSize( const QString &t ) const
 {
     QGraphicsSimpleTextItem it;
     QFont f=font();
@@ -54,31 +67,19 @@ void PHIGraphicTextItem::updateGeometry()
         pen.setStyle( style );
     } else pen.setStyle( Qt::NoPen );
     QBrush brush;
-    if ( realPattern()<15 ) { // no gradient style
+    if ( realPattern()<15 ) {
         brush.setStyle( pat );
         brush.setColor( realColor() );
     } else brush=QBrush( gradient() );
     it.setPen( pen );
     it.setBrush( brush );
-    QSizeF s=QSizeF( 64., 22. );
-    if ( isIdeItem() ) {
-        foreach ( QString lang, page()->languages() ) {
-            it.setText( text( lang.toLatin1() ) );
-            s.setWidth( qMax( it.boundingRect().size().width(), s.width() ) );
-            s.setHeight( qMax( it.boundingRect().size().height(), s.height() ) );
-        }
-    } else {
-        it.setText( text() );
-        s.setWidth( qMax( it.boundingRect().size().width(), s.width() ) );
-        s.setHeight( qMax( it.boundingRect().size().height(), s.height() ) );
-    }
-    // @todo: respect old position and transform origin
-    s+=QSizeF( realPenWidth(), realPenWidth() );
-    resize( s );
-    updateContent();
+    it.setText( t );
+    QSizeF s=it.boundingRect().size();
+    if ( realLine()>0 ) s+=QSizeF( realPenWidth(), realPenWidth() );
+    return s;
 }
 
-void PHIGraphicTextItem::updateContent()
+QImage PHIGraphicTextItem::graphicImage( const QString &t ) const
 {
     QGraphicsSimpleTextItem it;
     QStyleOptionGraphicsItem opt;
@@ -98,31 +99,24 @@ void PHIGraphicTextItem::updateContent()
         pen.setStyle( style );
     } else pen.setStyle( Qt::NoPen );
     QBrush brush;
-    if ( realPattern()<15 ) { // no gradient style
+    if ( realPattern()<15 ) {
         brush.setStyle( pat );
         brush.setColor( realColor() );
     } else brush=QBrush( gradient() );
     it.setPen( pen );
     it.setBrush( brush );
-    if ( isIdeItem() ) it.setText( text( page()->currentLang() ) );
-    else it.setText( text() );
-    QSizeF s=realSize();
+    it.setText( t );
+    QSizeF s=it.boundingRect().size();
+    if ( realLine()>0 ) s+=QSizeF( realPenWidth(), realPenWidth() );
     QImage img( s.toSize(), QImage::Format_ARGB32_Premultiplied );
-    QSizeF penSize=QSizeF( realPenWidth(), realPenWidth() );
-    s-=it.boundingRect().size()+penSize;
     img.fill( 0 );
     QPainter p( &img );
-    p.translate( penSize.width()/2., penSize.height()/2. );
-    p.translate( 0, s.height()/2. );
-    if ( alignment() & Qt::AlignRight ) p.translate( s.width(), 0 );
-    else if ( alignment() & Qt::AlignHCenter ) p.translate( s.width()/2., 0 );
-    p.setCompositionMode( QPainter::CompositionMode_Source );
+    p.translate( realPenWidth()/2., realPenWidth()/2. );
     p.setRenderHint( QPainter::TextAntialiasing, true );
     p.setRenderHint( QPainter::Antialiasing, true );
     it.paint( &p, &opt, 0 );
     p.end();
-    _image=img;
-    update();
+    return img;
 }
 
 QRectF PHIGraphicTextItem::boundingRect() const
@@ -130,21 +124,67 @@ QRectF PHIGraphicTextItem::boundingRect() const
     return rect();
 }
 
-void PHIGraphicTextItem::drawShape( QPainter *p, const QRectF &r )
+void PHIGraphicTextItem::phisCreateData( const PHIDataParser &parser )
 {
-    Q_UNUSED( r )
-    p->drawImage( 0, 0, _image );
+    setData( DText, parser.text( &_textData ) );
+    if ( _textData.isUnparsedStatic() ) {
+        setImagePath( parser.createImage( graphicImage( _textData.text() ) ) );
+    } else if ( _textData.isUnparsedTranslated() ) {
+        foreach ( QByteArray l, _textData.langs() ) {
+            parser.createImage( graphicImage( _textData.text( l ) ), l );
+        }
+    } else setDirtyFlag( DFText );
 }
 
-void PHIGraphicTextItem::setText( const QString &t, const QByteArray &lang )
+void PHIGraphicTextItem::phisParseData( const PHIDataParser &parser )
 {
-    if ( _textData.translated() ) {
+    if ( Q_UNLIKELY( dirtyFlags() & DFText ) ) {
+        setData( DText, parser.text( &_textData ) );
+        // need to create dynamic uncached image
+        setImagePath( parser.createImage( graphicImage( realText() ), PHIData::c(), -1 ) );
+    } else {
+        if ( _textData.isUnparsedStatic() ) {
+            setData( DText, _textData.variant() );
+        } else {
+            Q_ASSERT( _textData.isUnparsedTranslated() );
+            setImagePath( parser.imagePath( page()->currentLang() ) );
+        }
+    }
+}
+
+void PHIGraphicTextItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+{
+    qDebug() << "rect" << adjustedRect();
+    PHIBaseItem::htmlImg( req, out, jquery, indent );
+}
+
+void PHIGraphicTextItem::drawShape( QPainter *p, const QRectF &r )
+{
+    qDebug() << "draw";
+    Q_UNUSED( r )
+    qreal xoff=0, yoff=0;
+    Qt::Alignment a=static_cast<Qt::Alignment>(realAlignment());
+    if ( a & Qt::AlignLeft ) {
+        yoff=(realHeight()-_image.size().height())/2.;
+    } else if ( a & Qt::AlignHCenter ) {
+        xoff=(realWidth()-_image.size().width())/2.;
+        yoff=(realHeight()-_image.size().height())/2.;
+    } else if ( a & Qt::AlignRight ) {
+        xoff=(realWidth()-_image.size().width());
+        yoff=(realHeight()-_image.size().height())/2.;
+    }
+    p->drawImage( xoff, yoff, _image );
+    qDebug() << "end draw";
+}
+
+void PHIGraphicTextItem::ideSetText( const QString &t, const QByteArray &lang )
+{
+    if ( _textData.isTranslated() ) {
         _textData.setText( t, lang );
-    } else if ( _textData.unparsedStatic() ) {
+    } else if ( _textData.isStatic() ) {
         _textData.setSource( PHIData::Translated );
         _textData.setText( t, lang );
     }
-    updateGeometry();
     if ( isChild() ) {
         PHIBaseItem *it=page()->findItem( parentId() );
         PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
@@ -152,9 +192,21 @@ void PHIGraphicTextItem::setText( const QString &t, const QByteArray &lang )
     }
 }
 
-QString PHIGraphicTextItem::text( const QByteArray &lang ) const
+bool PHIGraphicTextItem::isWidthChangeable() const
 {
-    if ( _textData.translated() ) return _textData.text( lang );
+    if ( _textData.isUnparsedStatic() || _textData.isUnparsedTranslated() ) return false;
+    return true;
+}
+
+bool PHIGraphicTextItem::isHeightChangeable() const
+{
+    if ( _textData.isUnparsedStatic() || _textData.isUnparsedTranslated() ) return false;
+    return true;
+}
+
+QString PHIGraphicTextItem::ideText( const QByteArray &lang ) const
+{
+    if ( _textData.isTranslated() ) return _textData.text( lang );
     return _textData.text();
 }
 
@@ -174,17 +226,17 @@ void PHIGraphicTextItem::squeeze()
 {
     PHIAbstractShapeItem::squeeze();
     removeData( DText );
-    if ( alignment()==static_cast<quint16>(Qt::AlignLeft|Qt::AlignVCenter) ) removeData( DAlignment );
+    if ( realAlignment()==static_cast<quint16>(Qt::AlignLeft|Qt::AlignVCenter) ) removeData( DAlignment );
 }
 
 QSizeF PHIGraphicTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    Q_UNUSED( which )
-    Q_UNUSED( constraint )
-    return rect().size();
+    if ( isChild() || !isIdeItem() ) return rect().size();
+    if ( _textData.isUnparsedStatic() || _textData.isUnparsedTranslated() ) return rect().size();
+    return PHIAbstractShapeItem::sizeHint( which, constraint );
 }
 
-PHIConfigWidget* PHIGraphicTextItem::configWidget()
+PHIConfigWidget* PHIGraphicTextItem::ideConfigWidget()
 {
     return new PHIColorConfig( this );
 }

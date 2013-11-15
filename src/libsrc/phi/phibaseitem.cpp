@@ -123,13 +123,13 @@ void PHIBaseItem::setVisible( bool b )
 void PHIBaseItem::privateUpdateData()
 {
     Q_ASSERT( page() );
-    if ( _styleSheetData.unparsedStatic() ) setStyleSheet( _styleSheetData.text() );
-    else if ( _styleSheetData.translated() ) setStyleSheet( _styleSheetData.text( page()->currentLang() ) );
+    if ( _styleSheetData.isUnparsedStatic() ) setStyleSheet( _styleSheetData.text() );
+    else if ( _styleSheetData.isUnparsedTranslated() ) setStyleSheet( _styleSheetData.text( page()->currentLang() ) );
     else setStyleSheet( QString() );
-    if ( _disabledData.unparsedStatic() ) setDisabled( _disabledData.boolean() );
-    else if ( _disabledData.translated() ) setDisabled( _disabledData.boolean( page()->currentLang() ) );
+    if ( _disabledData.isUnparsedStatic() ) setDisabled( _disabledData.boolean() );
+    else if ( _disabledData.isUnparsedTranslated() ) setDisabled( _disabledData.boolean( page()->currentLang() ) );
     else setDisabled( false );
-    updateData();
+    ideUpdateData();
 }
 
 void PHIBaseItem::privateSqueeze()
@@ -218,11 +218,11 @@ QByteArray PHIBaseItem::save( int version )
     if ( _transformOrigin!=QPointF() ) _variants.insert( DTransformOrigin, _transformOrigin );
     if ( !_parentId.isEmpty() ) _variants.insert( DParentId, _parentId );
 
-    if ( _visibleData.unparsedStatic() && _visibleData.boolean() ) _flags &= ~FStoreVisibleData;
+    if ( _visibleData.isUnparsedStatic() && _visibleData.boolean() ) _flags &= ~FStoreVisibleData;
     else _flags |= FStoreVisibleData;
-    if ( _titleData.unparsedStatic() && _titleData.text().isEmpty() ) _flags &= ~FStoreTitleData;
+    if ( _titleData.isUnparsedStatic() && _titleData.text().isEmpty() ) _flags &= ~FStoreTitleData;
     else _flags |= FStoreTitleData;
-    if ( _disabledData.unparsedStatic() && !_disabledData.boolean() ) _flags &= ~FStoreDisabledData;
+    if ( _disabledData.isUnparsedStatic() && !_disabledData.boolean() ) _flags &= ~FStoreDisabledData;
     else _flags |= FStoreDisabledData;
     if ( _effect->effects()==PHIEffect::ENone ) _flags &= ~FStoreEffectData;
     else _flags |= FStoreEffectData;
@@ -433,8 +433,8 @@ void PHIBaseItem::setFont( const QFont &font )
     if ( _gw ) {
         pf.setPointSizeF( PHI::adjustedFontSize( font.pointSizeF() ) );
         _gw->setFont( pf );
-        _gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
-        _height=_gw->size().height();
+        //_gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
+        //_height=_gw->size().height();
     }
     if ( isIdeItem() ) privateUpdateData();
 }
@@ -501,11 +501,12 @@ void PHIBaseItem::setTransformPos( quint8 position )
     default:;
         return; // o==PHI::Custom (user defined origin)
     }
-    QPointF org=computeTransformation().map( _transformOrigin );
-    _transformOrigin=o;
     QTransform t=computeTransformation();
-    QPointF delta=t.map( o )-org; // new - old
-    setPos( realPos()-delta );
+    QPointF org=t.map( o );
+    _transformOrigin=o;
+    t=computeTransformation();
+    setPos( realPos()-(o-org) );
+    if ( _gw ) _gw->setTransform( t );
     if ( _gw ) _gw->setTransform( t );
 }
 
@@ -526,16 +527,16 @@ void PHIBaseItem::setTransformation( qreal hs, qreal vs, qreal xRot, qreal yRot,
     if ( _gw ) _gw->setTransform( computeTransformation() );
 }
 
-void PHIBaseItem::setText( const QString &t, const QByteArray &lang )
+void PHIBaseItem::ideSetText( const QString &t, const QByteArray &lang )
 {
-    // used in IDE only
+    // used for IDE only
     Q_UNUSED( t )
     Q_UNUSED( lang )
 }
 
-QString PHIBaseItem::text( const QByteArray &lang ) const
+QString PHIBaseItem::ideText( const QByteArray &lang ) const
 {
-    // used in IDE only
+    // used for IDE only
     Q_UNUSED( lang )
     return QString();
 }
@@ -670,42 +671,42 @@ void PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
     e->ignore();
 }
 
-void PHIBaseItem::privateCreateTmpData( const PHIDataParser &parser )
+void PHIBaseItem::phisPrivateCreateData( const PHIDataParser &parser )
 {
     parser.setCurrentItem( this );
     privateSqueeze();
     _dirtyFlags=DFClean;
-    if ( _titleData.unparsedStatic() ) _variants.insert( DTitle, _titleData.variant() );
-    else _dirtyFlags |= DFTitleData;
+    _variants.insert( DTitle, parser.text( &_titleData ) );
+    if ( !_titleData.isUnparsedStatic() ) _dirtyFlags |= DFTitleData;
     if ( _flags & FUseStyleSheet ) {
-        if ( _styleSheetData.unparsedStatic() ) _variants.insert( DStyleSheet, _styleSheetData.variant() );
-        else _dirtyFlags |= DFStyleSheetData;
+        _variants.insert( DStyleSheet, parser.text( &_styleSheetData ) );
+        if ( !_styleSheetData.isUnparsedStatic() ) _dirtyFlags |= DFStyleSheetData;
     }
-    if ( _visibleData.unparsedStatic() ) setVisible( _visibleData.boolean() );
-    else _dirtyFlags |= DFVisibleData;
-    if ( _disabledData.unparsedStatic() ) setDisabled( _disabledData.boolean() );
-    else _dirtyFlags |= DFDisabledData;
-    createTmpData( parser );
+    _variants.insert( DVisibility, parser.text( &_visibleData ) );
+    if ( !_visibleData.isUnparsedStatic() ) _dirtyFlags |= DFVisibleData;
+    setDisabled( parser.text( &_disabledData ).toBool() );
+    if ( !_disabledData.isUnparsedStatic() ) _dirtyFlags |= DFDisabledData;
+    phisCreateData( parser );
 }
 
-void PHIBaseItem::privateParseData( const PHIDataParser &parser )
+void PHIBaseItem::phisPrivateParseData( const PHIDataParser &parser )
 {
     parser.setCurrentItem( this );
-    if ( _dirtyFlags & DFTitleData ) _variants.insert( DTitle, parser.text( &_titleData ) );
+    if ( Q_UNLIKELY( _dirtyFlags & DFTitleData ) ) _variants.insert( DTitle, parser.text( &_titleData ) );
     if ( Q_UNLIKELY( _dirtyFlags & DFStyleSheetData ) ) _variants.insert( DStyleSheet, parser.text( &_styleSheetData ) );
-    if ( Q_UNLIKELY( _dirtyFlags & DFVisibleData ) ) setVisible( parser.text( &_visibleData ).toBool() );
+    if ( Q_UNLIKELY( _dirtyFlags & DFVisibleData ) ) _variants.insert( DVisibility, parser.text( &_visibleData ) );
     if ( Q_UNLIKELY( _dirtyFlags & DFDisabledData ) ) setDisabled( parser.text( &_disabledData ).toBool() );
-    parseData( parser );
+    phisParseData( parser );
 }
 
 void PHIBaseItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray& indent ) const
 {
     out+=indent+"<div";
-    startCSS( req, out, jquery );
+    htmlBase( req, out, jquery );
     out+="background-color:gray\">Unknown WID "+QByteArray::number( wid() )+"</div>\n";
 }
 
-void PHIBaseItem::genHtmlImg( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
 {
     QTransform t;
     bool needCalc=false;
@@ -722,43 +723,54 @@ void PHIBaseItem::genHtmlImg( const PHIRequest *req, QByteArray &out, QByteArray
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
         if ( needCalc ) {
             QRectF br=boundingRect();
-            imageIEFilterCSS( PHIDataParser::createTransformedImageId( req, this, 0, br ) );
+            cssImageIEFilter( PHIDataParser::createTransformedImage( req, this, 0, br ) );
             setAdjustedRect( br );
-        } else imageIEFilterCSS( imagePath() );
+        } else cssImageIEFilter( imagePath() );
         out+=indent+BL( "<div" );
-        startCSS( req, out, jquery, false );
+        htmlBase( req, out, jquery, false );
         out+=BL( "\"></div>\n" );
     } else {
         QByteArray imgId;
         if ( needCalc ) {
             QRectF br=boundingRect();
-            imgId=PHIDataParser::createTransformedImageId( req, this, 0, br );
+            imgId=PHIDataParser::createTransformedImage( req, this, 0, br );
             setAdjustedRect( br );
         } else imgId=imagePath();
         out+=indent+BL( "<img" );
-        startCSS( req, out, jquery, false );
-        out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&amp;t=1\">\n" );
+        htmlBase( req, out, jquery, false );
+        out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
     }
-    genAdjustedPos( jquery );
-    genAdjustedSize( jquery );
+    htmlAdjustedPos( jquery );
+    htmlAdjustedSize( jquery );
 }
 
 void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) const
 {
-    out+='#'+_id+BL( " {position:absolute;left:" )
+    out+='#'+_id+BL( " {left:" )
         +QByteArray::number( qRound(_x) )+BL( "px;top:" )
         +QByteArray::number( qRound(_y) )+BL( "px;width:" )
         +QByteArray::number( qRound(_width) )+BL( "px;height:" )
         +QByteArray::number( qRound(_height) )+BL( "px;z-index:" )
         +QByteArray::number( _zIndex )+';';
-    staticCSS( req, out );
+    QFont f=_variants.value( DFont, page()->font() ).value<QFont>();
+    if ( f!=page()->font() ) {
+        out+=BL( "font-family:'" )+f.family().toUtf8();
+        if ( !f.lastResortFamily().isEmpty() ) {
+            out+=BL( "','" )+f.lastResortFamily().toUtf8();
+        }
+        out+=BL( "';font-size:" )+QByteArray::number( f.pointSize() )+BL( "pt;" );
+        if ( f.bold() ) out+=BL( "font-weight:bold;" );
+        if ( f.italic() ) out+=BL( "font-style:italic;" );
+        if ( f.underline() ) out+=BL( "text-decoration:underline;" );
+    }
+    cssStatic( req, out );
     out+=BL( "}\n" );
     if ( _flags & FUseStyleSheet && !(_dirtyFlags & DFStyleSheetData) ) {
-        genCustomStyleSheet( out );
+        cssCustomStyleSheet( out );
     }
 }
 
-void PHIBaseItem::genCustomStyleSheet( QByteArray &out ) const
+void PHIBaseItem::cssCustomStyleSheet( QByteArray &out ) const
 {
     QByteArray el=_variants.value( DStyleSheet ).toByteArray().simplified();
     PHIByteArrayList list=el.split( '}' );
@@ -772,30 +784,33 @@ void PHIBaseItem::genCustomStyleSheet( QByteArray &out ) const
     }
 }
 
-void PHIBaseItem::staticCSS( const PHIRequest *req, QByteArray &out ) const
+void PHIBaseItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
 {
     Q_UNUSED( req )
     Q_UNUSED( out )
 }
 
-void PHIBaseItem::startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool project3D ) const
+void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool project3D ) const
 {
     if ( realOpacity()<1. ) jquery+=BL( "$('" )+_id+BL( "').opacity(" )
         +QByteArray::number( realOpacity(), 'f', 3 )+BL( ");\n" );
-    out+=BL( " id=\"" )+_id+BL( "\" style=\"" );
-    if ( hasGraphicEffect() ) graphicEffectCSS( req, out, jquery );
+    if ( !realVisible() ) jquery+=BL( "$('" )+_id+BL( "').hide();\n" );
+    out+=BL( " id=\"" )+_id;
+    if ( _variants.value( DTitle ).isValid() ) out+=BL( "\" title=\"" )+_variants.value( DTitle ).toByteArray();
+    out+=BL( "\" style=\"" );
+    if ( hasGraphicEffect() ) cssGraphicEffect( req, out, jquery );
     if ( hasTransformation() ) {
         QTransform t=computeTransformation();
         if ( Q_LIKELY( req->agentFeatures() & PHIRequest::Transform3D ) ) {
             QByteArray prefix=req->agentPrefix();
             if ( req->agentEngine()==PHIRequest::Trident ) prefix=QByteArray();
-            out+=prefix+BL( "transform-origin:0 0;" )+prefix+BL( "transform:matrix3d(" )
+            out+=prefix+BL( "transform:matrix3d(" )
                 +QByteArray::number( t.m11(), 'f', 3 )+','
                 +QByteArray::number( t.m12(), 'f', 3 )+BL( ",0," )
-                +QByteArray::number( t.m13(), 'f', 3 )+','
+                +QByteArray::number( t.m13(), 'f', 6 )+','
                 +QByteArray::number( t.m21(), 'f', 3 )+','
                 +QByteArray::number( t.m22(), 'f', 3 )+BL( ",0," )
-                +QByteArray::number( t.m23(), 'f', 3 )+BL( ",0,0,1,0," )
+                +QByteArray::number( t.m23(), 'f', 6 )+BL( ",0,0,1,0," )
                 +QByteArray::number( t.m31(), 'f', 3 )+','
                 +QByteArray::number( t.m32(), 'f', 3 )+BL( ",0," )
                 +QByteArray::number( t.m33(), 'f', 3 )+BL( ");" );
@@ -815,17 +830,18 @@ void PHIBaseItem::startCSS( const PHIRequest *req, QByteArray &out, QByteArray &
                 if ( _variants.value( DIEFilter ).isValid() ) filter+=_variants.value( DIEFilter ).toByteArray();
                 _variants.insert( DIEFilter, filter );
             } else { // 2D transformation
-                out+=req->agentPrefix()+BL( "transform-origin:0 0;" )
-                    +req->agentPrefix()+BL( "transform:matrix(" )+QByteArray::number( t.m11(), 'f', 3 )
+                out+=req->agentPrefix()+BL( "transform:matrix(" )+QByteArray::number( t.m11(), 'f', 3 )
                     +','+QByteArray::number( t.m12(), 'f', 3 )+','+QByteArray::number( t.m21(), 'f', 3 )
                     +','+QByteArray::number( t.m22(), 'f', 3 )+','+QByteArray::number( qRound(t.m31()) )
                     +','+QByteArray::number( qRound(t.m32()) )+BL( ");" );
+                /*
                 if ( transformPos()!=1 ) {
                     QPointF o=transformOrigin();
                     out+=req->agentPrefix()+BL( "transform-origin:" )
                         +QByteArray::number( qRound(o.x()) )+' '
                         +QByteArray::number( qRound(o.y()) )+';';
                 }
+                */
             }
         }
     }
@@ -834,10 +850,10 @@ void PHIBaseItem::startCSS( const PHIRequest *req, QByteArray &out, QByteArray &
             out+=BL( "filter:" )+_variants.value( DIEFilter ).toByteArray()+';';
         }
     }
-    if ( Q_UNLIKELY( _dirtyFlags & DFStyleSheetData ) ) genCustomStyleSheet( out );
+    if ( Q_UNLIKELY( _dirtyFlags & DFStyleSheetData ) ) cssCustomStyleSheet( out );
 }
 
-void PHIBaseItem::graphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
+void PHIBaseItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
 {
     if ( _effect->graphicsType()==PHIEffect::GTShadow ) {
         if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
@@ -864,7 +880,7 @@ void PHIBaseItem::graphicEffectCSS( const PHIRequest *req, QByteArray &out, QByt
             _effect->shadow( c, xOff, yOff, radius );
             out+=prefix+BL( "box-shadow:" )+QByteArray::number( qRound(xOff) )+"px ";
             out+=QByteArray::number( qRound(yOff) )+"px ";
-            out+=QByteArray::number( qRound(radius) )+"px "+rgba( c )+';';
+            out+=QByteArray::number( qRound(radius) )+"px "+cssRgba( c )+';';
         }
     } else if ( _effect->graphicsType()==PHIEffect::GTBlur ) {
         if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
@@ -976,7 +992,7 @@ QRadialGradient PHIBaseItem::radialGradient() const
     return g;
 }
 
-void PHIBaseItem::genLinearGradient( const PHIRequest *req, QByteArray &out ) const
+void PHIBaseItem::cssLinearGradient( const PHIRequest *req, QByteArray &out ) const
 {
     QLinearGradient g=linearGradient();
 
@@ -1008,7 +1024,7 @@ void PHIBaseItem::updateEffect()
         case PHIEffect::GTShadow: {
             _effect->shadow( eColor, eXOff, eYOff, eRadius );
             QGraphicsDropShadowEffect *shadow=new QGraphicsDropShadowEffect();
-            shadow->setBlurRadius( eRadius*2.5 );
+            shadow->setBlurRadius( eRadius*2. );
             shadow->setColor( eColor );
             shadow->setXOffset( eXOff );
             shadow->setYOffset( eYOff );

@@ -35,13 +35,13 @@ public:
     virtual QString description() const { return tr( "Check box with input type <checkbox>" ); }
     virtual PHIWID wid() const { return Checkbox; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/checkbox" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 
 public slots:
     virtual void setChecked( bool b );
 
 protected:
-    virtual void updateData();
+    virtual void ideUpdateData();
     virtual void initWidget();
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
@@ -69,7 +69,7 @@ public:
     virtual QString description() const { return tr( "Radio button with input type <radio>" ); }
     virtual PHIWID wid() const { return RadioButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/radiobutton" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 
 protected:
     virtual void initWidget();

@@ -36,7 +36,7 @@ public:
     virtual QString description() const { return tr( "Input type <select>" ); }
     virtual PHIWID wid() const { return Select; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/selectbox" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 
 public slots:
     inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
@@ -65,7 +65,7 @@ public:
     virtual QString description() const { return tr( "Displays a list of countries for selection." ); }
     virtual PHIWID wid() const { return CountrySelect; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/selectbox" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 };
 
 class PHIMultiSelectItem : public PHISelectItem
@@ -82,7 +82,7 @@ public:
     virtual QString description() const { return tr( "Displays a list box with input type <select>." ); }
     virtual PHIWID wid() const { return MultiSelect; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/listbox" ) ); }
-    virtual void initIDE();
+    virtual void ideInit();
 
 protected:
     virtual void initWidget();

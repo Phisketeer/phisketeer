@@ -71,7 +71,7 @@ public:
     inline PHIIntData* spanData() { return &_spanData; }
     virtual PHIIntData* intData_1() { return &_startData; }
     virtual PHIIntData* intData_2() { return &_spanData; }
-    virtual void initIDE();
+    virtual void ideInit();
 
 public slots:
     inline void setStartAngle( int a ) { setData( DStartAngle, a ); update(); }
@@ -80,15 +80,15 @@ public slots:
     inline int spanAngle() const { return data( DSpanAngle, 5760 ).toInt(); }
 
 protected:
-    virtual void updateData();
+    virtual void ideUpdateData();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void squeeze();
-    virtual PHIConfigWidget* configWidget();
+    virtual PHIConfigWidget* ideConfigWidget();
     virtual void drawShape( QPainter *painter, const QRectF &r );
     virtual QRectF boundingRect() const;
-    virtual void createTmpData( const PHIDataParser &parser );
-    virtual void parseData( const PHIDataParser &parser );
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
 
 signals:
     void startAngleChanged( int );

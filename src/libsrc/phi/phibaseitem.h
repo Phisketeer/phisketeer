@@ -169,6 +169,7 @@ public: // not usable by script engine
     inline bool realDisabled() const { return _flags & FDisabled; }
     inline bool realChecked() const { return _flags & FChecked; }
     inline bool realReadOnly() const { return _flags & FReadOnly; }
+    inline bool realVisible() const { return _variants.value( DVisibility, true ).toBool(); }
 
     inline void setX( qreal x ) { if ( _x==x ) return; _dirtyFlags|=DFPos; _x=x; if ( _gw ) _gw->setX( x ); }
     inline void setY( qreal y ) { if ( _y==y ) return; _dirtyFlags|=DFPos; _y=y; if ( _gw ) _gw->setY( y ); }
@@ -265,14 +266,14 @@ public: // not usable by script engine
     virtual PHIBooleanData* readOnlyData() { return 0; }
     virtual PHIIntData* intData_1() { return 0; }
     virtual PHIIntData* intData_2() { return 0; }
-    virtual void initIDE() {}
+    virtual void ideInit() {}
     inline const QGraphicsWidget* gw() const { return _gw; }
     inline PHITextData* styleSheetData() { return &_styleSheetData; }
     inline PHITextData* titleData() { return &_titleData; }
     inline PHIBooleanData* visibleData() { return &_visibleData; }
     inline PHIBooleanData* disabledData() { return &_disabledData; }
 
-    static QByteArray rgba( const QColor &c );
+    static QByteArray cssRgba( const QColor &c );
     static PHIWID widFromMimeData( const QMimeData *md );
     static QImage imageFromMimeData( const QMimeData *md );
     static QString pathFromMimeData( const QMimeData *md );
@@ -317,9 +318,7 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual void squeeze() {} // free unused data
-    virtual void parseData( const PHIDataParser &parser ) { Q_UNUSED( parser ) }
-    virtual void createTmpData( const PHIDataParser &parser ) { Q_UNUSED( parser ) }
-    virtual void updateData() {}
+    virtual void ideUpdateData() {}
     void setWidget( QWidget* );
     QWidget* widget() const;
     const PHIBasePage* page() const;
@@ -334,14 +333,16 @@ protected:
     inline DirtyFlags dirtyFlags() const { return _dirtyFlags; }
 
     // HTML related members
-    virtual void staticCSS( const PHIRequest *req, QByteArray &out ) const;
-    void startCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool project3D=true ) const; // includes id tag
-    virtual void graphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
-    void imageIEFilterCSS( const QByteArray &imgId ) const;
-    void genAdjustedPos( QByteArray &jquery ) const;
-    void genAdjustedSize( QByteArray &jquery ) const;
-    void genLinearGradient( const PHIRequest *req, QByteArray &out ) const;
-    void genHtmlImg( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void phisParseData( const PHIDataParser &parser ) { Q_UNUSED( parser ) }
+    virtual void phisCreateData( const PHIDataParser &parser ) { Q_UNUSED( parser ) }
+    virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
+    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
+    void cssLinearGradient( const PHIRequest *req, QByteArray &out ) const;
+    void cssImageIEFilter( const QByteArray &imgId ) const;
+    void htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool project3D=true ) const; // includes id tag
+    void htmlAdjustedPos( QByteArray &jquery ) const;
+    void htmlAdjustedSize( QByteArray &jquery ) const;
+    void htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
 
     // IDE related members
     inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
@@ -362,21 +363,21 @@ protected:
 private:
     PHIBaseItem& operator=( const PHIBaseItem& );
     void privateSqueeze();
-    void privateParseData( const PHIDataParser &parser );
-    void privateCreateTmpData( const PHIDataParser &parser );
+    void phisPrivateParseData( const PHIDataParser &parser );
+    void phisPrivateCreateData( const PHIDataParser &parser );
     void loadVersion1_x( const QByteArray &arr );
-    void genCustomStyleSheet( QByteArray &out ) const;
+    void cssCustomStyleSheet( QByteArray &out ) const;
 
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
     inline QGraphicsWidget* gw() { return _gw; }
 
     // IDE related members
     void loadEditorData1_x( const QByteArray &arr );
-    inline void setSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
-    inline bool isSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
-    virtual PHIConfigWidget* configWidget() { return 0; }
-    virtual void setText( const QString &t, const QByteArray &lang );
-    virtual QString text( const QByteArray &lang ) const;
+    inline void ideSetSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
+    inline bool ideIsSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
+    virtual PHIConfigWidget* ideConfigWidget() { return 0; }
+    virtual void ideSetText( const QString &t, const QByteArray &lang );
+    virtual QString ideText( const QByteArray &lang ) const;
 
 signals:
     // IDE related signals
@@ -503,17 +504,16 @@ inline QScriptValue PHIBaseItem::opacity( const QScriptValue &o )
     return self();
 }
 
-inline QByteArray PHIBaseItem::rgba( const QColor &c )
+inline QByteArray PHIBaseItem::cssRgba( const QColor &c )
 {
     QByteArray arr;
     arr.reserve( 50 );
-    arr+=BL( "rgba(" );
-    arr+=QByteArray::number( c.red() )+','+QByteArray::number( c.green() )+','
-        +QByteArray::number( c.blue() )+','+QByteArray::number( c.alphaF(), 'f', 3 )+')';
+    arr+=BL( "rgba(" )+QByteArray::number( c.red() )+','+QByteArray::number( c.green() )+','
+        +QByteArray::number( c.blue() )+','+(c.alphaF()==1 ? BL( "1" ) : QByteArray::number( c.alphaF(), 'f', 3 ))+')';
     return arr;
 }
 
-inline void PHIBaseItem::genAdjustedPos( QByteArray &jquery ) const
+inline void PHIBaseItem::htmlAdjustedPos( QByteArray &jquery ) const
 {
     QRectF r=adjustedRect();
     if ( QPointF()==r.topLeft() ) return;
@@ -521,7 +521,7 @@ inline void PHIBaseItem::genAdjustedPos( QByteArray &jquery ) const
         +','+QByteArray::number( qRound(_y+r.y()) )+BL( ");\n" );
 }
 
-inline void PHIBaseItem::genAdjustedSize( QByteArray &jquery ) const
+inline void PHIBaseItem::htmlAdjustedSize( QByteArray &jquery ) const
 {
     QRectF r=adjustedRect();
     if ( realSize()==r.size() ) return;
@@ -529,7 +529,7 @@ inline void PHIBaseItem::genAdjustedSize( QByteArray &jquery ) const
         +BL( ").height(" )+QByteArray::number( qRound(r.height()) )+BL( ");\n" );
 }
 
-inline void PHIBaseItem::imageIEFilterCSS( const QByteArray &imgId ) const
+inline void PHIBaseItem::cssImageIEFilter( const QByteArray &imgId ) const
 {
     QByteArray tmp=BL( "&t=1" );
     if ( _flags & FUseFilePath ) tmp=QByteArray();

@@ -61,12 +61,12 @@ PHIEllipseConfig::PHIEllipseConfig( PHIBaseItem *it, QWidget *parent )
     l->addWidget( _spanTool );
     _configBox->setLayout( l );
     PHIEllipseItem *eit=qobject_cast<PHIEllipseItem*>(it);
-    _startSpin->setEnabled( eit->startData()->unparsedStatic() );
-    _startLabel->setEnabled( eit->startData()->unparsedStatic() );
-    _spanSpin->setEnabled( eit->spanData()->unparsedStatic() );
-    _spanLabel->setEnabled( eit->spanData()->unparsedStatic() );
-    _startSpin->setValue( eit->startData()->unparsedStatic() ? eit->startData()->integer() : 0 );
-    _spanSpin->setValue( eit->spanData()->unparsedStatic() ? eit->spanData()->integer() : 5760 );
+    _startSpin->setEnabled( eit->startData()->isUnparsedStatic() );
+    _startLabel->setEnabled( eit->startData()->isUnparsedStatic() );
+    _spanSpin->setEnabled( eit->spanData()->isUnparsedStatic() );
+    _spanLabel->setEnabled( eit->spanData()->isUnparsedStatic() );
+    _startSpin->setValue( eit->startData()->isUnparsedStatic() ? eit->startData()->integer() : 0 );
+    _spanSpin->setValue( eit->spanData()->isUnparsedStatic() ? eit->spanData()->integer() : 5760 );
     *_oldStartData=*eit->startData();
     *_oldSpanData=*eit->spanData();
     connect( _startSpin, SIGNAL(valueChanged(int)), this, SLOT(startSpinChanged(int)) );
@@ -108,10 +108,10 @@ void PHIEllipseConfig::startToolClicked()
 {
     PHIEllipseItem *it=qobject_cast<PHIEllipseItem*>(item());
     emit requestTextConfig( it->startData() );
-    _startSpin->setEnabled( it->startData()->unparsedStatic() );
-    _startLabel->setEnabled( it->startData()->unparsedStatic() );
+    _startSpin->setEnabled( it->startData()->isUnparsedStatic() );
+    _startLabel->setEnabled( it->startData()->isUnparsedStatic() );
     _startSpin->blockSignals( true );
-    if ( it->startData()->unparsedStatic() ) _startSpin->setValue( it->startData()->integer() );
+    if ( it->startData()->isUnparsedStatic() ) _startSpin->setValue( it->startData()->integer() );
     else _startSpin->setValue( 0 );
     _startSpin->blockSignals( false );
     it->privateUpdateData();
@@ -121,10 +121,10 @@ void PHIEllipseConfig::spanToolClicked()
 {
     PHIEllipseItem *it=qobject_cast<PHIEllipseItem*>(item());
     emit requestTextConfig( it->spanData() );
-    _spanSpin->setEnabled( it->spanData()->unparsedStatic() );
-    _spanLabel->setEnabled( it->spanData()->unparsedStatic() );
+    _spanSpin->setEnabled( it->spanData()->isUnparsedStatic() );
+    _spanLabel->setEnabled( it->spanData()->isUnparsedStatic() );
     _spanSpin->blockSignals( true );
-    if ( it->spanData()->unparsedStatic() ) _spanSpin->setValue( it->spanData()->integer() );
+    if ( it->spanData()->isUnparsedStatic() ) _spanSpin->setValue( it->spanData()->integer() );
     else _spanSpin->setValue( 5760 );
     _spanSpin->blockSignals( false );
     it->privateUpdateData();
@@ -139,9 +139,9 @@ bool PHIEllipseConfig::storeData()
     return changed;
 }
 
-void PHIEllipseItem::initIDE()
+void PHIEllipseItem::ideInit()
 {
-    PHIAbstractShapeItem::initIDE();
+    PHIAbstractShapeItem::ideInit();
     _startData.setInteger( 0 );
     _spanData.setInteger( 5760 );
 }
@@ -153,7 +153,7 @@ void PHIEllipseItem::drawShape( QPainter *p, const QRectF& )
     else p->drawPie( rect(), startAngle(), spanAngle() );
 }
 
-PHIConfigWidget* PHIEllipseItem::configWidget()
+PHIConfigWidget* PHIEllipseItem::ideConfigWidget()
 {
     return new PHIEllipseConfig( this );
 }
@@ -177,36 +177,37 @@ void PHIEllipseItem::squeeze()
     removeData( DSpanAngle );
 }
 
-void PHIEllipseItem::updateData()
+void PHIEllipseItem::ideUpdateData()
 {
-    if ( _startData.unparsedStatic() ) setData( DStartAngle, _startData.integer() );
-    else if ( _startData.translated() ) setData( DStartAngle, _startData.integer( page()->currentLang() ) );
+    if ( _startData.isUnparsedStatic() ) setData( DStartAngle, _startData.integer() );
+    else if ( _startData.isUnparsedTranslated() ) setData( DStartAngle, _startData.integer( page()->currentLang() ) );
     else setData( DStartAngle, 0 );
-    if ( _spanData.unparsedStatic() ) setData( DSpanAngle, _spanData.integer() );
-    else if ( _spanData.translated() ) setData( DSpanAngle, _spanData.integer( page()->currentLang() ) );
+    if ( _spanData.isUnparsedStatic() ) setData( DSpanAngle, _spanData.integer() );
+    else if ( _spanData.isUnparsedTranslated() ) setData( DSpanAngle, _spanData.integer( page()->currentLang() ) );
     else setData( DSpanAngle, 5760 );
     update();
 }
 
-void PHIEllipseItem::createTmpData( const PHIDataParser &parser )
+void PHIEllipseItem::phisCreateData( const PHIDataParser &parser )
 {
-    if ( _startData.unparsedStatic() ) setData( DStartAngle, _startData.integer() );
-    else {
+    setData( DStartAngle, parser.text( &_startData ) );
+    if ( !_startData.isUnparsedStatic() ) {
         setDirtyFlag( DFInt1 );
         setFlag( FDoNotCache );
     }
-    if ( _spanData.unparsedStatic() ) setData( DSpanAngle, _spanData.integer() );
-    else {
+    setData( DSpanAngle, parser.text( &_spanData ) );
+    if ( !_spanData.isUnparsedStatic() ) {
         setDirtyFlag( DFInt2 );
         setFlag( FDoNotCache );
     }
-    if ( !(flags() & FDoNotCache) ) PHIAbstractShapeItem::createTmpData( parser ); // create image
+    // create image only if we are not able to cache:
+    if ( !(flags() & FDoNotCache) ) PHIAbstractShapeItem::phisCreateData( parser );
 }
 
-void PHIEllipseItem::parseData( const PHIDataParser &parser )
+void PHIEllipseItem::phisParseData( const PHIDataParser &parser )
 {
-    if ( dirtyFlags() & DFInt1 ) setData( DStartAngle, parser.text( &_startData ).toInt() );
-    if ( dirtyFlags() & DFInt2 ) setData( DSpanAngle, parser.text( &_spanData ).toInt() );
+    if ( dirtyFlags() & DFInt1 ) setData( DStartAngle, parser.text( &_startData ) );
+    if ( dirtyFlags() & DFInt2 ) setData( DSpanAngle, parser.text( &_spanData ) );
 }
 
 QRectF PHIEllipseItem::boundingRect() const

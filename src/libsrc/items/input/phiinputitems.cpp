@@ -35,9 +35,9 @@ void PHILineEditItem::initWidget()
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
 }
 
-void PHILineEditItem::initIDE()
+void PHILineEditItem::ideInit()
 {
-    PHIAbstractInputItem::initIDE();
+    PHIAbstractInputItem::ideInit();
     textData()->setText( QString() );
 }
 
@@ -85,23 +85,23 @@ void PHILineEditItem::loadItemData(QDataStream &in, int version)
     in >> &_placeholderData;
 }
 
-void PHILineEditItem::updateData()
+void PHILineEditItem::ideUpdateData()
 {
-    PHIAbstractInputItem::updateData();
-    if ( _placeholderData.translated() ) setPlaceholder( _placeholderData.text( page()->currentLang() ) );
+    PHIAbstractInputItem::ideUpdateData();
+    if ( _placeholderData.isTranslated() ) setPlaceholder( _placeholderData.text( page()->currentLang() ) );
     else setPlaceholder( _placeholderData.text() );
 }
 
-void PHILineEditItem::createTmpData( const PHIDataParser &parser )
+void PHILineEditItem::phisCreateData( const PHIDataParser &parser )
 {
-    PHIAbstractInputItem::createTmpData( parser );
-    if ( _placeholderData.unparsedStatic() ) setPlaceholder( _placeholderData.text() );
-    else setDirtyFlag( DFPlaceholder );
+    PHIAbstractInputItem::phisCreateData( parser );
+    setData( DPlaceholder, parser.text( &_placeholderData ) );
+    if ( !_placeholderData.isUnparsedStatic() ) setDirtyFlag( DFPlaceholder );
 }
 
-void PHILineEditItem::parseData( const PHIDataParser &parser )
+void PHILineEditItem::phisParseData( const PHIDataParser &parser )
 {
-    PHIAbstractInputItem::parseData( parser );
+    PHIAbstractInputItem::phisParseData( parser );
     if ( dirtyFlags() & DFPlaceholder ) setData( DPlaceholder, parser.text( &_placeholderData ) );
     switch ( parser.request()->agentEngine() ) {
     case PHIRequest::WebKit: setAdjustedRect( QRectF( 0, 0, realWidth()-6, realHeight()-6 ) ); break;
@@ -126,9 +126,9 @@ void PHILineEditItem::genHtml( const QByteArray &type, const PHIRequest *req, QB
         arr=data( DPlaceholder ).toByteArray();
         if ( !arr.isEmpty() ) out+=BL( " placeholder=\"" )+arr+'"';
     }
-    startCSS( req, out, jquery );
+    htmlBase( req, out, jquery );
     out+=BL( "\">\n" );
-    genAdjustedSize( jquery );
+    htmlAdjustedSize( jquery );
 }
 
 void PHILineEditItem::setPlaceholder( const QString &t )
@@ -176,9 +176,9 @@ void PHITextAreaItem::initWidget()
     setWidget( edit );
 }
 
-void PHITextAreaItem::initIDE()
+void PHITextAreaItem::ideInit()
 {
-    PHIAbstractInputItem::initIDE();
+    PHIAbstractInputItem::ideInit();
     QPlainTextEdit *edit=qobject_cast<QPlainTextEdit*>(widget());
     Q_ASSERT( edit );
     edit->setReadOnly( true );
@@ -204,9 +204,9 @@ void PHINumberEditItem::initWidget()
     setWidget( new QSpinBox() );
 }
 
-void PHINumberEditItem::initIDE()
+void PHINumberEditItem::ideInit()
 {
-    PHIAbstractInputItem::initIDE();
+    PHIAbstractInputItem::ideInit();
     textData()->setText( L1( "1:0:100:1" ) );
 }
 
@@ -246,9 +246,9 @@ void PHIRealNumberEditItem::initWidget()
     setWidget( new QDoubleSpinBox() );
 }
 
-void PHIRealNumberEditItem::initIDE()
+void PHIRealNumberEditItem::ideInit()
 {
-    PHIAbstractInputItem::initIDE();
+    PHIAbstractInputItem::ideInit();
     textData()->setText( L1( "1.5:0:10.5:0.5:1" ) );
 }
 
@@ -303,7 +303,7 @@ void PHISubmitButtonItem::initWidget()
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::PushButton ) );
 }
 
-void PHISubmitButtonItem::initIDE()
+void PHISubmitButtonItem::ideInit()
 {
     textData()->setText( tr( "Submit" ) );
     setColor( PHIPalette::WidgetBase, PHIPalette::Button, page()->phiPalette().color( PHIPalette::Button ) );
@@ -346,14 +346,14 @@ void PHISubmitButtonItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRo
     w->setPalette( pal );
 }
 
-void PHIResetButtonItem::initIDE()
+void PHIResetButtonItem::ideInit()
 {
-    PHISubmitButtonItem::initIDE();
+    PHISubmitButtonItem::ideInit();
     textData()->setText( tr( "Reset" ) );
 }
 
-void PHIButtonItem::initIDE()
+void PHIButtonItem::ideInit()
 {
-    PHISubmitButtonItem::initIDE();
+    PHISubmitButtonItem::ideInit();
     textData()->setText( tr( "Button" ) );
 }

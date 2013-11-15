@@ -22,12 +22,11 @@
 #include <QSqlDatabase>
 #include <QCoreApplication>
 #include <QReadWriteLock>
+#include <QCryptographicHash>
 #include "phidatasources.h"
-
-class PHIRequest;
-class PHIBasePage;
-class PHIBaseItem;
-class QTransform;
+#include "phiimagecache.h"
+#include "phirequest.h"
+#include "phibaseitem.h"
 
 class PHIDataParser
 {
@@ -37,15 +36,16 @@ public:
     explicit PHIDataParser( const PHIRequest *req, const QString &pageId, const QSqlDatabase &db )
         : _req( req ), _pageId( pageId ), _query( db ), _currentItem( 0 ) { _query.setForwardOnly( true ); }
     QVariant text( PHIData *data ) const;
-    void createTmpImages( PHIImageData *data ) const;
-    void createTmpImages( PHIImageBookData *data ) const;
+    void createImages( PHIImageData *data ) const;
+    void createImages( PHIImageBookData *data ) const;
     QByteArray imagePath( PHIImageData *data ) const;
+    QByteArray imagePath( const QByteArray &lang=PHIData::c(), int i=0 ) const;
     PHIByteArrayList imagePathes( PHIImageBookData *data ) const;
-    QByteArray createTmpImage( const QImage &img, const QByteArray &lang=PHIData::c(), int i=0 ) const;
+    QByteArray createImage( const QImage &img, const QByteArray &lang=PHIData::c(), int i=0 ) const;
     inline void setCurrentItem( const PHIBaseItem *it ) const { _currentItem=it; }
     inline const PHIRequest* request() const { return _req; }
 
-    static QByteArray createTransformedImageId( const PHIRequest *req, const PHIBaseItem *it, int i, QRectF &br );
+    static QByteArray createTransformedImage( const PHIRequest *req, const PHIBaseItem *it, int i, QRectF &br );
     static void insertTransformedImageRect( const QByteArray &imgId, const QRectF &r );
     static QRectF transformedImageRect( const QByteArray &imgId );
     static void insertGraphicsImageRect( const QByteArray &imgId, const QRectF &r );
@@ -83,6 +83,34 @@ private:
     static QHash <QByteArray, QRectF> _imageTransformedRects;
     static QHash <QByteArray, QRectF> _imageGraphicsRects;
 };
+
+inline QByteArray PHIDataParser::createImageId( const QByteArray &name, const QByteArray &lang, int num ) const
+{
+    QByteArray arr;
+    if ( Q_UNLIKELY( num==-1 ) ) arr=PHIImageCache::instance()->createUid( _req );
+    else {
+        arr=name+QByteArray::number( num )+lang+_req->url().toEncoded();
+        arr=QCryptographicHash::hash( arr, QCryptographicHash::Md5 ).toHex();
+        arr.squeeze(); // will be cached in memory so free unused space
+    }
+    return arr;
+}
+
+inline QByteArray PHIDataParser::imagePath( const QByteArray &lang, int num ) const
+{
+    Q_ASSERT( num>=0 );
+    Q_ASSERT( _currentItem );
+    return createImageId( _currentItem->id(), lang, num );
+}
+
+inline QByteArray PHIDataParser::createImage( const QImage &img, const QByteArray &lang, int i ) const
+{
+    Q_ASSERT( _currentItem );
+    QByteArray id=createImageId( _currentItem->id(), lang, i );
+    qDebug() << "createImage" << id << _currentItem->id();
+    saveImage( img, id );
+    return id;
+}
 
 inline void PHIDataParser::insertTransformedImageRect( const QByteArray &id, const QRectF &br )
 {

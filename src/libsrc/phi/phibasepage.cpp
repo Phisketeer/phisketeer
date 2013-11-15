@@ -335,11 +335,6 @@ PHIBaseItem* PHIBasePage::findItem( const QByteArray &id ) const
     return 0;
 }
 
-void PHIBasePage::createDynCSS( const PHIRequest *req, QByteArray &out ) const
-{
-
-}
-
 void PHIBasePage::createCSSFile( const PHIRequest *req ) const
 {
     QFile file( req->tmpDir()+L1( "/css/" )+id()+L1( ".css" ) );
@@ -352,42 +347,45 @@ void PHIBasePage::createCSSFile( const PHIRequest *req ) const
     out.reserve( 2000 );
     out+="@charset \"UTF-8\";\n";
     if ( Q_LIKELY( !(_flags & FNoSystemCSS) ) ) {
-        QByteArray arr="font-family:'"+font().family().toUtf8();
+        QByteArray fnt="font-family:'"+font().family().toUtf8();
         if ( !font().lastResortFamily().isEmpty() ) {
-            arr+="','"+font().lastResortFamily().toUtf8();
+            fnt+="','"+font().lastResortFamily().toUtf8();
         }
-        arr+="';";
+        fnt+="';";
         if ( font().pointSize() > -1 ) {
-            arr+="font-size:"+QByteArray::number( font().pointSize() )+"pt;";
+            fnt+="font-size:"+QByteArray::number( font().pointSize() )+"pt;";
         }
         out+="body {\n\tmargin:0;padding:0;\n";
-        out+="\tbackground-color:"+_bgColor.name().toLatin1()+";\n\t"+arr+'\n';
-        out+="\tcolor:"+_pal.color( PHIPalette::WindowText ).name().toLatin1()+";\n"
-            "}\na:link {text-decoration:none;color:"
-            +_pal.color( PHIPalette::Link ).name().toLatin1()+"; }\n"
+        out+="\tbackground-color:"+_bgColor.name().toLatin1()+';';
+        out+="color:"+_pal.color( PHIPalette::WindowText ).name().toLatin1()+";\n\t"
+            +fnt+"\n}\na:link {text-decoration:none;color:"
+            +_pal.color( PHIPalette::Link ).name().toLatin1()+"}\n"
             "a:visited {text-decoration:none;color:"
-            +_pal.color( PHIPalette::LinkVisited ).name().toLatin1()+";}\n";
-        if ( _flags & FNoUnderlinedLinks ) out+="a:hover {text-decoration:none;}\n";
-        else out+="a:hover {text-decoration:underline;}\n";
-        out+="input {"+arr+"} select {"+arr+"}\n";
-        out+="button {"+arr+"} textarea {"+arr+"}\n";
-        out+="img {position:absolute;border:none;}\n";
-        out+="table {border:none;border-spacing:0;margin:0;padding:0;}\n";
-        out+=".phibuttontext {color:"+_pal.color( PHIPalette::ButtonText ).name().toLatin1()+";}\n";
-        out+=".phibutton {background-color:"+_pal.color( PHIPalette::Button ).name().toLatin1()+";}\n";
-        out+=".phihighlight {background-color:"+_pal.color( PHIPalette::Highlight ).name().toLatin1()+";}\n";
-        out+=".phihighlightedtext {color:"+_pal.color( PHIPalette::HighlightText ).name().toLatin1()+";}\n";
-        out+=".phibase {background-color:"+_pal.color( PHIPalette::Base ).name().toLatin1()+";}\n";
-        out+=".phitext {color:"+_pal.color( PHIPalette::Text ).name().toLatin1()+";}\n";
-        out+=".phiwindowtext {color:"+_pal.color( PHIPalette::WindowText ).name().toLatin1()+";}\n";
-        out+=".phierror {background-color:"+_pal.color( PHIPalette::Error ).name().toLatin1()+";}\n";
-        out+=".phierrortext {background-color:"+_pal.color( PHIPalette::ErrorText ).name().toLatin1()+";}\n";
+            +_pal.color( PHIPalette::LinkVisited ).name().toLatin1()+"}\n";
+        if ( _flags & FNoUnderlinedLinks ) out+="a:hover {text-decoration:none}\n";
+        else out+="a:hover {text-decoration:underline}\n";
+        QByteArray ori="-webkit-transform-origin:0 0;-ms-transform-origin:0 0;"
+            "-o-transform-origin:0 0;-moz-transform-origin:0 0;transform-origin:0 0";
+        out+="input {position:absolute;"+fnt+ori+"}\nselect {position:absolute;"+fnt+ori+"}\n";
+        out+="button {position:absolute;"+fnt+ori+"}\ntextarea {position:absolute;"+fnt+ori+"}\n";
+        out+="div {position:absolute;cursor:default;"+ori+"}\nimg {position:absolute;border:none;"+ori+"}\n";
+        out+="table {position:absolute;height:100%;width:100%;border:none;border-spacing:0;margin:0;padding:0}\n";
+        out+=".phibuttontext {color:"+_pal.color( PHIPalette::ButtonText ).name().toLatin1()+"}\n";
+        out+=".phibutton {background-color:"+_pal.color( PHIPalette::Button ).name().toLatin1()+"}\n";
+        out+=".phihighlight {background-color:"+_pal.color( PHIPalette::Highlight ).name().toLatin1()+"}\n";
+        out+=".phihighlightedtext {color:"+_pal.color( PHIPalette::HighlightText ).name().toLatin1()+"}\n";
+        out+=".phibase {background-color:"+_pal.color( PHIPalette::Base ).name().toLatin1()+"}\n";
+        out+=".phitext {color:"+_pal.color( PHIPalette::Text ).name().toLatin1()+"}\n";
+        out+=".phiwindowtext {color:"+_pal.color( PHIPalette::WindowText ).name().toLatin1()+"}\n";
+        out+=".phierror {background-color:"+_pal.color( PHIPalette::Error ).name().toLatin1()+"}\n";
+        out+=".phierrortext {background-color:"+_pal.color( PHIPalette::ErrorText ).name().toLatin1()+"}\n";
         if ( _flags & FPageLeftAlign ) {
             out+=".phicontent {z-index:0;display:block;position:relative;left:0;top:0;width:"
-                +QByteArray::number( _width )+"px;margin:0;padding:0;}\n";
+                +QByteArray::number( _width )+"px;margin:0;padding:0}\n";
         } else {
             out+=".phicontent {z-index:0;display:block;position:relative;width:"
-                +QByteArray::number( _width )+"px;margin:0 auto;padding:0;}\n";
+                +QByteArray::number( _width )+"px;height:"
+                +QByteArray::number( _height )+"px;margin:0 auto;padding:0}\n";
         }
     }
     const PHIBaseItem *it;
@@ -399,16 +397,17 @@ void PHIBasePage::createCSSFile( const PHIRequest *req ) const
         QFile f( SL( ":/ui-core.css" ) ); //jquery ui core CSS
         if ( f.open( QIODevice::ReadOnly ) ) { out+='\n'+f.readAll(); f.close(); }
     }
-    out+='\n';
+    out+="\n/* BEGIN custom CSS */\n";
     // User defined global page CSS
     if ( _flags & FUseCSS ) out+=_variants.value( DStyleSheet ).toByteArray();
+    out+="\n/* END custom CSS */\n";
     file.write( out );
 }
 
 static QString _phireg( const QByteArray &s ) { return SL( " [^ ]*/\\*\\{" )
     +QString::fromLatin1( s )+SL( "\\}\\*/" ); }
 static QString _phiurl( const QByteArray &s ) { return SL( " url(phi.phis?i=" )
-    +QString::fromLatin1( s )+SL( "&amp;t=1)" ); }
+    +QString::fromLatin1( s )+SL( "&t=1)" ); }
 
 void PHIBasePage::genJQueryThemeFile( const PHIRequest *req ) const
 {
@@ -531,10 +530,16 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+eht;
     if ( Q_LIKELY( !(_flags & FNoUiThemeCSS ) ) )
         out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+BL( "-theme" )+eht;
+    if ( Q_LIKELY( _flags & FHasFavicon ) ) {
+        out+=BL( "\t<link rel=\"shortcut icon\" href=\"phi.phis?i=" )+_id+BL( ".ico&t=1" )+eht;
+    }
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )
         out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jqueryiefix\"></script>\n" );
     else out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jquery\"></script>\n" );
+    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-core\"></script>\n" );
+    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-effects\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=phibase\"></script>\n" );
+    foreach ( QByteArray ext, _extensions.values() ) out+=ext;
     out+=BL( "</head>\n<body>\n<div id=\"phihtml\" class=\"phicontent\">\n" );
     QByteArray jquery, indent="\t";
     jquery.reserve( 4*1024 );
@@ -544,7 +549,7 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         if ( it->isChild() ) continue; // handled by layouts
         it->html( req, out, jquery, indent );
     }
-    out+=BL( "</div>\n<script type=\"text/javascript\">\n/* <![CDATA[ */\njQuery(function($){$(window).on('load',phi.onload);});\n" );
+    out+=BL( "</div>\n<script type=\"text/javascript\">\n/* <![CDATA[ */\n" );
     out+=BL( "phi.setLang('" )+_currentLang+BL( "');\n" )+jquery;
     if ( _flags & FJavaScript ) {
         out+=BL( "/* BEGIN custom script */\n" )+_variants.value( DJavascript ).toByteArray();
@@ -554,80 +559,83 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
 }
 
 // only run once at loading time from server
-void PHIBasePage::createTmpData( const PHIDataParser &p )
+void PHIBasePage::phisCreateData( const PHIDataParser &p )
 {
     squeeze();
-    if ( _flags & FUseBgImage ) p.createTmpImages( bgImageData() );
-    else {
-        delete _pageData->_bgImage; _pageData->_bgImage=0;
-    }
-    if ( companyData()->unparsedStatic() ) {
+    if ( _flags & FUseBgImage ) p.createImages( bgImageData() );
+    else { delete _pageData->_bgImage; _pageData->_bgImage=0; }
+    // @todo: reorder data checking for better caching performance:
+    if ( companyData()->isUnparsedStatic() ) {
         if ( !companyData()->text().isEmpty() ) _variants.insert( DCompany, companyData()->variant() );
         delete _pageData->_company; _pageData->_company=0;
     }
-    if ( titleData()->unparsedStatic() ) {
-        if ( !titleData()->text().isEmpty() ) _variants.insert( DTitle, titleData()->variant() );
+    _variants.insert( DTitle, p.text( titleData() ) );
+    if ( titleData()->isUnparsedStatic() ) {
         delete _pageData->_title; _pageData->_title=0;
+        if ( _variants.value( DTitle ).toByteArray().isEmpty() ) _variants.remove( DTitle );
     }
-    if ( styleSheetData()->unparsedStatic() ) {
-        if ( !styleSheetData()->text().isEmpty() ) _variants.insert( DStyleSheet, styleSheetData()->variant() );
-        delete _pageData->_styleSheet; _pageData->_styleSheet=0;
-    }
-    if ( versionData()->unparsedStatic() ) {
+    if ( _flags & FUseCSS ) {
+        _variants.insert( DStyleSheet, p.text( styleSheetData() ) );
+        if ( styleSheetData()->isUnparsedStatic() ) {
+            delete _pageData->_styleSheet; _pageData->_styleSheet=0;
+        }
+    } else { delete _pageData->_styleSheet; _pageData->_styleSheet=0; }
+    if ( versionData()->isUnparsedStatic() ) {
         if ( !versionData()->text().isEmpty() ) _variants.insert( DVersion, versionData()->variant() );
         delete _pageData->_version; _pageData->_version=0;
     }
-    if ( opengraphData()->unparsedStatic() ) {
+    if ( opengraphData()->isUnparsedStatic() ) {
         if ( !opengraphData()->text().isEmpty() ) _variants.insert( DOpenGraph, opengraphData()->variant() );
         delete _pageData->_opengraph; _pageData->_opengraph=0;
     }
-    if ( javascriptData()->unparsedStatic() ) {
-        if ( !javascriptData()->text().isEmpty() ) _variants.insert( DJavascript, javascriptData()->variant() );
-        delete _pageData->_javascript; _pageData->_javascript=0;
-    }
-    if ( Q_LIKELY( serverscriptData()->unparsedStatic() || !(serverscriptData()->options() & PHIData::NoCache) ) ) {
-        // languages are ignored if 'PHIData::NoCache' is not specified however parsing
-        // every time is very expensive and a user can specifiy 'NoCache' if he really wants
-        // script execution based on different languages which should be a rare case...
+    if ( _flags & FJavaScript ) {
+        _variants.insert( DJavascript, p.text( javascriptData() ) );
+        if ( Q_LIKELY( javascriptData()->isUnparsedStatic() ) ) {
+            delete _pageData->_javascript; _pageData->_javascript=0;
+        }
+    } else {  delete _pageData->_javascript; _pageData->_javascript=0; }
+    if ( _flags & FServerScript ) {
         QByteArray arr=p.text( serverscriptData() ).toByteArray();
-        if ( Q_LIKELY( !arr.isEmpty() ) ) _script=QScriptProgram( QString::fromUtf8( arr ) );
-        delete _pageData->_serverscript; _pageData->_serverscript=0;
-    }
-    if ( authorData()->unparsedStatic() ) {
+        if ( Q_LIKELY( serverscriptData()->isUnparsedStatic() ) ) {
+            if ( Q_LIKELY( !arr.isEmpty() ) ) _script=QScriptProgram( QString::fromUtf8( arr ) );
+            delete _pageData->_serverscript; _pageData->_serverscript=0;
+        }
+    } else { delete _pageData->_serverscript; _pageData->_serverscript=0; }
+    if ( authorData()->isUnparsedStatic() ) {
         if ( !authorData()->text().isEmpty() ) _variants.insert( DAuthor, authorData()->variant() );
         delete _pageData->_author; _pageData->_author=0;
     }
-    if ( copyrightData()->unparsedStatic() ) {
+    if ( copyrightData()->isUnparsedStatic() ) {
         if ( !copyrightData()->text().isEmpty() ) _variants.insert( DCopyright, copyrightData()->variant() );
         delete _pageData->_copyright; _pageData->_copyright=0;
     }
-    if ( sessionRedirectData()->unparsedStatic() ) {
+    if ( sessionRedirectData()->isUnparsedStatic() ) {
         if ( !sessionRedirectData()->text().isEmpty() ) _variants.insert( DSessionRedirect, sessionRedirectData()->variant() );
         delete _pageData->_sessionRedirect; _pageData->_sessionRedirect=0;
     }
-    if ( actionData()->unparsedStatic() ) {
+    if ( actionData()->isUnparsedStatic() ) {
         if ( !actionData()->text().isEmpty() ) _variants.insert( DAction, actionData()->variant() );
         delete _pageData->_action; _pageData->_action=0;
     }
-    if ( templatePageData()->unparsedStatic() ) {
+    if ( templatePageData()->isUnparsedStatic() ) {
         if ( !templatePageData()->text().isEmpty() ) _variants.insert( DTemplatePage, templatePageData()->variant() );
         delete _pageData->_template; _pageData->_template=0;
     }
-    if ( descriptionData()->unparsedStatic() ) {
+    if ( descriptionData()->isUnparsedStatic() ) {
         if ( !descriptionData()->text().isEmpty() ) _variants.insert( DDescription, descriptionData()->variant() );
         delete _pageData->_description; _pageData->_description=0;
     }
-    if ( keywordsData()->unparsedStatic() ) {
+    if ( keywordsData()->isUnparsedStatic() ) {
         if ( !keywordsData()->text().isEmpty() ) _variants.insert( DKeys, keywordsData()->variant() );
         delete _pageData->_keys; _pageData->_keys=0;
     }
     if ( !_favicon.isNull() ) {
         _favicon.save( p.request()->imgDir()+QLatin1Char( '/' )+id()+L1( ".ico" ), "ICO" );
-        _favicon=QImage();
+        _flags |= FHasFavicon;
     }
 }
 
-void PHIBasePage::parseData( const PHIDataParser &p )
+void PHIBasePage::phisParseData( const PHIDataParser &p )
 {
     if ( Q_LIKELY( titleData() ) ) _variants.insert( DTitle, p.text( titleData() ) );
     if ( Q_UNLIKELY( companyData() ) ) _variants.insert( DCompany, p.text( companyData() ) );
@@ -888,6 +896,7 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in )
         if ( attributes & AUseOpenGraph ) _flags |= FUseOpenGraph;
         if ( attributes & ANoUnderlineLinks ) _flags |= FNoUnderlinedLinks;
         if ( extensions & EHidePhiMenu ) _flags |= FHidePhiMenu;
+        // @todo: check AUsejQueryUI
     }
     // store old Serverscript modules style
     {

@@ -31,7 +31,7 @@ void PHICalendarItem::initWidget()
     setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
 }
 
-void PHICalendarItem::initIDE()
+void PHICalendarItem::ideInit()
 {
     setColor( PHIPalette::WidgetText, PHIPalette::Text, page()->phiPalette().color( PHIPalette::Text ) );
     setColor( PHIPalette::WidgetBase, PHIPalette::Base, page()->phiPalette().color( PHIPalette::Base ) );
@@ -43,9 +43,9 @@ void PHICalendarItem::setWidgetText( const QString &t )
     QCalendarWidget *cw=qobject_cast<QCalendarWidget*>(widget());
 }
 
-void PHICalendarItem::updateData()
+void PHICalendarItem::ideUpdateData()
 {
-    PHIAbstractInputItem::updateData();
+    PHIAbstractInputItem::ideUpdateData();
     QCalendarWidget *cw=qobject_cast<QCalendarWidget*>(widget());
     cw->setLocale( QLocale( page()->lang() ) );
 }
@@ -85,7 +85,7 @@ void PHIDateEditItem::initWidget()
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
 }
 
-void PHIDateEditItem::initIDE()
+void PHIDateEditItem::ideInit()
 {
     textData()->setText( L1( "$PHISERVER[today][1]:$PHISERVER[today]:9999-12-31" ) );
     setColor( PHIPalette::WidgetText, PHIPalette::Text, page()->phiPalette().color( PHIPalette::Text ) );
@@ -97,9 +97,9 @@ void PHIDateEditItem::setWidgetText( const QString &t )
     _date->setDate( QDate::currentDate() );
 }
 
-void PHIDateEditItem::updateData()
+void PHIDateEditItem::ideUpdateData()
 {
-    PHIAbstractInputItem::updateData();
+    PHIAbstractInputItem::ideUpdateData();
     _date->setDisplayFormat( QLocale( page()->lang() ).dateFormat( QLocale::ShortFormat ) );
 }
 

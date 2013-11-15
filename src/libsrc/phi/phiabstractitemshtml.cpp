@@ -22,15 +22,15 @@
 
 void PHIAbstractShapeItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
 {
-    genHtmlImg( req, out, jquery, indent );
+    htmlImg( req, out, jquery, indent );
 }
 
 void PHIAbstractImageItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
 {
-    genHtmlImg( req, out, jquery, indent );
+    htmlImg( req, out, jquery, indent );
 }
 
-void PHIAbstractShapeItem::graphicEffectCSS( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
+void PHIAbstractShapeItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
 {
     Q_UNUSED( req )
     Q_UNUSED( out )
@@ -41,10 +41,10 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
 {
     bool needImage=false;
     out+=indent+BL( "<div" );
-    startCSS( req, out, jquery, true );
+    htmlBase( req, out, jquery, true );
     if ( static_cast<Qt::BrushStyle>(realPattern())==Qt::SolidPattern ) {
         if ( Q_UNLIKELY( !( req->agentFeatures() & PHIRequest::RGBA ) ) ) needImage=true;
-        else out+=BL( "background-color:" )+rgba( realColor() )+';';
+        else out+=BL( "background-color:" )+cssRgba( realColor() )+';';
     }
     if ( Q_UNLIKELY( realLine()>3 ) ) needImage=true;
     else if ( Q_UNLIKELY( hasBorderRadius() && !(req->agentFeatures() & PHIRequest::BorderRadius) ) ) needImage=true;
@@ -52,7 +52,7 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
     else if ( realPattern()==15 ) {
         if ( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::Gradients) ) ) needImage=true;
         else if ( data( DGradientType, 3 ).toInt()!=0 ) needImage=true;
-        else genLinearGradient( req, out );
+        else cssLinearGradient( req, out );
     }
     if ( Q_LIKELY( !needImage ) ) {
         if ( realLine()>0 && realPenWidth()>0 ) { // border
@@ -61,7 +61,7 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
                 QByteArray style=BL( "solid" );
                 if ( realLine()==2 ) style=BL( "dashed" );
                 else if ( realLine()==3 ) style=BL( "dotted" );
-                out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+' '+rgba( realOutlineColor() )+';';
+                out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+' '+cssRgba( realOutlineColor() )+';';
                 if ( hasBorderRadius() ) {
                     QByteArray prefix=QByteArray();
                     if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()<534 ) prefix=req->agentPrefix();
@@ -78,16 +78,16 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
         out+=BL( "\">\n" );
         QByteArray imgId=imagePath();
         if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
-            imageIEFilterCSS( imgId );
+            cssImageIEFilter( imgId );
             out+=indent+BL( "\t<div id=\"phibgi_" )+_id+BL( "\" style=\"" );
             out+=data( DIEFilter ).toByteArray();
             out+=BL( "\"></div>\n" );
         } else {
-            out+=indent+BL( "\t<img id=\"phibgi_" )+_id+BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&amp;t=1\">\n" );
+            out+=indent+BL( "\t<img id=\"phibgi_" )+_id+BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
         }
     }
     PHIBaseItem *it;
     foreach( it, _children ) it->html( req, out, jquery, indent+'\t' );
     out+=indent+BL( "</div>\n" );
-    if ( realLine()>0 ) genAdjustedPos( jquery );
+    if ( realLine()>0 ) htmlAdjustedPos( jquery );
 }
