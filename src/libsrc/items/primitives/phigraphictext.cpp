@@ -131,7 +131,8 @@ void PHIGraphicTextItem::phisCreateData( const PHIDataParser &parser )
         setImagePath( parser.createImage( graphicImage( _textData.text() ) ) );
     } else if ( _textData.isUnparsedTranslated() ) {
         foreach ( QByteArray l, _textData.langs() ) {
-            parser.createImage( graphicImage( _textData.text( l ) ), l );
+            QByteArray path=parser.createImage( graphicImage( _textData.text( l ) ), l );
+            qDebug() << id() << path << l;
         }
     } else setDirtyFlag( DFText );
 }
@@ -154,13 +155,11 @@ void PHIGraphicTextItem::phisParseData( const PHIDataParser &parser )
 
 void PHIGraphicTextItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
 {
-    qDebug() << "rect" << adjustedRect();
     PHIBaseItem::htmlImg( req, out, jquery, indent );
 }
 
 void PHIGraphicTextItem::drawShape( QPainter *p, const QRectF &r )
 {
-    qDebug() << "draw";
     Q_UNUSED( r )
     qreal xoff=0, yoff=0;
     Qt::Alignment a=static_cast<Qt::Alignment>(realAlignment());
@@ -174,7 +173,6 @@ void PHIGraphicTextItem::drawShape( QPainter *p, const QRectF &r )
         yoff=(realHeight()-_image.size().height())/2.;
     }
     p->drawImage( xoff, yoff, _image );
-    qDebug() << "end draw";
 }
 
 void PHIGraphicTextItem::ideSetText( const QString &t, const QByteArray &lang )

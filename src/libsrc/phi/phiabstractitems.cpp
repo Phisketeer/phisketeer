@@ -83,8 +83,13 @@ void PHIAbstractTextItem::ideUpdateData()
 {
     if ( widget() && widget()->property( "alignment" ).isValid() )
         widget()->setProperty( "alignment", realAlignment() );
-    if ( _textData.isTranslated() ) setWidgetText( _textData.text( page()->currentLang() ) );
-    else setWidgetText( _textData.text() );
+    if ( _textData.isTranslated() ) {
+        setWidgetText( _textData.text( page()->currentLang() ) );
+        setText( _textData.text( page()->currentLang() ) );
+    } else {
+        setWidgetText( _textData.text() );
+        setText( _textData.text() );
+    }
     if ( isChild() ) {
         PHIBaseItem *it=page()->findItem( parentId() );
         PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);

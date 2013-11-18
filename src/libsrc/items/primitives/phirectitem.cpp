@@ -159,7 +159,7 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jque
         else if ( data( DGradientType, 0 ).toInt()!=0 ) needImage=true;
     }
     if ( !needImage && hasTransformation() ) {
-        if ( computeTransformation().isAffine() && !(req->agentFeatures() & PHIRequest::Transform2D) ) needImage=true;
+        if ( computeTransformation( false ).isAffine() && !(req->agentFeatures() & PHIRequest::Transform2D) ) needImage=true;
         else if ( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::Transform3D) ) ) needImage=true;
     }
     if ( Q_LIKELY( !needImage ) ) {
@@ -178,7 +178,9 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jque
             if ( realLine()==2 ) style=BL( "dashed" );
             else if ( realLine()==3 ) style=BL( "dotted" );
             out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+' '+cssRgba( realOutlineColor() )+';';
-            setAdjustedRect( QRectF( -realPenWidth(), -realPenWidth(), realWidth(), realHeight() ) );
+            QPointF off=boundingRect().topLeft();
+            if ( hasTransformation() ) off=computeTransformation( false ).map( off );
+            setAdjustedRect( QRectF( off, realSize() ) );
             htmlAdjustedPos( jquery );
         }
         if ( effect()->graphicsType()==PHIEffect::GTShadow ) {

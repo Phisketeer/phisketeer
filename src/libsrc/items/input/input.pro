@@ -20,11 +20,13 @@ HEADERS += phiinput.h \
     phiinputitems.h \
     phicheckitems.h \
     philistitems.h \
-    phicalendaritems.h
+    phicalendaritems.h \
+    phimiscitems.h
 SOURCES += \ 
     phiinputitems.cpp \
     phicheckitems.cpp \
     philistitems.cpp \
-    phicalendaritems.cpp
+    phicalendaritems.cpp \
+    phimiscitems.cpp
 TARGET = phiinput
 OTHER_FILES = phiinput.json

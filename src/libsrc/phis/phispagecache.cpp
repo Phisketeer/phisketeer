@@ -34,18 +34,18 @@ static void _copyItems( PHIBasePage *dest, const PHIBasePage *source )
     Q_ASSERT( dest && source );
     PHIBaseItem *it;
     PHIBaseItem *copy;
-    PHIAbstractLayoutItem *ldest, *lsrc;
+    PHIAbstractLayoutItem *lit;
+    QMultiHash <QByteArray, PHIBaseItem*> children;
+    QList <PHIAbstractLayoutItem*> layouts;
     foreach( it, source->items() ) {
         copy=PHIItemFactory::instance()->copy( it );
         if ( !copy ) continue;
         copy->setParent( dest );
-        // copy pointer to children
-        ldest=qobject_cast<PHIAbstractLayoutItem*>(copy);
-        if ( ldest ) {
-            lsrc=qobject_cast<PHIAbstractLayoutItem*>(it);
-            ldest->setChildItems( lsrc->childItems() );
-        }
+        if ( !copy->parentId().isEmpty() ) children.insert( copy->parentId(), copy );
+        lit=qobject_cast<PHIAbstractLayoutItem*>(copy);
+        if ( lit ) layouts.append( lit );
     }
+    foreach ( lit, layouts ) lit->setChildItems( children.values( lit->id() ) );
 }
 
 QDateTime PHISPageCache::modified( const PHIRequest *req, const QString &pageId )

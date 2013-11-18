@@ -362,7 +362,7 @@ protected:
     virtual PHIBooleanData* readOnlyData() { return &_readOnlyData; }
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void phisCreateData( const PHIDataParser &parser );
-    virtual void setWidgetAligment( Qt::Alignment align ) { Q_UNUSED( align );}
+    virtual void setWidgetAligment( Qt::Alignment align ) { Q_UNUSED( align ); }
 
 private:
     PHIBooleanData _readOnlyData;

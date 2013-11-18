@@ -694,7 +694,7 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
 QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const PHIBaseItem *it, int num, QRectF &br )
 {
     qDebug() << "createTransformedImage" << it->name();
-    QTransform t=it->computeTransformation();
+    QTransform t=it->computeTransformation( false );
     QByteArray arr;
     if ( Q_UNLIKELY( it->flags() & PHIBaseItem::FDoNotCache ) ) {
         arr=PHIImageCache::instance()->createUid( req ); // don't cache
@@ -763,6 +763,7 @@ QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const P
             QColor c;
             qreal strength;
             it->effect()->colorize( c, strength );
+            qDebug() << "colorize" << br;
             img=PHI::colorizedImage( img, c, strength, br );
             break;
         }
@@ -781,17 +782,23 @@ QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const P
         default:;
         }
     }
-    insertGraphicsImageRect( arr, br );
     if ( !t.isIdentity() ) {
-        if ( (!t.isAffine() && !(req->agentFeatures() & PHIRequest::Transform3D))
-            || (t.isAffine() && !(req->agentFeatures() & PHIRequest::Transform2D)) ) {
+        if ( Q_UNLIKELY( (!t.isAffine() && !(req->agentFeatures() & PHIRequest::Transform3D))
+                || (t.isAffine() && !(req->agentFeatures() & PHIRequest::Transform2D)) ) ) {
+            t=it->computeTransformation( true ); // with translation
             br=t.mapRect( br );
-            arr.prepend( "T" );
+            arr.append( 't' );
             insertTransformedImageRect( arr, br );
-            img=img.transformed( t, Qt::SmoothTransformation );
+            img.transformed( t, Qt::SmoothTransformation )
+                .save( req->imgDir()+QLatin1Char( '/' )+QString::fromLatin1( arr )+SL( ".png" ), "PNG" );
+            return arr;
+        } else {
+            QSizeF s=br.size();
+            br=QRectF( t.map( br.topLeft() ), s );
         }
     }
-    qDebug() << "saving transformed image" << arr << br;
+    insertGraphicsImageRect( arr, br );
+    qDebug() << "saving transformed image" << it->id() << arr << br << it->adjustedRect();
     img.save( req->imgDir()+QLatin1Char( '/' )+QString::fromLatin1( arr )+SL( ".png" ), "PNG" );
     return arr;
 }
@@ -818,8 +825,7 @@ QString PHIDataParser::resolvePath( const QString &filename ) const
     } else {
         fn=QFileInfo( _req->canonicalFilename() ).absolutePath()+QLatin1Char( '/' )+fn;
     }
-    qDebug() << "resolved path" << fn;
-    qDebug() << (_currentItem ? _currentItem->name() : _pageId);
+    qDebug() << (_currentItem ? _currentItem->name() : _pageId) << "resolved path" << fn;
     return fn;
 }
 

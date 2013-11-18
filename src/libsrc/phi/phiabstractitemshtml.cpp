@@ -55,23 +55,23 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
         else cssLinearGradient( req, out );
     }
     if ( Q_LIKELY( !needImage ) ) {
-        if ( realLine()>0 && realPenWidth()>0 ) { // border
-            if ( Q_UNLIKELY( !( req->agentFeatures() & PHIRequest::RGBA ) ) ) needImage=true;
-            else {
-                QByteArray style=BL( "solid" );
-                if ( realLine()==2 ) style=BL( "dashed" );
-                else if ( realLine()==3 ) style=BL( "dotted" );
-                out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+' '+cssRgba( realOutlineColor() )+';';
-                if ( hasBorderRadius() ) {
-                    QByteArray prefix=QByteArray();
-                    if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()<534 ) prefix=req->agentPrefix();
-                    else if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()<2 ) prefix=req->agentPrefix();
-                    out+=prefix+BL( "border-radius:" )+QByteArray::number( qRound(topLeftRadius()) )+BL( "px " )
-                        +QByteArray::number( qRound(topRightRadius()) )+BL( "px " )
-                        +QByteArray::number( qRound(bottomRightRadius()) )+BL( "px " )
-                        +QByteArray::number( qRound(bottomLeftRadius()) )+BL( "px;" );
-                }
+        if ( realLine()>0 ) { // border
+            QByteArray style=BL( "solid" );
+            if ( realLine()==2 ) style=BL( "dashed" );
+            else if ( realLine()==3 ) style=BL( "dotted" );
+            out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+' '+cssRgba( realOutlineColor() )+';';
+            if ( hasBorderRadius() ) {
+                QByteArray prefix=QByteArray();
+                if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()<534 ) prefix=req->agentPrefix();
+                else if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()<2 ) prefix=req->agentPrefix();
+                out+=prefix+BL( "border-radius:" )+QByteArray::number( qRound(topLeftRadius()) )+BL( "px " )
+                    +QByteArray::number( qRound(topRightRadius()) )+BL( "px " )
+                    +QByteArray::number( qRound(bottomRightRadius()) )+BL( "px " )
+                    +QByteArray::number( qRound(bottomLeftRadius()) )+BL( "px;" );
             }
+            QPointF off=boundingRect().topLeft();
+            if ( hasTransformation() ) off=computeTransformation( false ).map( off );
+            setAdjustedRect( QRectF( off, realSize() ) );
         }
         out+=BL( "\">\n" );
     } else {
@@ -86,8 +86,9 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
             out+=indent+BL( "\t<img id=\"phibgi_" )+_id+BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
         }
     }
+    if ( realLine()>0 ) htmlAdjustedPos( jquery );
+    // generate child items:
     PHIBaseItem *it;
     foreach( it, _children ) it->html( req, out, jquery, indent+'\t' );
     out+=indent+BL( "</div>\n" );
-    if ( realLine()>0 ) htmlAdjustedPos( jquery );
 }

@@ -23,6 +23,7 @@
 #include "phicheckitems.h"
 #include "philistitems.h"
 #include "phicalendaritems.h"
+#include "phimiscitems.h"
 #include "phi.h"
 
 class PHIInput : public PHIItemPlugin
@@ -54,15 +55,16 @@ inline PHIBaseItem* PHIInput::create( PHIWID wid , const PHIBaseItemPrivate &p )
     case PHIMultiSelectItem::MultiSelect: return new PHIMultiSelectItem( p );
     case PHISubmitButtonItem::SubmitButton: return new PHISubmitButtonItem( p );
     case PHIButtonItem::Button: return new PHIButtonItem( p );
+    case PHIHiddenItem::Hidden: return new PHIHiddenItem( p );
     case PHIPasswordItem::Password: return new PHIPasswordItem( p );
     case PHIEmailItem::Email: return new PHIEmailItem( p );
     case PHINumberEditItem::NumberEdit: return new PHINumberEditItem( p );
     case PHIRealNumberEditItem::RealNumberEdit: return new PHIRealNumberEditItem( p );
     case PHIPhoneItem::Phone: return new PHIPhoneItem( p );
-    case PHISelectCountryItem::CountrySelect: return new PHISelectCountryItem( p );
-    case PHIResetButtonItem::ResetButton: return new PHIResetButtonItem( p );
     case PHIDateEditItem::DateEdit: return new PHIDateEditItem( p );
     case PHICalendarItem::Calendar: return new PHICalendarItem( p );
+    case PHISelectCountryItem::CountrySelect: return new PHISelectCountryItem( p );
+    case PHIResetButtonItem::ResetButton: return new PHIResetButtonItem( p );
     }
     return 0;
 }
@@ -78,15 +80,16 @@ inline PHIBaseItem* PHIInput::copy( const PHIBaseItem *it ) const
     case PHIMultiSelectItem::MultiSelect: return new PHIMultiSelectItem( *qobject_cast<const PHIMultiSelectItem*>(it) );
     case PHISubmitButtonItem::SubmitButton: return new PHISubmitButtonItem( *qobject_cast<const PHISubmitButtonItem*>(it) );
     case PHIButtonItem::Button: return new PHIButtonItem( *qobject_cast<const PHIButtonItem*>(it) );
+    case PHIHiddenItem::Hidden: return new PHIHiddenItem( *qobject_cast<const PHIHiddenItem*>(it) );
     case PHIPasswordItem::Password: return new PHIPasswordItem( *qobject_cast<const PHIPasswordItem*>(it) );
+    case PHIDateEditItem::DateEdit: return new PHIDateEditItem( *qobject_cast<const PHIDateEditItem*>(it) );
+    case PHICalendarItem::Calendar: return new PHICalendarItem( *qobject_cast<const PHICalendarItem*>(it) );
     case PHIEmailItem::Email: return new PHIEmailItem( *qobject_cast<const PHIEmailItem*>(it) );
     case PHINumberEditItem::NumberEdit: return new PHINumberEditItem( *qobject_cast<const PHINumberEditItem*>(it) );
     case PHIRealNumberEditItem::RealNumberEdit: return new PHIRealNumberEditItem( *qobject_cast<const PHIRealNumberEditItem*>(it) );
     case PHIPhoneItem::Phone: return new PHIPhoneItem( *qobject_cast<const PHIPhoneItem*>(it) );
     case PHISelectCountryItem::CountrySelect: return new PHISelectCountryItem( *qobject_cast<const PHISelectCountryItem*>(it) );
     case PHIResetButtonItem::ResetButton: return new PHIResetButtonItem( *qobject_cast<const PHIResetButtonItem*>(it) );
-    case PHIDateEditItem::DateEdit: return new PHIDateEditItem( *qobject_cast<const PHIDateEditItem*>(it) );
-    case PHICalendarItem::Calendar: return new PHICalendarItem( *qobject_cast<const PHICalendarItem*>(it) );
     }
     return 0;
 }
@@ -98,7 +101,8 @@ inline QStringList PHIInput::keys() const
         << SL( "button" ) << SL( "reset" ) << SL( "submit" )
         << SL( "number" ) << SL( "realnumber" ) << SL( "email" )
         << SL( "select" ) << SL( "country" ) << SL( "listbox" )
-        << SL( "phone" ) << SL( "calendar" ) << SL( "dateedit" );
+        << SL( "phone" ) << SL( "calendar" ) << SL( "dateedit" )
+        << SL( "hidden" );
 }
 
 inline PHIWID PHIInput::wid( const QString &key ) const
@@ -111,15 +115,16 @@ inline PHIWID PHIInput::wid( const QString &key ) const
     if ( key==L1( "select" ) ) return PHISelectItem::Select;
     if ( key==L1( "listbox" ) ) return PHIMultiSelectItem::MultiSelect;
     if ( key==L1( "button" ) ) return PHIButtonItem::Button;
+    if ( key==L1( "hidden" ) ) return PHIHiddenItem::Hidden;
     if ( key==L1( "submit" ) ) return PHISubmitButtonItem::SubmitButton;
     if ( key==L1( "email" ) ) return PHIEmailItem::Email;
     if ( key==L1( "number" ) ) return PHINumberEditItem::NumberEdit;
+    if ( key==L1( "dateedit" ) ) return PHIDateEditItem::DateEdit;
+    if ( key==L1( "calendar" ) ) return PHICalendarItem::Calendar;
     if ( key==L1( "realnumber" ) ) return PHIRealNumberEditItem::RealNumberEdit;
     if ( key==L1( "phone" ) ) return PHIPhoneItem::Phone;
     if ( key==L1( "country" ) ) return PHISelectCountryItem::CountrySelect;
     if ( key==L1( "reset" ) ) return PHIResetButtonItem::ResetButton;
-    if ( key==L1( "dateedit" ) ) return PHIDateEditItem::DateEdit;
-    if ( key==L1( "calendar" ) ) return PHICalendarItem::Calendar;
     return 0;
 }
 

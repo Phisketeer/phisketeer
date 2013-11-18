@@ -112,7 +112,7 @@ public:
 #endif
     /*
     enum Widget {
-        FILE_BUTTON=9, HIDDEN=11, IMAGE_BUTTON=12,
+        FILE_BUTTON=9, IMAGE_BUTTON=12,
         LINE=15
         LINK=23, TAB=24, TEXT=29,
         LANG_SELECTOR=33, LAYOUT_DELIVERY=35,
@@ -209,7 +209,7 @@ public: // not usable by script engine
     QLinearGradient linearGradient() const;
     QConicalGradient conicalGradient() const;
     QRadialGradient radialGradient() const;
-    QTransform computeTransformation() const;
+    QTransform computeTransformation( bool translate=true ) const;
 
     void phiPaletteChanged( const PHIPalette &pal );
     void setTransformPos( quint8 pos );
@@ -475,6 +475,31 @@ inline void PHIBaseItem::setZIndex( qint16 idx )
     _zIndex=qBound(static_cast<qint16>(-PHI::maxZIndex()), idx, PHI::maxZIndex());
     if ( _gw ) _gw->setZValue( static_cast<qreal>(idx) );
 }
+
+inline QTransform PHIBaseItem::computeTransformation( bool translate ) const
+{
+    QTransform shear, rotX, rotY, rotZ;
+    shear.shear( _hSkew, _vSkew );
+    rotZ.rotate( _zRot, Qt::ZAxis );
+    rotY.rotate( _yRot, Qt::YAxis );
+    rotX.rotate( _xRot, Qt::XAxis );
+    if ( translate ) {
+        QTransform trans;
+        trans.translate( -_transformOrigin.x(), -_transformOrigin.y() );
+        return trans*shear*rotZ*rotY*rotX*trans.inverted();
+    } else return shear*rotZ*rotY*rotX;
+    /*
+    QMatrix4x4 m;
+    m.translate( QVector3D( _transformOrigin ) );
+    m.shear()
+    m.rotate( _xRot, 1, 0, 0 );
+    m.rotate( _yRot, 0, 1, 0 );
+    m.rotate( _zRot, 0, 0, 1 );
+    m.translate( QVector3D( -_transformOrigin ) );
+    return t*m.toTransform();
+    */
+}
+
 
 inline QWidget* PHIBaseItem::widget() const
 {

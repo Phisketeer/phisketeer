@@ -128,6 +128,7 @@ void PHILineEditItem::genHtml( const QByteArray &type, const PHIRequest *req, QB
     }
     htmlBase( req, out, jquery );
     out+=BL( "\">\n" );
+    htmlAdjustedPos( jquery );
     htmlAdjustedSize( jquery );
 }
 

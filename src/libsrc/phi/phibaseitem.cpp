@@ -25,7 +25,6 @@
 #include <QEvent>
 #include <QGraphicsSceneEvent>
 #include <QMimeData>
-//#include <QMatrix4x4>
 #include "phibaseitem.h"
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
@@ -384,27 +383,6 @@ void PHIBaseItem::setWidget( QWidget *w )
     proxy->setFlag( QGraphicsItem::ItemUsesExtendedStyleOption, true );
 }
 
-QTransform PHIBaseItem::computeTransformation() const
-{
-    QTransform trans, shear, rotX, rotY, rotZ;
-    trans.translate( -_transformOrigin.x(), -_transformOrigin.y() );
-    shear.shear( _hSkew, _vSkew );
-    rotZ.rotate( _zRot, Qt::ZAxis );
-    rotY.rotate( _yRot, Qt::YAxis );
-    rotX.rotate( _xRot, Qt::XAxis );
-    return trans*shear*rotZ*rotY*rotX*trans.inverted();
-    /*
-    QMatrix4x4 m;
-    m.translate( QVector3D( _transformOrigin ) );
-    m.shear()
-    m.rotate( _xRot, 1, 0, 0 );
-    m.rotate( _yRot, 0, 1, 0 );
-    m.rotate( _zRot, 0, 0, 1 );
-    m.translate( QVector3D( -_transformOrigin ) );
-    return t*m.toTransform();
-    */
-}
-
 void PHIBaseItem::updatePageFont( const QFont &f )
 {
     Q_UNUSED( f )
@@ -712,11 +690,11 @@ void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &j
     bool needCalc=false;
     if ( hasGraphicEffect() ) needCalc=true;
     else if ( hasTransformation() ) {
-        t=computeTransformation();
+        t=computeTransformation( false );
         if ( !t.isAffine() ) {
             if ( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::Transform3D) ) ) {
+                qDebug() << "t is not affine and no 3D support" << id();
                 needCalc=true;
-                qDebug() << "t is not affine" << id();
             }
         }
     }
@@ -800,26 +778,20 @@ void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &
     out+=BL( "\" style=\"" );
     if ( hasGraphicEffect() ) cssGraphicEffect( req, out, jquery );
     if ( hasTransformation() ) {
-        QTransform t=computeTransformation();
+        QTransform t=computeTransformation( false );
         if ( Q_LIKELY( req->agentFeatures() & PHIRequest::Transform3D ) ) {
             QByteArray prefix=req->agentPrefix();
             if ( req->agentEngine()==PHIRequest::Trident ) prefix=QByteArray();
             out+=prefix+BL( "transform:matrix3d(" )
                 +QByteArray::number( t.m11(), 'f', 3 )+','
                 +QByteArray::number( t.m12(), 'f', 3 )+BL( ",0," )
-                +QByteArray::number( t.m13(), 'f', 6 )+','
+                +QByteArray::number( t.m13(), 'f', 6 )+',' //6
                 +QByteArray::number( t.m21(), 'f', 3 )+','
                 +QByteArray::number( t.m22(), 'f', 3 )+BL( ",0," )
-                +QByteArray::number( t.m23(), 'f', 6 )+BL( ",0,0,1,0," )
+                +QByteArray::number( t.m23(), 'f', 6 )+BL( ",0,0,1,0," ) //6
                 +QByteArray::number( t.m31(), 'f', 3 )+','
                 +QByteArray::number( t.m32(), 'f', 3 )+BL( ",0," )
                 +QByteArray::number( t.m33(), 'f', 3 )+BL( ");" );
-            if ( transformPos()!=1 ) {
-                QPointF o=transformOrigin();
-                out+=prefix+BL( "transform-origin:" )
-                    +QByteArray::number( qRound(o.x()) )+' '
-                    +QByteArray::number( qRound(o.y()) )+';';
-            }
         } else if ( project3D || t.isAffine() ) {
             if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
                 QByteArray filter;
@@ -834,14 +806,6 @@ void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &
                     +','+QByteArray::number( t.m12(), 'f', 3 )+','+QByteArray::number( t.m21(), 'f', 3 )
                     +','+QByteArray::number( t.m22(), 'f', 3 )+','+QByteArray::number( qRound(t.m31()) )
                     +','+QByteArray::number( qRound(t.m32()) )+BL( ");" );
-                /*
-                if ( transformPos()!=1 ) {
-                    QPointF o=transformOrigin();
-                    out+=req->agentPrefix()+BL( "transform-origin:" )
-                        +QByteArray::number( qRound(o.x()) )+' '
-                        +QByteArray::number( qRound(o.y()) )+';';
-                }
-                */
             }
         }
     }
@@ -849,6 +813,11 @@ void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &
         if ( _variants.value( DIEFilter ).isValid() ) {
             out+=BL( "filter:" )+_variants.value( DIEFilter ).toByteArray()+';';
         }
+    } else if ( Q_UNLIKELY( transformPos()!=1 ) ) {
+        QPointF o=transformOrigin();
+        out+=req->agentPrefix()+BL( "transform-origin:" )
+            +QByteArray::number( qRound(o.x()) )+"px "
+            +QByteArray::number( qRound(o.y()) )+"px;";
     }
     if ( Q_UNLIKELY( _dirtyFlags & DFStyleSheetData ) ) cssCustomStyleSheet( out );
 }
