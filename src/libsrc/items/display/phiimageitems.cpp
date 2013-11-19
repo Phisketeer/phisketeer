@@ -321,9 +321,9 @@ void PHISponsorItem::phisCreateData( const PHIDataParser &parser )
     setImagePath( parser.createImage( _image ) );
 }
 
-void PHISponsorItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+void PHISponsorItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    Q_UNUSED( jquery )
+    Q_UNUSED( script )
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
         out+=indent+BL( "<div style=\"filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='phi.phis?i=" )
             +imagePath()+BL( "&t=1');z-index:" )+QByteArray::number( PHI::maxZIndex()+1 )+BL( ";position:absolute;left:" )

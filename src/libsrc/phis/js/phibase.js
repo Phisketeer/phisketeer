@@ -114,14 +114,14 @@ function PhiItem( obj ) {
     j(id).progressbar('option','value',v);return this;
   };
   this.checked=function( v, c ){
-    if(v===undefined)return j(id).is(':checked');
-    if(typeof(v)==='boolean'){j(id).attr('checked',v);return this};
-    if(typeof(c)!=='boolean')return j(id+' [value="'+v+'"]').is(':checked');
-    j(id+' [value="'+v+'"]').attr('checked',c);return this;
+    if(v===undefined)return j(id+'_phi').is(':checked');
+    if(typeof(v)==='boolean'||typeof(v)==='number'){j(id+'_phi').prop('checked',v);return this};
+    if(typeof(c)!=='boolean'&&typeof(c)!=='number')return j(id+'_phi [value="'+v+'"]').is(':checked');
+    j(id+'_phi [value="'+v+'"]').prop('checked',c);return this;
   };
   this.selected=function( v, s ){
     if(v===undefined){
-        var arr=new Array(); var i=0;
+        var arr = new Array(0); var i=0;
         j(id+' option:selected').each( function(){ arr[i++]=j(this).attr('value') });
         return arr;
     }

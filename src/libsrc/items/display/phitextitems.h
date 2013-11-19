@@ -38,11 +38,11 @@ public:
     virtual void ideInit();
 
 protected:
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual void setWidgetText( const QString &t );
     virtual void setWidgetAligment( Qt::Alignment align );
     virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
-    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
+    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
 
 private:
     void initWidget();

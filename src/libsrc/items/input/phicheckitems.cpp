@@ -21,6 +21,8 @@
 #include "phicheckitems.h"
 #include "phidatasources.h"
 #include "phibasepage.h"
+#include "phirequest.h"
+#include "phidataparser.h"
 
 void PHICheckBoxItem::initWidget()
 {
@@ -76,7 +78,7 @@ void PHICheckBoxItem::setChecked( bool check )
 {
     PHIBaseItem::setChecked( check );
     QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
-    Q_ASSERT( ab );
+    if ( !ab ) return;
     ab->setChecked( check );
 }
 
@@ -99,6 +101,59 @@ void PHICheckBoxItem::ideUpdateData()
     else ab->setChecked( false );
 }
 
+
+void PHICheckBoxItem::phisCreateData( const PHIDataParser &parser )
+{
+    PHIAbstractInputItem::phisCreateData( parser );
+    setChecked( parser.text( &_checkedData ).toBool() );
+    if ( !_checkedData.isUnparsedStatic() ) setDirtyFlag( DFCustom1 );
+}
+
+void PHICheckBoxItem::phisParseData( const PHIDataParser &parser )
+{
+    PHIAbstractInputItem::phisParseData( parser );
+    if ( dirtyFlags() & DFCustom1 ) setChecked( parser.text( &_checkedData ).toBool() );
+}
+
+void PHICheckBoxItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    out+=indent+BL( "<div" );
+    htmlBase( req, out, script );
+    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
+        if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
+            out+=BL( "background-color:" )+cssRgba( realBackgroundColor() )+';';
+        if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::WindowText )
+            out+=BL( "color:" )+cssRgba( realColor() )+';';
+    }
+    out+=BL( "\">\n" )+indent+BL( "\t<table class=\"phi\"><tr style=\"vertical-align\"><td style=\"" );
+    if ( data( DFont ).isValid() ) {
+        QFont f=data( DFont ).value<QFont>();
+        if ( f.underline() ) {
+            out+=BL( "text-decoration:underline;" );
+        }
+    }
+    // @todo: implement align?
+    out+=BL( "width:18px;padding-left:4px\"><input id=\"" )+id()
+        +BL( "_phi\" class=\"phi\" type=\"checkbox\" name=\"" );
+    if ( parentId().isEmpty() ) out+=id();
+    else out+=parentId();
+    out+=BL( "\" style=\"position:relative\" value=\"" )+data( DValue ).toByteArray()
+        +BL( "\"></td><td style=\"" );
+    out+=BL( "\"><label class=\"phi\" for=\"" )+id()+BL( "_phi\" id=\"" )+id()
+        +BL( "_phit\">" )+data( DText ).toByteArray().replace( '\n', BL( "<br>" ) )
+        +BL( "</label></td></tr></table>\n" )+indent+BL( "</div>\n" );
+    if ( realChecked() ) script+=BL( "$('" )+id()+BL( "').checked(1);\n" );
+}
+
+void PHICheckBoxItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
+{
+    Q_UNUSED( req )
+    out+=BL( "overflow:hidden;white-space:nowrap;" );
+    // fallback:
+    if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::WindowText ) out+=BL( "color:" )+realColor().name().toLatin1()+';';
+    if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window ) out+=BL( "background-color:" )+realBackgroundColor().name().toLatin1()+';';
+}
+
 void PHIRadioButtonItem::initWidget()
 {
     setWidget( new QRadioButton() );
@@ -116,4 +171,35 @@ QSizeF PHIRadioButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constrain
     QSizeF s=PHIAbstractTextItem::sizeHint( which, constraint );
     if ( which==Qt::PreferredSize ) s.setWidth( s.width()+22 );
     return s;
+}
+
+void PHIRadioButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    out+=indent+BL( "<div" );
+    htmlBase( req, out, script );
+    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
+        if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
+            out+=BL( "background-color:" )+cssRgba( realBackgroundColor() )+';';
+        if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::WindowText )
+            out+=BL( "color:" )+cssRgba( realColor() )+';';
+    }
+    // @todo: implement align?
+    out+=BL( "\">\n" )+indent
+        +BL( "\t<table class=\"phi\"><tr style=\"vertical-align\"><td style=\"" );
+    if ( data( DFont ).isValid() ) {
+        QFont f=data( DFont ).value<QFont>();
+        if ( f.underline() ) {
+            out+=BL( "text-decoration:underline;" );
+        }
+    }
+    out+=BL( "width:18px;padding-left:4px\"><input id=\"" )+id()
+        +BL( "_phi\" class=\"phi\" type=\"radio\" name=\"" );
+    if ( parentId().isEmpty() ) out+=id();
+    else out+=parentId();
+    out+=BL( "\" style=\"position:relative\" value=\"" )+data( DValue ).toByteArray()
+        +BL( "\"></td><td style=\"" );
+    out+=BL( "\"><label class=\"phi\" for=\"" )+id()+BL( "_phi\" id=\"" )+id()
+        +BL( "_phit\">" )+data( DText ).toByteArray().replace( '\n', BL( "<br>" ) )
+        +BL( "</label></td></tr></table>\n" )+indent+BL( "</div>\n" );
+    if ( realChecked() ) script+=BL( "$('" )+id()+BL( "').checked(1);\n" );
 }

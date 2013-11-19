@@ -49,10 +49,10 @@ void PHILabelItem::setWidgetAligment( Qt::Alignment align )
     l->setAlignment( align );
 }
 
-void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     out+=indent+BL( "<div" );
-    htmlBase( req, out, jquery );
+    htmlBase( req, out, script );
     if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
         if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
             out+=BL( "background-color:" )+cssRgba( realBackgroundColor() )+';';
@@ -84,7 +84,7 @@ void PHILabelItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
     if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window ) out+=BL( "background-color:" )+realBackgroundColor().name().toLatin1()+';';
 }
 
-void PHILabelItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
+void PHILabelItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const
 {
     if ( effect()->graphicsType()==PHIEffect::GTShadow && !(req->agentFeatures() & PHIRequest::IE678) ) {
         QColor c;
@@ -105,7 +105,7 @@ void PHILabelItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QBy
             out+=QByteArray::number( qRound(yoff) )+"px ";
             out+=QByteArray::number( qRound(radius) )+"px "+col+';';
         }
-    } else PHIAbstractTextItem::cssGraphicEffect( req, out, jquery );
+    } else PHIAbstractTextItem::cssGraphicEffect( req, out, script );
 }
 
 void PHILabelItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )

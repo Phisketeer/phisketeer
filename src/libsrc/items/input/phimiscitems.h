@@ -34,7 +34,7 @@ public:
     virtual QString description() const { return tr( "Item with input type <hidden>" ); }
     virtual PHIWID wid() const { return Hidden; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/hidden" ) ); }
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual bool isWidthChangeable() const { return false; }
     virtual bool isHeightChangeable() const { return false; }
 

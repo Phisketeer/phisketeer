@@ -34,10 +34,15 @@ public:
     virtual ~PHICalendarItem() {}
 
     virtual QString listName() const { return tr( "Calendar" ); }
-    virtual QString description() const { return tr( "Calendar item." ); }
+    virtual QString description() const { return tr( "Displays a calendar item." ); }
     virtual PHIWID wid() const { return Calendar; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/calendar" ) ); }
     virtual void ideInit();
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual PHIWID htmlHeaderExtension( QByteArray &header ) const;
+    virtual PHIWID htmlScriptExtension( QByteArray &script ) const;
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual bool hasExtension() const { return true; }
 
 protected:
     virtual void ideUpdateData();
@@ -49,21 +54,22 @@ private:
     void initWidget();
 };
 
-class PHIDateEditItem : public PHIAbstractInputItem
+class PHIDateEditItem : public PHICalendarItem
 {
     Q_OBJECT
 
 public:
     enum Wid { DateEdit=31 };
-    explicit PHIDateEditItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
-    PHIDateEditItem( const PHIDateEditItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    explicit PHIDateEditItem( const PHIBaseItemPrivate &p ) : PHICalendarItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIDateEditItem( const PHIDateEditItem &it ) : PHICalendarItem( it ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHIDateEditItem() {}
 
     virtual QString listName() const { return tr( "Date edit" ); }
     virtual QString description() const { return tr( "Date edit item with calendar popup." ); }
     virtual PHIWID wid() const { return DateEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/dateedit" ) ); }
-    virtual void ideInit();
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual void phisCreateData( const PHIDataParser &parser );
 
 protected:
     virtual void ideUpdateData();

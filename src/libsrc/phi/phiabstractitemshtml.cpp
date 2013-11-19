@@ -20,28 +20,28 @@
 #include "phirequest.h"
 #include "phidataparser.h"
 
-void PHIAbstractShapeItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+void PHIAbstractShapeItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    htmlImg( req, out, jquery, indent );
+    htmlImg( req, out, script, indent );
 }
 
-void PHIAbstractImageItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+void PHIAbstractImageItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    htmlImg( req, out, jquery, indent );
+    htmlImg( req, out, script, indent );
 }
 
-void PHIAbstractShapeItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
+void PHIAbstractShapeItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const
 {
     Q_UNUSED( req )
     Q_UNUSED( out )
-    Q_UNUSED( jquery )
+    Q_UNUSED( script )
 }
 
-void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     bool needImage=false;
     out+=indent+BL( "<div" );
-    htmlBase( req, out, jquery, true );
+    htmlBase( req, out, script, true );
     if ( static_cast<Qt::BrushStyle>(realPattern())==Qt::SolidPattern ) {
         if ( Q_UNLIKELY( !( req->agentFeatures() & PHIRequest::RGBA ) ) ) needImage=true;
         else out+=BL( "background-color:" )+cssRgba( realColor() )+';';
@@ -86,9 +86,9 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
             out+=indent+BL( "\t<img id=\"phibgi_" )+_id+BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
         }
     }
-    if ( realLine()>0 ) htmlAdjustedPos( jquery );
+    if ( realLine()>0 ) htmlAdjustedPos( script );
     // generate child items:
     PHIBaseItem *it;
-    foreach( it, _children ) it->html( req, out, jquery, indent+'\t' );
+    foreach( it, _children ) it->html( req, out, script, indent+'\t' );
     out+=indent+BL( "</div>\n" );
 }

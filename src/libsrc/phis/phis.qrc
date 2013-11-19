@@ -14,10 +14,6 @@
         <file alias="iconsActive">images/ui-icons_454545_256x240.png</file>
         <file alias="iconsDefault">images/ui-icons_888888_256x240.png</file>
         <file alias="iconsError">images/ui-icons_cd0a0a_256x240.png</file>
-        <file alias="ui-core.css">css/jquery.ui.core.css</file>
-        <file alias="ui-datepicker.css">css/jquery.ui.datepicker.css</file>
-        <file alias="ui-progressbar.css">css/jquery.ui.progressbar.css</file>
-        <file alias="ui-theme.css">css/jquery.ui.theme.css</file>
         <file alias="iconsHighlight">images/ui-icons_2e83ff_256x240.png</file>
         <file alias="ui-datepicker.js">js/jquery.ui.datepicker.min.js</file>
         <file alias="ui-progressbar.js">js/jquery.ui.progressbar.min.js</file>
@@ -25,6 +21,10 @@
         <file alias="excanvas.js">js/excanvas.js</file>
         <file alias="ui-core.js">js/uicore.js</file>
         <file alias="jqueryiefix.js">js/jqueryiefix.js</file>
+        <file alias="ui-core.css">css/jquery.ui.core.min.css</file>
+        <file alias="ui-datepicker.css">css/jquery.ui.datepicker.min.css</file>
+        <file alias="ui-progressbar.css">css/jquery.ui.progressbar.min.css</file>
+        <file alias="ui-theme.css">css/jquery.ui.theme.css</file>
     </qresource>
     <qresource prefix="/gnome">
         <file alias="brokenimage">../../icons/scalable/stock/gtk-brokenimage.svg</file>

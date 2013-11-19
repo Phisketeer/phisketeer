@@ -141,10 +141,10 @@ void PHIRectItem::phisParseData( const PHIDataParser &parser )
     if ( dirtyFlags() & DFInt1 ) setData( DBorderRadius, parser.text( &_radiusData ) );
 }
 
-void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )
-        return PHIAbstractShapeItem::html( req, out, jquery, indent );
+        return PHIAbstractShapeItem::html( req, out, script, indent );
     bool needImage=false;
     if ( Q_UNLIKELY( borderRadius() && !(req->agentFeatures() & PHIRequest::BorderRadius) ) ) needImage=true;
     else if ( Q_UNLIKELY( realLine()>3 ) ) needImage=true;
@@ -164,7 +164,7 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jque
     }
     if ( Q_LIKELY( !needImage ) ) {
         out+=indent+BL( "<div" );
-        htmlBase( req, out, jquery, true );
+        htmlBase( req, out, script, true );
         if ( realPattern()==1 ) out+=BL( "background-color:" )+cssRgba( realColor() )+';';
         else if ( realPattern()==15 ) cssLinearGradient( req, out );
         if ( borderRadius() ) { // rounded corners
@@ -181,7 +181,7 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jque
             QPointF off=boundingRect().topLeft();
             if ( hasTransformation() ) off=computeTransformation( false ).map( off );
             setAdjustedRect( QRectF( off, realSize() ) );
-            htmlAdjustedPos( jquery );
+            htmlAdjustedPos( script );
         }
         if ( effect()->graphicsType()==PHIEffect::GTShadow ) {
             QByteArray prefix=req->agentPrefix();
@@ -198,13 +198,13 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jque
         out+=BL( "\"></div>\n" );
     } else {
         out+=indent+BL( "<img" );
-        htmlBase( req, out, jquery, false );
+        htmlBase( req, out, script, false );
         QRectF br=boundingRect();
         QByteArray imgId=PHIDataParser::createTransformedImage( req, this, 0, br );
         out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
         setAdjustedRect( br );
-        htmlAdjustedPos( jquery );
-        htmlAdjustedSize( jquery );
+        htmlAdjustedPos( script );
+        htmlAdjustedSize( script );
     }
 }
 

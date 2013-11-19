@@ -47,6 +47,7 @@ protected:
     // returns true if user has set own content during script execution:
     bool runScript( const PHIBasePage *master, PHIBasePage *page ) const;
     void createJS( const QString &name ) const;
+    void createUiCSS() const;
     void genSysItem() const;
     void genImage() const;
     void genCSS() const;

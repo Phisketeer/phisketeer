@@ -677,14 +677,14 @@ void PHIBaseItem::phisPrivateParseData( const PHIDataParser &parser )
     phisParseData( parser );
 }
 
-void PHIBaseItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray& indent ) const
+void PHIBaseItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray& indent ) const
 {
     out+=indent+"<div";
-    htmlBase( req, out, jquery );
+    htmlBase( req, out, script );
     out+="background-color:gray\">Unknown WID "+QByteArray::number( wid() )+"</div>\n";
 }
 
-void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     QTransform t;
     bool needCalc=false;
@@ -705,7 +705,7 @@ void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &j
             setAdjustedRect( br );
         } else cssImageIEFilter( imagePath() );
         out+=indent+BL( "<div" );
-        htmlBase( req, out, jquery, false );
+        htmlBase( req, out, script, false );
         out+=BL( "\"></div>\n" );
     } else {
         QByteArray imgId;
@@ -715,16 +715,16 @@ void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &j
             setAdjustedRect( br );
         } else imgId=imagePath();
         out+=indent+BL( "<img" );
-        htmlBase( req, out, jquery, false );
+        htmlBase( req, out, script, false );
         out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
     }
-    htmlAdjustedPos( jquery );
-    htmlAdjustedSize( jquery );
+    htmlAdjustedPos( script );
+    htmlAdjustedSize( script );
 }
 
 void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) const
 {
-    out+='#'+_id+BL( " {left:" )
+    out+='#'+_id+BL( "{left:" )
         +QByteArray::number( qRound(_x) )+BL( "px;top:" )
         +QByteArray::number( qRound(_y) )+BL( "px;width:" )
         +QByteArray::number( qRound(_width) )+BL( "px;height:" )
@@ -753,11 +753,11 @@ void PHIBaseItem::cssCustomStyleSheet( QByteArray &out ) const
     QByteArray el=_variants.value( DStyleSheet ).toByteArray().simplified();
     PHIByteArrayList list=el.split( '}' );
     if ( list.count()==1 ) {
-        if ( el.contains( '{' ) ) out+='#'+_id+' '+el+'\n';
-        else out+='#'+_id+BL( " {" )+el+BL( "}\n" );
+        if ( el.contains( '{' ) ) out+='#'+_id+el+'\n';
+        else out+='#'+_id+BL( "{" )+el+BL( "}\n" );
     } else {
         foreach( el, list ) {
-            out+='#'+_id+' '+el+BL( "}\n" );
+            out+='#'+_id+el+BL( "}\n" );
         }
     }
 }
@@ -768,15 +768,15 @@ void PHIBaseItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
     Q_UNUSED( out )
 }
 
-void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool project3D ) const
+void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &script, bool project3D ) const
 {
-    if ( realOpacity()<1. ) jquery+=BL( "$('" )+_id+BL( "').opacity(" )
+    if ( realOpacity()<1. ) script+=BL( "$('" )+_id+BL( "').opacity(" )
         +QByteArray::number( realOpacity(), 'f', 3 )+BL( ");\n" );
-    if ( !realVisible() ) jquery+=BL( "$('" )+_id+BL( "').hide();\n" );
-    out+=BL( " id=\"" )+_id;
+    if ( !realVisible() ) script+=BL( "$('" )+_id+BL( "').hide();\n" );
+    out+=BL( " class=\"phi\" id=\"" )+_id;
     if ( _variants.value( DTitle ).isValid() ) out+=BL( "\" title=\"" )+_variants.value( DTitle ).toByteArray();
     out+=BL( "\" style=\"" );
-    if ( hasGraphicEffect() ) cssGraphicEffect( req, out, jquery );
+    if ( hasGraphicEffect() ) cssGraphicEffect( req, out, script );
     if ( hasTransformation() ) {
         QTransform t=computeTransformation( false );
         if ( Q_LIKELY( req->agentFeatures() & PHIRequest::Transform3D ) ) {
@@ -822,7 +822,7 @@ void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &
     if ( Q_UNLIKELY( _dirtyFlags & DFStyleSheetData ) ) cssCustomStyleSheet( out );
 }
 
-void PHIBaseItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const
+void PHIBaseItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const
 {
     if ( _effect->graphicsType()==PHIEffect::GTShadow ) {
         if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
@@ -833,9 +833,9 @@ void PHIBaseItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByt
             filter+="progid:DXImageTransform.Microsoft.DropShadow(Color='#";
             filter+=QByteArray::number( c.rgba(), 16 )+"',OffX="+QByteArray::number( xOff );
             filter+=",OffY="+QByteArray::number( yOff )+')';
-            if ( xOff<0 ) jquery+=BL( "$('" )+_id+BL( "').x(" )
+            if ( xOff<0 ) script+=BL( "$('" )+_id+BL( "').x(" )
                 +QByteArray::number( qRound(_x+xOff) )+BL( ");\n" );
-            if ( yOff<0 ) jquery+=BL( "$('" )+_id+BL( "').y(" )
+            if ( yOff<0 ) script+=BL( "$('" )+_id+BL( "').y(" )
                 +QByteArray::number( qRound(_y+yOff) )+BL( ");\n" );
             if ( _variants.value( DIEFilter ).isValid() ) filter+=_variants.value( DIEFilter ).toByteArray();
             _variants.insert( DIEFilter, filter );
@@ -858,7 +858,7 @@ void PHIBaseItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByt
             _effect->blur( radius );
             filter+="progid:DXImageTransform.Microsoft.Blur(PixelRadius=";
             filter+=QByteArray::number( radius )+')';
-            jquery+=BL( "$('" )+_id+BL( "').x(" )
+            script+=BL( "$('" )+_id+BL( "').x(" )
                 +QByteArray::number( qRound(_x-radius) )+BL( ").y(" )
                 +QByteArray::number( qRound(_y-radius) )+BL( ");\n" );
         }

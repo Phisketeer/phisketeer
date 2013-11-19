@@ -118,7 +118,7 @@ public:
     inline virtual bool isDraggable() const { return true; }
     inline virtual bool isDroppable() const { return true; }
     virtual void ideInit();
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
     void setLine( quint8 l );
     void setPattern( quint8 p );
@@ -145,7 +145,7 @@ protected:
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void phisCreateData( const PHIDataParser &parser );
-    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
+    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
     virtual void squeeze();
     virtual PHIConfigWidget* ideConfigWidget();
 
@@ -172,7 +172,7 @@ public:
     virtual PHIImageData* imageData() { return &_imageData; }
     QImage realImage() const { return data( DImage, QImage() ).value<QImage>(); }
     void setImage( const QImage &img ) { setData( DImage, img ); updateImage(); }
-    void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 public slots:
 
@@ -262,7 +262,7 @@ public:
     virtual void activateLayout()=0; // called once after page loading
     virtual void updateChildId( const QString &oldId, const QString &newId )=0;
     virtual void ideInit();
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     inline const QList<PHIBaseItem*>& childItems() const { return _children; }
     inline void setChildItems( const QList<PHIBaseItem*> &list ) { _children=list; }
     inline bool hasBorderRadius() const { return topLeftRadius()+topRightRadius()
@@ -340,18 +340,18 @@ class PHIEXPORT PHIAbstractInputItem : public PHIAbstractTextItem
 {
     Q_OBJECT
     Q_PROPERTY( QString _accessKey WRITE setAccessKey READ realAccessKey SCRIPTABLE false )
-    Q_PROPERTY( QString _value WRITE setText READ realText SCRIPTABLE false )
+    Q_PROPERTY( QString _value WRITE setValue READ realValue SCRIPTABLE false )
 
 public:
-    enum ItemData { DAccessKey=-99 };
+    enum ItemData { DAccessKey=-99, DValue=-98 };
     explicit PHIAbstractInputItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ) {}
     PHIAbstractInputItem( const PHIAbstractInputItem &it ) : PHIAbstractTextItem( it ) {}
     virtual ~PHIAbstractInputItem() {}
     virtual bool isFocusable() const { return true; }
     inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
     inline void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); }
-    //inline QString realValue() const { return QString::fromUtf8( data( DValue ).toByteArray() ); }
-    //inline void setValue( const QString &v ) { setData( DValue, v.toUtf8() ); }
+    inline QString realValue() const { return QString::fromUtf8( data( DValue ).toByteArray() ); }
+    inline void setValue( const QString &v ) { setData( DValue, v.toUtf8() ); }
 
 protected:
     virtual void ideUpdateData();

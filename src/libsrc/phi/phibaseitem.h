@@ -118,7 +118,7 @@ public:
         LANG_SELECTOR=33, LAYOUT_DELIVERY=35,
         ROLLOVER_BUTTON=37,
         RICH_TEXT=41, CHECK_LIST=43, IMAGE_BOOK=45, TABLE=46
-        HTML_DOC=49, SEARCH=50, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
+        HTML_DOC=49, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
         GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, CANVAS=61, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
     */
     explicit PHIBaseItem( const PHIBaseItemPrivate &p );
@@ -219,7 +219,9 @@ public: // not usable by script engine
     void load( const QByteArray &in, int version );
     void privateUpdateData();
     void privateStaticCSS( const PHIRequest *req, QByteArray &out ) const;
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual PHIWID htmlHeaderExtension( QByteArray &headerOut ) const { Q_UNUSED( headerOut ); return 0; }
+    virtual PHIWID htmlScriptExtension( QByteArray &globalJQuery ) const { Q_UNUSED( globalJQuery ); return 0; }
     QByteArray save( int version );
 
     //virtual functions
@@ -231,6 +233,7 @@ public: // not usable by script engine
     inline virtual bool hasMaxLength() const { return false; }
     inline virtual bool hasDelimiter() const { return false; }
     inline virtual bool hasGradient() const { return false; }
+    inline virtual bool hasExtension() const { return false; } // HTML header & script
     inline virtual bool isCheckable() const { return false; } // radio & checkboxes
     inline virtual bool isFocusable() const { return false; }
     inline virtual bool isInputItem() const { return false; } // has form data
@@ -241,7 +244,6 @@ public: // not usable by script engine
     inline virtual bool isDroppable() const { return false; }
     inline virtual QColor color( PHIPalette::ItemRole ) const { return QColor(); }
     inline virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole ) const { return PHIPalette::NoRole; }
-    inline virtual QByteArray extension() const { return QByteArray(); }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color );
     virtual void setFont( const QFont &font );
     virtual void setGradient( QLinearGradient g );
@@ -336,13 +338,13 @@ protected:
     virtual void phisParseData( const PHIDataParser &parser ) { Q_UNUSED( parser ) }
     virtual void phisCreateData( const PHIDataParser &parser ) { Q_UNUSED( parser ) }
     virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
-    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &jquery ) const;
+    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
     void cssLinearGradient( const PHIRequest *req, QByteArray &out ) const;
     void cssImageIEFilter( const QByteArray &imgId ) const;
-    void htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &jquery, bool project3D=true ) const; // includes id tag
-    void htmlAdjustedPos( QByteArray &jquery ) const;
-    void htmlAdjustedSize( QByteArray &jquery ) const;
-    void htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    void htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &script, bool project3D=true ) const; // includes id tag
+    void htmlAdjustedPos( QByteArray &script ) const;
+    void htmlAdjustedSize( QByteArray &script ) const;
+    void htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
     // IDE related members
     inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
@@ -538,19 +540,19 @@ inline QByteArray PHIBaseItem::cssRgba( const QColor &c )
     return arr;
 }
 
-inline void PHIBaseItem::htmlAdjustedPos( QByteArray &jquery ) const
+inline void PHIBaseItem::htmlAdjustedPos( QByteArray &script ) const
 {
     QRectF r=adjustedRect();
     if ( QPointF()==r.topLeft() ) return;
-    jquery+=BL( "$('" )+id()+BL( "').pos(" )+QByteArray::number( qRound(_x+r.x()) )
+    script+=BL( "$('" )+id()+BL( "').pos(" )+QByteArray::number( qRound(_x+r.x()) )
         +','+QByteArray::number( qRound(_y+r.y()) )+BL( ");\n" );
 }
 
-inline void PHIBaseItem::htmlAdjustedSize( QByteArray &jquery ) const
+inline void PHIBaseItem::htmlAdjustedSize( QByteArray &script ) const
 {
     QRectF r=adjustedRect();
     if ( realSize()==r.size() ) return;
-    jquery+=BL( "$('" )+id()+BL( "').width(" )+QByteArray::number( qRound(r.width()) )
+    script+=BL( "$('" )+id()+BL( "').width(" )+QByteArray::number( qRound(r.width()) )
         +BL( ").height(" )+QByteArray::number( qRound(r.height()) )+BL( ");\n" );
 }
 

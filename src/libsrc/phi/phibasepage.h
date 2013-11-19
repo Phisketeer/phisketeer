@@ -120,8 +120,8 @@ public:
     virtual ~PHIBasePage() { delete _pageData; qDebug() << "delete" << _id; }
     PHIBasePage( const PHIBasePage &p ) : QObject( p.parent() ),
         _pageData( new PHIDynPageData( *p._pageData ) ), _id( p._id ), _currentLang( p._currentLang ),
-        _width( p._width ), _height( p._height ), _variants( p._variants ), _extensions( p._extensions ),
-        _dbName( p._dbName ), _dbHost( p._dbHost ), _dbPasswd( p._dbPasswd ),
+        _width( p._width ), _height( p._height ), _variants( p._variants ), _headerExtensions( p._headerExtensions ),
+        _scriptExtensions( p._scriptExtensions ), _dbName( p._dbName ), _dbHost( p._dbHost ), _dbPasswd( p._dbPasswd ),
         _dbUser( p._dbUser ), _dbDriver( p._dbDriver ), _dbOptions( p._dbOptions ),
         _dbFileName( p._dbFileName ), _dbPort( p._dbPort ), _favicon( p._favicon ),
         _font( p._font ), _bgColor( p._bgColor), _menuEntries( p._menuEntries ),
@@ -151,7 +151,9 @@ public:
     inline void setServerModules( qint32 s ) { _variants.insert( DServerModules, s ); }
     inline qint32 serverModules() const { return _variants.value( DServerModules, 0 ).value<qint32>(); }
     inline const QHash <quint8, QVariant>& data() const { return _variants; }
-    inline void insertExtension( PHIWID wid, const QByteArray &ext ) { if( !_extensions.contains( wid ) ) _extensions.insert( wid, ext ); }
+    inline void insertHtmlHeaderExtension( PHIWID wid, const QByteArray &ext ) { _headerExtensions.insert( wid, ext ); }
+    inline void insertHtmlJQueryExtension( PHIWID wid, const QByteArray &ext ) { _scriptExtensions.insert( wid, ext ); }
+    inline const QHash <PHIWID, QByteArray>& htmlHeaderExtensions() const { return _headerExtensions; }
 
     void setGeometry( Geometry g );
     void setFavicon( const QImage &pix ) { _favicon=pix; }
@@ -304,7 +306,7 @@ private:
     QByteArray _id, _currentLang;
     quint32 _width, _height;
     QHash <quint8, QVariant> _variants;
-    QHash <PHIWID, QByteArray> _extensions;
+    QHash <PHIWID, QByteArray> _headerExtensions, _scriptExtensions;
     QString _dbName, _dbHost, _dbPasswd, _dbUser, _dbDriver, _dbOptions, _dbFileName;
     qint32 _dbPort;
     QImage _favicon;

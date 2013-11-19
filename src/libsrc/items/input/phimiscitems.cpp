@@ -65,10 +65,10 @@ void PHIHiddenItem::squeeze()
     PHIAbstractInputItem::squeeze();
 }
 
-void PHIHiddenItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+void PHIHiddenItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     Q_UNUSED( req )
-    Q_UNUSED( jquery )
+    Q_UNUSED( script )
     out+=indent+BL( "<input type=\"hidden\" id=\"" )+id()+BL( "\" value=\"" )
         +data( DText ).toByteArray()+BL( "\">\n" );
 }

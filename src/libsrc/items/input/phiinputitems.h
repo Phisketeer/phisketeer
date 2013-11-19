@@ -38,7 +38,7 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
     virtual void ideInit();
     virtual PHITextData* placeholderData() { return &_placeholderData; }
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     void setPlaceholder( const QString &t );
     QString realPlaceholder() const { return QString::fromUtf8( data( DPlaceholder ).toByteArray() ); }
 
@@ -55,7 +55,7 @@ protected:
     virtual void squeeze();
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void phisCreateData( const PHIDataParser &parser );
-    void genHtml( const QByteArray &type, const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    void genHtml( const QByteArray &type, const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 private:
     PHITextData _placeholderData;
@@ -75,7 +75,7 @@ public:
     virtual QString description() const { return tr( "Line edit with input type <email>" ); }
     virtual PHIWID wid() const { return Email; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 private:
     virtual void initWidget();
@@ -95,7 +95,27 @@ public:
     virtual QString description() const { return tr( "Line edit with input type <phone>" ); }
     virtual PHIWID wid() const { return Phone; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+private:
+    virtual void initWidget();
+};
+
+class PHISearchItem : public PHILineEditItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { Search=50 };
+    explicit PHISearchItem( const PHIBaseItemPrivate &p ) : PHILineEditItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHISearchItem( const PHIPhoneItem &it ) : PHILineEditItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHISearchItem() {}
+
+    virtual QString listName() const { return tr( "Search" ); }
+    virtual QString description() const { return tr( "Line edit with input type <search>" ); }
+    virtual PHIWID wid() const { return Search; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 private:
     virtual void initWidget();
@@ -142,7 +162,7 @@ public:
     virtual QString description() const { return tr( "Line edit with input type <password>" ); }
     virtual PHIWID wid() const { return Password; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/password" ) ); }
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 private:
     virtual void initWidget();

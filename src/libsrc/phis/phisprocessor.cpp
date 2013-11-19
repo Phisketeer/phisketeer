@@ -79,8 +79,16 @@ void PHISProcessor::run()
     page->setLang( _req->currentLang() );
     PHIDataParser parser( _req, page->id(), _db );
     page->phisParseData( parser );
+
     PHIBaseItem *it;
-    foreach( it, page->items() ) it->phisPrivateParseData( parser );
+    foreach( it, page->items() ) {
+        it->phisPrivateParseData( parser );
+        if ( it->hasExtension() ) {
+            QByteArray ext;
+            PHIWID wid=it->htmlScriptExtension( ext );
+            if ( wid ) page->insertHtmlJQueryExtension( wid, ext );
+        }
+    }
 
     // master template
     PHIBasePage *master( 0 );
@@ -245,6 +253,11 @@ void PHISProcessor::parseMaster( PHIBasePage *master, PHIBasePage *page ) const
         it->phisPrivateParseData( parser );
         it->setParent( page );
         it->setZIndex( -10000+it->realZIndex() );
+        if ( it->hasExtension() ) {
+            QByteArray ext;
+            PHIWID wid=it->htmlScriptExtension( ext );
+            if ( wid ) page->insertHtmlJQueryExtension( wid, ext );
+        }
     }
 }
 
@@ -310,7 +323,11 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
             in >> arr;
             it->load( arr, static_cast<int>(version) );
             it->phisPrivateCreateData( parser );
-            if ( !it->extension().isEmpty() ) page->insertExtension( it->wid(), it->extension() );
+            if ( it->hasExtension() ) {
+                QByteArray ext;
+                PHIWID extWid=it->htmlHeaderExtension( ext );
+                if ( extWid ) page->insertHtmlHeaderExtension( extWid, ext );
+            }
             l=qobject_cast<PHIAbstractLayoutItem*>(it);
             if ( l ) layouts.append( l );
         } catch ( std::bad_alloc& ) {
@@ -322,7 +339,9 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
     qDebug() << "layout child count" << layouts.count();
     foreach ( l, layouts ) l->activateLayout();
     page->genJQueryThemeFile( _req );
-    genScripts(); // @todo: make static and create once at server start
+    static bool created=false;
+    if ( !created ) genScripts(); // @todo: create once at server start
+    created=true;
     return page;
 }
 
@@ -475,20 +494,19 @@ void PHISProcessor::genJS() const
 
 void PHISProcessor::genScripts() const
 {
-    QFile f( _req->tmpDir()+SL( "/js/phibase.js" ) );
-    if ( Q_LIKELY( f.exists() ) ) return;
     createJS( L1( "phibase.js" ) );
     createJS( L1( "jquery.js" ) );
     createJS( L1( "jqueryiefix.js" ) );
     createJS( L1( "excanvas.js" ) );
     createJS( L1( "ui-core.js" ) );
-    //createJS( L1( "ui-widget.js" ) );
-    //createJS( L1( "ui-datepicker.js" ) );
+    createJS( L1( "ui-datepicker.js" ) );
     createJS( L1( "ui-progressbar.js" ) );
     createJS( L1( "ui-effects.js" ) );
-    //createJS( L1( "ui-mouse.js" ) );
-    //createJS( L1( "ui-draggable.js" ) );
-    //createJS( L1( "ui-droppable.js" ) );
+    //createJS( L1( "ui-mouse.js" ) ); // included in ui-core
+    //createJS( L1( "ui-draggable.js" ) ); // included in ui-core
+    //createJS( L1( "ui-droppable.js" ) ); // included in ui-core
+    //createJS( L1( "ui-widget.js" ) ); // included in ui-core
+    createUiCSS();
 }
 
 void PHISProcessor::createJS( const QString &name ) const
@@ -523,4 +541,28 @@ void PHISProcessor::createJS( const QString &name ) const
 #endif
         f.write( str.toLatin1() );
     } else f.write( src.readAll() );
+}
+
+void PHISProcessor::createUiCSS() const
+{
+    QFile dest( _req->tmpDir()+L1( "/css/ui-core.css" ) );
+    if ( !dest.open( QIODevice::WriteOnly ) ) {
+        _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
+            tr( "Could not write to UI CSS file '%1'." ).arg( dest.fileName() ) );
+        return;
+    }
+    QStringList list;
+    list << L1( "ui-core.css" ) << L1( "ui-datepicker.css" );
+    foreach( const QString css, list ) {
+        QFile src( L1( ":/" )+css );
+        if ( !src.open( QIODevice::ReadOnly ) ) {
+            _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
+                tr( "Could not read internal CSS data '%1'." ).arg( src.fileName() ) );
+            return;
+        }
+        dest.write( src.readAll() );
+    }
+    QByteArray out=BL( "\ndiv.ui-datepicker{width:100%;height:100%;padding:.2em "
+        ".2em 0;display:none;font-size:80%;min-width:240px;}\n" );
+    dest.write( out );
 }

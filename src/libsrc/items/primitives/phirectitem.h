@@ -63,7 +63,7 @@ public:
     virtual QString listName() const { return tr( "Rect" ); }
     virtual QString description() const { return tr( "Draws a box or rect with optional rounded courners" ); }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/rect" ) ); }
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 public slots:
     inline virtual qint16 borderRadius() const { return data( DBorderRadius, 0 ).value<qint16>(); }

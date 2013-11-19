@@ -903,8 +903,11 @@ void PHIAbstractLayoutItem::drawShape( QPainter *p, const QRectF &exposed )
     qreal rtr=data( DRadiusTopRight, 0 ).toReal();
     qreal rbr=data( DRadiusBottomRight, 0 ).toReal();
     qreal rbl=data( DRadiusBottomLeft, 0 ).toReal();
-    qreal off=realPenWidth()/2.+.5;
-    QRectF cr=QRectF( -off, -off, realWidth()+off, realHeight()+off );
+    QRectF cr=rect();
+    if ( realLine()>0 ) { // border
+        qreal off=realPenWidth()/2.;
+        cr=QRectF( -off, -off, realWidth()+off, realHeight()+off );
+    }
     QPainterPath path;
     path.moveTo( cr.x(), cr.y()+rtl );
     path.arcTo( cr.x(), cr.y(), rtl*2, rtl*2, 180., -90. );

@@ -153,9 +153,9 @@ void PHIGraphicTextItem::phisParseData( const PHIDataParser &parser )
     }
 }
 
-void PHIGraphicTextItem::html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const
+void PHIGraphicTextItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    PHIBaseItem::htmlImg( req, out, jquery, indent );
+    PHIBaseItem::htmlImg( req, out, script, indent );
 }
 
 void PHIGraphicTextItem::drawShape( QPainter *p, const QRectF &r )

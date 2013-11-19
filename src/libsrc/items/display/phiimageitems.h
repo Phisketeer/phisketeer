@@ -168,7 +168,7 @@ public:
     virtual bool isHeightChangeable() const { return false; }
     virtual bool isWidthChangeable() const { return false; }
     virtual bool isPrivateItem() const { return true; }
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &jquery, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );

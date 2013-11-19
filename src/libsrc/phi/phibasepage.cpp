@@ -174,7 +174,8 @@ PHIBasePage& PHIBasePage::operator=( const PHIBasePage &p )
     _width=p._width;
     _height=p._height;
     _variants=p._variants;
-    _extensions=p._extensions;
+    _headerExtensions=p._headerExtensions;
+    _scriptExtensions=p._scriptExtensions;
     _dbName=p._dbName;
     _dbHost=p._dbHost;
     _dbPasswd=p._dbPasswd;
@@ -257,7 +258,11 @@ QScriptValue PHIBasePage::createElementById( PHIWID wid, const QString &id,
     it->setY( y );
     if ( width > 0 ) it->setWidth( width );
     if ( height > 0 ) it->setHeight( height );
-    if ( !it->extension().isEmpty() ) insertExtension( it->wid(), it->extension() );
+    QByteArray ext, script;
+    PHIWID extWid=it->htmlHeaderExtension( ext );
+    if ( extWid ) insertHtmlHeaderExtension( extWid, ext );
+    extWid=it->htmlScriptExtension( script );
+    if ( extWid ) insertHtmlJQueryExtension( extWid, script );
     PHIDomItem *dom=new PHIDomItem( it );
     return scriptEngine()->newQObject( dom, QScriptEngine::ScriptOwnership,
         QScriptEngine::PreferExistingWrapperObject |
@@ -355,35 +360,36 @@ void PHIBasePage::createCSSFile( const PHIRequest *req ) const
         if ( font().pointSize() > -1 ) {
             fnt+="font-size:"+QByteArray::number( font().pointSize() )+"pt;";
         }
-        out+="body {\n\tmargin:0;padding:0;\n";
+        out+="body{\n\tmargin:0;padding:0;\n";
         out+="\tbackground-color:"+_bgColor.name().toLatin1()+';';
         out+="color:"+_pal.color( PHIPalette::WindowText ).name().toLatin1()+";\n\t"
-            +fnt+"\n}\na:link {text-decoration:none;color:"
+            +fnt+"\n}\na:link{text-decoration:none;color:"
             +_pal.color( PHIPalette::Link ).name().toLatin1()+"}\n"
-            "a:visited {text-decoration:none;color:"
+            "a:visited{text-decoration:none;color:"
             +_pal.color( PHIPalette::LinkVisited ).name().toLatin1()+"}\n";
-        if ( _flags & FNoUnderlinedLinks ) out+="a:hover {text-decoration:none}\n";
-        else out+="a:hover {text-decoration:underline}\n";
+        if ( _flags & FNoUnderlinedLinks ) out+="a:hover{text-decoration:none}\n";
+        else out+="a:hover{text-decoration:underline}\n";
         QByteArray ori="-webkit-transform-origin:0 0;-ms-transform-origin:0 0;"
             "-o-transform-origin:0 0;-moz-transform-origin:0 0;transform-origin:0 0";
-        out+="input {position:absolute;"+fnt+ori+"}\nselect {position:absolute;"+fnt+ori+"}\n";
-        out+="button {position:absolute;"+fnt+ori+"}\ntextarea {position:absolute;"+fnt+ori+"}\n";
-        out+="div {position:absolute;cursor:default;"+ori+"}\nimg {position:absolute;border:none;"+ori+"}\n";
-        out+="table {position:absolute;height:100%;width:100%;border:none;border-spacing:0;margin:0;padding:0}\n";
-        out+=".phibuttontext {color:"+_pal.color( PHIPalette::ButtonText ).name().toLatin1()+"}\n";
-        out+=".phibutton {background-color:"+_pal.color( PHIPalette::Button ).name().toLatin1()+"}\n";
-        out+=".phihighlight {background-color:"+_pal.color( PHIPalette::Highlight ).name().toLatin1()+"}\n";
-        out+=".phihighlightedtext {color:"+_pal.color( PHIPalette::HighlightText ).name().toLatin1()+"}\n";
-        out+=".phibase {background-color:"+_pal.color( PHIPalette::Base ).name().toLatin1()+"}\n";
-        out+=".phitext {color:"+_pal.color( PHIPalette::Text ).name().toLatin1()+"}\n";
-        out+=".phiwindowtext {color:"+_pal.color( PHIPalette::WindowText ).name().toLatin1()+"}\n";
-        out+=".phierror {background-color:"+_pal.color( PHIPalette::Error ).name().toLatin1()+"}\n";
-        out+=".phierrortext {background-color:"+_pal.color( PHIPalette::ErrorText ).name().toLatin1()+"}\n";
+        out+="input.phi{margin:0;padding:0;position:absolute;"+fnt+ori+"}\nselect.phi{position:absolute;"+fnt+ori+"}\n";
+        out+="label.phi{position:relative;display:inline-block;padding-top:2px}\n";
+        out+="button.phi{position:absolute;"+fnt+ori+"}\ntextarea.phi{position:absolute;"+fnt+ori+"}\n";
+        out+="div.phi{position:absolute;cursor:default;"+ori+"}\nimg.phi{position:absolute;border:none;"+ori+"}\n";
+        out+="table.phi{position:absolute;height:100%;width:100%;border:none;border-spacing:0;margin:0;padding:0}\n";
+        out+=".phibuttontext{color:"+_pal.color( PHIPalette::ButtonText ).name().toLatin1()+"}\n";
+        out+=".phibutton{background-color:"+_pal.color( PHIPalette::Button ).name().toLatin1()+"}\n";
+        out+=".phihighlight{background-color:"+_pal.color( PHIPalette::Highlight ).name().toLatin1()+"}\n";
+        out+=".phihighlightedtext{color:"+_pal.color( PHIPalette::HighlightText ).name().toLatin1()+"}\n";
+        out+=".phibase{background-color:"+_pal.color( PHIPalette::Base ).name().toLatin1()+"}\n";
+        out+=".phitext{color:"+_pal.color( PHIPalette::Text ).name().toLatin1()+"}\n";
+        out+=".phiwindowtext{color:"+_pal.color( PHIPalette::WindowText ).name().toLatin1()+"}\n";
+        out+=".phierror{background-color:"+_pal.color( PHIPalette::Error ).name().toLatin1()+"}\n";
+        out+=".phierrortext{background-color:"+_pal.color( PHIPalette::ErrorText ).name().toLatin1()+"}\n";
         if ( _flags & FPageLeftAlign ) {
-            out+=".phicontent {z-index:0;display:block;position:relative;left:0;top:0;width:"
+            out+=".phicontent{z-index:0;display:block;position:relative;left:0;top:0;width:"
                 +QByteArray::number( _width )+"px;margin:0;padding:0}\n";
         } else {
-            out+=".phicontent {z-index:0;display:block;position:relative;width:"
+            out+=".phicontent{z-index:0;display:block;position:relative;width:"
                 +QByteArray::number( _width )+"px;height:"
                 +QByteArray::number( _height )+"px;margin:0 auto;padding:0}\n";
         }
@@ -391,12 +397,6 @@ void PHIBasePage::createCSSFile( const PHIRequest *req ) const
     const PHIBaseItem *it;
     const QList <const PHIBaseItem*> children=findChildren<const PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly);
     foreach( it, children ) it->privateStaticCSS( req, out );
-
-    if ( Q_LIKELY( !(_flags & FNoUiThemeCSS) ) ) {
-        // jQuery UI
-        QFile f( SL( ":/ui-core.css" ) ); //jquery ui core CSS
-        if ( f.open( QIODevice::ReadOnly ) ) { out+='\n'+f.readAll(); f.close(); }
-    }
     out+="\n/* BEGIN custom CSS */\n";
     // User defined global page CSS
     if ( _flags & FUseCSS ) out+=_variants.value( DStyleSheet ).toByteArray();
@@ -455,23 +455,23 @@ void PHIBasePage::genJQueryThemeFile( const PHIRequest *req ) const
         if ( font.pointSize()>-1 ) theme.replace( QRegExp( _phireg( "fsDefault" ) ),
             ": "+QByteArray::number( font.pointSize() )+"pt" );
         */
-        theme.replace( QRegExp( _phireg( "iconsError" ) ), _phiurl( "uiiconserror.png" ) );
-        theme.replace( QRegExp( _phireg( "iconsContent" ) ), _phiurl( "uiiconscontent.png" ) );
-        theme.replace( QRegExp( _phireg( "iconsHeader" ) ), _phiurl( "uiiconsheader.png" ) );
-        theme.replace( QRegExp( _phireg( "iconsDefault" ) ), _phiurl( "uiiconsdefault.png" ) );
-        theme.replace( QRegExp( _phireg( "iconsHighlight" ) ), _phiurl( "uiiconshighlight.png" ) );
-        theme.replace( QRegExp( _phireg( "iconsActive" ) ), _phiurl( "uiiconsactive.png" ) );
-        theme.replace( QRegExp( _phireg( "iconsHover" ) ), _phiurl( "uiiconsactive.png" ) );
+        theme.replace( QRegExp( _phireg( "iconsError" ) ), _phiurl( "uiiconserror" ) );
+        theme.replace( QRegExp( _phireg( "iconsContent" ) ), _phiurl( "uiiconscontent" ) );
+        theme.replace( QRegExp( _phireg( "iconsHeader" ) ), _phiurl( "uiiconsheader" ) );
+        theme.replace( QRegExp( _phireg( "iconsDefault" ) ), _phiurl( "uiiconsdefault" ) );
+        theme.replace( QRegExp( _phireg( "iconsHighlight" ) ), _phiurl( "uiiconshighlight" ) );
+        theme.replace( QRegExp( _phireg( "iconsActive" ) ), _phiurl( "uiiconsactive" ) );
+        theme.replace( QRegExp( _phireg( "iconsHover" ) ), _phiurl( "uiiconsactive" ) );
 
-        theme.replace( QRegExp( _phireg( "bgImgUrlContent" ) ), _phiurl( "uibgimgurlcontent.png" ) );
+        theme.replace( QRegExp( _phireg( "bgImgUrlContent" ) ), _phiurl( "uibgimgurlcontent" ) );
 
-        theme.replace( QRegExp( _phireg( "bgImgUrlHover" ) ), _phiurl( "uibgimgurlhover.png" ) );
-        theme.replace( QRegExp( _phireg( "bgImgUrlActive" ) ), _phiurl( "uibgimgurlactive.png" ) );
-        theme.replace( QRegExp( _phireg( "bgImgUrlHeader" ) ), _phiurl( "uibgimgurlheader.png" ) );
-        theme.replace( QRegExp( _phireg( "bgImgUrlError" ) ), _phiurl( "uibgimgurlerror.png" ) );
-        theme.replace( QRegExp( _phireg( "bgImgUrlDefault" ) ), _phiurl( "uibgimgurldefault.png" ) );
-        theme.replace( QRegExp( _phireg( "bgImgUrlOverlay" ) ), _phiurl( "uibgimgurloverlay.png" ) );
-        theme.replace( QRegExp( _phireg( "bgImgUrlHighlight" ) ), _phiurl( "uibgimgurlhighlight.png" ) );
+        theme.replace( QRegExp( _phireg( "bgImgUrlHover" ) ), _phiurl( "uibgimgurlhover" ) );
+        theme.replace( QRegExp( _phireg( "bgImgUrlActive" ) ), _phiurl( "uibgimgurlactive" ) );
+        theme.replace( QRegExp( _phireg( "bgImgUrlHeader" ) ), _phiurl( "uibgimgurlheader" ) );
+        theme.replace( QRegExp( _phireg( "bgImgUrlError" ) ), _phiurl( "uibgimgurlerror" ) );
+        theme.replace( QRegExp( _phireg( "bgImgUrlDefault" ) ), _phiurl( "uibgimgurldefault" ) );
+        theme.replace( QRegExp( _phireg( "bgImgUrlOverlay" ) ), _phiurl( "uibgimgurloverlay" ) );
+        theme.replace( QRegExp( _phireg( "bgImgUrlHighlight" ) ), _phiurl( "uibgimgurlhighlight" ) );
 
         theme.replace( QRegExp( _phireg( "fcDefault" ) ),
             QLatin1Char( ' ' )+_pal.color( PHIPalette::WindowText ).name() );
@@ -527,30 +527,33 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         out+=BL( "\t<meta name=\"description\" content=\"" )+_variants.value( DDescription ).toByteArray()+eht;
     if ( _variants.value( DKeys ).isValid() )
         out+=BL( "\t<meta name=\"keywords\" content=\"" )+_variants.value( DKeys ).toByteArray()+eht;
-    out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+eht;
-    if ( Q_LIKELY( !(_flags & FNoUiThemeCSS ) ) )
+    if ( Q_LIKELY( !(_flags & FNoSystemCSS) ) )
+        out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+eht;
+    if ( Q_LIKELY( !(_flags & FNoUiThemeCSS ) ) ) {
+        out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=ui-core" )+eht;
         out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+BL( "-theme" )+eht;
-    if ( Q_LIKELY( _flags & FHasFavicon ) ) {
-        out+=BL( "\t<link rel=\"shortcut icon\" href=\"phi.phis?i=" )+_id+BL( ".ico&t=1" )+eht;
     }
+    if ( Q_LIKELY( _flags & FHasFavicon ) )
+        out+=BL( "\t<link rel=\"shortcut icon\" href=\"phi.phis?i=" )+_id+BL( ".ico&t=1" )+eht;
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )
         out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jqueryiefix\"></script>\n" );
     else out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jquery\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-core\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-effects\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=phibase\"></script>\n" );
-    foreach ( QByteArray ext, _extensions.values() ) out+=ext;
+    QByteArray script, indent="\t", tmp;
+    script.reserve( 4*1024 );
+    foreach ( tmp, _scriptExtensions.values() ) script+=tmp;
+    foreach ( tmp, _headerExtensions.values() ) out+='\t'+tmp;
     out+=BL( "</head>\n<body>\n<div id=\"phihtml\" class=\"phicontent\">\n" );
-    QByteArray jquery, indent="\t";
-    jquery.reserve( 4*1024 );
     const PHIBaseItem *it;
     const QList <const PHIBaseItem*> children=findChildren<const PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly);
     foreach( it, children ) {
         if ( it->isChild() ) continue; // handled by layouts
-        it->html( req, out, jquery, indent );
+        it->html( req, out, script, indent );
     }
     out+=BL( "</div>\n<script type=\"text/javascript\">\n/* <![CDATA[ */\n" );
-    out+=BL( "phi.setLang('" )+_currentLang+BL( "');\n" )+jquery;
+    out+=BL( "phi.setLang('" )+_currentLang+BL( "');\n" )+script;
     if ( _flags & FJavaScript ) {
         out+=BL( "/* BEGIN custom script */\n" )+_variants.value( DJavascript ).toByteArray();
         out+=BL( "/* END custom script */\n" );
@@ -710,6 +713,10 @@ void PHIBasePage::copyMasterData( const PHIBasePage *m )
     }
     if ( _menuEntries.count()==0 ) {
         _menuEntries=m->menuEntries();
+    }
+    PHIWID wid;
+    foreach ( wid, m->htmlHeaderExtensions().keys() ) {
+        _headerExtensions.insert( wid, m->htmlHeaderExtensions().value( wid ) );
     }
 }
 
