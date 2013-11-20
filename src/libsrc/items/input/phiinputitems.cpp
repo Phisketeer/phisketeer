@@ -26,6 +26,7 @@
 #include "phibasepage.h"
 #include "phidataparser.h"
 #include "phirequest.h"
+#include "phiinputtools.h"
 
 void PHILineEditItem::initWidget()
 {
@@ -103,13 +104,6 @@ void PHILineEditItem::phisParseData( const PHIDataParser &parser )
 {
     PHIAbstractInputItem::phisParseData( parser );
     if ( dirtyFlags() & DFPlaceholder ) setData( DPlaceholder, parser.text( &_placeholderData ) );
-    switch ( parser.request()->agentEngine() ) {
-    case PHIRequest::WebKit: setAdjustedRect( QRectF( 0, 0, realWidth()-6, realHeight()-6 ) ); break;
-    //case PHIRequest::Trident: setAdjustedRect( QRectF( 0, 0, 0, -6 ) ); break;
-    //case PHIRequest::Gecko: setAdjustedRect( QRectF( 0, 0, 0, 0 ) ); break;
-    //case PHIRequest::Presto: setAdjustedRect( QRectF( 0, 0, 0, 0 ) ); break;
-    //default: setAdjustedRect( QRectF( 0, 0, 0, 0 ) );
-    }
 }
 
 void PHILineEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
@@ -119,6 +113,7 @@ void PHILineEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
 
 void PHILineEditItem::genHtml( const QByteArray &type, const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    setAdjustedRect( PHIInputTools::adjustedLineEdit( req, rect() ) );
     out+=indent+BL( "<input type=\"" )+type+BL( "\" name=\"" )+id()+'"';
     QByteArray arr=data( DText ).toByteArray();
     if ( !arr.isEmpty() ) out+=BL( " value=\"" )+arr+'"';

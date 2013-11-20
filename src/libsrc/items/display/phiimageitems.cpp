@@ -18,10 +18,12 @@
 */
 #include <QPainter>
 #include <QTimer>
+#include <QSvgRenderer>
 #include "phiimageitems.h"
 #include "phibasepage.h"
 #include "phidataparser.h"
 #include "phirequest.h"
+#include "phicontext2d.h"
 
 void PHIImageItem::updateImage()
 {
@@ -116,7 +118,10 @@ void PHISvgItem::ideUpdateData()
     else if ( _textData.isUnparsedTranslated() )
         setData( DSvgSource, _textData.text( page()->currentLang() ).toLatin1() );
     else setData( DSvgSource, QByteArray() );
-    initWidget();
+    Q_ASSERT( _renderer );
+    _renderer->load( data( DSvgSource ).toByteArray() );
+    if ( _renderer->isValid() ) resize( _renderer->defaultSize() );
+    update();
 }
 
 void PHISvgItem::ideSetText( const QString &s, const QByteArray &lang )
@@ -136,8 +141,7 @@ QSizeF PHISvgItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) cons
 {
     Q_UNUSED( which )
     Q_UNUSED( constraint )
-    if ( _renderer.isValid() ) return QSizeF( _renderer.defaultSize() );
-    return QSizeF( 32., 32. );
+    return realSize();
 }
 
 void PHISvgItem::squeeze()
@@ -159,23 +163,74 @@ void PHISvgItem::saveItemData( QDataStream &out, int version )
 
 void PHISvgItem::initWidget()
 {
-    _renderer.load( data( DSvgSource ).toByteArray() );
-    if ( _renderer.isValid() ) resize( QSizeF( _renderer.defaultSize() ) );
-    else resize( QSizeF( 32., 32. ) );
+    _renderer=new QSvgRenderer( this );
+    _renderer->load( data( DSvgSource ).toByteArray() );
+    if ( _renderer->isValid() ) resize( QSizeF( _renderer->defaultSize() ) );
     update();
+}
+
+QImage PHISvgItem::graphicImage( const QByteArray &source ) const
+{
+    QSvgRenderer renderer;
+    renderer.load( source );
+    QImage img( realSize().toSize(), QImage::Format_ARGB32_Premultiplied );
+    img.fill( 0 );
+    QPainter p( &img );
+    if ( renderer.isValid() ) renderer.render( &p, rect() );
+    else p.fillRect( rect(), Qt::gray );
+    return img;
 }
 
 void PHISvgItem::paint( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
-    if ( _renderer.isValid() ) _renderer.render( p, rect() );
+    if ( _renderer && _renderer->isValid() ) _renderer->render( p, rect() );
     else {
         p->fillRect( rect(), QBrush( Qt::lightGray ) );
         QFont f=font();
         f.setPointSizeF( PHI::adjustedFontSize( 10. ) );
         p->setPen( Qt::darkGray );
-        p->drawText( rect(), tr( "SVG" ), QTextOption( Qt::AlignCenter ) );
+        p->drawText( rect(), L1( "SVG" ), QTextOption( Qt::AlignCenter ) );
     }
+}
+
+void PHISvgItem::phisCreateData( const PHIDataParser &parser )
+{
+    setData( DSvgSource, parser.text( &_textData ) );
+    if ( _textData.isUnparsedStatic() ) {
+        setImagePath( parser.createImage( graphicImage( data( DSvgSource ).toByteArray() ) ) );
+    } else if ( _textData.isUnparsedTranslated() ) {
+        foreach ( QByteArray l, _textData.langs() ) {
+            QByteArray path=parser.createImage( graphicImage( _textData.variant( l ).toByteArray() ), l );
+            qDebug() << id() << path << l;
+        }
+    } else setDirtyFlag( DFText );
+}
+
+void PHISvgItem::phisParseData( const PHIDataParser &parser )
+{
+    if ( Q_UNLIKELY( dirtyFlags() & DFText ) ) {
+        setData( DSvgSource, parser.text( &_textData ) );
+        // need to create dynamic uncached image
+        setImagePath( parser.createImage( graphicImage( data( DSvgSource ).toByteArray() ), PHIData::c(), -1 ) );
+    } else {
+        if ( !_textData.isUnparsedStatic() ) {
+            Q_ASSERT( _textData.isUnparsedTranslated() );
+            setData( DSvgSource, _textData.variant( page()->currentLang() ) );
+            setImagePath( parser.imagePath( page()->currentLang() ) );
+            qDebug() << "imagepath" << page()->currentLang() << imagePath();
+        }
+    }
+}
+
+void PHISvgItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::SVG && !hasGraphicEffect() ) ) {
+        out+=indent+BL( "<div" );
+        htmlBase( req, out, script );
+        out+=BL( "\">\n" )+data( DSvgSource ).toByteArray()+'\n'+indent+BL( "</div>\n" );
+        script+=BL( "jQuery('#" )+id()+BL( " svg').css({width:'100%',height:'100%'});\n" );
+    } else htmlImg( req, out, script, indent );
 }
 
 void PHISlideShowItem::ideInit()
@@ -292,6 +347,149 @@ void PHISlideShowItem::saveItemData( QDataStream &out, int version )
 {
     PHIAbstractImageBookItem::saveItemData( out, version );
     out << &_intervalData << &_fadeTimeData;
+}
+
+void PHICanvasItem::ideInit()
+{
+    //_textData.setText( svgDefaultSource() );
+    resize( 96., 96. );
+}
+
+void PHICanvasItem::ideUpdateData()
+{
+    if ( _textData.isUnparsedStatic() ) setData( DCanvasSource, _textData.text().toLatin1() );
+    else if ( _textData.isUnparsedTranslated() )
+        setData( DCanvasSource, _textData.text( page()->currentLang() ).toLatin1() );
+    else setData( DCanvasSource, QByteArray() );
+    update();
+}
+
+void PHICanvasItem::ideSetText( const QString &s, const QByteArray &lang )
+{
+    if ( _textData.isTranslated() ) _textData.setText( s, lang );
+    else _textData.setText( s );
+    ideUpdateData();
+}
+
+QString PHICanvasItem::ideText( const QByteArray &lang ) const
+{
+    if ( _textData.isTranslated() ) return _textData.text( lang );
+    return _textData.text();
+}
+
+QSizeF PHICanvasItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    return PHIBaseItem::sizeHint( which, constraint );
+}
+
+void PHICanvasItem::squeeze()
+{
+    removeData( DCanvasSource );
+}
+
+void PHICanvasItem::loadItemData( QDataStream &in, int version )
+{
+    Q_UNUSED( version )
+    in >> &_textData;
+}
+
+void PHICanvasItem::saveItemData( QDataStream &out, int version )
+{
+    Q_UNUSED( version )
+    out << &_textData;
+}
+
+void PHICanvasItem::initWidget()
+{
+    update();
+}
+
+void PHICanvasItem::paint( QPainter *p, const QRectF &exposed )
+{
+    Q_UNUSED( exposed )
+    if ( Q_UNLIKELY( _canvas.isNull() ) ) {
+        p->setOpacity( .6 );
+        p->fillRect( rect(), QBrush( Qt::lightGray ) );
+        QFont f=font();
+        f.setPointSizeF( PHI::adjustedFontSize( 10. ) );
+        p->setPen( Qt::darkGray );
+        p->drawText( rect(), L1( "Canvas" ), QTextOption( Qt::AlignCenter ) );
+    } else {
+        p->setClipRect( rect() );
+        p->drawImage( 0, 0, _canvas );
+    }
+}
+
+void PHICanvasItem::slotSizeChanged( const QSizeF &s )
+{
+    if ( _ctx2D ) _ctx2D->setSize( s.toSize() );
+}
+
+QScriptValue PHICanvasItem::getContext( const QScriptValue &v )
+{
+    if ( v.toString().toUpper()!=L1( "2D" ) ) return QScriptValue( QScriptValue::UndefinedValue );
+    QScriptEngine *e=page()->scriptEngine();
+    if ( !e ) return QScriptValue( QScriptValue::UndefinedValue );
+    if ( !_ctx2D ) {
+        setDirtyFlag( DFCustom1 ); // if referenced in ServerScript we create an image
+        _ctx2D=new PHIContext2D( this );
+        _ctx2D->setSize( realSize().toSize() );
+        if ( isServerItem() ) _ctx2D->setServerMode();
+        connect( _ctx2D, &PHIContext2D::changed, this, &PHICanvasItem::imageChanged );
+        connect( this, &PHIBaseItem::sizeChanged, this, &PHICanvasItem::slotSizeChanged );
+        qScriptRegisterMetaType( e, domRectToScriptValue, domRectFromScriptValue );
+        qScriptRegisterMetaType( e, canvasGradientToScriptValue, canvasGradientFromScriptValue );
+    }
+    return context2DToScriptValue( e, _ctx2D );
+}
+
+void PHICanvasItem::phisCreateData( const PHIDataParser &parser )
+{
+    setData( DCanvasSource, parser.text( &_textData ) );
+    if ( !_textData.isUnparsedStatic() ) setDirtyFlag( DFText );
+}
+
+void PHICanvasItem::phisParseData( const PHIDataParser &parser )
+{
+    if ( Q_UNLIKELY( dirtyFlags() & DFText ) ) setData( DCanvasSource, parser.text( &_textData ) );
+}
+
+void PHICanvasItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    if ( dirtyFlags() & DFCustom1 && !_canvas.isNull() ) { // image created via ServerScript
+        QByteArray imgid=PHIDataParser::createImage( req, this, _canvas, PHIData::c(), -1 );
+        setImagePath( imgid );
+        return htmlImg( req, out, script, indent );
+    }
+    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::Canvas ) ) {
+        out+=indent+BL( "<canvas width=\"" )+QByteArray::number( qRound(realWidth()) )
+            +BL( "\" height=\"" )+QByteArray::number( qRound(realHeight()) )+'"';
+        htmlBase( req, out, script );
+        out+=BL( "\"></canvas>\n" );
+        QByteArray arr=data( DCanvasSource ).toByteArray();
+        if ( !arr.isEmpty() ) script+=arr+'\n';
+    } else { // we try to create an image from script
+        QScriptEngine *engine=page()->scriptEngine();
+        if ( !engine ) return;
+        QString t=realText();
+        if ( t.isEmpty() ) return;
+        qScriptRegisterMetaType( engine, domRectToScriptValue, domRectFromScriptValue );
+        qScriptRegisterMetaType( engine, canvasGradientToScriptValue, canvasGradientFromScriptValue );
+        QScriptValue res=page()->scriptEngine()->evaluate( t );
+        if ( Q_UNLIKELY( res.isError() ) ) {
+            QStringList list=engine->uncaughtExceptionBacktrace();
+            QString tmp=tr( "Parse error in canvas '%1' in page '%2', line: %3" )
+                .arg( name() ).arg( req->canonicalFilename() )
+                .arg( engine->uncaughtExceptionLineNumber() )+
+                QString::fromLatin1( PHI::nl() )+res.toString();
+            tmp+=QString::fromLatin1( PHI::nl()+PHI::nl() )+list.join( QString::fromLatin1( PHI::nl() ) );
+            req->responseRec()->log( PHILOGERR, PHIRC_SCRIPT_PARSE_ERROR, tmp );
+        }
+        if ( _canvas.isNull() ) return;
+        QByteArray imgid=PHIDataParser::createImage( req, this, _canvas, PHIData::c(), -1 );
+        setImagePath( imgid );
+        return htmlImg( req, out, script, indent );
+    }
 }
 
 QSizeF PHISponsorItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const

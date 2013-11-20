@@ -700,7 +700,7 @@ void PHIContext2D::bezierCurveTo( qreal cp1x, qreal cp1y, qreal cp2x, qreal cp2y
 
 void PHIContext2D::arcTo( qreal x1, qreal y1, qreal x2, qreal y2, qreal radius )
 {
-    //FIXME: this is surely busted
+    // @todo: FIXME - this is surely busted
     QPointF st=_state.matrix.map( QPointF( x1, y1 ) );
     QPointF end=_state.matrix.map( QPointF( x2, y2 ) );
     _path.arcTo( st.x(), st.y(), end.x()-st.x(), end.y()-st.y(), radius, 90 );
@@ -787,17 +787,17 @@ bool PHIContext2D::isPointInPath( qreal x, qreal y ) const
 }
 
 
-PHIImageData PHIContext2D::getImageData( qreal sx, qreal sy, qreal sw, qreal sh )
+PHIDomImageData PHIContext2D::getImageData( qreal sx, qreal sy, qreal sw, qreal sh )
 {
     // Not yet implemented
     Q_UNUSED(sx);
     Q_UNUSED(sy);
     Q_UNUSED(sw);
     Q_UNUSED(sh);
-    return PHIImageData();
+    return PHIDomImageData();
 }
 
-void PHIContext2D::putImageData( PHIImageData image, qreal dx, qreal dy )
+void PHIContext2D::putImageData( PHIDomImageData image, qreal dx, qreal dy )
 {
     Q_UNUSED(image);
     Q_UNUSED(dx);
@@ -943,6 +943,9 @@ void PHIContext2D::drawImage( PHIDomImage *image, qreal sx, qreal sy, qreal sw, 
 
 void PHIContext2D::scheduleChange()
 {
+    if ( _changeTimerId==-2 ) { // ServerScript
+        emit changed( endPainting() );
+    }
     if ( _changeTimerId==-1 ) _changeTimerId=startTimer( 0 );
 }
 

@@ -171,13 +171,13 @@ bool PHISProcessor::runScript( const PHIBasePage *master, PHIBasePage *page ) co
 {
     Q_ASSERT( _req->responseRec()->body().isEmpty() );
     Q_ASSERT( _req->responseRec()->contentLength()==0 );
-    QScriptEngine engine( page );
-    qScriptRegisterMetaType( &engine, baseItemToScriptValue, baseItemFromScriptValue );
-    PHISGlobalScriptObj gso( page, _req, _db, &engine );
+    QScriptEngine *engine=new QScriptEngine( page );
+    qScriptRegisterMetaType( engine, baseItemToScriptValue, baseItemFromScriptValue );
+    PHISGlobalScriptObj gso( page, _req, _db, engine );
     Q_UNUSED( gso )
-    QScriptValue res=engine.newQObject( page, QScriptEngine::QtOwnership, QScriptEngine::PreferExistingWrapperObject |
+    QScriptValue res=engine->newQObject( page, QScriptEngine::QtOwnership, QScriptEngine::PreferExistingWrapperObject |
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
-    engine.globalObject().setProperty( SL( "document" ), res );
+    engine->globalObject().setProperty( SL( "document" ), res );
     if ( Q_UNLIKELY( page->flags() & PHIBasePage::FServerModulesCombat ) ) {
         // version 1.x style
         _req->responseRec()->log( PHILOGWARN, PHIRC_MODULE_LOG,
@@ -187,31 +187,31 @@ bool PHISProcessor::runScript( const PHIBasePage *master, PHIBasePage *page ) co
             SServer=0x10, SRequest=0x20, SEmail=0x40, SReply=0x80, SAll=0xFFFF }; // qint32
         qint32 modules=page->serverModules();
         const QString lm=SL( "loadModule('" );
-        if ( modules & SDatabase ) engine.evaluate( lm+L1( "sql')" ) );
-        if ( modules & SFile ) engine.evaluate( lm+L1( "file')" ) );
-        if ( modules & SSystem ) engine.evaluate( lm+L1( "system')" ) );
-        if ( modules & SProcess ) engine.evaluate( lm+L1( "process')" ) );
-        if ( modules & SServer ) engine.evaluate( lm+L1( "server')" ) );
-        if ( modules & SRequest ) engine.evaluate( lm+L1( "request')" ) );
-        if ( modules & SEmail ) engine.evaluate( lm+L1( "email')" ) );
-        if ( modules & SReply ) engine.evaluate( lm+L1( "reply')" ) );
+        if ( modules & SDatabase ) engine->evaluate( lm+L1( "sql')" ) );
+        if ( modules & SFile ) engine->evaluate( lm+L1( "file')" ) );
+        if ( modules & SSystem ) engine->evaluate( lm+L1( "system')" ) );
+        if ( modules & SProcess ) engine->evaluate( lm+L1( "process')" ) );
+        if ( modules & SServer ) engine->evaluate( lm+L1( "server')" ) );
+        if ( modules & SRequest ) engine->evaluate( lm+L1( "request')" ) );
+        if ( modules & SEmail ) engine->evaluate( lm+L1( "email')" ) );
+        if ( modules & SReply ) engine->evaluate( lm+L1( "reply')" ) );
     }
     if ( master ) {
-        res=engine.evaluate( master->serverScript() );
+        res=engine->evaluate( master->serverScript() );
         if ( Q_UNLIKELY( res.isError() ) ) {
-            QStringList list=engine.uncaughtExceptionBacktrace();
+            QStringList list=engine->uncaughtExceptionBacktrace();
             QString tmp=tr( "Parse error in master page with ID '%1', line: %2" )
-                .arg( master->id() ).arg( engine.uncaughtExceptionLineNumber() )+
+                .arg( master->id() ).arg( engine->uncaughtExceptionLineNumber() )+
             QString::fromLatin1( PHI::nl() )+res.toString();
             tmp+=QString::fromLatin1( PHI::nl()+PHI::nl() )+list.join( QString::fromLatin1( PHI::nl() ) );
             _req->responseRec()->log( PHILOGERR, PHIRC_SCRIPT_PARSE_ERROR, tmp );
         }
     }
-    res=engine.evaluate( page->serverScript() );
+    res=engine->evaluate( page->serverScript() );
     if ( Q_UNLIKELY( res.isError() ) ) {
-        QStringList list=engine.uncaughtExceptionBacktrace();
+        QStringList list=engine->uncaughtExceptionBacktrace();
         QString tmp=tr( "Parse error in page '%1', line: %2" )
-            .arg( _req->canonicalFilename() ).arg( engine.uncaughtExceptionLineNumber() )+
+            .arg( _req->canonicalFilename() ).arg( engine->uncaughtExceptionLineNumber() )+
         QString::fromLatin1( PHI::nl() )+res.toString();
         tmp+=QString::fromLatin1( PHI::nl()+PHI::nl() )+list.join( QString::fromLatin1( PHI::nl() ) );
         _req->responseRec()->log( PHILOGERR, PHIRC_SCRIPT_PARSE_ERROR, tmp );
@@ -502,6 +502,7 @@ void PHISProcessor::genScripts() const
     createJS( L1( "ui-datepicker.js" ) );
     createJS( L1( "ui-progressbar.js" ) );
     createJS( L1( "ui-effects.js" ) );
+    createJS( L1( "ui-button.js" ) );
     //createJS( L1( "ui-mouse.js" ) ); // included in ui-core
     //createJS( L1( "ui-draggable.js" ) ); // included in ui-core
     //createJS( L1( "ui-droppable.js" ) ); // included in ui-core
@@ -552,7 +553,7 @@ void PHISProcessor::createUiCSS() const
         return;
     }
     QStringList list;
-    list << L1( "ui-core.css" ) << L1( "ui-datepicker.css" );
+    list << L1( "ui-core.css" ) << L1( "ui-datepicker.css" ) << L1( "ui-button.css" );
     foreach( const QString css, list ) {
         QFile src( L1( ":/" )+css );
         if ( !src.open( QIODevice::ReadOnly ) ) {
@@ -562,7 +563,8 @@ void PHISProcessor::createUiCSS() const
         }
         dest.write( src.readAll() );
     }
-    QByteArray out=BL( "\ndiv.ui-datepicker{width:100%;height:100%;padding:.2em "
-        ".2em 0;display:none;font-size:80%;min-width:240px;}\n" );
+    QByteArray out=BL( "\n.phi .ui-datepicker{width:100%;height:100%;padding:.2em "
+        ".2em 0;display:none;font-size:80%;min-width:240px;}\n"
+        "div.ui-datepicker{width:auto;padding:.2em .2em 0;display:none;font-size:90%}\n" );
     dest.write( out );
 }

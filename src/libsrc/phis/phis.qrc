@@ -25,6 +25,8 @@
         <file alias="ui-datepicker.css">css/jquery.ui.datepicker.min.css</file>
         <file alias="ui-progressbar.css">css/jquery.ui.progressbar.min.css</file>
         <file alias="ui-theme.css">css/jquery.ui.theme.css</file>
+        <file alias="ui-button.js">js/jquery.ui.button.min.js</file>
+        <file alias="ui-button.css">css/jquery.ui.button.min.css</file>
     </qresource>
     <qresource prefix="/gnome">
         <file alias="brokenimage">../../icons/scalable/stock/gtk-brokenimage.svg</file>

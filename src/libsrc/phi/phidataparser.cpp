@@ -24,7 +24,6 @@
 #include <QPainter>
 #include "phidataparser.h"
 #include "phibasepage.h"
-#include "phiresponserec.h"
 #include "phinetrequest.h"
 
 QHash <QByteArray, QRectF> PHIDataParser::_imageTransformedRects;
@@ -391,7 +390,7 @@ void PHIDataParser::createImages( PHIImageData *data ) const
     Q_ASSERT( data );
     if ( data->options() & PHIData::NoCache ) return;
     const QByteArray name( _currentItem ? _currentItem->id() : _pageId.toUtf8() );
-    QByteArray id=createImageId( name );
+    QByteArray id=createImageId( _req, name );
     switch ( data->source() ) {
     case PHIData::Static:
         saveImage( data->image(), id );
@@ -402,7 +401,7 @@ void PHIDataParser::createImages( PHIImageData *data ) const
         trans.setSource( PHIData::Translated );
         foreach ( QByteArray lang, data->keys() ) {
             if ( lang.startsWith( '#' ) ) continue; // meta data
-            id=createImageId( name, lang );
+            id=createImageId( _req, name, lang );
             saveImage( data->image( lang ), id );
             trans.setImageId( id, lang );
         }
@@ -453,7 +452,7 @@ void PHIDataParser::createImages( PHIImageBookData *data ) const
         PHIImageBookData res; // source = Static
         PHIImageHash images=data->imageBook();
         for ( int i=0; i<images.count(); i++ ) {
-            id=createImageId( name, PHIData::c(), i );
+            id=createImageId( _req, name, PHIData::c(), i );
             saveImage( images.value( QByteArray::number( i ) ), id );
             ids.append( id );
         }
@@ -469,7 +468,7 @@ void PHIDataParser::createImages( PHIImageBookData *data ) const
             if ( lang.startsWith( '#' ) ) continue; // meta data
             PHIImageHash images=data->imageBook( lang );
             for ( int i=0; i<images.count(); i++ ) {
-                id=createImageId( name, lang, i );
+                id=createImageId( _req, name, lang, i );
                 saveImage( images.value( QByteArray::number( i ) ), id );
                 ids.append( id ); // options |= TmpObjCreated
             }
@@ -487,7 +486,7 @@ void PHIDataParser::createImages( PHIImageBookData *data ) const
             PHIImageBookData res; // source = Static
             QList <QImage> list=loadImagesFromDB( data->sqlStatement() );
             for ( int i=0; i<list.count(); i++ ) {
-                id=createImageId( name, PHIData::c(), i );
+                id=createImageId( _req, name, PHIData::c(), i );
                 saveImage( list.at( i ), id );
                 ids.append( id );
             }
@@ -700,7 +699,7 @@ QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const P
         arr=PHIImageCache::instance()->createUid( req ); // don't cache
     } else {
         arr=it->id()+QByteArray::number( num )+req->currentLangByteArray()+QByteArray::number( t.determinant() )
-        +QByteArray::number( it->hasGraphicEffect() ? 1 : 0 )+req->url().toEncoded();
+        +QByteArray::number( it->hasGraphicEffect() ? 1 : 0 )+req->canonicalFilename().toUtf8();
         arr=QCryptographicHash::hash( arr, QCryptographicHash::Md5 ).toHex();
         QFileInfo fi( req->imgDir()+QLatin1Char( '/')+QString::fromUtf8( arr )+SL( ".png" ) );
         if ( fi.exists() && fi.lastModified()>=req->lastModified() ) {
@@ -801,20 +800,6 @@ QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const P
     qDebug() << "saving transformed image" << it->id() << arr << br << it->adjustedRect();
     img.save( req->imgDir()+QLatin1Char( '/' )+QString::fromLatin1( arr )+SL( ".png" ), "PNG" );
     return arr;
-}
-
-void PHIDataParser::saveImage( const QImage &img, const QByteArray &id ) const
-{
-    if ( Q_UNLIKELY( img.isNull() ) ) {
-        _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
-            tr( "Can not create an 'empty' cached image for page '%1' and id '%2'.")
-            .arg( _req->canonicalFilename() ).arg( _currentItem ? _currentItem->name() : _pageId ) );
-        return;
-    }
-    QString path( _req->imgDir()+QLatin1Char( '/' )+QString::fromLatin1( id )+SL( ".png" ) );
-    if ( img.format()!=QImage::Format_ARGB32_Premultiplied ) {
-        img.convertToFormat( QImage::Format_ARGB32_Premultiplied ).save( path, "PNG" );
-    } else img.save( path, "PNG" );
 }
 
 QString PHIDataParser::resolvePath( const QString &filename ) const

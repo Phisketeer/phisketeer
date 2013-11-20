@@ -55,11 +55,11 @@ Q_DECLARE_METATYPE( PHICanvasGradient* )
 PHIEXPORT QScriptValue canvasGradientToScriptValue( QScriptEngine*, PHICanvasGradient* const &in );
 PHIEXPORT void canvasGradientFromScriptValue( const QScriptValue&, PHICanvasGradient* &out );
 
-class PHIImageData
+class PHIDomImageData
 {
 };
 
-Q_DECLARE_METATYPE( PHIImageData )
+Q_DECLARE_METATYPE( PHIDomImageData )
 
 class PHIEXPORT PHIDomRect // used for measureText()
 {
@@ -99,6 +99,7 @@ class PHIEXPORT PHIContext2D : public QObject
 
 public:
     PHIContext2D( QObject *parent=0 );
+    void setServerMode() { _changeTimerId=-2; } // update immediately
     void setSize( int width, int height );
     void setSize( const QSize &size );
     QSize size() const;
@@ -184,8 +185,8 @@ public slots:
     void drawImage( PHIDomImage *image, qreal dx, qreal dy, qreal dw, qreal dh );
     void drawImage( PHIDomImage *image, qreal sx, qreal sy, qreal sw, qreal sh, qreal dx, qreal dy, qreal dw, qreal dh );
 
-    PHIImageData getImageData( qreal sx, qreal sy, qreal sw, qreal sh );
-    void putImageData( PHIImageData image, qreal dx, qreal dy );
+    PHIDomImageData getImageData( qreal sx, qreal sy, qreal sw, qreal sh );
+    void putImageData( PHIDomImageData image, qreal dx, qreal dy );
 
 signals:
     void changed( const QImage &image );

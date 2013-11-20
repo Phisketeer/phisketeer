@@ -18,10 +18,11 @@
 */
 #ifndef PHIIMAGEITEMS_H
 #define PHIIMAGEITEMS_H
-#include <QSvgRenderer>
 #include "phiabstractitems.h"
 
 class QTimer;
+class QSvgRenderer;
+class PHIContext2D;
 
 class PHIImageItem : public PHIAbstractImageItem
 {
@@ -45,12 +46,13 @@ protected:
 class PHISvgItem : public PHIBaseItem
 {
     Q_OBJECT
+    Q_PROPERTY( QString _text READ realText WRITE setText SCRIPTABLE false )
 
 public:
     enum Wid { Svg=42 };
     enum ItemData { DSvgSource=100 };
-    explicit PHISvgItem( const PHIBaseItemPrivate &p ) : PHIBaseItem( p ) { if ( isGuiItem() ) initWidget(); }
-    PHISvgItem( const PHISvgItem &it ) : PHIBaseItem( it ), _textData( it._textData ) { if ( isGuiItem() ) initWidget(); }
+    explicit PHISvgItem( const PHIBaseItemPrivate &p ) : PHIBaseItem( p ), _renderer( 0 ) { if ( isGuiItem() ) initWidget(); }
+    PHISvgItem( const PHISvgItem &it ) : PHIBaseItem( it ), _textData( it._textData ), _renderer( 0 ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHISvgItem() {}
 
     virtual QString listName() const { return tr( "Svg" ); }
@@ -58,14 +60,14 @@ public:
     virtual PHIWID wid() const { return Svg; }
     virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/roundedrect" ) ); }
     virtual void ideInit();
-    inline virtual bool isHeightChangeable() const { return false; }
-    inline virtual bool isWidthChangeable() const { return false; }
-    inline PHITextData* textData() { return &_textData; }
-    inline virtual bool hasText() const { return true; }
+    virtual bool isHeightChangeable() const { return false; }
+    virtual bool isWidthChangeable() const { return false; }
+    virtual PHITextData* textData() { return &_textData; }
+    virtual bool hasText() const { return true; }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
-public slots:
     inline void setText( const QString &s ) { setData( DSvgSource, s.toLatin1() ); initWidget(); }
-    inline QString text() const { return QString::fromLatin1( data( DSvgSource, QString() ).toByteArray() ); }
+    inline QString realText() const { return QString::fromLatin1( data( DSvgSource, QString() ).toByteArray() ); }
 
 protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );
@@ -74,15 +76,18 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual void ideUpdateData();
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
 
 private:
     static QString svgDefaultSource();
     void initWidget();
     virtual void ideSetText( const QString &s, const QByteArray &lang );
     virtual QString ideText( const QByteArray &lang ) const;
+    QImage graphicImage( const QByteArray &source ) const;
 
     PHITextData _textData;
-    QSvgRenderer _renderer;
+    QSvgRenderer *_renderer;
 };
 
 class PHISlideShowItem : public PHIAbstractImageBookItem
@@ -149,6 +154,58 @@ private:
     PHIIntData _intervalData;
     PHIIntData _fadeTimeData;
     QTimer *_fadeTimer, *_pauseTimer;
+};
+
+class PHICanvasItem : public PHIBaseItem
+{
+    Q_OBJECT
+    Q_PROPERTY( QString _text READ realText WRITE setText SCRIPTABLE false )
+
+public:
+    enum Wid { Canvas=61 };
+    enum ItemData { DCanvasSource=100 };
+    explicit PHICanvasItem( const PHIBaseItemPrivate &p ) : PHIBaseItem( p ), _ctx2D( 0 ) { if ( isGuiItem() ) initWidget(); }
+    PHICanvasItem( const PHICanvasItem &it ) : PHIBaseItem( it ), _textData( it._textData ),
+        _canvas( it._canvas ), _ctx2D( 0 ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHICanvasItem() {}
+
+    virtual QString listName() const { return tr( "Canvas" ); }
+    virtual QString description() const { return tr( "Creates a canvas 2D drawing space." ); }
+    virtual PHIWID wid() const { return Canvas; }
+    virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/rect" ) ); }
+    virtual void ideInit();
+    virtual PHITextData* textData() { return &_textData; }
+    virtual bool hasText() const { return true; }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+    inline void setText( const QString &s ) { setData( DCanvasSource, s.toLatin1() ); initWidget(); }
+    inline QString realText() const { return QString::fromLatin1( data( DCanvasSource, QString() ).toByteArray() ); }
+
+public slots:
+    QScriptValue getContext( const QScriptValue &v );
+
+protected:
+    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void squeeze();
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void ideUpdateData();
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
+
+private slots:
+    inline void imageChanged( const QImage &img ) { _canvas=img; qDebug()<< "image!!!"; }
+    void slotSizeChanged( const QSizeF &s );
+
+private:
+    void initWidget();
+    virtual void ideSetText( const QString &s, const QByteArray &lang );
+    virtual QString ideText( const QByteArray &lang ) const;
+
+    PHITextData _textData;
+    QImage _canvas;
+    PHIContext2D *_ctx2D;
 };
 
 class PHISponsorItem : public PHIBaseItem

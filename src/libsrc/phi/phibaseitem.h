@@ -119,7 +119,7 @@ public:
         ROLLOVER_BUTTON=37,
         RICH_TEXT=41, CHECK_LIST=43, IMAGE_BOOK=45, TABLE=46
         HTML_DOC=49, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
-        GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, CANVAS=61, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
+        GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
     */
     explicit PHIBaseItem( const PHIBaseItemPrivate &p );
     PHIBaseItem( const PHIBaseItem &it );
@@ -171,9 +171,9 @@ public: // not usable by script engine
     inline bool realReadOnly() const { return _flags & FReadOnly; }
     inline bool realVisible() const { return _variants.value( DVisibility, true ).toBool(); }
 
-    inline void setX( qreal x ) { if ( _x==x ) return; _dirtyFlags|=DFPos; _x=x; if ( _gw ) _gw->setX( x ); }
-    inline void setY( qreal y ) { if ( _y==y ) return; _dirtyFlags|=DFPos; _y=y; if ( _gw ) _gw->setY( y ); }
-    inline void setOpacity( qreal o ) { o=qBound( 0., o, 1. ); _variants.insert( DOpacity, o ); update(); }
+    inline void setX( qreal x ) { if ( _x==x ) return; _x=x; setPos( QPointF( _x, _y ) ); }
+    inline void setY( qreal y ) { if ( _y==y ) return; _y=y; setPos( QPointF( _x, _y ) ); }
+    inline void setOpacity( qreal o ) { o=qBound( 0., o, 1. ); _variants.insert( DOpacity, o ); if ( _gw ) _gw->setOpacity( o ); update(); }
     inline void setTitle( const QString &t ) { _variants.insert( DTitle, t.toUtf8() ); if ( _gw ) _gw->setToolTip( t ); }
     inline void setTabIndex( qint16 tab ) { if ( tab ) _variants.insert( DTabIndex, tab ); else _variants.remove( DTabIndex ); }
     inline PHIByteArrayList imagePathes() const { return _variants.value( DImagePathes ).value<PHIByteArrayList>(); }
@@ -382,6 +382,9 @@ private:
     virtual QString ideText( const QByteArray &lang ) const;
 
 signals:
+    void posChanged( const QPointF &pos );
+    void sizeChanged( const QSizeF &size );
+
     // IDE related signals
     void pushUndoStack( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newColor );
     void pushUndoStack( const char* property, const QVariant &newVariant );
@@ -440,14 +443,12 @@ inline QScriptValue PHIBaseItem::self()
 inline void PHIBaseItem::setWidth( qreal w )
 {
     if ( w==_width ) return;
-    _dirtyFlags |= DFSize;
     resize( QSizeF( w, _height ) );
 }
 
 inline void PHIBaseItem::setHeight( qreal h )
 {
     if ( h==_height ) return;
-    _dirtyFlags |= DFSize;
     resize( QSizeF( _width, h ) );
 }
 
@@ -457,10 +458,12 @@ inline void PHIBaseItem::setPos( const QPointF &p )
     _y=p.y();
     _dirtyFlags |= DFPos;
     if ( _gw ) _gw->setPos( p );
+    emit posChanged( p );
 }
 
 inline void PHIBaseItem::resize( qreal w, qreal h )
 {
+    if ( w==_width && h==_height ) return;
     resize( QSizeF( w, h ) );
 }
 
@@ -470,6 +473,7 @@ inline void PHIBaseItem::resize( const QSizeF &s )
     _height=s.height();
     _dirtyFlags |= DFSize;
     if ( _gw ) _gw->resize( s );
+    emit sizeChanged( s );
 }
 
 inline void PHIBaseItem::setZIndex( qint16 idx )

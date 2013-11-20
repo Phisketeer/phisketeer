@@ -544,7 +544,7 @@ void PHIBaseItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *opti
 {
     Q_UNUSED( widget );
     painter->save();
-    painter->setOpacity( realOpacity() );
+    //painter->setOpacity( realOpacity() );
     paint( painter, options->exposedRect );
     painter->restore();
 }

@@ -376,6 +376,7 @@ void PHIBasePage::createCSSFile( const PHIRequest *req ) const
         out+="button.phi{position:absolute;"+fnt+ori+"}\ntextarea.phi{position:absolute;"+fnt+ori+"}\n";
         out+="div.phi{position:absolute;cursor:default;"+ori+"}\nimg.phi{position:absolute;border:none;"+ori+"}\n";
         out+="table.phi{position:absolute;height:100%;width:100%;border:none;border-spacing:0;margin:0;padding:0}\n";
+        out+="canvas.phi{position:absolute;"+ori+"}\nspan.phi{position:absolute;"+ori+"}\n";
         out+=".phibuttontext{color:"+_pal.color( PHIPalette::ButtonText ).name().toLatin1()+"}\n";
         out+=".phibutton{background-color:"+_pal.color( PHIPalette::Button ).name().toLatin1()+"}\n";
         out+=".phihighlight{background-color:"+_pal.color( PHIPalette::Highlight ).name().toLatin1()+"}\n";
@@ -540,6 +541,7 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     else out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jquery\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-core\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-effects\"></script>\n" );
+    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-button\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=phibase\"></script>\n" );
     QByteArray script, indent="\t", tmp;
     script.reserve( 4*1024 );

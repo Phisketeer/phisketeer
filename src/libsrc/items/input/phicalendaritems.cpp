@@ -24,6 +24,7 @@
 #include "phicalendaritems.h"
 #include "phidatasources.h"
 #include "phibasepage.h"
+#include "phiinputtools.h"
 
 void PHICalendarItem::initWidget()
 {
@@ -95,7 +96,9 @@ PHIWID PHICalendarItem::htmlScriptExtension( QByteArray &script ) const
     register int i;
     for( i=1; i<13; i++ ) monthnames+=s+locale.monthName( i, QLocale::LongFormat )+sep;
     monthnames.chop( 1 );
-    for( i=1; i<13; i++ ) shortmonthnames+=s+locale.monthName( i, QLocale::ShortFormat )+sep;
+    for( i=1; i<13; i++ ) {
+        shortmonthnames+=s+locale.monthName( i, QLocale::LongFormat )+sep;
+    }
     shortmonthnames.chop( 1 );
     shortdaynames+=s+locale.dayName( 7, QLocale::ShortFormat )+sep;
     for ( i=1; i<7; i++ ) shortdaynames+=s+locale.dayName( i, QLocale::ShortFormat )+sep;
@@ -105,9 +108,10 @@ PHIWID PHICalendarItem::htmlScriptExtension( QByteArray &script ) const
     daynames.chop( 1 );
 
     QString format=locale.dateFormat( QLocale::ShortFormat );
-    format.replace( SL( "yyyy" ), SL( "yy" ) );
-    format.replace( SL( "MMM" ), SL( "M" ) );
-    format.replace( SL( "MM" ), SL( "M" ) );
+    format.replace( L1( "yyyy" ), L1( "yy" ) );
+    format.replace( L1( "MMM" ), L1( "M" ) );
+    format.replace( L1( "MM" ), L1( "M" ) );
+    format.replace( L1( "M" ), L1( "m" ) );
     QByteArray dayOfWeek=QByteArray::number( locale.firstDayOfWeek()==Qt::Sunday ? 0 :
         static_cast<int>(locale.firstDayOfWeek()) );
 
@@ -208,5 +212,40 @@ void PHIDateEditItem::phisCreateData(const PHIDataParser &parser)
 
 void PHIDateEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    QDate now, start, end;
+    static QString isoFmt=QString::fromLatin1( PHI::isoDateFormat() );
+    PHIByteArrayList dates=data( DText ).toByteArray().split( ':' );
+    if ( dates.count()>0 ) now=QDate::fromString( QString::fromLatin1( dates[0] ), isoFmt );
+    if ( !now.isValid() ) now=QDate::currentDate();
+    if ( dates.count()>1 ) start=QDate::fromString( QString::fromLatin1( dates[1] ), isoFmt );
+    if ( !start.isValid() ) start=now;
+    if ( dates.count()>2 ) end=QDate::fromString( QString::fromLatin1( dates[2] ), isoFmt );
+    if ( !end.isValid() ) end=QDate( 9999, 12, 31 );
 
+    QRectF le=rect();
+    le.setWidth( realWidth()-25 );
+    le=PHIInputTools::adjustedLineEdit( req, le );
+    out+=indent+BL( "<div" );
+    htmlBase( req, out, script );
+    out+=BL( "\">\n" )+indent+BL( "\t<input type=\"hidden\" id=\"" )+id()
+        +BL( "_phi\" name=\"" )+id()+BL( "\">\n" )+indent
+        +BL( "\t<input type=\"text\" class=\"phi\" id=\"" )+id()
+        +BL( "_phit\" readonly=\"readonly\" style=\"width:" )
+        +QByteArray::number( qRound(le.width()) )+BL( "px;height:" )
+        +QByteArray::number( qRound(le.height()) )+BL( "px\">\n" )+indent
+        +BL( "<button id=\"" )+id()+BL( "_phib\" style=\"position:absolute;top:0;left:" )
+        +QByteArray::number( qRound(le.width()+5) )+BL( "px;width:24px;height:" )
+        +QByteArray::number( qRound(realHeight()) )+BL( "px\"></button>\n" );
+        //+indent+BL( "<span class=\"ui-icon ui-icon-calendar\" style=\"position:absolute;top:0;left:20px\"></span>\n" );
+    out+=indent+BL( "</div>\n" );
+    script+=BL( "jQuery('#" )+id()+BL( "_phit').css({cursor:'default'}).datepicker({minDate:new Date(" )
+        +QByteArray::number( start.year() )+','+QByteArray::number( start.month()-1 )+','
+        +QByteArray::number( start.day() )+BL( "),maxDate:new Date(" )
+        +QByteArray::number( end.year() )+','+QByteArray::number( end.month()-1 )+','
+        +QByteArray::number( end.day() )+BL( "),altField:'#" )+id()
+        +BL( "_phi'});\njQuery(function($){$('#" )+id()+BL( "_phit').datepicker('setDate',new Date(" )
+        +QByteArray::number( now.year() )+','+QByteArray::number( now.month()-1 )+','
+        +QByteArray::number( now.day() )+BL( "));});\njQuery('#" )+id()
+        +BL( "_phib').button({icons:{primary:'ui-icon-calendar'},text:false})"
+            ".click(function(){jQuery('#" )+id()+BL( "_phit').datepicker('show')});\n" );
 }

@@ -21,7 +21,8 @@ HEADERS += phiinput.h \
     phicheckitems.h \
     philistitems.h \
     phicalendaritems.h \
-    phimiscitems.h
+    phimiscitems.h \
+    phiinputtools.h
 SOURCES += \ 
     phiinputitems.cpp \
     phicheckitems.cpp \

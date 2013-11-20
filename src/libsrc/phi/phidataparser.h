@@ -26,6 +26,7 @@
 #include "phidatasources.h"
 #include "phiimagecache.h"
 #include "phirequest.h"
+#include "phiresponserec.h"
 #include "phibaseitem.h"
 
 class PHIDataParser
@@ -46,6 +47,8 @@ public:
     inline const PHIRequest* request() const { return _req; }
 
     static QByteArray createTransformedImage( const PHIRequest *req, const PHIBaseItem *it, int i, QRectF &br );
+    static QByteArray createImageId( const PHIRequest *req, const QByteArray &name, const QByteArray &lang=PHIData::c(), int num=0 );
+    static QByteArray createImage( const PHIRequest *req, const PHIBaseItem *it, const QImage &img, const QByteArray &lang=PHIData::c(), int num=0 );
     static void insertTransformedImageRect( const QByteArray &imgId, const QRectF &r );
     static QRectF transformedImageRect( const QByteArray &imgId );
     static void insertGraphicsImageRect( const QByteArray &imgId, const QRectF &r );
@@ -64,7 +67,6 @@ protected:
     QImage loadImageFromUrl( const QString &url ) const;
     QImage loadImageFromDB( const QString &statement ) const;
     QList <QImage> loadImagesFromDB( const QString &statement ) const;
-    QByteArray createImageId( const QByteArray &name, const QByteArray &lang=PHIData::c(), int num=0 ) const;
     QByteArray resolveImageFile( const QString &filename, QByteArray &matchedLang ) const;
     QByteArray matchedLangForResolvedFilename( const QString &filename ) const;
     QString resolvePath( const QString &path ) const;
@@ -84,15 +86,16 @@ private:
     static QHash <QByteArray, QRectF> _imageGraphicsRects;
 };
 
-inline QByteArray PHIDataParser::createImageId( const QByteArray &name, const QByteArray &lang, int num ) const
+inline QByteArray PHIDataParser::createImageId( const PHIRequest *req, const QByteArray &name, const QByteArray &lang, int num )
 {
     QByteArray arr;
-    if ( Q_UNLIKELY( num==-1 ) ) arr=PHIImageCache::instance()->createUid( _req );
+    if ( Q_UNLIKELY( num==-1 ) ) arr=PHIImageCache::instance()->createUid( req );
     else {
-        arr=name+QByteArray::number( num )+lang+_req->url().toEncoded();
+        arr=name+QByteArray::number( num )+lang+req->canonicalFilename().toUtf8();
         arr=QCryptographicHash::hash( arr, QCryptographicHash::Md5 ).toHex();
         arr.squeeze(); // will be cached in memory so free unused space
     }
+    qDebug() << "createImageId" << name << num << lang << arr;
     return arr;
 }
 
@@ -100,16 +103,46 @@ inline QByteArray PHIDataParser::imagePath( const QByteArray &lang, int num ) co
 {
     Q_ASSERT( num>=0 );
     Q_ASSERT( _currentItem );
-    return createImageId( _currentItem->id(), lang, num );
+    return createImageId( _req, _currentItem->id(), lang, num );
 }
 
 inline QByteArray PHIDataParser::createImage( const QImage &img, const QByteArray &lang, int i ) const
 {
     Q_ASSERT( _currentItem );
-    QByteArray id=createImageId( _currentItem->id(), lang, i );
+    QByteArray id=createImageId( _req, _currentItem->id(), lang, i );
     qDebug() << "createImage" << id << _currentItem->id();
     saveImage( img, id );
     return id;
+}
+
+inline QByteArray PHIDataParser::createImage( const PHIRequest *req, const PHIBaseItem *it, const QImage &img, const QByteArray &lang, int num )
+{
+    QByteArray id=createImageId( req, it->id(), lang, num );
+    if ( Q_UNLIKELY( img.isNull() ) ) {
+        req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
+            tr( "Can not create an 'empty' cached image for page '%1' and id '%2'.")
+            .arg( req->canonicalFilename() ).arg( it->name() ) );
+        return id;
+    }
+    QString path( req->imgDir()+QLatin1Char( '/' )+QString::fromLatin1( id )+SL( ".png" ) );
+    if ( Q_UNLIKELY( img.format()!=QImage::Format_ARGB32_Premultiplied ) ) {
+        img.convertToFormat( QImage::Format_ARGB32_Premultiplied ).save( path, "PNG" );
+    } else img.save( path, "PNG" );
+    return id;
+}
+
+inline void PHIDataParser::saveImage( const QImage &img, const QByteArray &id ) const
+{
+    if ( Q_UNLIKELY( img.isNull() ) ) {
+        _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
+            tr( "Can not create an 'empty' cached image for page '%1' and id '%2'.")
+            .arg( _req->canonicalFilename() ).arg( _currentItem ? _currentItem->name() : _pageId ) );
+        return;
+    }
+    QString path( _req->imgDir()+QLatin1Char( '/' )+QString::fromLatin1( id )+SL( ".png" ) );
+    if ( img.format()!=QImage::Format_ARGB32_Premultiplied ) {
+        img.convertToFormat( QImage::Format_ARGB32_Premultiplied ).save( path, "PNG" );
+    } else img.save( path, "PNG" );
 }
 
 inline void PHIDataParser::insertTransformedImageRect( const QByteArray &id, const QRectF &br )
