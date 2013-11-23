@@ -93,15 +93,11 @@ private:
 class PHISlideShowItem : public PHIAbstractImageBookItem
 {
     Q_OBJECT
-    Q_PROPERTY( int fadeInterval READ fadeInterval WRITE setFadeInterval )
-    Q_PROPERTY( int fadeTime READ fadeTime WRITE setFadeTime )
-    Q_PROPERTY( int fadeIntervalMS READ fadeIntervalMS WRITE setFadeIntervalMS )
-    Q_PROPERTY( int fadeTimeMS READ fadeTimeMS WRITE setFadeTimeMS )
-    Q_PROPERTY( QStringList titles READ titles WRITE setTitles )
 
 public:
     enum Wid { SlideShow=44 };
-    enum ItemData { DInterval=1, DFadeTime=2, DCurrentOpacity=3, DCurrentStep=4, DCurrentImageNum=5, DTitles=6 };
+    enum ItemData { DInterval=1, DFadeTime=2, DCurrentOpacity=3, DCurrentStep=4, DCurrentImageNum=5,
+        DTitles=6, DTmpTitle=7 };
     explicit PHISlideShowItem( const PHIBaseItemPrivate &p ) : PHIAbstractImageBookItem( p ), _fadeTimer( 0 ),
         _pauseTimer( 0 ) { if ( isGuiItem() ) initWidget(); }
     PHISlideShowItem( const PHISlideShowItem &it ) : PHIAbstractImageBookItem( it ),
@@ -117,18 +113,29 @@ public:
     inline QString titleList() const { return data( DTitles ).toStringList().join( L1( ":" ) ); }
     virtual PHIIntData* intData_1() { return &_intervalData; }
     virtual PHIIntData* intData_2() { return &_fadeTimeData; }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+    inline void setFadeInterval( int i ) { setData( DInterval, qMax( realFadeTimeMS(), i*1000 ) ); updateImages(); }
+    inline int realFadeInterval() const { return data( DInterval, 4000 ).toInt()/1000; }
+    inline void setFadeTime( int i ) { setData( DFadeTime, i*1000 ); updateImages(); }
+    inline int realFadeTime() const { return data( DFadeTime, 2000 ).toInt()/1000; }
+    inline void setFadeIntervalMS( int i ) { setData( DInterval, qMax( realFadeTimeMS(), i ) ); updateImages(); }
+    inline int realFadeIntervalMS() const { return data( DInterval, 4000 ).toInt(); }
+    inline void setFadeTimeMS( int i ) { setData( DFadeTime, qMax( 50, i ) ); updateImages(); }
+    inline int realFadeTimeMS() const { return data( DFadeTime, 2000 ).toInt(); }
+    inline void setTitles( const QStringList &l ) { setData( DTitles, l ); }
+    inline QStringList realTitles() const { return data( DTitles ).toStringList(); }
 
 public slots:
-    inline void setFadeInterval( int i ) { setData( DInterval, qMax( fadeTimeMS(), i*1000 ) ); updateImages(); }
-    inline int fadeInterval() const { return data( DInterval, 4000 ).toInt()/1000; }
-    inline void setFadeTime( int i ) { setData( DFadeTime, i*1000 ); updateImages(); }
-    inline int fadeTime() const { return data( DFadeTime, 2000 ).toInt()/1000; }
-    inline void setFadeIntervalMS( int i ) { setData( DInterval, qMax( fadeTimeMS(), i ) ); updateImages(); }
-    inline int fadeIntervalMS() const { return data( DInterval, 4000 ).toInt(); }
-    inline void setFadeTimeMS( int i ) { setData( DFadeTime, qMax( 50, i ) ); updateImages(); }
-    inline int fadeTimeMS() const { return data( DFadeTime, 2000 ).toInt(); }
-    inline void setTitles( const QStringList &l ) { setData( DTitles, l ); }
-    inline QStringList titles() const { return data( DTitles ).toStringList(); }
+    QScriptValue fadeInterval( const QScriptValue &fi );
+    QScriptValue fadeIntervalMS( const QScriptValue &fi );
+    QScriptValue fadeTime( const QScriptValue &fi );
+    QScriptValue fadeTimeMS( const QScriptValue &fi );
+    QScriptValue titles( const QScriptValue &t );
+    QScriptValue start();
+    QScriptValue stop();
+    QScriptValue display( const QScriptValue &c );
+    QScriptValue count() const { return realImages().count(); }
 
 protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );
@@ -145,6 +152,8 @@ protected:
     inline qreal currentOpacity() const { return data( DCurrentOpacity, 1. ).toReal(); }
     inline void setCurrentOpacity( qreal o ) { setData( DCurrentOpacity, o ); }
     virtual void ideUpdateData();
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
 
 protected slots:
     void pauseTimeout();
@@ -160,29 +169,33 @@ class PHICanvasItem : public PHIBaseItem
 {
     Q_OBJECT
     Q_PROPERTY( QString _text READ realText WRITE setText SCRIPTABLE false )
+    Q_PROPERTY( QImage _image READ realImage WRITE setImage SCRIPTABLE false )
 
 public:
     enum Wid { Canvas=61 };
-    enum ItemData { DCanvasSource=100 };
+    enum ItemData { DCanvasSource=100, DCanvasImage=101 };
     explicit PHICanvasItem( const PHIBaseItemPrivate &p ) : PHIBaseItem( p ), _ctx2D( 0 ) { if ( isGuiItem() ) initWidget(); }
-    PHICanvasItem( const PHICanvasItem &it ) : PHIBaseItem( it ), _textData( it._textData ),
-        _canvas( it._canvas ), _ctx2D( 0 ) { if ( isGuiItem() ) initWidget(); }
+    PHICanvasItem( const PHICanvasItem &it ) : PHIBaseItem( it ), _textData( it._textData ), _ctx2D( 0 ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHICanvasItem() {}
 
     virtual QString listName() const { return tr( "Canvas" ); }
     virtual QString description() const { return tr( "Creates a canvas 2D drawing space." ); }
     virtual PHIWID wid() const { return Canvas; }
     virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/rect" ) ); }
-    virtual void ideInit();
     virtual PHITextData* textData() { return &_textData; }
     virtual bool hasText() const { return true; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
     inline void setText( const QString &s ) { setData( DCanvasSource, s.toLatin1() ); initWidget(); }
     inline QString realText() const { return QString::fromLatin1( data( DCanvasSource, QString() ).toByteArray() ); }
+    inline QImage realImage() const { return data( DCanvasImage ).value<QImage>(); }
 
 public slots:
     QScriptValue getContext( const QScriptValue &v );
+
+protected slots:
+    inline void setImage( const QImage &img ) { setData( DCanvasImage, img ); update(); }
+    void slotSizeChanged( const QSizeF &s );
 
 protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );
@@ -194,17 +207,12 @@ protected:
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
 
-private slots:
-    inline void imageChanged( const QImage &img ) { _canvas=img; qDebug()<< "image!!!"; }
-    void slotSizeChanged( const QSizeF &s );
-
 private:
     void initWidget();
     virtual void ideSetText( const QString &s, const QByteArray &lang );
     virtual QString ideText( const QByteArray &lang ) const;
 
     PHITextData _textData;
-    QImage _canvas;
     PHIContext2D *_ctx2D;
 };
 

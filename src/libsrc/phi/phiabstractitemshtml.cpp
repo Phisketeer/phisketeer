@@ -30,6 +30,25 @@ void PHIAbstractImageItem::html( const PHIRequest *req, QByteArray &out, QByteAr
     htmlImg( req, out, script, indent );
 }
 
+void PHIAbstractImageItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const
+{
+    Q_UNUSED( req )
+    Q_UNUSED( out )
+    Q_UNUSED( script )
+}
+
+void PHIAbstractImageBookItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    htmlImages( req, out, script, indent );
+}
+
+void PHIAbstractImageBookItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const
+{
+    Q_UNUSED( req )
+    Q_UNUSED( out )
+    Q_UNUSED( script )
+}
+
 void PHIAbstractShapeItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const
 {
     Q_UNUSED( req )
@@ -50,9 +69,8 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
     else if ( Q_UNLIKELY( hasBorderRadius() && !(req->agentFeatures() & PHIRequest::BorderRadius) ) ) needImage=true;
     // else if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) needImage=true;
     else if ( realPattern()==15 ) {
-        if ( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::Gradients) ) ) needImage=true;
-        else if ( data( DGradientType, 3 ).toInt()!=0 ) needImage=true;
-        else cssLinearGradient( req, out );
+        if ( cssGradientCreateable( req ) ) cssLinearGradient( req, out );
+        else needImage=true;
     }
     if ( Q_LIKELY( !needImage ) ) {
         if ( realLine()>0 ) { // border

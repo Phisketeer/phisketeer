@@ -804,19 +804,6 @@ void PHIContext2D::putImageData( PHIDomImageData image, qreal dx, qreal dy )
     Q_UNUSED(dy);
 }
 
-PHIContext2D::PHIContext2D( QObject *parent )
-    : QObject( parent ), _changeTimerId(-1)
-{
-    qDebug( "PHIContext2D::PHIContext2D()" );
-    reset();
-}
-
-const QImage &PHIContext2D::endPainting()
-{
-    if ( _painter.isActive() ) _painter.end();
-    return _image;
-}
-
 void PHIContext2D::beginPainting()
 {
     if ( !_painter.isActive() ) {

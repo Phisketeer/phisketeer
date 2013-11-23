@@ -189,6 +189,7 @@ protected:
     virtual void updateImage()=0;
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
+    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
 
 private:
     PHIImageData _imageData;
@@ -197,6 +198,7 @@ private:
 class PHIEXPORT PHIAbstractImageBookItem : public PHIBaseItem
 {
     Q_OBJECT
+    Q_PROPERTY( PHIImageHash _images READ realImages WRITE setImages SCRIPTABLE false )
 
 public:
     enum ItemData { DImages=-99, DTmpImages=-98 };
@@ -205,9 +207,7 @@ public:
     virtual ~PHIAbstractImageBookItem() {}
     virtual bool hasImages() const { return true; }
     virtual PHIImageBookData* imageBookData() { return &_imageBookData; }
-
-public slots:
-    PHIImageHash images() const { return data( DImages ).value<PHIImageHash>(); }
+    PHIImageHash realImages() const { return data( DImages ).value<PHIImageHash>(); }
     void setImages( const PHIImageHash &imgs ) { QVariant v; v.setValue( imgs ); setData( DImages, v ); updateImages(); }
 
 protected:
@@ -222,6 +222,8 @@ protected:
     virtual void updateImages()=0;
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
+    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 private:
     PHIImageBookData _imageBookData;

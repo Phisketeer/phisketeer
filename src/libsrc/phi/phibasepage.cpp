@@ -555,7 +555,8 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         it->html( req, out, script, indent );
     }
     out+=BL( "</div>\n<script type=\"text/javascript\">\n/* <![CDATA[ */\n" );
-    out+=BL( "phi.setLang('" )+_currentLang+BL( "');\n" )+script;
+    out+=BL( "var phi=new Phi('" )+_currentLang+BL( "','" )
+        +_variants.value( DSession ).toByteArray()+BL( "');\n" )+script;
     if ( _flags & FJavaScript ) {
         out+=BL( "/* BEGIN custom script */\n" )+_variants.value( DJavascript ).toByteArray();
         out+=BL( "/* END custom script */\n" );

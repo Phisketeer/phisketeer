@@ -52,6 +52,7 @@ QVariant PHIDataParser::text( PHIData *data ) const
         else return parseVariables( data->variant( _matchingLanguage( _req, data ) ).toString() );
     case PHIData::Database: {
         QString t=loadTextFromDB( data->sqlStatement(), data->templateText() );
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         if ( Q_LIKELY( !parse ) ) return t;
         return parseVariables( t );
     }
@@ -59,6 +60,7 @@ QVariant PHIDataParser::text( PHIData *data ) const
         // @todo: implement caching
         QByteArray matchedLang;
         QString t=loadTextFromFile( data->fileName(), data->textCodec(), matchedLang );
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         if ( Q_UNLIKELY( parse ) ) t=parseVariables( t );
         t.squeeze();
         return t;
@@ -67,7 +69,10 @@ QVariant PHIDataParser::text( PHIData *data ) const
         QString t=loadTextFromUrl( data->url() );
         if ( Q_UNLIKELY( parse ) ) t=parseVariables( t );
         t.squeeze();
-        if ( data->options() & PHIData::NoCache ) return t;
+        if ( data->options() & PHIData::NoCache ) {
+            if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
+            return t;
+        }
         cacheText( data, t );
         return t;
     }
@@ -76,7 +81,10 @@ QVariant PHIDataParser::text( PHIData *data ) const
         QString t=QString::fromUtf8( loadFromProcess( data->processName(), data->attributes() ) );
         if ( Q_UNLIKELY( parse ) ) t=parseVariables( t );
         t.squeeze();
-        if ( data->options() & PHIData::NoCache ) return t;
+        if ( data->options() & PHIData::NoCache ) {
+            if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
+            return t;
+        }
         cacheText( data, t );
         return t;
     }
@@ -530,11 +538,13 @@ QByteArray PHIDataParser::imagePath( PHIImageData *data ) const
         Q_ASSERT( data->options() & PHIData::NoCache );
         id=PHIImageCache::instance()->createUid( _req );
         saveImage( data->image(), id );
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         return id;
     case PHIData::Translated:
         Q_ASSERT( data->options() & PHIData::NoCache );
         id=PHIImageCache::instance()->createUid( _req );
         saveImage( data->image( _matchingLanguage( _req, data ) ), id );
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         return id;
     case PHIData::Database:
         Q_ASSERT( data->options() & PHIData::NoCache );
@@ -545,6 +555,7 @@ QByteArray PHIDataParser::imagePath( PHIImageData *data ) const
         } else {
             saveImage( loadImageFromDB( data->sqlStatement() ), id );
         }
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         return id;
     case PHIData::File:
         Q_ASSERT( data->options() & PHIData::FileName );
@@ -552,6 +563,7 @@ QByteArray PHIDataParser::imagePath( PHIImageData *data ) const
             QByteArray matchedLang;
             id=PHIImageCache::instance()->createUid( _req );
             saveImage( loadImageFromFile( data->fileName(), matchedLang ), id );
+            if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
             return id;
         } else {
             data->setOption( PHIData::UseFilePath );
@@ -567,6 +579,7 @@ QByteArray PHIDataParser::imagePath( PHIImageData *data ) const
         } else {
             saveImage( loadImageFromUrl( data->url() ), id );
         }
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         return id;
     case PHIData::Process:
         Q_ASSERT( data->options() & PHIData::NoCache );
@@ -577,6 +590,7 @@ QByteArray PHIDataParser::imagePath( PHIImageData *data ) const
         } else {
             saveImage( QImage::fromData( loadFromProcess( data->processName(), data->attributes() ) ), id );
         }
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         return id;
     default:;
     }
@@ -605,6 +619,7 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
             saveImage( images.value( QByteArray::number( i ) ), id );
             ids.append( id );
         }
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         return ids;
     case PHIData::Translated:
         Q_ASSERT( data->options() & PHIData::NoCache );
@@ -614,9 +629,11 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
             saveImage( images.value( QByteArray::number( i ) ), id );
             ids.append( id );
         }
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         return ids;
     case PHIData::Database:
         Q_ASSERT( data->options() & PHIData::NoCache );
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         if ( data->options() & PHIData::FileName ) {
             QStringList list=loadTextFromDB( data->sqlStatement(), data->templateText() )
                 .split( QRegExp( SL( "\\s" ) ), QString::SkipEmptyParts );
@@ -645,6 +662,7 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
                 saveImage( loadImageFromFile( fn, matchedLang ), id );
                 ids.append( id );
             }
+            if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
             return ids;
         } else {
             data->setOption( PHIData::UseFilePath );
@@ -667,6 +685,7 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
             saveImage( loadImageFromFile( path, matchedLang ), id );
             ids.append( id );
         }
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         return ids;
     }
     case PHIData::Process:
@@ -681,6 +700,7 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
             saveImage( loadImageFromFile( path, matchedLang ), id );
             ids.append( id );
         }
+        if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
         return ids;
     }
     default:;
@@ -695,7 +715,7 @@ QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const P
     qDebug() << "createTransformedImage" << it->name();
     QTransform t=it->computeTransformation( false );
     QByteArray arr;
-    if ( Q_UNLIKELY( it->flags() & PHIBaseItem::FDoNotCache ) ) {
+    if ( Q_UNLIKELY( it->dirtyFlags() & PHIBaseItem::DFDoNotCache ) ) {
         arr=PHIImageCache::instance()->createUid( req ); // don't cache
     } else {
         arr=it->id()+QByteArray::number( num )+req->currentLangByteArray()+QByteArray::number( t.determinant() )

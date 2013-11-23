@@ -98,7 +98,8 @@ class PHIEXPORT PHIContext2D : public QObject
     Q_PROPERTY( QString font READ font WRITE setFont )
 
 public:
-    PHIContext2D( QObject *parent=0 );
+    PHIContext2D( QObject *parent ) : QObject( parent ), _changeTimerId(-1) { reset(); }
+    virtual ~PHIContext2D() {}
     void setServerMode() { _changeTimerId=-2; } // update immediately
     void setSize( int width, int height );
     void setSize( const QSize &size );
@@ -326,6 +327,12 @@ inline qreal PHIContext2D::shadowBlur() const
 inline QString PHIContext2D::shadowColor() const
 {
     return _state.shadowColor.name();
+}
+
+inline const QImage& PHIContext2D::endPainting()
+{
+    if ( _painter.isActive() ) _painter.end();
+    return _image;
 }
 
 #endif // PHICONTEXT2D_H

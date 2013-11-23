@@ -154,10 +154,7 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
         if ( effect()->graphicsType()==PHIEffect::GTShadow ) {
             if ( !(req->agentFeatures() & PHIRequest::BoxShadow) ) needImage=true;
         } else needImage=true;
-    } else if ( realPattern()==15 ) {
-        if( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::Gradients) ) ) needImage=true;
-        else if ( data( DGradientType, 0 ).toInt()!=0 ) needImage=true;
-    }
+    } else if ( realPattern()==15 ) if ( !cssGradientCreateable( req ) ) needImage=true;
     if ( !needImage && hasTransformation() ) {
         if ( computeTransformation( false ).isAffine() && !(req->agentFeatures() & PHIRequest::Transform2D) ) needImage=true;
         else if ( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::Transform3D) ) ) needImage=true;

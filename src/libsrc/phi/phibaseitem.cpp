@@ -25,6 +25,7 @@
 #include <QEvent>
 #include <QGraphicsSceneEvent>
 #include <QMimeData>
+#include <math.h>
 #include "phibaseitem.h"
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
@@ -544,7 +545,6 @@ void PHIBaseItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *opti
 {
     Q_UNUSED( widget );
     painter->save();
-    //painter->setOpacity( realOpacity() );
     paint( painter, options->exposedRect );
     painter->restore();
 }
@@ -654,6 +654,7 @@ void PHIBaseItem::phisPrivateCreateData( const PHIDataParser &parser )
     parser.setCurrentItem( this );
     privateSqueeze();
     _dirtyFlags=DFClean;
+    if ( _flags & FDoNotCache ) _dirtyFlags |= DFDoNotCache; // support version 1.x
     _variants.insert( DTitle, parser.text( &_titleData ) );
     if ( !_titleData.isUnparsedStatic() ) _dirtyFlags |= DFTitleData;
     if ( _flags & FUseStyleSheet ) {
@@ -718,6 +719,53 @@ void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &s
         htmlBase( req, out, script, false );
         out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
     }
+    htmlAdjustedPos( script );
+    htmlAdjustedSize( script );
+}
+
+void PHIBaseItem::htmlImages( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    QTransform t;
+    bool needCalc=false;
+    if ( hasGraphicEffect() ) needCalc=true;
+    else if ( hasTransformation() ) {
+        t=computeTransformation( false );
+        if ( !t.isAffine() ) {
+            if ( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::Transform3D) ) ) {
+                qDebug() << "t is not affine and no 3D support" << id();
+                needCalc=true;
+            }
+        }
+    }
+    out+=indent+BL( "<div" );
+    htmlBase( req, out, script, false );
+    out+=BL( "\">\n" );
+    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
+        QByteArray filter;
+        for ( int i=0; i<imagePathes().count(); i++ ) {
+            if ( needCalc ) {
+                QRectF br=boundingRect();
+                filter=cssImageIEFilter( PHIDataParser::createTransformedImage( req, this, i, br ), false );
+                if ( i==0 ) setAdjustedRect( br );
+            } else {
+                filter=cssImageIEFilter( imagePathes().at( i ), false );
+                out+=indent+BL( "\t<div class=\"phi\" id=\"" )+_id+BL( "_phi_" )
+                    +QByteArray::number( i )+BL( "\" style=" )+filter+BL( "\"></div>\n" );
+            }
+        }
+    } else {
+        QByteArray imgId;
+        for ( int i=0; i<imagePathes().count(); i++ ) {
+            if ( needCalc ) {
+                QRectF br=boundingRect();
+                imgId=PHIDataParser::createTransformedImage( req, this, i, br );
+                if ( i==0 ) setAdjustedRect( br );
+            } else imgId=imagePathes().at( i );
+            out+=indent+BL( "\t<img class=\"phi\" id=\"" )+_id+BL( "_phi_" )+QByteArray::number( i )
+                +BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
+        }
+    }
+    out+=indent+BL( "</div>\n" );
     htmlAdjustedPos( script );
     htmlAdjustedSize( script );
 }
@@ -961,10 +1009,35 @@ QRadialGradient PHIBaseItem::radialGradient() const
     return g;
 }
 
+bool PHIBaseItem::cssGradientCreateable( const PHIRequest *req ) const
+{
+    if( !(req->agentFeatures() & PHIRequest::Gradients) ) return false;
+    if ( data( DGradientType, 0 ).toInt()!=0 ) return false;
+    QLinearGradient g=linearGradient();
+    if ( g.spread()!=QGradient::PadSpread ) return false;
+    QRectF r( 0, 0, 1., 1. );
+    if ( !r.contains( g.start() ) ) return false;
+    if ( !r.contains( g.finalStop() ) ) return false;
+    return true;
+}
+
 void PHIBaseItem::cssLinearGradient( const PHIRequest *req, QByteArray &out ) const
 {
+    // @todo: enable gradients
+    static const qreal PI=3.14159265358979323846;
     QLinearGradient g=linearGradient();
-
+    QPointF v=g.finalStop()-g.start();
+    qDebug() << "linear gradient" << g.start() << g.finalStop() << -atan(v.y()/v.x())*180./PI;
+    out+=BL( "background:" )+req->agentPrefix()+BL( "linear-gradient(" )
+        +QByteArray::number( -atan(v.y()/v.x())*180./PI, 'f', 2 )+BL( "deg," );
+    QGradientStop stop;
+    foreach ( stop, g.stops() ) {
+        out+=cssRgba( stop.second )+' '
+            +QByteArray::number( stop.first*100., 'f', 2 )+BL( "%," );
+        qDebug() << "stop" << stop.first << stop.second;
+    }
+    out.chop( 1 ); // remove last ','
+    out+=BL( ");" );
 }
 
 void PHIBaseItem::updateEffect()

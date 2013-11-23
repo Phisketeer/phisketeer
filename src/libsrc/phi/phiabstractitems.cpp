@@ -738,7 +738,7 @@ QSizeF PHIAbstractImageBookItem::sizeHint( Qt::SizeHint which, const QSizeF &con
     if ( isChild() ) return realSize();
     if ( which==Qt::MinimumSize ) return QSizeF( 16, 16 );
     if ( which==Qt::PreferredSize ) {
-        if ( !images().isEmpty() ) return QSizeF( images().values().first().size() );
+        if ( !realImages().isEmpty() ) return QSizeF( realImages().values().first().size() );
         return QSizeF( 96., 96. );
     }
     return PHIBaseItem::sizeHint( which, constraint );

@@ -56,6 +56,7 @@ inline PHIBaseItem* PHIInput::create( PHIWID wid , const PHIBaseItemPrivate &p )
     case PHISubmitButtonItem::SubmitButton: return new PHISubmitButtonItem( p );
     case PHIButtonItem::Button: return new PHIButtonItem( p );
     case PHIHiddenItem::Hidden: return new PHIHiddenItem( p );
+    case PHIDecoratedTableItem::DecoratedTable: return new PHIDecoratedTableItem( p );
     case PHIPasswordItem::Password: return new PHIPasswordItem( p );
     case PHIEmailItem::Email: return new PHIEmailItem( p );
     case PHINumberEditItem::NumberEdit: return new PHINumberEditItem( p );
@@ -82,6 +83,7 @@ inline PHIBaseItem* PHIInput::copy( const PHIBaseItem *it ) const
     case PHISubmitButtonItem::SubmitButton: return new PHISubmitButtonItem( *qobject_cast<const PHISubmitButtonItem*>(it) );
     case PHIButtonItem::Button: return new PHIButtonItem( *qobject_cast<const PHIButtonItem*>(it) );
     case PHIHiddenItem::Hidden: return new PHIHiddenItem( *qobject_cast<const PHIHiddenItem*>(it) );
+    case PHIDecoratedTableItem::DecoratedTable: return new PHIDecoratedTableItem( *qobject_cast<const PHIDecoratedTableItem*>(it) );
     case PHIPasswordItem::Password: return new PHIPasswordItem( *qobject_cast<const PHIPasswordItem*>(it) );
     case PHISearchItem::Search: return new PHISearchItem( *qobject_cast<const PHISearchItem*>(it) );
     case PHIDateEditItem::DateEdit: return new PHIDateEditItem( *qobject_cast<const PHIDateEditItem*>(it) );
@@ -104,7 +106,7 @@ inline QStringList PHIInput::keys() const
         << SL( "number" ) << SL( "realnumber" ) << SL( "email" )
         << SL( "select" ) << SL( "country" ) << SL( "listbox" )
         << SL( "phone" ) << SL( "calendar" ) << SL( "dateedit" )
-        << SL( "hidden" ) << SL( "search" );
+        << SL( "hidden" ) << SL( "search" ) << SL( "dectable" );
 }
 
 inline PHIWID PHIInput::wid( const QString &key ) const
@@ -117,6 +119,7 @@ inline PHIWID PHIInput::wid( const QString &key ) const
     if ( key==L1( "select" ) ) return PHISelectItem::Select;
     if ( key==L1( "listbox" ) ) return PHIMultiSelectItem::MultiSelect;
     if ( key==L1( "button" ) ) return PHIButtonItem::Button;
+    if ( key==L1( "dectable" ) ) return PHIDecoratedTableItem::DecoratedTable;
     if ( key==L1( "hidden" ) ) return PHIHiddenItem::Hidden;
     if ( key==L1( "submit" ) ) return PHISubmitButtonItem::SubmitButton;
     if ( key==L1( "email" ) ) return PHIEmailItem::Email;

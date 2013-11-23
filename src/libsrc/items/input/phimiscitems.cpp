@@ -72,3 +72,30 @@ void PHIHiddenItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
     out+=indent+BL( "<input type=\"hidden\" id=\"" )+id()+BL( "\" value=\"" )
         +data( DText ).toByteArray()+BL( "\">\n" );
 }
+
+void PHIDecoratedTableItem::ideInit()
+{
+
+}
+
+void PHIDecoratedTableItem::initWidget()
+{
+
+}
+
+void PHIDecoratedTableItem::setWidgetText( const QString &t )
+{
+
+}
+
+QSizeF PHIDecoratedTableItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( isChild() ) return realSize();
+    if ( which==Qt::PreferredSize ) return QSizeF( 300., 200. );
+    return PHIAbstractInputItem::sizeHint( which, constraint );
+}
+
+void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+
+}

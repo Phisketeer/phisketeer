@@ -271,10 +271,10 @@ void PHISlideShowItem::fadeTimeout()
         setCurrentOpacity( 1. );
         _fadeTimer->stop();
         setCurrentImageNum( currentImageNum()+1 );
-        if ( currentImageNum()>=images().count() ) setCurrentImageNum( 0 );
-        if ( currentImageNum() < titles().count() ) setTitle( titles().at( currentImageNum() ) );
-        else if ( titles().count()>1 ) setTitle( QString() );
-        else setTitle( titles().count() ? titles().first() : QString() );
+        if ( currentImageNum()>=realImages().count() ) setCurrentImageNum( 0 );
+        if ( currentImageNum() < realTitles().count() ) setTitle( realTitles().at( currentImageNum() ) );
+        else if ( realTitles().count()>1 ) setTitle( QString() );
+        else setTitle( realTitles().count() ? realTitles().first() : QString() );
     }
     update();
 }
@@ -289,10 +289,35 @@ void PHISlideShowItem::pauseTimeout()
     _pauseTimer->start();
 }
 
+QScriptValue PHISlideShowItem::stop()
+{
+    if ( _pauseTimer ) _pauseTimer->stop();
+    return self();
+}
+
+QScriptValue PHISlideShowItem::start()
+{
+    pauseTimeout();
+    return self();
+}
+
+QScriptValue PHISlideShowItem::display( const QScriptValue &c )
+{
+    if ( !c.isValid() ) return currentImageNum();
+    if ( _fadeTimer ) _fadeTimer->stop();
+    if ( _pauseTimer ) _pauseTimer->stop();
+    qint32 num=c.toInt32();
+    if ( num>=realImages().count() ) num=0;
+    setCurrentImageNum( 0 );
+    setCurrentOpacity( 1. );
+    update();
+    return self();
+}
+
 void PHISlideShowItem::paint( QPainter *painter, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
-    if ( !images().count() ) {
+    if ( !realImages().count() ) {
         QFont f=font();
         f.setPointSizeF( PHI::adjustedFontSize( 10.) );
         painter->setFont( f );
@@ -304,9 +329,9 @@ void PHISlideShowItem::paint( QPainter *painter, const QRectF &exposed )
     painter->setRenderHint( QPainter::SmoothPixmapTransform, true );
     QImage img1, img2;
     int next=currentImageNum()+1;
-    if ( next>=images().count() ) next=0;
-    img1=images().value( QByteArray::number( currentImageNum() ) );
-    img2=images().value( QByteArray::number( next ) );
+    if ( next>=realImages().count() ) next=0;
+    img1=realImages().value( QByteArray::number( currentImageNum() ) );
+    img2=realImages().value( QByteArray::number( next ) );
     painter->setOpacity( currentOpacity() );
     if ( !img1.isNull() ) painter->drawImage( rect(), img1 );
     painter->setOpacity( 1.-currentOpacity() );
@@ -318,10 +343,10 @@ void PHISlideShowItem::updateImages()
     if ( !_pauseTimer || !_fadeTimer ) return;
     _fadeTimer->stop();
     _pauseTimer->stop();
-    _pauseTimer->setInterval( fadeIntervalMS() );
+    _pauseTimer->setInterval( realFadeIntervalMS() );
     setCurrentImageNum( 0 );
-    setStep( 50./static_cast<qreal>(fadeTimeMS()) );
-    if ( !isIdeItem() && images().count()>1 ) {
+    setStep( 50./static_cast<qreal>(realFadeTimeMS()) );
+    if ( !isIdeItem() && realImages().count()>1 ) {
         _pauseTimer->start();
     }
 }
@@ -349,10 +374,90 @@ void PHISlideShowItem::saveItemData( QDataStream &out, int version )
     out << &_intervalData << &_fadeTimeData;
 }
 
-void PHICanvasItem::ideInit()
+void PHISlideShowItem::phisCreateData( const PHIDataParser &parser )
 {
-    //_textData.setText( svgDefaultSource() );
-    resize( 96., 96. );
+    PHIAbstractImageBookItem::phisCreateData( parser );
+    setFadeInterval( parser.text( &_intervalData ).toInt() );
+    if ( !_intervalData.isUnparsedStatic() ) setDirtyFlag( DFInt1 );
+    setFadeTime( parser.text( &_fadeTimeData ).toInt() );
+    if ( !_fadeTimeData.isUnparsedStatic() ) setDirtyFlag( DFInt2 );
+}
+
+void PHISlideShowItem::phisParseData( const PHIDataParser &parser )
+{
+    PHIAbstractImageBookItem::phisParseData( parser );
+    if ( dirtyFlags() & DFInt1 ) setFadeInterval( parser.text( &_intervalData ).toInt() );
+    if ( dirtyFlags() & DFInt2 ) setFadeTime( parser.text( &_fadeTimeData ).toInt() );
+    setData( DTmpTitle, data( DTitle ) );
+    removeData( DTitle ); // suppress creating title for container
+}
+
+void PHISlideShowItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    QByteArray ftime=QByteArray::number( realFadeTimeMS() );
+    if ( realFadeIntervalMS() < realFadeTimeMS() ) {
+        req->responseRec()->log( PHILOGERR, PHIRC_OBJ_ACCESS_ERROR,
+            tr( "Fading time must be lesser or equal then fading interval for item '%1' in page '%2'." )
+                .arg( name() ).arg( req->canonicalFilename() ) );
+        ftime=QByteArray::number( realFadeIntervalMS() );
+    }
+    htmlImages( req, out, script, indent );
+    script+=BL( "phiSlideShow('" )+id()+BL( "'," )
+        +QByteArray::number( imagePathes().count() )+BL( ");\n" );
+    script+=BL( "$('" )+id()+BL( "').titles('")+data( DTmpTitle ).toByteArray()+BL( "');\n" );
+    if ( realFadeIntervalMS()!=4000 ) script+=BL( "$('" )+id()+BL( "').fadeIntervalMS(" )
+        +QByteArray::number( realFadeIntervalMS() )+BL( ");\n" );
+    if ( realFadeTimeMS()!=2000 ) script+=BL( "$('" )+id()+BL( "').fadeTimeMS(" )
+        +QByteArray::number( realFadeTimeMS() )+BL( ");\n" );
+}
+
+QScriptValue PHISlideShowItem::fadeInterval( const QScriptValue &fi )
+{
+    if ( !fi.isValid() ) return realFadeInterval();
+    setFadeInterval( fi.toInt32() );
+    return self();
+}
+
+QScriptValue PHISlideShowItem::fadeTime( const QScriptValue &ft )
+{
+    if ( !ft.isValid() ) return realFadeTime();
+    setFadeTime( ft.toInt32() );
+    return self();
+}
+
+QScriptValue PHISlideShowItem::fadeIntervalMS( const QScriptValue &fi )
+{
+    if ( !fi.isValid() ) return realFadeIntervalMS();
+    setFadeIntervalMS( fi.toInt32() );
+    return self();
+}
+
+QScriptValue PHISlideShowItem::fadeTimeMS( const QScriptValue &ft )
+{
+    if ( !ft.isValid() ) return realFadeTimeMS();
+    setFadeTimeMS( ft.toInt32() );
+    return self();
+}
+
+QScriptValue PHISlideShowItem::titles( const QScriptValue &t )
+{
+    if ( !t.isValid() ) {
+        QScriptValue arr=page()->scriptEngine()->newArray(realTitles().count());
+        for ( quint32 i=0; i < static_cast<quint32>(realTitles().count()); i++ ) {
+            arr.setProperty( i, realTitles().at( i ) );
+        }
+        return arr;
+    }
+    if ( t.isArray() ) {
+        QStringList l;
+        for ( quint32 i=0; i<t.property( SL( "length" ) ).toUInt32(); i++ ) {
+            l.append( t.property( i ).toString() );
+        }
+        setTitles( l );
+    } else {
+        setTitleList( t.toString() );
+    }
+    return self();
 }
 
 void PHICanvasItem::ideUpdateData()
@@ -379,6 +484,7 @@ QString PHICanvasItem::ideText( const QByteArray &lang ) const
 
 QSizeF PHICanvasItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
+    if ( isChild() ) return realSize();
     return PHIBaseItem::sizeHint( which, constraint );
 }
 
@@ -407,7 +513,8 @@ void PHICanvasItem::initWidget()
 void PHICanvasItem::paint( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
-    if ( Q_UNLIKELY( _canvas.isNull() ) ) {
+    QImage img=realImage();
+    if ( Q_UNLIKELY( img.isNull() ) ) {
         p->setOpacity( .6 );
         p->fillRect( rect(), QBrush( Qt::lightGray ) );
         QFont f=font();
@@ -416,7 +523,7 @@ void PHICanvasItem::paint( QPainter *p, const QRectF &exposed )
         p->drawText( rect(), L1( "Canvas" ), QTextOption( Qt::AlignCenter ) );
     } else {
         p->setClipRect( rect() );
-        p->drawImage( 0, 0, _canvas );
+        p->drawImage( 0, 0, img );
     }
 }
 
@@ -435,7 +542,7 @@ QScriptValue PHICanvasItem::getContext( const QScriptValue &v )
         _ctx2D=new PHIContext2D( this );
         _ctx2D->setSize( realSize().toSize() );
         if ( isServerItem() ) _ctx2D->setServerMode();
-        connect( _ctx2D, &PHIContext2D::changed, this, &PHICanvasItem::imageChanged );
+        connect( _ctx2D, &PHIContext2D::changed, this, &PHICanvasItem::setImage );
         connect( this, &PHIBaseItem::sizeChanged, this, &PHICanvasItem::slotSizeChanged );
         qScriptRegisterMetaType( e, domRectToScriptValue, domRectFromScriptValue );
         qScriptRegisterMetaType( e, canvasGradientToScriptValue, canvasGradientFromScriptValue );
@@ -456,9 +563,8 @@ void PHICanvasItem::phisParseData( const PHIDataParser &parser )
 
 void PHICanvasItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    if ( dirtyFlags() & DFCustom1 && !_canvas.isNull() ) { // image created via ServerScript
-        QByteArray imgid=PHIDataParser::createImage( req, this, _canvas, PHIData::c(), -1 );
-        setImagePath( imgid );
+    if ( dirtyFlags() & DFCustom1 && !realImage().isNull() ) { // image created via ServerScript
+        setImagePath( PHIDataParser::createImage( req, this, realImage(), PHIData::c(), -1 ) );
         return htmlImg( req, out, script, indent );
     }
     if ( Q_LIKELY( req->agentFeatures() & PHIRequest::Canvas ) ) {
@@ -485,8 +591,8 @@ void PHICanvasItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
             tmp+=QString::fromLatin1( PHI::nl()+PHI::nl() )+list.join( QString::fromLatin1( PHI::nl() ) );
             req->responseRec()->log( PHILOGERR, PHIRC_SCRIPT_PARSE_ERROR, tmp );
         }
-        if ( _canvas.isNull() ) return;
-        QByteArray imgid=PHIDataParser::createImage( req, this, _canvas, PHIData::c(), -1 );
+        if ( realImage().isNull() ) return;
+        QByteArray imgid=PHIDataParser::createImage( req, this, realImage(), PHIData::c(), -1 );
         setImagePath( imgid );
         return htmlImg( req, out, script, indent );
     }
@@ -501,6 +607,7 @@ QSizeF PHISponsorItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) 
 
 void PHISponsorItem::squeeze()
 {
+    removeData( DOpacity );
     setXRotation( 0 );
     setYRotation( 0 );
     setHSkew( 0 );
@@ -530,6 +637,6 @@ void PHISponsorItem::html( const PHIRequest *req, QByteArray &out, QByteArray &s
     } else {
         out+=indent+BL( "<img style=\"z-index:" )+QByteArray::number( PHI::maxZIndex()+1 )+BL( ";position:absolute;left:" )
             +QByteArray::number( qRound(realX()) )+BL( "px;top:" )+QByteArray::number( qRound(realY()) )
-            +BL( "px;\" src=\"phi.phis?i=" )+imagePath()+BL( "&t=1\">\n" );
+            +BL( "px;opacity:1\" src=\"phi.phis?i=" )+imagePath()+BL( "&t=1\">\n" );
     }
 }
