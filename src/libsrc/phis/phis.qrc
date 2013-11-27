@@ -27,6 +27,8 @@
         <file alias="ui-theme.css">css/jquery.ui.theme.css</file>
         <file alias="ui-button.js">js/jquery.ui.button.min.js</file>
         <file alias="ui-button.css">css/jquery.ui.button.min.css</file>
+        <file alias="ui-jqgrid.js">js/jquery.jqGrid.min.js</file>
+        <file alias="ui-jqgrid.css">css/ui.jqgrid.css</file>
     </qresource>
     <qresource prefix="/gnome">
         <file alias="brokenimage">../../icons/scalable/stock/gtk-brokenimage.svg</file>
@@ -34,4 +36,5 @@
     <qresource prefix="/phi">
         <file alias="poweredby">poweredby.png</file>
     </qresource>
+    <qresource prefix="/i18n"/>
 </RCC>

@@ -39,13 +39,13 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/calendar" ) ); }
     virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
-    virtual PHIWID htmlHeaderExtension( QByteArray &header ) const;
-    virtual PHIWID htmlScriptExtension( QByteArray &script ) const;
-    virtual void phisCreateData( const PHIDataParser &parser );
-    virtual bool hasExtension() const { return true; }
+    virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const;
+    virtual PHIWID htmlScriptExtension( const PHIRequest *req, QByteArray &script ) const;
+    virtual bool hasHtmlExtension() const { return true; }
 
 protected:
     virtual void ideUpdateData();
+    virtual void phisCreateData( const PHIDataParser &parser );
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;

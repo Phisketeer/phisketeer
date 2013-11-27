@@ -22,12 +22,15 @@ HEADERS += phiinput.h \
     philistitems.h \
     phicalendaritems.h \
     phimiscitems.h \
-    phiinputtools.h
+    phiinputtools.h \
+    phitableitems.h
 SOURCES += \ 
     phiinputitems.cpp \
     phicheckitems.cpp \
     philistitems.cpp \
     phicalendaritems.cpp \
-    phimiscitems.cpp
+    phimiscitems.cpp \
+    phitableitems.cpp
 TARGET = phiinput
+FORMS = tableconfig.ui
 OTHER_FILES = phiinput.json

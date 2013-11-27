@@ -1,0 +1,96 @@
+/*
+#    Copyright (C) 2010-2013  Marius B. Schumacher
+#    Copyright (C) 2011-2013  Phisys AG, Switzerland
+#    Copyright (C) 2012-2013  Phisketeer.org team
+#
+#    This C++ library is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Lesser General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#ifndef PHITABLEITEMS_H
+#define PHITABLEITEMS_H
+#include <QVector>
+#include "phiabstractitems.h"
+#include "phiconfigwidget.h"
+#include "ui_tableconfig.h"
+
+class PHITableConfig : public PHIConfigWidget, private Ui::TableConfig
+{
+    Q_OBJECT
+
+public:
+    enum ColType { Width=0, Type=1, Alignment=2, Sortable=3, Checkable=4 };
+    explicit PHITableConfig( PHIBaseItem *it, QWidget *parent=0 );
+    bool storeData();
+
+protected slots:
+    void on__add_clicked();
+    void on__del_clicked();
+
+private:
+    bool _changed;
+    quint8 _options;
+};
+
+class PHIDecoratedTableItem : public PHIAbstractInputItem
+{
+    Q_OBJECT
+    Q_PROPERTY( QString _delimiter READ realDelimiter WRITE setDelimiter SCRIPTABLE false )
+
+public:
+    enum Wid { DecoratedTable=46 };
+    enum DataType { DOptions=1, DColWidth=2, DColType=3, DColAlignment=4, DColSortable=5, DColCheckable=6, DDelimiter=7 };
+    enum CellType { CString=0, CNumber=1, CFloat=2, CDate=3, CCurrency=4 };
+    enum CellAlign { ALeft=0, ARight=1, ACenter=2, ASortable=8 };
+    enum Option { None=0x0, SingleSelection=0x1, MultiSelection=0x2, AltRowColors=0x4, ShowRowIndex=0x8 };
+    explicit PHIDecoratedTableItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIDecoratedTableItem( const PHIDecoratedTableItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIDecoratedTableItem() {}
+
+    virtual QString listName() const { return tr( "Table" ); }
+    virtual QString description() const { return tr( "Sortable table with a selectable row." ); }
+    virtual PHIWID wid() const { return DecoratedTable; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/table" ) ); }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual PHIConfigWidget* ideConfigWidget();
+    virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const;
+    virtual bool hasHtmlExtension() const { return true; }
+    virtual bool hasDelimiter() const { return true; }
+
+    inline void setOptions( quint8 o ) { setData( DOptions, o ); updateWidget(); }
+    inline quint8 options() const { return data( DOptions, 0 ).value<quint8>(); }
+    inline void setOption( quint8 o, bool b=true ) { quint8 opts=options(); b ? opts |= o : opts &= ~o; setData( DOptions, opts ); updateWidget(); }
+    inline PHIListChar colTypes() const { return data( DColType ).value<PHIListChar>(); }
+    inline void setColTypes( const PHIListChar &l ) { setData( DColType, qVariantFromValue( l ) ); }
+    inline PHIListChar colAlignments() const { return data( DColAlignment ).value<PHIListChar>(); }
+    inline void setColAlignments( const PHIListChar &l ) { setData( DColAlignment, qVariantFromValue( l ) ); }
+    inline PHIListWord colWidths() const { return data( DColWidth ).value<PHIListWord>(); }
+    inline void setColWidths( const PHIListWord &l ) { setData( DColWidth, qVariantFromValue( l ) ); }
+    inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
+    inline QString realDelimiter() const { return QString::fromUtf8( data( DDelimiter, BL( "\n" ) ).toByteArray() ); }
+
+public slots:
+    QScriptValue delimiter( const QScriptValue &d );
+
+protected:
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void squeeze();
+    virtual void setWidgetText( const QString &t );
+    virtual void ideInit();
+    virtual void initWidget();
+    virtual void updateWidget();
+};
+
+
+
+
+#endif // PHITABLEITEMS_H

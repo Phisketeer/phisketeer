@@ -41,14 +41,14 @@ void PHISelectItem::ideInit()
 void PHISelectItem::squeeze()
 {
     PHIAbstractInputItem::squeeze();
-    if ( delimiter()==L1( "\n" ) ) removeData( DDelimiter );
+    if ( realDelimiter()==L1( "\n" ) ) removeData( DDelimiter );
 }
 
 void PHISelectItem::setWidgetText( const QString &t )
 {
     QComboBox *cb=qobject_cast<QComboBox*>(widget());
     Q_ASSERT( cb );
-    QStringList list=t.split( delimiter(), QString::SkipEmptyParts );
+    QStringList list=t.split( realDelimiter(), QString::SkipEmptyParts );
     cb->clear();
     cb->addItems( list );
 }
@@ -82,6 +82,13 @@ QSizeF PHISelectItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) c
         s.setWidth( 96. );
     }
     return s;
+}
+
+QScriptValue PHISelectItem::delimiter( const QScriptValue &d )
+{
+    if ( !d.isValid() ) return realDelimiter();
+    setDelimiter( d.toString() );
+    return self();
 }
 
 void PHISelectCountryItem::ideInit()
@@ -133,7 +140,7 @@ void PHIMultiSelectItem::setWidgetText( const QString &t )
 {
     QListWidget *lw=qobject_cast<QListWidget*>(widget());
     Q_ASSERT( lw );
-    QStringList list=t.split( delimiter(), QString::SkipEmptyParts );
+    QStringList list=t.split( realDelimiter(), QString::SkipEmptyParts );
     lw->clear();
     lw->addItems( list );
 }

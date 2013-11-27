@@ -32,57 +32,6 @@ static const double PHI_PI=3.14159265358979323846;
 #define DEGREES(t) ((t) * 180.0 / PHI_PI )
 #define PHIBOUND(val, min, max) qMin(qMax(val, min), max)
 
-static QList<qreal> parseNumbersList( QString::const_iterator &itr )
-{
-    QList<qreal> points;
-    QString temp;
-    while ( (*itr).isSpace() ) ++itr;
-    while ( (*itr).isNumber() || (*itr)==QLatin1Char( '-' )
-        || (*itr)==QLatin1Char( '+' ) || (*itr)==QLatin1Char( '.' ) ) {
-        temp=QString();
-        if ( (*itr)==QLatin1Char( '-' ) ) temp+=*itr++;
-        else if ( (*itr)==QLatin1Char( '+' ) ) temp+=*itr++;
-        while ( (*itr).isDigit() ) temp+=*itr++;
-        if ( (*itr)==QLatin1Char( '.' ) ) temp+=*itr++;
-        while ( (*itr).isDigit() ) temp+=*itr++;
-        while ( (*itr).isSpace() ) ++itr;
-        if ( (*itr)==QLatin1Char( ',' ) ) ++itr;
-        points.append( temp.toDouble() );
-        //eat spaces
-        while ( (*itr).isSpace() ) ++itr;
-    }
-    return points;
-}
-
-QColor colorFromString( const QString &name )
-{
-    QString::const_iterator itr=name.constBegin();
-    QList<qreal> compo;
-    if ( name.startsWith( QStringLiteral( "rgba(" ) ) ) {
-        ++itr; ++itr; ++itr; ++itr; ++itr;
-        compo=parseNumbersList( itr );
-        if ( compo.size()!=4 ) {
-            return QColor();
-        }
-        //alpha seems to be always between 0-1
-        compo[3]*=255;
-        return QColor( (int)compo[0], (int)compo[1], (int)compo[2], (int)compo[3]);
-    } else if ( name.startsWith( QStringLiteral( "rgb(" ) ) ) {
-        ++itr; ++itr; ++itr; ++itr;
-        compo=parseNumbersList( itr );
-        if (compo.size() != 3) {
-            return QColor();
-        }
-        return QColor( (int)PHIBOUND(compo[0], qreal(0), qreal(255)),
-            (int)PHIBOUND(compo[1], qreal(0), qreal(255)),
-            (int)PHIBOUND(compo[2], qreal(0), qreal(255)));
-    } else {
-        //QRgb color;
-        //CSSParser::parseColor(name, color);
-        return QColor(name);
-    }
-}
-
 static QPainter::CompositionMode compositeOperatorFromString( const QString &compositeOperator )
 {
     if ( compositeOperator==QLatin1String( "source-over" ) ) {
@@ -226,7 +175,7 @@ void canvasGradientFromScriptValue( const QScriptValue &obj, PHICanvasGradient* 
 
 PHICanvasGradient* PHICanvasGradient::addColorStop( qreal offset, const QString &color )
 {
-    _gradient.setColorAt( offset, colorFromString( color ) );
+    _gradient.setColorAt( offset, PHI::colorFromString( color ) );
     return this;
 }
 
@@ -370,7 +319,7 @@ void PHIContext2D::setFont( const QString &f )
 
 void PHIContext2D::setShadowColor( const QString &str )
 {
-    _state.shadowColor=colorFromString( str );
+    _state.shadowColor=PHI::colorFromString( str );
     _state.flags |= DirtyShadowColor;
 }
 
@@ -424,7 +373,7 @@ void PHIContext2D::setStrokeStyle( const QVariant &style )
         PHICanvasGradient *cg=style.value<PHICanvasGradient*>();
         _state.strokeStyle=cg->gradient();
     } else {
-        QColor color=colorFromString( style.toString() );
+        QColor color=PHI::colorFromString( style.toString() );
         _state.strokeStyle=color;
     }
     _state.flags |= DirtyStrokeStyle;
@@ -441,7 +390,7 @@ void PHIContext2D::setFillStyle( const QVariant &style )
         PHICanvasGradient *cg=style.value<PHICanvasGradient*>();
         _state.fillStyle=cg->gradient();
     } else {
-        QColor color=colorFromString( style.toString() );
+        QColor color=PHI::colorFromString( style.toString() );
         _state.fillStyle=color;
     }
     _state.flags |= DirtyFillStyle;

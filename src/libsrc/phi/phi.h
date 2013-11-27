@@ -54,6 +54,8 @@ typedef QHash <QByteArray, QVariant> PHIVariantHash;
 typedef QHash <quint8, QColor> PHIColorHash;
 typedef QHash <QByteArray, QImage> PHIImageHash;
 typedef QHash <qint8, QVariant> PHIKeyHash;
+typedef QList <quint8> PHIListChar;
+typedef QList <quint16> PHIListWord;
 typedef quint16 PHIRC;
 typedef quint16 PHIWID;
 
@@ -64,6 +66,7 @@ Q_DECLARE_METATYPE( PHIColorHash )
 Q_DECLARE_METATYPE( PHIImageHash )
 Q_DECLARE_METATYPE( PHIKeyHash )
 Q_DECLARE_METATYPE( QGradientStops )
+Q_DECLARE_METATYPE( PHIListChar )
 
 class PHIEXPORT PHI
 {
@@ -118,6 +121,8 @@ public:
     static void extractNumbers( const QByteArray &s, int &value, int &min, int &max, int &step );
     static void extractRealNumbers( const QByteArray &s, qreal &value, qreal &min, qreal &max,
         qreal &step, int &decimals );
+    static QList<qreal> parseNumbersList( QString::const_iterator &itr );
+    static QColor colorFromString( const QString &name );
     static qreal adjustedFontSize( qreal s);
 
     static inline const QString& idValidator() { static QString v=QStringLiteral( "[A-Za-z][-_A-Za-z0-9]*" ); return v; }

@@ -37,6 +37,7 @@
 #if ( QT_VERSION <= QT_VERSION_CHECK( 5, 1, 0 ) )
 #error To compile Phi(sketeer) successfully you need at least Qt 5.1.1
 #endif
+#define PHIBOUND(val, min, max) qMin(qMax(val, min), max)
 
 const char* PHI::_phiDT="yyyyMMddHHmmsszzz";
 const char* PHI::_phiDate="yyyy-MM-dd";
@@ -351,6 +352,57 @@ QImage PHI::reflectedImage( const QImage &img, qreal off, qreal size, QRectF &br
     p.drawImage( QPointF( 0, img.height()-2+off ), mirrored, QRectF( 0, 0, img.width(), size ) );
     p.end();
     return dest;
+}
+
+QList<qreal> PHI::parseNumbersList( QString::const_iterator &itr )
+{
+    QList<qreal> points;
+    QString temp;
+    while ( (*itr).isSpace() ) ++itr;
+    while ( (*itr).isNumber() || (*itr)==QLatin1Char( '-' )
+        || (*itr)==QLatin1Char( '+' ) || (*itr)==QLatin1Char( '.' ) ) {
+        temp=QString();
+        if ( (*itr)==QLatin1Char( '-' ) ) temp+=*itr++;
+        else if ( (*itr)==QLatin1Char( '+' ) ) temp+=*itr++;
+        while ( (*itr).isDigit() ) temp+=*itr++;
+        if ( (*itr)==QLatin1Char( '.' ) ) temp+=*itr++;
+        while ( (*itr).isDigit() ) temp+=*itr++;
+        while ( (*itr).isSpace() ) ++itr;
+        if ( (*itr)==QLatin1Char( ',' ) ) ++itr;
+        points.append( temp.toDouble() );
+        //eat spaces
+        while ( (*itr).isSpace() ) ++itr;
+    }
+    return points;
+}
+
+QColor PHI::colorFromString( const QString &name )
+{
+    QString::const_iterator itr=name.constBegin();
+    QList<qreal> compo;
+    if ( name.startsWith( QStringLiteral( "rgba(" ) ) ) {
+        ++itr; ++itr; ++itr; ++itr; ++itr;
+        compo=PHI::parseNumbersList( itr );
+        if ( compo.size()!=4 ) {
+            return QColor();
+        }
+        //alpha seems to be always between 0-1
+        compo[3]*=255;
+        return QColor( (int)compo[0], (int)compo[1], (int)compo[2], (int)compo[3]);
+    } else if ( name.startsWith( QStringLiteral( "rgb(" ) ) ) {
+        ++itr; ++itr; ++itr; ++itr;
+        compo=parseNumbersList( itr );
+        if (compo.size() != 3) {
+            return QColor();
+        }
+        return QColor( (int)PHIBOUND(compo[0], qreal(0), qreal(255)),
+            (int)PHIBOUND(compo[1], qreal(0), qreal(255)),
+            (int)PHIBOUND(compo[2], qreal(0), qreal(255)));
+    } else {
+        //QRgb color;
+        //CSSParser::parseColor(name, color);
+        return QColor(name);
+    }
 }
 
 /*

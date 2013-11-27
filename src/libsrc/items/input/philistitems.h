@@ -23,7 +23,7 @@
 class PHISelectItem : public PHIAbstractInputItem
 {
     Q_OBJECT
-    Q_PROPERTY( QString delimiter READ delimiter WRITE setDelimiter )
+    Q_PROPERTY( QString _delimiter READ realDelimiter WRITE setDelimiter )
 
 public:
     enum Wid { Select=10 };
@@ -37,10 +37,11 @@ public:
     virtual PHIWID wid() const { return Select; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/selectbox" ) ); }
     virtual void ideInit();
+    inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
+    inline QString realDelimiter() const { return QString::fromUtf8( data( DDelimiter, BL( "\n" ) ).toByteArray() ); }
 
 public slots:
-    inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
-    inline QString delimiter() const { return QString::fromUtf8( data( DDelimiter, L1( "\n" ) ).toByteArray() ); }
+    QScriptValue delimiter( const QScriptValue &d );
 
 protected:
     virtual void initWidget();

@@ -152,7 +152,7 @@ public:
     inline qint32 serverModules() const { return _variants.value( DServerModules, 0 ).value<qint32>(); }
     inline const QHash <quint8, QVariant>& data() const { return _variants; }
     inline void insertHtmlHeaderExtension( PHIWID wid, const QByteArray &ext ) { _headerExtensions.insert( wid, ext ); }
-    inline void insertHtmlJQueryExtension( PHIWID wid, const QByteArray &ext ) { _scriptExtensions.insert( wid, ext ); }
+    inline void insertHtmlScriptExtension( PHIWID wid, const QByteArray &ext ) { _scriptExtensions.insert( wid, ext ); }
     inline const QHash <PHIWID, QByteArray>& htmlHeaderExtensions() const { return _headerExtensions; }
 
     void setGeometry( Geometry g );

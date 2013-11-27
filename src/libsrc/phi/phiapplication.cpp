@@ -198,6 +198,8 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
     qRegisterMetaTypeStreamOperators<PHIImageHash>("PHIImageHash");
     qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
+    qRegisterMetaTypeStreamOperators<PHIListChar>("PHIListChar");
+    qRegisterMetaTypeStreamOperators<PHIListWord>("PHIListWord");
     qRegisterMetaType<QDateTime>( "QDateTime" );
     qRegisterMetaType<PHIRC>( "PHIRC" );
 

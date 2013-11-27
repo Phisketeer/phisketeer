@@ -81,14 +81,16 @@ void PHICalendarItem::phisCreateData(const PHIDataParser &parser)
     setAdjustedRect( QRectF( 0, 0, realWidth()-6, realHeight()-4 ) );
 }
 
-PHIWID PHICalendarItem::htmlHeaderExtension( QByteArray &header ) const
+PHIWID PHICalendarItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const
 {
+    Q_UNUSED( req )
     header+=BL( "<script type=\"text/javascript\" src=\"phi.phis?j=ui-datepicker\"></script>\n" );
     return static_cast<PHIWID>(Calendar);
 }
 
-PHIWID PHICalendarItem::htmlScriptExtension( QByteArray &script ) const
+PHIWID PHICalendarItem::htmlScriptExtension( const PHIRequest *req, QByteArray &script ) const
 {
+    Q_UNUSED( req )
     QLocale locale( page()->lang() );
     QString monthnames, shortmonthnames, shortdaynames, daynames;
     QLatin1String sep=L1( "'," );
@@ -233,7 +235,7 @@ void PHIDateEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
         +BL( "_phit\" readonly=\"readonly\" style=\"width:" )
         +QByteArray::number( qRound(le.width()) )+BL( "px;height:" )
         +QByteArray::number( qRound(le.height()) )+BL( "px\">\n" )+indent
-        +BL( "<button id=\"" )+id()+BL( "_phib\" style=\"position:absolute;top:0;left:" )
+        +BL( "\t<button id=\"" )+id()+BL( "_phib\" style=\"position:absolute;top:0;left:" )
         +QByteArray::number( qRound(le.width()+5) )+BL( "px;width:24px;height:" )
         +QByteArray::number( qRound(realHeight()) )+BL( "px\"></button>\n" );
         //+indent+BL( "<span class=\"ui-icon ui-icon-calendar\" style=\"position:absolute;top:0;left:20px\"></span>\n" );

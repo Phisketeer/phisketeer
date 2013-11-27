@@ -83,10 +83,13 @@ void PHISProcessor::run()
     PHIBaseItem *it;
     foreach( it, page->items() ) {
         it->phisPrivateParseData( parser );
-        if ( it->hasExtension() ) {
+        if ( it->hasHtmlExtension() ) {
             QByteArray ext;
-            PHIWID wid=it->htmlScriptExtension( ext );
-            if ( wid ) page->insertHtmlJQueryExtension( wid, ext );
+            PHIWID wid=it->htmlHeaderExtension( _req, ext );
+            if ( wid ) page->insertHtmlHeaderExtension( wid, ext );
+            ext.clear();
+            wid=it->htmlScriptExtension( _req, ext );
+            if ( wid ) page->insertHtmlScriptExtension( wid, ext );
         }
     }
 
@@ -253,10 +256,13 @@ void PHISProcessor::parseMaster( PHIBasePage *master, PHIBasePage *page ) const
         it->phisPrivateParseData( parser );
         it->setParent( page );
         it->setZIndex( -10000+it->realZIndex() );
-        if ( it->hasExtension() ) {
+        if ( it->hasHtmlExtension() ) {
             QByteArray ext;
-            PHIWID wid=it->htmlScriptExtension( ext );
-            if ( wid ) page->insertHtmlJQueryExtension( wid, ext );
+            PHIWID wid=it->htmlHeaderExtension( _req, ext );
+            if ( wid ) page->insertHtmlHeaderExtension( wid, ext );
+            ext.clear();
+            wid=it->htmlScriptExtension( _req, ext );
+            if ( wid ) page->insertHtmlScriptExtension( wid, ext );
         }
     }
 }
@@ -323,11 +329,6 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
             in >> arr;
             it->load( arr, static_cast<int>(version) );
             it->phisPrivateCreateData( parser );
-            if ( it->hasExtension() ) {
-                QByteArray ext;
-                PHIWID extWid=it->htmlHeaderExtension( ext );
-                if ( extWid ) page->insertHtmlHeaderExtension( extWid, ext );
-            }
             l=qobject_cast<PHIAbstractLayoutItem*>(it);
             if ( l ) layouts.append( l );
         } catch ( std::bad_alloc& ) {
@@ -507,6 +508,7 @@ void PHISProcessor::genScripts() const
     //createJS( L1( "ui-draggable.js" ) ); // included in ui-core
     //createJS( L1( "ui-droppable.js" ) ); // included in ui-core
     //createJS( L1( "ui-widget.js" ) ); // included in ui-core
+    createJS( L1( "ui-jqgrid.js" ) );
     createUiCSS();
 }
 
@@ -553,7 +555,8 @@ void PHISProcessor::createUiCSS() const
         return;
     }
     QStringList list;
-    list << L1( "ui-core.css" ) << L1( "ui-datepicker.css" ) << L1( "ui-button.css" );
+    list << L1( "ui-core.css" ) << L1( "ui-datepicker.css" ) << L1( "ui-button.css" )
+         << L1( "ui-jqgrid.css" );
     foreach( const QString css, list ) {
         QFile src( L1( ":/" )+css );
         if ( !src.open( QIODevice::ReadOnly ) ) {
@@ -566,5 +569,7 @@ void PHISProcessor::createUiCSS() const
     QByteArray out=BL( "\n.phi .ui-datepicker{width:100%;height:100%;padding:.2em "
         ".2em 0;display:none;font-size:80%;min-width:240px;}\n"
         "div.ui-datepicker{width:auto;padding:.2em .2em 0;display:none;font-size:90%}\n" );
+    out+=BL( ".ui-jqgrid .ui-jqgrid-htable th div {height:16px;overflow:hidden,padding-top:4px}\n" );
+    out+=BL( ".ui-jqgrid {background-color:transparent !important;background-image:none !important}\n" );
     dest.write( out );
 }

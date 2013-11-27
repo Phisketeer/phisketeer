@@ -47,30 +47,4 @@ protected:
     virtual void squeeze();
 };
 
-class PHIDecoratedTableItem : public PHIAbstractInputItem
-{
-    Q_OBJECT
-
-public:
-    enum Wid { DecoratedTable=46 };
-    enum DataType { DOptions=1 };
-    explicit PHIDecoratedTableItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
-    PHIDecoratedTableItem( const PHIDecoratedTableItem &it ) : PHIAbstractInputItem( it ) {}
-    virtual ~PHIDecoratedTableItem() {}
-
-    virtual QString listName() const { return tr( "Decorated table" ); }
-    virtual QString description() const { return tr( "Table with selectable rows." ); }
-    virtual PHIWID wid() const { return DecoratedTable; }
-    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/table" ) ); }
-    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
-
-protected:
-    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual void setWidgetText( const QString &t );
-    virtual void ideInit();
-
-private:
-    void initWidget();
-};
-
 #endif // PHIMISCITEMS_H

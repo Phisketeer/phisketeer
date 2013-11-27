@@ -24,6 +24,7 @@
 #include "philistitems.h"
 #include "phicalendaritems.h"
 #include "phimiscitems.h"
+#include "phitableitems.h"
 #include "phi.h"
 
 class PHIInput : public PHIItemPlugin

@@ -213,8 +213,8 @@ public: // not usable by script engine
     void privateUpdateData();
     void privateStaticCSS( const PHIRequest *req, QByteArray &out ) const;
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
-    virtual PHIWID htmlHeaderExtension( QByteArray &headerOut ) const { Q_UNUSED( headerOut ); return 0; }
-    virtual PHIWID htmlScriptExtension( QByteArray &globalJQuery ) const { Q_UNUSED( globalJQuery ); return 0; }
+    virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &headerOut ) const { Q_UNUSED( req ) Q_UNUSED( headerOut ) return 0; }
+    virtual PHIWID htmlScriptExtension( const PHIRequest *req, QByteArray &globalJQuery ) const { Q_UNUSED(req ) Q_UNUSED( globalJQuery ) return 0; }
     QByteArray save( int version );
 
     //virtual functions
@@ -226,7 +226,7 @@ public: // not usable by script engine
     inline virtual bool hasMaxLength() const { return false; }
     inline virtual bool hasDelimiter() const { return false; }
     inline virtual bool hasGradient() const { return false; }
-    inline virtual bool hasExtension() const { return false; } // HTML header & script
+    inline virtual bool hasHtmlExtension() const { return false; } // HTML header & script
     inline virtual bool isCheckable() const { return false; } // radio & checkboxes
     inline virtual bool isFocusable() const { return false; }
     inline virtual bool isInputItem() const { return false; } // has form data

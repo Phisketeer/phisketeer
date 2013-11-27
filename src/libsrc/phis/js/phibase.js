@@ -25,7 +25,7 @@ function PhiItem( obj ) {
     e.pageY=e.pageY-parseInt(o.top+0.5);
     return e;
   };
-  this._ax=0;this._ay=0;this._aw=0;this._ah=0;
+  this._x=0;this._y=0;this._w=0;this._h=0;this._a=false;
   this.wid=function(){return this._wid;};
   this.id=function(){return obj.id;};
   this.getContext=function(s){return phi.getElementById(obj.id).getContext(s);};
@@ -50,9 +50,10 @@ function PhiItem( obj ) {
   };
   this.moveTo=function( l, t, s, d, e ) {
     var o={queue:false,duration:(d?d:1000),easing:e};
+    var x=this.x(),y=this.y(),_a=this._a,_x=this._x,_y=this._y;
     setTimeout( function(){
-      if (l!=parseInt(j(id).css('left')))j(id).animate({left:l},o);
-      if (t!=parseInt(j(id).css('top')))j(id).animate({top:t},o);
+      if (l!=x) j(id).animate({left:l+_x},o);
+      if (t!=y) j(id).animate({top:t+_y},o);
     },s?s:0 );return this;
   };
   this.moveBy=function( dx, dy, dw, dh, s, d, e ) {
@@ -72,25 +73,28 @@ function PhiItem( obj ) {
     },s?s:0 );return this;
   };
   this.pos=function(l,t){
-    if(l===undefined)return {left:parseInt(j(id).css('left')),top:parseInt(j(id).css('top'))};
-    j(id).css({left:l,top:t});return this;
+    if(l===undefined)return {left:parseInt(j(id).css('left'))+this._a?this._x:0,
+        top:parseInt(j(id).css('top'))+this._a?this._y:0};
+    j(id).css({left:l+this._a?this._x:0,top:t+this._a?this._y:0});return this;
   };
   this.width=function(w){
-    if(w===undefined)return parseInt(j(id).css('width'));
-    j(id).css('width',w); return this;
+    if(w===undefined)return parseInt(j(id).css('width'))-this._w;
+    j(id).css('width',w+this._w); return this;
   };
   this.height=function(h){
-    if(h===undefined)return parseInt(j(id).css('height'));
-    j(id).css('height',h); return this;
+    if(h===undefined)return parseInt(j(id).css('height'))-this._h;
+    j(id).css('height',h+this._h); return this;
   };
-  this.left=function(l){
-    if(l===undefined)return parseInt(j(id).css('left'));
-    j(id).css('left',l); return this;
+  this.x=function(l){
+    if(l===undefined)return parseInt(j(id).css('left'))-this._x;
+    j(id).css('left',l+this._x); return this;
   };
-  this.top=function(t){
-    if(t===undefined)return parseInt(j(id).css('top'));
-    j(id).css('top',t); return this;
+  this.y=function(t){
+    if(t===undefined)return parseInt(j(id).css('top'))-this._y;
+    j(id).css('top',t+this._y); return this;
   };
+  this.left=function(l){return this.x(l);};
+  this.top=function(t){return this.y(t);};
   this.zIndex=function(i){
     if(i===undefined)return parseInt(j(id).css('zIndex'));
     j(id).css('zIndex',i); return this;
@@ -136,11 +140,6 @@ function PhiItem( obj ) {
         {j(id).hide().css({height:h});}});}
     },s?s:0 );return this;
   };
-  this.html=function( v ) {
-    if(!j(id).hasClass('phi_41')&&!j(id).hasClass('phi_29'))return this;
-    if(v===undefined)return j(id).html();
-    j(id).html(v);return this;
-  };
   this.title=function( t ) {
     if(t===undefined)return j(id).attr('title');
     j(id).attr('title',t);return this;
@@ -158,7 +157,7 @@ function PhiItem( obj ) {
   };
   this.selected=function( v, s ){
     if(v===undefined){
-        var arr = new Array(); var i=0;
+        var arr = []; var i=0;
         j(id+' option:selected').each( function(){ arr[i++]=j(this).attr('value') });
         return arr;
     }
@@ -268,8 +267,8 @@ function Phi(l,s){
     };
   };
   j( function($){ $(window).on( 'load', phi.onload ); });
+  j.noConflict();
 };
-jQuery.noConflict();
 
 var $=function( id ){
   var j=jQuery;
@@ -291,20 +290,20 @@ var $=function( id ){
 
 phiInit=function( s, i, x, y, w, h)
 {
-    var o=$(s); var j=jQuery;
+    var o=$(s);
     if ( o===undefined ) return;
     o._wid=i;
-    if ( x ) o._ax=x;
-    if ( y ) o._ay=y;
-    if ( w ) o._aw=w;
-    if ( h ) o._ah=h;
+    if ( x ) o._x=x;
+    if ( y ) o._y=y;
+    if ( w ) o._w=w;
+    if ( h ) o._h=h;
 }
 
 phiSlideShow=function( s, c ){
     var j=jQuery;
     for (i=1;i<c;i++) {$(s+'_phi_'+i).hide();}
     var o=$(s);
-    o._fi=4000;o._ft=2000;o._cnt=c;o._cur=0;o._id=s;
+    o._fi=4000;o._ft=2000;o._cnt=c;o._cur=0;o._id=s;o._wid=44;
     o.count=function() { return o._cnt; };
     o.start=function() {
         var n=o._cur+1; if( n>=o._cnt ) n=0;
@@ -356,4 +355,54 @@ phiSlideShow=function( s, c ){
     o.start();
     o.mouseover(function(){o.stop();});
     o.mouseout(function(){o.start();});
+};
+
+phiGrid=function( s, m, d, n, v, h ) {
+    var j=jQuery;
+    var o=$(s);
+    o._h=h; o._l=[]; o._wid=46; o._v=v; o._n=(n?1:0); o._c=[]; o._b=[];
+    o.height=function(h){
+        if(h===undefined) return parseInt(j('#'+s).css('height'));
+        j('#'+s).css( 'height', h );
+        j('#'+s+'_phit').jqGrid('setGridHeight',h+o._h); return o;
+    };
+    o._cellfn=function(r,v,u,cm) {
+        var s=String();
+        var t=o._c[r+'.'+cm.name];
+        if ( t!==undefined ) s='color:'+t+';'
+        t=o._b[r+'.'+cm.name];
+        if ( t!==undefined ) s+='background-color:'+t;
+        else s+='background-color:transparent';
+        return 'style="'+s+'"';
+    };
+
+    j('#'+s+'_phit').jqGrid({colModel:m,datatype:'jsonstring',gridview:true,autowidth:true,height:o.height()+h,cmTemplate:{sortable:false,cellattr:o._cellfn},
+        jsonReader:{root:'d',page:'p',total:'t',records:'r',cell:'c',id:'i'},datastr:d,viewsortcols:[true,'vertical',true],rownumbers:n,
+        onSelectRow:function(id){j('#'+s+'_phi').val(o._v[parseInt(id)]);o.currentRowChanged(parseInt(id));},sortable:true});
+    o.label=function(c,l) {
+        c=parseInt(c);
+        if ( l===undefined ) return o._l[c];
+        o._l[c]=l;
+        j('#'+s+'_phit').setLabel(String(c),l);
+        return o;
+    };
+    o.cellText=function(r,c,t){
+        r=parseInt(r);c=parseInt(c);
+        if ( t===undefined ) return j('#'+s+'_phit').jqGrid('getCell',String(r),String(c+o._n));
+        j('#'+s+'_phit').jqGrid('setCell',String(r),String(c+o._n),t,'','',true);
+        return o;
+    };
+    o.cellColor=function(r,c,t){
+        r=parseInt(r);c=parseInt(c);
+        o._c[r+'.'+c]=t;
+        j('#'+s+'_phit').jqGrid('setCell',String(r),String(c+o._n),'',{color:t},'',false);
+        return o;
+    };
+    o.cellBgColor=function(r,c,t){
+        r=parseInt(r);c=parseInt(c);
+        o._b[r+'.'+c]=t;
+        j('#'+s+'_phit').jqGrid('setCell',String(r),String(c+o._n),'',{backgroundColor:t},'',false);
+        return o;
+    };
+    o.currentRowChanged=function(id){};
 };

@@ -258,11 +258,16 @@ QScriptValue PHIBasePage::createElementById( PHIWID wid, const QString &id,
     it->setY( y );
     if ( width > 0 ) it->setWidth( width );
     if ( height > 0 ) it->setHeight( height );
-    QByteArray ext, script;
-    PHIWID extWid=it->htmlHeaderExtension( ext );
-    if ( extWid ) insertHtmlHeaderExtension( extWid, ext );
-    extWid=it->htmlScriptExtension( script );
-    if ( extWid ) insertHtmlJQueryExtension( extWid, script );
+    // @todo: add extensions for HTML generation
+    /*
+    if ( it->hasHtmlExtension() ) {
+        QByteArray ext, script;
+        PHIWID extWid=it->htmlHeaderExtension( ext );
+        if ( extWid ) insertHtmlHeaderExtension( extWid, ext );
+        extWid=it->htmlScriptExtension( script );
+        if ( extWid ) insertHtmlScriptExtension( extWid, script );
+    }
+    */
     PHIDomItem *dom=new PHIDomItem( it );
     return scriptEngine()->newQObject( dom, QScriptEngine::ScriptOwnership,
         QScriptEngine::PreferExistingWrapperObject |
@@ -383,9 +388,11 @@ void PHIBasePage::createCSSFile( const PHIRequest *req ) const
         out+=".phihighlightedtext{color:"+_pal.color( PHIPalette::HighlightText ).name().toLatin1()+"}\n";
         out+=".phibase{background-color:"+_pal.color( PHIPalette::Base ).name().toLatin1()+"}\n";
         out+=".phitext{color:"+_pal.color( PHIPalette::Text ).name().toLatin1()+"}\n";
+        out+=".phiwindow{background-color:transparent}\n";
         out+=".phiwindowtext{color:"+_pal.color( PHIPalette::WindowText ).name().toLatin1()+"}\n";
         out+=".phierror{background-color:"+_pal.color( PHIPalette::Error ).name().toLatin1()+"}\n";
         out+=".phierrortext{background-color:"+_pal.color( PHIPalette::ErrorText ).name().toLatin1()+"}\n";
+        out+=".phicleartablecell{background-color:transparent;background-image:none}\n";
         if ( _flags & FPageLeftAlign ) {
             out+=".phicontent{z-index:0;display:block;position:relative;left:0;top:0;width:"
                 +QByteArray::number( _width )+"px;margin:0;padding:0}\n";
@@ -445,6 +452,7 @@ void PHIBasePage::genJQueryThemeFile( const PHIRequest *req ) const
         icons.save( req->imgDir()+SL( "/uibgimgurloverlay.png" ), png );
         icons.load( SL( ":/bgImgUrlHighlight" ) );
         icons.save( req->imgDir()+SL( "/uibgimgurlhighlight.png" ), png );
+        // @todo: Check for missing image url replacements
     }
     QString theme;
     QFile f( SL( ":/ui-theme.css" ) ); //jquery ui theme CSS
@@ -548,12 +556,18 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     foreach ( tmp, _scriptExtensions.values() ) script+=tmp;
     foreach ( tmp, _headerExtensions.values() ) out+='\t'+tmp;
     out+=BL( "</head>\n<body>\n<div id=\"phihtml\" class=\"phicontent\">\n" );
+    if ( _flags & FHasAction ) {
+        out+=BL( "<form id=\"phiform\" action=\"" )+_variants.value( DAction ).toByteArray()
+            +BL( "\" method=\"post\" enctype=\"multipart/form-data\""
+                 " onsubmit=\"return phi.onsubmit();\" accept-charset=\"utf-8\">\n" );
+    }
     const PHIBaseItem *it;
     const QList <const PHIBaseItem*> children=findChildren<const PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly);
     foreach( it, children ) {
         if ( it->isChild() ) continue; // handled by layouts
         it->html( req, out, script, indent );
     }
+    if ( _flags & FHasAction ) out+=BL( "</form>\n" );
     out+=BL( "</div>\n<script type=\"text/javascript\">\n/* <![CDATA[ */\n" );
     out+=BL( "var phi=new Phi('" )+_currentLang+BL( "','" )
         +_variants.value( DSession ).toByteArray()+BL( "');\n" )+script;
@@ -716,10 +730,6 @@ void PHIBasePage::copyMasterData( const PHIBasePage *m )
     }
     if ( _menuEntries.count()==0 ) {
         _menuEntries=m->menuEntries();
-    }
-    PHIWID wid;
-    foreach ( wid, m->htmlHeaderExtensions().keys() ) {
-        _headerExtensions.insert( wid, m->htmlHeaderExtensions().value( wid ) );
     }
 }
 
