@@ -355,6 +355,11 @@ public:
     inline QString realValue() const { return QString::fromUtf8( data( DValue ).toByteArray() ); }
     inline void setValue( const QString &v ) { setData( DValue, v.toUtf8() ); }
 
+public slots:
+    QScriptValue val( const QScriptValue &v );
+    QScriptValue readOnly( const QScriptValue &r );
+    QScriptValue accessKey( const QScriptValue &a );
+
 protected:
     virtual void ideUpdateData();
     virtual void squeeze();

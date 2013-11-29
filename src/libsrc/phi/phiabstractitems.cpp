@@ -1026,3 +1026,24 @@ void PHIAbstractInputItem::phisParseData( const PHIDataParser &parser )
     PHIAbstractTextItem::phisParseData( parser );
     if ( dirtyFlags() & DFReadOnlyData ) setReadOnly( parser.text( &_readOnlyData ).toBool() );
 }
+
+QScriptValue PHIAbstractInputItem::readOnly( const QScriptValue &r )
+{
+    if ( !r.isValid() ) return realReadOnly();
+    setReadOnly( r.toBool() );
+    return self();
+}
+
+QScriptValue PHIAbstractInputItem::val( const QScriptValue &v )
+{
+    if ( !v.isValid() ) return realText();
+    setText( v.toString() );
+    return self();
+}
+
+QScriptValue PHIAbstractInputItem::accessKey( const QScriptValue &a )
+{
+    if ( !a.isValid() ) return realAccessKey();
+    setAccessKey( a.toString() );
+    return self();
+}

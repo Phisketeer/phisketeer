@@ -214,7 +214,7 @@ public: // not usable by script engine
     void privateStaticCSS( const PHIRequest *req, QByteArray &out ) const;
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &headerOut ) const { Q_UNUSED( req ) Q_UNUSED( headerOut ) return 0; }
-    virtual PHIWID htmlScriptExtension( const PHIRequest *req, QByteArray &globalJQuery ) const { Q_UNUSED(req ) Q_UNUSED( globalJQuery ) return 0; }
+    virtual PHIWID htmlScriptExtension( const PHIRequest *req, QByteArray &globalScript ) const { Q_UNUSED(req ) Q_UNUSED( globalScript ) return 0; }
     QByteArray save( int version );
 
     //virtual functions

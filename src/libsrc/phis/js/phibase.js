@@ -355,57 +355,113 @@ $.phi=function( s, i, x, y, w, h ) {
     if ( y ) o._y=y;
     if ( w ) o._w=w;
     if ( h ) o._h=h;
+    if ( i<3 || (i>49 && i<55) ) {
+        o.val=function( t ) {
+            if ( t===undefined ) return j( '#'+s ).val();
+            j( '#'+s ).val( t ); return o;
+        };
+        o.readOnly=function( r ) {
+            if ( r===undefined ) return j( '#'+s ).prop( 'readOnly' );
+            j( '#'+s ).prop( 'readOnly',r ); return o;
+        };
+        o.accessKey=function( a ) {
+            if ( a===undefined ) return j( '#'+s ).attr( 'accesskey' );
+            j( '#'+s ).attr( 'accesskey', a );
+        };
+    }
     return o;
 };
 
-$.grid=function( s, m, d, n, v, h, a ) {
-    var j=jQuery;
-    var o=$(s);
-    o._h=h; o._l=[]; o._wid=46; o._v=v; o._n=(n?1:0); o._c=[]; o._b=[];
-    if ( a ) {o._wid=43;o._n++;}
-    o.height=function(h){
-        if(h===undefined) return parseInt(j('#'+s).css('height'));
-        j('#'+s).css( 'height', h );
-        j('#'+s+'_phit').jqGrid('setGridHeight',h+o._h); return o;
-    };
-    o._cellfn=function(r,v,u,cm) {
-        var s=String();
-        var t=o._c[r+'.'+cm.name];
+$.table=function( s, m, d, n, v, h, ms, chk ) {
+    var j=jQuery, o=$(s), gid='#'+s+'_phit';
+    if ( o===undefined ) return o;
+    o._h=h; o._l=[]; o._wid=(ms?43:46); o._v=v; o._c=[]; o._b=[]; o._chk=chk; o._hr=[];
+    o._cellFn=function(r,v,u,cm) {
+        r=parseInt(r); var c=parseInt(cm.name);
+        var s='', t=o._c[r+'.'+c];
         if ( t!==undefined ) s='color:'+t+';'
-        t=o._b[r+'.'+cm.name];
+        t=o._b[r+'.'+c];
         if ( t!==undefined ) s+='background-color:'+t;
         else s+='background-color:transparent;background-image:none';
         return 'style="'+s+'"';
     };
-
-    j('#'+s+'_phit').jqGrid({colModel:m,datatype:'jsonstring',gridview:true,autowidth:true,height:o.height()+h,cmTemplate:{sortable:false,cellattr:o._cellfn},
-        jsonReader:{root:'d',page:'p',total:'t',records:'r',cell:'c',id:'i'},datastr:d,viewsortcols:[true,'vertical',true],rownumbers:n,
-        onSelectRow:function(id){j('#'+s+'_phi').val(o._v[parseInt(id)]);o.currentRowChanged(parseInt(id));},sortable:true,multiselect:a});
+    o._selRowFn=function(id,c){
+        if ( o._wid===46 ) j('#'+s+'_phi').val(o._v[parseInt(id)]);
+        o.currentRowChanged(parseInt(id));
+    };
+    o._completeFn=function() {
+        for ( i=0; i<o.rowCount(); i++ ) {
+            if ( o._hr[i] ) o.hideRow( i );
+            if ( ms ) {
+                j('#jqg_'+j(gid)[0].id+'_'+i+'r' ).val(o._v[i])
+                    .attr( 'name', s ).prop('checked',o._chk[i]);
+            }
+        }
+    };
+    o._getRowForName=function(r) {
+        for ( i=0; i< o.rowCount(); i++ ) { if ( o._v[i]===r ) return i; }
+        return undefined;
+    };
+    o.rowCount=function(){ return j(gid).jqGrid('getGridParam','reccount');};
+    o.height=function(h){
+        if(h===undefined) return parseInt(j('#'+s).css('height'));
+        j('#'+s).css( 'height', h );
+        j(gid).jqGrid('setGridHeight',h+o._h); return o;
+    };
     o.label=function(c,l) {
         c=parseInt(c);
         if ( l===undefined ) return o._l[c];
         o._l[c]=l;
-        j('#'+s+'_phit').setLabel(String(c),l);
+        j(gid).setLabel(c+'c',l);
         return o;
     };
     o.cellText=function(r,c,t){
         r=parseInt(r);c=parseInt(c);
-        if ( t===undefined ) return j('#'+s+'_phit').jqGrid('getCell',String(r),String(c+o._n));
-        j('#'+s+'_phit').jqGrid('setCell',String(r),String(c+o._n),t,'','',true);
+        if ( t===undefined ) return j(gid).jqGrid('getCell',r+'r',c+'c');
+        j(gid).jqGrid('setCell',r+'r',c+'c',t,'','',true);
         return o;
     };
     o.cellColor=function(r,c,t){
         r=parseInt(r);c=parseInt(c);
         o._c[r+'.'+c]=t;
-        j('#'+s+'_phit').jqGrid('setCell',String(r),String(c+o._n),'',{color:t},'',false);
+        j(gid).jqGrid('setCell',r+'r',c+'c','',{color:t},'',false);
         return o;
     };
     o.cellBgColor=function(r,c,t){
         r=parseInt(r);c=parseInt(c);
         o._b[r+'.'+c]=t;
-        j('#'+s+'_phit').jqGrid('setCell',String(r),String(c+o._n),'',{backgroundColor:t},'',false);
+        j(gid).jqGrid('setCell',r+'r',c+'c','',{backgroundColor:t},'',false);
         return o;
     };
-    o.currentRowChanged=function(id){};
+    o.checked=function(r,c) {
+        if ( !ms ) return undefined;
+        if ( c===undefined ) {
+            if ( typeof(r)==='string' ) r=o._getRowForName(r);
+            if ( typeof(r)==='number' ) return o._chk[r];
+            return undefined;
+        }
+        if ( typeof(r)==='string' ) r=o._getRowForName(r);
+        if ( typeof(r)!=='number' ) return o;
+        o._chk[r]=c?1:0;
+        j(gid).jqGrid().trigger('reloadGrid');
+        return o;
+    };
+    o.currentRowChanged=function(id,v){};
+    o.addRow=function(d) { o._v[o.rowCount()]=d;j(gid).jqGrid('addRowData',o.rowCount()+'r',{},'last'); return o; };
+    o.hideCol=function(c) { j(gid).jqGrid('hideCol',parseInt(c)+'c');return o;};
+    o.showCol=function(c) { j(gid).jqGrid('showCol',parseInt(c)+'c');return o;};
+    o.hideRow=function(r) { o._hr[parseInt(r)]=1; j('#'+parseInt(r)+'r',gid).css({display:'none'});return o;};
+    o.showRow=function(r) { o._hr[parseInt(r)]=0; j(gid).jqGrid().trigger('reloadGrid');return o; };
+    o.clear=function(r) { o._v=[]; o._chk=[]; o._c=[]; o._b=[]; o._hr=[]; j(gid).jqGrid('clearGridData').trigger('reloadGrid');};
+    var g=j(gid).jqGrid({colModel:m,datatype:'jsonstring',gridview:true,autowidth:true,height:o.height()+h,cmTemplate:{sortable:false,cellattr:o._cellFn},
+        jsonReader:{root:'d',page:'p',total:'t',records:'r',cell:'c',id:'i'},datastr:d,viewsortcols:[true,'vertical',true],rownumbers:n,
+        onSelectRow:o._selRowFn,sortable:true,multiselect:ms,gridComplete:o._completeFn});
+    if ( ms ) {
+        j('#cb_'+g[0].id).hide();
+        j('#jqgh_'+g[0].id+'_cb').addClass('ui-jqgrid-sortable');
+        var cm=g.jqGrid('getColProp','cb');
+        cm.sortable=true;
+        cm.sorttype=function(v,i) { return 'cb' in i && i.cb ? 1 : 0; };
+    }
     return o;
 };

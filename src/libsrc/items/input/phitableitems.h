@@ -64,6 +64,7 @@ public:
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual PHIConfigWidget* ideConfigWidget();
     virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const;
+    virtual PHIWID htmlScriptExtension( const PHIRequest *req, QByteArray &script ) const;
     virtual bool hasHtmlExtension() const { return true; }
     virtual bool hasDelimiter() const { return true; }
 

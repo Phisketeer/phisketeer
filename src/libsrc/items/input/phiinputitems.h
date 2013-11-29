@@ -42,10 +42,8 @@ public:
     void setPlaceholder( const QString &t );
     QString realPlaceholder() const { return QString::fromUtf8( data( DPlaceholder ).toByteArray() ); }
 
-public slots:
-    virtual void setReadOnly( bool b );
-
 protected:
+    virtual void setReadOnly( bool b );
     virtual void initWidget();
     virtual void setWidgetText( const QString &s );
     virtual void ideUpdateData();
@@ -138,12 +136,10 @@ public:
     virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
-public slots:
-    virtual void setReadOnly( bool b );
-
 protected:
     virtual bool isSingleLine() const { return false; }
     virtual void setWidgetText( const QString &t );
+    virtual void setReadOnly( bool b);
 
 private:
     void initWidget();
@@ -185,12 +181,10 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
     virtual void ideInit();
 
-public slots:
-    virtual void setReadOnly( bool b );
-
 protected:
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void setReadOnly( bool b );
 
 private:
     void initWidget();
@@ -212,12 +206,10 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
     virtual void ideInit();
 
-public slots:
-    virtual void setReadOnly( bool b );
-
 protected:
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void setReadOnly( bool b );
 
 private:
     void initWidget();

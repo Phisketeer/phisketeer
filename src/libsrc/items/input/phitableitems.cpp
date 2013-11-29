@@ -348,8 +348,11 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
 {
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
-    out+=BL( "\"><table id=\"" )+id()+BL( "_phit\"></table><input type=\"hidden\" id=\"" )
-        +id()+BL( "_phi\" name=\"" )+id()+BL( "\"></div>\n" );
+    out+=BL( "\"><table id=\"" )+id()+BL( "_phit\"></table>" );
+    if ( wid()==DecoratedTable ) {
+        out+=BL( "<input type=\"hidden\" id=\"" )+id()+BL( "_phi\" name=\"" )+id()+BL( "\">" );
+    }
+    out+=BL( "</div>\n" );
     PHIByteArrayList rows;
     if ( realDelimiter().length()>1 ) {
         // expensive utf8->string->utf8 conversion:
@@ -361,7 +364,7 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
         PHIByteArrayList cols=rows.first().split( '|' );
         QByteArray def=BL( "[" ), labels, row, values=BL( "['" );
         QByteArray data=BL( "\n\"{'p':'1','t':'1','r':'" )+QByteArray::number( rows.count()-1 )+BL( "','d':[\"\n" );
-        QByteArray colspec;
+        QByteArray colspec, checks=BL( "[" );
         for ( int i=0; i<cols.count(); i++ ) {
             if ( i < colTypes().count() ) {
                 colspec.clear();
@@ -382,8 +385,8 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
                 else colspec+=BL( "'text'" );
                 if ( w>0 ) colspec+=BL( ",width:" )+QByteArray::number( w );
             }
-            labels+=BL( ".label(" )+QByteArray::number( i )+BL( ",'" )+cols.at( i )+BL( "')" );
-            def+=BL( "{name:'" )+QByteArray::number( i )+'\''+colspec+BL( "}," );
+            labels+=BL( ".label(" )+QByteArray::number( i )+BL( ",'" )+cols[i].replace( '\'', BL( "\\\\'" ) )+BL( "')" );
+            def+=BL( "{name:'" )+QByteArray::number( i )+BL( "c'" )+colspec+BL( "}," );
         }
         for ( int i=1; i<rows.count(); i++ ) {
             row=rows.at( i );
@@ -396,29 +399,42 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
             if ( start!=-1 && end !=-1 ) {
                 v=row.mid( start+1, end-start-1 );
                 row.replace( start, end-start+1, QByteArray() );
+                if ( wid()==CheckList ) {
+                    start=row.indexOf( '[' );
+                    end=row.indexOf( ']' );
+                    if ( start!=-1 && end !=-1 ) { // check or uncheck value
+                        QByteArray chk=row.mid( start+1, end-start-1 );
+                        row.replace( start, end-start+1, QByteArray() );
+                        if ( chk.toLower()==BL( "true" ) || chk.toInt() ) checks+=BL( "1," );
+                        else checks+=BL( "0," );
+                    } else checks+=BL( "0," );
+                }
             } else {
                 start=row.indexOf( '|' );
                 v=row.mid( 0, start );
+                if ( wid()==CheckList ) checks+=BL( "0," );
             }
             values+=v+BL( "','" );
             if ( realDelimiter()!=L1( "\n" ) ) row.replace( '\n', BL( "<br>" ) );
-            data+=BL( "+\"{'i':'" )+QByteArray::number( i-1 )+BL( "',c:['");
+            data+=BL( "+\"{'i':'" )+QByteArray::number( i-1 )+BL( "r',c:['");
             //if ( options() & PHIDecoratedTableItem::ShowRowIndex ) data+=QByteArray::number( i )+BL( "','" );
             data+=row.replace( '|', BL( "','" ) )+BL( "']},\"\n" );
         }
         data.chop( 3 ); // remove last ",\"\n"
         def.chop( 1 ); // remove last ","
         values.chop( 2 ); // remove ",'"
+        if ( checks.size()>1 ) checks.chop( 1 ); // remove ","
         labels+=BL( ";\n" );
         data+=BL( "]}\"" );
         values+=']';
-        script+=BL( "$.grid('" )+id()+BL( "'," )+def+BL( "]," )+data+',';
+        checks+=']';
+        script+=BL( "$.table('" )+id()+BL( "'," )+def+BL( "]," )+data+',';
         if ( options() & PHIDecoratedTableItem::ShowRowIndex ) script+=BL( "true,\n" );
         else script+=BL( "false,\n" );
         script+=values+','+QByteArray::number(-25)+',';
-        if ( wid()==CheckList ) script+=BL( "true" );
+        if ( wid()==CheckList ) script+=BL( "true," )+checks;
         else script+=BL( "false" );
-        script+=')'+labels;
+        script+=BL( ")\n" )+labels;
     }
 }
 
@@ -427,6 +443,13 @@ PHIWID PHIDecoratedTableItem::htmlHeaderExtension( const PHIRequest *req, QByteA
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )
         header+=BL( "<script type=\"text/javascript\" src=\"phi.phis?j=ui-jqgridiefix\"></script>\n" );
     else header+=BL( "<script type=\"text/javascript\" src=\"phi.phis?j=ui-jqgrid\"></script>\n" );
+    return static_cast<PHIWID>(DecoratedTable);
+}
+
+PHIWID PHIDecoratedTableItem::htmlScriptExtension( const PHIRequest *req, QByteArray &script ) const
+{
+    Q_UNUSED( req )
+    script+=BL( "jQuery.jgrid.no_legacy_api=true;\n" );
     return static_cast<PHIWID>(DecoratedTable);
 }
 
