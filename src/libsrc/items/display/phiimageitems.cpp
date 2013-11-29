@@ -402,7 +402,7 @@ void PHISlideShowItem::html( const PHIRequest *req, QByteArray &out, QByteArray 
         ftime=QByteArray::number( realFadeIntervalMS() );
     }
     htmlImages( req, out, script, indent );
-    script+=BL( "phiSlideShow('" )+id()+BL( "'," )
+    script+=BL( "$.slideShow('" )+id()+BL( "'," )
         +QByteArray::number( imagePathes().count() )+BL( ");\n" );
     script+=BL( "$('" )+id()+BL( "').titles('")+data( DTmpTitle ).toByteArray()+BL( "');\n" );
     if ( realFadeIntervalMS()!=4000 ) script+=BL( "$('" )+id()+BL( "').fadeIntervalMS(" )

@@ -83,10 +83,12 @@ PHITableConfig::PHITableConfig( PHIBaseItem *it, QWidget *parent )
     _options=table->options();
     _altRowColors->setChecked( _options & PHIDecoratedTableItem::AltRowColors );
     _rowIndex->setChecked( _options & PHIDecoratedTableItem::ShowRowIndex );
+    _hideGrid->setChecked( _options & PHIDecoratedTableItem::HideGrid );
+    _hideBorder->setChecked( _options & PHIDecoratedTableItem::HideBorder );
     _selectMulti->setChecked( _options & PHIDecoratedTableItem::MultiSelection );
     _selectSingle->setChecked( _options & PHIDecoratedTableItem::SingleSelection );
     _selectNone->setChecked( !_selectMulti->isChecked() && !_selectSingle->isChecked() );
-    _selectMode->hide();
+    _selectMode->setEnabled( false );
 
     QComboBox *cb;
     QSpinBox *sp;
@@ -148,6 +150,8 @@ bool PHITableConfig::storeData()
     if ( _selectSingle->isChecked() ) opts |= PHIDecoratedTableItem::SingleSelection;
     if ( _selectMulti->isChecked() ) opts |= PHIDecoratedTableItem::MultiSelection;
     if ( _rowIndex->isChecked() ) opts |= PHIDecoratedTableItem::ShowRowIndex;
+    if ( _hideGrid->isChecked() ) opts |= PHIDecoratedTableItem::HideGrid;
+    if ( _hideBorder->isChecked() ) opts |= PHIDecoratedTableItem::HideBorder;
     if ( opts!=_options ) {
         _changed=true;
         table->setOptions( opts );
@@ -174,13 +178,15 @@ void PHIDecoratedTableItem::ideInit()
     setColor( PHIPalette::WidgetText, PHIPalette::Text, page()->phiPalette().color( PHIPalette::Text ) );
     setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
     textData()->setText( L1( "header1|header2|header3...\ncol1[submitdata]|col2" ) );
+    setOption( SingleSelection );
 }
 
 void PHIDecoratedTableItem::initWidget()
 {
     QTableWidget *t=new QTableWidget();
     setWidget( t );
-    t->setItemPrototype( new PHITableItem( QString() ) );
+    PHITableItem *it=new PHITableItem( QString() );
+    t->setItemPrototype( it );
     t->setFrameShape( QFrame::Box );
 }
 
@@ -190,31 +196,49 @@ void PHIDecoratedTableItem::setWidgetText( const QString &t )
     if ( !table ) return;
     table->clear();
     table->setSortingEnabled( true );
+    int off=0;
+    if ( wid()==CheckList ) off=1;
+
     QStringList list=t.split( realDelimiter() );
     table->setVerticalHeaderLabels( QStringList() );
     if ( list.count()>0 ) {
         QStringList headers=list.at( 0 ).split( L1( "|" ) );
+        if ( off ) headers.prepend( QString() );
         table->setColumnCount( headers.count() );
         table->setHorizontalHeaderLabels( headers );
         list.removeAt( 0 );
         table->setRowCount( list.count() );
         for ( int row=0; row<list.count(); row++ ) {
             QString line=list.at( row );
-            QString val;
+            QString val, checked=L1( "0" );
             int start=line.indexOf( L1( "[" ) );
             int end=line.indexOf( L1( "]" ) );
             if ( start!=-1 && end !=-1 ) {
                 val=line.mid( start+1, end-start-1 );
                 line.replace( start, end-start+1, QString() );
             }
+            start=line.indexOf( L1( "[" ) );
+            end=line.indexOf( L1( "]" ) );
+            if ( start!=-1 && end !=-1 ) {
+                checked=line.mid( start+1, end-start-1 );
+                line.replace( start, end-start+1, QString() );
+                if ( checked.toLower()==L1( "true" ) ) checked=L1( "1" );
+                else if ( checked.toInt() ) checked=L1( "1" );
+            }
             QStringList cols=line.split( L1( "|" ) );
             for ( int col=0; col<cols.count(); col++ ) {
                 PHITableItem *it=new PHITableItem( cols.at( col ) );
-                table->setItem( row, col, it );
+                Q_ASSERT( it );
+                table->setItem( row, col+off, it );
                 if ( col==0 ) {
                     if ( val.isEmpty() ) val=cols.at( 0 );
                     it->setData( Qt::UserRole, val );
                 }
+            }
+            if ( off ) {
+                QTableWidgetItem *it=new QTableWidgetItem();
+                it->setData( Qt::CheckStateRole, checked.toInt() ? Qt::Checked : Qt::Unchecked );
+                table->setItem( row, 0, it );
             }
         }
     }
@@ -227,26 +251,32 @@ void PHIDecoratedTableItem::updateWidget()
     if ( !table ) return;
     table->verticalHeader()->setVisible( options() & PHIDecoratedTableItem::ShowRowIndex );
     table->setAlternatingRowColors( options() & PHIDecoratedTableItem::AltRowColors );
+    table->setShowGrid( !(options() & PHIDecoratedTableItem::HideGrid) );
     QAbstractItemView::SelectionMode mode=QAbstractItemView::NoSelection;
     if ( options() & PHIDecoratedTableItem::SingleSelection ) mode=QAbstractItemView::SingleSelection;
     else if ( options() & PHIDecoratedTableItem::MultiSelection ) mode=QAbstractItemView::MultiSelection;
     table->setSelectionMode( mode );
     table->horizontalHeader()->setSortIndicatorShown( true );
+    if ( options() & HideBorder ) table->setFrameStyle( QFrame::NoFrame );
+    else table->setFrameStyle( QFrame::Box );
+    int off=0;
+    if ( wid()==CheckList ) {
+        table->setColumnWidth( 0, 28 );
+        off=1;
+    }
     for ( int col=0; col<colTypes().count(); col++ ) {
         quint8 align=colAlignments().at( col );
         quint8 type=colTypes().at( col );
         quint16 w=colWidths().at( col );
-        if ( w>0 ) table->setColumnWidth( col, static_cast<int>(w) );
-        else table->resizeColumnToContents( col );
+        if ( w>0 ) table->setColumnWidth( col+off, static_cast<int>(w) );
+        else table->resizeColumnToContents( col+off );
         for ( int row=0; row<table->rowCount(); row++ ) {
             PHITableItem *it=dynamic_cast<PHITableItem*>(table->item( row, col ));
-            if ( !it ) {
-                it=new PHITableItem( QString() );
-                table->setItem( row, col, it );
+            if ( it ) {
+                if ( align & ARight ) it->setTextAlignment( Qt::AlignRight | Qt::AlignVCenter  );
+                else if ( align & ACenter ) it->setTextAlignment( Qt::AlignCenter | Qt::AlignVCenter );
+                it->setCellType( static_cast<PHIDecoratedTableItem::CellType>(type) );
             }
-            if ( align & ARight ) it->setTextAlignment( Qt::AlignRight | Qt::AlignVCenter  );
-            else if ( align & ACenter ) it->setTextAlignment( Qt::AlignCenter | Qt::AlignVCenter );
-            it->setCellType( static_cast<PHIDecoratedTableItem::CellType>(type) );
         }
     }
 }
@@ -254,7 +284,7 @@ void PHIDecoratedTableItem::updateWidget()
 void PHIDecoratedTableItem::squeeze()
 {
     PHIAbstractInputItem::squeeze();
-    if ( options()==0 ) removeData( DOptions );
+    if ( options()==SingleSelection ) removeData( DOptions );
     if ( realDelimiter()==L1( "\n" ) ) removeData( DDelimiter );
     if ( colTypes().count()==0 ) {
         removeData( DColType );
@@ -279,6 +309,41 @@ QScriptValue PHIDecoratedTableItem::delimiter( const QScriptValue &d )
     return self();
 }
 
+void PHIDecoratedTableItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
+{
+    QByteArray col, bgCol, head, high, sel, highTxt;
+    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
+        col=cssRgba( color( PHIPalette::WidgetText ) );
+        bgCol=cssRgba( color( PHIPalette::WidgetBase ) );
+        if ( backgroundColorRole()==PHIPalette::Window ) bgCol=BL( "transparent" );
+        head=cssRgba( page()->phiPalette().color( PHIPalette::ButtonText ) );
+        high=cssRgba( page()->phiPalette().color( PHIPalette::Highlight ) );
+        // @todo: choose appropriate hover color
+        sel=cssRgba( page()->phiPalette().color( PHIPalette::Error ) );
+        highTxt=cssRgba( page()->phiPalette().color( PHIPalette::HighlightText) );
+    } else {
+        col=color( PHIPalette::PHIPalette::WidgetText ).name().toLatin1();
+        bgCol=color( PHIPalette::PHIPalette::WidgetBase ).name().toLatin1();
+        if ( backgroundColorRole()==PHIPalette::Window ) bgCol=BL( "" );
+        head=page()->phiPalette().color( PHIPalette::ButtonText ).name().toLatin1();
+        high=page()->phiPalette().color( PHIPalette::Highlight ).name().toLatin1();
+        sel=page()->phiPalette().color( PHIPalette::Error ).name().toLatin1();
+        highTxt=page()->phiPalette().color( PHIPalette::HighlightText).name().toLatin1();
+    }
+    out+='#'+id()+BL( " .ui-jqgrid{background-color:" )+bgCol+BL( " !important;background-image:none !important}\n" );
+    out+='#'+id()+BL( " .ui-jqgrid .ui-jqgrid-bdiv td{color:" )+col+BL( "}\n" );
+    out+='#'+id()+BL( " .ui-jqgrid-labels .ui-th-column{color:" )+head+BL( "}\n" );
+    out+='#'+id()+BL( " .ui-jqgrid .ui-jqgrid-bdiv .ui-state-highlight{border-color:#cccccc;background:none;background-color:" )+sel+BL( "}\n" );
+    out+='#'+id()+BL( " .ui-jqgrid .ui-jqgrid-bdiv .ui-state-hover{background-color:" )+high+BL( ";color:" )+highTxt+BL( "}\n" );
+    if ( options() & HideGrid ) {
+        out+='#'+id()+BL( " .ui-jqgrid tr.ui-row-ltr td{border-color:transparent}\n" );
+        out+='#'+id()+BL( " .ui-jqgrid tr.ui-row-rtl td{border-color:transparent}\n" );
+    }
+    if ( options() & HideBorder ) {
+        out+='#'+id()+BL( " .ui-jqgrid{border-color:transparent}\n" );
+    }
+}
+
 void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     out+=indent+BL( "<div" );
@@ -294,7 +359,7 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
     } else rows=data( DText ).toByteArray().split( realDelimiter().toUtf8()[0] );
     if ( rows.count()>0 ) {
         PHIByteArrayList cols=rows.first().split( '|' );
-        QByteArray def=BL( "[" ), labels=BL( "$('" )+id()+BL( "')" ), row, values=BL( "['" );
+        QByteArray def=BL( "[" ), labels, row, values=BL( "['" );
         QByteArray data=BL( "\n\"{'p':'1','t':'1','r':'" )+QByteArray::number( rows.count()-1 )+BL( "','d':[\"\n" );
         QByteArray colspec;
         for ( int i=0; i<cols.count(); i++ ) {
@@ -347,11 +412,14 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
         labels+=BL( ";\n" );
         data+=BL( "]}\"" );
         values+=']';
-        script+=BL( "phiGrid('" )+id()+BL( "'," )+def+BL( "]," )+data+',';
+        script+=BL( "$.grid('" )+id()+BL( "'," )+def+BL( "]," )+data+',';
         if ( options() & PHIDecoratedTableItem::ShowRowIndex ) script+=BL( "true,\n" );
         else script+=BL( "false,\n" );
-        script+=values+','+QByteArray::number(-25)+BL( ");\n" )+labels;
-    }  // empty table
+        script+=values+','+QByteArray::number(-25)+',';
+        if ( wid()==CheckList ) script+=BL( "true" );
+        else script+=BL( "false" );
+        script+=')'+labels;
+    }
 }
 
 PHIWID PHIDecoratedTableItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const
@@ -367,3 +435,9 @@ PHIConfigWidget* PHIDecoratedTableItem::ideConfigWidget()
     return new PHITableConfig( this );
 }
 
+void PHICheckListItem::ideInit()
+{
+    PHIDecoratedTableItem::ideInit();
+    setOption( SingleSelection, false );
+    setOption( MultiSelection );
+}

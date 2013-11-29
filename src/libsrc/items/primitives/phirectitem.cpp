@@ -178,7 +178,6 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
             QPointF off=boundingRect().topLeft();
             if ( hasTransformation() ) off=computeTransformation( false ).map( off );
             setAdjustedRect( QRectF( off, realSize() ) );
-            htmlAdjustedPos( script );
         }
         if ( effect()->graphicsType()==PHIEffect::GTShadow ) {
             QByteArray prefix=req->agentPrefix();
@@ -200,9 +199,8 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
         QByteArray imgId=PHIDataParser::createTransformedImage( req, this, 0, br );
         out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
         setAdjustedRect( br );
-        htmlAdjustedPos( script );
-        htmlAdjustedSize( script );
     }
+    htmlInitItem( script );
 }
 
 void PHIRectItem::loadItemData( QDataStream &in, int version )

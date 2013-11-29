@@ -107,7 +107,7 @@ public:
         LINK=23, TAB=24, TEXT=29,
         LANG_SELECTOR=33, LAYOUT_DELIVERY=35,
         ROLLOVER_BUTTON=37,
-        RICH_TEXT=41, CHECK_LIST=43, IMAGE_BOOK=45,
+        RICH_TEXT=41, IMAGE_BOOK=45,
         HTML_DOC=49, FACEBOOK_LIKE=55, GOOGLE_STATIC_MAP=56,
         GOOGLE_PLUS=57, TWITTER=58, PROGRESSBAR=59, YOUTUBE=60, GOOGLE_CALENDAR=62, GOOGLE_MAPS=63
     */
@@ -334,8 +334,7 @@ protected:
     void cssLinearGradient( const PHIRequest *req, QByteArray &out ) const;
     QByteArray cssImageIEFilter( const QByteArray &imgId, bool alterFilters=true ) const;
     void htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &script, bool project3D=true ) const; // includes id tag
-    void htmlAdjustedPos( QByteArray &script ) const;
-    void htmlAdjustedSize( QByteArray &script ) const;
+    void htmlInitItem( QByteArray &script, bool close=true ) const;
     void htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     void htmlImages( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
@@ -535,20 +534,25 @@ inline QByteArray PHIBaseItem::cssRgba( const QColor &c )
     return arr;
 }
 
-inline void PHIBaseItem::htmlAdjustedPos( QByteArray &script ) const
+inline void PHIBaseItem::htmlInitItem( QByteArray &script, bool close ) const
 {
     QRectF r=adjustedRect();
-    if ( QPointF()==r.topLeft() ) return;
-    script+=BL( "$('" )+id()+BL( "').pos(" )+QByteArray::number( qRound(_x+r.x()) )
-        +','+QByteArray::number( qRound(_y+r.y()) )+BL( ");\n" );
-}
-
-inline void PHIBaseItem::htmlAdjustedSize( QByteArray &script ) const
-{
-    QRectF r=adjustedRect();
-    if ( realSize()==r.size() ) return;
-    script+=BL( "$('" )+id()+BL( "').width(" )+QByteArray::number( qRound(r.width()) )
-        +BL( ").height(" )+QByteArray::number( qRound(r.height()) )+BL( ");\n" );
+    script+=BL( "$.phi('" )+_id+BL( "'," )+QByteArray::number( wid() );
+    if ( QPointF()!=r.topLeft() || realSize()!=r.size() ) {
+        script+=','+QByteArray::number( qRound(r.x() ) )+','+QByteArray::number( qRound(r.y()) );
+        if ( realSize()!=r.size() ) {
+            script+=','+QByteArray::number( qRound(r.width()-realWidth()) )
+                +','+QByteArray::number( qRound(r.height()-realHeight()) );
+        }
+        if ( r.x()!=0 ) script+=BL( ").x(" )+QByteArray::number( qRound(_x) );
+        if ( r.y()!=0 ) script+=BL( ").y(" )+QByteArray::number( qRound(_y) );
+        if ( _width!=r.size().width() )
+            script+=BL( ").width(" )+QByteArray::number( qRound(_width) );
+        if ( _height!=r.size().height() )
+            script+=BL( ").height(" )+QByteArray::number( qRound(_height) );
+    }
+    if ( close ) script+=BL( ");\n" );
+    else script+=')';
 }
 
 inline QByteArray PHIBaseItem::cssImageIEFilter( const QByteArray &imgId, bool alterFilters ) const

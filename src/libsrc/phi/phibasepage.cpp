@@ -536,12 +536,12 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         out+=BL( "\t<meta name=\"description\" content=\"" )+_variants.value( DDescription ).toByteArray()+eht;
     if ( _variants.value( DKeys ).isValid() )
         out+=BL( "\t<meta name=\"keywords\" content=\"" )+_variants.value( DKeys ).toByteArray()+eht;
+    if ( Q_LIKELY( !(_flags & FNoUiThemeCSS ) ) ) {
+        out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+BL( "-theme" )+eht;
+        out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=ui-core" )+eht;
+    }
     if ( Q_LIKELY( !(_flags & FNoSystemCSS) ) )
         out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+eht;
-    if ( Q_LIKELY( !(_flags & FNoUiThemeCSS ) ) ) {
-        out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=ui-core" )+eht;
-        out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+BL( "-theme" )+eht;
-    }
     if ( Q_LIKELY( _flags & FHasFavicon ) )
         out+=BL( "\t<link rel=\"shortcut icon\" href=\"phi.phis?i=" )+_id+BL( ".ico&t=1" )+eht;
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )

@@ -123,8 +123,7 @@ void PHILineEditItem::genHtml( const QByteArray &type, const PHIRequest *req, QB
     }
     htmlBase( req, out, script );
     out+=BL( "\">\n" );
-    htmlAdjustedPos( script );
-    htmlAdjustedSize( script );
+    htmlInitItem( script );
 }
 
 void PHILineEditItem::setPlaceholder( const QString &t )
@@ -207,6 +206,15 @@ void PHITextAreaItem::setReadOnly( bool b )
     QPlainTextEdit *edit=qobject_cast<QPlainTextEdit*>(widget());
     if ( !edit ) return;
     edit->setReadOnly( b );
+}
+
+void PHITextAreaItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    setAdjustedRect( PHIInputTools::adjustedTextArea( req, rect() ) );
+    out+=indent+BL( "<textarea name=\"" )+id()+'"';
+    htmlBase( req, out, script );
+    out+=BL( "\">" )+data( DText ).toByteArray()+BL( "</textarea>\n" );
+    htmlInitItem( script );
 }
 
 void PHINumberEditItem::initWidget()
@@ -323,6 +331,7 @@ void PHISubmitButtonItem::ideInit()
 void PHISubmitButtonItem::setWidgetText( const QString &t )
 {
     QPushButton *b=qobject_cast<QPushButton*>(widget());
+    if ( !b ) return;
     b->setText( t );
 }
 
@@ -356,14 +365,65 @@ void PHISubmitButtonItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRo
     w->setPalette( pal );
 }
 
+void PHISubmitButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    setAdjustedRect( PHIInputTools::adjustedButton( req, rect() ) );
+    out+=indent+BL( "<input type=\"submit\" name=\"" )+id()+BL( "\" value=\"" )
+        +data( DText ).toByteArray()+'"';
+    htmlBase( req, out, script );
+    if ( realHeight()>34 ) {
+        if ( req->agentEngine()==PHIRequest::WebKit ) out+=BL( "-webkit-appearance:button" );
+    }
+    out+=BL( "\">\n" );
+    htmlInitItem( script );
+}
+
 void PHIResetButtonItem::ideInit()
 {
     PHISubmitButtonItem::ideInit();
     textData()->setText( tr( "Reset" ) );
 }
 
+void PHIResetButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    setAdjustedRect( PHIInputTools::adjustedButton( req, rect() ) );
+    out+=indent+BL( "<input type=\"reset\" name=\"" )+id()+BL( "\" value=\"" )
+        +data( DText ).toByteArray()+'"';
+    htmlBase( req, out, script );
+    if ( realHeight()>34 ) {
+        if ( req->agentEngine()==PHIRequest::WebKit ) out+=BL( "-webkit-appearance:button" );
+    }
+    out+=BL( "\">\n" );
+    htmlInitItem( script );
+}
+
 void PHIButtonItem::ideInit()
 {
     PHISubmitButtonItem::ideInit();
     textData()->setText( tr( "Button" ) );
+}
+
+void PHIButtonItem::squeeze()
+{
+    PHISubmitButtonItem::squeeze();
+    if ( data( DUrl ).toByteArray().isEmpty() ) removeData( DUrl );
+}
+
+void PHIButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    setAdjustedRect( PHIInputTools::adjustedButton( req, rect() ) );
+    out+=indent+BL( "<input type=\"button\" name=\"" )+id()+BL( "\" value=\"" )
+        +data( DText ).toByteArray()+'"';
+    htmlBase( req, out, script );
+    if ( realHeight()>34 ) {
+        if ( req->agentEngine()==PHIRequest::WebKit ) out+=BL( "-webkit-appearance:button" );
+    }
+    out+=BL( "\">\n" );
+    htmlInitItem( script, false );
+    if ( data( DUrl ).isValid() ) {
+        qDebug() << "url" <<realUrl();
+        QUrl url( realUrl() );
+        script+=BL( ".click(function(){phi.href('" )+url.toEncoded()+BL( "')})" );
+    }
+    script+=BL( ";\n" );
 }

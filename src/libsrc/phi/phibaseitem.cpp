@@ -719,8 +719,7 @@ void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &s
         htmlBase( req, out, script, false );
         out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
     }
-    htmlAdjustedPos( script );
-    htmlAdjustedSize( script );
+    htmlInitItem( script );
 }
 
 void PHIBaseItem::htmlImages( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
@@ -766,8 +765,7 @@ void PHIBaseItem::htmlImages( const PHIRequest *req, QByteArray &out, QByteArray
         }
     }
     out+=indent+BL( "</div>\n" );
-    htmlAdjustedPos( script );
-    htmlAdjustedSize( script );
+    htmlInitItem( script );
 }
 
 void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) const
@@ -789,8 +787,8 @@ void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) con
         if ( f.italic() ) out+=BL( "font-style:italic;" );
         if ( f.underline() ) out+=BL( "text-decoration:underline;" );
     }
-    cssStatic( req, out );
     out+=BL( "}\n" );
+    cssStatic( req, out );
     if ( _flags & FUseStyleSheet && !(_dirtyFlags & DFStyleSheetData) ) {
         cssCustomStyleSheet( out );
     }

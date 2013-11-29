@@ -25,6 +25,7 @@ class PHIInputTools
 public:
     static QRectF adjustedLineEdit( const PHIRequest *req, const QRectF &r );
     static QRectF adjustedButton( const PHIRequest *req, const QRectF &r );
+    static QRectF adjustedTextArea( const PHIRequest *req, const QRectF &r );
 };
 
 inline QRectF PHIInputTools::adjustedLineEdit( const PHIRequest *req, const QRectF &r )
@@ -42,7 +43,19 @@ inline QRectF PHIInputTools::adjustedLineEdit( const PHIRequest *req, const QRec
 inline QRectF PHIInputTools::adjustedButton( const PHIRequest *req, const QRectF &r )
 {
     switch ( req->agentEngine() ) {
-    case PHIRequest::WebKit: return r.adjusted( 0, 0, -4, -4 );
+    case PHIRequest::WebKit: return r.adjusted( 3, 3, 0, 0 );
+    case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
+    case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
+    case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );
+    default:;
+    }
+    return r;
+}
+
+inline QRectF PHIInputTools::adjustedTextArea( const PHIRequest *req, const QRectF &r )
+{
+    switch ( req->agentEngine() ) {
+    case PHIRequest::WebKit: return r.adjusted( 0, 0, -6, -6 );
     case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
     case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
     case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );

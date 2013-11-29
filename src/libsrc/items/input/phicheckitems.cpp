@@ -148,10 +148,11 @@ void PHICheckBoxItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
 void PHICheckBoxItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
 {
     Q_UNUSED( req )
-    out+=BL( "overflow:hidden;white-space:nowrap;" );
+    out+='#'+id()+BL( "{overflow:hidden;white-space:nowrap;" );
     // fallback:
     if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::WindowText ) out+=BL( "color:" )+realColor().name().toLatin1()+';';
     if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window ) out+=BL( "background-color:" )+realBackgroundColor().name().toLatin1()+';';
+    out+=BL( "}\n" );
 }
 
 void PHIRadioButtonItem::initWidget()

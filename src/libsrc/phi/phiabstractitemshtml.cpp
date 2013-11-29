@@ -104,7 +104,7 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
             out+=indent+BL( "\t<img id=\"phibgi_" )+_id+BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
         }
     }
-    if ( realLine()>0 ) htmlAdjustedPos( script );
+    htmlInitItem( script );
     // generate child items:
     PHIBaseItem *it;
     foreach( it, _children ) it->html( req, out, script, indent+'\t' );

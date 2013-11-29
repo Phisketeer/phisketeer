@@ -136,6 +136,7 @@ public:
     virtual PHIWID wid() const { return TextArea; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/textarea" ) ); }
     virtual void ideInit();
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 public slots:
     virtual void setReadOnly( bool b );
@@ -237,6 +238,7 @@ public:
     virtual PHIWID wid() const { return SubmitButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/submit" ) ); }
     virtual void ideInit();
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 protected:
     virtual void initWidget();
@@ -261,12 +263,13 @@ public:
     virtual PHIWID wid() const { return ResetButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/reset" ) ); }
     virtual void ideInit();
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 };
 
 class PHIButtonItem : public PHISubmitButtonItem
 {
     Q_OBJECT
-    Q_PROPERTY( QString url READ url WRITE setUrl )
+    Q_PROPERTY( QString _url READ realUrl WRITE setUrl SCRIPTABLE false )
 
 public:
     enum Wid { Button=6 };
@@ -281,10 +284,13 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/button" ) ); }
     virtual bool hasUrl() const { return true; }
     virtual void ideInit();
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
-public slots:
-    QString url() const { return QString::fromUtf8( data( DUrl, QString() ).toByteArray() ); }
+    QString realUrl() const { return QString::fromUtf8( data( DUrl, QString() ).toByteArray() ); }
     void setUrl( const QString &url ) { setData( DUrl, url.toUtf8() ); }
+
+protected:
+    virtual void squeeze();
 };
 
 #endif // PHIINPUTITEMS_H

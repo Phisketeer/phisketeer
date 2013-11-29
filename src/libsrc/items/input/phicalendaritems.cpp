@@ -152,7 +152,7 @@ void PHICalendarItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
             +BL( "_phi'});\njQuery(function($){$('#" )+id()+BL( "').datepicker('setDate',new Date(" )
         +QByteArray::number( now.year() )+','+QByteArray::number( now.month()-1 )+','
         +QByteArray::number( now.day() )+BL( "))});\n" );
-    htmlAdjustedSize( script );
+    htmlInitItem( script );
 }
 
 void PHIDateEditItem::initWidget()

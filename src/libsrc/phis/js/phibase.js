@@ -50,7 +50,7 @@ function PhiItem( obj ) {
   };
   this.moveTo=function( l, t, s, d, e ) {
     var o={queue:false,duration:(d?d:1000),easing:e};
-    var x=this.x(),y=this.y(),_a=this._a,_x=this._x,_y=this._y;
+    var x=this.x(),y=this.y(),_x=this._x,_y=this._y;
     setTimeout( function(){
       if (l!=x) j(id).animate({left:l+_x},o);
       if (t!=y) j(id).animate({top:t+_y},o);
@@ -73,9 +73,9 @@ function PhiItem( obj ) {
     },s?s:0 );return this;
   };
   this.pos=function(l,t){
-    if(l===undefined)return {left:parseInt(j(id).css('left'))+this._a?this._x:0,
-        top:parseInt(j(id).css('top'))+this._a?this._y:0};
-    j(id).css({left:l+this._a?this._x:0,top:t+this._a?this._y:0});return this;
+    if(l===undefined)return {left:parseInt(j(id).css('left'))-this._x,
+        top:parseInt(j(id).css('top'))-this._y};
+    j(id).css({left:l+this._x,top:t+this._y});return this;
   };
   this.width=function(w){
     if(w===undefined)return parseInt(j(id).css('width'))-this._w;
@@ -285,21 +285,10 @@ var $=function( id ){
       id=j(id).attr('id');
       return j( 'body' ).data( 'phi'+id );
   }
-  return id;
+  return this;
 };
 
-phiInit=function( s, i, x, y, w, h)
-{
-    var o=$(s);
-    if ( o===undefined ) return;
-    o._wid=i;
-    if ( x ) o._x=x;
-    if ( y ) o._y=y;
-    if ( w ) o._w=w;
-    if ( h ) o._h=h;
-}
-
-phiSlideShow=function( s, c ){
+$.slideShow=function( s, c ){
     var j=jQuery;
     for (i=1;i<c;i++) {$(s+'_phi_'+i).hide();}
     var o=$(s);
@@ -355,12 +344,25 @@ phiSlideShow=function( s, c ){
     o.start();
     o.mouseover(function(){o.stop();});
     o.mouseout(function(){o.start();});
+    return o;
 };
 
-phiGrid=function( s, m, d, n, v, h ) {
+$.phi=function( s, i, x, y, w, h ) {
+    var o=$(s);
+    if ( o===undefined ) return o;
+    o._wid=i;
+    if ( x ) o._x=x;
+    if ( y ) o._y=y;
+    if ( w ) o._w=w;
+    if ( h ) o._h=h;
+    return o;
+};
+
+$.grid=function( s, m, d, n, v, h, a ) {
     var j=jQuery;
     var o=$(s);
     o._h=h; o._l=[]; o._wid=46; o._v=v; o._n=(n?1:0); o._c=[]; o._b=[];
+    if ( a ) {o._wid=43;o._n++;}
     o.height=function(h){
         if(h===undefined) return parseInt(j('#'+s).css('height'));
         j('#'+s).css( 'height', h );
@@ -372,13 +374,13 @@ phiGrid=function( s, m, d, n, v, h ) {
         if ( t!==undefined ) s='color:'+t+';'
         t=o._b[r+'.'+cm.name];
         if ( t!==undefined ) s+='background-color:'+t;
-        else s+='background-color:transparent';
+        else s+='background-color:transparent;background-image:none';
         return 'style="'+s+'"';
     };
 
     j('#'+s+'_phit').jqGrid({colModel:m,datatype:'jsonstring',gridview:true,autowidth:true,height:o.height()+h,cmTemplate:{sortable:false,cellattr:o._cellfn},
         jsonReader:{root:'d',page:'p',total:'t',records:'r',cell:'c',id:'i'},datastr:d,viewsortcols:[true,'vertical',true],rownumbers:n,
-        onSelectRow:function(id){j('#'+s+'_phi').val(o._v[parseInt(id)]);o.currentRowChanged(parseInt(id));},sortable:true});
+        onSelectRow:function(id){j('#'+s+'_phi').val(o._v[parseInt(id)]);o.currentRowChanged(parseInt(id));},sortable:true,multiselect:a});
     o.label=function(c,l) {
         c=parseInt(c);
         if ( l===undefined ) return o._l[c];
@@ -405,4 +407,5 @@ phiGrid=function( s, m, d, n, v, h ) {
         return o;
     };
     o.currentRowChanged=function(id){};
+    return o;
 };

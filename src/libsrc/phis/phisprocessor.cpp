@@ -569,7 +569,8 @@ void PHISProcessor::createUiCSS() const
     QByteArray out=BL( "\n.phi .ui-datepicker{width:100%;height:100%;padding:.2em "
         ".2em 0;display:none;font-size:80%;min-width:240px;}\n"
         "div.ui-datepicker{width:auto;padding:.2em .2em 0;display:none;font-size:90%}\n" );
-    out+=BL( ".ui-jqgrid .ui-jqgrid-htable th div {height:16px;overflow:hidden,padding-top:4px}\n" );
-    out+=BL( ".ui-jqgrid {background-color:transparent !important;background-image:none !important}\n" );
+    out+=BL( ".ui-jqgrid .ui-jqgrid-htable th div{height:16px;overflow:hidden,padding-top:4px}\n" );
+    out+=BL( ".ui-jqgrid tr.ui-row-ltr{background:none}\n" );
+    out+=BL( ".ui-jqgrid tr.ui-row-rtl{background:none}\n" );
     dest.write( out );
 }
