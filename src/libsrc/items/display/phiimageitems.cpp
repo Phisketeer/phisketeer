@@ -316,14 +316,8 @@ QScriptValue PHISlideShowItem::display( const QScriptValue &c )
 
 void PHISlideShowItem::paint( QPainter *painter, const QRectF &exposed )
 {
-    Q_UNUSED( exposed )
     if ( !realImages().count() ) {
-        QFont f=font();
-        f.setPointSizeF( PHI::adjustedFontSize( 10.) );
-        painter->setFont( f );
-        if ( isIdeItem() ) painter->drawText( rect(), tr( "Image not available" ), QTextOption( Qt::AlignCenter ) );
-        else painter->drawText( rect(), tr( "loading..." ), QTextOption( Qt::AlignCenter ) );
-        return;
+        return PHIAbstractImageBookItem::paint( painter, exposed );
     }
     painter->setRenderHint( QPainter::Antialiasing, false );
     painter->setRenderHint( QPainter::SmoothPixmapTransform, true );
@@ -403,8 +397,8 @@ void PHISlideShowItem::html( const PHIRequest *req, QByteArray &out, QByteArray 
     }
     htmlImages( req, out, script, indent );
     script+=BL( "$.slideShow('" )+id()+BL( "'," )
-        +QByteArray::number( imagePathes().count() )+BL( ");\n" );
-    script+=BL( "$('" )+id()+BL( "').titles('")+data( DTmpTitle ).toByteArray()+BL( "');\n" );
+        +QByteArray::number( imagePathes().count() )+BL( ").titles('")
+        +data( DTmpTitle ).toByteArray()+BL( "');\n" );
     if ( realFadeIntervalMS()!=4000 ) script+=BL( "$('" )+id()+BL( "').fadeIntervalMS(" )
         +QByteArray::number( realFadeIntervalMS() )+BL( ");\n" );
     if ( realFadeTimeMS()!=2000 ) script+=BL( "$('" )+id()+BL( "').fadeTimeMS(" )

@@ -89,7 +89,6 @@ QString PHI::createPngUuid()
     QString id=QUuid::createUuid().toString();
     id.remove( 0, 1 );
     id.chop( 1 );
-    id+=L1( ".png" );
     return id;
 }
 

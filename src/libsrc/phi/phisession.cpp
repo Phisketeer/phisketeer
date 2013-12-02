@@ -66,10 +66,10 @@ PHIRC PHISession::init( QString &error, QObject *parent )
 PHISession::~PHISession()
 {
     if ( _db.isValid() && _db.isOpen() ) _db.close();
-    QFile::remove( _db.databaseName() );
+    QFile::remove( phiApp->tmpPath()+L1( "/db/" )+_name );
     _db=QSqlDatabase();
     QSqlDatabase::removeDatabase( _name );
-    qDebug( "PHISession::~PHISession(): %s", qPrintable( _db.databaseName() ) );
+    qDebug( "PHISession::~PHISession(): %s", qPrintable( _name ) );
 }
 
 QString PHISession::createSession( const PHIRequest *req, qint32 timeout, const QString &sid ) const

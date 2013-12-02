@@ -220,6 +220,7 @@ protected:
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void updateImages()=0;
+    virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;

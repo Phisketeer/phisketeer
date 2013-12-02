@@ -717,7 +717,9 @@ void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &s
         } else imgId=imagePath();
         out+=indent+BL( "<img" );
         htmlBase( req, out, script, false );
-        out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
+        out+=BL( "\" src=\"" );
+        if ( _dirtyFlags & DFUseFilePathInHTML ) out+=imgId+BL( "\">\n" );
+        else out+=BL( "phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
     }
     htmlInitItem( script );
 }
@@ -749,7 +751,8 @@ void PHIBaseItem::htmlImages( const PHIRequest *req, QByteArray &out, QByteArray
             } else {
                 filter=cssImageIEFilter( imagePathes().at( i ), false );
                 out+=indent+BL( "\t<div class=\"phi\" id=\"" )+_id+BL( "_phi_" )
-                    +QByteArray::number( i )+BL( "\" style=" )+filter+BL( "\"></div>\n" );
+                    +QByteArray::number( i )+BL( "\" style=\"width:100%;height:100%" )
+                    +filter+BL( "\"></div>\n" );
             }
         }
     } else {
@@ -759,9 +762,12 @@ void PHIBaseItem::htmlImages( const PHIRequest *req, QByteArray &out, QByteArray
                 QRectF br=boundingRect();
                 imgId=PHIDataParser::createTransformedImage( req, this, i, br );
                 if ( i==0 ) setAdjustedRect( br );
+                qDebug() << "resize" << boundingRect() << br;
             } else imgId=imagePathes().at( i );
-            out+=indent+BL( "\t<img class=\"phi\" id=\"" )+_id+BL( "_phi_" )+QByteArray::number( i )
-                +BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
+            out+=indent+BL( "\t<img class=\"phi\" id=\"" )+_id+BL( "_phi_" )
+                +QByteArray::number( i )+BL( "\" style=\"width:100%;height:100%\" src=\"" );
+            if ( _dirtyFlags & DFUseFilePathInHTML ) out+=imgId+BL( "\">\n" );
+            else out+=BL( "phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
         }
     }
     out+=indent+BL( "</div>\n" );

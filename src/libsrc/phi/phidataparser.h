@@ -23,6 +23,7 @@
 #include <QCoreApplication>
 #include <QReadWriteLock>
 #include <QCryptographicHash>
+#include <QDir>
 #include "phidatasources.h"
 #include "phiimagecache.h"
 #include "phirequest.h"
@@ -103,7 +104,15 @@ inline QByteArray PHIDataParser::imagePath( const QByteArray &lang, int num ) co
 {
     Q_ASSERT( num>=0 );
     Q_ASSERT( _currentItem );
+    qDebug() << "imagePath" << lang << num << _currentItem->id();
     return createImageId( _req, _currentItem->id(), lang, num );
+}
+
+inline QByteArray PHIDataParser::resolveImageFile( const QString &filename, QByteArray &matchedLang  ) const
+{
+    QString fn=replaceDefaultLangC( filename, matchedLang );
+    QString docroot=QDir::fromNativeSeparators( _req->documentRoot() );
+    return fn.replace( docroot, QString() ).toUtf8();
 }
 
 inline QByteArray PHIDataParser::createImage( const QImage &img, const QByteArray &lang, int i ) const

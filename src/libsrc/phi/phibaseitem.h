@@ -87,9 +87,10 @@ public:
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
-        FStoreDisabledData=0x200, FUseFilePath=0x400 }; //quint32
+        FStoreDisabledData=0x200 }; //quint32
     enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
-        DFText=0x10, DFInt1=0x100, DFInt2=0x200, DFReadOnlyData=0x400, DFDisabledData=0x800,
+        DFText=0x8, DFHasFilePath=0x10, DFUseFilePathInHTML=0x20,
+        DFInt1=0x100, DFInt2=0x200, DFReadOnlyData=0x400, DFDisabledData=0x800,
         DFHeader=0x1000, DFPlaceholder=DFHeader, DFDoNotCache=0x2000,
         DFCustom1=0x10000, DFCustom2=0x20000, DFCustom3=0x40000, DFCustom4=0x80000,
         DFCustom5=0x100000, DFCustom6=0x200000, DFCustom7=0x400000, DFCustom8=0x800000 };
@@ -194,7 +195,7 @@ public: // not usable by script engine
     inline bool isServerItem() const { return _type==PHIBaseItemPrivate::TServerItem; }
     inline bool isGuiItem() const { return _gw ? true : false; }
     inline bool isChild() const { return _flags & FChild; }
-    inline void setDirtyFlag( DirtyFlag flag ) const { _dirtyFlags |= flag; }
+    inline void setDirtyFlag( DirtyFlag flag, bool b=true ) const { if ( b ) _dirtyFlags |= flag; else _dirtyFlags &= ~flag; }
     inline DirtyFlags dirtyFlags() const { return _dirtyFlags; }
 
     QFont font() const;
@@ -557,9 +558,11 @@ inline void PHIBaseItem::htmlInitItem( QByteArray &script, bool close ) const
 
 inline QByteArray PHIBaseItem::cssImageIEFilter( const QByteArray &imgId, bool alterFilters ) const
 {
-    QByteArray tmp=BL( "&t=1" );
-    if ( _flags & FUseFilePath ) tmp=QByteArray();
-    tmp=BL( "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='phi.phis?i=" )+imgId+tmp+BL( "')" );
+    QByteArray tmp=BL( "phi.phis?i=" );
+    if ( _dirtyFlags & DFUseFilePathInHTML ) tmp=QByteArray();
+    tmp=BL( "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" )+tmp+imgId;
+    if ( _dirtyFlags & DFUseFilePathInHTML ) tmp+BL( "')" );
+    else tmp+=BL( "&t=1')" );
     if ( !alterFilters ) return tmp;
     if ( _variants.value( DIEFilter ).isValid() ) {
         _variants.insert( DIEFilter, tmp+_variants.value( DIEFilter ).toByteArray() );

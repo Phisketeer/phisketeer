@@ -17,7 +17,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QLocale>
-#include <QDir>
 #include <QProcess>
 #include <QSqlError>
 #include <QTransform>
@@ -424,6 +423,7 @@ void PHIDataParser::createImages( PHIImageData *data ) const
         }
         break;
     case PHIData::File:
+        qDebug() << "file:" << data->fileName();
         return; // resolve at processing time
     case PHIData::Url:
         if ( Q_UNLIKELY( data->options() & PHIData::FileName ) ) {
@@ -566,7 +566,10 @@ QByteArray PHIDataParser::imagePath( PHIImageData *data ) const
             if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
             return id;
         } else {
-            data->setOption( PHIData::UseFilePath );
+            if ( _currentItem ) {
+                _currentItem->setDirtyFlag( PHIBaseItem::DFHasFilePath );
+                _currentItem->setDirtyFlag( PHIBaseItem::DFUseFilePathInHTML );
+            }
             QByteArray matchedLang;
             return resolveImageFile( data->fileName(), matchedLang );
         }
@@ -665,7 +668,10 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
             if ( _currentItem ) _currentItem->setDirtyFlag( PHIBaseItem::DFDoNotCache );
             return ids;
         } else {
-            data->setOption( PHIData::UseFilePath );
+            if ( _currentItem ) {
+                _currentItem->setDirtyFlag( PHIBaseItem::DFHasFilePath );
+                _currentItem->setDirtyFlag( PHIBaseItem::DFUseFilePathInHTML );
+            }
             QString fn;
             foreach( fn, data->fileNames() ) {
                 id=resolveImageFile( fn, matchedLang );
@@ -713,7 +719,9 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
 QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const PHIBaseItem *it, int num, QRectF &br )
 {
     qDebug() << "createTransformedImage" << it->name();
+    Q_ASSERT( it );
     QTransform t=it->computeTransformation( false );
+    it->setDirtyFlag( PHIBaseItem::DFUseFilePathInHTML, false );
     QByteArray arr;
     if ( Q_UNLIKELY( it->dirtyFlags() & PHIBaseItem::DFDoNotCache ) ) {
         arr=PHIImageCache::instance()->createUid( req ); // don't cache
@@ -754,20 +762,18 @@ QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const P
         }
         fn=QString::fromUtf8( imgIds.at( num ) );
     } else fn=QString::fromUtf8( it->imagePath() );
-    if ( it->flags() & PHIBaseItem::FUseFilePath ) {
-        if ( fn.startsWith( QLatin1Char( '/' ) ) ) {
-            fn=req->documentRoot()+fn;
-        } else {
-            qDebug() << "referer" << req->referer();
-            fn=QFileInfo( req->referer() ).absolutePath()+QLatin1Char( '/' )+fn;
-        }
-    } else fn=req->imgDir()+QLatin1Char( '/' )+fn+SL( ".png" );
+    if ( it->dirtyFlags() & PHIBaseItem::DFHasFilePath ) fn=req->documentRoot()+fn;
+    else fn=req->imgDir()+QLatin1Char( '/' )+fn+SL( ".png" );
     QImage img( fn );
     if ( Q_UNLIKELY( img.isNull() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
             tr( "Could not load image '%1' for item '%2'." ).arg( fn ).arg( it->name() ) );
         br=it->adjustedRect();
         return QByteArray();
+    }
+    if ( Q_UNLIKELY( img.size()!=it->realSize().toSize() ) ) {
+        qDebug() << "resizing image for" << it->id();
+        img=img.scaled( it->realSize().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
     }
     if ( it->hasGraphicEffect() ) {
         switch ( it->effect()->graphicsType() ) {
@@ -830,15 +836,7 @@ QString PHIDataParser::resolvePath( const QString &filename ) const
     } else {
         fn=QFileInfo( _req->canonicalFilename() ).absolutePath()+QLatin1Char( '/' )+fn;
     }
+    if ( !_currentItem ) fn.prepend( QLatin1Char( '@' ) ); // marker for page image (DFUseFilePath does not exist)
     qDebug() << (_currentItem ? _currentItem->name() : _pageId) << "resolved path" << fn;
     return fn;
-}
-
-QByteArray PHIDataParser::resolveImageFile( const QString &filename, QByteArray &matchedLang  ) const
-{
-    QString fn=replaceDefaultLangC( filename, matchedLang );
-    QString docroot=QDir::fromNativeSeparators( _req->documentRoot() );
-    fn.replace( docroot, QString() );
-    qDebug() << "resolveImageFile" << fn;
-    return fn.toUtf8();
 }

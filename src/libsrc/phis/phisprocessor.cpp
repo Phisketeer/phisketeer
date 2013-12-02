@@ -427,10 +427,17 @@ void PHISProcessor::genImage() const
         _req->dump();
         imgPath=resolveRelativeFile( imgPath );
     } else {
-        // @todo: remove tmp images from PHIImageCache
-        if ( imgPath.endsWith( SL( ".ico" ) ) )
+        if ( Q_UNLIKELY( imgPath.endsWith( SL( ".ico" ) ) ) ) {
             imgPath=_req->imgDir()+QDir::separator()+imgPath;
-        else imgPath=_req->imgDir()+QDir::separator()+imgPath+SL( ".png" );
+            _req->responseRec()->setContentType( BL( "image/x-icon" ) );
+        } else {
+            if ( imgPath.startsWith( QLatin1Char( '$' ) ) ) {
+                _req->responseRec()->setImageCacheDirty();
+            }
+            imgPath=_req->imgDir()+QDir::separator()+imgPath+SL( ".png" );
+            _req->responseRec()->setContentType( BL( "image/png" ) );
+            qDebug() << "genImage" << imgPath;
+        }
     }
     QFileInfo fi( imgPath );
     if ( !fi.isReadable() ) {

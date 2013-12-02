@@ -44,7 +44,8 @@ class PHIEXPORT PHIResponseRec
 
 public:
     PHIResponseRec();
-    enum Option { None=0x0, SendFile=0x1, HeaderOnly=0x2, NoCache=0x4, Redirect=0x8 };
+    enum Option { None=0x0, SendFile=0x1, HeaderOnly=0x2, NoCache=0x4,
+        Redirect=0x8, ImageCacheDirty=0x10 };
     Q_DECLARE_FLAGS( Options, Option )
 
     QByteArray createDocumentHeader() const;
@@ -83,6 +84,8 @@ public:
     inline void setFileName( const QString &file ) { _fileToSend=file;
         file.isEmpty() ? _options &= ~SendFile : _options |= SendFile; }
     inline void notModified() { _error._rc=PHIRC_HTTP_NOT_MODIFIED; }
+    inline void setImageCacheDirty() { _options |= ImageCacheDirty; }
+    inline bool imageCacheDirty() const { return _options & ImageCacheDirty; }
 
     void setCookie( const QString &name, const QString &value, const QDateTime &expires,
         const QString &path=QLatin1String( "/" ), const QString &domain=QString(), bool secure=false, bool discard=false );

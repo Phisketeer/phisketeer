@@ -626,6 +626,7 @@ void PHIAbstractImageItem::paint( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
     if ( realImage().isNull() ) {
+        p->setOpacity( .7 );
         p->fillRect( rect(), QBrush( Qt::lightGray ) );
         QFont f=font();
         f.setPointSizeF( PHI::adjustedFontSize( 10. ) );
@@ -679,6 +680,21 @@ void PHIAbstractImageBookItem::ideUpdateData()
     if ( _imageBookData.isTranslated() ) v.setValue( _imageBookData.imageBook( page()->currentLang() ) );
     else v.setValue( _imageBookData.imageBook() );
     setData( DImages, v );
+}
+
+void PHIAbstractImageBookItem::paint( QPainter *p, const QRectF &exposed )
+{
+    Q_UNUSED( exposed )
+    if ( !realImages().count() ) {
+        p->setOpacity( .7 );
+        p->fillRect( rect(), QBrush( Qt::lightGray ) );
+        QFont f=font();
+        f.setPointSizeF( PHI::adjustedFontSize( 10. ) );
+        p->setFont( f );
+        p->setPen( Qt::darkGray );
+        if ( isIdeItem() ) p->drawText( rect(), tr( "Image not available" ), QTextOption( Qt::AlignCenter ) );
+        else p->drawText( rect(), tr( "Image is loading..." ) );
+    }
 }
 
 void PHIAbstractImageBookItem::phisCreateData( const PHIDataParser &parser )

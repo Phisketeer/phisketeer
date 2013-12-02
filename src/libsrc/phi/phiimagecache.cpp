@@ -64,28 +64,37 @@ PHIRC PHIImageCache::init( QString &error, QObject *parent )
 
 PHIImageCache::~PHIImageCache()
 {
-    if ( _db.isValid() && _db.isOpen() ) _db.close();
-    QFile::remove( _db.databaseName() );
+    if ( _db.isValid() && _db.isOpen() ) {
+        QSqlQuery query( _db );
+        query.setForwardOnly( true );
+        if ( query.exec( L1( "SELECT path FROM imgcache" ) ) ) {
+            while ( query.next() ) {
+                QFile::remove( query.value( 0 ).toString() );
+            }
+        }
+        _db.close();
+    }
+    QFile::remove( phiApp->tmpPath()+L1( "/db/" )+ _name );
     _db=QSqlDatabase();
     QSqlDatabase::removeDatabase( _name );
-    qDebug( "PHIImageCache::~PHIImageCache(): %s", qPrintable( _db.databaseName() ) );
+    qDebug( "PHIImageCache::~PHIImageCache(): %s", qPrintable( _name ) );
 }
 
 QByteArray PHIImageCache::createUid( const PHIRequest *req )
 {
     qDebug( "PHIImageCache::createId()" );
+    const QString uid=PHI::createPngUuid();
     if ( Q_UNLIKELY( !_db.isOpen() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_DB_ERROR,
-            tr( "Image cache DB is not open. Cached images will not be automatically removed!" ) );
-        return PHI::createPngUuid().toLatin1();
+            tr( "Image cache DB is not open. Cached image '%1' will not be automatically removed!" ).arg( uid ) );
+        return '$'+uid.toLatin1();
     }
-    const QString uid=PHI::createPngUuid();
-    const QString path=req->imgDir()+QDir::separator()+uid;
+    const QString path=req->imgDir()+QDir::separator()+QLatin1Char( '$' )+uid+SL( ".png" );
     const QDateTime cdt=QDateTime::currentDateTime();
     QSqlQuery query( _db );
     QString sql=SL( "INSERT INTO imgcache (cid,dtime,tout,path) VALUES( '" );
-    sql.append( uid ).append( L1( "','" ) ).append( cdt.toString( PHI::dtFormatString() ) )
-        .append( L1( "',60,'" ) ).append( path ).append( L1( "')" ) );
+    sql.append( uid ).append( SL( "','" ) ).append( cdt.toString( PHI::dtFormatString() ) )
+        .append( SL( "',60,'" ) ).append( path ).append( SL( "')" ) );
     if ( Q_UNLIKELY( !query.exec( sql ) ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_QUERY_ERROR,
             tr( "Could not insert image cache key into DB. Image '%1' will not be removed automatically: '%2'." )
@@ -122,7 +131,7 @@ void PHIImageCache::cleanCache( const PHIRequest *req ) const
     }
     for ( int i=0; i<timeoutIds.count(); i++ ) {
         query.exec( SL( "DELETE FROM imgcache WHERE cid='" )+timeoutIds.at( i )+QLatin1Char( '\'' ) );
-        qDebug( "Deleting %s", qPrintable( pathes.at( i ) ) );
+        qDebug( "Deleting img %s", qPrintable( pathes.at( i ) ) );
         QFile::remove( pathes.at( i ) );
     }
 }

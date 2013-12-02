@@ -33,6 +33,7 @@
 #include "phisparent.h"
 #include "phiapplication.h"
 #include "phislogwriter.h"
+#include "phiimagecache.h"
 
 PHISHttp::PHISHttp( QObject *parent )
     : QObject( parent ), _state( PHISHttp::Connected ), _req( 0 )
@@ -97,7 +98,7 @@ PHIRC PHISHttp::init( qintptr socketDesc, bool usessl, QString &err )
     connect( _socket, SIGNAL( disconnected() ), this, SIGNAL( close() ) );
     _server._localAddr=_socket->localAddress();
     _server._remoteAddr=_socket->peerAddress();
-    _server._name=SL( "phis/" )+L1( PHISVERSION );
+    _server._name=SL( "Phis/" PHISVERSION );
     _server._keepAlive=PHISParent::instance()->keepAlive();
     _server._defName=PHISParent::instance()->name();
     _server._admin=PHISParent::instance()->admin();
@@ -223,6 +224,7 @@ PHIRC PHISHttp::sendResponse( QString &err )
         _socket->write( _resp.body() );
     }
     _socket->flush();
+    if ( _resp.imageCacheDirty() ) PHIImageCache::instance()->cleanCache( _req );
     return PHIRC_OK;
 }
 
