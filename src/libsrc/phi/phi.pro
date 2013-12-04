@@ -51,7 +51,8 @@ HEADERS += phi.h \
     phidataparser.h \
     phiimagecache.h \
     phisession.h \
-    phidomitem.h
+    phidomitem.h \
+    phiwebpage.h
 SOURCES += phi.cpp \
     phiitemdata.cpp \
     phidatasources.cpp \
@@ -85,7 +86,8 @@ SOURCES += phi.cpp \
     phidataparser.cpp \
     phiimagecache.cpp \
     phisession.cpp \
-    phiabstractitemshtml.cpp
+    phiabstractitemshtml.cpp \
+    phiwebpage.cpp
 FORMS += colorconfig.ui \
     layoutconfig.ui
 
@@ -95,7 +97,7 @@ isEmpty( PHIDOM ): error( PHIDOM is not specified )
 isEmpty( PHIORG ): error( PHIORG is not specified )
 TEMPLATE = lib
 TARGET = phi
-QT = core gui network script widgets sql
+QT = core gui network script widgets sql webkit webkitwidgets
 DEFINES += PHILIB PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
 RESOURCES += phi.qrc
 unix { 

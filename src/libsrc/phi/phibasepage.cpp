@@ -382,6 +382,8 @@ void PHIBasePage::createCSSFile( const PHIRequest *req ) const
         out+="div.phi{position:absolute;cursor:default;"+ori+"}\nimg.phi{position:absolute;border:none;"+ori+"}\n";
         out+="table.phi{position:absolute;height:100%;width:100%;border:none;border-spacing:0;margin:0;padding:0}\n";
         out+="canvas.phi{position:absolute;"+ori+"}\nspan.phi{position:absolute;"+ori+"}\n";
+        out+="object.phi{position:absolute;border:none;"+ori
+            +"}\niframe.phi{position:absolute;border:none;background-color:transparent;overflow:visible;"+ori+"}\n";
         out+=".phibuttontext{color:"+_pal.color( PHIPalette::ButtonText ).name().toLatin1()+"}\n";
         out+=".phibutton{background-color:"+_pal.color( PHIPalette::Button ).name().toLatin1()+"}\n";
         out+=".phihighlight{background-color:"+_pal.color( PHIPalette::Highlight ).name().toLatin1()+"}\n";
@@ -567,7 +569,10 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         if ( it->isChild() ) continue; // handled by layouts
         it->html( req, out, script, indent );
     }
-    if ( _flags & FHasAction ) out+=BL( "</form>\n" );
+    if ( _flags & FHasAction ) {
+        out+=indent+BL( "<input type=\"hidden\" id=\"phisid\" value=\"" )
+            +_variants.value( DSession ).toByteArray()+BL( "\">\n</form>\n" );
+    }
     out+=BL( "</div>\n<script type=\"text/javascript\">\n/* <![CDATA[ */\n" );
     out+=BL( "var phi=new Phi('" )+_currentLang+BL( "','" )
         +_variants.value( DSession ).toByteArray()+BL( "');\n" )+script;

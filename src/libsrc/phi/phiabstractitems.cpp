@@ -22,12 +22,15 @@
 #include <QMimeData>
 #include <QWidget>
 #include <QGraphicsGridLayout>
+#include <QWebFrame>
+#include <QWebView>
 #include "phiabstractitems.h"
 #include "phicolorconfig.h"
 #include "philayoutconfig.h"
 #include "phibasepage.h"
 #include "phigraphicsitem.h"
 #include "phidataparser.h"
+#include "phiwebpage.h"
 
 qreal PHIAbstractTextItem::_dropRegion=7.;
 
@@ -1062,4 +1065,76 @@ QScriptValue PHIAbstractInputItem::accessKey( const QScriptValue &a )
     if ( !a.isValid() ) return realAccessKey();
     setAccessKey( a.toString() );
     return self();
+}
+
+void PHIAbstractExternalItem::ideInit()
+{
+    setColor( PHIPalette::WidgetText, PHIPalette::Text, page()->phiPalette().color( PHIPalette::Text ) );
+    setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+}
+
+QSizeF PHIAbstractExternalItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( isChild() ) return realSize();
+    if ( which==Qt::PreferredSize ) return QSizeF( 300., 200. );
+    return PHIBaseItem::sizeHint( which, constraint );
+}
+
+void PHIAbstractExternalItem::phisCreateData( const PHIDataParser &parser )
+{
+    setData( DText, escapeChars( parser.text( textData() ).toByteArray() ) );
+    if ( !textData()->isUnparsedStatic() ) setDirtyFlag( DFText );
+}
+
+void PHIAbstractExternalItem::phisParseData( const PHIDataParser &parser )
+{
+    if ( dirtyFlags() & DFText ) {
+        setData( DText, escapeChars( parser.text( textData() ).toByteArray() ) );
+    }
+}
+
+QByteArray PHIAbstractExternalItem::escapeChars( const QByteArray &a ) const
+{
+    QByteArray arr=a;
+    arr.replace( '"', BL( "&quot;" ) );
+    arr.replace( '&', BL( "&amp;" ) );
+    return arr;
+}
+
+QScriptValue PHIAbstractExternalItem::accessKey( const QScriptValue &a )
+{
+    if ( !a.isValid() ) return realAccessKey();
+    setAccessKey( a.toString() );
+    return self();
+}
+
+void PHIAbstractExternalItem::initWidget()
+{
+    connect( this, &PHIBaseItem::sizeChanged, this, &PHIAbstractExternalItem::slotSizeChanged );
+    QWebView *view=new QWebView();
+    _webPage=new PHIWebPage( this );
+    view->setPage( _webPage );
+    setWidget( view );
+}
+
+void PHIAbstractExternalItem::setWidgetText( const QString &t )
+{
+    if ( !_webPage ) return;
+    QUrl url( QString::fromLatin1( source() )+t );
+    if ( url==_webPage->mainFrame()->url() ) return;
+    // need to clear content - otherwise webkit crashes (Qt5.1):
+    _webPage->mainFrame()->setContent( QByteArray() );
+    _webPage->mainFrame()->setUrl( url);
+}
+
+QByteArray PHIAbstractExternalItem::mapLanguage( const QByteArray &lang ) const
+{
+    if ( lang=="C" ) return BL( "en" );
+    return lang.left( 2 );
+}
+
+void PHIAbstractExternalItem::slotSizeChanged( const QSizeF &size )
+{
+    Q_UNUSED( size );
+    setWidgetText( realText() );
 }

@@ -50,7 +50,9 @@ QImage PHINetRequestThread::getImage( const QString &url )
 {
     get( url, PHINetRequest::Image );
     if ( _arr.isEmpty() ) return QImage();
-    return QImage::fromData( _arr ).convertToFormat( QImage::Format_ARGB32_Premultiplied );
+    QImage img=QImage::fromData( _arr );
+    if ( img.format()==QImage::Format_ARGB32_Premultiplied ) return img;
+    return img.convertToFormat( QImage::Format_ARGB32_Premultiplied );
 }
 
 void PHINetRequestThread::get( const QString &url, PHINetRequest::Type type )
@@ -62,6 +64,7 @@ void PHINetRequestThread::get( const QString &url, PHINetRequest::Type type )
     _sem.acquire( 1 );
     quit();
     wait( 5000 );
+    _sem.release( 1 );
 }
 
 void PHINetRequestThread::run()

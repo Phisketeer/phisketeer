@@ -23,9 +23,10 @@
 #include "phidatasources.h"
 #include "phi.h"
 
-class PHIBasePage;
 class QGraphicsGridLayout;
 class PHIDataParser;
+class PHIBasePage;
+class PHIWebPage;
 
 class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 {
@@ -374,6 +375,45 @@ protected:
 
 private:
     PHIBooleanData _readOnlyData;
+};
+
+class PHIAbstractExternalItem : public PHIAbstractTextItem
+{
+    Q_OBJECT
+    Q_PROPERTY( QString _accessKey WRITE setAccessKey READ realAccessKey SCRIPTABLE false )
+
+public:
+    enum ItemData { DAccessKey=-99 };
+    explicit PHIAbstractExternalItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ), _webPage( 0 ) { if ( isGuiItem() ) initWidget(); }
+    PHIAbstractExternalItem( const PHIAbstractExternalItem &it ) : PHIAbstractTextItem( it ), _webPage( 0 ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIAbstractExternalItem() {}
+    bool isFocusable() const { return true; }
+    inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
+    inline void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+public slots:
+    QScriptValue accessKey( const QScriptValue &v );
+
+protected slots:
+    void slotSizeChanged( const QSizeF &size );
+
+protected:
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+
+    inline PHIWebPage* webPage() const { return _webPage; }
+    QByteArray escapeChars( const QByteArray &a ) const;
+    virtual QByteArray mapLanguage( const QByteArray &lang ) const;
+    virtual QByteArray source() const=0;
+    virtual void setWidgetAligment( Qt::Alignment a ) { Q_UNUSED( a ) }
+    virtual void setWidgetText( const QString &t );
+    virtual void ideInit();
+
+private:
+    void initWidget();
+    PHIWebPage *_webPage;
 };
 
 #endif // PHIABSTRACTITEMS_H

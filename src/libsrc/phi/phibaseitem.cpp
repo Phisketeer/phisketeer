@@ -343,6 +343,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         setProperty( "_rightMargin", 0 );
         setProperty( "_bottomMargin", 0 );
     }
+    if ( wid()==49 ) textData()->setText( d.url() ); // html doc
     updateEffect();
     if ( isIdeItem() ) privateUpdateData();
 }

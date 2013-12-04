@@ -1,1 +1,2 @@
-{ "Keys": [ "label", "image", "svg", "slideshow", "sponsor", "canvas" ] }
+{ "Keys": [ "rect", "roundedrect", "ellipse", "graphtext", "label",
+    "image", "svg", "slideshow", "sponsor", "canvas" ] }

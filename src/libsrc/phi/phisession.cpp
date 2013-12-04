@@ -36,7 +36,7 @@ PHIRC PHISession::init( QString &error, QObject *parent )
 {
     if ( parent ) setParent( parent );
     else setParent( phiApp );
-    _name.sprintf( "%s-%p.db", "phisession", QThread::currentThread() );
+    _name=L1( "phisession.db" );
     QString path=phiApp->tmpPath()+L1( "/db/" );
     QDir dir( path );
     if ( !dir.exists() ) dir.mkpath( path );
@@ -66,7 +66,6 @@ PHIRC PHISession::init( QString &error, QObject *parent )
 PHISession::~PHISession()
 {
     if ( _db.isValid() && _db.isOpen() ) _db.close();
-    QFile::remove( phiApp->tmpPath()+L1( "/db/" )+_name );
     _db=QSqlDatabase();
     QSqlDatabase::removeDatabase( _name );
     qDebug( "PHISession::~PHISession(): %s", qPrintable( _name ) );

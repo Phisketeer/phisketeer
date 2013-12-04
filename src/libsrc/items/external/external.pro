@@ -15,5 +15,13 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS += input layouts display external
-TEMPLATE = subdirs
+include( ../items.pri )
+QT += webkit webkitwidgets
+HEADERS += phiexternalitems.h \
+    phigoogleitems.h \
+    phihtmlitems.h
+SOURCES += \
+    phigoogleitems.cpp \
+    phihtmlitems.cpp
+TARGET = phiexternalitems
+OTHER_FILES = phiexternal.json

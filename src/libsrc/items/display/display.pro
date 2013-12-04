@@ -19,9 +19,15 @@ include( ../items.pri )
 QT += svg
 HEADERS += phidisplayitems.h \
     phitextitems.h \
-    phiimageitems.h
+    phiimageitems.h \
+    phirectitem.h \
+    phiellipseitem.h \
+    phigraphictext.h
 SOURCES += \
     phitextitems.cpp \
-    phiimageitems.cpp
+    phiimageitems.cpp \
+    phirectitem.cpp \
+    phiellipseitem.cpp \
+    phigraphictext.cpp
 TARGET = phidisplayitems
 OTHER_FILES = phidisplay.json

@@ -21,6 +21,9 @@
 #include "phiitemplugin.h"
 #include "phitextitems.h"
 #include "phiimageitems.h"
+#include "phigraphictext.h"
+#include "phiellipseitem.h"
+#include "phirectitem.h"
 #include "phi.h"
 
 class PHIDisplayItems : public PHIItemPlugin
@@ -44,6 +47,10 @@ public:
 inline PHIBaseItem* PHIDisplayItems::create( PHIWID wid, const PHIBaseItemPrivate &p ) const
 {
     switch ( wid ) {
+    case PHIRectItem::Rect: return new PHIRectItem( p );
+    case PHIRoundedRectItem::RoundedRect: return new PHIRoundedRectItem( p );
+    case PHIEllipseItem::Ellipse: return new PHIEllipseItem( p );
+    case PHIGraphicTextItem::GraphText: return new PHIGraphicTextItem( p );
     case PHILabelItem::Label: return new PHILabelItem( p );
     case PHIImageItem::Image: return new PHIImageItem( p );
     case PHISvgItem::Svg: return new PHISvgItem( p );
@@ -57,6 +64,10 @@ inline PHIBaseItem* PHIDisplayItems::create( PHIWID wid, const PHIBaseItemPrivat
 inline PHIBaseItem* PHIDisplayItems::copy( const PHIBaseItem *it ) const
 {
     switch ( it->wid() ) {
+    case PHIRectItem::Rect: return new PHIRectItem( *qobject_cast<const PHIRectItem*>(it) );
+    case PHIRoundedRectItem::RoundedRect: return new PHIRoundedRectItem( *qobject_cast<const PHIRoundedRectItem*>(it) );
+    case PHIEllipseItem::Ellipse: return new PHIEllipseItem( *qobject_cast<const PHIEllipseItem*>(it) );
+    case PHIGraphicTextItem::GraphText: return new PHIGraphicTextItem( *qobject_cast<const PHIGraphicTextItem*>(it) );
     case PHILabelItem::Label: return new PHILabelItem( *qobject_cast<const PHILabelItem*>(it) );
     case PHIImageItem::Image: return new PHIImageItem( *qobject_cast<const PHIImageItem*>(it) );
     case PHISvgItem::Svg: return new PHISvgItem( *qobject_cast<const PHISvgItem*>(it) );
@@ -69,12 +80,18 @@ inline PHIBaseItem* PHIDisplayItems::copy( const PHIBaseItem *it ) const
 
 inline QStringList PHIDisplayItems::keys() const
 {
-    return QStringList() << SL( "label" ) << SL( "image" )  << SL( "svg" )
+    return QStringList() << SL( "rect" ) << SL( "ellipse" )
+        << SL( "roundedrect" ) << SL( "graphtext" )
+        << SL( "label" ) << SL( "image" )  << SL( "svg" )
         << SL( "slideshow" ) << SL( "sponsor" ) << SL( "canvas" );
 }
 
 inline PHIWID PHIDisplayItems::wid( const QString &key ) const
 {
+    if ( key==L1( "rect" ) ) return PHIRectItem::Rect;
+    if ( key==L1( "ellipse" ) ) return PHIEllipseItem::Ellipse;
+    if ( key==L1( "roundedrect" ) ) return PHIRoundedRectItem::RoundedRect;
+    if ( key==L1( "graphtext" ) ) return PHIGraphicTextItem::GraphText;
     if ( key==L1( "label" ) ) return PHILabelItem::Label;
     if ( key==L1( "image" ) ) return PHIImageItem::Image;
     if ( key==L1( "svg" ) ) return PHISvgItem::Svg;

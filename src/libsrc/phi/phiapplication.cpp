@@ -28,11 +28,13 @@
 #include <QTranslator>
 #include <QEvent>
 #include <QFileOpenEvent>
+#include <QWebSettings>
 #include "phiapplication.h"
 #include "phisysinfo.h"
 #include "phi.h"
 #include "phiitemfactory.h"
 #include "phidatasources.h"
+#include "phinetmanager.h"
 
 #ifdef Q_OS_WIN
 extern QString qAppFileName();
@@ -240,7 +242,13 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qWarning( "User doc dir: %s", qPrintable( _usrDocPath ) );
 #endif
     loadTranslations();
+    PHINetManager::instance();
     new PHIItemFactory( _itemsPath, this );
+    QWebSettings *ws=QWebSettings::globalSettings();
+    ws->setAttribute( QWebSettings::PluginsEnabled, true );
+    ws->setAttribute( QWebSettings::JavascriptCanOpenWindows, true );
+    ws->setAttribute( QWebSettings::LocalContentCanAccessRemoteUrls, true );
+    ws->setAttribute( QWebSettings::JavascriptEnabled, true );
 }
 
 PHIApplication::~PHIApplication()

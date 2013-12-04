@@ -32,6 +32,7 @@
 
 class PHIDataParser
 {
+    friend class PHIBaseItem;
     Q_DECLARE_TR_FUNCTIONS( PHIDataParser )
 
 public:
@@ -44,16 +45,10 @@ public:
     QByteArray imagePath( const QByteArray &lang=PHIData::c(), int i=0 ) const;
     PHIByteArrayList imagePathes( PHIImageBookData *data ) const;
     QByteArray createImage( const QImage &img, const QByteArray &lang=PHIData::c(), int i=0 ) const;
-    inline void setCurrentItem( const PHIBaseItem *it ) const { _currentItem=it; }
     inline const PHIRequest* request() const { return _req; }
 
     static QByteArray createTransformedImage( const PHIRequest *req, const PHIBaseItem *it, int i, QRectF &br );
-    static QByteArray createImageId( const PHIRequest *req, const QByteArray &name, const QByteArray &lang=PHIData::c(), int num=0 );
     static QByteArray createImage( const PHIRequest *req, const PHIBaseItem *it, const QImage &img, const QByteArray &lang=PHIData::c(), int num=0 );
-    static void insertTransformedImageRect( const QByteArray &imgId, const QRectF &r );
-    static QRectF transformedImageRect( const QByteArray &imgId );
-    static void insertGraphicsImageRect( const QByteArray &imgId, const QRectF &r );
-    static QRectF graphicsImageRect( const QByteArray &imgId );
 
 protected:
     enum Type { Header, Cookie, Post, Get, Request, Server, All };
@@ -76,6 +71,13 @@ protected:
     void cacheImageFile( PHIImageData *data, const QString &filename ) const;
     void cacheImageFiles( PHIImageBookData *data, const QStringList &filenames ) const;
     inline QString sqlValue( int index ) const { return _query.isValid() ? _query.value( index ).toString() : QString(); }
+    inline void setCurrentItem( const PHIBaseItem *it ) const { _currentItem=it; }
+
+    static QByteArray createImageId( const PHIRequest *req, const QByteArray &name, const QByteArray &lang=PHIData::c(), int num=0 );
+    static void insertTransformedImageRect( const QByteArray &imgId, const QRectF &r );
+    static QRectF transformedImageRect( const QByteArray &imgId );
+    static void insertGraphicsImageRect( const QByteArray &imgId, const QRectF &r );
+    static QRectF graphicsImageRect( const QByteArray &imgId );
 
 private:
     const PHIRequest *_req;

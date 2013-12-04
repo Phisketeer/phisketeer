@@ -110,3 +110,20 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
     foreach( it, _children ) it->html( req, out, script, indent+'\t' );
     out+=indent+BL( "</div>\n" );
 }
+
+void PHIAbstractExternalItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::HTML5 || req->agentFeatures() & PHIRequest::IE678 ) ) {
+        out+=indent+BL( "<iframe width=\"" )+QByteArray::number( qRound(realWidth()) )
+            +BL( "\" height=\"" )+QByteArray::number( qRound(realHeight()) )+'"';
+        htmlBase( req, out, script );
+        out+=BL( "\" src=\"" )+source()+data( DText ).toByteArray()
+            +BL( "\"></iframe>\n" );
+    } else {
+        out+=indent+BL( "<object" );
+        htmlBase( req, out, script );
+        out+=BL( "\" data=\"" )+source()+data( DText ).toByteArray()
+            +BL( "\" type=\"text/html\"></object>\n" );
+    }
+    htmlInitItem( script );
+}

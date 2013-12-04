@@ -1,6 +1,4 @@
 /*
-#    Copyright (C) 2008  Trolltech AS
-#    Copyright (C) 2012  Digia Plc and/or its subsidiary(-ies).
 #    Copyright (C) 2010-2013  Marius B. Schumacher
 #    Copyright (C) 2011-2013  Phisys AG, Switzerland
 #    Copyright (C) 2012-2013  Phisketeer.org team
@@ -17,8 +15,6 @@
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#    Note: some parts are based on code provided by the Qt source.
 */
 #ifndef PHIPALETTE_H
 #define PHIPALETTE_H

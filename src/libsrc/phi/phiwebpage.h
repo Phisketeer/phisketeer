@@ -1,3 +1,4 @@
+/*
 #    Copyright (C) 2010-2013  Marius B. Schumacher
 #    Copyright (C) 2011-2013  Phisys AG, Switzerland
 #    Copyright (C) 2012-2013  Phisketeer.org team
@@ -10,19 +11,31 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Lesser General Public License for more details.
+#    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#ifndef PHIWEBPAGE_H
+#define PHIWEBPAGE_H
+#include <QWebPage>
 
-include( ../items.pri )
-HEADERS += phiprimitives.h \
-    phiellipseitem.h \
-    phirectitem.h \
-    phigraphictext.h
-SOURCES += \
-    phiellipseitem.cpp \
-    phirectitem.cpp \
-    phigraphictext.cpp
-TARGET = phiprimitives
-OTHER_FILES = phiprimitives.json
+class PHIWebPage : public QWebPage
+{
+    Q_OBJECT
+
+public:
+    explicit PHIWebPage( QObject *parent=0 );
+
+protected slots:
+    //void slotUpdateGeometry( const QRect& );
+
+protected:
+    //virtual QWebPage* createWindow( WebWindowType type );
+
+private:
+    //QWebView *_view;
+
+};
+
+#endif // PHIWEBPAGE_H
