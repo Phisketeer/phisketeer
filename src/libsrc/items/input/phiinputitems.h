@@ -139,7 +139,7 @@ public:
 protected:
     virtual bool isSingleLine() const { return false; }
     virtual void setWidgetText( const QString &t );
-    virtual void setReadOnly( bool b);
+    virtual void setReadOnly( bool b );
 
 private:
     void initWidget();

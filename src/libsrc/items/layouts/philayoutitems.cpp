@@ -211,6 +211,7 @@ void PHIGridLayoutItem::loadItemData( QDataStream &in, int version )
         in >> id >> row >> col >> rowspan >> colspan;
         QRect r( static_cast<int>(col), static_cast<int>(row), static_cast<int>(colspan), static_cast<int>(rowspan) );
         childRects.insert( id, r );
+        qDebug() << id << r.y() << r.x() << r.height() << r.width();
     }
     setChildRects( childRects );
 }

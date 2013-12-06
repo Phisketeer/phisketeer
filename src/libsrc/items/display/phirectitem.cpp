@@ -109,9 +109,9 @@ void PHIRectItem::drawShape( QPainter *p, const QRectF& )
         qreal rw=realPenWidth();
         cr.adjust( -rw, -rw, rw, rw );
     }
-    if ( borderRadius() ) {
+    if ( realBorderRadius() ) {
         p->setRenderHint( QPainter::Antialiasing );
-        p->drawRoundedRect( cr, borderRadius(), borderRadius() );
+        p->drawRoundedRect( cr, realBorderRadius(), realBorderRadius() );
         p->setRenderHint( QPainter::Antialiasing, false );
     } else p->drawRect( cr );
     if ( realLine()>0 ) {
@@ -120,7 +120,7 @@ void PHIRectItem::drawShape( QPainter *p, const QRectF& )
         cr=QRectF( -off, -off, realWidth()+2*off, realHeight()+2*off );
         p->setBrush( Qt::NoBrush );
         p->setPen( pen );
-        if ( borderRadius() ) p->drawRoundedRect( cr, borderRadius(), borderRadius() );
+        if ( realBorderRadius() ) p->drawRoundedRect( cr, realBorderRadius(), realBorderRadius() );
         else p->drawRect( cr );
     }
 }
@@ -146,7 +146,7 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )
         return PHIAbstractShapeItem::html( req, out, script, indent );
     bool needImage=false;
-    if ( Q_UNLIKELY( borderRadius() && !(req->agentFeatures() & PHIRequest::BorderRadius) ) ) needImage=true;
+    if ( Q_UNLIKELY( realBorderRadius() && !(req->agentFeatures() & PHIRequest::BorderRadius) ) ) needImage=true;
     else if ( Q_UNLIKELY( realLine()>3 ) ) needImage=true;
     else if ( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::RGBA) ) ) needImage=true;
     else if ( Q_UNLIKELY( realPattern()>1 && realPattern()<15 ) ) needImage=true;
@@ -164,11 +164,11 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
         htmlBase( req, out, script, true );
         if ( realPattern()==1 ) out+=BL( "background-color:" )+cssRgba( realColor() )+';';
         else if ( realPattern()==15 ) cssLinearGradient( req, out );
-        if ( borderRadius() ) { // rounded corners
+        if ( realBorderRadius() ) { // rounded corners
             QByteArray prefix=QByteArray();
             if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()<534 ) prefix=req->agentPrefix();
             else if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()<2 ) prefix=req->agentPrefix();
-            out+=prefix+BL( "border-radius:" )+QByteArray::number( borderRadius() )+BL( "px;" );
+            out+=prefix+BL( "border-radius:" )+QByteArray::number( realBorderRadius() )+BL( "px;" );
         }
         if ( realLine()>0 ) { // border
             QByteArray style=BL( "solid" );

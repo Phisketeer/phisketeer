@@ -107,9 +107,7 @@ public:
         LINE=15
         LINK=23, TAB=24, TEXT=29,
         LANG_SELECTOR=33, LAYOUT_DELIVERY=35,
-        ROLLOVER_BUTTON=37,
-        RICH_TEXT=41, IMAGE_BOOK=45,
-        PROGRESSBAR=59
+        RICH_TEXT=41, IMAGE_BOOK=45
     */
     explicit PHIBaseItem( const PHIBaseItemPrivate &p );
     PHIBaseItem( const PHIBaseItem &it );
@@ -217,7 +215,6 @@ public: // not usable by script engine
     virtual PHIWID htmlScriptExtension( const PHIRequest *req, QByteArray &globalScript ) const { Q_UNUSED(req ) Q_UNUSED( globalScript ) return 0; }
     QByteArray save( int version );
 
-    //virtual functions
     inline virtual bool hasText() const { return false; }
     inline virtual bool hasSingleImage() const { return false; }
     inline virtual bool hasImages() const { return false; }

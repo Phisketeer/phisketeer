@@ -149,8 +149,8 @@ void PHIEllipseItem::ideInit()
 void PHIEllipseItem::drawShape( QPainter *p, const QRectF& )
 {
     p->setRenderHint( QPainter::Antialiasing );
-    if ( spanAngle()==5760 ) p->drawEllipse( rect() );
-    else p->drawPie( rect(), startAngle(), spanAngle() );
+    if ( realSpanAngle()==5760 ) p->drawEllipse( rect() );
+    else p->drawPie( rect(), realStartAngle(), realSpanAngle() );
 }
 
 PHIConfigWidget* PHIEllipseItem::ideConfigWidget()

@@ -24,6 +24,7 @@
 #include "phigraphictext.h"
 #include "phiellipseitem.h"
 #include "phirectitem.h"
+#include "phiprogressitem.h"
 #include "phi.h"
 
 class PHIDisplayItems : public PHIItemPlugin
@@ -56,6 +57,7 @@ inline PHIBaseItem* PHIDisplayItems::create( PHIWID wid, const PHIBaseItemPrivat
     case PHISvgItem::Svg: return new PHISvgItem( p );
     case PHISlideShowItem::SlideShow: return new PHISlideShowItem( p );
     case PHICanvasItem::Canvas: return new PHICanvasItem( p );
+    case PHIProgressItem::Progress: return new PHIProgressItem( p );
     case PHISponsorItem::Sponsor: return new PHISponsorItem( p );
     }
     return 0;
@@ -73,6 +75,7 @@ inline PHIBaseItem* PHIDisplayItems::copy( const PHIBaseItem *it ) const
     case PHISvgItem::Svg: return new PHISvgItem( *qobject_cast<const PHISvgItem*>(it) );
     case PHISlideShowItem::SlideShow: return new PHISlideShowItem( *qobject_cast<const PHISlideShowItem*>(it) );
     case PHICanvasItem::Canvas: return new PHICanvasItem( *qobject_cast<const PHICanvasItem*>(it) );
+    case PHIProgressItem::Progress: return new PHIProgressItem( *qobject_cast<const PHIProgressItem*>(it) );
     case PHISponsorItem::Sponsor: return new PHISponsorItem( *qobject_cast<const PHISponsorItem*>(it) );
     }
     return 0;
@@ -83,7 +86,8 @@ inline QStringList PHIDisplayItems::keys() const
     return QStringList() << SL( "rect" ) << SL( "ellipse" )
         << SL( "roundedrect" ) << SL( "graphtext" )
         << SL( "label" ) << SL( "image" )  << SL( "svg" )
-        << SL( "slideshow" ) << SL( "sponsor" ) << SL( "canvas" );
+        << SL( "slideshow" ) << SL( "sponsor" ) << SL( "canvas" )
+        << SL( "progress" );
 }
 
 inline PHIWID PHIDisplayItems::wid( const QString &key ) const
@@ -97,6 +101,7 @@ inline PHIWID PHIDisplayItems::wid( const QString &key ) const
     if ( key==L1( "svg" ) ) return PHISvgItem::Svg;
     if ( key==L1( "slideshow" ) ) return PHISlideShowItem::SlideShow;
     if ( key==L1( "canvas" ) ) return PHICanvasItem::Canvas;
+    if ( key==L1( "progress" ) ) return PHIProgressItem::Progress;
     if ( key==L1( "sponsor" ) ) return PHISponsorItem::Sponsor;
     return 0;
 }

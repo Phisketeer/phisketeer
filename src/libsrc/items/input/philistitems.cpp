@@ -21,6 +21,7 @@
 #include "philistitems.h"
 #include "phibasepage.h"
 #include "phidatasources.h"
+#include "phiinputtools.h"
 
 void PHISelectItem::initWidget()
 {
@@ -33,7 +34,7 @@ void PHISelectItem::ideInit()
     QComboBox *cb=qobject_cast<QComboBox*>(widget());
     Q_ASSERT( cb );
     cb->setEditable( false );
-    textData()->setText( L1( "Select1[s1][true]\nSelect2[s2]" ) );
+    textData()->setText( L1( "Select1[s1]\nSelect2[s2][true]" ) );
     setColor( PHIPalette::WidgetBase, PHIPalette::Button, page()->phiPalette().color( PHIPalette::Button ) );
     setColor( PHIPalette::WidgetText, PHIPalette::ButtonText, page()->phiPalette().color( PHIPalette::ButtonText ) );
 }
@@ -50,7 +51,15 @@ void PHISelectItem::setWidgetText( const QString &t )
     Q_ASSERT( cb );
     QStringList list=t.split( realDelimiter(), QString::SkipEmptyParts );
     cb->clear();
-    cb->addItems( list );
+    QString d, opt;
+    bool isChecked;
+    int checked=0;
+    foreach ( d, list ) {
+        PHI::getItemCheckData( d, opt, isChecked );
+        cb->addItem( d, opt.isEmpty() ? d : opt );
+        if ( isChecked && checked==0 ) checked=cb->count()-1;
+    }
+    cb->setCurrentIndex( checked );
 }
 
 void PHISelectItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
@@ -82,6 +91,50 @@ QSizeF PHISelectItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) c
         s.setWidth( 96. );
     }
     return s;
+}
+
+void PHISelectItem::htmlSelectOptions( QByteArray &out, const QByteArray &indent ) const
+{
+    bool isChecked;
+    const QByteArray checked=BL( "\" selected=\"selected" );
+    if ( Q_LIKELY( realDelimiter().size()==1 ) ) {
+        PHIByteArrayList list=data( DText ).toByteArray().split( realDelimiter().at( 0 ).toLatin1() );
+        QByteArray arr, opt;
+        foreach( arr, list ) {
+            PHI::getItemCheckData( arr, opt, isChecked );
+            out+=indent+BL( "<option value=\"" )+opt;
+            if ( isChecked ) out+=checked;
+            out+=BL( "\">" )+arr+BL( "</option>\n" );
+        }
+    } else { // expensive (utf8 conversion)
+        QStringList list=realText().split( realDelimiter() );
+        QString s, opt;
+        foreach( s, list ) {
+            PHI::getItemCheckData( s, opt, isChecked );
+            out+=indent+BL( "<option value=\"" )+opt.toUtf8();
+            if ( isChecked ) out+=checked;
+            out+=BL( "\">" )+s.toUtf8()+BL( "</option>\n" );
+        }
+    }
+}
+
+void PHISelectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    out+=indent+BL( "<select name=\"" )+id()+BL( "\"" );
+    if ( wid()==MultiSelect ) {
+        out+=BL( " multiple=\"multiple\"" );
+        setAdjustedRect( PHIInputTools::adjustedMultiSelect( req, rect() ) );
+    } else {
+        setAdjustedRect( PHIInputTools::adjustedSelect( req, rect() ) );
+    }
+    htmlBase( req, out, script );
+    if ( wid()!=MultiSelect && realHeight()>27 ) {
+        if ( req->agentEngine()==PHIRequest::WebKit ) out+=BL( "border:0" );
+    }
+    out+=BL( "\">\n" );
+    htmlSelectOptions( out, indent+'\t' );
+    out+=indent+BL( "</select>\n" );
+    htmlInitItem( script );
 }
 
 QScriptValue PHISelectItem::delimiter( const QScriptValue &d )
@@ -121,6 +174,7 @@ void PHIMultiSelectItem::initWidget()
 {
     QListWidget *lw=new QListWidget();
     lw->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    lw->setSelectionMode( QAbstractItemView::MultiSelection );
 #ifdef Q_OS_MAC
     lw->setForegroundRole( QPalette::Button );
     lw->setFrameStyle( QFrame::Box );
@@ -140,9 +194,18 @@ void PHIMultiSelectItem::setWidgetText( const QString &t )
 {
     QListWidget *lw=qobject_cast<QListWidget*>(widget());
     Q_ASSERT( lw );
-    QStringList list=t.split( realDelimiter(), QString::SkipEmptyParts );
+    QStringList list=t.split( realDelimiter() );
     lw->clear();
-    lw->addItems( list );
+    QListWidgetItem *it;
+    QString d, opt;
+    bool isChecked;
+    foreach ( d, list ) {
+        PHI::getItemCheckData( d, opt, isChecked );
+        it=new QListWidgetItem( d );
+        lw->addItem( it );
+        it->setData( Qt::UserRole, opt );
+        it->setSelected( isChecked );
+    }
 }
 
 void PHIMultiSelectItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )

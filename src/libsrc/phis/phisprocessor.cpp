@@ -563,7 +563,7 @@ void PHISProcessor::createUiCSS() const
     }
     QStringList list;
     list << L1( "ui-core.css" ) << L1( "ui-datepicker.css" ) << L1( "ui-button.css" )
-         << L1( "ui-jqgrid.css" );
+         << L1( "ui-jqgrid.css" ) << L1( "ui-progressbar.css" );
     foreach( const QString css, list ) {
         QFile src( L1( ":/" )+css );
         if ( !src.open( QIODevice::ReadOnly ) ) {

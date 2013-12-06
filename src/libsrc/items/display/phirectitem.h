@@ -49,7 +49,7 @@ private:
 class PHIRectItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
-    Q_PROPERTY( qint16 borderRadius READ borderRadius WRITE setBorderRadius NOTIFY borderRadiusChanged )
+    Q_PROPERTY( qint16 _borderRadius READ realBorderRadius WRITE setBorderRadius SCRIPTABLE false )
 
 public:
     enum ItemData { DBorderRadius=1 };
@@ -62,11 +62,10 @@ public:
     inline PHIIntData* radiusData() { return &_radiusData; }
     virtual QString listName() const { return tr( "Rect" ); }
     virtual QString description() const { return tr( "Draws a box or rect with optional rounded courners" ); }
-    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/rect" ) ); }
+    virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/rect" ) ); }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
-public slots:
-    inline virtual qint16 borderRadius() const { return data( DBorderRadius, 0 ).value<qint16>(); }
+    inline virtual qint16 realBorderRadius() const { return data( DBorderRadius, 0 ).value<qint16>(); }
     inline virtual void setBorderRadius( qint16 r ) { setData( DBorderRadius, r ); update(); }
 
 protected:
@@ -78,9 +77,6 @@ protected:
     virtual void ideUpdateData();
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void phisCreateData( const PHIDataParser &parser);
-
-signals:
-    void borderRadiusChanged( qint16 );
 
 private:
     virtual PHIIntData* intData_1() { return &_radiusData; }

@@ -22,12 +22,14 @@ HEADERS += phidisplayitems.h \
     phiimageitems.h \
     phirectitem.h \
     phiellipseitem.h \
-    phigraphictext.h
+    phigraphictext.h \
+    phiprogressitem.h
 SOURCES += \
     phitextitems.cpp \
     phiimageitems.cpp \
     phirectitem.cpp \
     phiellipseitem.cpp \
-    phigraphictext.cpp
+    phigraphictext.cpp \
+    phiprogressitem.cpp
 TARGET = phidisplayitems
 OTHER_FILES = phidisplay.json

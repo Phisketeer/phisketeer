@@ -150,6 +150,7 @@ public:
     static QByteArray toEasingCurveByteArray( quint8 ease );
     static QStringList availableEasingCurves();
     static void getItemCheckData( QString &data, QString &opt, bool &isChecked );
+    static void getItemCheckData( QByteArray &data, QByteArray &opt, bool &isChecked );
 
 private:
     static const char* _phiDT;

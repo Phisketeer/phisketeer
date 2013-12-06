@@ -351,7 +351,7 @@ QString PHIDataParser::replaceDefaultLangC( const QString &fileName, QByteArray 
     QString fn=resolvePath( fileName );
     matchedLang=matchedLangForResolvedFilename( fn );
     if ( matchedLang==PHIData::c() ) return fn;
-    fn.replace( L1( "/C/" ), QString::fromLatin1( matchedLang ) );
+    fn.replace( L1( "/C/" ), QLatin1Char( '/' )+QString::fromLatin1( matchedLang )+QLatin1Char( '/' ) );
     return fn;
 }
 

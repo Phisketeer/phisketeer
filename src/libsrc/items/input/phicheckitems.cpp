@@ -142,6 +142,7 @@ void PHICheckBoxItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
     out+=BL( "\"><label class=\"phi\" for=\"" )+id()+BL( "_phi\" id=\"" )+id()
         +BL( "_phit\">" )+data( DText ).toByteArray().replace( '\n', BL( "<br>" ) )
         +BL( "</label></td></tr></table>\n" )+indent+BL( "</div>\n" );
+    htmlInitItem( script );
     if ( realChecked() ) script+=BL( "$('" )+id()+BL( "').checked(1);\n" );
 }
 
@@ -202,5 +203,7 @@ void PHIRadioButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArra
     out+=BL( "\"><label class=\"phi\" for=\"" )+id()+BL( "_phi\" id=\"" )+id()
         +BL( "_phit\">" )+data( DText ).toByteArray().replace( '\n', BL( "<br>" ) )
         +BL( "</label></td></tr></table>\n" )+indent+BL( "</div>\n" );
-    if ( realChecked() ) script+=BL( "$('" )+id()+BL( "').checked(1);\n" );
+    htmlInitItem( script, false );
+    if ( realChecked() ) script+=BL( ".checked(1);\n" );
+    else script+=BL( ";\n" );
 }

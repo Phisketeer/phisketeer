@@ -59,7 +59,7 @@ void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scr
         if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text )
             out+=BL( "color:" )+cssRgba( realColor() )+';';
     }
-    out+=BL( "\"><table><tr><td style=\"" );
+    out+=BL( "\"><table class=\"phi\"><tr><td style=\"" );
     Qt::Alignment a=static_cast<Qt::Alignment>(realAlignment());
     if ( data( DFont ).isValid() ) {
         QFont f=data( DFont ).value<QFont>();

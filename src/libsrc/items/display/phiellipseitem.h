@@ -52,8 +52,8 @@ private:
 class PHIEllipseItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
-    Q_PROPERTY( int startAngle READ startAngle WRITE setStartAngle NOTIFY startAngleChanged )
-    Q_PROPERTY( int spanAngle READ spanAngle WRITE setSpanAngle NOTIFY spanAngleChanged )
+    Q_PROPERTY( int _startAngle READ realStartAngle WRITE setStartAngle SCRIPTABLE false )
+    Q_PROPERTY( int _spanAngle READ realSpanAngle WRITE setSpanAngle SCRIPTABLE false )
 
 public:
     enum ItemData { DStartAngle=1, DSpanAngle=2 };
@@ -66,18 +66,17 @@ public:
     inline virtual PHIWID wid() const { return Ellipse; }
     virtual QString listName() const { return tr( "Ellipse" ); }
     virtual QString description() const { return tr( "Draws an ellipse, pie or circle" ); }
-    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/ellipse" ) ); }
+    virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/ellipse" ) ); }
     inline PHIIntData* startData() { return &_startData; }
     inline PHIIntData* spanData() { return &_spanData; }
     virtual PHIIntData* intData_1() { return &_startData; }
     virtual PHIIntData* intData_2() { return &_spanData; }
     virtual void ideInit();
 
-public slots:
     inline void setStartAngle( int a ) { setData( DStartAngle, a ); update(); }
     inline void setSpanAngle( int a ) { setData( DSpanAngle, a ); update(); }
-    inline int startAngle() const { return data( DStartAngle, 0 ).toInt(); }
-    inline int spanAngle() const { return data( DSpanAngle, 5760 ).toInt(); }
+    inline int realStartAngle() const { return data( DStartAngle, 0 ).toInt(); }
+    inline int realSpanAngle() const { return data( DSpanAngle, 5760 ).toInt(); }
 
 protected:
     virtual void ideUpdateData();

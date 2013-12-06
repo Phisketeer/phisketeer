@@ -23,10 +23,10 @@
 class PHISelectItem : public PHIAbstractInputItem
 {
     Q_OBJECT
-    Q_PROPERTY( QString _delimiter READ realDelimiter WRITE setDelimiter )
+    Q_PROPERTY( QString _delimiter READ realDelimiter WRITE setDelimiter SCRIPTABLE false )
 
 public:
-    enum Wid { Select=10 };
+    enum Wid { Select=10, MultiSelect=18 };
     enum ItemData { DDelimiter=1 };
     explicit PHISelectItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
     PHISelectItem( const PHISelectItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
@@ -37,6 +37,8 @@ public:
     virtual PHIWID wid() const { return Select; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/selectbox" ) ); }
     virtual void ideInit();
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
     inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
     inline QString realDelimiter() const { return QString::fromUtf8( data( DDelimiter, BL( "\n" ) ).toByteArray() ); }
 
@@ -50,6 +52,7 @@ protected:
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    void htmlSelectOptions( QByteArray &out, const QByteArray &indent ) const;
 };
 
 class PHISelectCountryItem : public PHISelectItem
@@ -74,7 +77,6 @@ class PHIMultiSelectItem : public PHISelectItem
     Q_OBJECT
 
 public:
-    enum Wid { MultiSelect=18 };
     explicit PHIMultiSelectItem( const PHIBaseItemPrivate &p ) : PHISelectItem( p ) { if ( isGuiItem() ) initWidget(); }
     PHIMultiSelectItem( const PHIMultiSelectItem &it ) : PHISelectItem( it ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHIMultiSelectItem() {}

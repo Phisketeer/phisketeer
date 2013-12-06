@@ -20,14 +20,14 @@
 #define PHICONTAINERITEMS_H
 #include "philayoutitems.h"
 
-class PHILoginContainerItem : public PHIFormLayoutItem
+class PHILoginContainerItem : public PHIGridLayoutItem
 {
     Q_OBJECT
 
 public:
     enum Wid { LoginContainer=17 };
-    explicit PHILoginContainerItem( const PHIBaseItemPrivate &p ) : PHIFormLayoutItem( p ) {}
-    PHILoginContainerItem( const PHILoginContainerItem &it ) : PHIFormLayoutItem( it ) {}
+    explicit PHILoginContainerItem( const PHIBaseItemPrivate &p ) : PHIGridLayoutItem( p ) {}
+    PHILoginContainerItem( const PHILoginContainerItem &it ) : PHIGridLayoutItem( it ) {}
     virtual ~PHILoginContainerItem() {}
 
     inline virtual PHIWID wid() const { return LoginContainer; }
@@ -38,71 +38,75 @@ public:
     virtual void ideInit();
 };
 
-class PHIRegisterUserContainerItem : public PHILoginContainerItem
+class PHIRegisterUserContainerItem : public PHIGridLayoutItem
 {
     Q_OBJECT
 
 public:
     enum Wid { RegisterUserContainer=40 };
-    explicit PHIRegisterUserContainerItem( const PHIBaseItemPrivate &p ) : PHILoginContainerItem( p ) {}
-    PHIRegisterUserContainerItem( const PHIRegisterUserContainerItem &it ) : PHILoginContainerItem( it ) {}
+    explicit PHIRegisterUserContainerItem( const PHIBaseItemPrivate &p ) : PHIGridLayoutItem( p ) {}
+    PHIRegisterUserContainerItem( const PHIRegisterUserContainerItem &it ) : PHIGridLayoutItem( it ) {}
     virtual ~PHIRegisterUserContainerItem() {}
 
     inline virtual PHIWID wid() const { return RegisterUserContainer; }
     inline virtual QString listName() const { return tr( "Register user" ); }
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/user" ) ); }
     inline virtual QString description() const { return tr( "Regsister user layout container." ); }
+    inline virtual bool isPrivateItem() const { return false; }
     virtual void ideInit();
 };
 
-class PHIAddressContainerItem : public PHILoginContainerItem
+class PHIAddressContainerItem : public PHIGridLayoutItem
 {
     Q_OBJECT
 
 public:
     enum Wid { AddressContainer=34 };
-    explicit PHIAddressContainerItem( const PHIBaseItemPrivate &p ) : PHILoginContainerItem( p ) {}
-    PHIAddressContainerItem( const PHIAddressContainerItem &it ) : PHILoginContainerItem( it ) {}
+    explicit PHIAddressContainerItem( const PHIBaseItemPrivate &p ) : PHIGridLayoutItem( p ) {}
+    PHIAddressContainerItem( const PHIAddressContainerItem &it ) : PHIGridLayoutItem( it ) {}
     virtual ~PHIAddressContainerItem() {}
 
     inline virtual PHIWID wid() const { return AddressContainer; }
     inline virtual QString listName() const { return tr( "Address" ); }
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/address" ) ); }
     inline virtual QString description() const { return tr( "Address layout container." ); }
+    inline virtual bool isPrivateItem() const { return false; }
     virtual void ideInit();
 };
 
-class PHIContactContainerItem : public PHILoginContainerItem
+class PHIContactContainerItem : public PHIGridLayoutItem
 {
     Q_OBJECT
 
 public:
     enum Wid { ContactContainer=38 };
-    explicit PHIContactContainerItem( const PHIBaseItemPrivate &p ) : PHILoginContainerItem( p ) {}
-    PHIContactContainerItem( const PHIContactContainerItem &it ) : PHILoginContainerItem( it ) {}
+    explicit PHIContactContainerItem( const PHIBaseItemPrivate &p ) : PHIGridLayoutItem( p ) {}
+    PHIContactContainerItem( const PHIContactContainerItem &it ) : PHIGridLayoutItem( it ) {}
     virtual ~PHIContactContainerItem() {}
 
     inline virtual PHIWID wid() const { return ContactContainer; }
     inline virtual QString listName() const { return tr( "Contact" ); }
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/contact" ) ); }
     inline virtual QString description() const { return tr( "Contact layout container." ); }
+    inline virtual bool isPrivateItem() const { return false; }
     virtual void ideInit();
 };
 
-class PHIPeriodContainerItem : public PHILoginContainerItem
+class PHIPeriodContainerItem : public PHIGridLayoutItem
 {
     Q_OBJECT
 
 public:
     enum Wid { PeriodContainer=39 };
-    explicit PHIPeriodContainerItem( const PHIBaseItemPrivate &p ) : PHILoginContainerItem( p ) {}
-    PHIPeriodContainerItem( const PHIPeriodContainerItem &it ) : PHILoginContainerItem( it ) {}
+    explicit PHIPeriodContainerItem( const PHIBaseItemPrivate &p ) : PHIGridLayoutItem( p ) {}
+    PHIPeriodContainerItem( const PHIPeriodContainerItem &it ) : PHIGridLayoutItem( it ) {}
     virtual ~PHIPeriodContainerItem() {}
 
     inline virtual PHIWID wid() const { return PeriodContainer; }
     inline virtual QString listName() const { return tr( "Period" ); }
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/period" ) ); }
     inline virtual QString description() const { return tr( "Date period layout container." ); }
+    inline virtual bool isPrivateItem() const { return false; }
     virtual void ideInit();
 };
 

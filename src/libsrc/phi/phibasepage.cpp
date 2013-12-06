@@ -570,7 +570,7 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         it->html( req, out, script, indent );
     }
     if ( _flags & FHasAction ) {
-        out+=indent+BL( "<input type=\"hidden\" id=\"phisid\" value=\"" )
+        out+=indent+BL( "<input type=\"hidden\" name=\"phisid\" value=\"" )
             +_variants.value( DSession ).toByteArray()+BL( "\">\n</form>\n" );
     }
     out+=BL( "</div>\n<script type=\"text/javascript\">\n/* <![CDATA[ */\n" );

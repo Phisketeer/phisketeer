@@ -218,7 +218,32 @@ void PHI::getItemCheckData( QString &data, QString &opt, bool &isChecked )
             end=data.indexOf( QLatin1Char( ']' ), startsel );
             if ( end>0 ) {
                 QString selected=data.mid( startsel+1, end-startsel-1 ).toLower();
-                if ( selected.toInt() || selected==L1( "true" ) ) isChecked=true;
+                if ( selected.toInt() || selected.toLower()==L1( "true" ) ) isChecked=true;
+            }
+        }
+        data.truncate( start );
+    }
+}
+
+void PHI::getItemCheckData( QByteArray &data, QByteArray &opt, bool &isChecked )
+{
+    isChecked=false;
+    opt=QByteArray();
+    int start, startsel, end;
+    start=data.indexOf( '[' );
+    if ( start==-1 ) {
+        opt=data;
+        return;
+    }
+    end=data.indexOf( ']' );
+    if ( end>0 ) {
+        opt=data.mid( start+1, end-start-1 );
+        startsel=data.indexOf( '[', start+1 );
+        if ( startsel!=-1 ) {
+            end=data.indexOf( ']', startsel );
+            if ( end>0 ) {
+                QByteArray selected=data.mid( startsel+1, end-startsel-1 ).toLower();
+                if ( selected.toInt() || selected.toLower()=="true" ) isChecked=true;
             }
         }
         data.truncate( start );
