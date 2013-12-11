@@ -56,6 +56,7 @@
 #include <QtCore/qnamespace.h>
 #include <QtGui/qpixmap.h>
 #include <QtWidgets/qgraphicseffect.h>
+#include "phi.h"
 
 #ifndef QT_NO_GRAPHICSEFFECT
 QT_BEGIN_NAMESPACE
@@ -66,7 +67,7 @@ class QPlatformPixmap;
 
 class QPixmapFilterPrivate;
 
-class Q_WIDGETS_EXPORT QPixmapFilter : public QObject
+class PHIEXPORT QPixmapFilter : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QPixmapFilter)
@@ -95,7 +96,7 @@ protected:
 
 class QPixmapConvolutionFilterPrivate;
 
-class Q_WIDGETS_EXPORT QPixmapConvolutionFilter : public QPixmapFilter
+class PHIEXPORT QPixmapConvolutionFilter : public QPixmapFilter
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QPixmapConvolutionFilter)
@@ -119,7 +120,7 @@ private:
 
 class QPixmapBlurFilterPrivate;
 
-class Q_WIDGETS_EXPORT QPixmapBlurFilter : public QPixmapFilter
+class PHIEXPORT QPixmapBlurFilter : public QPixmapFilter
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QPixmapBlurFilter)
@@ -143,7 +144,7 @@ private:
 
 class QPixmapColorizeFilterPrivate;
 
-class Q_WIDGETS_EXPORT QPixmapColorizeFilter : public QPixmapFilter
+class PHIEXPORT QPixmapColorizeFilter : public QPixmapFilter
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QPixmapColorizeFilter)
@@ -162,7 +163,7 @@ public:
 
 class QPixmapDropShadowFilterPrivate;
 
-class Q_WIDGETS_EXPORT QPixmapDropShadowFilter : public QPixmapFilter
+class PHIEXPORT QPixmapDropShadowFilter : public QPixmapFilter
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QPixmapDropShadowFilter)

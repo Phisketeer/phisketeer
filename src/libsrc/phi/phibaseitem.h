@@ -323,8 +323,8 @@ protected:
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
 
     // HTML related members
-    virtual void phisParseData( const PHIDataParser &parser ) { Q_UNUSED( parser ) }
-    virtual void phisCreateData( const PHIDataParser &parser ) { Q_UNUSED( parser ) }
+    virtual void phisParseData( const PHIDataParser &parser );
+    virtual void phisCreateData( const PHIDataParser &parser );
     virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
     bool cssGradientCreateable( const PHIRequest *req ) const;

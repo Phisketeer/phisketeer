@@ -51,7 +51,7 @@ private:
     QSemaphore *_sem;
 };
 
-class PHINetRequestThread : public QThread
+class PHIEXPORT PHINetRequestThread : public QThread
 {
     Q_OBJECT
 

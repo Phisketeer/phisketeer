@@ -35,7 +35,7 @@ static bool yLessThan( const PHIBaseItem *it1, const PHIBaseItem *it2 )
 
 void PHIHorizontalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
 {
-    if ( !list.count()>1 ) return;
+    if ( !(list.count()>1) ) return;
     _childIds.clear();
     QList <PHIBaseItem*>slist=list;
     qSort( slist.begin(), slist.end(), xLessThan );

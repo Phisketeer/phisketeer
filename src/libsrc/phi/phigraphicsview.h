@@ -18,11 +18,11 @@
 */
 #ifndef PHIGRAPHICSVIEW_H
 #define PHIGRAPHICSVIEW_H
-
 #include <QGraphicsView>
 #include "phigraphicsscene.h"
+#include "phi.h"
 
-class PHIGraphicsView : public QGraphicsView
+class PHIEXPORT PHIGraphicsView : public QGraphicsView
 {
     Q_OBJECT
 

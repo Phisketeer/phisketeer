@@ -25,9 +25,10 @@ MOC_DIR = .tmp
 RCC_DIR = .tmp
 win32 {
     DESTDIR = ../../../../bin/plugins/modules
-    LIBS = -L../../../../bin phi1.lib phis1.lib
+    LIBS = -L../../../../bin phi2.lib phis2.lib
     CONFIG(debug,debug|release) {
-        LIBS = -L../../../../bin phid1.lib phisd1.lib
+        LIBS = -L../../../../bin phid2.lib phisd2.lib
+        DEFINES += PHIDEBUG
     } else {
         DEFINES += QT_NO_DEBUG_OUTPUT
     }
@@ -37,6 +38,7 @@ unix {
     LIBS = -L../../../../lib -lphi -lphis
     CONFIG(debug,debug|release){
         LIBS = -L../../../../lib -lphi_debug -lphis_debug
+        DEFINES += PHIDEBUG
     } else {
         DEFINES += QT_NO_DEBUG_OUTPUT
     }
