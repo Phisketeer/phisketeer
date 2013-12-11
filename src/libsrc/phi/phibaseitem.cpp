@@ -381,7 +381,7 @@ void PHIBaseItem::setWidget( QWidget *w )
         return;
     }
     proxy->setWidget( w );
-    proxy->setCacheMode( QGraphicsItem::ItemCoordinateCache );
+    //proxy->setCacheMode( QGraphicsItem::ItemCoordinateCache );
     proxy->setFlag( QGraphicsItem::ItemUsesExtendedStyleOption, true );
 }
 
@@ -478,8 +478,7 @@ void PHIBaseItem::setTransformPos( quint8 position )
     case PHI::BottomLeft: o=QPointF( 0, _height ); break;
     case PHI::BottomMid: o=QPointF( _width/2., _height ); break;
     case PHI::BottomRight: o=QPointF( _width, _height ); break;
-    default:;
-        return; // o==PHI::Custom (user defined origin)
+    default: return; // o==PHI::Custom (user defined origin)
     }
     QTransform t=computeTransformation();
     QPointF org=t.map( o );
@@ -555,7 +554,7 @@ void PHIBaseItem::paint( QPainter *painter, const QRectF &exposed )
     QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_gw);
     if ( !proxy ) return;
     if ( !proxy->widget() ) return;
-    const QRect exposedRect=( exposed & rect() ).toAlignedRect();
+    const QRect exposedRect=( exposed & boundingRect() ).toAlignedRect();
     if ( exposedRect.isEmpty() ) return;
     painter->setRenderHint( QPainter::TextAntialiasing );
     painter->setRenderHint( QPainter::SmoothPixmapTransform );
