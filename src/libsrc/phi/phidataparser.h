@@ -29,8 +29,9 @@
 #include "phirequest.h"
 #include "phiresponserec.h"
 #include "phibaseitem.h"
+#include "phi.h"
 
-class PHIDataParser
+class PHIEXPORT PHIDataParser
 {
     friend class PHIBaseItem;
     Q_DECLARE_TR_FUNCTIONS( PHIDataParser )

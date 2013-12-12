@@ -18,30 +18,32 @@
 QT += core gui widgets script network sql
 TEMPLATE = lib
 CONFIG += qt plugin thread largefile
-INCLUDEPATH += ../../../libsrc/phi #../../../libsrc/phis
+INCLUDEPATH += ../../phi
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QT_NO_CAST_FROM_BYTEARRAY
 OBJECTS_DIR = .tmp
 MOC_DIR = .tmp
 RCC_DIR = .tmp
 win32 {
     DESTDIR = ../../../../bin/plugins/items
-    LIBS = -L../../../../bin phi1.lib #phis1.lib
+    LIBS = -L../../../../bin phi2.lib
     CONFIG(debug,debug|release) {
-        LIBS = -L../../../../bin phid1.lib #phisd1.lib
+        LIBS = -L../../../../bin phid2.lib
+        DEFINES += PHIDEBUG
     } else {
         DEFINES += QT_NO_DEBUG_OUTPUT
     }
 }
 unix {
     DESTDIR = ../../../../plugins/items
-    LIBS = -L../../../../lib -lphi #-lphis
+    LIBS = -L../../../../lib -lphi
     CONFIG(debug,debug|release){
-        LIBS = -L../../../../lib -lphi_debug #-lphis_debug
+        LIBS = -L../../../../lib -lphi_debug
+        DEFINES += PHIDEBUG
     } else {
         DEFINES += QT_NO_DEBUG_OUTPUT
     }
     mac {
-        LIBS = -L../../../../lib -lphi #-lphis
+        LIBS = -L../../../../lib -lphi
     } else {
         QMAKE_LFLAGS +=-Wl,-rpath,\'\$$ORIGIN/../../lib\',-rpath-link,$$[QT_INSTALL_LIBS]
     }

@@ -322,8 +322,8 @@ void PHIDecoratedTableItem::cssStatic( const PHIRequest *req, QByteArray &out ) 
         sel=cssRgba( page()->phiPalette().color( PHIPalette::Error ) );
         highTxt=cssRgba( page()->phiPalette().color( PHIPalette::HighlightText) );
     } else {
-        col=color( PHIPalette::PHIPalette::WidgetText ).name().toLatin1();
-        bgCol=color( PHIPalette::PHIPalette::WidgetBase ).name().toLatin1();
+        col=color( PHIPalette::WidgetText ).name().toLatin1();
+        bgCol=color( PHIPalette::WidgetBase ).name().toLatin1();
         if ( backgroundColorRole()==PHIPalette::Window ) bgCol=BL( "" );
         head=page()->phiPalette().color( PHIPalette::ButtonText ).name().toLatin1();
         high=page()->phiPalette().color( PHIPalette::Highlight ).name().toLatin1();

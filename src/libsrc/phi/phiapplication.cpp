@@ -215,13 +215,16 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _modulesPath=_libPath+L1( "/modules" );
 #ifdef Q_OS_WIN
     _libPath=L1( PHIDIR )+L1( "/bin" );
+    _pluginsPath=_libPath+L1( "/plugins" );
+    _itemsPath=_pluginsPath+L1( "/items" );
+    _modulesPath=_pluginsPath+L1( "/modules" );
     _serverBin=L1( PHIDIR )+L1( "/bin/Phisd.exe" );
     _appBin=L1( PHIDIR )+L1( "/bin/PhiAppd.exe" );
 #elif defined Q_OS_LINUX
     _serverBin=L1( PHIDIR )+L1( "/bin/phis_debug" );
     _appBin=L1( PHIDIR )+L1( "/bin/phiapp_debug" );
 #endif
-#ifdef PHIEMBEDSERVER
+#ifdef PHIEMBEDEDSERVER
     _serverBin=QString();
 #endif
     qWarning( "Application name: %s", name );

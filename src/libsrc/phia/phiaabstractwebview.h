@@ -18,27 +18,22 @@
 */
 #ifndef PHIAABSTRACTWEBVIEW_H
 #define PHIAABSTRACTWEBVIEW_H
-
 #include <QWidget>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
 #include <QIcon>
 #include <QUrl>
-#include <QPainter>
 #include <QSslConfiguration>
-#include <QAuthenticator>
-#include <QNetworkProxy>
-#include <QScriptEngine>
-#include "phiahistory.h"
 #include "phia.h"
 
+class QNetworkReply;
+class QNetworkRequest;
+class QScriptEngine;
+class QAuthenticator;
 class QPrinter;
 
 class PHIAEXPORT PHIAExtractWindowOpts
 {
 public:
-    PHIAExtractWindowOpts( const QString &options );
+    explicit PHIAExtractWindowOpts( const QString &options );
     ~PHIAExtractWindowOpts();
     int width() const;
     int height() const;
@@ -62,19 +57,19 @@ class PHIAEXPORT PHIAAbstractWebView : public QWidget
     Q_DISABLE_COPY( PHIAAbstractWebView )
 
 public:
-    PHIAAbstractWebView( PHIAHistory*, QWidget *parent=0 );
+    PHIAAbstractWebView( QWidget *parent=0 );
     virtual ~PHIAAbstractWebView();
-    inline PHIAHistory* history() const { return _history; }
-    virtual inline QIcon icon() const { return _defaultIcon; }
-    virtual inline QScriptEngine* scriptEngine() const { return 0; }
-    virtual inline void setScrollBarsEnabled( bool ) {;}
+    //inline PHIAHistory* history() const { return _history; }
+    virtual const QIcon& icon() const { return _defaultIcon; }
+    virtual QScriptEngine* scriptEngine() const { return 0; }
+    virtual void setScrollBarsEnabled( bool ) {;}
 
     virtual bool canGoBack() const;
     virtual bool canGoForward() const;
-    virtual void openSslDlg();
-    virtual QSslConfiguration sslConfiguration() const { return _sslConfig; }
-    virtual void settingsClicked();
-    virtual void showJavaScriptClicked( const QString &script );
+    //virtual void openSslDlg();
+    virtual const QSslConfiguration& sslConfiguration() const { return _sslConfig; }
+    //virtual void settingsClicked();
+    //virtual void showJavaScriptClicked( const QString &script );
 
     virtual QString title() const=0;
     virtual QString source() const=0;
@@ -86,8 +81,6 @@ public:
 
     static inline void setDefaultIcon( const QIcon &icon ) { _defaultIcon=icon; }
     static inline void setMissingIcon( const QIcon &icon ) { _missingIcon=icon; }
-    static inline void setNetworkAccessManager( QNetworkAccessManager *am ) { _networkAccessManager=am; }
-    static inline QNetworkAccessManager* networkAccessManager() { return _networkAccessManager; }
 
 public slots:
     virtual void slotNetworkRequest( const QNetworkRequest &req )=0;
@@ -102,8 +95,8 @@ public slots:
     virtual void slotPrint( QPrinter* )=0;
 
 protected slots:
-    virtual void slotSslErrors( QNetworkReply *reply, const QList<QSslError>& );
-    virtual void slotAuthRequest( QNetworkReply *reply, QAuthenticator *auth );
+    //virtual void slotSslErrors( QNetworkReply *reply, const QList<QSslError>& );
+    //virtual void slotAuthRequest( QNetworkReply *reply, QAuthenticator *auth );
 
 signals:
     void iconChanged( PHIAAbstractWebView* );
@@ -132,11 +125,8 @@ signals:
     void locationBarVisibilityChangeRequested( bool visible );
 
 protected:
-    PHIAHistory *_history;
     QSslConfiguration _sslConfig;
-    static QIcon _defaultIcon;
-    static QIcon _missingIcon;
-    static QNetworkAccessManager *_networkAccessManager;
+    static QIcon _defaultIcon, _missingIcon;
 };
 
 #endif // PHIAABSTRACTWEBVIEW_H

@@ -18,19 +18,13 @@
 */
 #ifndef PHIA_H
 #define PHIA_H
-
 #include <QString>
-#include <QPalette>
-#include <QComboBox>
-#include <QLineEdit>
 
 #ifdef PHIALIB
 #define PHIAEXPORT Q_DECL_EXPORT
 #else
 #define PHIAEXPORT Q_DECL_IMPORT
 #endif
-
-class PHIAItem;
 
 #define PHITEXTINTERACTIONFLAGS Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard\
     | Qt::LinksAccessibleByKeyboard | Qt::LinksAccessibleByMouse
@@ -43,7 +37,8 @@ public:
     enum Config { CacheDirectory=1, MaxCacheSize=2, PrintBackgrounds=3, AutoLoadImages=4, EnableJava=5,
         EnableJavascript=6, Geometry=7, DockWidgets=8, MaxHistoryItems=9, JSOpenWindow=10, ProxyHost=11,
         ProxyPort=12, DownloadDirectory=13, ConfigFile=14, LastUpdateCheck=15, EnablePlugins=16 };
-    static QString libVersion();
+    static const QString& libVersion();
+    /*
     static QString browserName();
     static QString configName( Config );
     static QString viewerName();
@@ -54,10 +49,8 @@ public:
     static void setContainerComboBoxData( const PHIAItem*, int row, const QString& );
     static QComboBox* containerComboBox( const PHIAItem*, int row );
     static QLineEdit* containerLineEdit( const PHIAItem*, int row );
+    */
 
-protected:
-    PHIA();
-    ~PHIA();
 };
 
 #endif // PHIA_H

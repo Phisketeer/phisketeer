@@ -381,7 +381,7 @@ void PHIBaseItem::setWidget( QWidget *w )
         return;
     }
     proxy->setWidget( w );
-    //proxy->setCacheMode( QGraphicsItem::ItemCoordinateCache );
+    //proxy->setCacheMode( QGraphicsItem::ItemCoordinateCache ); // fixed with Qt patch
     proxy->setFlag( QGraphicsItem::ItemUsesExtendedStyleOption, true );
 }
 
@@ -676,6 +676,16 @@ void PHIBaseItem::phisPrivateParseData( const PHIDataParser &parser )
     if ( Q_UNLIKELY( _dirtyFlags & DFVisibleData ) ) _variants.insert( DVisibility, parser.text( &_visibleData ) );
     if ( Q_UNLIKELY( _dirtyFlags & DFDisabledData ) ) setDisabled( parser.text( &_disabledData ).toBool() );
     phisParseData( parser );
+}
+
+void PHIBaseItem::phisCreateData( const PHIDataParser &parser )
+{
+    Q_UNUSED( parser )
+}
+
+void PHIBaseItem::phisParseData( const PHIDataParser &parser )
+{
+    Q_UNUSED( parser )
 }
 
 void PHIBaseItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray& indent ) const

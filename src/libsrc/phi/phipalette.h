@@ -26,7 +26,7 @@
 
 class QDataStream;
 
-class PHIPalette
+class PHIEXPORT PHIPalette
 {
 public:
     enum ColorRole {

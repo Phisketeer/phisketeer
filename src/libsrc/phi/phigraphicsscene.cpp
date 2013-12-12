@@ -46,7 +46,7 @@ PHIGraphicsScene::~PHIGraphicsScene()
             lit->breakLayout(); // break all page containing layouts
         }
     }
-    // don't let delete _page with usual QObject parent mechanism
+    // don't delete _page with usual QObject parent mechanism
     // graphics items must be deleted before (via the PHIBasePage destructor!)
     delete _page;
     // qDebug( "PHIGraphicsScene::~PHIGraphicsScene()" );

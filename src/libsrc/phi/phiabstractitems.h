@@ -377,7 +377,7 @@ private:
     PHIBooleanData _readOnlyData;
 };
 
-class PHIAbstractExternalItem : public PHIAbstractTextItem
+class PHIEXPORT PHIAbstractExternalItem : public PHIAbstractTextItem
 {
     Q_OBJECT
     Q_PROPERTY( QString _accessKey WRITE setAccessKey READ realAccessKey SCRIPTABLE false )

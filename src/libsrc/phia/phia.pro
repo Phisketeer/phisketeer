@@ -15,13 +15,26 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-HEADERS += phia.h \
-    phiatools.h \
-    phianetmanager.h \
-    phiawebview.h \
-    phiascene.h \
+HEADERS += \
+    phia.h \
+    phiagraphicsitem.h \
+    phiagraphicsscene.h \
     phiaabstractwebview.h \
     phiamainwindow.h \
+    phiawebview.h
+SOURCES += \
+    phia.cpp \
+    phiagraphicsitem.cpp \
+    phiagraphicsscene.cpp \
+    phiaabstractwebview.cpp \
+    phiamainwindow.cpp \
+    phiawebview.cpp
+OTHER_FILES += \
+    phiatools.h \
+    phianetmanager.h \
+    phiawebview.org.h \
+    phiascene.h \
+    phiamainwindow.org.h \
     phiapage.h \
     phiaitem.h \
     gitems.h \
@@ -41,14 +54,12 @@ HEADERS += phia.h \
     phiascriptevent.h \
     phiascriptitem.h \
     phiaanimation.h \
-    phiajavascriptlog.h
-SOURCES += phia.cpp \
+    phiajavascriptlog.h \
     phianetmanager.cpp \
     phiatools.cpp \
-    phiawebview.cpp \
+    phiawebview.org.cpp \
     phiascene.cpp \
-    phiaabstractwebview.cpp \
-    phiamainwindow.cpp \
+    phiamainwindow.org.cpp \
     phiapage.cpp \
     phiaitem.cpp \
     gitems.cpp \
@@ -71,26 +82,23 @@ SOURCES += phia.cpp \
     phiaanimation.cpp \
     phiajavascriptlog.cpp
 
-include( ../../../scripts/phiconf.pri )
+include( ../../../phiconf.pri )
 VERSION = $$PHIRELEASE
 TRANSLATIONS = phia_de.ts phia_fr.ts
 TEMPLATE = lib
 TARGET = phia
-QT = core gui network svg script webkitwidgets widgets printsupport
+QT = core gui network svg script widgets webkit webkitwidgets printsupport
 INCLUDEPATH += ../phi
-DEFINES += PHIALIB PHIVERSION=\\\"$$VERSION\\\"
-DEFINES -= QT_NO_CAST_FROM_ASCII QT_NO_CAST_FROM_BYTEARRAY
-OTHER_FILES = vars.txt
+DEFINES += PHIALIB PHIAVERSION=\\\"$$VERSION\\\"
 RESOURCES += phia.qrc
 
 win32 {
-    LIBS = -L../../../bin phi1.lib
+    LIBS = -L../../../bin phi2.lib
     DESTDIR = ../../../bin
     CONFIG(debug,debug|release) { 
-        LIBS = -L../../../bin phid1.lib
+        LIBS = -L../../../bin phid2.lib
         TARGET = phiad
     }
-    #LIBS += -L../../../3rdparty/win32 libeay32.lib ssleay32.lib
     QMAKE_DISTCLEAN += phia_resource.rc phiad_resource.rc
 }
 unix {

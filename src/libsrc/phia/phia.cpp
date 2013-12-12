@@ -17,29 +17,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "phia.h"
-#include "phiaitem.h"
-#include "gwidgetitems.h"
-#include "glayoutitems.h"
+#include "phi.h"
 
-PHIA::PHIA()
+const QString& PHIA::libVersion()
 {
-    qDebug( "PHIA::PHIA()" );
+    static QString ver( L1( PHIAVERSION ) );
+    return ver;
 }
 
-PHIA::~PHIA()
-{
-    qDebug( "PHIA::~PHIA()" );
-}
-
+/*
 qreal PHIA::zoomFactor()
 {
     return static_cast<qreal>(.02);
 }
 
-QString PHIA::libVersion()
-{
-    return QString( PHIVERSION );
-}
 
 QString PHIA::browserName()
 {
@@ -145,3 +136,4 @@ QComboBox* PHIA::containerComboBox( const PHIAItem *it, int row )
     if ( row>=children.count() ) return 0;
     return children.at( row );
 }
+*/

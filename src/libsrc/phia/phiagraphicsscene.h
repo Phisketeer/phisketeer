@@ -16,10 +16,21 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "phiawebview.h"
-#include "phiagraphicsscene.h"
+#ifndef PHIAGRAPHICSSCENE_H
+#define PHIAGRAPHICSSCENE_H
+#include "phigraphicsscene.h"
 
-PHIAWebView::PHIAWebView( QWidget *parent )
-    : PHIAAbstractWebView( parent )
+class PHIAGraphicsScene : public PHIGraphicsScene
 {
-}
+    Q_OBJECT
+
+public:
+    explicit PHIAGraphicsScene( QObject *parent );
+
+signals:
+
+public slots:
+
+};
+
+#endif // PHIAGRAPHICSSCENE_H

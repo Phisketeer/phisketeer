@@ -22,7 +22,7 @@ PHIDOM = phisketeer.org
 PHIORG = Phisketeer
 PHIRELEASE = 2.0.0
 PHIMACDEPLOY = 10.7
-PHIMACSDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
+#PHIMACSDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
 #mac: PHICONF = macappstore
 PHICONF =
 
@@ -48,6 +48,6 @@ unix {
         QMAKE_MACOSX_DEPLOYMENT_TARGET = $$PHIMACDEPLOY
         #QMAKE_CXXFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY -stdlib=libc++
         #QMAKE_LFLAGS = -mmacosx-version-min=$$PHIMACDEPLOY
-        DEFINES += PHIEMBEDSERVER
+        DEFINES += PHIEMBEDEDSERVER PHIEMBEDEDAPP
     }
 }

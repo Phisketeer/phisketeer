@@ -16,10 +16,22 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "phiawebview.h"
-#include "phiagraphicsscene.h"
+#ifndef PHIAGRAPHICSITEM_H
+#define PHIAGRAPHICSITEM_H
+#include "phigraphicsitem.h"
 
-PHIAWebView::PHIAWebView( QWidget *parent )
-    : PHIAAbstractWebView( parent )
+class PHIAGraphicsItem : public PHIGraphicsItem
 {
-}
+    Q_OBJECT
+
+public:
+    PHIAGraphicsItem() : PHIGraphicsItem() {}
+    virtual void setBaseItem( PHIBaseItem *it );
+
+protected:
+    virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget );
+    virtual bool sceneEvent( QEvent *event );
+
+};
+
+#endif // PHIAGRAPHICSITEM_H

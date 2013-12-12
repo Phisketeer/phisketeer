@@ -98,7 +98,7 @@ PHIRC PHISHttp::init( qintptr socketDesc, bool usessl, QString &err )
     connect( _socket, SIGNAL( disconnected() ), this, SIGNAL( close() ) );
     _server._localAddr=_socket->localAddress();
     _server._remoteAddr=_socket->peerAddress();
-    _server._name=SL( "Phis/" PHISVERSION );
+    _server._name=SL( "Phis/" )+SL( PHISVERSION );
     _server._keepAlive=PHISParent::instance()->keepAlive();
     _server._defName=PHISParent::instance()->name();
     _server._admin=PHISParent::instance()->admin();
