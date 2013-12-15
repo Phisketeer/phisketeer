@@ -20,15 +20,21 @@ HEADERS += \
     phiagraphicsitem.h \
     phiagraphicsscene.h \
     phiaabstractwebview.h \
+    phiascriptobjects.h \
     phiamainwindow.h \
-    phiawebview.h
+    phiawebview.h \
+    phiaauthdlg.h \
+    phiaappwindow.h
 SOURCES += \
     phia.cpp \
     phiagraphicsitem.cpp \
     phiagraphicsscene.cpp \
     phiaabstractwebview.cpp \
+    phiascriptobjects.cpp \
     phiamainwindow.cpp \
-    phiawebview.cpp
+    phiawebview.cpp \
+    phiaauthdlg.cpp \
+    phiaappwindow.cpp
 OTHER_FILES += \
     phiatools.h \
     phianetmanager.h \
@@ -38,7 +44,6 @@ OTHER_FILES += \
     phiapage.h \
     phiaitem.h \
     gitems.h \
-    phiascriptobjects.h \
     phiahistory.h \
     phiaformprocessor.h \
     gwidgetitems.h \
@@ -47,7 +52,6 @@ OTHER_FILES += \
     phiaconfig.h \
     phiasettingsdlg.h \
     phiaaddressdlg.h \
-    phiaauthdlg.h \
     phiadownloaddlg.h \
     phiacomboboxhack.h \
     gwebitems.h \
@@ -63,7 +67,6 @@ OTHER_FILES += \
     phiapage.cpp \
     phiaitem.cpp \
     gitems.cpp \
-    phiascriptobjects.cpp \
     phiahistory.cpp \
     phiaformprocessor.cpp \
     gwidgetitems.cpp \
@@ -73,7 +76,6 @@ OTHER_FILES += \
     phiaconfig.cpp \
     phiasettingsdlg.cpp \
     phiaaddressdlg.cpp \
-    phiaauthdlg.cpp \
     phiadownloaddlg.cpp \
     phiacomboboxhack.cpp \
     gwebitems.cpp \

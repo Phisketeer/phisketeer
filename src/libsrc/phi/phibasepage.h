@@ -98,7 +98,7 @@ public:
         DBgImageOptions=20, DBgImageXOff=21, DBgImageYOff=22, DDefaultLang=23,
         DGeometry=24, DDBUser=25, DDBName=26, DDBDriver=27, DDBPasswd=28,
         DDBPort=29, DDBOptions=30, DDBHost=31, DDBFileName=32, DServerModules=33,
-        DBgColor=34, DWidth=35, DHeight=36, DServerscript=37 }; // quint8
+        DBgColor=34, DWidth=35, DHeight=36, DServerscript=37, DBgImage=38 }; // quint8
     enum Flag { FNone=0x0, FUseOwnPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
         FUseOpenGraph=0x8, FHasAction=0x10, FUseSession=0x20, FHidePhiMenu=0x40,
         FUseMasterPalette=0x80, FUseBgImage=0x100, FNoUnderlinedLinks=0x200,
@@ -167,8 +167,8 @@ public:
     quint8 gridSize() const { return _variants.value( DGridSize, 16 ).value<quint8>(); }
     void setGridSize( quint8 s ) { _variants.insert( DGridSize, s ); }
     PHIByteArrayList itemIdsByteArray() const;
-    quint16 load(QDataStream &in, qint32 version ); // returns item count
-    void save( QDataStream &out, qint32 version );
+    quint16 load( QDataStream &in, int version, bool client=false ); // returns item count
+    void save( QDataStream &out, int version, bool client=false );
     void squeeze();
     void phisParseData( const PHIDataParser &parser );
     void phisCreateData( const PHIDataParser &parser );
@@ -194,6 +194,8 @@ public:
     inline void setDbDriver( const QString &d ) { _dbDriver=d; }
     inline qint32 dbPort() const { return _dbPort; }
     inline void setDbPort( qint32 p ) { _dbPort=p; }
+    inline QImage bgImage() const { return _variants.value( DBgImage ).value<QImage>(); }
+    inline void setBgImage( const QImage &img ) { _variants.insert( DBgImage, img ); }
     inline const QScriptProgram& serverScript() const { return _script; }
 
     // Available for scripting
@@ -293,13 +295,15 @@ public:
     inline PHIImageData* bgImageData() const { return _pageData->_bgImage; }
 
 signals:
-    void titleChanged( QString );
+    void titleChanged( const QString &title );
+    void iconChanged( const QIcon &favicon );
     void documentSizeChanged();
     void phiPaletteChanged( const PHIPalette &pal );
     void currentLangChanged( const QByteArray &lang );
 
 private:
-    quint16 loadVersion1_x( QDataStream &in ); // returns item count
+    quint16 loadVersion1_x( QDataStream &in, bool client=false ); // returns item count
+    void saveVersion1_x( QDataStream &out, bool client );
 
 private:
     PHIDynPageData *_pageData;
@@ -321,8 +325,5 @@ private:
 #ifdef PHIDEBUG
     Q_DECLARE_OPERATORS_FOR_FLAGS( PHIBasePage::Flags )
 #endif
-
-PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIBasePage* );
-PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBasePage* );
 
 #endif // PHIBASEPAGE_H

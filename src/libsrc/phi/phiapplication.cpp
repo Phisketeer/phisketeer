@@ -143,7 +143,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     Q_ASSERT( _serverSettings );
     // Fix for QPA (Qt5 needs to find platform plugins - better way could be qt.conf)
     _pluginsPath=_serverSettings->value( L1( "PluginsPath" ), _pluginsPath ).toString();
-    qputenv( "QT_PLUGIN_PATH", _pluginsPath.toLatin1() );
+    qputenv( "QT_PLUGIN_PATH", _pluginsPath.toUtf8() );
 
     if ( type==ApacheModule ) {
         QStringList argList;
@@ -226,6 +226,9 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
 #endif
 #ifdef PHIEMBEDEDSERVER
     _serverBin=QString();
+#endif
+#ifdef PHIEMBEDEDAPP
+    _appBin=QString();
 #endif
     qWarning( "Application name: %s", name );
     qWarning( "Version: %s", version );

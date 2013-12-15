@@ -111,6 +111,23 @@ void PHIAbstractTextItem::phisParseData( const PHIDataParser &parser )
     if ( dirtyFlags() & DFText ) setData( DText, parser.text( &_textData ) );
 }
 
+void PHIAbstractTextItem::clientPrepareData()
+{
+    if ( realColor()==QColor( Qt::black ) ) removeData( DColor );
+    if ( realBackgroundColor()==QColor( Qt::white ) ) removeData( DBackgroundColor );
+    if ( realAlignment()==static_cast<quint16>(Qt::AlignLeft|Qt::AlignVCenter) ) removeData( DAlignment );
+    setData( DTmpColor, static_cast<quint8>(_colorRole) );
+    setData( DTmpBackgroundColor, static_cast<quint8>(_backgroundColorRole) );
+}
+
+void PHIAbstractTextItem::clientInitData()
+{
+    _colorRole=static_cast<PHIPalette::ColorRole>(data( DTmpColor ).value<quint8>());
+    _backgroundColorRole=static_cast<PHIPalette::ColorRole>(data( DTmpBackgroundColor ).value<quint8>());
+    setWidgetText( realText() );
+    setWidgetAligment( static_cast<Qt::Alignment>(realAlignment()) );
+}
+
 QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     if ( which==Qt::MinimumSize ) {
@@ -303,6 +320,20 @@ void PHIAbstractShapeItem::ideInit()
 void PHIAbstractShapeItem::phisCreateData( const PHIDataParser &parser )
 {
     setImagePath( parser.createImage( createImage() ) );
+}
+
+void PHIAbstractShapeItem::clientPrepareData()
+{
+    PHIAbstractShapeItem::squeeze();
+    removeData( DImagePath );
+    setData( DTmpColor, static_cast<quint8>(_colorRole) );
+    setData( DTmpOutlineColor, static_cast<quint8>(_outlineColorRole) );
+}
+
+void PHIAbstractShapeItem::clientInitData()
+{
+    _colorRole=static_cast<PHIPalette::ColorRole>(data( DTmpColor ).value<quint8>());
+    _outlineColorRole=static_cast<PHIPalette::ColorRole>(data( DTmpOutlineColor ).value<quint8>());
 }
 
 void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
@@ -860,6 +891,18 @@ void PHIAbstractLayoutItem::phisParseData( const PHIDataParser &parser )
 {
     PHIAbstractShapeItem::phisParseData( parser );
     if ( dirtyFlags() & DFHeader ) setData( DHeader, parser.text( &_textData ) );
+}
+
+void PHIAbstractLayoutItem::clientInitData()
+{
+    PHIAbstractShapeItem::clientInitData();
+    setHeader( realHeader() );
+    Q_ASSERT( _l );
+    _l->setContentsMargins( leftMargin(), topMargin(), rightMargin(), bottomMargin() );
+    _l->setHorizontalSpacing( horizontalSpacing() );
+    _l->setVerticalSpacing( verticalSpacing() );
+    invalidateLayout();
+    update();
 }
 
 void PHIAbstractLayoutItem::loadItemData( QDataStream &in, int version )

@@ -45,6 +45,8 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual bool isPrivateItem() const { return true; }
+    virtual void clientPrepareData();
+    virtual void clientInitData();
 
 protected slots:
     inline void setChildIds( const PHIByteArrayList &ids ) { _childIds=ids; }
@@ -98,6 +100,8 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual bool isPrivateItem() const { return true; }
+    virtual void clientPrepareData();
+    virtual void clientInitData();
 
 private:
     PHIRectHash _childRects;

@@ -19,15 +19,18 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QSslError>
+#include <QNetworkAccessManager>
 #include "phiaabstractwebview.h"
+#include "phinetmanager.h"
+#include "phiaauthdlg.h"
 #include "phi.h"
-//#include "phiatools.h"
 //#include "phiasettingsdlg.h"
-//#include "phiaauthdlg.h"
 //#include "phiaconfig.h"
 
 QIcon PHIAAbstractWebView::_defaultIcon=QIcon();
 QIcon PHIAAbstractWebView::_missingIcon=QIcon();
+QNetworkAccessManager* PHIAAbstractWebView::_networkAccessManager=0;
 
 PHIAExtractWindowOpts::PHIAExtractWindowOpts( const QString &options )
 {
@@ -140,18 +143,26 @@ PHIAAbstractWebView::PHIAAbstractWebView( QWidget *parent )
     : QWidget( parent )
 {
     qDebug( "PHIAAbstractWebView::PHIAAbstractWebView()" );
-    /*
-    connect( networkAccessManager(), SIGNAL( sslErrors( QNetworkReply*,
-        const QList<QSslError>& ) ), this,  SLOT( slotSslErrors( QNetworkReply*,
-        const QList<QSslError>& ) ) );
-    connect( networkAccessManager(), SIGNAL( authenticationRequired( QNetworkReply*, QAuthenticator* ) ),
-        this, SLOT( slotAuthRequest( QNetworkReply*, QAuthenticator* ) ) );
-    */
+    QNetworkAccessManager *m=networkAccessManager();
+    connect( m, &QNetworkAccessManager::sslErrors, this, &PHIAAbstractWebView::slotSslErrors );
+    connect( m, &QNetworkAccessManager::authenticationRequired, this, &PHIAAbstractWebView::slotAuthRequired );
+    connect( m, &QNetworkAccessManager::proxyAuthenticationRequired, this, &PHIAAbstractWebView::slotProxyAuthRequired );
 }
 
 PHIAAbstractWebView::~PHIAAbstractWebView()
 {
     qDebug( "PHIAAbstractWebView::~PHIAAbstractWebView()" );
+}
+
+QNetworkAccessManager* PHIAAbstractWebView::networkAccessManager()
+{
+    if ( !_networkAccessManager ) return PHINetManager::instance()->networkAccessManager();
+    return _networkAccessManager;
+}
+
+void PHIAAbstractWebView::setNetworkAccessManager( QNetworkAccessManager *m )
+{
+    _networkAccessManager=m; // 0 indicates to use built in PHINetworkAccessManager
 }
 
 bool PHIAAbstractWebView::canGoBack() const
@@ -196,14 +207,30 @@ void PHIAAbstractWebView::settingsClicked()
     PHIASettingsDlg dlg( this );
     dlg.exec();
 }
+*/
 
 void PHIAAbstractWebView::slotSslErrors( QNetworkReply *reply, const QList<QSslError> &errors )
 {
-    PHIAConfig::instance()->showSslErrorDialog( this, reply, errors );
+    QString tmp=tr( "Reply:" )+L1( "\n'" );
+    QSslError err;
+    foreach( err, errors ) tmp+=err.errorString()+QLatin1Char( '\n' );
+    tmp.chop( 1 ); // remove last newline
+    tmp+=L1( "'\n" )+tr( "Do you want to continue?" );
+    QMessageBox::Button res=QMessageBox::warning( this, tr( "SSL error" ), tmp,
+        QMessageBox::Yes | QMessageBox::Abort, QMessageBox::Abort );
+    if ( res==QMessageBox::Abort ) return reply->abort();
+    reply->ignoreSslErrors( errors );
 }
 
-void PHIAAbstractWebView::slotAuthRequest( QNetworkReply *reply, QAuthenticator *auth )
+void PHIAAbstractWebView::slotAuthRequired( QNetworkReply *reply, QAuthenticator *auth )
 {
-    PHIAConfig::instance()->showAuthDialog( this, reply, auth );
+    PHIAAuthDlg dlg( this, auth );
+    if ( dlg.exec()==QDialog::Rejected ) reply->abort();
 }
-*/
+
+void PHIAAbstractWebView::slotProxyAuthRequired( const QNetworkProxy &proxy, QAuthenticator *auth )
+{
+    Q_UNUSED( proxy )
+    PHIAAuthDlg dlg( this, auth );
+    dlg.exec();
+}

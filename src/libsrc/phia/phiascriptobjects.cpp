@@ -11,66 +11,52 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QScriptValue>
+#include <QScriptValueIterator>
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QTimer>
 #include <QLocale>
+#include <QTextCodec>
 #include <QDesktopServices>
+#include <QMenuBar>
 #include "phiascriptobjects.h"
-#include "phiawebview.h"
-#include "phia.h"
-#include "phianetmanager.h"
 #include "phisysinfo.h"
-#include "phiascriptevent.h"
-#include "phiascriptitem.h"
-#include "phicontext2d.h"
+#include "phibaseitem.h"
+#include "phiapplication.h"
+#include "phinetmanager.h"
 
 static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
 {
     QScriptValue id=ctx->argument( 0 );
-    if ( !id.isObject() && !id.isString() ) return QScriptValue( QScriptValue::UndefinedValue );
+    if ( !id.isObject() && !id.isString() ) return engine->undefinedValue();
+    if ( id.isObject() ) return id;
 
-    PHIAWebView *view=qobject_cast<PHIAWebView*>(engine->parent());
-    Q_ASSERT( view );
-    QScriptValue item;
-    if ( id.isObject() ) {
-        PHIBaseItem *obj;
-        baseItemFromScriptValue( id, obj );
-        if ( !obj ) return QScriptValue( QScriptValue::UndefinedValue );
-        item=view->scriptValue( obj->name() );
-        if ( item.isValid() ) return item; // cached
-        item=scriptItemToScriptValue( engine, new PHIAScriptItem( qobject_cast<PHIAItem*>(obj) ) );
-        view->insertScriptValue( obj->name(), item );
-    } else { // id is string
-        item=view->scriptValue( id.toString() );
-        if ( item.isValid() ) return item; // cached
-        PHIBaseItem *it=view->page()->getElementById( id.toString() );
-        if ( !it ) return QScriptValue( QScriptValue::UndefinedValue );
-        item=scriptItemToScriptValue( engine, new PHIAScriptItem( qobject_cast<PHIAItem*>(it) ) );
-        view->insertScriptValue( id.toString(), item );
-    }
-    return item;
+    const PHIBasePage *page=qobject_cast<PHIBasePage*>(engine->parent());
+    Q_ASSERT( page );
+    PHIBaseItem *it=page->findItem( id.toString() );
+    if ( !it ) return engine->undefinedValue();
+    return baseItemToScriptValue( engine, it );
 }
 
 PHIAScriptWindowObj::PHIAScriptWindowObj( PHIAWebView *view )
     : QObject( view->scriptEngine() ), _engine( view->scriptEngine() ), _view( view )
 {
     qDebug( "PHIAScriptWindowObj::PHIAScriptWindowObj()" );
-    setObjectName( "window" );
+    setObjectName( L1( "window" ) );
     Q_ASSERT( _engine );
 
-    qScriptRegisterMetaType( _engine, baseItemToScriptValue, baseItemFromScriptValue );
-    qScriptRegisterMetaType( _engine, eventToScriptValue, eventFromScriptValue );
-    qScriptRegisterMetaType( _engine, scriptItemToScriptValue, scriptItemFromScriptValue );
-    qScriptRegisterMetaType( _engine, context2DToScriptValue, context2DFromScriptValue );
-    qScriptRegisterMetaType( _engine, canvasGradientToScriptValue, canvasGradientFromScriptValue );
-    qScriptRegisterMetaType( _engine, domRectToScriptValue, domRectFromScriptValue );
+    //qScriptRegisterMetaType( _engine, baseItemToScriptValue, baseItemFromScriptValue );
+    //qScriptRegisterMetaType( _engine, eventToScriptValue, eventFromScriptValue );
+    //qScriptRegisterMetaType( _engine, scriptItemToScriptValue, scriptItemFromScriptValue );
+    //qScriptRegisterMetaType( _engine, context2DToScriptValue, context2DFromScriptValue );
+    //qScriptRegisterMetaType( _engine, canvasGradientToScriptValue, canvasGradientFromScriptValue );
+    //qScriptRegisterMetaType( _engine, domRectToScriptValue, domRectFromScriptValue );
 
     QScriptValue global=_engine->globalObject();
     QScriptValue win=_engine->newQObject( this, PHIASCRIPTEXTENSION );
@@ -79,22 +65,22 @@ PHIAScriptWindowObj::PHIAScriptWindowObj( PHIAWebView *view )
         while ( it.hasNext() ) {
             it.next();
             // qWarning( "global: %s", qPrintable( it.name() ) );
-            if ( it.name()=="print" ) continue;
+            if ( it.name()==SL( "print" ) ) continue;
             win.setProperty( it.name(), it.value(), it.flags() );
         }
     }
     _engine->setGlobalObject( win );
-    _engine->globalObject().setProperty( "window", win );
-    QScriptValue doc=_engine->newQObject( _view->page(), PHIASCRIPTEXTENSION );
-    win.setProperty( "document", doc );
+    _engine->globalObject().setProperty( SL( "window" ), win );
+    QScriptValue doc=_engine->newQObject( _view->scene()->page(), PHIASCRIPTEXTENSION );
+    win.setProperty( SL( "document" ), doc );
     QScriptValue form=_engine->newQObject( new PHIAScriptFormsObj( _view ), PHIASCRIPTEXTENSION );
-    doc.setProperty( "phiform", form );
+    doc.setProperty( SL( "phiform" ), form );
 
     QScriptValue loc=_engine->newQObject( new PHIAScriptLocationObj( _view ), PHIASCRIPTEXTENSION );
-    win.setProperty( "location", loc );
+    win.setProperty( SL( "location" ), loc );
 
     QScriptValue ifn=_engine->newFunction( getItemFunc );
-    _engine->globalObject().setProperty( "$", ifn );
+    _engine->globalObject().setProperty( L1( "$" ), ifn );
 
     connect( this, SIGNAL( homeRequested() ), _view,
         SIGNAL( homeRequested() ), Qt::QueuedConnection );
@@ -187,17 +173,17 @@ void PHIAScriptWindowObj::timerEvent( QTimerEvent *e )
 
 void PHIAScriptWindowObj::alert( const QString &s ) const
 {
-    QMessageBox::warning( _view, PHIA::browserName(), s, QMessageBox::Ok );
+    QMessageBox::warning( _view, phiApp->applicationName(), s, QMessageBox::Ok );
 }
 
 QString PHIAScriptWindowObj::prompt( const QString &text, const QString &value ) const
 {
-    return QInputDialog::getText( _view, PHIA::browserName(), text, QLineEdit::Normal, value );
+    return QInputDialog::getText( _view, phiApp->applicationName(), text, QLineEdit::Normal, value );
 }
 
 bool PHIAScriptWindowObj::confirm( const QString &text )
 {
-    QMessageBox::Button res=QMessageBox::information( _view, PHIA::browserName(), text,
+    QMessageBox::Button res=QMessageBox::information( _view, phiApp->applicationName(), text,
         QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel );
     if ( res==QMessageBox::Cancel ) return true;
     return false;
@@ -238,7 +224,7 @@ PHIAScriptAjaxObj::PHIAScriptAjaxObj( PHIAWebView *view )
     _hasError=false;
     _running=false;
     _status=0;
-    _statusText="";
+    _statusText=QString();
 }
 
 PHIAScriptAjaxObj::~PHIAScriptAjaxObj()
@@ -254,7 +240,7 @@ void PHIAScriptAjaxObj::throwError( const QString &err )
 {
     QScriptContext *ctx=_engine->currentContext();
     //QScriptContext *par=ctx->parentContext();
-    QScriptValue v=ctx->throwError( QScriptContext::UnknownError, QString( "AJAX: " )+err );
+    QScriptValue v=ctx->throwError( QScriptContext::UnknownError, L1( "AJAX: " )+err );
     _view->throwJavaScriptError( v );
 }
 
@@ -266,11 +252,11 @@ void PHIAScriptAjaxObj::open( const QString &method, const QString &url, bool as
         _reply->deleteLater();
         _reply=0;
     }
-    QString methods=" GET POST DELETE PUT CREATE TRACE CONNECT TRACK ";
+    QString methods=SL( " GET POST DELETE PUT CREATE TRACE CONNECT TRACK " );
     if ( !methods.contains( method.toUpper() ) )
         return throwError( tr( "Unknown method '%1'." ).arg( method ) );
     _method=method.toUpper();
-    if ( _method!="POST" && _method!="GET" && _method!="HEAD" )
+    if ( _method!=SL( "POST" ) && _method!=SL( "GET" ) && _method!=SL( "HEAD" ) )
         return throwError( tr( "Allowed methods are GET, POST and HEAD." ) );
     _async=async;
     _url=QUrl( url );
@@ -281,18 +267,18 @@ void PHIAScriptAjaxObj::open( const QString &method, const QString &url, bool as
     _url.setUserName( user );
     _url.setPassword( passwd );
     _running=_hasError=false;
-    _statusText="";
+    _statusText=QString();
     _status=0;
     _requestHeaders.clear();
     _responseHeaders.clear();
-    _responseText="";
-    _responseXML="";
+    _responseText=QString();
+    _responseXML=QString();
     _codec=QTextCodec::codecForName( "utf-8" );
     QScriptValue ajax=ajaxObjToScriptValue( _engine, this );
     if ( !ajax.isValid() ) return throwError( tr( "AJAX: invalid object." ) );
 
     _readyState=static_cast<quint8>(OPENED);
-    QScriptValue func=ajax.property( "onreadystatechange" );
+    QScriptValue func=ajax.property( SL( "onreadystatechange" ) );
     if ( func.isFunction() ) {
         QScriptValue err=func.call( ajax );
         if ( err.isError() ) _view->throwJavaScriptError( err );
@@ -304,17 +290,17 @@ void PHIAScriptAjaxObj::setRequestHeader( const QString &key, const QString &val
     if ( _readyState!=static_cast<quint8>(OPENED) )
         return throwError( tr( "Could not set a header, wrong readyState.") );
     QStringList known;
-    known << "accept-charset" << "accept-encoding" << "connection" << "content-length"
-        << "cookie" << "cookie2" << "content-transfer-encoding" << "date" << "expect"
-        << "host" << "keep-alive" << "referer" << "te" << "trailer" << "transfer-encoding"
-        << "upgrade" << "user-agent" << "via";
+    known << L1( "accept-charset" ) << L1( "accept-encoding" ) << L1( "connection" ) << L1( "content-length" )
+        << L1( "cookie" ) << L1( "cookie2" ) << L1( "content-transfer-encoding" ) << L1( "date" ) << L1( "expect" )
+        << L1( "host" ) << L1( "keep-alive" ) << L1( "referer" ) << L1( "te" ) << L1( "trailer" ) << L1( "transfer-encoding" )
+        << L1( "upgrade" ) << L1( "user-agent" ) << L1( "via" );
     if ( known.contains( key.toLower(), Qt::CaseSensitive ) )
         return throwError( tr( "Header '%1' can not be overwritten." ).arg( key ) );
-    if ( key.toLower().startsWith( "sec") || key.toLower().startsWith( "proxy" ) )
+    if ( key.toLower().startsWith( L1( "sec" ) ) || key.toLower().startsWith( L1( "proxy" ) ) )
         return throwError( tr( "Header '%1' is not allowed to be set." ).arg( key ) );
     if ( _requestHeaders.contains( key ) ) {
         QString v=_requestHeaders.value( key );
-        if ( !v.isEmpty() ) v=v+", "+value;
+        if ( !v.isEmpty() ) v=v+L1( ", " )+value;
         _requestHeaders.insert( key, v );
     } else _requestHeaders.insert( key, value );
 }
@@ -322,11 +308,11 @@ void PHIAScriptAjaxObj::setRequestHeader( const QString &key, const QString &val
 void PHIAScriptAjaxObj::send( const QString &body )
 {
     if ( _readyState!=static_cast<quint8>(OPENED) )
-        return throwError( tr( "Could not send, wrong readyState.") );
+        return throwError( tr( "Could not send, in wrong 'readyState'.") );
     if ( _running )
         return throwError( tr( "A request is already in progress.") );
     if ( !_async ) {
-        /** @todo implement sync ajax. */
+        // @todo: implement sync ajax.
         return throwError( tr( "Phi does not yet support syncronus requests." ) );
     }
 
@@ -337,9 +323,9 @@ void PHIAScriptAjaxObj::send( const QString &body )
     }
     req.setUrl( _url );
 
-    if ( _method=="GET" ) _reply=_view->networkAccessManager()->get( req );
-    else if ( _method=="HEAD" ) _reply=_view->networkAccessManager()->head( req );
-    else if ( _method=="POST" ) {
+    if ( _method==L1( "GET" ) ) _reply=_view->networkAccessManager()->get( req );
+    else if ( _method==L1( "HEAD" ) ) _reply=_view->networkAccessManager()->head( req );
+    else if ( _method==L1( "POST" ) ) {
         _reply=_view->networkAccessManager()->post( req, body.toUtf8() );
     }
     Q_ASSERT( _reply );
@@ -352,7 +338,7 @@ void PHIAScriptAjaxObj::send( const QString &body )
 
     // historic call for onreadystatechange without a change (see specification)
     QScriptValue ajax=ajaxObjToScriptValue( _engine, this );
-    QScriptValue func=ajax.property( "onreadystatechange" );
+    QScriptValue func=ajax.property( SL( "onreadystatechange" ) );
     if ( func.isFunction() ) {
         QScriptValue err=func.call( ajax );
         if ( err.isError() ) _view->throwJavaScriptError( err );
@@ -371,13 +357,12 @@ void PHIAScriptAjaxObj::slotMetaDataChanged()
         _responseHeaders.insertMulti( QString::fromUtf8( header ),
             QString::fromUtf8( _reply->rawHeader( header ) ) );
     }
-    //if ( list.contains( "Content-Length" ) ) qDebug( "Yipiee" );
-    if ( _responseHeaders.contains( "Charset" ) ) {
-        _codec=QTextCodec::codecForName( _responseHeaders.value( "Charset" ).toUtf8() );
+    if ( _responseHeaders.contains( L1( "Charset" ) ) ) {
+        _codec=QTextCodec::codecForName( _responseHeaders.value( L1( "Charset" ) ).toUtf8() );
         if ( !_codec ) _codec=QTextCodec::codecForName( "utf-8" );
-    } else if ( _responseHeaders.contains( "Content-Type") ) {
-        QString charset=_responseHeaders.value( "Content-Type" );
-        charset.replace( QRegExp( ".*charset=" ), "" );
+    } else if ( _responseHeaders.contains( L1( "Content-Type" ) ) ) {
+        QString charset=_responseHeaders.value( L1( "Content-Type" ) );
+        charset.replace( QRegExp( L1( ".*charset=" ) ), QString() );
         if ( !charset.isEmpty() ) {
             _codec=QTextCodec::codecForName( charset.toUtf8() );
             if ( !_codec ) _codec=QTextCodec::codecForName( "utf-8" );
@@ -385,7 +370,7 @@ void PHIAScriptAjaxObj::slotMetaDataChanged()
     }
     _readyState=static_cast<quint8>(HEADERS_RECEIVED);
     QScriptValue ajax=ajaxObjToScriptValue( _engine, this );
-    QScriptValue func=ajax.property( "onreadystatechange" );
+    QScriptValue func=ajax.property( SL( "onreadystatechange" ) );
     if ( func.isFunction() ) {
         QScriptValue err=func.call( ajax);
         if ( err.isError() ) _view->throwJavaScriptError( err );
@@ -400,7 +385,7 @@ void PHIAScriptAjaxObj::slotNewBytesAvailable()
     _responseText=_responseText+translated;
     _readyState=static_cast<quint8>(LOADING);
     QScriptValue ajax=ajaxObjToScriptValue( _engine, this );
-    QScriptValue func=ajax.property( "onreadystatechange" );
+    QScriptValue func=ajax.property( SL( "onreadystatechange" ) );
     if ( func.isFunction() ) {
         QScriptValue err=func.call( ajax );
         if ( err.isError() ) _view->throwJavaScriptError( err );
@@ -413,7 +398,7 @@ QString PHIAScriptAjaxObj::getAllResponseHeaders() const
         || _readyState==static_cast<quint8>(OPENED) ) return QString();
     QString key, string;
     foreach ( key, _responseHeaders.keys() ) {
-        string=string+key+": "+_responseHeaders.value( key )+"\r\n";
+        string=string+key+L1( ": " )+_responseHeaders.value( key )+L1( "\r\n" );
     }
     string.chop( 2 );
     return string;
@@ -446,7 +431,7 @@ void PHIAScriptAjaxObj::abort()
     _running=false;
     _readyState=static_cast<quint8>(DONE);
     QScriptValue ajax=ajaxObjToScriptValue( _engine, this );
-    QScriptValue func=ajax.property( "onreadystatechange" );
+    QScriptValue func=ajax.property( SL( "onreadystatechange" ) );
     if ( func.isFunction() ) {
         QScriptValue err=func.call( ajax );
         if ( err.isError() ) _view->throwJavaScriptError( err );
@@ -469,7 +454,7 @@ void PHIAScriptAjaxObj::slotFinished()
     _running=false;
     _readyState=static_cast<quint8>(DONE);
     QScriptValue ajax=ajaxObjToScriptValue( _engine, this );
-    QScriptValue func=ajax.property( "onreadystatechange" );
+    QScriptValue func=ajax.property( SL( "onreadystatechange" ) );
     if ( func.isFunction() ) {
         QScriptValue err=func.call( ajax );
         if ( err.isError() ) _view->throwJavaScriptError( err );
@@ -480,9 +465,6 @@ void PHIAScriptAjaxObj::slotNetworkError( QNetworkReply::NetworkError )
 {
     qDebug( "slotNetworkError();" );
     _hasError=true;
-    //if ( _reply ) {
-    //    throwError( _reply->errorString() );
-    //}
 }
 
 QScriptValue ajaxObjToScriptValue( QScriptEngine *engine, PHIAScriptAjaxObj* const &obj )
@@ -515,9 +497,9 @@ PHIAScriptFormsObj::~PHIAScriptFormsObj()
 void PHIAScriptFormsObj::submit( const QString &buttonid )
 {
     qDebug( "PHIAScriptFormsObj::submit()" );
-    QScriptValue phi=_view->scriptEngine()->globalObject().property( "phi" );
+    QScriptValue phi=_view->scriptEngine()->globalObject().property( L1( "phi" ) );
     if ( phi.isValid() ) {
-        QScriptValue func=phi.property( "onsubmit" );
+        QScriptValue func=phi.property( L1( "onsubmit" ) );
         QScriptValue res;
         if ( func.isFunction() ) res=func.call( phi );
         else emit submitRequest( buttonid );
@@ -566,7 +548,7 @@ PHIAScriptNavigatorObj::PHIAScriptNavigatorObj( PHIAWebView *view )
     Q_ASSERT( engine );
 
     QScriptValue navigator=engine->newQObject( this, PHIASCRIPTEXTENSION );
-    engine->globalObject().setProperty( "navigator", navigator );
+    engine->globalObject().setProperty( L1( "navigator" ), navigator );
 }
 
 PHIAScriptNavigatorObj::~PHIAScriptNavigatorObj()
@@ -576,17 +558,17 @@ PHIAScriptNavigatorObj::~PHIAScriptNavigatorObj()
 
 QString PHIAScriptNavigatorObj::appCodeName() const
 {
-    return PHIA::browserName();
+    return phiApp->applicationName();
 }
 
 QString PHIAScriptNavigatorObj::appName() const
 {
-    return PHIA::browserName();
+    return phiApp->applicationName();
 }
 
 QString PHIAScriptNavigatorObj::appVersion() const
 {
-    return PHIA::libVersion();
+    return PHI::libVersion();
 }
 
 QString PHIAScriptNavigatorObj::language() const
@@ -601,7 +583,7 @@ QString PHIAScriptNavigatorObj::platform() const
 
 QString PHIAScriptNavigatorObj::userAgent() const
 {
-    return PHIANetManager::instance()->userAgent();
+    return PHINetManager::instance()->networkAccessManager()->userAgent();
 }
 
 PHIAScriptPhiObj::PHIAScriptPhiObj( PHIAWebView *view )
@@ -611,13 +593,11 @@ PHIAScriptPhiObj::PHIAScriptPhiObj( PHIAWebView *view )
     QScriptEngine *engine=view->scriptEngine();
     Q_ASSERT( engine );
 
-    //qScriptRegisterMetaType( engine, baseItemToScriptValue, baseItemFromScriptValue );
-    qScriptRegisterMetaType( engine, ajaxObjToScriptValue, ajaxObjFromScriptValue );
     QScriptValue phi=engine->newQObject( this, PHIASCRIPTEXTENSION );
-    engine->globalObject().setProperty( "phi", phi );
+    engine->globalObject().setProperty( L1( "phi" ), phi );
 
     QScriptValue ajax=engine->newQObject( new PHIAScriptAjaxObj( _view ), PHIASCRIPTEXTENSION );
-    phi.setProperty( "ajax", ajax );
+    phi.setProperty( L1( "ajax" ), ajax );
 
     connect( this, SIGNAL( hrefRequested( const QUrl& ) ), _view,
         SLOT( slotLinkRequested( const QUrl& ) ), Qt::QueuedConnection );
@@ -628,173 +608,30 @@ PHIAScriptPhiObj::~PHIAScriptPhiObj()
     qDebug( "PHIAScriptPhiObj::~PHIAScriptPhiObj()" );
 }
 
-PHIBaseItem* PHIAScriptPhiObj::getElementById( const QString &id )
+QScriptValue PHIAScriptPhiObj::getElementById( const QString &id )
 {
-    return _view->page()->getElementById( id );
-}
-
-void PHIAScriptPhiObj::setVisible( const QString &id, bool visible )
-{
-    //qWarning( "setVisible( %s, %d )", qPrintable( id ), visible );
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    it->setVisible( visible );
-}
-
-/*
-void PHIAScriptPhiObj::toggle( const QString &id )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    if ( it->visible() ) it->setVisible( false );
-    else it->setVisible( true );
-}
-*/
-
-void PHIAScriptPhiObj::setOpacity( const QString &id, qreal opac )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    it->setOpacity( opac );
+    return _view->scene()->page()->getElementById( id );
 }
 
 void PHIAScriptPhiObj::href( const QString &l )
 {
     QString link=l;
-    if ( link.startsWith( "//" ) || link.startsWith( "\\\\" ) ) link.remove( 0, 1 );
-    if ( link.startsWith( "mailto:" ) ) {
-        //QString mail=link;
-        //mail.remove( 0, 7 );
+    if ( link.startsWith( L1( "//" ) ) || link.startsWith( L1( "\\\\" ) ) ) link.remove( 0, 1 );
+    if ( link.startsWith( L1( "mailto:" ) ) ) {
         QDesktopServices::openUrl( QUrl( link ) );
         return;
     }
-    qDebug( "----------------------- %s %s", qPrintable( link ), qPrintable( _view->url().toString( ) ) );
+    qDebug( "----------------------- %s %s", qPrintable( link ), qPrintable( _view->url().toString( ) ) );    
     QUrl url=PHI::createUrlForLink( _view->url(), link );
     QUrlQuery query( url );
-    //if ( _view->url().host()==url.host() ) { // same host so add session and lang
-        QString sid=_view->page()->session();
-        QString philang=_view->page()->lang();
-        if ( !sid.isEmpty() )
-            if ( !query.hasQueryItem( "phisid" ) ) query.addQueryItem( "phisid", sid );
-        if ( !philang.isEmpty() )
-            if ( !query.hasQueryItem( "philang" ) ) query.addQueryItem( "philang", philang );
-    //}
+    QString sid=_view->scene()->page()->session();
+    QString philang=_view->scene()->page()->lang();
+    if ( !sid.isEmpty() )
+        if ( !query.hasQueryItem( L1( "phisid" ) ) ) query.addQueryItem( L1( "phisid" ), sid );
+    if ( !philang.isEmpty() )
+        if ( !query.hasQueryItem( L1( "philang" ) ) ) query.addQueryItem( L1( "philang" ), philang );
     url.setQuery( query );
     emit hrefRequested( url );
-}
-
-void PHIAScriptPhiObj::fadeIn( const QString &id, qint32 start, qint32 duration,
-    qreal maxOpac, const QString &ease )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    it->setFadeIn( start, duration, maxOpac, ease );
-}
-
-void PHIAScriptPhiObj::fadeOut( const QString &id, qint32 start, qint32 duration,
-    qreal minOpac, const QString &ease )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    it->setFadeOut( start, duration, minOpac, ease );
-}
-
-void PHIAScriptPhiObj::moveTo( const QString &id, qint32 left, qint32 top, qint32 start,
-    qint32 duration, const QString &ease )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    it->setMoveTo( start, duration, left, top, ease );
-}
-
-/*
-void PHIAScriptPhiObj::moveBy( const QString &id, qint32 x, qint32 y, qint32 w, qint32 h,
-    qint32 start, qint32 duration, const QString &ease )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    it->setMoveBy( start, duration, x, y, w, h, ease );
-}
-*/
-
-void PHIAScriptPhiObj::rotateIn( const QString &id, quint8 axis, qint32 start,
-    qint32 duration, const QString &ease )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    it->setRotateIn( axis, start, duration, ease );
-}
-
-void PHIAScriptPhiObj::rotateOut( const QString &id, quint8 axis, qint32 start,
-    qint32 duration, const QString &ease )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    it->setRotateOut( axis, start, duration, ease );
-}
-
-void PHIAScriptPhiObj::rotate( const QString &id, quint8 axis, qreal step, const QString &ease )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    qreal xstep=0, ystep=0, zstep=0;
-    if ( axis & 0x1 ) xstep=step;
-    if ( axis & 0x2 ) ystep=step;
-    if ( axis & 0x4 ) zstep=step;
-    it->setRotate( axis, xstep, ystep, zstep, ease );
-}
-
-/*
-void PHIAScriptPhiObj::stopAnimations( const QString &id )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    it->stopAnimations();
-}
-
-void PHIAScriptPhiObj::setCursor( const QString &id, const QString &shape )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    it->setCursor( shape.toLatin1() );
-}
-
-void PHIAScriptPhiObj::setHtml( const QString &id, const QString &html )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    if ( it->wid()!=PHI::RICH_TEXT ) return;
-    it->setValue( html );
-}
-
-void PHIAScriptPhiObj::setProgress( const QString &id, const QString &value )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    if ( it->wid()!=PHI::PROGRESSBAR ) return;
-    it->setValue( value );
-}
-*/
-
-void PHIAScriptPhiObj::alert( const QString &s ) const
-{
-    QMessageBox::warning( _view, PHIA::browserName(), s, QMessageBox::Ok );
-}
-
-void PHIAScriptPhiObj::setData( const QString &id, const QString &data, const QString &delimiter )
-{
-    PHIBaseItem *it=_view->page()->getElementById( id );
-    if ( !it ) return;
-    switch ( it->wid() ) {
-    case PHI::LIST:
-    case PHI::COUNTRY:
-    case PHI::COMBO_BOX:
-    case PHI::LANG_SELECTOR: break;
-    default: return;
-    }
-
-    it->setDelimiter( delimiter );
-    it->setValue( data );
 }
 
 PHIAScriptMenuObj::PHIAScriptMenuObj( PHIAWebView *view, QMenuBar *menubar )
@@ -806,11 +643,11 @@ PHIAScriptMenuObj::PHIAScriptMenuObj( PHIAWebView *view, QMenuBar *menubar )
     Q_ASSERT( _engine );
     if ( !_menubar ) return;
 
-    QScriptValue phi=_engine->globalObject().property( "phi" );
+    QScriptValue phi=_engine->globalObject().property( L1( "phi" ) );
     QScriptValue m=_engine->newQObject( this, PHIASCRIPTEXTENSION );
-    phi.setProperty( "menu", m );
+    phi.setProperty( L1( "menu" ), m );
 
-    QList <PHIPageMenuEntry> menuEntries=_view->page()->menuEntries();
+    QList <PHIPageMenuEntry> menuEntries=_view->scene()->page()->menuEntries();
     QMenu *menu;
     PHIPageMenuEntry entry;
 
@@ -818,7 +655,7 @@ PHIAScriptMenuObj::PHIAScriptMenuObj( PHIAWebView *view, QMenuBar *menubar )
         qDebug( "menu text %s", qPrintable( entry.text() ) );
         qDebug( "menu parent %s", qPrintable( entry.parent() ) );
         if ( entry.parent().isEmpty() ) { // top level (menu header)
-            if ( entry.text()=="#-" ) _menubar->addSeparator();
+            if ( entry.text()==L1( "#-" ) ) _menubar->addSeparator();
             else {
                 menu=_menubar->addMenu( entry.text() );
                 connect( menu, SIGNAL( triggered( QAction* ) ), this,
@@ -829,13 +666,13 @@ PHIAScriptMenuObj::PHIAScriptMenuObj( PHIAWebView *view, QMenuBar *menubar )
         } else {
             menu=_menus.value( entry.parent() );
             Q_ASSERT( menu );
-            if ( entry.text()=="#-" ) menu->addSeparator();
+            if ( entry.text()==L1( "#-" ) ) menu->addSeparator();
             else {
                 QString text=entry.text();
                 QString shortcut=entry.text();
-                text.replace( QRegExp( "\\[.*" ), "" );
-                shortcut.replace( QRegExp( ".*\\[" ), "" );
-                shortcut.replace( QRegExp( "\\].*" ), "" );
+                text.replace( QRegExp( L1( "\\[.*" ) ), QString() );
+                shortcut.replace( QRegExp( L1( ".*\\[" ) ), QString() );
+                shortcut.replace( QRegExp( L1( "\\].*" ) ), QString() );
                 if ( entry.options() & PHIPageMenuEntry::SubMenu ) {
                     menu=menu->addMenu( QIcon( entry.pixmap() ), text );
                     if ( entry.options() & PHIPageMenuEntry::Disabled ) menu->setEnabled( false );
@@ -871,12 +708,12 @@ void PHIAScriptMenuObj::throwError( const QString &err )
 
 void PHIAScriptMenuObj::slotMenuTriggered( QAction *act )
 {
-    //qDebug( "Action tiggerd %s", qPrintable( act->data().toString() ) );
-    QScriptValue phi=_engine->globalObject().property( "phi" );
-    QScriptValue menu=phi.property( "menu" );
+    qDebug( "Action tiggerd %s", qPrintable( act->data().toString() ) );
+    QScriptValue phi=_engine->globalObject().property( L1( "phi" ) );
+    QScriptValue menu=phi.property( L1( "menu" ) );
     if ( !menu.isValid() ) return;
 
-    QScriptValue func=menu.property( "activated" );
+    QScriptValue func=menu.property( L1( "activated" ) );
     if ( func.isFunction() ) {
         QScriptValue err=func.call( QScriptValue(), QScriptValueList()
         << act->data().toString() << act->isChecked() );

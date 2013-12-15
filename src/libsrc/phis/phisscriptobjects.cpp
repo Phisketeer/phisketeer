@@ -50,7 +50,7 @@ static QScriptValue newImage( QScriptContext*, QScriptEngine *engine )
 static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
 {
     QScriptValue id=ctx->argument( 0 );
-    if ( id.isString() ) {
+    if ( Q_LIKELY( id.isString() ) ) {
         const PHIBasePage *page=qobject_cast<const PHIBasePage*>(engine->parent());
         Q_ASSERT( page );
         PHIBaseItem *it=page->findItem( id.toString() );

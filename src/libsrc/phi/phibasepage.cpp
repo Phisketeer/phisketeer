@@ -755,9 +755,9 @@ void PHIBasePage::squeeze()
     _pal.squeeze();
 }
 
-void PHIBasePage::save( QDataStream &out, qint32 version )
+void PHIBasePage::save( QDataStream &out, int version, bool client )
 {
-    Q_ASSERT( version>2 );
+    if ( version<3 ) return saveVersion1_x( out, client );
     out.setVersion( PHI_DSV2 );
     if ( _width==750 ) _variants.remove( DWidth );
     else _variants.insert( DWidth, _width );
@@ -778,20 +778,25 @@ void PHIBasePage::save( QDataStream &out, qint32 version )
             _variants.insert( DDBOptions, _dbOptions.toUtf8() );
         }
     }
-    out << _id << static_cast<quint32>(_flags) << _pal << _pageData
-        << static_cast<quint16>( itemCount() ) << _variants
+    out << _id << static_cast<quint32>(_flags) << _pal;
+    if ( !client ) out << _pageData;
+    out << static_cast<quint16>( itemCount() ) << _variants
         << _favicon << _font << _menuEntries;
 }
 
-quint16 PHIBasePage::load( QDataStream &in, qint32 version )
+quint16 PHIBasePage::load( QDataStream &in, int version, bool client )
 {
-    Q_ASSERT( items().count()==0 );
+    PHIBaseItem *it;
+    foreach( it, findChildren<PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly) ) {
+        delete it;
+    }
     if ( Q_UNLIKELY( version<3 ) ) return loadVersion1_x( in );
     in.setVersion( PHI_DSV2 );
     quint32 flags;
     quint16 itemCount;
-    in >> _id >> flags >> _pal >> _pageData >> itemCount >> _variants
-        >> _favicon >> _font >> _menuEntries;
+    in >> _id >> flags >> _pal;
+    if ( !client ) in >> _pageData;
+    in >> itemCount >> _variants >> _favicon >> _font >> _menuEntries;
     _flags=static_cast<Flags>(flags);
     _width=_variants.value( DWidth, 750 ).value<quint32>();
     _height=_variants.value( DHeight, 1000 ).value<quint32>();
@@ -809,7 +814,7 @@ quint16 PHIBasePage::load( QDataStream &in, qint32 version )
     return itemCount;
 }
 
-quint16 PHIBasePage::loadVersion1_x( QDataStream &in )
+quint16 PHIBasePage::loadVersion1_x( QDataStream &in, bool client )
 {
     enum Attribute { ANone=0x0, ARequiresSession=0x1, ARequiresLogin=0x2, AFormAction=0x4, APalette=0x8,
         ABgColor=0x10, AStyleSheet=0x20, ACreateSession=0x40, AKeywords=0x80, ALandscape=0x100, ATemplate=0x200,
@@ -931,4 +936,11 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in )
         }
     }
     return itemCount;
+}
+
+void PHIBasePage::saveVersion1_x( QDataStream &out, bool client )
+{
+    Q_UNUSED( out )
+    Q_UNUSED( client )
+    // @todo: implement saving for file versions<3
 }

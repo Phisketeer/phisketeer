@@ -23,6 +23,8 @@
 
 class PHIGraphicsView;
 class PHIAGraphicsScene;
+class QScriptEngine;
+class QScriptValue;
 
 class PHIAEXPORT PHIAWebView : public PHIAAbstractWebView
 {
@@ -30,15 +32,39 @@ class PHIAEXPORT PHIAWebView : public PHIAAbstractWebView
 
 public:
     explicit PHIAWebView( QWidget *parent=0 );
-
-signals:
-
-protected:
     PHIAGraphicsScene* scene() const;
+    void throwJavaScriptError( const QScriptValue &err );
+
+    virtual void setScrollBarsEnabled( bool enable );
+    virtual QString title() const;
+    virtual QIcon icon() const;
+    virtual QString source() const;
+    virtual void renderDocument( QPainter* );
+    virtual QUrl url() const;
+    virtual void setUrl( const QUrl &url );
+    virtual QScriptEngine* scriptEngine() const;
+    virtual QSslConfiguration sslConfiguration() const;
+
+public slots:
+    void slotCreateWindow( const QString &url, const QString &target, const QString &opts );
+    void slotLinkRequested( const QUrl &url );
+
+    virtual void slotBack();
+    virtual void slotForward();
+    virtual void slotStop();
+    virtual void slotReload();
+    virtual void slotZoomIn();
+    virtual void slotZoomOut();
+    virtual void slotZoomNormal();
+    virtual void slotSetZoomFactor( qreal );
+    virtual void slotPrint( QPrinter* );
+
+protected slots:
+    void slotIconChanged( const QIcon &icon );
+    void slotTitleChanged( const QString &title );
 
 private:
     PHIGraphicsView *_view;
-
 };
 
 #endif // PHIAWEBVIEW_H

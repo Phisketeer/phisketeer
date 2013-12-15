@@ -11,26 +11,28 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef PHIASCRIPTOBJECTS_H
 #define PHIASCRIPTOBJECTS_H
 
 #include <QObject>
-#include <QScriptEngine>
 #include <QHash>
-#include <QString>
-#include <QTimerEvent>
-#include <QMenuBar>
-#include <QMenu>
-#include <QAction>
-#include <QUrl>
+#include <QUrlQuery>
 #include <QNetworkReply>
-#include <QTextCodec>
 #include "phiawebview.h"
+#include "phiagraphicsscene.h"
+#include "phibasepage.h"
+#include "phi.h"
+
+class QScriptEngine;
+class QAction;
+class QTimerEvent;
+class QMenuBar;
+class QMenu;
 
 #define PHIASCRIPTEXTENSION QScriptEngine::QtOwnership, QScriptEngine::PreferExistingWrapperObject |\
     QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater
@@ -59,8 +61,7 @@ public slots:
     void clearInterval( qint32 );
     void resizeTo( qint32, qint32 );
     void resizeBy( qint32, qint32 );
-    void open( const QString &url, const QString &target=QString( "_self" ),
-        const QString &options=QString() );
+    void open( const QString &url, const QString &target=L1( "_self" ), const QString &options=QString() );
     void print();
 
 protected:
@@ -143,7 +144,6 @@ private:
     bool _async, _running, _hasError;
     QUrl _url;
     QHash <QString, QString> _requestHeaders, _responseHeaders;
-    //QScriptValue _ajax;
     QTextCodec *_codec;
 };
 
@@ -173,15 +173,14 @@ public slots:
     void setHref( const QString &h );
     inline QString hash() const { return _url.fragment(); }
     inline QString host() const { return _url.port( 80 )==80 ? _url.host() :
-        _url.host()+':'+QString::number( _url.port() ); }
+        _url.host()+QLatin1Char( ':' )+QString::number( _url.port() ); }
     inline QString hostname() const { return _url.host(); }
     inline QString href() const { return _url.toString(); }
-    inline QString pathname() const { return '/'+_url.path(); }
+    inline QString pathname() const { return QLatin1Char( '/' )+_url.path(); }
     inline QString port() const { return _url.port( 80 )==80 ? QString() :
         QString::number( _url.port() ); }
     inline QString protocol() const { return _url.scheme(); }
-    inline QString search() const { QUrlQuery q( _url ); return QString('?')+
-        q.toString(); }
+    inline QString search() const { QUrlQuery q( _url ); return QLatin1Char( '?' )+q.toString(); }
     void reload();
 
 signals:
@@ -205,10 +204,10 @@ public:
     virtual ~PHIAScriptFormsObj();
 
 public slots:
-    inline QString action() const { return _view->page()->action(); }
-    inline void setAction( const QString &a ) { _view->page()->setAction( a ); }
-    inline QString encoding() const { return QString( "multipart/form-data" ); }
-    inline QString method() const { return QString( "POST" ); }
+    inline QString action() const { return _view->scene()->page()->action(); }
+    inline void setAction( const QString &a ) { _view->scene()->page()->setAction( a ); }
+    inline QString encoding() const { return SL( "multipart/form-data" ); }
+    inline QString method() const { return SL( "POST" ); }
 
     void reset();
     void submit( const QString &buttonid=QString() );
@@ -269,51 +268,17 @@ public:
     virtual ~PHIAScriptPhiObj();
 
 public slots:
-    PHIBaseItem* getElementById( const QString & id );
+    QScriptValue getElementById( const QString & id );
 
     inline bool isNative() const { return true; }
     inline bool isHtml() const { return false; }
-    inline QString session() const { return _view->page()->session(); }
-    inline QString lang() const { return _view->page()->lang(); }
+    inline QString session() const { return _view->scene()->page()->session(); }
+    inline QString lang() const { return _view->scene()->page()->lang(); }
     inline quint8 xAxis() const { return 0x1; }
     inline quint8 yAxis() const { return 0x2; }
     inline quint8 zAxis() const { return 0x4; }
     inline PHIAScriptAjaxObj* createAjax() const { return new PHIAScriptAjaxObj( _view ); }
     void href( const QString &url );
-
-    /** @deprecated */
-    inline bool isXhtml() const { return false; }
-    /** @deprecated */
-    void setVisible( const QString &id, bool visible );
-    //void toggle( const QString &id );
-    /** @deprecated */
-    void setOpacity( const QString &id, qreal opac );
-    /** @deprecated */
-    void alert( const QString &text ) const;
-    /** @deprecated */
-    void fadeIn( const QString &id, qint32 start=0, qint32 duration=1000, qreal maxOpac=1.,
-        const QString &ease=PHI::defaultEasingCurve() );
-    /** @deprecated */
-    void fadeOut( const QString &id, qint32 start=0, qint32 duration=1000, qreal minOpac=0,
-        const QString &ease=PHI::defaultEasingCurve() );
-    /** @deprecated */
-    void moveTo( const QString &id, qint32 left, qint32 top, qint32 start=0, qint32 duration=1000,
-        const QString &ease=PHI::defaultEasingCurve() );
-    /** @deprecated */
-    inline void move( const QString &id, qint32 left, qint32 top, qint32 start=0, qint32 duration=1000 )
-        { moveTo( id, left, top, start, duration, QString( "linear" ) ); }
-    //void moveBy( const QString &id, qint32 x, qint32 y, qint32 w=0, qint32 h=0, qint32 start=0,
-    //    qint32 duration=1000, const QString &ease=PHI::defaultEasingCurve() );
-    /** @deprecated */
-    void rotateIn( const QString &id, quint8 axis=0x2, qint32 start=0, qint32 duration=1000,
-        const QString &ease=PHI::defaultEasingCurve() );
-    /** @deprecated */
-    void rotateOut( const QString &id, quint8 axis=0x2, qint32 start=0, qint32 duration=1000,
-        const QString &ease=PHI::defaultEasingCurve() );
-    /** @deprecated */
-    void rotate( const QString &id, quint8 axis=0x4, qreal step=1., const QString &ease="linear" );
-    /** @deprecated */
-    void setData( const QString &id, const QString &data, const QString &delimiter=QString( "\n" ) );
 
 signals:
     void hrefRequested( const QUrl &url );

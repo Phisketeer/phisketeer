@@ -31,30 +31,13 @@ class PHIAEXPORT PHIAAuthDlg : public QDialog, private Ui::AuthDlg
     Q_OBJECT
 
 public:
-    PHIAAuthDlg( QWidget *parent, QNetworkReply *reply, QAuthenticator *auth );
+    PHIAAuthDlg( QWidget *parent, QAuthenticator *auth );
     virtual ~PHIAAuthDlg();
 
 protected slots:
     virtual void accept();
 
 private:
-    QNetworkReply *_reply;
-    QAuthenticator *_auth;
-};
-
-class PHIAEXPORT PHIAProxyDlg : public QDialog, private Ui::AuthDlg
-{
-    Q_OBJECT
-
-public:
-    PHIAProxyDlg( QWidget *parent, const QNetworkProxy &proxy, QAuthenticator *auth );
-    virtual ~PHIAProxyDlg();
-
-protected slots:
-    virtual void accept();
-
-private:
-    QNetworkProxy _proxy;
     QAuthenticator *_auth;
 };
 

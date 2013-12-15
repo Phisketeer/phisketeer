@@ -26,8 +26,10 @@
 
 class QNetworkReply;
 class QNetworkRequest;
+class QNetworkProxy;
 class QScriptEngine;
 class QAuthenticator;
+class QNetworkAccessManager;
 class QPrinter;
 
 class PHIAEXPORT PHIAExtractWindowOpts
@@ -60,30 +62,29 @@ public:
     PHIAAbstractWebView( QWidget *parent=0 );
     virtual ~PHIAAbstractWebView();
     //inline PHIAHistory* history() const { return _history; }
-    virtual const QIcon& icon() const { return _defaultIcon; }
+    virtual QIcon icon() const { return _defaultIcon; }
     virtual QScriptEngine* scriptEngine() const { return 0; }
-    virtual void setScrollBarsEnabled( bool ) {;}
+    virtual void setScrollBarsEnabled( bool enable ) { Q_UNUSED( enable ) }
 
     virtual bool canGoBack() const;
     virtual bool canGoForward() const;
     //virtual void openSslDlg();
-    virtual const QSslConfiguration& sslConfiguration() const { return _sslConfig; }
     //virtual void settingsClicked();
     //virtual void showJavaScriptClicked( const QString &script );
 
     virtual QString title() const=0;
     virtual QString source() const=0;
-    virtual bool isLoading() const=0;
     virtual void renderDocument( QPainter* )=0;
-    virtual void setNetworkReply( QNetworkReply* )=0;
     virtual QUrl url() const=0;
-    virtual void setUrl( const QString &url )=0;
+    virtual void setUrl( const QUrl &url )=0;
+    virtual QSslConfiguration sslConfiguration() const=0;
 
     static inline void setDefaultIcon( const QIcon &icon ) { _defaultIcon=icon; }
     static inline void setMissingIcon( const QIcon &icon ) { _missingIcon=icon; }
+    static QNetworkAccessManager* networkAccessManager();
+    static void setNetworkAccessManager( QNetworkAccessManager *manager );
 
 public slots:
-    virtual void slotNetworkRequest( const QNetworkRequest &req )=0;
     virtual void slotBack()=0;
     virtual void slotForward()=0;
     virtual void slotStop()=0;
@@ -95,8 +96,9 @@ public slots:
     virtual void slotPrint( QPrinter* )=0;
 
 protected slots:
-    //virtual void slotSslErrors( QNetworkReply *reply, const QList<QSslError>& );
-    //virtual void slotAuthRequest( QNetworkReply *reply, QAuthenticator *auth );
+    virtual void slotSslErrors( QNetworkReply *reply, const QList<QSslError>& );
+    virtual void slotAuthRequired( QNetworkReply *reply, QAuthenticator *auth );
+    virtual void slotProxyAuthRequired( const QNetworkProxy &proxy, QAuthenticator *aut );
 
 signals:
     void iconChanged( PHIAAbstractWebView* );
@@ -125,8 +127,8 @@ signals:
     void locationBarVisibilityChangeRequested( bool visible );
 
 protected:
-    QSslConfiguration _sslConfig;
     static QIcon _defaultIcon, _missingIcon;
+    static QNetworkAccessManager *_networkAccessManager;
 };
 
 #endif // PHIAABSTRACTWEBVIEW_H

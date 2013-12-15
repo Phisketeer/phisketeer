@@ -18,19 +18,51 @@
 */
 #ifndef PHIAGRAPHICSSCENE_H
 #define PHIAGRAPHICSSCENE_H
+#include <QSslConfiguration>
 #include "phigraphicsscene.h"
+
+class QScriptEngine;
+class QNetworkReply;
+class PHIAWebView;
+class PHIAbstractLayoutItem;
 
 class PHIAGraphicsScene : public PHIGraphicsScene
 {
     Q_OBJECT
 
 public:
+    enum ReadingType { RTHeader=0, RTPage=1, RTPageSize=2, RTItem=3, RTItemSize=4 };
     explicit PHIAGraphicsScene( QObject *parent );
 
+    void setUrl( const QUrl &url );
+    inline QUrl url() const { return _requestedUrl; }
+    inline const QSslConfiguration& sslConfiguration() const { return _sslConfig; }
+    QScriptEngine* scriptEngine() const;
+
+protected:
+    PHIAWebView* webView() const;
+    void initItems();
+    virtual void drawBackground( QPainter *painter, const QRectF &r );
+
 signals:
+    void titleChanged( const QString &title );
+    void iconChanged( const QIcon &icon );
 
-public slots:
+private slots:
+    void slotDataAvailable();
+    void slotReplyFinished();
+    void slotMetaDataChanged();
 
+private:
+    QNetworkReply *_reply;
+    QUrl _requestedUrl;
+    ReadingType _readingType;
+    QSslConfiguration _sslConfig;
+    bool _contentTypeChecked;
+    QScriptEngine *_engine;
+    quint32 _itemSize;
+    quint8 _version;
+    QList <PHIAbstractLayoutItem*> _layouts;
 };
 
 #endif // PHIAGRAPHICSSCENE_H

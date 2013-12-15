@@ -155,8 +155,26 @@ void PHISProcessor::run()
     QByteArray out;
     out.reserve( 50*1024 );
     if ( Q_UNLIKELY( genPhi ) ) {
-        //PHIGenerator phiGenerator( _req->responseRec() );
-        //arr=phiGenerator.genPhi( page );
+        _req->responseRec()->setContentType( PHI::phiMimeType() );
+        QByteArray block;
+        QDataStream dsout( &out, QIODevice::WriteOnly );
+        dsout.setVersion( PHI_DSV );
+        QDataStream dsblock( &block, QIODevice::WriteOnly );
+        dsblock.setVersion( PHI_DSV2 );
+        // send magic number and version number
+        dsout << static_cast<quint32>(PHI_MAGIC) << static_cast<quint8>(PHI_SFV)
+            << static_cast<quint8>(PHI::CDAll);
+        page->save( dsblock, static_cast<int>(PHI_SFV), true );
+        dsout << block;
+        PHIBaseItem *it;
+        foreach ( it, page->items() ) {
+            block.clear();
+            dsblock.device()->reset();
+            dsblock << it->id() << static_cast<quint16>(it->wid())
+                << it->save( static_cast<int>(PHI_SFV) );
+            dsout << block;
+            qDebug( "BLOCK SIZE %d", block.size() );
+        }
     } else {
         QFileInfo cssinfo( _req->tmpDir()+SL( "/css/" )+page->id()+SL( ".css" ) );
         if ( Q_LIKELY( cssinfo.exists() ) ) {

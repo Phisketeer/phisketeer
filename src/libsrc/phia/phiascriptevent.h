@@ -22,6 +22,7 @@
 #include <QObject>
 #include <QScriptEngine>
 #include <QScriptValue>
+#include <QGraphicsView>
 #include "phiawebview.h"
 
 class PHIBaseItem;

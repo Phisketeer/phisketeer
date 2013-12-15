@@ -43,8 +43,7 @@ class PHIDataParser;
 class PHIEXPORT PHIBaseItemPrivate
 {
 public:
-    enum Type { TUndefined=0, TIDEItem=1, TTemplateItem=2, TServerItem=3,
-        TServerParserItem=4, TClientItem=5 };
+    enum Type { TUndefined=0, TIDEItem=1, TTemplateItem=2, TServerItem=3, TClientItem=4 };
     explicit PHIBaseItemPrivate( Type type, PHIBasePage *page, PHIGraphicsItem *gw )
         : _type( type ), _page( page ), _gw( gw ) {}
     explicit PHIBaseItemPrivate( const PHIBasePage *page=0 ); // ctor for IDE only
@@ -309,22 +308,23 @@ public slots: // usable by script engine
 protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
-    virtual void squeeze() {} // free unused data
-    virtual void ideUpdateData() {}
     void setWidget( QWidget* );
     QWidget* widget() const;
     const PHIBasePage* page() const;
     QScriptValue self();
     QImage createImage();
+    virtual void clientInitData() {}
+    virtual void updatePageFont( const QFont &font );
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
     virtual bool sceneEvent( QEvent *event ); // return false to call basic implementation
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
 
-    // HTML related members
-    virtual void phisParseData( const PHIDataParser &parser );
-    virtual void phisCreateData( const PHIDataParser &parser );
+    // HTML & server related members
+    virtual void phisParseData( const PHIDataParser &parser ); // HTML
+    virtual void phisCreateData( const PHIDataParser &parser ); // HTML
+    virtual void clientPrepareData() {} // PHI
     virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
     bool cssGradientCreateable( const PHIRequest *req ) const;
@@ -339,6 +339,8 @@ protected:
     inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
     inline QVariant data( quint8 t, const QVariant &v=QVariant() ) const { return _variants.value( t, v ); }
     inline void removeData( quint8 t ) { _variants.remove( t ); }
+    virtual void squeeze() {} // free unused data
+    virtual void ideUpdateData() {}
 
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
@@ -349,14 +351,14 @@ protected:
     //virtual void ideHoverEnterEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverMoveEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
-    virtual void updatePageFont( const QFont &font );
 
 private:
     PHIBaseItem& operator=( const PHIBaseItem& );
     void privateSqueeze();
+    void privateClientInit();
     void phisPrivateParseData( const PHIDataParser &parser );
     void phisPrivateCreateData( const PHIDataParser &parser );
-    void loadVersion1_x( const QByteArray &arr );
+    void loadVersion1_x(const QByteArray &arr );
     void cssCustomStyleSheet( QByteArray &out ) const;
 
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );

@@ -163,40 +163,58 @@ void PHIBaseItem::privateSqueeze()
 
 void PHIBaseItem::load( const QByteArray &arr, int version )
 {
-    if ( Q_UNLIKELY( version<3 ) ) return loadVersion1_x( arr );
-    Q_ASSERT( page() );
     QByteArray a( arr );
     QDataStream in( &a, QIODevice::ReadOnly );
     in.setVersion( PHI_DSV2 );
-    in >> _x >> _y >> _width >> _height >> _zIndex >> _variants;
-    setObjectName( QString::fromUtf8( _id ) );
-    QSizeF preserve=QSizeF( _width, _height );
-    _xRot=_variants.value( DXRot, 0 ).toReal();
-    _yRot=_variants.value( DYRot, 0 ).toReal();
-    _zRot=_variants.value( DZRot, 0 ).toReal();
-    _hSkew=_variants.value( DHSkew, 0 ).toReal();
-    _vSkew=_variants.value( DVSkew, 0 ).toReal();
-    _transformOrigin=_variants.value( DTransformOrigin, QPointF() ).toPointF();
-    _parentId=_variants.value( DParentId, QByteArray() ).toByteArray();
-    _flags=static_cast<Flags>(_variants.value( DFlags, 0 ).value<quint32>());
-    if ( _flags & FUseStyleSheet ) in >> &_styleSheetData;
-    if ( _flags & FStoreTitleData ) in >> &_titleData;
-    if ( _flags & FStoreVisibleData ) in >> &_visibleData;
-    if ( _flags & FStoreDisabledData ) in >> &_disabledData;
-    if ( _flags & FStoreEffectData ) {
-        QByteArray effData;
-        in >> effData;
-        _effect->load( effData, version );
+    QSizeF preserve;
+    if ( isClientItem() ) {
+        _variants.clear();
+        QByteArray eff;
+        if ( Q_LIKELY( version>2 ) ) {
+            quint32 flags;
+            in >> _x >> _y >> _width >> _height >> _zIndex >> flags >> _parentId
+                >> _xRot >> _yRot >> _zRot >> _hSkew >> _vSkew >> _transformOrigin
+                >> _variants >> eff;
+            preserve=QSizeF( _width, _height );
+            _flags=static_cast<Flags>(flags);
+            _effect->load( eff, version );
+        } else {
+            return loadVersion1_x( arr );
+        }
+    } else {
+        if ( Q_UNLIKELY( version<3 ) ) return loadVersion1_x( arr );
+        Q_ASSERT( page() );
+        in >> _x >> _y >> _width >> _height >> _zIndex >> _variants;
+        setObjectName( QString::fromUtf8( _id ) );
+        preserve=QSizeF( _width, _height );
+        _xRot=_variants.value( DXRot, 0 ).toReal();
+        _yRot=_variants.value( DYRot, 0 ).toReal();
+        _zRot=_variants.value( DZRot, 0 ).toReal();
+        _hSkew=_variants.value( DHSkew, 0 ).toReal();
+        _vSkew=_variants.value( DVSkew, 0 ).toReal();
+        _transformOrigin=_variants.value( DTransformOrigin, QPointF() ).toPointF();
+        _parentId=_variants.value( DParentId, QByteArray() ).toByteArray();
+        _flags=static_cast<Flags>(_variants.value( DFlags, 0 ).value<quint32>());
+        if ( _flags & FUseStyleSheet ) in >> &_styleSheetData;
+        if ( _flags & FStoreTitleData ) in >> &_titleData;
+        if ( _flags & FStoreVisibleData ) in >> &_visibleData;
+        if ( _flags & FStoreDisabledData ) in >> &_disabledData;
+        if ( _flags & FStoreEffectData ) {
+            QByteArray effData;
+            in >> effData;
+            _effect->load( effData, version );
+        }
+        loadItemData( in, version );
     }
-    loadItemData( in, version );
-
     setTransformPos( _variants.value( DTransformPos, 1 ).value<quint8>() );
     setFont( font() ); // setFont may change height depending on sizeHint
     resize( preserve );
     if ( isIdeItem() ) privateUpdateData();
+    if ( isClientItem() ) privateClientInit();
     if ( _gw ) {
         _gw->setPos( _x, _y );
         _gw->setTransform( computeTransformation() );
+        _gw->setZValue( _zIndex );
         _gw->update();
         updateEffect();
     }
@@ -209,6 +227,14 @@ QByteArray PHIBaseItem::save( int version )
     out.setVersion( PHI_DSV2 );
     Q_ASSERT( version>2 );
     Q_ASSERT( page() );
+    if ( isServerItem() ) {
+        clientPrepareData();
+        out << _x << _y << _width << _height << _zIndex << static_cast<quint32>(_flags) << _parentId
+            << _xRot << _yRot << _zRot << _hSkew << _vSkew << _transformOrigin
+            << _variants << _effect->save( version );
+        return arr;
+    }
+
     privateSqueeze();
     if ( _xRot ) _variants.insert( DXRot, _xRot );
     if ( _yRot ) _variants.insert( DYRot, _yRot );
@@ -248,7 +274,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         AParent=0x2000, ADisabled=0x4000, AChecked=0x8000, AReadOnly=0x10000,
         AProperties=0x20000, AOpacity=0x40000, AVisible=0x80000, ATemplateItem=0x100000,
         ADraggable=0x200000, ADroppable=0x400000, AEnd=0x40000000 }; // AEnd is max value
-
+    // @todo: implement client loading for version 1.x: if ( isClientItem() )...
     QByteArray a( arr );
     QDataStream in( &a, QIODevice::ReadOnly );
     in.setVersion( PHI_DSV );
@@ -371,6 +397,15 @@ void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
     setColor( PHIPalette::Background, map.at( outCol ), color( PHIPalette::Background ) );
     setColor( PHIPalette::WidgetText, map.at( col ), color( PHIPalette::WidgetText ) );
     setColor( PHIPalette::WidgetBase, map.at( outCol ), color( PHIPalette::WidgetBase ) );
+}
+
+void PHIBaseItem::privateClientInit()
+{
+    setChecked( realChecked() );
+    setDisabled( realDisabled() );
+    setVisible( realVisible() );
+    clientInitData();
+    phiPaletteChanged( page()->phiPalette() );
 }
 
 void PHIBaseItem::setWidget( QWidget *w )

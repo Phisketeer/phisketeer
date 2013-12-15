@@ -26,7 +26,7 @@
 #endif
 
 #define PHI_DSV QDataStream::Qt_4_7
-#define PHI_DSV2 QDataStream::Qt_5_1
+#define PHI_DSV2 QDataStream::Qt_5_2
 #define PHI_SFV 3
 #define PHI_MAGIC 0x5c34bb28
 #define L1(s) QLatin1String(s)
@@ -140,6 +140,7 @@ public:
     static inline qreal gradToRad( qreal g ) { return g*static_cast<qreal>(0.01745329251994); }
     static inline qreal radToGrad( qreal r ) { return r*static_cast<qreal>(57.29577951309314); }
     static inline int defaultToolBarHeight() { return 24; }
+    static inline QRect defaultWindowRect() { return QRect( 0, 0, 400, 400 ); }
 
     static inline QString defaultEasingCurve() { return SL( "easeOutQuad" ); }
     static inline quint8 defaultEasingCurveType() {

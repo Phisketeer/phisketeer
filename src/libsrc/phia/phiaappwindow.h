@@ -16,20 +16,28 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "phiagraphicsitem.h"
+#ifndef PHIAAPPWINDOW_H
+#define PHIAAPPWINDOW_H
+#include <QMainWindow>
+#include "phiaabstractwebview.h"
 
-void PHIAGraphicsItem::setBaseItem( PHIBaseItem *it )
+class PHIAAppWindow : public QMainWindow
 {
-    PHIGraphicsItem::setBaseItem( it );
-}
+    Q_OBJECT
 
-bool PHIAGraphicsItem::sceneEvent( QEvent *event )
-{
-    return QGraphicsItem::sceneEvent( event );
-    //return baseItem()->sceneEvent( event );
-}
+public:
+    explicit PHIAAppWindow( QWidget *parent=0 );
+    void setUrl( const QUrl &url );
 
-void PHIAGraphicsItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget )
-{
-    PHIGraphicsItem::paint( painter, option, widget );
-}
+protected slots:
+    void slotFaviconChanged( PHIAAbstractWebView *view );
+    void slotTitleChanged( PHIAAbstractWebView *view );
+
+protected:
+    void connectSignals( PHIAAbstractWebView *view );
+
+private:
+    PHIAAbstractWebView *_view;
+};
+
+#endif // PHIAAPPWINDOW_H

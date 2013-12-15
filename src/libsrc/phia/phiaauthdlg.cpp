@@ -18,13 +18,13 @@
 */
 #include "phiaauthdlg.h"
 
-PHIAAuthDlg::PHIAAuthDlg( QWidget *parent, QNetworkReply *reply, QAuthenticator *auth )
-    : QDialog( parent ), _reply( reply ), _auth( auth )
+PHIAAuthDlg::PHIAAuthDlg( QWidget *parent, QAuthenticator *auth )
+    : QDialog( parent ), _auth( auth )
 {
     qDebug( "PHIAAuthDlg::PHIAAuthDlg()" );
     setupUi( this );
     setWindowTitle( tr( "Authentication required" ) );
-    _realm->setText( auth->realm() );
+    _realm->setText( _auth->realm() );
 }
 
 PHIAAuthDlg::~PHIAAuthDlg()
@@ -33,27 +33,6 @@ PHIAAuthDlg::~PHIAAuthDlg()
 }
 
 void PHIAAuthDlg::accept()
-{
-    _auth->setUser( _user->text() );
-    _auth->setPassword( _passwd->text() );
-    QDialog::accept();
-}
-
-PHIAProxyDlg::PHIAProxyDlg( QWidget *parent, const QNetworkProxy &proxy, QAuthenticator *auth )
-    : QDialog( parent ), _proxy( proxy ), _auth( auth )
-{
-    qDebug( "PHIAProxyDlg::PHIAProxyDlg()" );
-    setupUi( this );
-    setWindowTitle( tr( "Proxy authentication required" ) );
-    _realm->setText( auth->realm() );
-}
-
-PHIAProxyDlg::~PHIAProxyDlg()
-{
-    qDebug( "PHIAProxyDlg::~PHIAProxyDlg()" );
-}
-
-void PHIAProxyDlg::accept()
 {
     _auth->setUser( _user->text() );
     _auth->setPassword( _passwd->text() );

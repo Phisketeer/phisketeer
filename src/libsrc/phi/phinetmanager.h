@@ -19,10 +19,34 @@
 #ifndef PHINETMANAGER_H
 #define PHINETMANAGER_H
 #include <QNetworkAccessManager>
+#include <QNetworkCookieJar>
+#include <QNetworkCookie>
 #include "phi.h"
 
 class QNetworkReply;
 class QNetworkRequest;
+
+class PHIEXPORT PHINetworkCookies : public QNetworkCookieJar
+{
+    Q_OBJECT
+
+public:
+    static PHINetworkCookies* instance();
+    virtual bool setCookiesFromUrl( const QList<QNetworkCookie> &cookieList, const QUrl &url );
+    virtual QList<QNetworkCookie> cookiesForUrl( const QUrl &url ) const;
+    bool removeCookie( const QString &domain, const QString &name );
+    inline QList<QNetworkCookie> cookies() const { QMutexLocker l( &_mutex ); return allCookies(); }
+    inline void clear() { QMutexLocker l( &_mutex ); setAllCookies( QList<QNetworkCookie>() ); }
+
+protected:
+    PHINetworkCookies( QObject *parent=0 );
+    virtual ~PHINetworkCookies();
+
+private:
+    static PHINetworkCookies* _instance;
+    QString _dbPath;
+    mutable QMutex _mutex;
+};
 
 class PHIEXPORT PHINetworkAccessManager : public QNetworkAccessManager
 {

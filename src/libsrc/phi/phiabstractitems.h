@@ -78,6 +78,8 @@ protected:
     virtual PHIConfigWidget* ideConfigWidget();
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
+    virtual void clientPrepareData();
+    virtual void clientInitData();
 
     inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
     inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
@@ -146,6 +148,8 @@ protected:
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void clientPrepareData();
+    virtual void clientInitData();
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
     virtual void squeeze();
     virtual PHIConfigWidget* ideConfigWidget();
@@ -246,7 +250,7 @@ class PHIEXPORT PHIAbstractLayoutItem : public PHIAbstractShapeItem
     //Q_PROPERTY( qreal horizontalSpacing READ horizontalSpacing WRITE setHorizontalSpacing )
     //Q_PROPERTY( qreal verticalSpacing READ verticalSpacing WRITE setVerticalSpacing )
     //Q_PROPERTY( bool enableHeader READ enableHeader WRITE setEnableHeader )
-    //Q_PROPERTY( QString header READ header WRITE setHeader )
+    Q_PROPERTY( QString _header READ realHeader WRITE setHeader )
 
 public:
     enum ItemData { DRadiusTopLeft=-99, DRadiusTopRight=-98, DRadiusBottomLeft=-97,
@@ -254,7 +258,7 @@ public:
         DPaddingLeft=-93, DPaddingTop=-93, DPaddingRight=-92, DPaddingBottom=-91,
         DBorderWidthLeft=-90, DBorderWidthTop=-89, DBorderWidthRight=-88,
         DBorderWidthBottom=-87, DMarginLeft=-86, DMarginTop=-85, DMarginRight=-84,
-        DMarginBottom=-83, DAlignment=-82, DHeader=-81 };
+        DMarginBottom=-83, DAlignment=-82, DHeader=-81, DChildIds=-80, DChildRects=-79 };
     explicit PHIAbstractLayoutItem( const PHIBaseItemPrivate &p ) : PHIAbstractShapeItem( p ), _l( 0 ) { if ( isGuiItem() ) initLayout(); }
     PHIAbstractLayoutItem( const PHIAbstractLayoutItem &it ) : PHIAbstractShapeItem( it ), _l( 0 ),
         _textData( it._textData ) { if ( isGuiItem() ) initLayout(); } // _children must not be copied!
@@ -299,7 +303,7 @@ public:
     inline bool enableHeader() const { return flags() & PHIBaseItem::FLayoutHeader; }
     inline void setEnableHeader( bool b ) { setFlag( PHIBaseItem::FLayoutHeader, b ); invalidateLayout(); }
     inline void setHeader( const QString &h ) { setData( DHeader, h ); update(); }
-    inline QString header() const { return data( DHeader ).toString(); }
+    inline QString realHeader() const { return data( DHeader ).toString(); }
 
 public slots:
     QScriptValue textAlign( const QScriptValue &a=QScriptValue() );
@@ -318,6 +322,7 @@ protected:
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void ideUpdateData();
+    virtual void clientInitData();
 
     inline const QGraphicsGridLayout* layout() const { return _l; }
     void insertBaseItem( PHIBaseItem *it, int row, int column=0, int rowSpan=1, int columnSpan=1 );

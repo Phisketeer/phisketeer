@@ -73,10 +73,22 @@ void PHIHorizontalLayoutItem::activateLayout()
     qreal tmpHeight=realHeight(); // preserve height
     for ( int i=0; i<_childIds.count(); i++ ) {
         PHIBaseItem *it=page()->findItem( _childIds.at( i ) );
-        Q_ASSERT( it );
+        if ( !it ) continue;
         qobject_cast<PHIVerticalLayoutItem*>(this) ? insertBaseItem( it, i ) : insertBaseItem( it, 0, i );
     }
     resize( tmpWidth, tmpHeight );
+}
+
+void PHIHorizontalLayoutItem::clientPrepareData()
+{
+    PHIAbstractLayoutItem::clientPrepareData();
+    setData( DChildIds, qVariantFromValue( _childIds ) );
+}
+
+void PHIHorizontalLayoutItem::clientInitData()
+{
+    PHIAbstractLayoutItem::clientInitData();
+    _childIds=data( DChildIds ).value<PHIByteArrayList>();
 }
 
 void PHIVerticalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
@@ -141,6 +153,18 @@ void PHIFormLayoutItem::activateLayout()
         insertBaseItem( it, r.y(), r.x(), r.height(), r.width() );
     }
     resize( tmpWidth, tmpHeight );
+}
+
+void PHIFormLayoutItem::clientPrepareData()
+{
+    PHIAbstractLayoutItem::clientPrepareData();
+    setData( DChildRects, qVariantFromValue( _childRects ) );
+}
+
+void PHIFormLayoutItem::clientInitData()
+{
+    PHIAbstractLayoutItem::clientInitData();
+    _childRects=data( DChildRects ).value<PHIRectHash>();
 }
 
 void PHIFormLayoutItem::addBaseItems( const QList<PHIBaseItem *> &list )

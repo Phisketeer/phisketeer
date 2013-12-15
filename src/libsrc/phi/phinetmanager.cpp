@@ -20,17 +20,41 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QNetworkProxy>
+#include <QNetworkDiskCache>
+#include <QWebPage>
 #include "phinetmanager.h"
 #include "phisysinfo.h"
 #include "phiapplication.h"
 
+class PHIDiskCache : public QNetworkDiskCache
+{
+public:
+    explicit PHIDiskCache( QObject *parent );
+    virtual ~PHIDiskCache();
+};
+
+PHIDiskCache::PHIDiskCache( QObject *parent )
+    : QNetworkDiskCache( parent )
+{
+    qDebug( "PHIDiskCache::PHIDiskCache()" );
+    setCacheDirectory( phiApp->cachePath() );
+    QSettings *s=phiApp->settings();
+    s->beginGroup( L1( "Client" ) );
+    setMaximumCacheSize( s->value( L1( "MaxCacheSize" ), 100*1024*1024 ).toLongLong() );
+    s->endGroup();
+}
+
+PHIDiskCache::~PHIDiskCache()
+{
+    qDebug( "PHIDiskCache::~PHIDiskCache()" );
+}
+
 PHINetworkAccessManager::PHINetworkAccessManager( QObject *parent )
     : QNetworkAccessManager( parent )
 {
-    qDebug( "PHIANetworkAccessManager::PHIANetworkAccessManager()" );
-    // @todo: update current WebKit version
+    qDebug( "PHINetworkAccessManager::PHINetworkAccessManager()" );
     _agent="Mozilla/5.0 ("+PHISysInfo::systemString().toUtf8()+") "
-        +QByteArray( "AppleWebKit/" )+"537.36"+QByteArray( " (KHTML, like Gecko) " )
+        +QByteArray( "AppleWebKit/" )+qWebKitVersion().toLatin1()+QByteArray( " (KHTML, like Gecko) " )
         +phiApp->applicationName().toLatin1()+"/"+PHI::libVersion().toLatin1();
     _accept=PHI::phiMimeType()+",text/html,application/xml;q=0.9,application/xhtml+xml;q=0.8,"
         "text/plain;q=0.8,image/png,image/*;q=0.6,*/*;q=0.5";
@@ -43,7 +67,7 @@ PHINetworkAccessManager::PHINetworkAccessManager( QObject *parent )
 
 PHINetworkAccessManager::~PHINetworkAccessManager()
 {
-    qDebug( "PHIANetworkAccessManager::~PHIANetworkAccessManager()" );
+    qDebug( "PHINetworkAccessManager::~PHINetworkAccessManager()" );
 }
 
 QNetworkReply* PHINetworkAccessManager::createRequest( QNetworkAccessManager::Operation op,
@@ -71,12 +95,10 @@ PHINetManager::PHINetManager( QObject *parent )
     : QObject( parent )
 {
     qDebug( "PHINetManager::PHINetManager()" );
+    PHINetworkCookies::instance()->setParent( this );
     _networkAccessManager=new PHINetworkAccessManager( this );
-    // @todo: setup cookies and disk cache
-    // _networkAccessManager->setCookieJar( PHIACookies::instance() );
-    //PHIACookies::instance()->setParent( qApp );
-    //_networkAccessManager->setCache( new PHIADiskCache( _networkAccessManager ) );
-    //_networkAccessManagerNoPhiAccept->setCache( new PHIADiskCache( _networkAccessManagerNoPhiAccept ) );
+    _networkAccessManager->setCookieJar( PHINetworkCookies::instance() );
+    _networkAccessManager->setCache( new PHIDiskCache( _networkAccessManager ) );
     updateProxy();
 }
 
@@ -102,4 +124,84 @@ PHINetManager::~PHINetManager()
 {
     _instance=0;
     qDebug( "PHINetManager::~PHINetManager()" );
+}
+
+PHINetworkCookies* PHINetworkCookies::_instance=0;
+
+PHINetworkCookies* PHINetworkCookies::instance()
+{
+    if ( _instance ) return _instance;
+    _instance=new PHINetworkCookies( phiApp );
+    return _instance;
+}
+
+PHINetworkCookies::PHINetworkCookies( QObject *parent )
+    : QNetworkCookieJar( parent )
+{
+    qDebug( "PHINetworkCookies::PHINetworkCookies()" );
+    _dbPath=phiApp->cachePath()+L1( "/cookies.db" );
+    QFile f( _dbPath );
+    if ( f.open( QIODevice::ReadOnly ) ) {
+        QList<QNetworkCookie> list;
+        QDataStream ds( &f );
+        QByteArray arr;
+        qint32 count;
+        ds >> count;
+        for ( qint32 i=0; i<count; i++ ) {
+            ds >> arr;
+            QList<QNetworkCookie> cookies=QNetworkCookie::parseCookies( arr );
+            list.append( cookies.first() );
+        }
+        f.close();
+        setAllCookies( list );
+    }
+}
+
+PHINetworkCookies::~PHINetworkCookies()
+{
+    QFile f( _dbPath );
+    if ( f.open( QIODevice::WriteOnly ) ) {
+        QList<QNetworkCookie> list=allCookies();
+        QDataStream ds( &f );
+        ds << static_cast<qint32>(list.count());
+        QNetworkCookie cookie;
+        foreach ( cookie, list ) ds << cookie.toRawForm();
+        f.close();
+    }
+    qDebug( "PHINetworkCookies::~PHINetworkCookies()" );
+}
+
+bool PHINetworkCookies::setCookiesFromUrl( const QList<QNetworkCookie> &cookieList, const QUrl &url )
+{
+    QMutexLocker lock( &_mutex );
+    QNetworkCookie cookie;
+    foreach ( cookie, cookieList ) {
+        qDebug( "set cookie name<%s> path<%s> domain<%s> for url<%s>", cookie.name().data(), qPrintable( cookie.path() ),
+            qPrintable( cookie.domain() ), qPrintable( url.toString() ) );
+    }
+    return QNetworkCookieJar::setCookiesFromUrl( cookieList, url );
+}
+
+QList<QNetworkCookie> PHINetworkCookies::cookiesForUrl( const QUrl &url ) const
+{
+    QMutexLocker lock( &_mutex );
+    return QNetworkCookieJar::cookiesForUrl( url );
+}
+
+bool PHINetworkCookies::removeCookie( const QString &domain, const QString &name )
+{
+    QList<QNetworkCookie> list=allCookies();
+    QNetworkCookie cookie;
+    int row=-1;
+    for ( int i=0; i<list.count(); i++ ) {
+        cookie=list.at( i );
+        if ( cookie.domain()==domain && cookie.name()==name.toUtf8() ) {
+            row=i;
+            break;
+        }
+    }
+    if ( row>-1 ) list.removeAt( row );
+    setAllCookies( list );
+    if ( row>-1 ) return true;
+    return false;
 }
