@@ -28,6 +28,8 @@
 #include "phiitemfactory.h"
 #include "phiagraphicsitem.h"
 #include "phiabstractitems.h"
+#include "phiascriptobjects.h"
+#include "phiaappwindow.h"
 
 PHIAGraphicsScene::PHIAGraphicsScene( QObject *parent )
     : PHIGraphicsScene( parent ), _reply( 0 ), _engine( 0 )
@@ -46,6 +48,14 @@ PHIAWebView* PHIAGraphicsScene::webView() const
     return view;
 }
 
+void PHIAGraphicsScene::abort()
+{
+    if ( !_reply ) return;
+    _reply->abort();
+    _reply->deleteLater();
+    _reply=0;
+}
+
 void PHIAGraphicsScene::setUrl( const QUrl &url )
 {
     _requestedUrl=url;
@@ -56,9 +66,9 @@ void PHIAGraphicsScene::setUrl( const QUrl &url )
     _contentTypeChecked=false;
     QNetworkRequest req( _requestedUrl );
     _reply=webView()->networkAccessManager()->get( req );
-    connect( _reply, &QNetworkReply::finished, this, &PHIAGraphicsScene::slotReplyFinished );
     connect( _reply, &QNetworkReply::metaDataChanged, this, &PHIAGraphicsScene::slotMetaDataChanged );
     connect( _reply, &QNetworkReply::readyRead, this, &PHIAGraphicsScene::slotDataAvailable );
+    connect( _reply, &QNetworkReply::finished, this, &PHIAGraphicsScene::slotReplyFinished );
     emit webView()->statusBarMessage( _requestedUrl.toString(), 30000 );
     emit webView()->loading( true );
 }
@@ -85,13 +95,11 @@ void PHIAGraphicsScene::slotDataAvailable()
             emit webView()->unsupportedContent( webView(), _reply );
             return;
         } else {
-            if ( _engine ) {
-                delete _engine;
-                _engine=0;
-            }
+            delete _engine;
+            _engine=0;
+            _contentTypeChecked=true;
+            _readingType=RTHeader;
         }
-        _contentTypeChecked=true;
-        _readingType=RTHeader;
     }
     while ( length>0 ) {
         if ( _readingType==RTHeader ) {
@@ -169,19 +177,31 @@ void PHIAGraphicsScene::slotReplyFinished()
     emit webView()->loading( false );
     QUrl url=_reply->attribute( QNetworkRequest::RedirectionTargetAttribute ).toUrl();
     if ( url.isValid() ) return setUrl( url );
-    if ( _reply->error()==QNetworkReply::NoError ) initItems();
+    if ( _reply->error()==QNetworkReply::NoError ) init();
     _reply->deleteLater();
     _reply=0;
 }
 
-void PHIAGraphicsScene::initItems()
+void PHIAGraphicsScene::init()
 {
     qDebug() << "initItems" << _layouts.count();
     emit pagePaletteChanged( page()->phiPalette() );
     emit pageFontChanged( page()->font() );
-    foreach( PHIAbstractLayoutItem *l, _layouts ) {
-        l->activateLayout();
-        qDebug() << l->data();
+    foreach( PHIAbstractLayoutItem *l, _layouts ) l->activateLayout();
+    _engine=new QScriptEngine( page() );
+    new PHIAScriptWindowObj( webView() ); // constructor sets _engine as parent
+    new PHIAScriptNavigatorObj( webView() ); // constructor sets _engine as parent
+    new PHIAScriptPhiObj( webView() ); // constructor sets _engine as parent
+    PHIAAppWindow *appwin=qobject_cast<PHIAAppWindow*>(webView()->parent());
+    // we need the menu bar object of the main window to initialize the menu for scripting
+    if ( appwin ) new PHIAScriptMenuObj( webView(), appwin->menuBar() );
+    qDebug( "evaluate script" );
+    QString script=page()->javascript();
+    if ( _engine->canEvaluate( script ) ) {
+        QScriptValue doc=_engine->evaluate( script );
+        if ( doc.isError() ) webView()->throwJavaScriptError( doc );
+    } else {
+        emit webView()->javaScriptConsoleMessage( tr( "Could not evaluate JavaScript." ), 0, _requestedUrl.toString() );
     }
 }
 
@@ -214,4 +234,19 @@ void PHIAGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
             painter->translate( -off );
         }
     }
+}
+
+void PHIAGraphicsScene::slotSubmitForm( const QString &buttonId )
+{
+    Q_UNUSED( buttonId )
+}
+
+void PHIAGraphicsScene::slotResetForm()
+{
+
+}
+
+void PHIAGraphicsScene::slotRequestPrint()
+{
+
 }

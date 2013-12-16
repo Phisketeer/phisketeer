@@ -140,6 +140,7 @@ public:
     virtual ~PHITextData(){}
     inline virtual Type type() const { return Text; }
     inline void setText( const QString &t, const QByteArray &l=_c ) { if ( t.isEmpty() ) _data.remove( l ); else _data.insert( l, t.toUtf8() ); }
+    inline void setText( const QByteArray &a, const QByteArray &l=_c ) { if ( a.isEmpty() ) _data.remove( l ); else _data.insert( l, a ); }
     inline QString text( const QByteArray &l=_c ) const { return _data.value( l ).type()==12 ?
         QString::fromUtf8( _data.value( l ).toByteArray() ) : _data.value( l ).toString(); }
 };

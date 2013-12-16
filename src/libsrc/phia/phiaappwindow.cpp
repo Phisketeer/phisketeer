@@ -22,6 +22,7 @@
 PHIAAppWindow::PHIAAppWindow( QWidget *parent )
     : QMainWindow( parent )
 {
+    setAttribute( Qt::WA_DeleteOnClose );
     _view=new PHIAWebView( this );
     setCentralWidget( _view );
     connectSignals( _view );

@@ -25,13 +25,12 @@ const QString& PHIA::libVersion()
     return ver;
 }
 
-/*
 qreal PHIA::zoomFactor()
 {
     return static_cast<qreal>(.02);
 }
 
-
+/*
 QString PHIA::browserName()
 {
     return QString( "Amphibia" );

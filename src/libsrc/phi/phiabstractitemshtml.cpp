@@ -71,7 +71,7 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
     else if ( realPattern()==15 ) {
         if ( cssGradientCreateable( req ) ) cssLinearGradient( req, out );
         else needImage=true;
-    }
+    } else if ( realPattern()>1 ) needImage=true;
     if ( Q_LIKELY( !needImage ) ) {
         if ( realLine()>0 ) { // border
             QByteArray style=BL( "solid" );

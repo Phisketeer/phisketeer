@@ -65,6 +65,7 @@ protected slots:
 
 private:
     PHIGraphicsView *_view;
+    qreal _zoomFactor;
 };
 
 #endif // PHIAWEBVIEW_H

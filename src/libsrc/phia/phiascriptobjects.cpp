@@ -91,7 +91,7 @@ PHIAScriptWindowObj::PHIAScriptWindowObj( PHIAWebView *view )
     connect( this, SIGNAL( createWindow( const QString&, const QString&, const QString& ) ),
         _view, SLOT( slotCreateWindow( const QString&, const QString&, const QString& ) ),
         Qt::QueuedConnection );
-    connect( this, SIGNAL( requestPrint() ), _view, SLOT( slotRequestPrint() ),
+    connect( this, SIGNAL( requestPrint() ), _view->scene(), SLOT( slotRequestPrint() ),
         Qt::QueuedConnection );
 }
 
@@ -483,9 +483,9 @@ PHIAScriptFormsObj::PHIAScriptFormsObj( PHIAWebView *view )
     : QObject( view->scriptEngine() ), _view( view )
 {
     qDebug( "PHIAScriptFormsObj::PHIAScriptFormsObj()" );
-    connect( this, SIGNAL( submitRequest( const QString& ) ), _view,
+    connect( this, SIGNAL( submitRequest( const QString& ) ), _view->scene(),
         SLOT( slotSubmitForm( const QString&) ), Qt::QueuedConnection );
-    connect( this, SIGNAL( resetRequest() ), _view, SLOT( slotResetForm() ), Qt::QueuedConnection );
+    connect( this, SIGNAL( resetRequest() ), _view->scene(), SLOT( slotResetForm() ), Qt::QueuedConnection );
     connect( _view, SIGNAL( checkSubmit( const QString& ) ), this, SLOT( submit( const QString& ) ) );
 }
 

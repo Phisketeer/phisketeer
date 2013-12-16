@@ -38,11 +38,17 @@ public:
     inline QUrl url() const { return _requestedUrl; }
     inline const QSslConfiguration& sslConfiguration() const { return _sslConfig; }
     QScriptEngine* scriptEngine() const;
+    void abort();
+
+public slots:
+    void slotSubmitForm( const QString &buttonId );
+    void slotResetForm();
+    void slotRequestPrint();
 
 protected:
     PHIAWebView* webView() const;
-    void initItems();
     virtual void drawBackground( QPainter *painter, const QRectF &r );
+    void init();
 
 signals:
     void titleChanged( const QString &title );

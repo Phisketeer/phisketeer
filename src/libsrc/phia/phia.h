@@ -38,11 +38,11 @@ public:
         EnableJavascript=6, Geometry=7, DockWidgets=8, MaxHistoryItems=9, JSOpenWindow=10, ProxyHost=11,
         ProxyPort=12, DownloadDirectory=13, ConfigFile=14, LastUpdateCheck=15, EnablePlugins=16 };
     static const QString& libVersion();
+    static qreal zoomFactor();
     /*
     static QString browserName();
     static QString configName( Config );
     static QString viewerName();
-    static qreal zoomFactor();
     static QString phiaDir();
     static void setContainerLineEdit( const PHIAItem*, int row, const QString& );
     static void setContainerComboBox( const PHIAItem*, int row, const QString& );
@@ -50,7 +50,6 @@ public:
     static QComboBox* containerComboBox( const PHIAItem*, int row );
     static QLineEdit* containerLineEdit( const PHIAItem*, int row );
     */
-
 };
 
 #endif // PHIA_H

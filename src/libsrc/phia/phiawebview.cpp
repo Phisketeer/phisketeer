@@ -25,7 +25,7 @@
 #include "phi.h"
 
 PHIAWebView::PHIAWebView( QWidget *parent )
-    : PHIAAbstractWebView( parent )
+    : PHIAAbstractWebView( parent ), _zoomFactor( 1. )
 {
     PHIAGraphicsScene *s=new PHIAGraphicsScene( this );
     _view=new PHIGraphicsView( s, 0 );
@@ -152,14 +152,9 @@ void PHIAWebView::slotForward()
 
 }
 
-void PHIAWebView::slotReload()
-{
-
-}
-
 void PHIAWebView::slotStop()
 {
-
+    scene()->abort();
 }
 
 void PHIAWebView::slotPrint( QPrinter *printer )
@@ -167,22 +162,37 @@ void PHIAWebView::slotPrint( QPrinter *printer )
 
 }
 
-void PHIAWebView::slotSetZoomFactor( qreal f )
+void PHIAWebView::slotReload()
 {
-
+    QUrl url=scene()->url();
+    scene()->setUrl( url );
+    // @todo: check for resending POST data
 }
 
 void PHIAWebView::slotZoomIn()
 {
-
+    qreal f=PHIA::zoomFactor();
+    _zoomFactor=_zoomFactor+f;
+    if ( _zoomFactor > 20. ) return;
+    _view->scale( 1.+f, 1.+f );
 }
 
 void PHIAWebView::slotZoomOut()
 {
-
+    qreal f=-PHIA::zoomFactor();
+    _zoomFactor=_zoomFactor+f;
+    if ( _zoomFactor < .2 ) return;
+    _view->scale( 1.+f, 1.+f );
 }
 
 void PHIAWebView::slotZoomNormal()
 {
+    _zoomFactor=1.;
+    _view->resetTransform();
+}
 
+void PHIAWebView::slotSetZoomFactor( qreal zf )
+{
+    _zoomFactor=zf;
+    _view->scale( _zoomFactor, _zoomFactor );
 }

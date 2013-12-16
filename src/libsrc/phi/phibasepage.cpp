@@ -681,9 +681,8 @@ void PHIBasePage::phisParseData( const PHIDataParser &p )
     if ( _flags & FUseBgImage ) {
         _variants.insert( DBgImageUrl, p.imagePath( bgImageData() ) );
     }
-    PHIPageMenuEntry entry;
-    foreach ( entry, _menuEntries ) {
-        entry.setText( p.text( entry.textData() ).toString() );
+    for ( int i=0; i<_menuEntries.count(); i++ ) {
+        _menuEntries[i].setText( p.text( _menuEntries[i].textData() ).toByteArray() );
     }
 }
 
@@ -816,6 +815,8 @@ quint16 PHIBasePage::load( QDataStream &in, int version, bool client )
 
 quint16 PHIBasePage::loadVersion1_x( QDataStream &in, bool client )
 {
+    Q_UNUSED( client )
+    // @todo: enable phia client loading for version 1.x
     enum Attribute { ANone=0x0, ARequiresSession=0x1, ARequiresLogin=0x2, AFormAction=0x4, APalette=0x8,
         ABgColor=0x10, AStyleSheet=0x20, ACreateSession=0x40, AKeywords=0x80, ALandscape=0x100, ATemplate=0x200,
         AIcon=0x400, AExtensions=0x800, AJavascript=0x1000, ADatabase=0x2000, ASetCookie=0x4000,

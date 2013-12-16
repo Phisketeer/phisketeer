@@ -38,26 +38,26 @@ public:
 
     PHIPageMenuEntry() : _textData( new PHITextData() ) {}
     PHIPageMenuEntry( const QByteArray &id, const QByteArray &parent, const QImage &image,
-        const QByteArray &text, Options options, const PHITextData *data=0 );
+        Options options, const PHITextData *data=0 );
     virtual ~PHIPageMenuEntry() { delete _textData; }
     PHIPageMenuEntry( const PHIPageMenuEntry &e ) : _id( e._id ), _parent( e._parent ),
-        _text( e._text ), _img( e._img ), _options( e._options ),
+        _img( e._img ), _options( e._options ),
         _textData( new PHITextData( *e._textData ) ) {}
     PHIPageMenuEntry& operator=( const PHIPageMenuEntry& );
     bool operator==( const PHIPageMenuEntry &p );
-    inline bool operator!=( const PHIPageMenuEntry &p ) { return !operator==(p); }
+    inline bool operator!=( const PHIPageMenuEntry &p ) { return !(operator==(p)); }
 
     inline QString id() const { return QString::fromUtf8( _id ); }
     inline QString parent() const { return QString::fromUtf8( _parent ); }
-    inline QString text() const { return QString::fromUtf8( _text ); }
+    inline QString text() const { return _textData->text(); }
     inline Options options() const { return _options; }
     inline QImage image() const { return _img; }
     inline QPixmap pixmap() const { return QPixmap::fromImage( _img ); }
     inline PHITextData* textData() const { return _textData; }
-    inline void setText( const QString &text ) { _text=text.toUtf8(); }
+    inline void setText( const QByteArray &text ) { *_textData=PHITextData(); _textData->setText( text ); }
 
 protected:
-    QByteArray _id, _parent, _text;
+    QByteArray _id, _parent;
     QImage _img;
     Options _options;
     PHITextData *_textData;

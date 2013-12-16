@@ -24,8 +24,8 @@
 #include "phipagemenuentry.h"
 
 PHIPageMenuEntry::PHIPageMenuEntry( const QByteArray &id, const QByteArray &parent,
-    const QImage &image, const QByteArray &text, Options options, const PHITextData *data )
-    : _id( id ), _parent( parent ), _text( text ), _img( image ), _options( options )
+    const QImage &image, Options options, const PHITextData *data )
+    : _id( id ), _parent( parent ), _img( image ), _options( options )
 {
     qDebug( "PHIPageMenuEntry::PHIPageMenuEntry()" );
     _textData=new PHITextData();
@@ -37,7 +37,6 @@ PHIPageMenuEntry& PHIPageMenuEntry::operator=( const PHIPageMenuEntry &e )
     _id=e._id;
     _parent=e._parent;
     _img=e._img;
-    _text=e._text;
     _options=e._options;
     *_textData=*(e._textData);
     return *this;
@@ -48,8 +47,6 @@ bool PHIPageMenuEntry::operator==( const PHIPageMenuEntry &p )
     if ( _id!=p._id ) return false;
     if ( _parent!=p._parent ) return false;
     if ( _img!=p._img ) return false;
-    // if ( _text!=p._text ) return false;
-    Q_ASSERT( _text.isEmpty() && p._text.isEmpty() );
     if ( _options!=p._options ) return false;
     if ( *_textData!=*(p._textData) ) return false;
     return true;
