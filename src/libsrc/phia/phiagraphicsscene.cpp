@@ -71,6 +71,7 @@ void PHIAGraphicsScene::setUrl( const QUrl &url )
     connect( _reply, &QNetworkReply::finished, this, &PHIAGraphicsScene::slotReplyFinished );
     emit webView()->statusBarMessage( _requestedUrl.toString(), 30000 );
     emit webView()->loading( true );
+    slotDataAvailable();
 }
 
 void PHIAGraphicsScene::slotMetaDataChanged()
@@ -162,6 +163,7 @@ void PHIAGraphicsScene::slotDataAvailable()
                 if ( it ) {
                     it->setId( id );
                     it->load( arr, _version );
+                    qDebug() << "adding item" << id;
                     addItem( it->gw() );
                 }
                 PHIAbstractLayoutItem *l=qobject_cast<PHIAbstractLayoutItem*>(it);

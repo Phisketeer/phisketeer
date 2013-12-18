@@ -645,7 +645,6 @@ bool PHIBaseItem::sceneEvent( QEvent *e )
         default:;
         }
     }
-    //qDebug( "Event %d", e->type() );
     return false;
 }
 

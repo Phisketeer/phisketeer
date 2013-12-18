@@ -35,11 +35,12 @@ static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
 {
     QScriptValue id=ctx->argument( 0 );
     if ( !id.isObject() && !id.isString() ) return engine->undefinedValue();
-    if ( id.isObject() ) return id;
-
+    QString name;
+    if ( id.isObject() ) name=id.property( L1( "id" ) ).toString();
+    else name=id.toString();
     const PHIBasePage *page=qobject_cast<PHIBasePage*>(engine->parent());
     Q_ASSERT( page );
-    PHIBaseItem *it=page->findItem( id.toString() );
+    PHIBaseItem *it=page->findItem( name );
     if ( !it ) return engine->undefinedValue();
     return baseItemToScriptValue( engine, it );
 }
@@ -568,7 +569,7 @@ QString PHIAScriptNavigatorObj::appName() const
 
 QString PHIAScriptNavigatorObj::appVersion() const
 {
-    return PHI::libVersion();
+    return PHIA::libVersion();
 }
 
 QString PHIAScriptNavigatorObj::language() const

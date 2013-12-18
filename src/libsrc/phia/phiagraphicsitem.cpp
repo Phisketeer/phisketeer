@@ -16,20 +16,58 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <QKeyEvent>
+#include <QGraphicsSceneMouseEvent>
 #include "phiagraphicsitem.h"
-
-void PHIAGraphicsItem::setBaseItem( PHIBaseItem *it )
-{
-    PHIGraphicsItem::setBaseItem( it );
-}
+#include "phidomevent.h"
 
 bool PHIAGraphicsItem::sceneEvent( QEvent *event )
 {
     return QGraphicsItem::sceneEvent( event );
-    //return baseItem()->sceneEvent( event );
 }
 
-void PHIAGraphicsItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget )
+void PHIAGraphicsItem::keyPressEvent( QKeyEvent *event )
 {
-    PHIGraphicsItem::paint( painter, option, widget );
+    PHIDomEvent keydown( L1( "keydown" ), baseItem(), true );
+    keydown.setKeyEvent( event );
+    baseItem()->trigger( L1( "keydown" ), QScriptValue(), &keydown );
 }
+
+void PHIAGraphicsItem::keyReleaseEvent( QKeyEvent *event )
+{
+}
+
+void PHIAGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+
+}
+
+void PHIAGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    // event->ignore() or event->accept() has no effect!
+
+}
+
+void PHIAGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if ( baseItem()->realDisabled() ) return event->ignore();
+    PHIGraphicsItem::mousePressEvent( event );
+}
+
+void PHIAGraphicsItem::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
+{
+    // event->ignore() or event->accept() has no effect!
+    PHIDomEvent mouseup( L1( "mouseup" ), baseItem(), true );
+    mouseup.setMouseEvent( event );
+    baseItem()->trigger( L1( "mouseup" ), QScriptValue(), &mouseup );
+    PHIGraphicsItem::mouseReleaseEvent( event );
+    if ( mouseup.isDefaultPrevented() ) return;
+    if ( boundingRect().contains( event->pos() ) ) {
+        PHIDomEvent click( L1( "click" ), baseItem(), true );
+        click.setMouseEvent( event );
+        baseItem()->trigger( L1( "click" ), QScriptValue(), &click );
+        if ( click.isDefaultPrevented() ) return;
+        emit baseItem()->itemClicked();
+    }
+}
+

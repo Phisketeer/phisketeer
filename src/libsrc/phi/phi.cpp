@@ -489,6 +489,27 @@ Qt::CursorShape PHI::toCursorShape( const QByteArray &s )
     return Qt::ArrowCursor;
 }
 
+QByteArray PHI::toCursorString( Qt::CursorShape s )
+{
+    if ( s==Qt::CrossCursor ) return BL( "crosshair" );
+    if ( s==Qt::ArrowCursor ) return BL( "default" );
+    if ( s==Qt::SizeHorCursor ) return BL( "e-resize" );
+    if ( s==Qt::WhatsThisCursor ) return BL( "help" );
+    if ( s==Qt::OpenHandCursor ) return BL( "move" );
+    if ( s==Qt::SizeVerCursor ) return BL( "n-resize" );
+    if ( s==Qt::SizeBDiagCursor ) return BL( "ne-resize" );
+    if ( s==Qt::SizeFDiagCursor ) return BL( "nw-resize" );
+    if ( s==Qt::PointingHandCursor ) return BL( "pointer" );
+    if ( s==Qt::BusyCursor ) return BL( "progress" );
+    if ( s==Qt::SizeVerCursor ) return BL( "s-resize" );
+    if ( s==Qt::SizeFDiagCursor ) return BL( "se-resize" );
+    if ( s==Qt::SizeBDiagCursor ) return BL( "sw-resize" );
+    if ( s==Qt::IBeamCursor ) return BL( "text" );
+    if ( s==Qt::SizeHorCursor ) return BL( "w-resize" );
+    if ( s==Qt::WaitCursor ) return BL( "wait" );
+    return BL( "default" );
+}
+
 bool PHI::isUpToDate( const QString &localV, const QString &serverV )
 {
     QString l=localV;

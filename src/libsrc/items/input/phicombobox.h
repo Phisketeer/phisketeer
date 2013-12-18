@@ -1,3 +1,4 @@
+/*
 #    Copyright (C) 2010-2013  Marius B. Schumacher
 #    Copyright (C) 2011-2013  Phisys AG, Switzerland
 #    Copyright (C) 2012-2013  Phisketeer.org team
@@ -14,25 +15,33 @@
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#ifndef PHICOMBOBOX_H
+#define PHICOMBOBOX_H
+#include <QComboBox>
 
-include( ../items.pri )
-HEADERS += phiinput.h \ 
-    phiinputitems.h \
-    phicheckitems.h \
-    philistitems.h \
-    phicalendaritems.h \
-    phimiscitems.h \
-    phiinputtools.h \
-    phitableitems.h \
-    phicombobox.h
-SOURCES += \ 
-    phiinputitems.cpp \
-    phicheckitems.cpp \
-    philistitems.cpp \
-    phicalendaritems.cpp \
-    phimiscitems.cpp \
-    phitableitems.cpp \
-    phicombobox.cpp
-TARGET = phiinput
-FORMS = tableconfig.ui
-OTHER_FILES = phiinput.json
+class QEvent;
+class QKeyEvent;
+class QMenu;
+class PHIBaseItem;
+
+class PHIComboBox : public QComboBox
+{
+    Q_OBJECT
+
+public:
+    PHIComboBox( PHIBaseItem *it, QWidget *parent=0 );
+    virtual ~PHIComboBox();
+
+protected:
+    virtual bool event( QEvent *e );
+    virtual void keyPressEvent( QKeyEvent *e );
+    virtual void showPopup();
+
+
+private:
+    PHIBaseItem *_it;
+    QMenu *_menu;
+};
+
+#endif // PHICOMBOBOX_H

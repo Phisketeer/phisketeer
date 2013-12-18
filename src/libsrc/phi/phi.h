@@ -104,6 +104,7 @@ public:
     static const QByteArray& phiMimeType();
     static QByteArray mimeTypeForFile( const QFileInfo &info );
     static Qt::CursorShape toCursorShape( const QByteArray &s );
+    static QByteArray toCursorString( Qt::CursorShape shape );
     static bool isUpToDate( const QString &localV, const QString &serverV );
     static QString toLocale( const QString &lang );
     static const QString& defaultString(); // returns "default"

@@ -202,8 +202,9 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qRegisterMetaTypeStreamOperators<QGradientStops>("QGradientStops");
     qRegisterMetaTypeStreamOperators<PHIListChar>("PHIListChar");
     qRegisterMetaTypeStreamOperators<PHIListWord>("PHIListWord");
-    qRegisterMetaType<QDateTime>( "QDateTime" );
-    qRegisterMetaType<PHIRC>( "PHIRC" );
+    qRegisterMetaType<QDateTime>("QDateTime");
+    qRegisterMetaType<PHIRC>("PHIRC");
+    qRegisterMetaType<PHIWID>("PHIWID");
 
 #ifdef PHIDEBUG
     _pluginsPath=L1( PHIDIR )+L1( "/plugins" );

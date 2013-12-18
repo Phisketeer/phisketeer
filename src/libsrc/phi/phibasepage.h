@@ -104,7 +104,8 @@ public:
         FUseMasterPalette=0x80, FUseBgImage=0x100, FNoUnderlinedLinks=0x200,
         FHasMasterTemplate=0x400, FServerScript=0x800, FJavaScript=0x1000,
         FNoSystemCSS=0x2000, FNoUiThemeCSS=0x4000, FUseCSS=0x8000, FUseDB=0x10000,
-        FDBFile=0x20000, FServerModulesCombat=0x40000, FHasFavicon=0x80000 }; // quint32
+        FDBFile=0x20000, FServerModulesCombat=0x40000, FHasFavicon=0x80000,
+        FClient=0x100000 }; // quint32
     enum Geometry { GUnknown=0, GA4=1, GLetter=2, GCustom=3, GPhi=4, G4_3=5, G16_9=6, GiPad=7 };
     enum SessionOption { SNone=0x0, SRequiresLogin=0x1, SRequiresSession=0x2,
         SSessionCookie=0x4, SCreateSession=0x8 };

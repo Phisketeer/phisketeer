@@ -39,7 +39,7 @@ class PHIDomEffect : public QObject
 
 public:
     explicit PHIDomEffect( PHIDomItem *it );
-    virtual ~PHIDomEffect() { qDebug( "PHIDomEffect()::~PHIDomEffect()" ); }
+    virtual ~PHIDomEffect() {}
 
 public slots:
     inline quint8 xAxis() const { return 0x1; }
@@ -120,10 +120,10 @@ class PHIItemStyleCSS : public QObject
 
 public:
     explicit PHIItemStyleCSS( PHIDomItem* );
-    virtual ~PHIItemStyleCSS(){ qDebug( "PHIItemStyleCSS::~PHIItemStyleCSS()" ); }
+    virtual ~PHIItemStyleCSS(){}
 
 public slots:
-    // offered by CSS 2.1 / 3.0
+    // CSS:
     inline QString left() const { return QString::number( _it->realX() )+QLatin1String( "px" ); }
     inline void setLeft( const QString &x ) { _it->setX( toReal( x ) ); }
     inline QString top() const { return QString::number( _it->realY() )+QLatin1String( "px" ); }

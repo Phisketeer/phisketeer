@@ -37,11 +37,9 @@ SOURCES += \
     phiaappwindow.cpp
 OTHER_FILES += \
     phiatools.h \
-    phianetmanager.h \
     phiawebview.org.h \
     phiascene.h \
     phiamainwindow.org.h \
-    phiapage.h \
     phiaitem.h \
     gitems.h \
     phiahistory.h \
@@ -53,34 +51,22 @@ OTHER_FILES += \
     phiasettingsdlg.h \
     phiaaddressdlg.h \
     phiadownloaddlg.h \
-    phiacomboboxhack.h \
-    gwebitems.h \
-    phiascriptevent.h \
-    phiascriptitem.h \
     phiaanimation.h \
     phiajavascriptlog.h \
-    phianetmanager.cpp \
     phiatools.cpp \
     phiawebview.org.cpp \
     phiascene.cpp \
     phiamainwindow.org.cpp \
-    phiapage.cpp \
+    phiaitem.h \
     phiaitem.cpp \
-    gitems.cpp \
     phiahistory.cpp \
     phiaformprocessor.cpp \
-    gwidgetitems.cpp \
-    glayoutitems.cpp \
-    phiaitemhandler.cpp \
-    gwidgetitem.cpp \
     phiaconfig.cpp \
     phiasettingsdlg.cpp \
     phiaaddressdlg.cpp \
-    phiadownloaddlg.cpp \
-    phiacomboboxhack.cpp \
-    gwebitems.cpp \
-    phiascriptevent.cpp \
     phiascriptitem.cpp \
+    phiaitemhandler.cpp \
+    phiadownloaddlg.cpp \
     phiaanimation.cpp \
     phiajavascriptlog.cpp
 

@@ -234,21 +234,21 @@ bool PHIBasePage::removeElementById( const QString &id )
     return true;
 }
 
-// only available for Serverscript:
 QScriptValue PHIBasePage::getElementById( const QString &id ) const
 {
     PHIBaseItem *it=findItem( id );
     if ( !it ) return scriptEngine()->undefinedValue();
-    PHIDomItem *dom=new PHIDomItem( it );
-    return scriptEngine()->newQObject( dom, QScriptEngine::QtOwnership,
-        QScriptEngine::PreferExistingWrapperObject |
+    PHIDomItem *dom=new PHIDomItem( it, scriptEngine() );
+    return scriptEngine()->newQObject( dom, QScriptEngine::ScriptOwnership,
+        QScriptEngine::PreferExistingWrapperObject | QScriptEngine::SkipMethodsInEnumeration |
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
 }
 
-// only available for Serverscript:
+// only available for ServerScript:
 QScriptValue PHIBasePage::createElementById( PHIWID wid, const QString &id,
     qreal x, qreal y, qreal width, qreal height )
 {
+    if ( _flags & FClient ) return scriptEngine()->undefinedValue();
     if ( containsItemId( id ) ) return scriptEngine()->undefinedValue();
     PHIBaseItemPrivate p( PHIBaseItemPrivate::TServerItem, this, 0 );
     PHIBaseItem *it=PHIItemFactory::instance()->item( wid, p );
@@ -257,7 +257,9 @@ QScriptValue PHIBasePage::createElementById( PHIWID wid, const QString &id,
     it->setX( x );
     it->setY( y );
     if ( width > 0 ) it->setWidth( width );
+    else it->setWidth( it->sizeHint( Qt::PreferredSize ).width() );
     if ( height > 0 ) it->setHeight( height );
+    else it->setHeight( it->sizeHint( Qt::PreferredSize ).height() );
     // @todo: add extensions for HTML generation
     /*
     if ( it->hasHtmlExtension() ) {
@@ -268,9 +270,9 @@ QScriptValue PHIBasePage::createElementById( PHIWID wid, const QString &id,
         if ( extWid ) insertHtmlScriptExtension( extWid, script );
     }
     */
-    PHIDomItem *dom=new PHIDomItem( it );
+    PHIDomItem *dom=new PHIDomItem( it, scriptEngine() );
     return scriptEngine()->newQObject( dom, QScriptEngine::ScriptOwnership,
-        QScriptEngine::PreferExistingWrapperObject |
+        QScriptEngine::PreferExistingWrapperObject | QScriptEngine::SkipMethodsInEnumeration |
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
 }
 
@@ -785,8 +787,7 @@ void PHIBasePage::save( QDataStream &out, int version, bool client )
 
 quint16 PHIBasePage::load( QDataStream &in, int version, bool client )
 {
-    PHIBaseItem *it;
-    foreach( it, findChildren<PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly) ) {
+    foreach( PHIBaseItem *it, findChildren<PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly) ) {
         delete it;
     }
     if ( Q_UNLIKELY( version<3 ) ) return loadVersion1_x( in );
@@ -795,6 +796,7 @@ quint16 PHIBasePage::load( QDataStream &in, int version, bool client )
     quint16 itemCount;
     in >> _id >> flags >> _pal;
     if ( !client ) in >> _pageData;
+    else _flags |= FClient;
     in >> itemCount >> _variants >> _favicon >> _font >> _menuEntries;
     _flags=static_cast<Flags>(flags);
     _width=_variants.value( DWidth, 750 ).value<quint32>();
@@ -815,7 +817,7 @@ quint16 PHIBasePage::load( QDataStream &in, int version, bool client )
 
 quint16 PHIBasePage::loadVersion1_x( QDataStream &in, bool client )
 {
-    Q_UNUSED( client )
+    if ( client ) _flags |= FClient;
     // @todo: enable phia client loading for version 1.x
     enum Attribute { ANone=0x0, ARequiresSession=0x1, ARequiresLogin=0x2, AFormAction=0x4, APalette=0x8,
         ABgColor=0x10, AStyleSheet=0x20, ACreateSession=0x40, AKeywords=0x80, ALandscape=0x100, ATemplate=0x200,

@@ -22,7 +22,7 @@
 PHIDomEffect::PHIDomEffect( PHIDomItem *parent )
     : QObject( parent ), _it( parent->baseItem() )
 {
-    qDebug( "PHIDomEffect::PHIDomEffect()" );
+    //qDebug( "PHIDomEffect::PHIDomEffect()" );
     Q_ASSERT( _it );
     setObjectName( L1( "effect" ) );
 }
@@ -30,7 +30,7 @@ PHIDomEffect::PHIDomEffect( PHIDomItem *parent )
 PHIItemStyleCSS::PHIItemStyleCSS( PHIDomItem *parent )
     : QObject( parent ), _it( parent->baseItem() )
 {
-    qDebug( "PHIItemStyleCSS::PHIItemStyleCSS()" );
+    //qDebug( "PHIItemStyleCSS::PHIItemStyleCSS()" );
     Q_ASSERT( _it );
     setObjectName( L1( "style" ) );
 }

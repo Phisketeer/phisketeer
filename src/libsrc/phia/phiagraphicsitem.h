@@ -20,18 +20,25 @@
 #define PHIAGRAPHICSITEM_H
 #include "phigraphicsitem.h"
 
+class QKeyEvent;
+class QGraphicsSceneMouseEvent;
+
 class PHIAGraphicsItem : public PHIGraphicsItem
 {
     Q_OBJECT
 
 public:
     PHIAGraphicsItem() : PHIGraphicsItem() {}
-    virtual void setBaseItem( PHIBaseItem *it );
+    virtual ~PHIAGraphicsItem() {}
 
 protected:
-    virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget );
     virtual bool sceneEvent( QEvent *event );
-
+    virtual void keyPressEvent( QKeyEvent *event );
+    virtual void keyReleaseEvent( QKeyEvent *event );
+    virtual void mouseDoubleClickEvent( QGraphicsSceneMouseEvent *event );
+    virtual void mouseMoveEvent( QGraphicsSceneMouseEvent *event );
+    virtual void mousePressEvent( QGraphicsSceneMouseEvent *event );
+    virtual void mouseReleaseEvent( QGraphicsSceneMouseEvent *event );
 };
 
 #endif // PHIAGRAPHICSITEM_H

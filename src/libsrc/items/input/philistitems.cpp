@@ -22,10 +22,11 @@
 #include "phibasepage.h"
 #include "phidatasources.h"
 #include "phiinputtools.h"
+#include "phicombobox.h"
 
 void PHISelectItem::initWidget()
 {
-    setWidget( new QComboBox() );
+    setWidget( new PHIComboBox( this ) );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::ComboBox ) );
 }
 

@@ -19,6 +19,7 @@
 #ifndef PHIDOMITEM_H
 #define PHIDOMITEM_H
 #include <QObject>
+#include <QScriptValue>
 #include "phibaseitem.h"
 #include "phieffect.h"
 #include "phiitemstylecss.h"
@@ -26,29 +27,49 @@
 class PHIDomItem : public QObject
 {
     Q_OBJECT
+
+    // DOM attributes:
     Q_PROPERTY( QString accessKey READ accessKey WRITE setAccessKey )
     Q_PROPERTY( bool checked READ checked WRITE setChecked )
-    Q_PROPERTY( QString delimiter READ delimiter WRITE setDelimiter )
-    Q_PROPERTY( int fadeInterval READ fadeInterval WRITE setFadeInterval )
-    Q_PROPERTY( int fadeTime READ fadeTime WRITE setFadeTime )
-    Q_PROPERTY( QString id READ name )
-    Q_PROPERTY( QString imageId READ imageId WRITE setImageId )
-    Q_PROPERTY( QString label READ label WRITE setLabel )
+    Q_PROPERTY( bool disabled READ disabled WRITE setDisabled )
+    Q_PROPERTY( QString id READ name )    
     Q_PROPERTY( int maxLength READ maxLength WRITE setMaxLength )
     Q_PROPERTY( QString name READ name )
-    Q_PROPERTY( QString parentName READ parentName WRITE setParentName )
-    Q_PROPERTY( QStringList pictureBookIds READ pictureBookIds WRITE setPictureBookIds )
-    Q_PROPERTY( QStringList properties READ properties )
     Q_PROPERTY( bool readOnly READ readOnly WRITE setReadOnly )
-    Q_PROPERTY( QString styleSheet READ styleSheet WRITE setStyleSheet )
     Q_PROPERTY( int tabIndex READ tabIndex WRITE setTabIndex )
     Q_PROPERTY( QString title READ title WRITE setTitle )
     Q_PROPERTY( QString type READ type )
+
+    // obsolete (provided to keep old ServerScript code working):
+    Q_PROPERTY( QString parentName READ parentName WRITE setParentName )
+    Q_PROPERTY( QStringList pictureBookIds READ pictureBookIds WRITE setPictureBookIds )
+    Q_PROPERTY( QStringList properties READ properties )
+    Q_PROPERTY( QString label READ label WRITE setLabel )
+    Q_PROPERTY( QString imageId READ imageId WRITE setImageId )
+    Q_PROPERTY( int fadeTime READ fadeTime WRITE setFadeTime )
+    Q_PROPERTY( int fadeInterval READ fadeInterval WRITE setFadeInterval )
+    Q_PROPERTY( QString delimiter READ delimiter WRITE setDelimiter )
     Q_PROPERTY( QString url READ url WRITE setUrl )
+    Q_PROPERTY( QString styleSheet READ styleSheet WRITE setStyleSheet )
     Q_PROPERTY( int wid READ wid )
 
+    // DOM event handler:
+    Q_PROPERTY( QScriptValue onclick READ onClick WRITE setOnClick )
+    Q_PROPERTY( QScriptValue ondblclick READ onDblClick WRITE setOnDblClick )
+    Q_PROPERTY( QScriptValue onmousedown READ onMouseDown WRITE setOnMouseDown )
+    Q_PROPERTY( QScriptValue onmousemove READ onMouseMove WRITE setOnMouseMove )
+    Q_PROPERTY( QScriptValue onmouseup READ onMouseUp WRITE setOnMouseUp )
+    Q_PROPERTY( QScriptValue onmouseover READ onMouseOver WRITE setOnMouseOver )
+    Q_PROPERTY( QScriptValue onmouseout READ onMouseOut WRITE setOnMouseOut )
+    Q_PROPERTY( QScriptValue onkeydown READ onKeyDown WRITE setOnKeyDown )
+    Q_PROPERTY( QScriptValue onkeypress READ onKeyPress WRITE setOnKeyPress )
+    Q_PROPERTY( QScriptValue onkeyup READ onKeyUp WRITE setOnKeyUp )
+    Q_PROPERTY( QScriptValue onblur READ onBlur WRITE setOnBlur )
+    Q_PROPERTY( QScriptValue onfocus READ onFocus WRITE setOnFocus )
+    Q_PROPERTY( QScriptValue onchange READ onChange WRITE setOnChange )
+
 public:
-    explicit PHIDomItem( PHIBaseItem *it ) : QObject( it ), _it( it )
+    explicit PHIDomItem( PHIBaseItem *it, QObject *parent ) : QObject( parent ), _it( it )
         { new PHIDomEffect( this ); new PHIItemStyleCSS( this ); }
     virtual ~PHIDomItem() {}
     inline PHIBaseItem* baseItem() const { return _it; }
@@ -92,10 +113,36 @@ public slots:
     QStringList pictureBookIds() const;
     void setPictureBookIds( const QStringList &l );
 
-    // @todo: implement event handlers
-    // void blur();
-    // void click();
-    // void focus();
+    inline QScriptValue onClick() const { return QScriptValue::UndefinedValue; }
+    inline void setOnClick( const QScriptValue &v ){ _it->on( L1( "click" ), v ); }
+    inline QScriptValue onDblClick() const { return QScriptValue::UndefinedValue; }
+    inline void setOnDblClick( const QScriptValue &v ){ _it->on( L1( "dblclick" ), v ); }
+    inline QScriptValue onMouseDown() const { return QScriptValue::UndefinedValue; }
+    inline void setOnMouseDown( const QScriptValue &v ){ _it->on( L1( "mousedown" ), v ); }
+    inline QScriptValue onMouseUp() const { return QScriptValue::UndefinedValue; }
+    inline void setOnMouseUp( const QScriptValue &v ){ _it->on( L1( "mouseup" ), v ); }
+    inline QScriptValue onMouseMove() const { return QScriptValue::UndefinedValue; }
+    inline void setOnMouseMove( const QScriptValue &v ){ _it->on( L1( "mousemove" ), v ); }
+    inline QScriptValue onMouseOver() const { return QScriptValue::UndefinedValue; }
+    inline void setOnMouseOver( const QScriptValue &v ){ _it->on( L1( "mouseover" ), v ); }
+    inline QScriptValue onMouseOut() const { return QScriptValue::UndefinedValue; }
+    inline void setOnMouseOut( const QScriptValue &v ){ _it->on( L1( "mouseout" ), v ); }
+    inline QScriptValue onKeyDown() const { return QScriptValue::UndefinedValue; }
+    inline void setOnKeyDown( const QScriptValue &v ){ _it->on( L1( "keydown" ), v ); }
+    inline QScriptValue onKeyUp() const { return QScriptValue::UndefinedValue; }
+    inline void setOnKeyUp( const QScriptValue &v ){ _it->on( L1( "keyup" ), v ); }
+    inline QScriptValue onKeyPress() const { return QScriptValue::UndefinedValue; }
+    inline void setOnKeyPress( const QScriptValue &v ){ _it->on( L1( "keypress" ), v ); }
+    inline QScriptValue onBlur() const { return QScriptValue::UndefinedValue; }
+    inline void setOnBlur( const QScriptValue &v ){ _it->on( L1( "blur" ), v ); }
+    inline QScriptValue onFocus() const { return QScriptValue::UndefinedValue; }
+    inline void setOnFocus( const QScriptValue &v ){ _it->on( L1( "focus" ), v ); }
+    inline QScriptValue onChange() const { return QScriptValue::UndefinedValue; }
+    inline void setOnChange( const QScriptValue &v ){ _it->on( L1( "change" ), v ); }
+
+    inline void blur() const { _it->trigger( L1( "blur" ) ); }
+    inline void click() const { _it->trigger( L1( "click" ) ); }
+    inline void focus() const { _it->trigger( L1( "focus" ) ); }
 
 private:
     PHIBaseItem *_it;

@@ -52,7 +52,8 @@ HEADERS += phi.h \
     phiimagecache.h \
     phisession.h \
     phidomitem.h \
-    phiwebpage.h
+    phiwebpage.h \
+    phidomevent.h
 SOURCES += phi.cpp \
     phiitemdata.cpp \
     phidatasources.cpp \
@@ -87,7 +88,9 @@ SOURCES += phi.cpp \
     phiimagecache.cpp \
     phisession.cpp \
     phiabstractitemshtml.cpp \
-    phiwebpage.cpp
+    phiwebpage.cpp \
+    phidomevent.cpp \
+    phiitemhandler.cpp
 FORMS += colorconfig.ui \
     layoutconfig.ui
 

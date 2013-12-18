@@ -39,6 +39,7 @@ class PHIRequest;
 class PHISDataParser;
 class PHIConfigWidget;
 class PHIDataParser;
+class PHIDomEvent;
 
 class PHIEXPORT PHIBaseItemPrivate
 {
@@ -73,6 +74,13 @@ class PHIEXPORT PHIBaseItem : public QObject
     Q_OBJECT
     Q_PROPERTY( QFont _font READ font WRITE setFont SCRIPTABLE false )
     Q_PROPERTY( qreal _opacity READ realOpacity WRITE setOpacity SCRIPTABLE false )
+    Q_PROPERTY( qreal _x READ realX WRITE setX SCRIPTABLE false )
+    Q_PROPERTY( qreal _y READ realY WRITE setY SCRIPTABLE false )
+    Q_PROPERTY( qreal _width READ realWidth WRITE setWidth SCRIPTABLE false )
+    Q_PROPERTY( qreal _height READ realHeight WRITE setHeight SCRIPTABLE false )
+    Q_PROPERTY( qreal _xRotation READ xRotation WRITE setXRotation SCRIPTABLE false )
+    Q_PROPERTY( qreal _yRotation READ yRotation WRITE setYRotation SCRIPTABLE false )
+    Q_PROPERTY( qreal _zRotation READ zRotation WRITE setZRotation SCRIPTABLE false )
 
 public:
     enum Wid { Unknown=0, User=1000 };
@@ -82,7 +90,7 @@ public:
         DGradientType=-23, DGradientStartPoint=-24, DGradientStopPoints=-25,
         DGradientFinalStopPoint=-26, DGradientSpreadType=-27, DGradientAngle=-28,
         DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31,
-        DImagePath=-32, DImagePathes=-33, DIEFilter=-34, DAdjustedRect=-35 };
+        DImagePath=-32, DImagePathes=-33, DIEFilter=-34, DAdjustedRect=-35, DEventFunctions=-36 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
@@ -114,6 +122,7 @@ public:
 
 public: // not usable by script engine
     void setId( const QString &id );
+    inline const QByteArray& id() const { return _id; }
     inline QString name() const { return QString::fromLatin1( _id ); }
     inline const QByteArray& parentId() const { return _parentId; }
     inline QString realParentName() const { return QString::fromLatin1( _parentId ); }
@@ -169,6 +178,7 @@ public: // not usable by script engine
     inline void setImagePath( const QByteArray &path ) const { _variants.insert( DImagePath, path ); }
     inline QString styleSheet() const { return QString::fromUtf8( _variants.value( DStyleSheet ).toByteArray() ); }
     virtual void setStyleSheet( const QString &s );
+    inline QScriptEngine* scriptEngine() const { Q_ASSERT( page() ); return page()->scriptEngine(); }
 
     inline QRectF rect() const { return QRectF( QPointF(), realSize() ); }
     inline quint8 transformPos() const { return _variants.value( DTransformPos, 1 ).value<quint8>(); }
@@ -212,6 +222,7 @@ public: // not usable by script engine
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &headerOut ) const { Q_UNUSED( req ) Q_UNUSED( headerOut ) return 0; }
     virtual PHIWID htmlScriptExtension( const PHIRequest *req, QByteArray &globalScript ) const { Q_UNUSED(req ) Q_UNUSED( globalScript ) return 0; }
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
     QByteArray save( int version );
 
     inline virtual bool hasText() const { return false; }
@@ -257,7 +268,7 @@ public: // not usable by script engine
     virtual PHIIntData* intData_1() { return 0; }
     virtual PHIIntData* intData_2() { return 0; }
     virtual void ideInit() {}
-    inline const QGraphicsWidget* gw() const { return _gw; }
+    inline const QGraphicsWidget* graphicsWidget() const { return _gw; }
     inline PHITextData* styleSheetData() { return &_styleSheetData; }
     inline PHITextData* titleData() { return &_titleData; }
     inline PHIBooleanData* visibleData() { return &_visibleData; }
@@ -271,37 +282,53 @@ public: // not usable by script engine
     static QColor colorFromMimeData( const QMimeData *md );
 
 public slots: // usable by script engine
-    inline const QByteArray& id() const { return _id; }
-    virtual PHIWID wid() const=0;
-    QScriptValue visible( const QScriptValue &b=QScriptValue() );
-    QScriptValue opacity( const QScriptValue &o=QScriptValue() );
+    inline QString $() const { return name(); }
     inline QScriptValue hide() { setVisible( false ); return self(); }
     inline QScriptValue show() { setVisible( true ); return self(); }
-    inline QScriptValue clearEffects() { _effect->clearAll(); return self(); }
-    inline QScriptValue fadeIn( qint32 start, qint32 duration, qreal maxOpac, const QString &ease ) {
-        _effect->setFadeIn( start, duration, maxOpac, PHI::toEasingCurveType( ease ) ); return self(); }
-    inline QScriptValue fadeOut( qint32 start, qint32 duration, qreal minOpac, const QString &ease ) {
-        _effect->setFadeOut( start, duration, minOpac, PHI::toEasingCurveType( ease ) ); return self(); }
-    //inline void shadowEffect( const QColor &c, qreal xOff, qreal yOff, qreal radius ) { _effect->setShadow( c, xOff, yOff, radius ); }
-    //inline void reflectionEffect( qreal yOff, qreal size ) { _effect->setSurface( yOff, size ); }
-    //inline void blurEffect( qreal radius ) { _effect->setBlur( radius ); }
-    //inline void colorizeEffect( const QColor &c, qreal strength ) { _effect->setColorize( c, strength ); }
-    inline QScriptValue moveTo( qint32 start, qint32 duration, qint32 left, qint32 top, const QString &ease ) {
-        _effect->setMoveTo( start, duration, left, top, PHI::toEasingCurveType( ease ) ); return self(); }
-    inline QScriptValue moveBy( qint32 start, qint32 duration, qint32 x, qint32 y, qint32 w, qint32 h, const QString &ease ) {
-        _effect->setMoveBy( start, duration, x, y, w, h, PHI::toEasingCurveType( ease ) ); return self(); }
-    inline QScriptValue rotateIn( quint8 axis, qint32 start, qint32 duration, const QString &ease ) {
-        _effect->setRotateIn( axis, start, duration, PHI::toEasingCurveType( ease ) ); return self(); }
-    inline QScriptValue rotateOut( quint8 axis, qint32 start, qint32 duration, const QString &ease ) {
-        _effect->setRotateOut( axis, start, duration, PHI::toEasingCurveType( ease ) ); return self(); }
-    inline QScriptValue rotate( quint8 axis, qreal stepX, qreal stepY, qreal stepZ ) {
-        _effect->setRotate( axis, stepX, stepY, stepZ ); return self(); }
+    inline QScriptValue clearEffects() { _effect->clearAll(); updateEffect(); return self(); }
+
+    virtual PHIWID wid() const=0;
+    virtual QScriptValue width( const QScriptValue &v=QScriptValue() );
+    virtual QScriptValue height( const QScriptValue &v=QScriptValue() );
+
+    QScriptValue visible( const QScriptValue &b=QScriptValue() );
+    QScriptValue opacity( const QScriptValue &o=QScriptValue() );
+    QScriptValue fadeIn( qint32 start=0, qint32 duration=1000, qreal maxOpac=1., const QString &ease=PHI::defaultEasingCurve() );
+    QScriptValue fadeOut( qint32 start=0, qint32 duration=1000, qreal minOpac=0, const QString &ease=PHI::defaultEasingCurve() );
+    QScriptValue moveTo( qint32 left, qint32 top, qint32 start=0, qint32 duration=1000, const QString &ease=PHI::defaultEasingCurve() );
+    QScriptValue moveBy( qint32 x, qint32 y, qint32 w=0, qint32 h=0, qint32 start=0, qint32 duration=1000, const QString &ease=PHI::defaultEasingCurve() );
+    QScriptValue rotateIn( quint8 axis=0x2, qint32 start=0, qint32 duration=1000, const QString &ease=PHI::defaultEasingCurve() );
+    QScriptValue rotateOut( quint8 axis=0x2, qint32 start=0, qint32 duration=1000, const QString &ease=PHI::defaultEasingCurve() );
+    QScriptValue rotate( quint8 axis=0x4, qreal stepX=0, qreal stepY=0, qreal stepZ=1. );
+    QScriptValue stop();
     QScriptValue css( const QScriptValue &sheet=QScriptValue() );
+    QScriptValue on( const QString &name, const QScriptValue &v );
+    QScriptValue off( const QString &name, const QScriptValue &v=QScriptValue() );
+    QScriptValue trigger( const QString &name, const QScriptValue &args=QScriptValue(), PHIDomEvent *de=0 );
+    QScriptValue x( const QScriptValue &v=QScriptValue() );
+    QScriptValue y( const QScriptValue &v=QScriptValue() );
+    QScriptValue top( const QScriptValue &v=QScriptValue() );
+    QScriptValue left( const QScriptValue &v=QScriptValue() );
+    QScriptValue pos( const QScriptValue &x=QScriptValue(), const QScriptValue &y=QScriptValue() );
+    QScriptValue cursor( const QScriptValue &v=QScriptValue() );
+
+    QScriptValue click( const QScriptValue &v=QScriptValue() );
+    QScriptValue dblclick( const QScriptValue &v=QScriptValue() );
+    QScriptValue mouseover( const QScriptValue &v=QScriptValue() );
+    QScriptValue mouseout( const QScriptValue &v=QScriptValue() );
+    QScriptValue mousemove( const QScriptValue &v=QScriptValue() );
+    QScriptValue mouseup( const QScriptValue &v=QScriptValue() );
+    QScriptValue mousedown( const QScriptValue &v=QScriptValue() );
+    QScriptValue keyup( const QScriptValue &v=QScriptValue() );
+    QScriptValue keydown( const QScriptValue &v=QScriptValue() );
+    QScriptValue keypress( const QScriptValue &v=QScriptValue() );
+    QScriptValue change( const QScriptValue &v=QScriptValue() );
+    QScriptValue focus( const QScriptValue &v=QScriptValue() );
+    QScriptValue blur( const QScriptValue &v=QScriptValue() );
+    QScriptValue drop( const QScriptValue &v=QScriptValue() );
 
     //inline QString label() const { return QString::fromUtf8( _variants.value( DLabel ).toByteArray() ); }
     //inline virtual void setLabel( const QString &s ) { _variants.insert( DLabel, s.toUtf8() ); }
-    //inline QString value() const { return QString::fromUtf8( _variants.value( DValue ).toByteArray() ); }
-    //inline virtual void setValue( const QString &s ) { _variants.insert( DValue, s.toUtf8() ); }
     //inline quint16 maxLength() const { return _variants.value( DMaxLength, 100 ).value<quint16>(); }
     //inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxLength, max ); }
 
@@ -317,7 +344,6 @@ protected:
     virtual void updatePageFont( const QFont &font );
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
-    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
     virtual bool sceneEvent( QEvent *event ); // return false to call basic implementation
     inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
 
@@ -352,6 +378,11 @@ protected:
     //virtual void ideHoverMoveEvent( QGraphicsSceneHoverEvent *event );
     //virtual void ideHoverLeaveEvent( QGraphicsSceneHoverEvent *event );
 
+private slots:
+    inline void privateHide() { setVisible( false ); }
+    inline void privateShow() { setVisible( true ); }
+    inline void privateOpacityHide() { if ( realOpacity()<0.1 ) setVisible( false ); }
+
 private:
     PHIBaseItem& operator=( const PHIBaseItem& );
     void privateSqueeze();
@@ -360,9 +391,11 @@ private:
     void phisPrivateCreateData( const PHIDataParser &parser );
     void loadVersion1_x(const QByteArray &arr );
     void cssCustomStyleSheet( QByteArray &out ) const;
+    void htmlEffects( const PHIRequest *req, QByteArray &out, QByteArray &script );
 
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
     inline QGraphicsWidget* gw() { return _gw; }
+    QPointF adjustedPos() const;
 
     // IDE related members
     void loadEditorData1_x( const QByteArray &arr );
@@ -375,6 +408,8 @@ private:
 signals:
     void posChanged( const QPointF &pos );
     void sizeChanged( const QSizeF &size );
+    void javaScriptError( const QScriptValue &err );
+    void itemClicked();
 
     // IDE related signals
     void pushUndoStack( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newColor );
@@ -411,8 +446,9 @@ PHIEXPORT void baseItemFromScriptValue( const QScriptValue&, PHIBaseItem* &out )
 
 inline QScriptValue baseItemToScriptValue( QScriptEngine *engine, PHIBaseItem* const &it )
 {
-    return engine->newQObject( it, QScriptEngine::AutoOwnership,
-        QScriptEngine::PreferExistingWrapperObject | QScriptEngine::ExcludeDeleteLater );
+    return engine->newQObject( it, QScriptEngine::QtOwnership, QScriptEngine::ExcludeSuperClassProperties |
+        QScriptEngine::PreferExistingWrapperObject | QScriptEngine::SkipMethodsInEnumeration |
+        QScriptEngine::ExcludeChildObjects | QScriptEngine::ExcludeDeleteLater );
 }
 
 inline void baseItemFromScriptValue( const QScriptValue &obj, PHIBaseItem* &it )
@@ -536,7 +572,7 @@ inline QByteArray PHIBaseItem::cssRgba( const QColor &c )
 inline void PHIBaseItem::htmlInitItem( QByteArray &script, bool close ) const
 {
     QRectF r=adjustedRect();
-    script+=BL( "$.phi('" )+_id+BL( "'," )+QByteArray::number( wid() );
+    script+=BL( "$.$('" )+_id+BL( "'," )+QByteArray::number( wid() );
     if ( QPointF()!=r.topLeft() || realSize()!=r.size() ) {
         script+=','+QByteArray::number( qRound(r.x() ) )+','+QByteArray::number( qRound(r.y()) );
         if ( realSize()!=r.size() ) {
