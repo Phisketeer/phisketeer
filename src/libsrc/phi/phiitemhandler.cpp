@@ -24,6 +24,13 @@
 #include <QCursor>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
+#include <QPainter>
+#include <QImage>
+#include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
+#include <QStyleOptionGraphicsItem>
+#include <QGraphicsView>
+#include <QBuffer>
 #include "phibaseitem.h"
 #include "phidomevent.h"
 #include "qpixmapfilter_p.h"
@@ -73,12 +80,53 @@ QPointF PHIBaseItem::adjustedPos() const
 
 QScriptValue PHIBaseItem::on( const QString &name, const QScriptValue &v )
 {
-    qDebug() << "on" << name;
     if ( !isClientItem() ) return self();
     PHIEventHash hash=data( DEventFunctions ).value<PHIEventHash>();
     hash.insert( name, v );
     qDebug() << "on" << name << v.toString();
+    switch ( PHIDomEvent::stringToEventType( name ) ) {
+    case PHIDomEvent::EMouseMove:
+    case PHIDomEvent::EMouseOut:
+    case PHIDomEvent::EMouseOver: _flags |= FHasHoverEvent; break;
+    case PHIDomEvent::EClick:
+    case PHIDomEvent::EDblClick:
+    case PHIDomEvent::EMouseDown:
+    case PHIDomEvent::EMouseUp: _flags |= FHasMouseEvent; break;
+    case PHIDomEvent::EKeyDown:
+    case PHIDomEvent::EKeyPress:
+    case PHIDomEvent::EKeyUp: _flags |= FHasKeyEvent; break;
+    case PHIDomEvent::EBlur:
+    case PHIDomEvent::EFocus: _flags |= FHasFocusEvent; break;
+    case PHIDomEvent::EChange: _flags |= FHasChangeEvent; break;
+    default:;
+    }
     setData( DEventFunctions, qVariantFromValue( hash ) );
+    return self();
+}
+
+QScriptValue PHIBaseItem::one( const QString &name, const QScriptValue &v )
+{
+    if ( !isClientItem() ) return self();
+    PHIEventHash hash=data( DOneEventFunctions ).value<PHIEventHash>();
+    hash.insert( name, v );
+    qDebug() << "one" << name << v.toString();
+    switch ( PHIDomEvent::stringToEventType( name ) ) {
+    case PHIDomEvent::EMouseMove:
+    case PHIDomEvent::EMouseOut:
+    case PHIDomEvent::EMouseOver: _flags |= FHasHoverEvent; break;
+    case PHIDomEvent::EClick:
+    case PHIDomEvent::EDblClick:
+    case PHIDomEvent::EMouseDown:
+    case PHIDomEvent::EMouseUp: _flags |= FHasMouseEvent; break;
+    case PHIDomEvent::EKeyDown:
+    case PHIDomEvent::EKeyPress:
+    case PHIDomEvent::EKeyUp: _flags |= FHasKeyEvent; break;
+    case PHIDomEvent::EBlur:
+    case PHIDomEvent::EFocus: _flags |= FHasFocusEvent; break;
+    case PHIDomEvent::EChange: _flags |= FHasChangeEvent; break;
+    default:;
+    }
+    setData( DOneEventFunctions, qVariantFromValue( hash ) );
     return self();
 }
 
@@ -109,11 +157,10 @@ QScriptValue PHIBaseItem::off( const QString &name, const QScriptValue &fn )
 
 QScriptValue PHIBaseItem::trigger( const QString &name, const QScriptValue &args, PHIDomEvent *de )
 {
-    if ( name==SL( "drop" ) || !isClientItem() ) return self();
+    if ( !isClientItem() ) return self();
+    if ( name==SL( "drop" ) && !de ) return self(); // drop can not be triggered manually
     PHIEventHash hash=data( DEventFunctions ).value<PHIEventHash>();
     QScriptValueList functions=hash.values( name );
-    if ( functions.count()==0 ) return self();
-    qDebug() << "trigger" << name;
     PHIDomEvent fake( name, this );
     QScriptValue event, fn, res ;
     if ( de ) event=de->self();
@@ -127,6 +174,19 @@ QScriptValue PHIBaseItem::trigger( const QString &name, const QScriptValue &args
             qDebug() << res.toString();
         } else if ( de && res.isBool() ) if ( res.toBool()==false ) de->preventDefault();
     }
+    hash=data( DOneEventFunctions ).value<PHIEventHash>();
+    functions=hash.values( name );
+    foreach( fn, functions ) {
+        if ( fn.isFunction() ) {
+            res=fn.call( self(), QScriptValueList() << event << args );
+        } else if ( fn.isString() ) res=scriptEngine()->evaluate( fn.toString() );
+        if ( res.isError() ) {
+            emit javaScriptError( res );
+            qDebug() << res.toString();
+        } else if ( de && res.isBool() ) if ( res.toBool()==false ) de->preventDefault();
+    }
+    hash.remove( name );
+    setData( DOneEventFunctions, qVariantFromValue( hash ) );
     return self();
 }
 
@@ -327,7 +387,6 @@ QScriptValue PHIBaseItem::rotateOut( quint8 axis, qint32 start, qint32 duration,
 
 QScriptValue PHIBaseItem::rotate( quint8 axis, qreal stepX, qreal stepY, qreal stepZ )
 {
-    qDebug() << "rotate" << axis << stepZ;
     _effect->setRotate( axis, stepX, stepY, stepZ );
     if ( !isClientItem() ) return self();
     QParallelAnimationGroup *group=new QParallelAnimationGroup( scriptEngine() );
@@ -362,10 +421,15 @@ QScriptValue PHIBaseItem::rotate( quint8 axis, qreal stepX, qreal stepY, qreal s
 QScriptValue PHIBaseItem::stop()
 {
     if ( !isClientItem() ) return self();
-    QList <QAbstractAnimation*> list=findChildren<QAbstractAnimation*>(QString(), Qt::FindDirectChildrenOnly);
-    foreach ( QAbstractAnimation *anim, list ) {
-        anim->stop();
-        anim->deleteLater();
+    QList <QParallelAnimationGroup*> grouplist=scriptEngine()->findChildren<QParallelAnimationGroup*>(QString(), Qt::FindDirectChildrenOnly);
+    foreach ( QParallelAnimationGroup *gan, grouplist ) {
+        gan->stop();
+        gan->deleteLater();
+    }
+    QList <QPropertyAnimation*> proplist=scriptEngine()->findChildren<QPropertyAnimation*>(QString(), Qt::FindDirectChildrenOnly);
+    foreach ( QPropertyAnimation *pan, proplist ) {
+        pan->stop();
+        pan->deleteLater();
     }
     return self();
 }
@@ -462,80 +526,41 @@ QScriptValue PHIBaseItem::drop( const QScriptValue &v )
     return self();
 }
 
-/*
-
-void PHIAItem::slotOnClick( QGraphicsSceneMouseEvent *e )
+void PHIBaseItem::checkForDragInMousePressEvent( QGraphicsSceneMouseEvent *e )
 {
-    qDebug( "Item onclick %s", id().data() );
-    QScriptEngine *engine=view()->scriptEngine();
-    if ( !engine ) return;
-    bool isSubmit( wid()==PHI::SUBMIT_BUTTON );
-    bool isReset( wid()==PHI::RESET_BUTTON );
-    bool isButton( wid()==PHI::BUTTON || wid()==PHI::IMAGE_BUTTON );
-    bool isRollover( wid()==PHI::ROLLOVER_BUTTON || wid()==PHI::PHISYS_LINK || wid()==PHI::LINK );
-    QScriptValue item=baseItemToScriptValue( engine, this );
-    QScriptValue onclick=item.property( "onclick" );
-    if ( onclick.isFunction() || hasOnEvents( EClick ) ) {
-        PHIAScriptEvent *se=getEvent( EClick, true );
-        se->setMouseEvent( e );
-        QScriptValue event=engine->toScriptValue( se );
-        if ( hasOnEvents( EClick ) ) callOnEvents( EClick, QScriptValueList() << event );
-        if ( onclick.isFunction() ) {
-            QScriptValue res=onclick.call( item, QScriptValueList() << event );
-            if ( res.isError() ) view()->throwJavaScriptError( res );
-            //if ( isSubmit && res.toBool()  ) return emit submitForm(); // return val checked later
-            if ( se->defaultCanceled() ) return;
-            if ( isSubmit ) emit submitForm( this->name() ); //submit button name
-            if ( res.isValid() && !res.toBool() ) return;
-            if ( isReset ) emit resetForm();
-            if ( isButton && !url().isEmpty() ) slotLinkActivated( url() );
-            if ( isRollover && !url().isEmpty() ) slotLinkActivated( url() );
-            return;
-        }
-    }
-    if ( isSubmit ) emit submitForm( this->name() );
-    if ( isReset ) emit resetForm();
-    if ( isButton && !url().isEmpty() ) slotLinkActivated( url() );
-    if ( isRollover && !url().isEmpty() ) slotLinkActivated( url() );
+    qDebug( "checkForDragInMousePressEvent()" );
+    if ( !( e->buttons() & Qt::LeftButton ) ) return;
+    if ( !isDraggable() ) return;
+    setData( DDragStartPos, e->scenePos() );
+    setData( DDragOriginalPos, realPos() );
 }
 
-void PHIAItem::checkForDragInMousePressEvent( QGraphicsSceneMouseEvent *e ) const
+void PHIBaseItem::checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e )
 {
-    qDebug( "PHIAItem::checkForDragInMousePressEvent();" );
-    if ( !( e->buttons() & Qt::LeftButton ) ) return e->ignore();
-    if ( !draggable() ) return e->ignore();
-    PHIAItem *that=const_cast<PHIAItem*>(this); //not a nice hack but _variants are safe to use
-    that->setData( DDragStartPos, e->scenePos() );
-    that->setData( DDragOriginalPos, _git->pos() );
-    e->accept();
-}
+    qDebug( "checkForDragInMouseMoveEvent()" );
+    Q_ASSERT( _gw );
+    if ( !( e->buttons() & Qt::LeftButton ) ) return;
+    if ( !isDraggable() ) return;
+    if ( ( e->pos() - data( DDragStartPos ).toPointF() ).manhattanLength() < dragDistance() ) return;
+    if ( dragMoveAction() ) setVisible( false );
 
-void PHIAItem::checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e ) const
-{
-    qDebug( "PHIAItem::checkForDragInMouseMoveEvent();" );
-    if ( !( e->buttons() & Qt::LeftButton ) ) return e->ignore();
-    if ( !draggable() ) return e->ignore();
-    if ( ( e->pos() - data( DDragStartPos ).toPointF() ).manhattanLength() < dragDistance() ) return e->ignore();
-    if ( dragMoveAction() ) _git->hide();
-
-    QImage img( width(), height(), QImage::Format_ARGB32_Premultiplied );
+    QImage img( qRound(realWidth()), qRound(realHeight()), QImage::Format_ARGB32_Premultiplied );
     img.fill( Qt::transparent );
     QPainter p( &img );
     p.setRenderHint( QPainter::Antialiasing );
     p.setRenderHint( QPainter::SmoothPixmapTransform );
     p.setOpacity( dragOpacity() );
     QStyleOptionGraphicsItem opt;
-    QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_git);
-    _git->paint( &p, &opt, 0 );
-    if ( proxy && !PHI::isLayoutContainer( static_cast<PHI::Widget>(this->wid()) ) ) proxy->widget()->render( &p );
+    paint( &p, &opt, 0 );
+    //if ( proxy && !PHI::isLayoutContainer( static_cast<PHI::Widget>(this->wid()) ) ) proxy->widget()->render( &p );
     p.end();
 
     QPixmap pix=QPixmap::fromImage( img, Qt::ColorOnly );
-    QDrag *drag=new QDrag( view() );
+    QDrag *drag=new QDrag( _gw->scene()->views().first() );
     drag->setPixmap( pix );
-    switch ( dragHotSpotType() ) {
-    case 0: drag->setHotSpot( dragHotSpot() ); break;
-    default: drag->setHotSpot( QPoint( width()/2, height()/2 ) );
+    switch ( data( DDragHotSpotType ).toInt() ) {
+    case 0: drag->setHotSpot( data( DDragHotSpot ).toPoint() ); break;
+    default: drag->setHotSpot( QPoint( realWidth()/2, realHeight()/2 ) );
     }
     QMimeData *mimeData=new QMimeData();
     mimeData->setImageData( img );
@@ -545,63 +570,59 @@ void PHIAItem::checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e ) const
     QBuffer outputBuffer( &output );
     outputBuffer.open( QIODevice::WriteOnly );
     QDataStream ds( &outputBuffer );
-    ds.setVersion( PHI_DSV );
+    ds.setVersion( PHI_DSV2 );
     ds << static_cast<quint8>(1) << name() << data( DDragOriginalPos ).toPointF()
-       << data( DDragDropOptions, 0 ).value<qint32>();
-    mimeData->setData( "application/x-phi-dd", output );
-    e->accept();
+       << data( DDragDropOptions, 0 ).value<quint32>();
+    mimeData->setData( L1( "application/x-phi-dd" ), output );
     drag->setMimeData( mimeData );
     Qt::DropAction action=drag->exec( dragMoveAction() ? Qt::MoveAction : Qt::CopyAction );
+
     qDebug( "Drop action: %d", static_cast<int>(action) );
     if ( action==Qt::CopyAction ) return;
     if ( !dragMoveAction() ) return;
+
     QPointF startPos=data( DDragStartPos ).toPointF();
     QPointF origPos=data( DDragOriginalPos ).toPointF();
     startPos-=drag->hotSpot();
     qDebug() << startPos;
-    PHIAItem *that=const_cast<PHIAItem*>(this);
-    that->setVisible( true );
+    setVisible( true );
     if ( action==Qt::IgnoreAction ) {
-        if ( dragRevertOnIgnore() ) {
-            that->setMoveTo( 0, 500, origPos.x(), origPos.y(), PHI::defaultEasingCurve() );
-            that->setPos( startPos );
+        if ( dragDropOptions() & DDRevertOnIgnore ) {
+            moveTo( 0, 500, origPos.x(), origPos.y(), PHI::defaultEasingCurve() );
+            setPos( startPos );
         }
     } else {
-        if ( dragRevertOnAccept() ) {
-            qreal curOpac=opacity();
-            that->setOpacity( 0 );
-            that->setFadeIn( 0, 1000, curOpac, PHI::defaultEasingCurve() );
+        if ( dragDropOptions() & DDRevertOnAccept ) {
+            qreal curOpac=realOpacity();
+            setOpacity( 0 );
+            fadeIn( 0, 1000, curOpac, PHI::defaultEasingCurve() );
         } else {
-            that->setPos( startPos );
+            setPos( startPos );
         }
     }
 }
 
-void PHIAItem::checkDragEnterEvent( QGraphicsSceneDragDropEvent *e ) const
+void PHIBaseItem::checkDragEnterEvent( QGraphicsSceneDragDropEvent *e )
 {
-    if ( !droppable() ) return e->ignore();
-    if ( !e->mimeData()->hasFormat( "application/x-phi-dd" ) ) return e->ignore();
+    if ( !isDroppable() ) return e->ignore();
+    if ( !e->mimeData()->hasFormat( L1( "application/x-phi-dd" ) ) ) return e->ignore();
 
-    QByteArray input=e->mimeData()->data( "application/x-phi-dd" );
+    QByteArray input=e->mimeData()->data( L1( "application/x-phi-dd" ) );
     QBuffer inputBuffer( &input );
     inputBuffer.open( QIODevice::ReadOnly );
     QDataStream ds( &inputBuffer );
-    ds.setVersion( PHI_DSV );
+    ds.setVersion( PHI_DSV2 );
     quint8 version;
     QString id;
-    QStringList accepted=dropAcceptedIds();
+    QStringList accepted=data( DDropAcceptedIds ).toStringList();
     ds >> version >> id;
     if ( accepted.isEmpty() || accepted.contains( id ) ) return e->accept();
     e->ignore();
 }
 
-void PHIAItem::checkDragMoveEvent( QGraphicsSceneDragDropEvent *e ) const
+void PHIBaseItem::checkDropEvent( QGraphicsSceneDragDropEvent *e )
 {
-    e->acceptProposedAction();
-}
-
-void PHIAItem::checkDropEvent( QGraphicsSceneDragDropEvent *e ) const
-{
+    /*
     qDebug( "Item droped %s", id().data() );
     if ( !droppable() ) return;
     if ( !e->mimeData()->hasFormat( "application/x-phi-dd" ) ) return;
@@ -641,5 +662,42 @@ void PHIAItem::checkDropEvent( QGraphicsSceneDragDropEvent *e ) const
             if ( res.isError() ) view()->throwJavaScriptError( res );
         }
     }
+    */
+}
+
+/*
+void PHIAItem::slotOnClick( QGraphicsSceneMouseEvent *e )
+{
+    qDebug( "Item onclick %s", id().data() );
+    QScriptEngine *engine=view()->scriptEngine();
+    if ( !engine ) return;
+    bool isSubmit( wid()==PHI::SUBMIT_BUTTON );
+    bool isReset( wid()==PHI::RESET_BUTTON );
+    bool isButton( wid()==PHI::BUTTON || wid()==PHI::IMAGE_BUTTON );
+    bool isRollover( wid()==PHI::ROLLOVER_BUTTON || wid()==PHI::PHISYS_LINK || wid()==PHI::LINK );
+    QScriptValue item=baseItemToScriptValue( engine, this );
+    QScriptValue onclick=item.property( "onclick" );
+    if ( onclick.isFunction() || hasOnEvents( EClick ) ) {
+        PHIAScriptEvent *se=getEvent( EClick, true );
+        se->setMouseEvent( e );
+        QScriptValue event=engine->toScriptValue( se );
+        if ( hasOnEvents( EClick ) ) callOnEvents( EClick, QScriptValueList() << event );
+        if ( onclick.isFunction() ) {
+            QScriptValue res=onclick.call( item, QScriptValueList() << event );
+            if ( res.isError() ) view()->throwJavaScriptError( res );
+            //if ( isSubmit && res.toBool()  ) return emit submitForm(); // return val checked later
+            if ( se->defaultCanceled() ) return;
+            if ( isSubmit ) emit submitForm( this->name() ); //submit button name
+            if ( res.isValid() && !res.toBool() ) return;
+            if ( isReset ) emit resetForm();
+            if ( isButton && !url().isEmpty() ) slotLinkActivated( url() );
+            if ( isRollover && !url().isEmpty() ) slotLinkActivated( url() );
+            return;
+        }
+    }
+    if ( isSubmit ) emit submitForm( this->name() );
+    if ( isReset ) emit resetForm();
+    if ( isButton && !url().isEmpty() ) slotLinkActivated( url() );
+    if ( isRollover && !url().isEmpty() ) slotLinkActivated( url() );
 }
 */

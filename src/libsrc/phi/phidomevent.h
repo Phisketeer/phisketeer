@@ -53,6 +53,7 @@ public:
     QPoint mapFromScene( const QPointF &pos ) const;
 
     static QString eventTypeToString( Event e );
+    static Event stringToEventType( const QString &t );
     static bool isMetaKey( int key );
     inline const QScriptValue& self() const { return _self; }
 

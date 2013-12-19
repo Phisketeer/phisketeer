@@ -554,6 +554,7 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-core\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-effects\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-button\"></script>\n" );
+    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-transit\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=phibase\"></script>\n" );
     QByteArray script, indent="\t", tmp;
     script.reserve( 4*1024 );

@@ -32,6 +32,7 @@
 #include "phibasepage.h"
 
 class QGraphicsSceneEvent;
+class QGraphicsSceneDragDropEvent;
 class QKeyEvent;
 class PHIBasePage;
 class PHIGraphicsItem;
@@ -87,20 +88,26 @@ public:
     enum DataType { DOpacity=-1, DTitle=-2, DFont=-3, DTabIndex=-4, DTransformPos=-5,
         DTransformOrigin=-6, DXRot=-7, DYRot=-8, DZRot=-9, DHSkew=-10, DVSkew=-11,
         DParentId=-12, DFlags=-13, DVisibility=-14, DStyleSheet=-15,
+        DDragStartPos=-16, DDragOriginalPos=-17, DDragDistance=-18, DDragHotSpot=-19,
+        DDropAcceptedIds=-20, DDragOpacity=-21, DDragHotSpotType=-22,
         DGradientType=-23, DGradientStartPoint=-24, DGradientStopPoints=-25,
         DGradientFinalStopPoint=-26, DGradientSpreadType=-27, DGradientAngle=-28,
         DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31,
-        DImagePath=-32, DImagePathes=-33, DIEFilter=-34, DAdjustedRect=-35, DEventFunctions=-36 };
+        DImagePath=-32, DImagePathes=-33, DIEFilter=-34, DAdjustedRect=-35, DEventFunctions=-36,
+        DDragDropOptions=-37, DOneEventFunctions=-38 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
-        FStoreDisabledData=0x200 }; //quint32
+        FStoreDisabledData=0x200, FHasMouseEvent=0x400, FHasFocusEvent=0x800,
+        FHasHoverEvent=0x1000, FHasKeyEvent=0x2000, FHasChangeEvent=0x4000 }; //quint32
+    enum DragDropOption { DDNone=0, DDMoveAction=0x1, DDRevertOnIgnore=0x2, DDRevertOnAccept=0x4,
+        DDHighlightOnMouseOver=0x8 };
     enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
         DFText=0x8, DFHasFilePath=0x10, DFUseFilePathInHTML=0x20,
         DFInt1=0x100, DFInt2=0x200, DFReadOnlyData=0x400, DFDisabledData=0x800,
         DFHeader=0x1000, DFPlaceholder=DFHeader, DFDoNotCache=0x2000,
-        DFCustom1=0x10000, DFCustom2=0x20000, DFCustom3=0x40000, DFCustom4=0x80000,
-        DFCustom5=0x100000, DFCustom6=0x200000, DFCustom7=0x400000, DFCustom8=0x800000 };
+        DFCustom1=0x100000, DFCustom2=0x200000, DFCustom3=0x400000, DFCustom4=0x800000,
+        DFCustom5=0x1000000, DFCustom6=0x2000000, DFCustom7=0x4000000, DFCustom8=0x8000000 };
 #ifdef PHIDEBUG
     Q_DECLARE_FLAGS( Flags, Flag )
     Q_DECLARE_FLAGS( DirtyFlags, DirtyFlag )
@@ -203,6 +210,8 @@ public: // not usable by script engine
     inline bool isChild() const { return _flags & FChild; }
     inline void setDirtyFlag( DirtyFlag flag, bool b=true ) const { if ( b ) _dirtyFlags |= flag; else _dirtyFlags &= ~flag; }
     inline DirtyFlags dirtyFlags() const { return _dirtyFlags; }
+    inline quint32 dragDropOptions() const { return data( DDragDropOptions, 0 ).value<quint32>(); }
+    inline void setDragDropOptions( quint32 opts ) { setData( DDragDropOptions, opts ); }
 
     QFont font() const;
     QGradient gradient() const;
@@ -304,6 +313,7 @@ public slots: // usable by script engine
     QScriptValue css( const QScriptValue &sheet=QScriptValue() );
     QScriptValue on( const QString &name, const QScriptValue &v );
     QScriptValue off( const QString &name, const QScriptValue &v=QScriptValue() );
+    QScriptValue one( const QString &name, const QScriptValue &v );
     QScriptValue trigger( const QString &name, const QScriptValue &args=QScriptValue(), PHIDomEvent *de=0 );
     QScriptValue x( const QScriptValue &v=QScriptValue() );
     QScriptValue y( const QScriptValue &v=QScriptValue() );
@@ -392,8 +402,14 @@ private:
     void loadVersion1_x(const QByteArray &arr );
     void cssCustomStyleSheet( QByteArray &out ) const;
     void htmlEffects( const PHIRequest *req, QByteArray &out, QByteArray &script );
-
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
+    void checkForDragInMousePressEvent( QGraphicsSceneMouseEvent *e );
+    void checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e );
+    void checkDragEnterEvent( QGraphicsSceneDragDropEvent *e );
+    void checkDropEvent( QGraphicsSceneDragDropEvent *e );
+    inline bool dragMoveAction() const { return dragDropOptions() & DDMoveAction; }
+    inline int dragDistance() const { return data( DDragDistance, PHI::defaultDragDistance() ).toInt(); }
+    inline qreal dragOpacity() const { return data( DDragOpacity, 1. ).toReal(); }
     inline QGraphicsWidget* gw() { return _gw; }
     QPointF adjustedPos() const;
 

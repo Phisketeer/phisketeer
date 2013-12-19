@@ -29,6 +29,7 @@
         <file alias="ui-button.css">css/jquery.ui.button.min.css</file>
         <file alias="ui-jqgrid.js">js/jquery.jqGrid.min.js</file>
         <file alias="ui-jqgrid.css">css/ui.jqgrid.css</file>
+        <file alias="ui-transit.js">js/jquery.transit.min.js</file>
     </qresource>
     <qresource prefix="/gnome">
         <file alias="brokenimage">../../icons/scalable/stock/gtk-brokenimage.svg</file>

@@ -112,7 +112,7 @@ PHIDomEvent::PHIDomEvent( const QString &type, PHIBaseItem *item, bool cancelabl
     _self.setProperty( L1( "target" ), target, QScriptValue::ReadOnly );
     _self.setProperty( L1( "currentTarget" ), target, QScriptValue::ReadOnly );
     _self.setProperty( L1( "type" ), type, QScriptValue::ReadOnly );
-    _self.setProperty( L1( "bubbles" ), true, QScriptValue::ReadOnly );
+    _self.setProperty( L1( "bubbles" ), false, QScriptValue::ReadOnly );
     _self.setProperty( L1( "cancelable" ), cancelable, QScriptValue::ReadOnly );
     _self.setProperty( L1( "eventPhase" ), 1, QScriptValue::ReadOnly );
     _self.setProperty( L1( "view" ), item->scriptEngine()->globalObject(), QScriptValue::ReadOnly );
@@ -161,6 +161,26 @@ QString PHIDomEvent::eventTypeToString( Event e )
     default: type=SL( "unknown" );
     }
     return type;
+}
+
+PHIDomEvent::Event PHIDomEvent::stringToEventType( const QString &t )
+{
+    if ( t==SL( "mousemove" )) return EMouseMove;
+    if ( t==SL( "change" ) ) return EChange;
+    if ( t==SL( "click" ) ) return EClick;
+    if ( t==SL( "dblclick" ) ) return EDblClick;
+    if ( t==SL( "mouseover" ) ) return EMouseOver;
+    if ( t==SL( "mouseup" ) ) return EMouseUp;
+    if ( t==SL( "mousedown" ) ) return EMouseDown;
+    if ( t==SL( "mouseout" ) ) return EMouseOut;
+    if ( t==SL( "keypress" ) ) return EKeyPress;
+    if ( t==SL( "keydown" ) ) return EKeyDown;
+    if ( t==SL( "keyup" ) ) return EKeyUp;
+    if ( t==SL( "drop" ) ) return EDrop;
+    if ( t==SL( "focus" ) ) return EFocus;
+    if ( t==SL( "blur" ) ) return EBlur;
+    if ( t==SL( "custom" ) ) return ECustom;
+    return ENone;
 }
 
 QPoint PHIDomEvent::mapFromScene( const QPointF &p ) const

@@ -529,6 +529,7 @@ void PHISProcessor::genScripts() const
     createJS( L1( "ui-progressbar.js" ) );
     createJS( L1( "ui-effects.js" ) );
     createJS( L1( "ui-button.js" ) );
+    createJS( L1( "ui-transit.js" ) );
     //createJS( L1( "ui-mouse.js" ) ); // included in ui-core
     //createJS( L1( "ui-draggable.js" ) ); // included in ui-core
     //createJS( L1( "ui-droppable.js" ) ); // included in ui-core
