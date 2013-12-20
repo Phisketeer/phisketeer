@@ -48,19 +48,10 @@ public slots:
     inline QStringList properties() const { return PHI::properties( this ); }
     inline void fadeIn( qint32 start=0, qint32 duration=1000, qreal maxOpac=1.,
         const QString &ease=PHI::defaultEasingCurve() )
-        { _it->effect()->setFadeIn( start, duration, maxOpac, PHI::toEasingCurveType( ease ) ); }
+        { _it->fadeIn( start, duration, maxOpac, ease ); }
     inline void fadeOut( qint32 start=0, qint32 duration=1000, qreal minOpac=0.,
         const QString &ease=PHI::defaultEasingCurve() )
-        { _it->effect()->setFadeOut( start, duration, minOpac, PHI::toEasingCurveType( ease ) ); }
-    inline void shadow( const QString &color=QString::fromLatin1( "#3F3F3F" ), qreal opac=.7, qreal xOff=8.,
-        qreal yOff=8., qreal radius=1. ) { QColor c( color ); c.setAlphaF( qBound( 0., opac, 1. ) );
-        _it->effect()->setShadow( QColor( color ), xOff, yOff, radius ); }
-    // deprecated:
-    inline void surface( qreal yOff=0., qreal size=30. ) { _it->effect()->setReflection( yOff, size ); }
-    inline void reflection( qreal yOff=0., qreal size=30. ) { _it->effect()->setReflection( yOff, size ); }
-    inline void blur( qreal radius=5. ) { _it->effect()->setBlur( radius ); }
-    inline void colorize( const QString &c=QString::fromLatin1( "#0000C0" ), qreal strength=1. ) {
-        _it->effect()->setColorize( QColor( c ), strength ); }
+        { _it->fadeOut( start, duration, minOpac, ease ); }
     inline void moveTo( qint32 left, qint32 top, qint32 start=0, qint32 duration=1000,
         const QString &ease=PHI::defaultEasingCurve() )
         { _it->moveTo( start, duration, left, top, ease ); }
@@ -69,7 +60,7 @@ public slots:
         { _it->rotateIn( axis, start, duration, ease ); }
     inline void rotateOut( quint8 axis=0x2, qint32 start=0, qint32 duration=1000,
         const QString &ease=PHI::defaultEasingCurve() )
-        { _it->effect()->setRotateOut( axis, start, duration, PHI::toEasingCurveType( ease ) ); }
+        { _it->rotateOut( axis, start, duration, ease ); }
     inline void rotate( quint8 axis=0x4, qreal stepx=0, qreal stepy=0, qreal stepz=1. )
         { _it->rotate( axis, stepx, stepy, stepz ); }
     inline void clear() { _it->clearEffects(); }

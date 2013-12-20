@@ -117,7 +117,10 @@ void PHIBaseItem::setVisible( bool b )
 {
     if ( !b ) _variants.insert( DVisibility, false );
     else _variants.remove( DVisibility );
-    if ( !isIdeItem() && _gw ) _gw->setVisible( b );
+    if ( !isIdeItem() && _gw ) {
+        _gw->setVisible( b );
+        _gw->setPos( realPos() );
+    }
 }
 
 void PHIBaseItem::privateUpdateData()
@@ -356,7 +359,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         else if ( g.type()==QGradient::LinearGradient ) setGradient( d.linearGradient() );
         else if ( g.type()==QGradient::RadialGradient ) setGradient( d.radialGradient() );
     }
-    if ( isLayoutItem() ) {
+    if ( qobject_cast<PHIAbstractLayoutItem*>(this) ) {
         if ( property( "_childIds" ).isValid() ) { // linear layout
             setProperty( "_childIds", qVariantFromValue( d.childIds() ) );
         } else if ( property( "_childRects" ).isValid() ) { // grid or form layout
@@ -681,6 +684,37 @@ void PHIBaseItem::ideKeyPressEvent( QKeyEvent *e )
 {
     qDebug( "base item key press" );
     e->ignore();
+}
+
+void PHIBaseItem::slideAnimationFinished()
+{
+    restoreFromAnimation();
+}
+
+void PHIBaseItem::prepareForAnimation()
+{
+    if ( !_gw ) return;
+    if ( _flags & FIsAnimating ) return;
+    _flags |= FIsAnimating;
+    setData( DAnimOrgGeometry, QRectF( realPos(), realSize() ) );
+    setData( DAnimSizePolicy, _gw->sizePolicy() );
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    PHIAbstractLayoutItem *l=qobject_cast<PHIAbstractLayoutItem*>(this);
+    if ( l ) {
+        foreach ( PHIBaseItem *it, l->childItems() ) it->prepareForAnimation();
+    }
+    update();
+}
+
+void PHIBaseItem::restoreFromAnimation()
+{
+    _flags &= ~FIsAnimating;
+    setSizePolicy( data( DAnimSizePolicy ).value<QSizePolicy>() );
+    PHIAbstractLayoutItem *l=qobject_cast<PHIAbstractLayoutItem*>(this);
+    if ( l ) {
+        foreach ( PHIBaseItem *it, l->childItems() ) it->restoreFromAnimation();
+    }
+    update();
 }
 
 void PHIBaseItem::phisPrivateCreateData( const PHIDataParser &parser )

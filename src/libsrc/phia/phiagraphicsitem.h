@@ -32,6 +32,7 @@ public:
     virtual ~PHIAGraphicsItem() {}
 
 protected:
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual bool sceneEvent( QEvent *event );
     virtual void keyPressEvent( QKeyEvent *event );
     virtual void keyReleaseEvent( QKeyEvent *event );

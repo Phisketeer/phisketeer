@@ -26,6 +26,14 @@ bool PHIAGraphicsItem::sceneEvent( QEvent *event )
     return QGraphicsItem::sceneEvent( event );
 }
 
+QSizeF PHIAGraphicsItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( which==Qt::MinimumSize ) return QSizeF( 0, 0 );
+    QSizeF size=baseItem()->sizeHint( which, constraint );
+    if ( size.isValid() ) return size;
+    return QGraphicsProxyWidget::sizeHint( which, constraint );
+}
+
 void PHIAGraphicsItem::keyPressEvent( QKeyEvent *event )
 {
     if ( baseItem()->realDisabled() ) return event->ignore();

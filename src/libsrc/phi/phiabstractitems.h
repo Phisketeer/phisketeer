@@ -264,7 +264,6 @@ public:
         _textData( it._textData ) { if ( isGuiItem() ) initLayout(); } // _children must not be copied!
     virtual ~PHIAbstractLayoutItem() {}
 
-    inline virtual bool isLayoutItem() const { return true; }
     inline virtual bool isFocusable() const { return true; }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
     virtual void activateLayout()=0; // called once after page loading

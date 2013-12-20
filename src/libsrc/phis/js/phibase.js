@@ -54,7 +54,7 @@ function PhiItem( obj ) {
   this.opacity=function(o){if(o===undefined)return j(id).css('opacity');phi.setOpacity(obj.id,o);return this;};
   this.slide=function( t, d, e ) {
     var o={queue:true,duration:(d?d:400),easing:e};
-    if ( t==='down' ) j(id).hide().css('visibility','visible').slideDown(o);
+    if ( t==='down' ) j(id).slideDown(o);
     else j(id).slideUp(o);
     return this;
   };
@@ -173,7 +173,10 @@ function PhiItem( obj ) {
       if (z>0) c=360; else c=-360;
       if (a & 4)j(id).css({rotate:0}).animate({rotate:c},{queue:false,duration:zd,easing:e,complete:function(){$(obj.id).rotate(4,0,0,z);}});
       return this;
-  }
+  };
+  this.rotateX=function(a){if(a===undefined)return parseFloat(j(id).css('rotateX'));j(id).css({rotateX:a});return this;};
+  this.rotateY=function(a){if(a===undefined)return parseFloat(j(id).css('rotateY'));j(id).css({rotateY:a});return this;};
+  this.rotateZ=function(a){if(a===undefined)return parseFloat(j(id).css('rotate'));j(id).css({rotate:a});return this;};
   this.title=function( t ) {
     if(t===undefined)return j(id).attr('title');
     j(id).attr('title',t);return this;

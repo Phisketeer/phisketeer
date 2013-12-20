@@ -24,6 +24,7 @@
 #include <QCursor>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
+#include <QSequentialAnimationGroup>
 #include <QPainter>
 #include <QImage>
 #include <QGraphicsScene>
@@ -33,6 +34,7 @@
 #include <QBuffer>
 #include "phibaseitem.h"
 #include "phidomevent.h"
+#include "phianimations.h"
 #include "qpixmapfilter_p.h"
 
 #define PHIBOUND(x) qBound( -10000, x, 10000 )
@@ -253,7 +255,7 @@ QScriptValue PHIBaseItem::fadeIn( qint32 start, qint32 duration, qreal maxOpac, 
     if ( !isClientItem() ) return self();
     show();
     setOpacity( 0 );
-    QPropertyAnimation *anim=new QPropertyAnimation( this, BL( "_opacity" ), scriptEngine() );
+    QPropertyAnimation *anim=new QPropertyAnimation( this, BL( "_opacity" ), this );
     anim->setEndValue( qBound( 0., maxOpac, 1. ) );
     anim->setDuration( duration );
     anim->setEasingCurve( PHI::toEasingCurveType( ease ) );
@@ -268,7 +270,7 @@ QScriptValue PHIBaseItem::fadeOut( qint32 start, qint32 duration, qreal minOpac,
     if ( !isClientItem() ) return self();
     show();
     setOpacity( 1. );
-    QPropertyAnimation *anim=new QPropertyAnimation( this, BL( "_opacity" ), scriptEngine() );
+    QPropertyAnimation *anim=new QPropertyAnimation( this, BL( "_opacity" ), this );
     anim->setEndValue( qBound( 0., minOpac, 1. ) );
     anim->setDuration( duration );
     anim->setEasingCurve( PHI::toEasingCurveType( ease ) );
@@ -282,15 +284,15 @@ QScriptValue PHIBaseItem::moveTo( qint32 left, qint32 top, qint32 start, qint32 
 {
     _effect->setMoveTo( start, duration, left, top, PHI::toEasingCurveType( ease ) );
     if ( !isClientItem() ) return self();
-    QPropertyAnimation *l=new QPropertyAnimation( this, BL( "_x" ), scriptEngine() );
+    QParallelAnimationGroup *group=new QParallelAnimationGroup( this );
+    QPropertyAnimation *l=new QPropertyAnimation( this, BL( "_x" ), group );
     l->setEndValue( PHIBOUND(left) );
     l->setDuration( duration );
     l->setEasingCurve( PHI::toEasingCurveType( ease ) );
-    QPropertyAnimation *t=new QPropertyAnimation( this, BL( "_y" ), scriptEngine() );
+    QPropertyAnimation *t=new QPropertyAnimation( this, BL( "_y" ), group );
     t->setEndValue( PHIBOUND(top) );
     t->setDuration( duration );
     t->setEasingCurve( PHI::toEasingCurveType( ease ) );
-    QParallelAnimationGroup *group=new QParallelAnimationGroup( scriptEngine() );
     group->addAnimation( l );
     group->addAnimation( t );
     connect( group, &QAbstractAnimation::finished, group, &QAbstractAnimation::deleteLater );
@@ -303,23 +305,23 @@ QScriptValue PHIBaseItem::moveBy( qint32 left, qint32 top, qint32 width, qint32 
     QEasingCurve::Type curve=PHI::toEasingCurveType( ease );
     _effect->setMoveBy( start, duration, left, top, width, height, curve );
     if ( !isClientItem() ) return self();
-    QPropertyAnimation *l=new QPropertyAnimation( this, BL( "_x" ), scriptEngine() );
+    QParallelAnimationGroup *group=new QParallelAnimationGroup( this );
+    QPropertyAnimation *l=new QPropertyAnimation( this, BL( "_x" ), group );
     l->setEndValue( PHIBOUND(left)+qRound( realX() ) );
     l->setDuration( duration );
     l->setEasingCurve( curve );
-    QPropertyAnimation *t=new QPropertyAnimation( this, BL( "_y" ), scriptEngine() );
+    QPropertyAnimation *t=new QPropertyAnimation( this, BL( "_y" ), group );
     t->setEndValue( PHIBOUND(top)+qRound( realY() ) );
     t->setDuration( duration );
     t->setEasingCurve( curve );
-    QPropertyAnimation *w=new QPropertyAnimation( this, BL( "_width" ), scriptEngine() );
+    QPropertyAnimation *w=new QPropertyAnimation( this, BL( "_width" ), group );
     w->setEndValue( PHIBOUND(width)+qRound( realWidth() ) );
     w->setDuration( duration );
     w->setEasingCurve( curve );
-    QPropertyAnimation *h=new QPropertyAnimation( this, BL( "_height" ), scriptEngine() );
+    QPropertyAnimation *h=new QPropertyAnimation( this, BL( "_height" ), group );
     h->setEndValue( PHIBOUND(height)+qRound( realHeight() ) );
     h->setDuration( duration );
     h->setEasingCurve( curve );
-    QParallelAnimationGroup *group=new QParallelAnimationGroup( scriptEngine() );
     group->addAnimation( l );
     group->addAnimation( t );
     group->addAnimation( w );
@@ -335,10 +337,10 @@ QScriptValue PHIBaseItem::rotateIn( quint8 axis, qint32 start, qint32 duration, 
     _effect->setRotateIn( axis, start, duration, curve );
     if ( !isClientItem() ) return self();
     show();
-    QParallelAnimationGroup *group=new QParallelAnimationGroup( scriptEngine() );
+    QParallelAnimationGroup *group=new QParallelAnimationGroup( this );
     if ( axis & 0x1 ) {
         setXRotation( 90. );
-        QPropertyAnimation *xrot=new QPropertyAnimation( this, BL( "_xRotation" ), scriptEngine() );
+        QPropertyAnimation *xrot=new QPropertyAnimation( this, BL( "_xRotation" ), group );
         xrot->setEndValue( 0 );
         xrot->setDuration( duration );
         xrot->setEasingCurve( curve );
@@ -346,7 +348,7 @@ QScriptValue PHIBaseItem::rotateIn( quint8 axis, qint32 start, qint32 duration, 
     }
     if ( axis & 0x2 ) {
         setYRotation( 90. );
-        QPropertyAnimation *yrot=new QPropertyAnimation( this, BL( "_yRotation" ), scriptEngine() );
+        QPropertyAnimation *yrot=new QPropertyAnimation( this, BL( "_yRotation" ), group );
         yrot->setEndValue( 0 );
         yrot->setDuration( duration );
         yrot->setEasingCurve( curve );
@@ -362,10 +364,10 @@ QScriptValue PHIBaseItem::rotateOut( quint8 axis, qint32 start, qint32 duration,
     QEasingCurve::Type curve=PHI::toEasingCurveType( ease );
     _effect->setRotateOut( axis, start, duration, curve );
     if ( !isClientItem() ) return self();
-    QParallelAnimationGroup *group=new QParallelAnimationGroup( scriptEngine() );
+    QParallelAnimationGroup *group=new QParallelAnimationGroup( this );
     if ( axis & 0x1 ) {
         setXRotation( 0 );
-        QPropertyAnimation *xrot=new QPropertyAnimation( this, BL( "_xRotation" ), scriptEngine() );
+        QPropertyAnimation *xrot=new QPropertyAnimation( this, BL( "_xRotation" ), group );
         xrot->setEndValue( 90. );
         xrot->setDuration( duration );
         xrot->setEasingCurve( curve );
@@ -373,7 +375,7 @@ QScriptValue PHIBaseItem::rotateOut( quint8 axis, qint32 start, qint32 duration,
     }
     if ( axis & 0x2 ) {
         setYRotation( 0 );
-        QPropertyAnimation *yrot=new QPropertyAnimation( this, BL( "_yRotation" ), scriptEngine() );
+        QPropertyAnimation *yrot=new QPropertyAnimation( this, BL( "_yRotation" ), group );
         yrot->setEndValue( 90. );
         yrot->setDuration( duration );
         yrot->setEasingCurve( curve );
@@ -389,9 +391,9 @@ QScriptValue PHIBaseItem::rotate( quint8 axis, qreal stepX, qreal stepY, qreal s
 {
     _effect->setRotate( axis, stepX, stepY, stepZ );
     if ( !isClientItem() ) return self();
-    QParallelAnimationGroup *group=new QParallelAnimationGroup( scriptEngine() );
+    QParallelAnimationGroup *group=new QParallelAnimationGroup( this );
     if ( axis & 0x1 && stepX!=0 ) {
-        QPropertyAnimation *xrot=new QPropertyAnimation( this, BL( "_xRotation" ), scriptEngine() );
+        QPropertyAnimation *xrot=new QPropertyAnimation( this, BL( "_xRotation" ), group );
         xrot->setStartValue( 0. );
         xrot->setEndValue( stepX>0 ? 360. : -360. );
         xrot->setDuration( 9000/qAbs(stepX) );
@@ -399,7 +401,7 @@ QScriptValue PHIBaseItem::rotate( quint8 axis, qreal stepX, qreal stepY, qreal s
         group->addAnimation( xrot );
     }
     if ( axis & 0x2 && stepY!=0 ) {
-        QPropertyAnimation *yrot=new QPropertyAnimation( this, BL( "_yRotation" ), scriptEngine() );
+        QPropertyAnimation *yrot=new QPropertyAnimation( this, BL( "_yRotation" ), group );
         yrot->setStartValue( 0. );
         yrot->setEndValue( stepY>0 ? 360. : -360. );
         yrot->setDuration( 9000/qAbs(stepY) );
@@ -407,7 +409,7 @@ QScriptValue PHIBaseItem::rotate( quint8 axis, qreal stepX, qreal stepY, qreal s
         group->addAnimation( yrot );
     }
     if ( axis & 0x4 && stepZ!=0 ) {
-        QPropertyAnimation *zrot=new QPropertyAnimation( this, BL( "_zRotation" ), scriptEngine() );
+        QPropertyAnimation *zrot=new QPropertyAnimation( this, BL( "_zRotation" ), group );
         zrot->setStartValue( 0. );
         zrot->setEndValue( stepZ>0 ? 360. : -360. );
         zrot->setDuration( 9000/qAbs(stepZ) );
@@ -421,12 +423,12 @@ QScriptValue PHIBaseItem::rotate( quint8 axis, qreal stepX, qreal stepY, qreal s
 QScriptValue PHIBaseItem::stop()
 {
     if ( !isClientItem() ) return self();
-    QList <QParallelAnimationGroup*> grouplist=scriptEngine()->findChildren<QParallelAnimationGroup*>(QString(), Qt::FindDirectChildrenOnly);
+    QList <QParallelAnimationGroup*> grouplist=findChildren<QParallelAnimationGroup*>(QString(), Qt::FindDirectChildrenOnly);
     foreach ( QParallelAnimationGroup *gan, grouplist ) {
         gan->stop();
         gan->deleteLater();
     }
-    QList <QPropertyAnimation*> proplist=scriptEngine()->findChildren<QPropertyAnimation*>(QString(), Qt::FindDirectChildrenOnly);
+    QList <QPropertyAnimation*> proplist=findChildren<QPropertyAnimation*>(QString(), Qt::FindDirectChildrenOnly);
     foreach ( QPropertyAnimation *pan, proplist ) {
         pan->stop();
         pan->deleteLater();
@@ -440,6 +442,71 @@ QScriptValue PHIBaseItem::cursor( const QScriptValue &v )
     if ( !v.isValid() ) return QString::fromLatin1( PHI::toCursorString( _gw->cursor().shape() ) );
     _gw->setCursor( QCursor( PHI::toCursorShape( v.toString().toLatin1() ) ) );
     return self();
+}
+
+QScriptValue PHIBaseItem::rotateX( const QScriptValue &v )
+{
+    if ( !v.isValid() ) return xRotation();
+    setXRotation( v.toNumber() );
+    return self();
+}
+
+QScriptValue PHIBaseItem::rotateY( const QScriptValue &v )
+{
+    if ( !v.isValid() ) return yRotation();
+    setYRotation( v.toNumber() );
+    return self();
+}
+
+QScriptValue PHIBaseItem::rotateZ( const QScriptValue &v )
+{
+    if ( !v.isValid() ) return zRotation();
+    setZRotation( v.toNumber() );
+    return self();
+}
+
+QScriptValue PHIBaseItem::slide( const QString &dir, int duration, const QString &ease )
+{
+    if ( !isClientItem() ) return self();
+    if ( dir==L1( "down" ) ) slideDown( duration, ease );
+    else slideUp( duration, ease );
+    return self();
+}
+
+void PHIBaseItem::slideUp( int duration, const QString &ease )
+{
+    Q_ASSERT( isClientItem() );
+    QSequentialAnimationGroup *group=findChild<QSequentialAnimationGroup*>( L1( "slide" ), Qt::FindDirectChildrenOnly );
+    if ( !group ) {
+        group=new QSequentialAnimationGroup( this );
+        connect( group, &QSequentialAnimationGroup::finished, this, &PHIBaseItem::slideAnimationFinished );
+        group->setObjectName( L1( "slide" ) );
+        prepareForAnimation();
+    }
+    QSizeF size=data( DAnimOrgGeometry ).toRectF().size();
+    PHISlideAnimation *anim=new PHISlideAnimation( this, size.height(), true );
+    anim->setDuration( duration );
+    anim->setEasingCurve( PHI::toEasingCurveType( ease ) );
+    group->addAnimation( anim );
+    if ( !(group->state()==QAbstractAnimation::Running) ) group->start( QAbstractAnimation::DeleteWhenStopped );
+}
+
+void PHIBaseItem::slideDown( int duration, const QString &ease )
+{
+    Q_ASSERT( isClientItem() );
+    QSequentialAnimationGroup *group=findChild<QSequentialAnimationGroup*>( L1( "slide" ), Qt::FindDirectChildrenOnly );
+    if ( !group ) {
+        group=new QSequentialAnimationGroup( this );
+        connect( group, &QSequentialAnimationGroup::finished, this, &PHIBaseItem::slideAnimationFinished );
+        group->setObjectName( L1( "slide" ) );
+        prepareForAnimation();
+    }
+    QSizeF size=data( DAnimOrgGeometry ).toRectF().size();
+    PHISlideAnimation *anim=new PHISlideAnimation( this, size.height(), false );
+    anim->setDuration( duration );
+    anim->setEasingCurve( PHI::toEasingCurveType( ease ) );
+    group->addAnimation( anim );
+    if ( !(group->state()==QAbstractAnimation::Running) ) group->start( QAbstractAnimation::DeleteWhenStopped );
 }
 
 QScriptValue PHIBaseItem::click( const QScriptValue &v )

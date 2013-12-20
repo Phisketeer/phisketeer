@@ -830,11 +830,8 @@ void PHIAbstractLayoutItem::invalidateLayout()
         PHIGraphicsItem *git=qgraphicsitem_cast<PHIGraphicsItem*>(it->gw());
         Q_ASSERT( git );
         git->updateGeometry();
-        if ( it->isLayoutItem() ) {
-            PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
-            Q_ASSERT( lit );
-            lit->invalidateLayout();
-        }
+        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+        if ( lit ) lit->invalidateLayout();
     }
 }
 

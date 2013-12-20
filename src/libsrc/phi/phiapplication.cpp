@@ -29,6 +29,7 @@
 #include <QEvent>
 #include <QFileOpenEvent>
 #include <QWebSettings>
+#include <QSizePolicy>
 #include "phiapplication.h"
 #include "phisysinfo.h"
 #include "phi.h"
@@ -205,6 +206,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qRegisterMetaType<QDateTime>("QDateTime");
     qRegisterMetaType<PHIRC>("PHIRC");
     qRegisterMetaType<PHIWID>("PHIWID");
+    qRegisterMetaType<QSizePolicy>("QSizePolicy");
 
 #ifdef PHIDEBUG
     _pluginsPath=L1( PHIDIR )+L1( "/plugins" );

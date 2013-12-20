@@ -69,6 +69,7 @@ class PHIEXPORT PHIBaseItem : public QObject
     friend class ARTGraphicsScene;
     friend class ARTGraphicsItem;
     friend class ARTUndoDelLayout; // need access to _gw
+    friend class ARTUndoEffect;
     friend class ARTItemSettings;
     friend class PHISProcessor;
 
@@ -94,12 +95,14 @@ public:
         DGradientFinalStopPoint=-26, DGradientSpreadType=-27, DGradientAngle=-28,
         DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31,
         DImagePath=-32, DImagePathes=-33, DIEFilter=-34, DAdjustedRect=-35, DEventFunctions=-36,
-        DDragDropOptions=-37, DOneEventFunctions=-38 };
+        DDragDropOptions=-37, DOneEventFunctions=-38, DAnimSizePolicy=-39,
+        DAnimOrgGeometry=-40 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
         FStoreDisabledData=0x200, FHasMouseEvent=0x400, FHasFocusEvent=0x800,
-        FHasHoverEvent=0x1000, FHasKeyEvent=0x2000, FHasChangeEvent=0x4000 }; //quint32
+        FHasHoverEvent=0x1000, FHasKeyEvent=0x2000, FHasChangeEvent=0x4000,
+        FIsAnimating=0x8000 }; //quint32
     enum DragDropOption { DDNone=0, DDMoveAction=0x1, DDRevertOnIgnore=0x2, DDRevertOnAccept=0x4,
         DDHighlightOnMouseOver=0x8 };
     enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
@@ -139,7 +142,6 @@ public: // not usable by script engine
     inline void setParentId( const QByteArray &pid ) { _parentId=pid; }
     inline void setFocus() { if ( _gw ) { _gw->setFocus(); _gw->setSelected( true ); } }
     inline void update( const QRectF &r=QRectF() ) { if ( _gw ) _gw->update( r ); }
-    inline PHIEffect* effect() { return _effect; }
     inline const PHIEffect* effect() const { return _effect; }
     inline bool hasGraphicEffect() const { return _effect->effects() & PHIEffect::EGraphics; }
     void updateEffect();
@@ -157,6 +159,8 @@ public: // not usable by script engine
     void resize( qreal w, qreal h );
     void resize( const QSizeF &s );
     void setVisible( bool b );
+    void prepareForAnimation();
+    void restoreFromAnimation();
 
     // prefixing with 'real' for internal using:
     inline qreal realX() const { return _x; }
@@ -246,7 +250,6 @@ public: // not usable by script engine
     inline virtual bool isCheckable() const { return false; } // radio & checkboxes
     inline virtual bool isFocusable() const { return false; }
     inline virtual bool isInputItem() const { return false; } // has form data
-    inline virtual bool isLayoutItem() const { return false; }
     inline virtual bool isWidthChangeable() const { return true; }
     inline virtual bool isHeightChangeable() const { return true; }
     inline virtual bool isDraggable() const { return false; }
@@ -321,6 +324,10 @@ public slots: // usable by script engine
     QScriptValue left( const QScriptValue &v=QScriptValue() );
     QScriptValue pos( const QScriptValue &x=QScriptValue(), const QScriptValue &y=QScriptValue() );
     QScriptValue cursor( const QScriptValue &v=QScriptValue() );
+    QScriptValue rotateX( const QScriptValue &v=QScriptValue() );
+    QScriptValue rotateY( const QScriptValue &v=QScriptValue() );
+    QScriptValue rotateZ( const QScriptValue &v=QScriptValue() );
+    QScriptValue slide( const QString &dir=SL( "up" ), int duration=400, const QString &ease=PHI::defaultEasingCurve() );
 
     QScriptValue click( const QScriptValue &v=QScriptValue() );
     QScriptValue dblclick( const QScriptValue &v=QScriptValue() );
@@ -345,17 +352,24 @@ public slots: // usable by script engine
 protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
+    inline PHIEffect* effect() { return _effect; }
+    inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
+    inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
+    inline QVariant data( quint8 t, const QVariant &v=QVariant() ) const { return _variants.value( t, v ); }
+    inline void removeData( quint8 t ) { _variants.remove( t ); }
+    void slideUp( int duration, const QString &ease );
+    void slideDown( int duration, const QString &ease );
     void setWidget( QWidget* );
     QWidget* widget() const;
     const PHIBasePage* page() const;
     QScriptValue self();
+
     QImage createImage();
     virtual void clientInitData() {}
     virtual void updatePageFont( const QFont &font );
     virtual void paintHighlight( QPainter *painter );
     virtual QRectF boundingRect() const;
-    virtual bool sceneEvent( QEvent *event ); // return false to call basic implementation
-    inline void setSizePolicy( const QSizePolicy &policy ) { if ( _gw ) _gw->setSizePolicy( policy ); }
+    virtual bool sceneEvent( QEvent *event );
 
     // HTML & server related members
     virtual void phisParseData( const PHIDataParser &parser ); // HTML
@@ -372,9 +386,6 @@ protected:
     void htmlImages( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
     // IDE related members
-    inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
-    inline QVariant data( quint8 t, const QVariant &v=QVariant() ) const { return _variants.value( t, v ); }
-    inline void removeData( quint8 t ) { _variants.remove( t ); }
     virtual void squeeze() {} // free unused data
     virtual void ideUpdateData() {}
 
@@ -392,6 +403,7 @@ private slots:
     inline void privateHide() { setVisible( false ); }
     inline void privateShow() { setVisible( true ); }
     inline void privateOpacityHide() { if ( realOpacity()<0.1 ) setVisible( false ); }
+    void slideAnimationFinished();
 
 private:
     PHIBaseItem& operator=( const PHIBaseItem& );
@@ -514,6 +526,7 @@ inline void PHIBaseItem::resize( const QSizeF &s )
     _width=s.width();
     _height=s.height();
     if ( _gw ) _gw->resize( s );
+    update();
     emit sizeChanged( s );
 }
 
