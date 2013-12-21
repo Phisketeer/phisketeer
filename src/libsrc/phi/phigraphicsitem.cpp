@@ -59,7 +59,7 @@ void PHIGraphicsItem::setBaseItem( PHIBaseItem *it )
         setFlag( ItemIsFocusable, it->isFocusable() );
         setFlag( ItemIsSelectable, true );
         setFlag( ItemIsMovable, false );
-        setAcceptDrops( it->isDroppable() );
+        setAcceptDrops( true );
         setAcceptHoverEvents( true );
     } else if ( it->isTemplateItem() ) {
         setFlag( ItemIsFocusable, false );

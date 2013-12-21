@@ -56,6 +56,7 @@ public:
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
     virtual void ideInit();
+    virtual bool isDraggable() const { return true; }
 
 public slots:
     QScriptValue textAlign( const QScriptValue &v=QScriptValue() );
@@ -117,9 +118,9 @@ public:
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor color( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
-    inline virtual bool hasGradient() const { return true; }
-    inline virtual bool isDraggable() const { return true; }
-    inline virtual bool isDroppable() const { return true; }
+    virtual bool hasGradient() const { return true; }
+    virtual bool isDraggable() const { return true; }
+    virtual bool isDroppable() const { return true; }
     virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
@@ -133,8 +134,6 @@ public:
     inline QColor realColor() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
     inline QColor realOutlineColor() const { return data( DOutlineColor, QColor( Qt::black ) ).value<QColor>(); }
     inline qreal realPenWidth() const { return data( DPenWidth, 1. ).toReal(); }
-
-public slots:
 
 protected:
     virtual QRectF boundingRect() const;
@@ -174,12 +173,12 @@ public:
     PHIAbstractImageItem( const PHIAbstractImageItem &it ) : PHIBaseItem( it ), _imageData( it._imageData ) {}
     virtual ~PHIAbstractImageItem() {}
     virtual bool hasImage() const { return true; }
+    virtual bool isDraggable() const { return true; }
+    virtual bool isDroppable() const { return true; }
     virtual PHIImageData* imageData() { return &_imageData; }
     QImage realImage() const { return data( DImage, QImage() ).value<QImage>(); }
     void setImage( const QImage &img ) { setData( DImage, img ); updateImage(); }
     void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
-
-public slots:
 
 protected:
     virtual void ideUpdateData();
@@ -211,6 +210,7 @@ public:
     PHIAbstractImageBookItem( const PHIAbstractImageBookItem &it ) : PHIBaseItem( it ), _imageBookData( it._imageBookData ) {}
     virtual ~PHIAbstractImageBookItem() {}
     virtual bool hasImages() const { return true; }
+    virtual bool isDroppable() const { return true; }
     virtual PHIImageBookData* imageBookData() { return &_imageBookData; }
     PHIImageHash realImages() const { return data( DImages ).value<PHIImageHash>(); }
     void setImages( const PHIImageHash &imgs ) { QVariant v; v.setValue( imgs ); setData( DImages, v ); updateImages(); }
@@ -264,7 +264,8 @@ public:
         _textData( it._textData ) { if ( isGuiItem() ) initLayout(); } // _children must not be copied!
     virtual ~PHIAbstractLayoutItem() {}
 
-    inline virtual bool isFocusable() const { return true; }
+    virtual bool isFocusable() const { return true; }
+    virtual bool isDroppable() const { return true; }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
     virtual void activateLayout()=0; // called once after page loading
     virtual void updateChildId( const QString &oldId, const QString &newId )=0;
@@ -356,6 +357,8 @@ public:
     PHIAbstractInputItem( const PHIAbstractInputItem &it ) : PHIAbstractTextItem( it ) {}
     virtual ~PHIAbstractInputItem() {}
     virtual bool isFocusable() const { return true; }
+    virtual bool isDroppable() const { return true; }
+    virtual bool isDraggable() const { return false; }
     inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
     inline void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); }
     inline QString realValue() const { return QString::fromUtf8( data( DValue ).toByteArray() ); }

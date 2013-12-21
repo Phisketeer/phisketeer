@@ -71,6 +71,7 @@ class PHIEXPORT PHIBaseItem : public QObject
     friend class ARTUndoDelLayout; // need access to _gw
     friend class ARTUndoEffect;
     friend class ARTItemSettings;
+    friend class ARTDragDropWidget;
     friend class PHISProcessor;
 
     Q_OBJECT
@@ -100,11 +101,11 @@ public:
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
-        FStoreDisabledData=0x200, FHasMouseEvent=0x400, FHasFocusEvent=0x800,
-        FHasHoverEvent=0x1000, FHasKeyEvent=0x2000, FHasChangeEvent=0x4000,
-        FIsAnimating=0x8000 }; //quint32
+        FStoreDisabledData=0x200, FHasMouseEventHandler=0x400, FHasFocusEventHandler=0x800,
+        FHasHoverEventHandler=0x1000, FHasKeyEventHandler=0x2000, FHasChangeEventHandler=0x4000,
+        FHasDropEventHandler=0x8000, FIsAnimating=0x10000 }; //quint32
     enum DragDropOption { DDNone=0, DDMoveAction=0x1, DDRevertOnIgnore=0x2, DDRevertOnAccept=0x4,
-        DDHighlightOnMouseOver=0x8 };
+        DDHighlightOnMouseOver=0x8, DDDragEnabled=0x10, DDDropEnabled=0x20 };
     enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
         DFText=0x8, DFHasFilePath=0x10, DFUseFilePathInHTML=0x20,
         DFInt1=0x100, DFInt2=0x200, DFReadOnlyData=0x400, DFDisabledData=0x800,
@@ -365,11 +366,19 @@ protected:
     QScriptValue self();
 
     QImage createImage();
+    virtual QRectF boundingRect() const;
     virtual void clientInitData() {}
     virtual void updatePageFont( const QFont &font );
     virtual void paintHighlight( QPainter *painter );
-    virtual QRectF boundingRect() const;
-    virtual bool sceneEvent( QEvent *event );
+    virtual void checkForDragInMousePressEvent( QGraphicsSceneMouseEvent *e );
+    virtual void checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e );
+    virtual void checkDragEnterEvent( QGraphicsSceneDragDropEvent *e );
+    virtual void checkDragLeaveEvent( QGraphicsSceneDragDropEvent *e );
+    virtual void checkDragMoveEvent( QGraphicsSceneDragDropEvent *e );
+    virtual void checkDropEvent( QGraphicsSceneDragDropEvent *e );
+    inline bool dragMoveAction() const { return dragDropOptions() & DDMoveAction; }
+    inline int dragDistance() const { return data( DDragDistance, PHI::defaultDragDistance() ).toInt(); }
+    inline qreal dragOpacity() const { return data( DDragOpacity, 1. ).toReal(); }
 
     // HTML & server related members
     virtual void phisParseData( const PHIDataParser &parser ); // HTML
@@ -384,6 +393,7 @@ protected:
     void htmlInitItem( QByteArray &script, bool close=true ) const;
     void htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     void htmlImages( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    void htmlDragDropItem( QByteArray &script ) const;
 
     // IDE related members
     virtual void squeeze() {} // free unused data
@@ -415,13 +425,7 @@ private:
     void cssCustomStyleSheet( QByteArray &out ) const;
     void htmlEffects( const PHIRequest *req, QByteArray &out, QByteArray &script );
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
-    void checkForDragInMousePressEvent( QGraphicsSceneMouseEvent *e );
-    void checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e );
-    void checkDragEnterEvent( QGraphicsSceneDragDropEvent *e );
-    void checkDropEvent( QGraphicsSceneDragDropEvent *e );
-    inline bool dragMoveAction() const { return dragDropOptions() & DDMoveAction; }
-    inline int dragDistance() const { return data( DDragDistance, PHI::defaultDragDistance() ).toInt(); }
-    inline qreal dragOpacity() const { return data( DDragOpacity, 1. ).toReal(); }
+    bool sceneEvent( QEvent *event );
     inline QGraphicsWidget* gw() { return _gw; }
     QPointF adjustedPos() const;
 

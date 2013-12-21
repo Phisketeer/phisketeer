@@ -40,8 +40,8 @@ class PHIDomEvent : public QObject
 
 public:
     enum Event { ENone=0, EClick=1, EDblClick, EMouseOver, EMouseMove, EMouseUp, EMouseDown,
-        EMouseOut, EChange, EFocus, EBlur, EKeyPress, EKeyDown, EKeyUp, EDrop,
-        ECustom, ESubmit, ESelect, ELoad };
+        EMouseOut, EChange, EFocus, EBlur, EKeyPress, EKeyDown, EKeyUp, EDrop, ECustom,
+        ESubmit, ESelect, ELoad };
     explicit PHIDomEvent( const QString &type, PHIBaseItem *item, bool cancelable=false );
     virtual ~PHIDomEvent();
 

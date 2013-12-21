@@ -950,6 +950,42 @@ void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &
             +QByteArray::number( qRound(o.y()) )+"px;";
     }
     if ( Q_UNLIKELY( _dirtyFlags & DFStyleSheetData ) ) cssCustomStyleSheet( out );
+    quint32 ddopts=dragDropOptions();
+    if ( Q_UNLIKELY( ddopts & DDDragEnabled || ddopts & DDDropEnabled ) ) htmlDragDropItem( script );
+}
+
+void PHIBaseItem::htmlDragDropItem( QByteArray &script ) const
+{
+    quint32 opts=dragDropOptions();
+    if ( opts & DDDragEnabled ) {
+        script+=BL( "jQuery('#" )+_id+BL( "').draggable({zIndex:30000,cursor:'move'," );
+        if ( !(opts & DDMoveAction) ) script+=BL( "helper:'clone'," );
+        if ( opts & DDRevertOnAccept && opts & DDRevertOnIgnore ) script+=BL( "revert:true," );
+        else if ( opts & DDRevertOnAccept ) script+=BL( "revert:'valid'," );
+        else if ( opts & DDRevertOnIgnore ) script+=BL( "revert:'invalid'," );
+        qreal opac=data( DDragOpacity, 1. ).toReal();
+        if ( opac<1. ) script+=BL( "opacity:" )+QByteArray::number( opac, 'f', 2 )+',';
+        QPoint hotspot=data( DDragHotSpot, PHI::defaultHotSpot() ).toPoint();
+        if ( data( DDragHotSpotType ).toInt()==1 ) script+=BL( "cursorAt:{left:" )
+            +QByteArray::number( qRound(realWidth()/2) )+BL( ",top:" )
+            +QByteArray::number( qRound(realHeight()/2) )+BL( "}," );
+        else script+=BL( "cursorAt:{left:" )+QByteArray::number( hotspot.x() )
+            +BL( ",top:" )+QByteArray::number( hotspot.y() )+BL( "}," );
+        script+=BL( "distance:" )+QByteArray::number(
+            data( DDragDistance, PHI::defaultDragDistance() ).toInt() )+BL( "});\n" );
+    }
+    if ( opts & DDDropEnabled ) {
+        script+=BL( "jQuery('#" )+_id+BL( "').droppable({" );
+        QByteArray arr, acc;
+        PHIByteArrayList list=data( DDropAcceptedIds ).value<PHIByteArrayList>();
+        if ( !list.isEmpty() ) {
+            foreach ( acc, list ) arr+='#'+acc+',';
+            arr.chop( 1 ); // remove last ','
+        }
+        if ( !arr.isEmpty() ) script+=BL( "accept:'" )+arr+BL( "'," );
+        if ( opts & DDHighlightOnMouseOver ) script+=BL( "hoverClass:'ui-state-hover'," );
+        script+=BL( "tolerance:'pointer'});\n" );
+    }
 }
 
 void PHIBaseItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const

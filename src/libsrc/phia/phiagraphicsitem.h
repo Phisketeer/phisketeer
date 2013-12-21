@@ -20,8 +20,12 @@
 #define PHIAGRAPHICSITEM_H
 #include "phigraphicsitem.h"
 
+class QEvent;
 class QKeyEvent;
+class QFocusEvent;
 class QGraphicsSceneMouseEvent;
+class QGraphicsSceneDragDropEvent;
+class QGraphicsSceneHoverEvent;
 
 class PHIAGraphicsItem : public PHIGraphicsItem
 {
@@ -47,6 +51,7 @@ protected:
     virtual void focusOutEvent( QFocusEvent *event );
     virtual void dragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void dragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
 };
 

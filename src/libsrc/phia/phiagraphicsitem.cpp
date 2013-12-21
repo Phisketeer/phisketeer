@@ -17,7 +17,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QKeyEvent>
+#include <QFocusEvent>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsSceneHoverEvent>
+#include <QGraphicsSceneDragDropEvent>
 #include "phiagraphicsitem.h"
 #include "phidomevent.h"
 
@@ -37,14 +40,14 @@ QSizeF PHIAGraphicsItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint 
 void PHIAGraphicsItem::keyPressEvent( QKeyEvent *event )
 {
     if ( baseItem()->realDisabled() ) return event->ignore();
-    if ( baseItem()->flags() & PHIBaseItem::FHasKeyEvent ) {
+    if ( baseItem()->flags() & PHIBaseItem::FHasKeyEventHandler ) {
         PHIDomEvent keydown( SL( "keydown" ), baseItem(), true );
         keydown.setKeyEvent( event );
         baseItem()->trigger( SL( "keydown" ), QScriptValue(), &keydown );
         if ( keydown.isDefaultPrevented() ) return event->accept();
     }
     if ( !event->text().isEmpty() ) { // real key - not only a metakey
-        if ( baseItem()->flags() & PHIBaseItem::FHasKeyEvent ) {
+        if ( baseItem()->flags() & PHIBaseItem::FHasKeyEventHandler ) {
             PHIDomEvent keypress( SL( "keypress" ), baseItem(), true );
             keypress.setKeyEvent( event );
             baseItem()->trigger( SL( "keypress" ), QScriptValue(), &keypress );
@@ -57,7 +60,7 @@ void PHIAGraphicsItem::keyPressEvent( QKeyEvent *event )
 void PHIAGraphicsItem::keyReleaseEvent( QKeyEvent *event )
 {
     PHIGraphicsItem::keyReleaseEvent( event );
-    if ( baseItem()->flags() & PHIBaseItem::FHasKeyEvent ) {
+    if ( baseItem()->flags() & PHIBaseItem::FHasKeyEventHandler ) {
         PHIDomEvent keyup( SL( "keyup" ), baseItem(), false );
         keyup.setKeyEvent( event );
         baseItem()->trigger( SL( "keyup" ), QScriptValue(), &keyup );
@@ -67,7 +70,7 @@ void PHIAGraphicsItem::keyReleaseEvent( QKeyEvent *event )
 void PHIAGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
     if ( baseItem()->realDisabled() ) return event->ignore();
-    if ( baseItem()->flags() & PHIBaseItem::FHasMouseEvent ) {
+    if ( baseItem()->flags() & PHIBaseItem::FHasMouseEventHandler ) {
         PHIDomEvent mousedown( SL( "mousedown" ), baseItem(), true );
         mousedown.setMouseEvent( event );
         baseItem()->trigger( SL( "mousedown" ), QScriptValue(), &mousedown );
@@ -81,7 +84,7 @@ void PHIAGraphicsItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent *event )
 {
     // event->ignore() or event->accept() has no effect!
     if ( baseItem()->realDisabled() ) return;
-    if ( baseItem()->flags() & PHIBaseItem::FHasMouseEvent ) {
+    if ( baseItem()->flags() & PHIBaseItem::FHasMouseEventHandler ) {
         PHIDomEvent dblclick( SL( "dblclick" ), baseItem(), true );
         dblclick.setMouseEvent( event );
         baseItem()->trigger( SL( "dblclick" ), QScriptValue(), &dblclick );
@@ -100,7 +103,7 @@ void PHIAGraphicsItem::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
 void PHIAGraphicsItem::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
 {
     // event->ignore() or event->accept() has no effect!
-    if ( baseItem()->flags() & PHIBaseItem::FHasMouseEvent ) {
+    if ( baseItem()->flags() & PHIBaseItem::FHasMouseEventHandler ) {
         PHIDomEvent mouseup( SL( "mouseup" ), baseItem(), true );
         mouseup.setMouseEvent( event );
         baseItem()->trigger( SL( "mouseup" ), QScriptValue(), &mouseup );
@@ -109,7 +112,7 @@ void PHIAGraphicsItem::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
     } else PHIGraphicsItem::mouseReleaseEvent( event );
 
     if ( boundingRect().contains( event->pos() ) ) {
-        if ( baseItem()->flags() & PHIBaseItem::FHasMouseEvent ) {
+        if ( baseItem()->flags() & PHIBaseItem::FHasMouseEventHandler ) {
             PHIDomEvent click( SL( "click" ), baseItem(), true );
             click.setMouseEvent( event );
             baseItem()->trigger( SL( "click" ), QScriptValue(), &click );
@@ -122,7 +125,7 @@ void PHIAGraphicsItem::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
 void PHIAGraphicsItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
 {
     // event->ignore() or event->accept() has no effect!
-    if ( baseItem()->flags() & PHIBaseItem::FHasHoverEvent ) {
+    if ( baseItem()->flags() & PHIBaseItem::FHasHoverEventHandler ) {
         PHIDomEvent mouseover( SL( "mouseover" ), baseItem(), true );
         mouseover.setHoverEvent( event );
         baseItem()->trigger( SL( "mouseover" ), QScriptValue(), &mouseover );
@@ -134,7 +137,7 @@ void PHIAGraphicsItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
 void PHIAGraphicsItem::hoverLeaveEvent( QGraphicsSceneHoverEvent *event )
 {
     // event->ignore() or event->accept() has no effect!
-    if ( baseItem()->flags() & PHIBaseItem::FHasHoverEvent ) {
+    if ( baseItem()->flags() & PHIBaseItem::FHasHoverEventHandler ) {
         PHIDomEvent mouseout( SL( "mouseout" ), baseItem(), true );
         mouseout.setHoverEvent( event );
         baseItem()->trigger( SL( "mouseout" ), QScriptValue(), &mouseout );
@@ -146,7 +149,7 @@ void PHIAGraphicsItem::hoverLeaveEvent( QGraphicsSceneHoverEvent *event )
 void PHIAGraphicsItem::hoverMoveEvent( QGraphicsSceneHoverEvent *event )
 {
     // event->ignore() or event->accept() has no effect!
-    if ( baseItem()->flags() & PHIBaseItem::FHasHoverEvent ) {
+    if ( baseItem()->flags() & PHIBaseItem::FHasHoverEventHandler ) {
         PHIDomEvent mousemove( SL( "mousemove" ), baseItem(), true );
         mousemove.setHoverEvent( event );
         baseItem()->trigger( SL( "mousemove" ), QScriptValue(), &mousemove );
@@ -158,7 +161,7 @@ void PHIAGraphicsItem::hoverMoveEvent( QGraphicsSceneHoverEvent *event )
 void PHIAGraphicsItem::focusInEvent( QFocusEvent *event )
 {
     PHIDomEvent focus( SL( "focus" ), baseItem(), true );
-    if ( baseItem()->flags() & PHIBaseItem::FHasFocusEvent ) {
+    if ( baseItem()->flags() & PHIBaseItem::FHasFocusEventHandler ) {
         focus.setFocusEvent( event );
         baseItem()->trigger( SL( "focus" ), QScriptValue(), &focus );
         if ( focus.isDefaultPrevented() ) return event->ignore();
@@ -168,7 +171,7 @@ void PHIAGraphicsItem::focusInEvent( QFocusEvent *event )
 
 void PHIAGraphicsItem::focusOutEvent( QFocusEvent *event )
 {
-    if ( baseItem()->flags() & PHIBaseItem::FHasFocusEvent ) {
+    if ( baseItem()->flags() & PHIBaseItem::FHasFocusEventHandler ) {
         PHIDomEvent blur( SL( "blur" ), baseItem(), true );
         blur.setFocusEvent( event );
         baseItem()->trigger( SL( "blur" ), QScriptValue(), &blur );
@@ -184,7 +187,13 @@ void PHIAGraphicsItem::dragEnterEvent( QGraphicsSceneDragDropEvent *event )
 
 void PHIAGraphicsItem::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
 {
-    event->acceptProposedAction();
+    baseItem()->checkDragMoveEvent( event );
+}
+
+void PHIAGraphicsItem::dragLeaveEvent( QGraphicsSceneDragDropEvent *event )
+{
+    // event->ignore() or event->accept() has no effect!
+    baseItem()->checkDragLeaveEvent( event );
 }
 
 void PHIAGraphicsItem::dropEvent( QGraphicsSceneDragDropEvent *event )
