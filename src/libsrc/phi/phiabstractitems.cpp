@@ -31,6 +31,7 @@
 #include "phigraphicsitem.h"
 #include "phidataparser.h"
 #include "phiwebpage.h"
+#include "phiimagerequest.h"
 
 qreal PHIAbstractTextItem::_dropRegion=7.;
 
@@ -685,6 +686,28 @@ void PHIAbstractImageItem::phisParseData( const PHIDataParser &parser )
     setImagePath( parser.imagePath( &_imageData ) );
 }
 
+void PHIAbstractImageItem::clientInitData()
+{
+    setData( DIsImage, true );
+    QUrl url=page()->baseUrl();
+    if ( imagePath().startsWith( '/' ) ) {
+        url.setPath( QString::fromUtf8( imagePath() ) );
+    } else {
+        url.setPath( L1( "/phi.phis" ) );
+        QUrlQuery query;
+        query.addQueryItem( L1( "i" ), QString::fromUtf8( imagePath() ) );
+        query.addQueryItem( L1( "t" ) , L1( "1" ) );
+        url.setQuery( query );
+    }
+    PHIImageRequest *req=new PHIImageRequest( this, url );
+    connect( req, &PHIImageRequest::imageReady, this, &PHIAbstractImageItem::slotImageReady );
+}
+
+void PHIAbstractImageItem::slotImageReady( const QImage &image )
+{
+    setImage( image );
+}
+
 void PHIAbstractImageItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
 {
     QImage img=imageFromMimeData( e->mimeData() );
@@ -739,6 +762,35 @@ void PHIAbstractImageBookItem::phisCreateData( const PHIDataParser &parser )
 void PHIAbstractImageBookItem::phisParseData( const PHIDataParser &parser )
 {
     setImagePathes( parser.imagePathes( &_imageBookData ) );
+}
+
+void PHIAbstractImageBookItem::clientInitData()
+{
+    setData( DIsImage, true );
+    for ( int i=0; i<imagePathes().count(); i++ ) {
+        QByteArray path=imagePathes().value( i );
+        QUrl url=page()->baseUrl();
+        if ( path.startsWith( '/' ) ) {
+            url.setPath( QString::fromUtf8( path ) );
+        } else {
+            url.setPath( L1( "/phi.phis" ) );
+            QUrlQuery query;
+            query.addQueryItem( L1( "i" ), QString::fromUtf8( path ) );
+            query.addQueryItem( L1( "t" ) , L1( "1" ) );
+            url.setQuery( query );
+        }
+        qDebug() << "init data" << url << i;
+        PHIImageRequest *req=new PHIImageRequest( this, url, i );
+        connect( req, &PHIImageRequest::imageReady, this, &PHIAbstractImageBookItem::slotImageReady );
+    }
+}
+
+void PHIAbstractImageBookItem::slotImageReady( const QImage &image, int num )
+{
+    qDebug() << "slotImageReady" << image.isNull() << num;
+    PHIImageHash hash=realImages();
+    hash.insert( QByteArray::number( num ), image );
+    setImages( hash );
 }
 
 void PHIAbstractImageBookItem::squeeze()
@@ -1086,6 +1138,13 @@ void PHIAbstractInputItem::phisParseData( const PHIDataParser &parser )
     if ( dirtyFlags() & DFReadOnlyData ) setReadOnly( parser.text( &_readOnlyData ).toBool() );
 }
 
+void PHIAbstractInputItem::clientInitData()
+{
+    setReadOnly( flags() & FReadOnly );
+    setAccessKey( realAccessKey() );
+    PHIAbstractTextItem::clientInitData();
+}
+
 QScriptValue PHIAbstractInputItem::readOnly( const QScriptValue &r )
 {
     if ( !r.isValid() ) return realReadOnly();
@@ -1105,6 +1164,16 @@ QScriptValue PHIAbstractInputItem::accessKey( const QScriptValue &a )
     if ( !a.isValid() ) return realAccessKey();
     setAccessKey( a.toString() );
     return self();
+}
+
+QList<QHttpPart> PHIAbstractInputItem::httpParts() const
+{
+    QHttpPart hp;
+    hp.setHeader( QNetworkRequest::ContentTypeHeader, BL( "text/plain" ) );
+    hp.setHeader( QNetworkRequest::ContentDispositionHeader, BL( "form-data; name=\"" )+id()+BL( "\"" ) );
+    hp.setBody( realValue().toUtf8() );
+    QList <QHttpPart> list;
+    return list << hp;
 }
 
 void PHIAbstractExternalItem::ideInit()

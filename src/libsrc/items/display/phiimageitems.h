@@ -69,6 +69,9 @@ public:
     inline void setText( const QString &s ) { setData( DSvgSource, s.toLatin1() ); initWidget(); }
     inline QString realText() const { return QString::fromLatin1( data( DSvgSource, QString() ).toByteArray() ); }
 
+public slots:
+    QScriptValue text( const QScriptValue &v=QScriptValue() );
+
 protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -78,6 +81,7 @@ protected:
     virtual void ideUpdateData();
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
+    virtual void clientInitData();
 
 private:
     static QString svgDefaultSource();
@@ -123,6 +127,7 @@ public:
     inline int realFadeIntervalMS() const { return data( DInterval, 4000 ).toInt(); }
     inline void setFadeTimeMS( int i ) { setData( DFadeTime, qMax( 50, i ) ); updateImages(); }
     inline int realFadeTimeMS() const { return data( DFadeTime, 2000 ).toInt(); }
+    // @todo: replace QStringList with QByteArrayList:
     inline void setTitles( const QStringList &l ) { setData( DTitles, l ); }
     inline QStringList realTitles() const { return data( DTitles ).toStringList(); }
 
@@ -206,6 +211,7 @@ protected:
     virtual void ideUpdateData();
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
+    virtual void clientInitData();
 
 private:
     void initWidget();

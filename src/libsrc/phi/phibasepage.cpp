@@ -560,7 +560,25 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     script.reserve( 4*1024 );
     foreach ( tmp, _scriptExtensions.values() ) script+=tmp;
     foreach ( tmp, _headerExtensions.values() ) out+='\t'+tmp;
-    out+=BL( "</head>\n<body>\n<div id=\"phihtml\" class=\"phicontent\">\n" );
+    out+=BL( "</head>\n<body" );
+    if ( _flags & FUseBgImage ) {
+        out+=BL( " style=\"background-image:url(/phi.phis?i=" );
+        out+=_variants.value( DBgImageUrl ).toByteArray()+BL( "&t=1);" );
+        quint8 opts=bgImageOptions();
+        if ( opts & IRepeatX ) {
+            if ( opts & IRepeatY ) out+=BL( "background-repeat:repeat;" );
+            else out+=BL( "background-repeat:repeat-x;" );
+        } else if ( opts & IRepeatY ) {
+            out+=BL( "background-repeat:repeat-y;" );
+        } else out+=BL( "background-repeat:no-repeat;" );
+        if ( opts & IFixed ) out+=BL( "background-attachment:fixed" );
+        out+='"';
+        script+=BL( "jQuery(window).resize(function(){\n\tvar off=jQuery('#phihtml').offset();\n" );
+        script+=BL( "\tvar bgx=off.left+" )+QByteArray::number( bgImageXOff() )
+            +BL( ",bgy=off.top+" )+QByteArray::number( bgImageYOff() );
+        script+=BL( ";\n\tjQuery('body').css('background-position',bgx+'px '+bgy+'px');\n}).resize();\n" );
+    }
+    out+=BL( ">\n<div id=\"phihtml\" class=\"phicontent\">\n" );
     if ( _flags & FHasAction ) {
         out+=BL( "<form id=\"phiform\" action=\"" )+_variants.value( DAction ).toByteArray()
             +BL( "\" method=\"post\" enctype=\"multipart/form-data\""

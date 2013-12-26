@@ -18,6 +18,7 @@
 */
 #ifndef PHIABSTRACTITEMS_H
 #define PHIABSTRACTITEMS_H
+#include <QHttpPart>
 #include "phibaseitem.h"
 #include "phipalette.h"
 #include "phidatasources.h"
@@ -191,9 +192,13 @@ protected:
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void updateImage()=0;
+    virtual void clientInitData();
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
+
+private slots:
+    void slotImageReady( const QImage &image );
 
 private:
     PHIImageData _imageData;
@@ -213,7 +218,7 @@ public:
     virtual bool isDroppable() const { return true; }
     virtual PHIImageBookData* imageBookData() { return &_imageBookData; }
     PHIImageHash realImages() const { return data( DImages ).value<PHIImageHash>(); }
-    void setImages( const PHIImageHash &imgs ) { QVariant v; v.setValue( imgs ); setData( DImages, v ); updateImages(); }
+    void setImages( const PHIImageHash &imgs ) { setData( DImages, qVariantFromValue( imgs ) ); updateImages(); }
 
 protected:
     virtual void squeeze();
@@ -226,10 +231,14 @@ protected:
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void updateImages()=0;
     virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual void clientInitData();
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+private slots:
+    void slotImageReady( const QImage &image, int num );
 
 private:
     PHIImageBookData _imageBookData;
@@ -273,8 +282,7 @@ public:
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     inline const QList<PHIBaseItem*>& childItems() const { return _children; }
     inline void setChildItems( const QList<PHIBaseItem*> &list ) { _children=list; }
-    inline bool hasBorderRadius() const { return topLeftRadius()+topRightRadius()
-        +bottomLeftRadius()+bottomRightRadius() > 0 ? true : false; }
+    inline bool hasBorderRadius() const { return topLeftRadius()+topRightRadius()+bottomLeftRadius()+bottomRightRadius() > 0 ? true : false; }
     void breakLayout();
     void invalidateLayout();
 
@@ -359,15 +367,16 @@ public:
     virtual bool isFocusable() const { return true; }
     virtual bool isDroppable() const { return true; }
     virtual bool isDraggable() const { return false; }
+    virtual QList <QHttpPart> httpParts() const;
     inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
     inline void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); }
     inline QString realValue() const { return QString::fromUtf8( data( DValue ).toByteArray() ); }
     inline void setValue( const QString &v ) { setData( DValue, v.toUtf8() ); }
 
 public slots:
-    QScriptValue val( const QScriptValue &v );
-    QScriptValue readOnly( const QScriptValue &r );
-    QScriptValue accessKey( const QScriptValue &a );
+    virtual QScriptValue val( const QScriptValue &v );
+    virtual QScriptValue readOnly( const QScriptValue &r );
+    virtual QScriptValue accessKey( const QScriptValue &a );
 
 protected:
     virtual void ideUpdateData();
@@ -379,6 +388,11 @@ protected:
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void setWidgetAligment( Qt::Alignment align ) { Q_UNUSED( align ); }
+    virtual void clientInitData();
+
+signals:
+    void submitClicked( const QString &id );
+    void resetClicked( const QString &id );
 
 private:
     PHIBooleanData _readOnlyData;

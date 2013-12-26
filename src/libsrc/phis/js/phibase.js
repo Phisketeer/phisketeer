@@ -181,6 +181,7 @@ function PhiItem( obj ) {
     if(t===undefined)return j(id).attr('title');
     j(id).attr('title',t);return this;
   };
+  this.isImage=function() { return (j(id).attr('src')===undefined && j(id).children().attr('src')===undefined) ? false : true; };
   this.dblclick=function( f ){if(f)j(id).dblclick(function(e){f(_e(e));});else j(id).dbclick();return this;};
   this.click=function( f ){if(f)j(id).click(function(e){f(_e(e));});else j(id).click();return this;};
   this.mouseover=function( f ){if(f)j(id).mouseenter(function(e){f(_e(e));});else j(id).mouseenter();return this;};
@@ -337,7 +338,7 @@ $.$=function( s, i, x, y, w, h ) {
     if ( y ) o._y=y;
     if ( w ) o._w=w;
     if ( h ) o._h=h;
-    if ( i<6 || (i>49 && i<55) || i===10 || i===18 || i===48 ) {
+    if ( i<6 || (i>49 && i<55) || i===10 || i===18 || i===47 ) {
         o.val=function( t ) {
             if ( t===undefined ) return j( id ).val();
             j( id ).val( t ); return o;
@@ -350,6 +351,12 @@ $.$=function( s, i, x, y, w, h ) {
             if ( a===undefined ) return j( id ).attr( 'accesskey' );
             j( id ).attr( 'accesskey', a ); return o;
         };
+        if ( i===1 || (i>49 && i<55) ) {
+            o.placeholder=function( t ) {
+               if ( t===undefined ) return j(id).attr( 'placeholder' );
+               j( id ).attr( 'placeholder', t ); return o;
+            };
+        }
     }
     if ( i===10 || i===18 || i===47 ) {
         o.selectOptions=function( data, d ) {
@@ -408,7 +415,7 @@ $.$=function( s, i, x, y, w, h ) {
             j( id+'_phi' ).val( t ); return o;
         };
     }
-    if ( i>18 && i<23 ) {
+    if ( i===18 ) {
         o.checked=function( v, c ){
           if(v===undefined)return undefined;
           if(typeof(c)!=='boolean'&&typeof(c)!=='number')return j(id+' [value="'+v+'"]').is(':checked');
@@ -421,6 +428,9 @@ $.$=function( s, i, x, y, w, h ) {
           j(id).progressbar('option','value',v);return this;
         };
         j(id).progressbar({value:0});
+    }
+    if ( i===42 ) {
+        o.isImage=function() { if ( j(id+' svg')===undefined) return true; return false; };
     }
     return o;
 };

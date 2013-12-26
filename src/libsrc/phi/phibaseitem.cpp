@@ -644,6 +644,7 @@ bool PHIBaseItem::sceneEvent( QEvent *e )
             return false;
         case QEvent::KeyPress:
             ideKeyPressEvent( static_cast<QKeyEvent*>(e) );
+            qDebug() << "kyp";
             return true;
         default:;
         }

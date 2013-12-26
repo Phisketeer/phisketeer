@@ -24,6 +24,7 @@
 #include "phiaabstractwebview.h"
 #include "phinetmanager.h"
 #include "phiaauthdlg.h"
+#include "phiimagerequest.h"
 #include "phi.h"
 //#include "phiasettingsdlg.h"
 //#include "phiaconfig.h"
@@ -162,7 +163,8 @@ QNetworkAccessManager* PHIAAbstractWebView::networkAccessManager()
 
 void PHIAAbstractWebView::setNetworkAccessManager( QNetworkAccessManager *m )
 {
-    _networkAccessManager=m; // 0 indicates to use built in PHINetworkAccessManager
+    _networkAccessManager=m; // 0 indicates to use built-in PHINetworkAccessManager
+    PHIImageRequest::setNetworkAccessManager( m );
 }
 
 bool PHIAAbstractWebView::canGoBack() const

@@ -98,7 +98,8 @@ public:
         DBgImageOptions=20, DBgImageXOff=21, DBgImageYOff=22, DDefaultLang=23,
         DGeometry=24, DDBUser=25, DDBName=26, DDBDriver=27, DDBPasswd=28,
         DDBPort=29, DDBOptions=30, DDBHost=31, DDBFileName=32, DServerModules=33,
-        DBgColor=34, DWidth=35, DHeight=36, DServerscript=37, DBgImage=38 }; // quint8
+        DBgColor=34, DWidth=35, DHeight=36, DServerscript=37, DBgImage=38,
+        DBaseUrl=39 }; // quint8
     enum Flag { FNone=0x0, FUseOwnPalette=0x1, FApplicationMode=0x2, FPageLeftAlign=0x4,
         FUseOpenGraph=0x8, FHasAction=0x10, FUseSession=0x20, FHidePhiMenu=0x40,
         FUseMasterPalette=0x80, FUseBgImage=0x100, FNoUnderlinedLinks=0x200,
@@ -155,6 +156,8 @@ public:
     inline void insertHtmlHeaderExtension( PHIWID wid, const QByteArray &ext ) { _headerExtensions.insert( wid, ext ); }
     inline void insertHtmlScriptExtension( PHIWID wid, const QByteArray &ext ) { _scriptExtensions.insert( wid, ext ); }
     inline const QHash <PHIWID, QByteArray>& htmlHeaderExtensions() const { return _headerExtensions; }
+    inline QUrl baseUrl() const { return _variants.value( DBaseUrl ).toUrl(); }
+    inline void setBaseUrl( const QUrl &url ) { _variants.insert( DBaseUrl, url ); }
 
     void setGeometry( Geometry g );
     void setFavicon( const QImage &pix ) { _favicon=pix; }

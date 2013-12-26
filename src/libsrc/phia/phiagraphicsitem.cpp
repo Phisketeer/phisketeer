@@ -26,12 +26,12 @@
 
 bool PHIAGraphicsItem::sceneEvent( QEvent *event )
 {
-    return QGraphicsItem::sceneEvent( event );
+    return QGraphicsProxyWidget::sceneEvent( event );
 }
 
 QSizeF PHIAGraphicsItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( which==Qt::MinimumSize ) return QSizeF( 0, 0 );
+    if ( which==Qt::MinimumSize ) return QSizeF( 0, 0 ); // needed for animations
     QSizeF size=baseItem()->sizeHint( which, constraint );
     if ( size.isValid() ) return size;
     return QGraphicsProxyWidget::sizeHint( which, constraint );
@@ -46,6 +46,7 @@ void PHIAGraphicsItem::keyPressEvent( QKeyEvent *event )
         baseItem()->trigger( SL( "keydown" ), QScriptValue(), &keydown );
         if ( keydown.isDefaultPrevented() ) return event->accept();
     }
+    baseItem()->keydown( event );
     if ( !event->text().isEmpty() ) { // real key - not only a metakey
         if ( baseItem()->flags() & PHIBaseItem::FHasKeyEventHandler ) {
             PHIDomEvent keypress( SL( "keypress" ), baseItem(), true );
@@ -53,13 +54,18 @@ void PHIAGraphicsItem::keyPressEvent( QKeyEvent *event )
             baseItem()->trigger( SL( "keypress" ), QScriptValue(), &keypress );
             if ( keypress.isDefaultPrevented() ) return event->accept();
         }
+        PHIGraphicsItem::keyPressEvent( event );
+        baseItem()->keypress( event );
+        return;
+    } else {
+        PHIGraphicsItem::keyPressEvent( event );
     }
-    PHIGraphicsItem::keyPressEvent( event );
 }
 
 void PHIAGraphicsItem::keyReleaseEvent( QKeyEvent *event )
 {
     PHIGraphicsItem::keyReleaseEvent( event );
+    baseItem()->keyup( event );
     if ( baseItem()->flags() & PHIBaseItem::FHasKeyEventHandler ) {
         PHIDomEvent keyup( SL( "keyup" ), baseItem(), false );
         keyup.setKeyEvent( event );
@@ -78,6 +84,7 @@ void PHIAGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
     }
     baseItem()->checkForDragInMousePressEvent( event );
     PHIGraphicsItem::mousePressEvent( event );
+    baseItem()->mousedown( event );
 }
 
 void PHIAGraphicsItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent *event )
@@ -91,6 +98,7 @@ void PHIAGraphicsItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent *event )
         if ( dblclick.isDefaultPrevented() ) return;
     }
     PHIGraphicsItem::mouseDoubleClickEvent( event );
+    baseItem()->dblclick( event );
 }
 
 void PHIAGraphicsItem::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
@@ -110,7 +118,7 @@ void PHIAGraphicsItem::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
         PHIGraphicsItem::mouseReleaseEvent( event );
         if ( mouseup.isDefaultPrevented() ) return;
     } else PHIGraphicsItem::mouseReleaseEvent( event );
-
+    baseItem()->mouseup( event );
     if ( boundingRect().contains( event->pos() ) ) {
         if ( baseItem()->flags() & PHIBaseItem::FHasMouseEventHandler ) {
             PHIDomEvent click( SL( "click" ), baseItem(), true );
@@ -118,7 +126,7 @@ void PHIAGraphicsItem::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
             baseItem()->trigger( SL( "click" ), QScriptValue(), &click );
             if ( click.isDefaultPrevented() ) return;
         }
-        emit baseItem()->itemClicked();
+        baseItem()->click( event );
     }
 }
 
@@ -132,6 +140,7 @@ void PHIAGraphicsItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
         if ( mouseover.isDefaultPrevented() ) return;
     }
     PHIGraphicsItem::hoverEnterEvent( event );
+    baseItem()->mouseover( event );
 }
 
 void PHIAGraphicsItem::hoverLeaveEvent( QGraphicsSceneHoverEvent *event )
@@ -144,6 +153,7 @@ void PHIAGraphicsItem::hoverLeaveEvent( QGraphicsSceneHoverEvent *event )
         if ( mouseout.isDefaultPrevented() ) return;
     }
     PHIGraphicsItem::hoverLeaveEvent( event );
+    baseItem()->mouseout( event );
 }
 
 void PHIAGraphicsItem::hoverMoveEvent( QGraphicsSceneHoverEvent *event )
@@ -156,17 +166,19 @@ void PHIAGraphicsItem::hoverMoveEvent( QGraphicsSceneHoverEvent *event )
         if ( mousemove.isDefaultPrevented() ) return;
     }
     PHIGraphicsItem::hoverMoveEvent( event );
+    baseItem()->mousemove( event );
 }
 
 void PHIAGraphicsItem::focusInEvent( QFocusEvent *event )
 {
-    PHIDomEvent focus( SL( "focus" ), baseItem(), true );
     if ( baseItem()->flags() & PHIBaseItem::FHasFocusEventHandler ) {
+        PHIDomEvent focus( SL( "focus" ), baseItem(), true );
         focus.setFocusEvent( event );
         baseItem()->trigger( SL( "focus" ), QScriptValue(), &focus );
         if ( focus.isDefaultPrevented() ) return event->ignore();
     }
     PHIGraphicsItem::focusInEvent( event );
+    baseItem()->focus( event );
 }
 
 void PHIAGraphicsItem::focusOutEvent( QFocusEvent *event )
@@ -178,6 +190,7 @@ void PHIAGraphicsItem::focusOutEvent( QFocusEvent *event )
         if ( blur.isDefaultPrevented() ) return event->ignore();
     }
     PHIGraphicsItem::focusOutEvent( event );
+    baseItem()->blur( event );
 }
 
 void PHIAGraphicsItem::dragEnterEvent( QGraphicsSceneDragDropEvent *event )
@@ -201,4 +214,3 @@ void PHIAGraphicsItem::dropEvent( QGraphicsSceneDragDropEvent *event )
     // event->ignore() or event->accept() has no effect!
     baseItem()->checkDropEvent( event );
 }
-

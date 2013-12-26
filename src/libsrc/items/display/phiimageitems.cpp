@@ -24,6 +24,7 @@
 #include "phidataparser.h"
 #include "phirequest.h"
 #include "phicontext2d.h"
+#include "phiimagerequest.h"
 
 void PHIImageItem::updateImage()
 {
@@ -110,6 +111,10 @@ QString PHISvgItem::svgDefaultSource()
 void PHISvgItem::ideInit()
 {
     _textData.setText( svgDefaultSource() );
+    Q_ASSERT( _renderer );
+    _renderer->load( svgDefaultSource().toLatin1() );
+    if ( _renderer->isValid() ) resize( QSizeF( _renderer->defaultSize() ) );
+    update();
 }
 
 void PHISvgItem::ideUpdateData()
@@ -164,9 +169,13 @@ void PHISvgItem::saveItemData( QDataStream &out, int version )
 void PHISvgItem::initWidget()
 {
     _renderer=new QSvgRenderer( this );
-    _renderer->load( data( DSvgSource ).toByteArray() );
-    if ( _renderer->isValid() ) resize( QSizeF( _renderer->defaultSize() ) );
-    update();
+}
+
+QScriptValue PHISvgItem::text( const QScriptValue &v )
+{
+    if ( !v.isValid() ) return realText();
+    setText( v.toString() );
+    return self();
 }
 
 QImage PHISvgItem::graphicImage( const QByteArray &source ) const
@@ -230,7 +239,18 @@ void PHISvgItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scrip
         htmlBase( req, out, script );
         out+=BL( "\">\n" )+data( DSvgSource ).toByteArray()+'\n'+indent+BL( "</div>\n" );
         script+=BL( "jQuery('#" )+id()+BL( " svg').css({width:'100%',height:'100%'});\n" );
-    } else htmlImg( req, out, script, indent );
+        htmlInitItem( script );
+    } else {
+        htmlImg( req, out, script, indent );
+    }
+}
+
+void PHISvgItem::clientInitData()
+{
+    Q_ASSERT( _renderer );
+    _renderer->load( realText().toUtf8() );
+    if ( _renderer->isValid() ) resize( QSizeF( _renderer->defaultSize() ) );
+    update();
 }
 
 void PHISlideShowItem::ideInit()
@@ -316,16 +336,21 @@ QScriptValue PHISlideShowItem::display( const QScriptValue &c )
 
 void PHISlideShowItem::paint( QPainter *painter, const QRectF &exposed )
 {
-    if ( !realImages().count() ) {
+    const PHIImageHash hash=realImages();
+    if ( !hash.count() ) {
         return PHIAbstractImageBookItem::paint( painter, exposed );
+    }
+    if ( !hash.value( "0" ).isNull() && hash.value( "1" ).isNull() ) {
+        painter->drawImage( rect(), hash.value( "0" ) );
+        return;
     }
     painter->setRenderHint( QPainter::Antialiasing, false );
     painter->setRenderHint( QPainter::SmoothPixmapTransform, true );
     QImage img1, img2;
     int next=currentImageNum()+1;
-    if ( next>=realImages().count() ) next=0;
-    img1=realImages().value( QByteArray::number( currentImageNum() ) );
-    img2=realImages().value( QByteArray::number( next ) );
+    if ( next>=hash.count() ) next=0;
+    img1=hash.value( QByteArray::number( currentImageNum() ) );
+    img2=hash.value( QByteArray::number( next ) );
     painter->setOpacity( currentOpacity() );
     if ( !img1.isNull() ) painter->drawImage( rect(), img1 );
     painter->setOpacity( 1.-currentOpacity() );
@@ -334,15 +359,18 @@ void PHISlideShowItem::paint( QPainter *painter, const QRectF &exposed )
 
 void PHISlideShowItem::updateImages()
 {    
-    if ( !_pauseTimer || !_fadeTimer ) return;
+    if ( !isClientItem() ) return;
+    Q_ASSERT( _fadeTimer );
+    Q_ASSERT( _pauseTimer );
     _fadeTimer->stop();
     _pauseTimer->stop();
     _pauseTimer->setInterval( realFadeIntervalMS() );
     setCurrentImageNum( 0 );
     setStep( 50./static_cast<qreal>(realFadeTimeMS()) );
-    if ( !isIdeItem() && realImages().count()>1 ) {
+    if ( !realImages().value( "0" ).isNull() && !realImages().value( "1" ).isNull() ) {
         _pauseTimer->start();
     }
+    update();
 }
 
 void PHISlideShowItem::squeeze()
@@ -529,19 +557,23 @@ void PHICanvasItem::slotSizeChanged( const QSizeF &s )
 QScriptValue PHICanvasItem::getContext( const QScriptValue &v )
 {
     if ( v.toString().toUpper()!=L1( "2D" ) ) return QScriptValue( QScriptValue::UndefinedValue );
-    QScriptEngine *e=page()->scriptEngine();
-    if ( !e ) return QScriptValue( QScriptValue::UndefinedValue );
+    if ( !scriptEngine() || isImage() ) return QScriptValue( QScriptValue::UndefinedValue );
     if ( !_ctx2D ) {
+        if ( data( DIsImage ).toBool() ) return QScriptValue( QScriptValue::UndefinedValue );
         setDirtyFlag( DFCustom1 ); // if referenced in ServerScript we create an image
         _ctx2D=new PHIContext2D( this );
         _ctx2D->setSize( realSize().toSize() );
-        if ( isServerItem() ) _ctx2D->setServerMode();
+        if ( isServerItem() ) {
+            _ctx2D->setServerMode();
+            setData( DIsImage, true );
+        }
         connect( _ctx2D, &PHIContext2D::changed, this, &PHICanvasItem::setImage );
         connect( this, &PHIBaseItem::sizeChanged, this, &PHICanvasItem::slotSizeChanged );
-        qScriptRegisterMetaType( e, domRectToScriptValue, domRectFromScriptValue );
-        qScriptRegisterMetaType( e, canvasGradientToScriptValue, canvasGradientFromScriptValue );
+        // @todo: move to script object in server and client:
+        qScriptRegisterMetaType( scriptEngine(), domRectToScriptValue, domRectFromScriptValue );
+        qScriptRegisterMetaType( scriptEngine(), canvasGradientToScriptValue, canvasGradientFromScriptValue );
     }
-    return context2DToScriptValue( e, _ctx2D );
+    return context2DToScriptValue( scriptEngine(), _ctx2D );
 }
 
 void PHICanvasItem::phisCreateData( const PHIDataParser &parser )
@@ -569,18 +601,18 @@ void PHICanvasItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
         QByteArray arr=data( DCanvasSource ).toByteArray();
         if ( !arr.isEmpty() ) script+=arr+'\n';
     } else { // we try to create an image from script
-        QScriptEngine *engine=page()->scriptEngine();
-        if ( !engine ) return;
+        if ( !scriptEngine() ) return;
         QString t=realText();
         if ( t.isEmpty() ) return;
-        qScriptRegisterMetaType( engine, domRectToScriptValue, domRectFromScriptValue );
-        qScriptRegisterMetaType( engine, canvasGradientToScriptValue, canvasGradientFromScriptValue );
-        QScriptValue res=page()->scriptEngine()->evaluate( t );
+        // @todo: move to script object in server and client:
+        qScriptRegisterMetaType( scriptEngine(), domRectToScriptValue, domRectFromScriptValue );
+        qScriptRegisterMetaType( scriptEngine(), canvasGradientToScriptValue, canvasGradientFromScriptValue );
+        QScriptValue res=scriptEngine()->evaluate( t );
         if ( Q_UNLIKELY( res.isError() ) ) {
-            QStringList list=engine->uncaughtExceptionBacktrace();
+            QStringList list=scriptEngine()->uncaughtExceptionBacktrace();
             QString tmp=tr( "Parse error in canvas '%1' in page '%2', line: %3" )
                 .arg( name() ).arg( req->canonicalFilename() )
-                .arg( engine->uncaughtExceptionLineNumber() )+
+                .arg( scriptEngine()->uncaughtExceptionLineNumber() )+
                 QString::fromLatin1( PHI::nl() )+res.toString();
             tmp+=QString::fromLatin1( PHI::nl()+PHI::nl() )+list.join( QString::fromLatin1( PHI::nl() ) );
             req->responseRec()->log( PHILOGERR, PHIRC_SCRIPT_PARSE_ERROR, tmp );
@@ -590,6 +622,11 @@ void PHICanvasItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
         setImagePath( imgid );
         return htmlImg( req, out, script, indent );
     }
+}
+
+void PHICanvasItem::clientInitData()
+{
+    update();
 }
 
 QSizeF PHISponsorItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const

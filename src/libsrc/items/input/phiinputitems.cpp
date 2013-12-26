@@ -62,6 +62,7 @@ QSizeF PHILineEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint )
 
 void PHILineEditItem::setReadOnly( bool b )
 {
+    qDebug() << "setReadOnly" << b;
     PHIBaseItem::setReadOnly( b );
     QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
     if ( !edit ) return;
@@ -132,6 +133,13 @@ void PHILineEditItem::setPlaceholder( const QString &t )
     QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
     if ( !edit ) return;
     edit->setPlaceholderText( t );
+}
+
+QScriptValue PHILineEditItem::placeholder( const QScriptValue &v )
+{
+    if ( !v.isValid() ) return realPlaceholder();
+    setPlaceholder( v.toString() );
+    return self();
 }
 
 void PHIPhoneItem::initWidget()
@@ -376,6 +384,12 @@ void PHISubmitButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArr
     }
     out+=BL( "\">\n" );
     htmlInitItem( script );
+}
+
+void PHISubmitButtonItem::click( const QGraphicsSceneMouseEvent *e )
+{
+    Q_UNUSED( e )
+    emit submitClicked( realValue() );
 }
 
 void PHIResetButtonItem::ideInit()

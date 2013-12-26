@@ -42,6 +42,9 @@ public:
     void setPlaceholder( const QString &t );
     QString realPlaceholder() const { return QString::fromUtf8( data( DPlaceholder ).toByteArray() ); }
 
+public slots:
+    QScriptValue placeholder( const QScriptValue &v=QScriptValue() );
+
 protected:
     virtual void setReadOnly( bool b );
     virtual void initWidget();
@@ -238,6 +241,7 @@ protected:
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual PHIBooleanData* readOnlyData() { return 0; }
+    virtual void click( const QGraphicsSceneMouseEvent *e );
 };
 
 class PHIResetButtonItem : public PHISubmitButtonItem

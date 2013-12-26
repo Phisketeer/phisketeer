@@ -30,6 +30,7 @@
 #include "phiabstractitems.h"
 #include "phiascriptobjects.h"
 #include "phiaappwindow.h"
+#include "phiimagerequest.h"
 
 PHIAGraphicsScene::PHIAGraphicsScene( QObject *parent )
     : PHIGraphicsScene( parent ), _reply( 0 ), _engine( 0 )
@@ -69,7 +70,7 @@ void PHIAGraphicsScene::setUrl( const QUrl &url )
     connect( _reply, &QNetworkReply::metaDataChanged, this, &PHIAGraphicsScene::slotMetaDataChanged );
     connect( _reply, &QNetworkReply::readyRead, this, &PHIAGraphicsScene::slotDataAvailable );
     connect( _reply, &QNetworkReply::finished, this, &PHIAGraphicsScene::slotReplyFinished );
-    emit webView()->statusBarMessage( _requestedUrl.toString(), 30000 );
+    emit webView()->statusBarMessage( _reply->url().toString(), 30000 );
     emit webView()->loading( true );
     slotDataAvailable();
 }
@@ -137,9 +138,24 @@ void PHIAGraphicsScene::slotDataAvailable()
                 emit page()->documentSizeChanged();
                 if ( page()->flags() & PHIBasePage::FPageLeftAlign ) setAlignment( Qt::AlignLeft | Qt::AlignTop );
                 else setAlignment( Qt::AlignHCenter | Qt::AlignTop );
+                page()->setBaseUrl( _reply->url() );
                 setBackgroundBrush( page()->backgroundColor() );
                 emit titleChanged( page()->title() );
                 emit iconChanged( QIcon( QPixmap::fromImage( page()->favicon() ) ) );
+                if ( !page()->bgImageUrl().isEmpty() ) {
+                    QUrl url=page()->baseUrl();
+                    if ( page()->bgImageUrl().startsWith( QLatin1Char( '/' ) ) ) {
+                        url.setPath( page()->bgImageUrl() );
+                    } else {
+                        url.setPath( L1( "/phi.phis" ) );
+                        QUrlQuery query;
+                        query.addQueryItem( L1( "i" ), page()->bgImageUrl() );
+                        query.addQueryItem( L1( "t" ) , L1( "1" ) );
+                        url.setQuery( query );
+                    }
+                    PHIImageRequest *req=new PHIImageRequest( this, url );
+                    connect( req, &PHIImageRequest::imageReady, this, &PHIAGraphicsScene::slotBgImageReady );
+                }
                 _readingType=RTItemSize;
             } else break;
         }
@@ -168,6 +184,11 @@ void PHIAGraphicsScene::slotDataAvailable()
                 }
                 PHIAbstractLayoutItem *l=qobject_cast<PHIAbstractLayoutItem*>(it);
                 if ( l ) _layouts.append( l );
+                PHIAbstractInputItem *ii=qobject_cast<PHIAbstractInputItem*>(it);
+                if ( ii ) {
+                    connect( ii, &PHIAbstractInputItem::submitClicked, this, &PHIAGraphicsScene::slotSubmitForm );
+                    connect( ii, &PHIAbstractInputItem::resetClicked, this, &PHIAGraphicsScene::slotResetForm );
+                }
                 _readingType=RTItemSize;
             } else break;
         }
@@ -186,7 +207,6 @@ void PHIAGraphicsScene::slotReplyFinished()
 
 void PHIAGraphicsScene::init()
 {
-    qDebug() << "initItems" << _layouts.count();
     emit pagePaletteChanged( page()->phiPalette() );
     emit pageFontChanged( page()->font() );
     foreach( PHIAbstractLayoutItem *l, _layouts ) l->activateLayout();
@@ -197,11 +217,22 @@ void PHIAGraphicsScene::init()
     PHIAAppWindow *appwin=qobject_cast<PHIAAppWindow*>(webView()->parent());
     // we need the menu bar object of the main window to initialize the menu for scripting
     if ( appwin ) new PHIAScriptMenuObj( webView(), appwin->menuBar() );
-    qDebug( "evaluate script" );
+    qDebug( "evaluating script" );
     QString script=page()->javascript();
     if ( _engine->canEvaluate( script ) ) {
         QScriptValue doc=_engine->evaluate( script );
-        if ( doc.isError() ) webView()->throwJavaScriptError( doc );
+        if ( doc.isError() ) {
+            webView()->throwJavaScriptError( doc );
+            qDebug() << doc.toString();
+        } else {
+            QScriptValue onload=_engine->globalObject().property( L1( "phi" ) ).property( L1( "onload" ) );
+            if ( onload.isFunction() ) doc=onload.call();
+            else if ( onload.isString() ) doc=_engine->evaluate( onload.toString() );
+            if ( doc.isError() ) {
+                webView()->throwJavaScriptError( doc );
+                qDebug() << doc.toString();
+            }
+        }
     } else {
         emit webView()->javaScriptConsoleMessage( tr( "Could not evaluate JavaScript." ), 0, _requestedUrl.toString() );
     }
@@ -213,7 +244,7 @@ void PHIAGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
     if ( page()->flags() & PHIBasePage::FUseBgImage ) {
         QPointF off=QPointF( page()->bgImageXOff(), page()->bgImageYOff() );
         quint8 opts=page()->bgImageOptions();
-        if ( opts & PHIBasePage::IFixed ) off+=views().first()->mapToScene( QPoint( 50, 50 ) );
+        if ( opts & PHIBasePage::IFixed ) off+=views().first()->mapToScene( QPoint() );
         QImage img=page()->bgImage();
         if ( !img.isNull() ) {
             QRectF r=sceneRect();
@@ -238,14 +269,20 @@ void PHIAGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )
     }
 }
 
+void PHIAGraphicsScene::slotBgImageReady( const QImage &img )
+{
+    page()->setBgImage( img );
+}
+
 void PHIAGraphicsScene::slotSubmitForm( const QString &buttonId )
 {
-    Q_UNUSED( buttonId )
+    qDebug() << "submit clicked" << buttonId;
 }
 
 void PHIAGraphicsScene::slotResetForm()
 {
-
+    const QList<PHIBaseItem*> items=page()->items();
+    foreach ( PHIBaseItem *it, items ) it->reset();
 }
 
 void PHIAGraphicsScene::slotRequestPrint()

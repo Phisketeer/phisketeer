@@ -97,7 +97,7 @@ public:
         DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31,
         DImagePath=-32, DImagePathes=-33, DIEFilter=-34, DAdjustedRect=-35, DEventFunctions=-36,
         DDragDropOptions=-37, DOneEventFunctions=-38, DAnimSizePolicy=-39,
-        DAnimOrgGeometry=-40 };
+        DAnimOrgGeometry=-40, DIsImage=-41 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
@@ -120,12 +120,10 @@ public:
     typedef quint32 DirtyFlags;
 #endif
     /*
-    enum Widget {
         FILE_BUTTON=9, IMAGE_BUTTON=12,
-        LINE=15
-        LINK=23, TAB=24, TEXT=29,
+        LINK=23, TEXT=29,
         LANG_SELECTOR=33, LAYOUT_DELIVERY=35,
-        RICH_TEXT=41, IMAGE_BOOK=45
+        RICH_TEXT=41
     */
     explicit PHIBaseItem( const PHIBaseItemPrivate &p );
     PHIBaseItem( const PHIBaseItem &it );
@@ -299,6 +297,7 @@ public slots: // usable by script engine
     inline QScriptValue hide() { setVisible( false ); return self(); }
     inline QScriptValue show() { setVisible( true ); return self(); }
     inline QScriptValue clearEffects() { _effect->clearAll(); updateEffect(); return self(); }
+    inline bool isImage() const { return data( DIsImage, false ).toBool(); qDebug() << "isIm" << data( DIsImage, false ); }
 
     virtual PHIWID wid() const=0;
     virtual QScriptValue width( const QScriptValue &v=QScriptValue() );
@@ -370,6 +369,7 @@ protected:
     virtual void clientInitData() {}
     virtual void updatePageFont( const QFont &font );
     virtual void paintHighlight( QPainter *painter );
+    virtual void reset() {}
     virtual void checkForDragInMousePressEvent( QGraphicsSceneMouseEvent *e );
     virtual void checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e );
     virtual void checkDragEnterEvent( QGraphicsSceneDragDropEvent *e );
@@ -379,6 +379,19 @@ protected:
     inline bool dragMoveAction() const { return dragDropOptions() & DDMoveAction; }
     inline int dragDistance() const { return data( DDragDistance, PHI::defaultDragDistance() ).toInt(); }
     inline qreal dragOpacity() const { return data( DDragOpacity, 1. ).toReal(); }
+
+    virtual void mousedown( const QGraphicsSceneMouseEvent *e ) { Q_UNUSED( e ) }
+    virtual void mouseup( const QGraphicsSceneMouseEvent *e ) { Q_UNUSED( e ) }
+    virtual void mouseover( const QGraphicsSceneHoverEvent *e ) { Q_UNUSED( e ) }
+    virtual void mouseout( const QGraphicsSceneHoverEvent *e ) { Q_UNUSED( e ) }
+    virtual void mousemove( const QGraphicsSceneHoverEvent *e ) { Q_UNUSED( e ) }
+    virtual void click( const QGraphicsSceneMouseEvent *e ) { Q_UNUSED( e ) }
+    virtual void dblclick( const QGraphicsSceneMouseEvent *e ) { Q_UNUSED( e ) }
+    virtual void focus( const QFocusEvent *e ) { Q_UNUSED( e ) }
+    virtual void blur( const QFocusEvent *e ) { Q_UNUSED( e ) }
+    virtual void keyup( const QKeyEvent *e ) { Q_UNUSED( e ) }
+    virtual void keydown( const QKeyEvent *e ) { Q_UNUSED( e ) }
+    virtual void keypress( const QKeyEvent *e ) { Q_UNUSED( e ) }
 
     // HTML & server related members
     virtual void phisParseData( const PHIDataParser &parser ); // HTML
@@ -441,7 +454,6 @@ signals:
     void posChanged( const QPointF &pos );
     void sizeChanged( const QSizeF &size );
     void javaScriptError( const QScriptValue &err );
-    void itemClicked();
 
     // IDE related signals
     void pushUndoStack( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newColor );
@@ -636,103 +648,5 @@ inline QByteArray PHIBaseItem::cssImageIEFilter( const QByteArray &imgId, bool a
     } else _variants.insert( DIEFilter, tmp );
     return tmp;
 }
-
-/*
-class PHIEXPORT PHIBaseItem : public QObject, public PHIItem
-{
-    Q_OBJECT
-    Q_DISABLE_COPY( PHIBaseItem )
-
-    Q_PROPERTY( QString value WRITE setValue READ value )
-    Q_PROPERTY( QString imageId WRITE setImageId READ imageId )
-    Q_PROPERTY( QString label WRITE setLabel READ label )
-    Q_PROPERTY( QStringList pictureBookIds WRITE setPictureBookIds READ pictureBookIds )
-    Q_PROPERTY( qint32 fontSize WRITE setFontSize READ fontSize )
-    Q_PROPERTY( quint8 align WRITE setAlignment READ alignment )
-    Q_PROPERTY( quint32 fadeTime WRITE setFadeTime READ fadeTime )
-    Q_PROPERTY( quint32 fadeInterval WRITE setFadeInterval READ fadeInterval )
-
-    //friend class PHIBaseStyle;
-    friend PHIEXPORT QDataStream& operator<<( QDataStream&, const PHIBaseItem* );
-    friend PHIEXPORT QDataStream& operator>>( QDataStream&, PHIBaseItem* );
-
-public: //not useable by script engine
-    virtual QGradient gradient() const;
-
-    inline PHIRectHash gridLayoutInfo() const { return _variants.value( DGridLayoutInfo ).value<PHIRectHash>(); }
-    inline quint8 dragHotSpotType() const { return _variants.value( DDragHotSpotType, 0 ).value<quint8>(); }
-    inline QPoint dragHotSpot() const { return _variants.value( DDragHotSpot, PHI::defaultHotSpot() ).toPoint(); }
-
-    //set by PHIEffects
-
-    //misc
-    inline virtual void resetItem() {;}
-    inline virtual qint32 fontSize() const { return font().pointSize(); }
-    inline virtual void setFontSize( qint32 ps ) { QFont f=font(); f.setPointSize( ps ); setFont( f ); }
-
-    // functions offered by style property
-    inline virtual QColor rolloverTextColor() const {
-        return _variants.value( DRolloverTextColor, QColor() ).value<QColor>(); }
-    inline virtual QColor rolloverBackgroundColor() const {
-        return _variants.value( DRolloverBackgroundColor, QColor() ).value<QColor>(); }
-    inline virtual quint8 alignment() const { return _variants.value( DAlignment, 0 ).value<quint8>(); }
-
-    inline QByteArray cursor() const { return _variants.value( DCursor, QByteArray( "auto" ) ).toByteArray(); }
-    inline virtual void setCursor( const QByteArray &c ) { _variants.insert( DCursor, c ); }
-
-public slots: //useable by script engine
-    inline QString imageId() const {
-        return QString::fromUtf8( _variants.value( DImage ).toByteArray() ); }
-    inline virtual void setImageId( const QString &id ) { _variants.insert( DImage, id.toUtf8() ); }
-    inline QStringList pictureBookIds() const { return _variants.value( DImageBook ).toStringList(); }
-    inline virtual void setPictureBookIds( const QStringList &l ) { _variants.insert( DImageBook, l ); }
-
-    inline qint16 fadeTime() const { return _variants.value( DFadeTime, 2 ).value<qint16>(); }
-    inline virtual void setFadeTime( qint16 ft ) { _variants.insert( DFadeTime, ft ); }
-    inline virtual qint16 fadeInterval() const { return _variants.value( DFadeInterval, 4 ).value<qint16>(); }
-    inline virtual void setFadeInterval( qint16 fp ) { _variants.insert( DFadeInterval, fp ); }
-
-    inline bool droppable() const { return _attributes & ADroppable; }
-    inline virtual void setDropable( bool b ) { b ? _attributes |= ADroppable : _attributes &= ~ADroppable; }
-    inline bool draggable() const { return _attributes & ADraggable; }
-    inline virtual void setDragable( bool b ) { b ? _attributes |= ADraggable : _attributes &= ~ADraggable; }
-    inline qint16 dragHotSpotX() const { return _variants.value( DDragHotSpot, PHI::defaultHotSpot() ).toPoint().x(); }
-    inline qint16 dragHotSpotY() const { return _variants.value( DDragHotSpot, PHI::defaultHotSpot() ).toPoint().y(); }
-    inline virtual void setDragHotSpot( int x, int y ) { _variants.remove( DDragHotSpotType );
-        _variants.insert( DDragHotSpot, QPoint( x, y ) ); }
-    inline bool dragMoveAction() const {
-        return _variants.value( DDragDropOptions, 0 ).value<qint32>() & DDMoveAction; }
-    inline virtual void setDragMoveAction( bool b ) {
-        qint32 o=_variants.value( DDragDropOptions, 0 ).value<qint32>();
-        b ? o |= DDMoveAction : o &= ~DDMoveAction; _variants.insert( DDragDropOptions, o ); }
-    inline bool dragRevertOnIgnore() const {
-        return _variants.value( DDragDropOptions, 0 ).value<qint32>() & DDRevertOnIgnore; }
-    inline virtual void setDragRevertOnIgnore( bool b ) {
-        qint32 o=_variants.value( DDragDropOptions, 0 ).value<qint32>();
-        b ? o |= DDRevertOnIgnore : o &= ~DDRevertOnIgnore; _variants.insert( DDragDropOptions, o ); }
-    inline bool dragRevertOnAccept() const {
-        return _variants.value( DDragDropOptions, 0 ).value<qint32>() & DDRevertOnAccept; }
-    inline virtual void setDragRevertOnAccept( bool b ) {
-        qint32 o=_variants.value( DDragDropOptions, 0 ).value<qint32>();
-        b ? o |= DDRevertOnAccept : o &= ~DDRevertOnAccept; _variants.insert( DDragDropOptions, o ); }
-    inline qreal dragDistance() const {
-        return _variants.value( DDragDistance, PHI::defaultDragDistance() ).toReal(); }
-    inline virtual void setDragDistance( qreal d ) { _variants.insert( DDragDistance, d ); }
-    inline QStringList dropAcceptedIds() const { return _variants.value( DDropAcceptedIds ).toStringList(); }
-    inline virtual void setDropAcceptedIds( const QStringList &list ) { _variants.insert( DDropAcceptedIds, list ); }
-    inline void setDragOpacity( qreal o ) { _variants.insert( DDragOpacity, qBound( 0., o, 1. ) ); }
-    inline qreal dragOpacity() const { return _variants.value( DDragOpacity, 1. ).toReal(); }
-    inline bool dropHighlightItem() const {
-        return _variants.value( DDragDropOptions, 0 ).value<qint32>() & DDHighlightOnMouseOver; }
-    inline virtual void setDropHighlightItem( bool b ) {
-        qint32 o=_variants.value( DDragDropOptions, 0 ).value<qint32>();
-        b ? o |= DDHighlightOnMouseOver : o &= ~DDHighlightOnMouseOver;
-        _variants.insert( DDragDropOptions, o ); }
-
-protected:
-    PHIEffect *_effect;
-    QByteArray _pageId;
-};
-*/
 
 #endif // PHIBASEITEM_H

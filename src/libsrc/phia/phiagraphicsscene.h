@@ -58,6 +58,7 @@ private slots:
     void slotDataAvailable();
     void slotReplyFinished();
     void slotMetaDataChanged();
+    void slotBgImageReady( const QImage &img );
 
 private:
     QNetworkReply *_reply;

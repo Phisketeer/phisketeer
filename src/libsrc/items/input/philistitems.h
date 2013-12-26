@@ -87,6 +87,9 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/listbox" ) ); }
     virtual void ideInit();
 
+public slots:
+    virtual QScriptValue val( const QScriptValue &v ) { Q_UNUSED( v ) return self(); }
+
 protected:
     virtual void initWidget();
     inline virtual bool isSingleLine() const { return false; }
