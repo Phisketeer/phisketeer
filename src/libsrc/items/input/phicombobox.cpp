@@ -54,7 +54,9 @@ void PHIComboBox::showPopup()
             defAct=act;
         }
     }
-    QPoint pos=view->mapFromScene( _it->realX(), _it->realY() );
+    QPoint pos;
+    if ( _it->isChild() ) pos=view->mapFromScene( _it->graphicsWidget()->mapToScene( QPointF() ) );
+    else pos=view->mapFromScene( _it->realX(), _it->realY() );
     pos=view->mapToGlobal( pos );
     defAct=_menu->exec( pos, defAct );
     if ( defAct ) setCurrentIndex( defAct->data().toInt() );

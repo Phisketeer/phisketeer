@@ -276,8 +276,11 @@ void PHISHttp::readyRead()
                     sendError( PHIRC_HTTP_BAD_REQUEST, tmp );
                     return;
                 }
+                // qDebug() << "Contenttype" << _req->contentType();
                 _content=MultipartEncoded;
                 _boundary="--"+_req->contentType().mid( _req->contentType().indexOf( QLatin1Char( '=' ) )+1 ).toLatin1();
+                if ( _boundary.size()>2 && _boundary.at( 2 )=='"' ) _boundary.remove( 2, 1 );
+                if ( _boundary.endsWith( '"' ) ) _boundary.chop( 1 );
                 _addPart=_readPart=false;
                 _tmpFile=0;
             } else if ( _req->contentType().startsWith( L1( "application/x-www-form-urlencoded" ) ) ) {
@@ -296,7 +299,6 @@ void PHISHttp::readyRead()
                 return;
             }
         }
-        // qDebug( "ContentLength %lld", _requestInfo.contentLength() );
     }
 
     if ( _bytesDone<_req->contentLength() ) { //read data after HTTP header
@@ -348,14 +350,13 @@ PHIRC PHISHttp::readUrlEncoded( QString &err )
 
 PHIRC PHISHttp::readMultipartEncoded( QString &err )
 {
-    // qDebug( "readMultipartEncoded %lld\n<%s>", _requestInfo.contentLength(), _boundary.constData() );
+    //qDebug( "readMultipartEncoded <%s>", _boundary.constData() );
     QByteArray arr;
     _headerStr=QString();
 
     while ( _socket->canReadLine() ) {
         arr=_socket->readLine();
         _bytesDone+=arr.length();
-        //qDebug( "_bytesDone %lld %lld (%s)", _bytesDone, _socket->bytesAvailable(), qPrintable( _req->url().toString() ) );
         if ( arr.startsWith( _boundary ) ) {
             _newPart=true;
             _readPart=false;
@@ -375,16 +376,16 @@ PHIRC PHISHttp::readMultipartEncoded( QString &err )
             continue;
         }
         if ( _newPart ) {
-            if ( arr.startsWith( "Content-Disposition:" ) ) {
+            if ( arr.startsWith( BL( "Content-Disposition:" ) ) ) {
                 arr=arr.mid( arr.indexOf( '"' )+1 );
                 _name=arr.left( arr.indexOf( '"' ) );
-                _contentEntity="";
-                if ( arr.contains( "filename=" ) ) {
-                    arr=arr.mid( arr.indexOf( "filename=" )+10 );
+                _contentEntity=QByteArray();
+                if ( arr.contains( BL( "filename=" ) ) ) {
+                    arr=arr.mid( arr.indexOf( BL( "filename=" ) )+10 );
                     QByteArray filename=arr.left( arr.indexOf( '"' ) );
                     if ( !filename.isEmpty() ) {
                         qDebug( "filename=<%s>", filename.constData() );
-                        _tmpFile=new QTemporaryFile( phiApp->tmpPath()+L1( "/phiXXXXXX" ), this );
+                        _tmpFile=new QTemporaryFile( phiApp->tmpPath()+SL( "/phiXXXXXX" ), this );
                         // _tmpFile->setAutoRemove( false );
                         _tmpFile->setObjectName( QString::fromUtf8( filename ) );
                         if ( !_tmpFile->open() ) {
@@ -395,10 +396,9 @@ PHIRC PHISHttp::readMultipartEncoded( QString &err )
                         }
                     }
                 }
-                // qDebug( "name=%s", _name.constData() );
                 continue;
             }
-            if ( arr=="\r\n" || arr=="\n" || arr.isEmpty() ) {
+            if ( arr==BL( "\r\n" ) || arr==BL( "\n" ) || arr.isEmpty() ) {
                 _readPart=true;
                 _newPart=false;
                 _addPart=true;

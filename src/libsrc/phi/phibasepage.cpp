@@ -591,8 +591,12 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         it->html( req, out, script, indent );
     }
     if ( _flags & FHasAction ) {
-        out+=indent+BL( "<input type=\"hidden\" name=\"phisid\" value=\"" )
-            +_variants.value( DSession ).toByteArray()+BL( "\">\n</form>\n" );
+        if ( !(_flags & FHasPhiLang) && currentLang()!=BL( "C" ) )
+            out+=indent+BL( "<input type=\"hidden\" name=\"philang\" value=\"" )+currentLang()+BL( "\">\n" );
+        if ( _variants.value( DSession ).isValid() )
+            out+=indent+BL( "<input type=\"hidden\" name=\"phisid\" value=\"" )
+                +_variants.value( DSession ).toByteArray()+BL( "\">\n" );
+        out+=BL( "</form>\n" );
     }
     out+=BL( "</div>\n<script type=\"text/javascript\">\n/* <![CDATA[ */\n" );
     out+=BL( "var phi=new Phi('" )+_currentLang+BL( "','" )

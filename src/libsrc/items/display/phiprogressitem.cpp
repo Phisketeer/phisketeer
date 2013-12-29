@@ -60,3 +60,10 @@ void PHIProgressItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
     out+=BL( "\"></div>\n" );
     htmlInitItem( script );
 }
+
+QScriptValue PHIProgressItem::progress( const QScriptValue &v )
+{
+    if ( !v.isValid() ) return realProgress();
+    setProgress( qBound( 0, v.toInt32(), 100 ) );
+    return self();
+}

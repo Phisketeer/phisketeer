@@ -22,6 +22,8 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QGraphicsView>
+#include <QHttpMultiPart>
+#include <QHttpPart>
 #include "phiagraphicsscene.h"
 #include "phibasepage.h"
 #include "phiawebview.h"
@@ -51,10 +53,11 @@ PHIAWebView* PHIAGraphicsScene::webView() const
 
 void PHIAGraphicsScene::abort()
 {
-    if ( !_reply ) return;
-    _reply->abort();
-    _reply->deleteLater();
-    _reply=0;
+    if ( _reply ) {
+        _reply->abort();
+        _reply->deleteLater();
+        _reply=0;
+    }
 }
 
 void PHIAGraphicsScene::setUrl( const QUrl &url )
@@ -135,6 +138,7 @@ void PHIAGraphicsScene::slotDataAvailable()
             if ( length >= size ) {
                 length-=size;
                 page()->load( in, static_cast<qint32>(_version), true );
+                qDebug() << "page loaded" << page()->id();
                 emit page()->documentSizeChanged();
                 if ( page()->flags() & PHIBasePage::FPageLeftAlign ) setAlignment( Qt::AlignLeft | Qt::AlignTop );
                 else setAlignment( Qt::AlignHCenter | Qt::AlignTop );
@@ -188,6 +192,7 @@ void PHIAGraphicsScene::slotDataAvailable()
                 if ( ii ) {
                     connect( ii, &PHIAbstractInputItem::submitClicked, this, &PHIAGraphicsScene::slotSubmitForm );
                     connect( ii, &PHIAbstractInputItem::resetClicked, this, &PHIAGraphicsScene::slotResetForm );
+                    connect( ii, &PHIAbstractInputItem::langChangeRequested, this, &PHIAGraphicsScene::slotLangChangeRequested );
                 }
                 _readingType=RTItemSize;
             } else break;
@@ -201,6 +206,7 @@ void PHIAGraphicsScene::slotReplyFinished()
     QUrl url=_reply->attribute( QNetworkRequest::RedirectionTargetAttribute ).toUrl();
     if ( url.isValid() ) return setUrl( url );
     if ( _reply->error()==QNetworkReply::NoError ) init();
+    else qDebug() << _reply->errorString();
     _reply->deleteLater();
     _reply=0;
 }
@@ -276,13 +282,78 @@ void PHIAGraphicsScene::slotBgImageReady( const QImage &img )
 
 void PHIAGraphicsScene::slotSubmitForm( const QString &buttonId )
 {
-    qDebug() << "submit clicked" << buttonId;
+    QScriptValue phi=_engine->globalObject().property( L1( "phi" ) );
+    Q_ASSERT( phi.isValid() );
+    QScriptValue res, func=phi.property( L1( "onsubmit" ) );
+    if ( func.isFunction() ) res=func.call( phi );
+    if ( res.isValid() && res.isBool() ) { if ( res.toBool()==false ) return; }
+    else if ( res.isError() ) emit webView()->throwJavaScriptError( res );
+    if ( page()->action().isEmpty() ) return;
+    QString submitValue;
+
+    QNetworkAccessManager *nam=webView()->networkAccessManager();
+    QHttpMultiPart *multiPart=new QHttpMultiPart( QHttpMultiPart::FormDataType );
+    const QList <PHIBaseItem*> list=page()->items();
+    foreach ( PHIBaseItem *it, list ) {
+        PHIAbstractInputItem *input=qobject_cast<PHIAbstractInputItem*>(it);
+        if ( input ) {
+            input->clientPostData( multiPart );
+            if ( input->name()==buttonId ) submitValue=input->realValue();
+        }
+    }
+    if ( !buttonId.isEmpty() ) {
+        QHttpPart part;
+        part.setHeader( QNetworkRequest::ContentTypeHeader, BL( "text/plain" ) );
+        part.setHeader( QNetworkRequest::ContentDispositionHeader, BL( "form-data; name=\"" )+buttonId.toUtf8()+'"' );
+        part.setBody( submitValue.toUtf8() );
+        multiPart->append( part );
+    }
+    if ( !page()->session().isEmpty() ) {
+        QHttpPart part;
+        part.setHeader( QNetworkRequest::ContentTypeHeader, BL( "text/plain" ) );
+        part.setHeader( QNetworkRequest::ContentDispositionHeader, BL( "form-data; name=\"phisid\"" ) );
+        part.setBody( page()->session().toUtf8() );
+        multiPart->append( part );
+    }
+    if ( !(page()->flags() & PHIBasePage::FHasPhiLang) && !page()->currentLang().isEmpty() ) {
+        QHttpPart part;
+        part.setHeader( QNetworkRequest::ContentTypeHeader, BL( "text/plain" ) );
+        part.setHeader( QNetworkRequest::ContentDispositionHeader, BL( "form-data; name=\"philang\"" ) );
+        part.setBody( page()->currentLang() );
+        multiPart->append( part );
+    }
+    QUrl url=PHI::createUrlForLink( _requestedUrl, page()->action() );
+    QNetworkRequest req( url );
+    if( _reply ) {
+        _reply->abort();
+        _reply->deleteLater();
+    }
+    _reply=nam->post( req, multiPart );
+    multiPart->setParent( _reply );
+    connect( _reply, &QNetworkReply::metaDataChanged, this, &PHIAGraphicsScene::slotMetaDataChanged );
+    connect( _reply, &QNetworkReply::readyRead, this, &PHIAGraphicsScene::slotDataAvailable );
+    connect( _reply, &QNetworkReply::finished, this, &PHIAGraphicsScene::slotReplyFinished );
+    emit webView()->statusBarMessage( _reply->url().toString(), 30000 );
+    emit webView()->loading( true );
+    _contentTypeChecked=false;
+    slotDataAvailable();
 }
 
-void PHIAGraphicsScene::slotResetForm()
+void PHIAGraphicsScene::slotResetForm( const QString &buttonId )
 {
+    Q_UNUSED( buttonId )
     const QList<PHIBaseItem*> items=page()->items();
     foreach ( PHIBaseItem *it, items ) it->reset();
+}
+
+void PHIAGraphicsScene::slotLangChangeRequested( const QString &lang )
+{
+    QUrl url=_requestedUrl;
+    QUrlQuery query( url );
+    query.removeQueryItem( L1( "philang" ) );
+    query.addQueryItem( L1( "philang" ), lang );
+    url.setQuery( query );
+    setUrl( url );
 }
 
 void PHIAGraphicsScene::slotRequestPrint()

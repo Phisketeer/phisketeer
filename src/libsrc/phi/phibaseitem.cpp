@@ -25,6 +25,8 @@
 #include <QEvent>
 #include <QGraphicsSceneEvent>
 #include <QMimeData>
+#include <QShortcut>
+#include <QComboBox>
 #include <math.h>
 #include "phibaseitem.h"
 #include "phibasepage.h"
@@ -353,6 +355,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     if ( property( "_label" ).isValid() ) setProperty( "_label", d.label() );
     if ( property( "_url" ).isValid() ) setProperty( "_url", d.url() );
     if ( property( "_accessKey" ).isValid() ) setProperty( "_accessKey", d.shortCut() );
+    if ( property( "_maxLength" ).isValid() ) setProperty( "_maxLength", d.maxSize() );
     if ( hasGradient() ) {
         QGradient g=d.gradient();
         if ( g.type()==QGradient::ConicalGradient ) setGradient( d.conicalGradient() );
@@ -440,7 +443,9 @@ void PHIBaseItem::setFont( const QFont &font )
 {
     if ( _type==PHIBaseItemPrivate::TTemplateItem ) return;
     QFont pf=QGuiApplication::font();
-    if ( !page() ) qWarning( "setFont: page not set" );
+#ifdef PHIDEBUG
+    if ( !page() ) qDebug( "setFont: page not set" );
+#endif
     if ( page() ) pf=page()->font();
     if ( pf==font ) {
         _variants.remove( DFont );
@@ -450,6 +455,10 @@ void PHIBaseItem::setFont( const QFont &font )
     }
     if ( _gw ) {
         pf.setPointSizeF( PHI::adjustedFontSize( font.pointSizeF() ) );
+#ifdef Q_OS_MAC
+        QComboBox *cb=qobject_cast<QComboBox*>(widget());
+        if ( cb ) pf.setPointSizeF( font.pointSizeF()*1.2 );
+#endif
         _gw->setFont( pf );
         //_gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
         //_height=_gw->size().height();
@@ -566,6 +575,18 @@ QPainterPath PHIBaseItem::shape() const
     return path;
 }
 */
+
+void PHIBaseItem::setAccessKey( const QString &s )
+{
+    setData( DAccessKey, s.left(1).toUtf8() );
+    if ( !widget() ) return;
+    QShortcut *scut=widget()->findChild<QShortcut*>( L1( "shortcut" ) );
+    if ( scut ) delete scut;
+    if ( realAccessKey().isEmpty() ) return;
+    scut=new QShortcut( QKeySequence( L1( "Alt+" )+realAccessKey() ), widget() );
+    scut->setObjectName( L1( "shortcut" ) );
+    connect( scut, &QShortcut::activated, this, &PHIBaseItem::accessKeyTriggered );
+}
 
 QSizeF PHIBaseItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
@@ -904,6 +925,8 @@ void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &
     if ( realOpacity()<1. ) script+=BL( "$('" )+_id+BL( "').opacity(" )
         +QByteArray::number( realOpacity(), 'f', 3 )+BL( ");\n" );
     if ( !realVisible() ) script+=BL( "$('" )+_id+BL( "').hide();\n" );
+    if ( !realAccessKey().isEmpty() ) script+=BL( "$('" )+_id+BL( "').accessKey('" )
+        +realAccessKey().toUtf8()+BL( "');\n" );
     out+=BL( " class=\"phi\" id=\"" )+_id;
     if ( _variants.value( DTitle ).isValid() ) out+=BL( "\" title=\"" )+_variants.value( DTitle ).toByteArray();
     out+=BL( "\" style=\"" );

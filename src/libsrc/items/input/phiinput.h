@@ -70,6 +70,7 @@ inline PHIBaseItem* PHIInput::create( PHIWID wid , const PHIBaseItemPrivate &p )
     case PHICalendarItem::Calendar: return new PHICalendarItem( p );
     case PHISelectCountryItem::CountrySelect: return new PHISelectCountryItem( p );
     case PHIResetButtonItem::ResetButton: return new PHIResetButtonItem( p );
+    case PHISelectLangItem::LangSelect: return new PHISelectLangItem( p );
     }
     return 0;
 }
@@ -99,6 +100,7 @@ inline PHIBaseItem* PHIInput::copy( const PHIBaseItem *it ) const
     case PHICheckListItem::CheckList: return new PHICheckListItem( *qobject_cast<const PHICheckListItem*>(it) );
     case PHISelectCountryItem::CountrySelect: return new PHISelectCountryItem( *qobject_cast<const PHISelectCountryItem*>(it) );
     case PHIResetButtonItem::ResetButton: return new PHIResetButtonItem( *qobject_cast<const PHIResetButtonItem*>(it) );
+    case PHISelectLangItem::LangSelect: return new PHISelectLangItem( *qobject_cast<const PHISelectLangItem*>(it) );
     }
     return 0;
 }
@@ -112,7 +114,7 @@ inline QStringList PHIInput::keys() const
         << SL( "select" ) << SL( "country" ) << SL( "listbox" )
         << SL( "phone" ) << SL( "calendar" ) << SL( "dateedit" )
         << SL( "hidden" ) << SL( "search" ) << SL( "dectable" )
-        << SL( "checklist" ) << SL( "rollover" );
+        << SL( "checklist" ) << SL( "rollover" ) << SL( "langselect" );
 }
 
 inline PHIWID PHIInput::wid( const QString &key ) const
@@ -139,6 +141,7 @@ inline PHIWID PHIInput::wid( const QString &key ) const
     if ( key==L1( "checklist" ) ) return PHICheckListItem::CheckList;
     if ( key==L1( "country" ) ) return PHISelectCountryItem::CountrySelect;
     if ( key==L1( "reset" ) ) return PHIResetButtonItem::ResetButton;
+    if ( key==L1( "langselect" ) ) return PHISelectLangItem::LangSelect;
     return 0;
 }
 

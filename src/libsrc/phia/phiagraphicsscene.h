@@ -33,6 +33,7 @@ class PHIAGraphicsScene : public PHIGraphicsScene
 public:
     enum ReadingType { RTHeader=0, RTPage=1, RTPageSize=2, RTItem=3, RTItemSize=4 };
     explicit PHIAGraphicsScene( QObject *parent );
+    virtual ~PHIAGraphicsScene() { abort(); }
 
     void setUrl( const QUrl &url );
     inline QUrl url() const { return _requestedUrl; }
@@ -42,7 +43,8 @@ public:
 
 public slots:
     void slotSubmitForm( const QString &buttonId );
-    void slotResetForm();
+    void slotResetForm( const QString &buttonId );
+    void slotLangChangeRequested( const QString &lang );
     void slotRequestPrint();
 
 protected:

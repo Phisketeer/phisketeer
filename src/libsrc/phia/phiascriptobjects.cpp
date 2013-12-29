@@ -74,7 +74,7 @@ PHIAScriptWindowObj::PHIAScriptWindowObj( PHIAWebView *view )
     _engine->globalObject().setProperty( SL( "window" ), win );
     QScriptValue doc=_engine->newQObject( _view->scene()->page(), PHIASCRIPTEXTENSION );
     win.setProperty( SL( "document" ), doc );
-    QScriptValue form=_engine->newQObject( new PHIAScriptFormsObj( _view ), PHIASCRIPTEXTENSION );
+    QScriptValue form=_engine->newQObject( new PHIAScriptFormsObj( _view->scene() ), PHIASCRIPTEXTENSION );
     doc.setProperty( SL( "phiform" ), form );
 
     QScriptValue loc=_engine->newQObject( new PHIAScriptLocationObj( _view ), PHIASCRIPTEXTENSION );
@@ -480,14 +480,14 @@ void ajaxObjFromScriptValue( const QScriptValue &val, PHIAScriptAjaxObj* &obj )
     obj=qobject_cast<PHIAScriptAjaxObj*>(val.toQObject());
 }
 
-PHIAScriptFormsObj::PHIAScriptFormsObj( PHIAWebView *view )
-    : QObject( view->scriptEngine() ), _view( view )
+PHIAScriptFormsObj::PHIAScriptFormsObj( PHIAGraphicsScene *scene )
+    : QObject( scene->scriptEngine() ), _scene( scene )
 {
     qDebug( "PHIAScriptFormsObj::PHIAScriptFormsObj()" );
-    connect( this, SIGNAL( submitRequest( const QString& ) ), _view->scene(),
-        SLOT( slotSubmitForm( const QString&) ), Qt::QueuedConnection );
-    connect( this, SIGNAL( resetRequest() ), _view->scene(), SLOT( slotResetForm() ), Qt::QueuedConnection );
-    connect( _view, SIGNAL( checkSubmit( const QString& ) ), this, SLOT( submit( const QString& ) ) );
+    connect( this, &PHIAScriptFormsObj::submitRequest, scene,
+        &PHIAGraphicsScene::slotSubmitForm, Qt::QueuedConnection );
+    connect( this, &PHIAScriptFormsObj::resetRequest, scene,
+        &PHIAGraphicsScene::slotResetForm, Qt::QueuedConnection );
 }
 
 PHIAScriptFormsObj::~PHIAScriptFormsObj()
@@ -497,23 +497,12 @@ PHIAScriptFormsObj::~PHIAScriptFormsObj()
 
 void PHIAScriptFormsObj::submit( const QString &buttonid )
 {
-    qDebug( "PHIAScriptFormsObj::submit()" );
-    QScriptValue phi=_view->scriptEngine()->globalObject().property( L1( "phi" ) );
-    if ( phi.isValid() ) {
-        QScriptValue func=phi.property( L1( "onsubmit" ) );
-        QScriptValue res;
-        if ( func.isFunction() ) res=func.call( phi );
-        else emit submitRequest( buttonid );
-        if ( res.isValid() && res.toBool() ) emit submitRequest( buttonid );
-        else if ( res.isError() ) {
-            _view->throwJavaScriptError( res );
-        }
-    } else submitRequest( buttonid );
+    emit submitRequest( buttonid );
 }
 
-void PHIAScriptFormsObj::reset()
+void PHIAScriptFormsObj::reset( const QString &buttonid )
 {
-    emit resetRequest();
+    emit resetRequest( buttonid );
 }
 
 PHIAScriptLocationObj::PHIAScriptLocationObj( PHIAWebView *view )
@@ -643,6 +632,7 @@ PHIAScriptMenuObj::PHIAScriptMenuObj( PHIAWebView *view, QMenuBar *menubar )
     Q_ASSERT( _view );
     Q_ASSERT( _engine );
     if ( !_menubar ) return;
+    _menubar->clear();
 
     QScriptValue phi=_engine->globalObject().property( L1( "phi" ) );
     QScriptValue m=_engine->newQObject( this, PHIASCRIPTEXTENSION );
@@ -653,8 +643,7 @@ PHIAScriptMenuObj::PHIAScriptMenuObj( PHIAWebView *view, QMenuBar *menubar )
     PHIPageMenuEntry entry;
 
     foreach ( entry, menuEntries ) {
-        qDebug( "menu text %s", qPrintable( entry.text() ) );
-        qDebug( "menu parent %s", qPrintable( entry.parent() ) );
+        qDebug() << "menu text" << entry.text() << "menu parent" << entry.parent();
         if ( entry.parent().isEmpty() ) { // top level (menu header)
             if ( entry.text()==L1( "#-" ) ) _menubar->addSeparator();
             else {
@@ -692,6 +681,8 @@ PHIAScriptMenuObj::PHIAScriptMenuObj( PHIAWebView *view, QMenuBar *menubar )
             }
         }
     }
+    _menubar->update();
+    _menubar->show();
 }
 
 PHIAScriptMenuObj::~PHIAScriptMenuObj()

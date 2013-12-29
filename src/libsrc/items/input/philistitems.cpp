@@ -18,6 +18,9 @@
 */
 #include <QComboBox>
 #include <QListWidget>
+#include <QHttpMultiPart>
+#include <QHttpPart>
+#include <QLocale>
 #include "philistitems.h"
 #include "phibasepage.h"
 #include "phidatasources.h"
@@ -26,8 +29,16 @@
 
 void PHISelectItem::initWidget()
 {
-    setWidget( new PHIComboBox( this ) );
+    QComboBox *cb=new PHIComboBox( this );
+    setWidget( cb );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::ComboBox ) );
+    if ( !isClientItem() ) return;
+    connect( cb, SIGNAL( currentIndexChanged( int ) ), this, SLOT( slotChanged() ) );
+}
+
+void PHISelectItem::slotChanged()
+{
+    if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
 }
 
 void PHISelectItem::ideInit()
@@ -61,6 +72,20 @@ void PHISelectItem::setWidgetText( const QString &t )
         if ( isChecked && checked==0 ) checked=cb->count()-1;
     }
     cb->setCurrentIndex( checked );
+}
+
+void PHISelectItem::setValue( const QString &v )
+{
+    QComboBox *cb=qobject_cast<QComboBox*>(widget());
+    if ( !cb ) return;
+    cb->setItemData( cb->currentIndex(), v );
+}
+
+QString PHISelectItem::realValue() const
+{
+    QComboBox *cb=qobject_cast<QComboBox*>(widget());
+    if ( !cb ) return QString();
+    return cb->currentData().toString();
 }
 
 void PHISelectItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
@@ -140,9 +165,75 @@ void PHISelectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
 
 QScriptValue PHISelectItem::delimiter( const QScriptValue &d )
 {
+    if ( !isServerItem() ) return QScriptValue( QScriptValue::UndefinedValue );
     if ( !d.isValid() ) return realDelimiter();
     setDelimiter( d.toString() );
     return self();
+}
+
+QScriptValue PHISelectItem::selectOptions( const QString &opts, const QString &d )
+{
+    setDelimiter( d );
+    setText( opts );
+    return self();
+}
+
+QScriptValue PHISelectItem::selected( const QScriptValue &v, const QScriptValue &b )
+{
+    Q_UNUSED( b )
+    if ( !isClientItem() ) return QScriptValue( QScriptValue::UndefinedValue );
+    QComboBox *cb=qobject_cast<QComboBox*>(widget());
+    Q_ASSERT( cb );
+    if ( !v.isValid() ) {
+        QScriptValue list=scriptEngine()->newArray( 1 );
+        if ( cb->currentData().toString().isEmpty() )
+            list.setProperty( 0, cb->currentText() );
+        else list.setProperty( 0, cb->currentData().toString() );
+        return list;
+    }
+    if ( !b.isValid() ) {
+        for ( int i=0; i<cb->count(); i++ ) {
+            if ( cb->itemData( i ).toString().isEmpty() ) {
+                if ( cb->itemText( i )==v.toString() ) return cb->currentIndex()==i ? true : false;
+            } else if ( cb->itemData( i ).toString()==v.toString() )
+                return cb->currentIndex()==i ? true : false;
+        }
+        return false;
+    }
+    if ( b.toBool() ) {
+        for ( int i=0; i<cb->count(); i++ ) {
+            if ( cb->itemData( i ).toString().isEmpty() ) {
+                if ( cb->itemText( i )==v.toString() ) {
+                    cb->blockSignals( true );
+                    cb->setCurrentIndex( i );
+                    cb->blockSignals( false );
+                    return self();
+                }
+            } else if ( cb->itemData( i ).toString()==v.toString() ) {
+                cb->blockSignals( true );
+                cb->setCurrentIndex( i );
+                cb->blockSignals( false );
+                return self();
+            }
+        }
+        return self();
+    }
+    cb->blockSignals( true );
+    cb->setCurrentIndex( 0 );
+    cb->blockSignals( false );
+    return self();
+}
+
+void PHISelectItem::clientPostData( QHttpMultiPart *multiPart ) const
+{
+    QComboBox *cb=qobject_cast<QComboBox*>(widget());
+    Q_ASSERT( cb );
+    QHttpPart hp;
+    hp.setHeader( QNetworkRequest::ContentTypeHeader, BL( "text/plain" ) );
+    hp.setHeader( QNetworkRequest::ContentDispositionHeader, BL( "form-data; name=\"" )+id()+BL( "\"" ) );
+    if ( cb->currentData().toString().isEmpty() ) hp.setBody( cb->currentText().toUtf8() );
+    else hp.setBody( cb->currentData().toString().toUtf8() );
+    multiPart->append( hp );
 }
 
 void PHISelectCountryItem::ideInit()
@@ -171,6 +262,74 @@ void PHISelectCountryItem::ideInit()
     textData()->setText( countries );
 }
 
+void PHISelectLangItem::ideInit()
+{
+}
+
+void PHISelectLangItem::ideUpdateData()
+{
+    QString langs;
+    foreach ( QString lang, page()->languages() ) {
+        langs+=lang+L1( "\n" );
+    }
+    langs.chop( 1 ); // remove last '\n'
+    setWidgetText( langs );
+}
+
+QScriptValue PHISelectLangItem::selectOptions( const QString &opts, const QString &d )
+{
+    Q_UNUSED( opts )
+    Q_UNUSED( d )
+    return QScriptValue( QScriptValue::UndefinedValue );
+}
+
+void PHISelectLangItem::slotChanged()
+{
+    if ( !isClientItem() ) return;
+    if ( id()!="philangselector" ) {
+        if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
+        return;
+    }
+    QComboBox *cb=qobject_cast<QComboBox*>(widget());
+    Q_ASSERT( cb );
+    emit langChangeRequested( cb->currentData( Qt::UserRole ).toString() );
+}
+
+void PHISelectLangItem::squeeze()
+{
+    *textData()=PHITextData();
+    PHISelectItem::squeeze();
+}
+
+void PHISelectLangItem::phisParseData( const PHIDataParser &parser )
+{
+    Q_UNUSED( parser )
+    QString langs, lang;
+    foreach ( lang, page()->languages() ) {
+        langs+=QLocale( lang ).nativeLanguageName();
+        langs+=SL( "[" )+lang+SL( "]" );
+        if ( lang==page()->lang() ) langs+=SL( "[1]" );
+        langs+=SL( "\n" );
+    }
+    langs.chop( 1 ); // remove last '\n'
+    setData( DText, langs.toUtf8() );
+}
+
+void PHISelectLangItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    PHISelectItem::html( req, out, script, indent );
+    if ( id()!="philangselector" ) return;
+    QUrl url=req->url();
+    QUrlQuery query( url );
+    query.removeQueryItem( SL( "philang" ) );
+    query.removeQueryItem( SL( "phisid" ) );
+    url.setQuery( query );
+    QByteArray d=BL( "&" );
+    if ( !url.hasQuery() ) d=BL( "?" );
+    script+=BL( "$('philangselector').change(function(){phi.href('" )+url.toEncoded()
+        +d+BL( "philang='+$('philangselector').val())});\n" );
+}
+
 void PHIMultiSelectItem::initWidget()
 {
     QListWidget *lw=new QListWidget();
@@ -182,6 +341,8 @@ void PHIMultiSelectItem::initWidget()
 #endif
     setWidget( lw );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, QSizePolicy::Frame ) );
+    if ( !isClientItem() ) return;
+    connect( lw, &QListWidget::itemSelectionChanged, this, &PHIMultiSelectItem::slotChanged );
 }
 
 void PHIMultiSelectItem::ideInit()
@@ -209,6 +370,46 @@ void PHIMultiSelectItem::setWidgetText( const QString &t )
     }
 }
 
+QScriptValue PHIMultiSelectItem::selected( const QScriptValue &v, const QScriptValue &b )
+{
+    if ( !isClientItem() ) return QScriptValue( QScriptValue::UndefinedValue );
+    QListWidget *lw=qobject_cast<QListWidget*>(widget());
+    Q_ASSERT( lw );
+    if ( !v.isValid() ) {
+        QScriptValue list=scriptEngine()->newArray();
+        int c=0;
+        for ( int i=0; i<lw->count(); i++ ) {
+            if ( lw->item( i )->isSelected() ) {
+                if ( lw->item( i )->data( Qt::UserRole ).toString().isEmpty() ) {
+                    list.setProperty( c++, lw->item( i )->text() );
+                } else list.setProperty( c++, lw->item( i )->data( Qt::UserRole ).toString() );
+            }
+        }
+        return list;
+    }
+    if ( !b.isValid() ) {
+        for ( int i=0; i<lw->count(); i++ ) {
+            if ( lw->item( i )->data( Qt::UserRole ).toString().isEmpty() ) {
+                if ( lw->item( i )->text()==v.toString() ) return lw->item( i )->isSelected();
+            } else if ( lw->item( i )->data( Qt::UserRole ).toString()==v.toString() )
+                return lw->item( i )->isSelected();
+        }
+        return false;
+    }
+    for ( int i=0; i<lw->count(); i++ ) {
+        if ( lw->item( i )->data( Qt::UserRole ).toString().isEmpty() ) {
+            if ( lw->item( i )->text()==v.toString() ) {
+                lw->item( i )->setSelected( b.toBool() );
+                return self();
+            }
+        } else if ( lw->item( i )->data( Qt::UserRole ).toString()==v.toString() ) {
+            lw->item( i )->setSelected( b.toBool() );
+            return self();
+        }
+    }
+    return self();
+}
+
 void PHIMultiSelectItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
 {
     PHIAbstractInputItem::setColor( ir, cr, col );
@@ -222,4 +423,23 @@ QSizeF PHIMultiSelectItem::sizeHint( Qt::SizeHint which, const QSizeF &constrain
         s.setWidth( 144. );
     }
     return s;
+}
+
+void PHIMultiSelectItem::clientPostData( QHttpMultiPart *multiPart ) const
+{
+    QListWidget *lw=qobject_cast<QListWidget*>(widget());
+    Q_ASSERT( lw );
+    QByteArray contentType=BL( "text/plain" );
+    QByteArray disposition=BL( "form-data; name=\"" )+id()+BL( "\"" );
+    for ( int i=0; i<lw->count(); i++ ) {
+        QListWidgetItem *it=lw->item( i );
+        if ( it->isSelected() ) {
+            QHttpPart hp;
+            hp.setHeader( QNetworkRequest::ContentTypeHeader, contentType );
+            hp.setHeader( QNetworkRequest::ContentDispositionHeader, disposition );
+            if ( it->data( Qt::UserRole ).toString().isEmpty() ) hp.setBody( it->text().toUtf8() );
+            else hp.setBody( it->data( Qt::UserRole ).toString().toUtf8() );
+            multiPart->append( hp );
+        }
+    }
 }

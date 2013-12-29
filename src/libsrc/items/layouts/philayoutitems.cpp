@@ -50,6 +50,7 @@ void PHIHorizontalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
 
 void PHIHorizontalLayoutItem::updateChildId( const QString &oldId, const QString &newId )
 {
+    qDebug() << "updateChildId" << id() << oldId << newId;
     int pos=_childIds.indexOf( oldId.toLatin1() );
     Q_ASSERT( pos!=-1 );
     _childIds.replace( pos, newId.toLatin1() );

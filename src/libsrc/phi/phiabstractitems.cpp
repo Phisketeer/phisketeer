@@ -24,6 +24,8 @@
 #include <QGraphicsGridLayout>
 #include <QWebFrame>
 #include <QWebView>
+#include <QHttpMultiPart>
+#include <QHttpPart>
 #include "phiabstractitems.h"
 #include "phicolorconfig.h"
 #include "philayoutconfig.h"
@@ -1145,6 +1147,12 @@ void PHIAbstractInputItem::clientInitData()
     PHIAbstractTextItem::clientInitData();
 }
 
+void PHIAbstractInputItem::reset()
+{
+    PHIAbstractTextItem::reset();
+    setValue( realText() );
+}
+
 QScriptValue PHIAbstractInputItem::readOnly( const QScriptValue &r )
 {
     if ( !r.isValid() ) return realReadOnly();
@@ -1154,8 +1162,8 @@ QScriptValue PHIAbstractInputItem::readOnly( const QScriptValue &r )
 
 QScriptValue PHIAbstractInputItem::val( const QScriptValue &v )
 {
-    if ( !v.isValid() ) return realText();
-    setText( v.toString() );
+    if ( !v.isValid() ) return realValue();
+    setValue( v.toString() );
     return self();
 }
 
@@ -1166,14 +1174,13 @@ QScriptValue PHIAbstractInputItem::accessKey( const QScriptValue &a )
     return self();
 }
 
-QList<QHttpPart> PHIAbstractInputItem::httpParts() const
+void PHIAbstractInputItem::clientPostData( QHttpMultiPart *multiPart ) const
 {
     QHttpPart hp;
     hp.setHeader( QNetworkRequest::ContentTypeHeader, BL( "text/plain" ) );
     hp.setHeader( QNetworkRequest::ContentDispositionHeader, BL( "form-data; name=\"" )+id()+BL( "\"" ) );
     hp.setBody( realValue().toUtf8() );
-    QList <QHttpPart> list;
-    return list << hp;
+    multiPart->append( hp );
 }
 
 void PHIAbstractExternalItem::ideInit()

@@ -18,7 +18,6 @@
 */
 #ifndef PHIASCRIPTOBJECTS_H
 #define PHIASCRIPTOBJECTS_H
-
 #include <QObject>
 #include <QHash>
 #include <QUrlQuery>
@@ -200,24 +199,24 @@ class PHIAScriptFormsObj : public QObject
     Q_PROPERTY( QString method READ method )
 
 public:
-    explicit PHIAScriptFormsObj( PHIAWebView *parent );
+    explicit PHIAScriptFormsObj( PHIAGraphicsScene *parent );
     virtual ~PHIAScriptFormsObj();
 
 public slots:
-    inline QString action() const { return _view->scene()->page()->action(); }
-    inline void setAction( const QString &a ) { _view->scene()->page()->setAction( a ); }
+    inline QString action() const { return _scene->page()->action(); }
+    inline void setAction( const QString &a ) { _scene->page()->setAction( a ); }
     inline QString encoding() const { return SL( "multipart/form-data" ); }
     inline QString method() const { return SL( "POST" ); }
 
-    void reset();
+    void reset( const QString &buttonid=QString() );
     void submit( const QString &buttonid=QString() );
 
 signals:
-    void resetRequest();
+    void resetRequest( const QString& );
     void submitRequest( const QString& );
 
 private:
-    PHIAWebView *_view;
+    PHIAGraphicsScene *_scene;
 };
 
 class PHIAScriptNavigatorObj : public QObject

@@ -117,6 +117,10 @@ function PhiItem( obj ) {
     if(i===undefined)return parseInt(j(id).css('zIndex'));
     j(id).css('zIndex',i); return this;
   };
+  this.accessKey=function( a ) {
+    if ( a===undefined ) return j( id ).prop( 'accesskey' );
+    j( id ).prop( 'accesskey', a ); return this;
+  };
   this.cursor=function( c ) {
     if(!c)return j(id).css('cursor');j(id).css({cursor:c});return this;
   };
@@ -338,7 +342,7 @@ $.$=function( s, i, x, y, w, h ) {
     if ( y ) o._y=y;
     if ( w ) o._w=w;
     if ( h ) o._h=h;
-    if ( i<6 || (i>49 && i<55) || i===10 || i===18 || i===47 ) {
+    if ( i<6 || (i>49 && i<55) || i===10 || i===18 || i===33 || i===47 ) {
         o.val=function( t ) {
             if ( t===undefined ) return j( id ).val();
             j( id ).val( t ); return o;
@@ -346,10 +350,6 @@ $.$=function( s, i, x, y, w, h ) {
         o.readOnly=function( r ) {
             if ( r===undefined ) return j( id ).prop( 'readOnly' );
             j( id ).prop( 'readOnly',r ); return o;
-        };
-        o.accessKey=function( a ) {
-            if ( a===undefined ) return j( id ).attr( 'accesskey' );
-            j( id ).attr( 'accesskey', a ); return o;
         };
         if ( i===1 || (i>49 && i<55) ) {
             o.placeholder=function( t ) {
@@ -399,7 +399,7 @@ $.$=function( s, i, x, y, w, h ) {
           j(id+' option[value="'+v+'"]').prop('selected',t);return o;
         };
         o.val=function( v ) {
-            if ( i===18 ) return o;
+            if ( i===18 ) return undefined;
             if ( v===undefined ) return j(id+' option:selected').val();
             j(id+' option:selected').val( v ); return o;
         };
@@ -413,13 +413,6 @@ $.$=function( s, i, x, y, w, h ) {
         o.val=function( t ) {
             if ( t===undefined ) return j( id+'_phi' ).val();
             j( id+'_phi' ).val( t ); return o;
-        };
-    }
-    if ( i===18 ) {
-        o.checked=function( v, c ){
-          if(v===undefined)return undefined;
-          if(typeof(c)!=='boolean'&&typeof(c)!=='number')return j(id+' [value="'+v+'"]').is(':checked');
-          j(id+' [value="'+v+'"]').prop('checked',c);return this;
         };
     }
     if ( i===59 ) {

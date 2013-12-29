@@ -18,13 +18,13 @@
 */
 #ifndef PHIABSTRACTITEMS_H
 #define PHIABSTRACTITEMS_H
-#include <QHttpPart>
 #include "phibaseitem.h"
 #include "phipalette.h"
 #include "phidatasources.h"
 #include "phi.h"
 
 class QGraphicsGridLayout;
+class QHttpMultiPart;
 class PHIDataParser;
 class PHIBasePage;
 class PHIWebPage;
@@ -360,39 +360,39 @@ class PHIEXPORT PHIAbstractInputItem : public PHIAbstractTextItem
     Q_PROPERTY( QString _value WRITE setValue READ realValue SCRIPTABLE false )
 
 public:
-    enum ItemData { DAccessKey=-99, DValue=-98 };
+    enum ItemData { DAccessKey=-99, DValue=-98, DMaxLength=-97 };
     explicit PHIAbstractInputItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ) {}
     PHIAbstractInputItem( const PHIAbstractInputItem &it ) : PHIAbstractTextItem( it ) {}
     virtual ~PHIAbstractInputItem() {}
     virtual bool isFocusable() const { return true; }
     virtual bool isDroppable() const { return true; }
     virtual bool isDraggable() const { return false; }
-    virtual QList <QHttpPart> httpParts() const;
-    inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
-    inline void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); }
-    inline QString realValue() const { return QString::fromUtf8( data( DValue ).toByteArray() ); }
-    inline void setValue( const QString &v ) { setData( DValue, v.toUtf8() ); }
+    virtual void clientPostData( QHttpMultiPart *multiPart ) const;
+    virtual void reset();
+    virtual void setValue( const QString &v ) { setText( v ); }
+    virtual QString realValue() const { return realText(); }
 
 public slots:
-    virtual QScriptValue val( const QScriptValue &v );
-    virtual QScriptValue readOnly( const QScriptValue &r );
-    virtual QScriptValue accessKey( const QScriptValue &a );
+    virtual QScriptValue val( const QScriptValue &v=QScriptValue() );
+    virtual QScriptValue readOnly( const QScriptValue &r=QScriptValue() );
+    virtual QScriptValue accessKey( const QScriptValue &a=QScriptValue() );
 
 protected:
-    virtual void ideUpdateData();
-    virtual void squeeze();
+    virtual PHIBooleanData* readOnlyData() { return &_readOnlyData; }
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
-    virtual PHIBooleanData* readOnlyData() { return &_readOnlyData; }
+    virtual void ideUpdateData();
+    virtual void squeeze();
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void phisCreateData( const PHIDataParser &parser );
-    virtual void setWidgetAligment( Qt::Alignment align ) { Q_UNUSED( align ); }
+    virtual void setWidgetAligment( Qt::Alignment align ) { Q_UNUSED( align ) }
     virtual void clientInitData();
 
 signals:
     void submitClicked( const QString &id );
     void resetClicked( const QString &id );
+    void langChangeRequested( const QString &lang );
 
 private:
     PHIBooleanData _readOnlyData;
@@ -409,8 +409,6 @@ public:
     PHIAbstractExternalItem( const PHIAbstractExternalItem &it ) : PHIAbstractTextItem( it ), _webPage( 0 ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHIAbstractExternalItem() {}
     bool isFocusable() const { return true; }
-    inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
-    inline void setAccessKey( const QString &s ) { setData( DAccessKey, s.left(1).toUtf8() ); }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 public slots:

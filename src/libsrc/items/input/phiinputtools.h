@@ -45,7 +45,7 @@ inline QRectF PHIInputTools::adjustedLineEdit( const PHIRequest *req, const QRec
 inline QRectF PHIInputTools::adjustedButton( const PHIRequest *req, const QRectF &r )
 {
     switch ( req->agentEngine() ) {
-    case PHIRequest::WebKit: return r.adjusted( 3, 3, 0, 0 );
+    case PHIRequest::WebKit: return r.adjusted( 3, 1, 0, 0 );
     case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
     case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
     case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );

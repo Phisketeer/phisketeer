@@ -24,6 +24,7 @@ class PHILineEditItem : public PHIAbstractInputItem
 {
     Q_OBJECT
     Q_PROPERTY( QString _placeholder READ realPlaceholder WRITE setPlaceholder SCRIPTABLE false )
+    Q_PROPERTY( qint32 _maxLength WRITE setMaxLength READ realMaxLength SCRIPTABLE false )
 
 public:
     enum Wid { LineEdit=1 };
@@ -39,11 +40,14 @@ public:
     virtual void ideInit();
     virtual PHITextData* placeholderData() { return &_placeholderData; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    void setMaxLength( qint32 l );
     void setPlaceholder( const QString &t );
-    QString realPlaceholder() const { return QString::fromUtf8( data( DPlaceholder ).toByteArray() ); }
+    inline QString realPlaceholder() const { return QString::fromUtf8( data( DPlaceholder ).toByteArray() ); }
+    inline qint32 realMaxLength() const { return data( DMaxLength, 100 ).toInt(); }
 
 public slots:
     QScriptValue placeholder( const QScriptValue &v=QScriptValue() );
+    QScriptValue maxLength( const QScriptValue &l=QScriptValue() );
 
 protected:
     virtual void setReadOnly( bool b );
@@ -56,7 +60,11 @@ protected:
     virtual void squeeze();
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void clientInitData();
     void genHtml( const QByteArray &type, const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+protected slots:
+    virtual void slotChanged();
 
 private:
     PHITextData _placeholderData;
@@ -125,6 +133,7 @@ private:
 class PHITextAreaItem : public PHIAbstractInputItem
 {
     Q_OBJECT
+    Q_PROPERTY( qint32 _maxLength WRITE setMaxLength READ realMaxLength SCRIPTABLE false )
 
 public:
     enum Wid { TextArea=2 };
@@ -138,11 +147,20 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/textarea" ) ); }
     virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    void setMaxLength( qint32 l );
+    inline qint32 realMaxLength() const { return data( DMaxLength, 5000 ).toInt(); }
+
+public slots:
+    QScriptValue maxLength( const QScriptValue &l=QScriptValue() );
 
 protected:
     virtual bool isSingleLine() const { return false; }
+    virtual void squeeze();
     virtual void setWidgetText( const QString &t );
     virtual void setReadOnly( bool b );
+
+protected slots:
+    void slotChanged();
 
 private:
     void initWidget();
@@ -236,12 +254,14 @@ public:
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 protected:
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual PHIBooleanData* readOnlyData() { return 0; }
+    virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual void initWidget();
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
-    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual PHIBooleanData* readOnlyData() { return 0; }
     virtual void click( const QGraphicsSceneMouseEvent *e );
+    virtual void clientPostData( QHttpMultiPart *multiPart ) const { Q_UNUSED( multiPart ); }
 };
 
 class PHIResetButtonItem : public PHISubmitButtonItem
@@ -260,6 +280,9 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/reset" ) ); }
     virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+protected:
+    virtual void click( const QGraphicsSceneMouseEvent *e );
 };
 
 class PHIButtonItem : public PHISubmitButtonItem
@@ -287,6 +310,8 @@ public:
 
 protected:
     virtual void squeeze();
+    virtual void click( const QGraphicsSceneMouseEvent *e );
+
 };
 
 #endif // PHIINPUTITEMS_H

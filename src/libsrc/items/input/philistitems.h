@@ -36,14 +36,17 @@ public:
     virtual QString description() const { return tr( "Input type <select>" ); }
     virtual PHIWID wid() const { return Select; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/selectbox" ) ); }
+    virtual QString realValue() const;
+    virtual void setValue( const QString &v );
     virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
-
     inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
     inline QString realDelimiter() const { return QString::fromUtf8( data( DDelimiter, BL( "\n" ) ).toByteArray() ); }
 
 public slots:
-    QScriptValue delimiter( const QScriptValue &d );
+    virtual QScriptValue delimiter( const QScriptValue &d=QScriptValue() );
+    virtual QScriptValue selectOptions( const QString &opts, const QString &d=L1( "\n" ) );
+    virtual QScriptValue selected( const QScriptValue &v=QScriptValue(), const QScriptValue &b=QScriptValue() );
 
 protected:
     virtual void initWidget();
@@ -52,7 +55,11 @@ protected:
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void clientPostData( QHttpMultiPart *multiPart ) const;
     void htmlSelectOptions( QByteArray &out, const QByteArray &indent ) const;
+
+protected slots:
+    virtual void slotChanged();
 };
 
 class PHISelectCountryItem : public PHISelectItem
@@ -72,6 +79,35 @@ public:
     virtual void ideInit();
 };
 
+class PHISelectLangItem : public PHISelectItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { LangSelect=33 };
+    explicit PHISelectLangItem( const PHIBaseItemPrivate &p ) : PHISelectItem( p ) {}
+    PHISelectLangItem( const PHISelectLangItem &it ) : PHISelectItem( it ) {}
+    virtual ~PHISelectLangItem() {}
+
+    virtual QString listName() const { return tr( "Lang select" ); }
+    virtual QString description() const { return tr( "Displays a list of available languages for this page." ); }
+    virtual PHIWID wid() const { return LangSelect; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/selectbox" ) ); }
+    virtual void ideInit();
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+public slots:
+    virtual QScriptValue selectOptions( const QString &opts, const QString &d );
+
+protected slots:
+    virtual void slotChanged();
+
+protected:
+    virtual void squeeze();
+    virtual void ideUpdateData();
+    virtual void phisParseData( const PHIDataParser &parser );
+};
+
 class PHIMultiSelectItem : public PHISelectItem
 {
     Q_OBJECT
@@ -86,16 +122,20 @@ public:
     virtual PHIWID wid() const { return MultiSelect; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/listbox" ) ); }
     virtual void ideInit();
+    virtual QString realValue() const { return QString(); }
+    virtual void setValue( const QString &v ) { Q_UNUSED( v ) }
 
 public slots:
-    virtual QScriptValue val( const QScriptValue &v ) { Q_UNUSED( v ) return self(); }
+    virtual QScriptValue val( const QScriptValue &v ) { Q_UNUSED( v ) return QScriptValue( QScriptValue::UndefinedValue ); }
+    virtual QScriptValue selected( const QScriptValue &v=QScriptValue(), const QScriptValue &b=QScriptValue() );
 
 protected:
     virtual void initWidget();
-    inline virtual bool isSingleLine() const { return false; }
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
+    virtual void clientPostData( QHttpMultiPart *multiPart ) const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual bool isSingleLine() const { return false; }
 };
 
 #endif // PHILISTITEMS_H

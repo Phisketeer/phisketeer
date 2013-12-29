@@ -97,7 +97,7 @@ public:
         DGradientCenterPoint=-29, DGradientFocalPoint=-30, DGradientRadius=-31,
         DImagePath=-32, DImagePathes=-33, DIEFilter=-34, DAdjustedRect=-35, DEventFunctions=-36,
         DDragDropOptions=-37, DOneEventFunctions=-38, DAnimSizePolicy=-39,
-        DAnimOrgGeometry=-40, DIsImage=-41 };
+        DAnimOrgGeometry=-40, DIsImage=-41, DAccessKey=-42 };
     enum Flag { FNone=0x0, FChild=0x1, FDoNotCache=0x2, FUseStyleSheet=0x4,
         FStoreTitleData=0x8, FStoreVisibleData=0x10, FChecked=0x20, FReadOnly=0x40,
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
@@ -122,7 +122,7 @@ public:
     /*
         FILE_BUTTON=9, IMAGE_BUTTON=12,
         LINK=23, TEXT=29,
-        LANG_SELECTOR=33, LAYOUT_DELIVERY=35,
+        LAYOUT_DELIVERY=35,
         RICH_TEXT=41
     */
     explicit PHIBaseItem( const PHIBaseItemPrivate &p );
@@ -357,6 +357,8 @@ protected:
     inline void setData( quint8 t, const QVariant &v ) { _variants.insert( t, v ); }
     inline QVariant data( quint8 t, const QVariant &v=QVariant() ) const { return _variants.value( t, v ); }
     inline void removeData( quint8 t ) { _variants.remove( t ); }
+    inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
+    void setAccessKey( const QString &s );
     void slideUp( int duration, const QString &ease );
     void slideDown( int duration, const QString &ease );
     void setWidget( QWidget* );
@@ -454,6 +456,9 @@ signals:
     void posChanged( const QPointF &pos );
     void sizeChanged( const QSizeF &size );
     void javaScriptError( const QScriptValue &err );
+    void accessKeyTriggered();
+    void linkRequested( const QString &url );
+    void linkHovered( const QString &url );
 
     // IDE related signals
     void pushUndoStack( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &newColor );

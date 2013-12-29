@@ -43,6 +43,9 @@ public:
     inline quint8 realProgress() const { return data( DProgress ).value<quint8>(); }
     inline void setProgress( quint8 p ) { setData( DProgress, qBound( static_cast<quint8>(0), p, static_cast<quint8>(100) ) ); updateWidget(); }
 
+public slots:
+    QScriptValue progress( const QScriptValue &v=QScriptValue() );
+
 protected:
     void ideInit();
     QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
