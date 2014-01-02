@@ -73,7 +73,6 @@ QSizeF PHILineEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint )
 
 void PHILineEditItem::setReadOnly( bool b )
 {
-    qDebug() << "setReadOnly" << b;
     PHIBaseItem::setReadOnly( b );
     QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
     if ( !edit ) return;
@@ -127,6 +126,9 @@ void PHILineEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
 void PHILineEditItem::genHtml( const QByteArray &type, const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     setAdjustedRect( PHIInputTools::adjustedLineEdit( req, rect() ) );
+    htmlInitItem( script, false );
+    if ( Q_UNLIKELY( realReadOnly() ) ) script+=BL( ".readOnly(1);\n" );
+    else script+=BL( ";\n" );
     out+=indent+BL( "<input type=\"" )+type+BL( "\" name=\"" )+id()+'"';
     QByteArray arr=data( DText ).toByteArray();
     if ( !arr.isEmpty() ) out+=BL( " value=\"" )+arr+'"';
@@ -137,7 +139,6 @@ void PHILineEditItem::genHtml( const QByteArray &type, const PHIRequest *req, QB
     }
     htmlBase( req, out, script );
     out+=BL( "\">\n" );
-    htmlInitItem( script );
 }
 
 void PHILineEditItem::setPlaceholder( const QString &t )
@@ -255,10 +256,11 @@ void PHITextAreaItem::setReadOnly( bool b )
 void PHITextAreaItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     setAdjustedRect( PHIInputTools::adjustedTextArea( req, rect() ) );
+    htmlInitItem( script );
     out+=indent+BL( "<textarea name=\"" )+id()+'"';
+    if ( realReadOnly() ) out+=BL( " readonly=\"readonly\"" );
     htmlBase( req, out, script );
     out+=BL( "\">" )+data( DText ).toByteArray()+BL( "</textarea>\n" );
-    htmlInitItem( script );
 }
 
 void PHITextAreaItem::squeeze()
@@ -453,6 +455,7 @@ void PHISubmitButtonItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRo
 void PHISubmitButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     setAdjustedRect( PHIInputTools::adjustedButton( req, rect() ) );
+    htmlInitItem( script );
     out+=indent+BL( "<input type=\"submit\" name=\"" )+id()+BL( "\" value=\"" )
         +data( DText ).toByteArray()+'"';
     htmlBase( req, out, script );
@@ -460,7 +463,6 @@ void PHISubmitButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArr
         if ( req->agentEngine()==PHIRequest::WebKit ) out+=BL( "-webkit-appearance:button" );
     }
     out+=BL( "\">\n" );
-    htmlInitItem( script );
 }
 
 void PHISubmitButtonItem::click( const QGraphicsSceneMouseEvent *e )
@@ -478,14 +480,13 @@ void PHIResetButtonItem::ideInit()
 void PHIResetButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     setAdjustedRect( PHIInputTools::adjustedButton( req, rect() ) );
-    out+=indent+BL( "<input type=\"reset\" name=\"" )+id()+BL( "\" value=\"" )
-        +data( DText ).toByteArray()+'"';
+    htmlInitItem( script );
+    out+=indent+BL( "<input type=\"reset\" value=\"" )+data( DText ).toByteArray()+'"';
     htmlBase( req, out, script );
     if ( realHeight()>34 ) {
         if ( req->agentEngine()==PHIRequest::WebKit ) out+=BL( "-webkit-appearance:button" );
     }
     out+=BL( "\">\n" );
-    htmlInitItem( script );
 }
 
 void PHIResetButtonItem::click( const QGraphicsSceneMouseEvent *e )
@@ -509,24 +510,31 @@ void PHIButtonItem::squeeze()
 void PHIButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     setAdjustedRect( PHIInputTools::adjustedButton( req, rect() ) );
-    out+=indent+BL( "<input type=\"button\" name=\"" )+id()+BL( "\" value=\"" )
-        +data( DText ).toByteArray()+'"';
+    htmlInitItem( script, false );
+    if ( !realUrl().isEmpty() ) {
+        qDebug() << "url" << realUrl();
+        QUrl url( realUrl() );
+        script+=BL( ".click(function(){phi.href('" )+url.toEncoded()+BL( "')})" );
+    }
+    script+=BL( ";\n" );
+    out+=indent+BL( "<input type=\"button\" value=\"" )+data( DText ).toByteArray()+'"';
     htmlBase( req, out, script );
     if ( realHeight()>34 ) {
         if ( req->agentEngine()==PHIRequest::WebKit ) out+=BL( "-webkit-appearance:button" );
     }
     out+=BL( "\">\n" );
-    htmlInitItem( script, false );
-    if ( !realUrl().isEmpty() ) {
-        qDebug() << "url" <<realUrl();
-        QUrl url( realUrl() );
-        script+=BL( ".click(function(){phi.href('" )+url.toEncoded()+BL( "')})" );
-    }
-    script+=BL( ";\n" );
 }
 
 void PHIButtonItem::click( const QGraphicsSceneMouseEvent *e )
 {
     Q_UNUSED( e )
     if ( !realUrl().isEmpty() ) emit linkRequested( realUrl() );
+}
+
+QScriptValue PHIButtonItem::url( const QScriptValue &u )
+{
+    if ( !isServerItem() ) return QScriptValue( QScriptValue::UndefinedValue );
+    if ( !u.isValid() ) return realUrl();
+    setUrl( u.toString() );
+    return self();
 }

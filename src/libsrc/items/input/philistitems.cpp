@@ -153,6 +153,7 @@ void PHISelectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
     } else {
         setAdjustedRect( PHIInputTools::adjustedSelect( req, rect() ) );
     }
+    htmlInitItem( script );
     htmlBase( req, out, script );
     if ( wid()!=MultiSelect && realHeight()>27 ) {
         if ( req->agentEngine()==PHIRequest::WebKit ) out+=BL( "border:0" );
@@ -160,7 +161,6 @@ void PHISelectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
     out+=BL( "\">\n" );
     htmlSelectOptions( out, indent+'\t' );
     out+=indent+BL( "</select>\n" );
-    htmlInitItem( script );
 }
 
 QScriptValue PHISelectItem::delimiter( const QScriptValue &d )

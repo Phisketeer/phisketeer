@@ -53,6 +53,7 @@ protected:
     virtual void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void grabKeyboardEvent( QEvent *event );
 };
 
 #endif // PHIAGRAPHICSITEM_H

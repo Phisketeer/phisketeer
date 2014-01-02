@@ -253,6 +253,9 @@ public:
     virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
+public slots:
+    virtual QScriptValue readOnly( const QScriptValue &r=QScriptValue() ) { Q_UNUSED( r ) return QScriptValue( QScriptValue::UndefinedValue ); }
+
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual PHIBooleanData* readOnlyData() { return 0; }
@@ -308,10 +311,12 @@ public:
     QString realUrl() const { return QString::fromUtf8( data( DUrl, QString() ).toByteArray() ); }
     void setUrl( const QString &url ) { setData( DUrl, url.toUtf8() ); }
 
+public slots:
+    QScriptValue url( const QScriptValue &u=QScriptValue() );
+
 protected:
     virtual void squeeze();
     virtual void click( const QGraphicsSceneMouseEvent *e );
-
 };
 
 #endif // PHIINPUTITEMS_H

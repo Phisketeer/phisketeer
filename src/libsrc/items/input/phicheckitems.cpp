@@ -18,6 +18,8 @@
 */
 #include <QCheckBox>
 #include <QRadioButton>
+#include <QHttpMultiPart>
+#include <QHttpPart>
 #include "phicheckitems.h"
 #include "phidatasources.h"
 #include "phibasepage.h"
@@ -26,8 +28,11 @@
 
 void PHICheckBoxItem::initWidget()
 {
-    setWidget( new QCheckBox() );
+    QCheckBox *cb=new QCheckBox();
+    setWidget( cb );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::CheckBox ) );
+    if ( !isClientItem() ) return;
+    connect( cb, &QCheckBox::clicked, this, &PHICheckBoxItem::slotChanged );
 }
 
 void PHICheckBoxItem::ideInit()
@@ -85,7 +90,7 @@ void PHICheckBoxItem::setChecked( bool check )
 void PHICheckBoxItem::setWidgetText( const QString &s )
 {
     QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
-    Q_ASSERT( ab );
+    if ( !ab ) return;
     ab->setText( s );
 }
 
@@ -117,6 +122,9 @@ void PHICheckBoxItem::phisParseData( const PHIDataParser &parser )
 
 void PHICheckBoxItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    htmlInitItem( script, false );
+    if ( realChecked() ) script+=BL( ".checked(1);\n" );
+    else script+=BL( ";\n" );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
     if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
@@ -142,8 +150,6 @@ void PHICheckBoxItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
     out+=BL( "\"><label class=\"phi\" for=\"" )+id()+BL( "_phi\" id=\"" )+id()
         +BL( "_phit\">" )+data( DText ).toByteArray().replace( '\n', BL( "<br>" ) )
         +BL( "</label></td></tr></table>\n" )+indent+BL( "</div>\n" );
-    htmlInitItem( script );
-    if ( realChecked() ) script+=BL( "$('" )+id()+BL( "').checked(1);\n" );
 }
 
 void PHICheckBoxItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
@@ -156,10 +162,50 @@ void PHICheckBoxItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
     out+=BL( "}\n" );
 }
 
+void PHICheckBoxItem::slotChanged()
+{
+    QCheckBox *cb=qobject_cast<QCheckBox*>(widget());
+    Q_ASSERT( cb );
+    setChecked( cb->isChecked() );
+    if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
+}
+
+QScriptValue PHICheckBoxItem::text( const QScriptValue &v )
+{
+    if ( !v.isValid() ) return realText();
+    setText( v.toString() );
+    return self();
+}
+
+QScriptValue PHICheckBoxItem::checked( const QScriptValue &v )
+{
+    if ( !v.isValid() ) return realChecked();
+    if ( v.toBool()==realChecked() ) return self();
+    setChecked( v.toBool() );
+    slotChanged();
+    return self();
+}
+
+void PHICheckBoxItem::clientPostData( QHttpMultiPart *multiPart ) const
+{
+    if ( !realChecked() ) return;
+    QByteArray parent=id();
+    if ( isChild() ) parent=parentId();
+    QHttpPart hp;
+    hp.setHeader( QNetworkRequest::ContentTypeHeader, BL( "text/plain" ) );
+    hp.setHeader( QNetworkRequest::ContentDispositionHeader, BL( "form-data; name=\"" )+parent+BL( "\"" ) );
+    hp.setBody( realValue().toUtf8() );
+    multiPart->append( hp );
+}
+
 void PHIRadioButtonItem::initWidget()
 {
-    setWidget( new QRadioButton() );
+    QRadioButton *rb=new QRadioButton();
+    setWidget( rb );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::RadioButton ) );
+    rb->setAutoExclusive( false );
+    if ( !isClientItem() ) return;
+    connect( rb, &QRadioButton::clicked, this, &PHIRadioButtonItem::slotChanged );
 }
 
 void PHIRadioButtonItem::ideInit()
@@ -177,6 +223,9 @@ QSizeF PHIRadioButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constrain
 
 void PHIRadioButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    htmlInitItem( script, false );
+    if ( realChecked() ) script+=BL( ".checked(1);\n" );
+    else script+=BL( ";\n" );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
     if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
@@ -203,7 +252,20 @@ void PHIRadioButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArra
     out+=BL( "\"><label class=\"phi\" for=\"" )+id()+BL( "_phi\" id=\"" )+id()
         +BL( "_phit\">" )+data( DText ).toByteArray().replace( '\n', BL( "<br>" ) )
         +BL( "</label></td></tr></table>\n" )+indent+BL( "</div>\n" );
-    htmlInitItem( script, false );
-    if ( realChecked() ) script+=BL( ".checked(1);\n" );
-    else script+=BL( ";\n" );
+}
+
+void PHIRadioButtonItem::slotChanged()
+{
+    QRadioButton *rb=qobject_cast<QRadioButton*>(widget());
+    Q_ASSERT( rb );
+    setChecked( rb->isChecked() );
+    if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
+    if ( !rb->isChecked() || parentId().isEmpty() ) return;
+    PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(page()->findItem( parentId() ));
+    if ( !lit ) return;
+    foreach ( PHIBaseItem *it, lit->childItems() ) {
+        if ( id()==it->id() ) continue;
+        PHIRadioButtonItem *phirb=qobject_cast<PHIRadioButtonItem*>(it);
+        if ( phirb ) phirb->setChecked( false );
+    }
 }

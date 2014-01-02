@@ -26,6 +26,7 @@
 #include "phirequest.h"
 #include "phiresponserec.h"
 #include "phidomitem.h"
+#include "phiabstractitems.h"
 
 PHIDynPageData::PHIDynPageData()
 {
@@ -222,7 +223,7 @@ bool PHIBasePage::operator==( const PHIBasePage &p )
 
 QList <PHIBaseItem*> PHIBasePage::items() const
 {
-    return findChildren<PHIBaseItem*>();
+    return findChildren<PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly);
 }
 
 // only available for Serverscript:
@@ -810,9 +811,12 @@ void PHIBasePage::save( QDataStream &out, int version, bool client )
 
 quint16 PHIBasePage::load( QDataStream &in, int version, bool client )
 {
-    foreach( PHIBaseItem *it, findChildren<PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly) ) {
-        delete it;
+    PHIBaseItem *it;
+    foreach ( it, items() ) {
+        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+        if ( lit ) lit->breakLayout(); // break all page containing layouts
     }
+    foreach( it, items() ) delete it;
     if ( Q_UNLIKELY( version<3 ) ) return loadVersion1_x( in );
     in.setVersion( PHI_DSV2 );
     quint32 flags;

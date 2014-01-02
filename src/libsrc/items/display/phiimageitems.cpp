@@ -235,11 +235,11 @@ void PHISvgItem::phisParseData( const PHIDataParser &parser )
 void PHISvgItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     if ( Q_LIKELY( req->agentFeatures() & PHIRequest::SVG && !hasGraphicEffect() ) ) {
+        htmlInitItem( script );
         out+=indent+BL( "<div" );
         htmlBase( req, out, script );
         out+=BL( "\">\n" )+data( DSvgSource ).toByteArray()+'\n'+indent+BL( "</div>\n" );
         script+=BL( "jQuery('#" )+id()+BL( " svg').css({width:'100%',height:'100%'});\n" );
-        htmlInitItem( script );
     } else {
         htmlImg( req, out, script, indent );
     }

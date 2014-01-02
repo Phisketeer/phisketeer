@@ -174,7 +174,7 @@ void PHIAbstractTextItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRo
     w->setPalette( pal );
 }
 
-QColor PHIAbstractTextItem::color( PHIPalette::ItemRole role ) const
+QColor PHIAbstractTextItem::colorForRole( PHIPalette::ItemRole role ) const
 {
     if ( role==PHIPalette::WidgetText ) return realColor();
     if ( role==PHIPalette::WidgetBase ) return realBackgroundColor();
@@ -990,6 +990,7 @@ void PHIAbstractLayoutItem::setChildItem( PHIBaseItem *it )
     Q_ASSERT( gw() );
     it->setParentId( id() );
     it->setFlag( PHIBaseItem::FChild, true );
+    if ( isClientItem() ) return;
     it->gw()->setFlag( QGraphicsItem::ItemIsMovable, false );
     it->gw()->setFlag( QGraphicsItem::ItemIsSelectable, false );
     it->gw()->setFlag( QGraphicsItem::ItemIsFocusable, false );
@@ -1001,11 +1002,12 @@ void PHIAbstractLayoutItem::releaseItem( PHIBaseItem *it )
     Q_ASSERT( gw() );
     it->setFlag( PHIBaseItem::FChild, false );
     it->setParentId( QByteArray() );
+    it->gw()->setParentItem( 0 );
+    if ( isClientItem() ) return;
     it->gw()->setFlag( QGraphicsItem::ItemIsMovable, true );
     it->gw()->setFlag( QGraphicsItem::ItemIsSelectable, true );
     it->gw()->setFlag( QGraphicsItem::ItemIsFocusable, true );
     it->gw()->setAcceptHoverEvents( true );
-    it->gw()->setParentItem( 0 );
 }
 
 void PHIAbstractLayoutItem::drawShape( QPainter *p, const QRectF &exposed )
@@ -1085,6 +1087,11 @@ QString PHIAbstractLayoutItem::ideText( const QByteArray &lang ) const
     return _textData.text();
 }
 
+QRectF PHIAbstractLayoutItem::boundingRect() const
+{
+    return PHIAbstractShapeItem::boundingRect();
+}
+
 PHIConfigWidget* PHIAbstractLayoutItem::ideConfigWidget()
 {
     return new PHILayoutConfig( this );
@@ -1094,11 +1101,6 @@ QSizeF PHIAbstractInputItem::sizeHint( Qt::SizeHint which, const QSizeF &constra
 {
     if ( which!=Qt::PreferredSize ) return PHIAbstractTextItem::sizeHint( which, constraint );
     return QSizeF( 120., PHIAbstractTextItem::sizeHint( which, constraint ).height() );
-}
-
-QRectF PHIAbstractLayoutItem::boundingRect() const
-{
-    return PHIAbstractShapeItem::boundingRect();
 }
 
 void PHIAbstractInputItem::squeeze()
@@ -1171,6 +1173,21 @@ QScriptValue PHIAbstractInputItem::accessKey( const QScriptValue &a )
 {
     if ( !a.isValid() ) return realAccessKey();
     setAccessKey( a.toString() );
+    return self();
+}
+
+
+QScriptValue PHIAbstractInputItem::color( const QScriptValue &c )
+{
+    if ( !c.isValid() ) return PHI::colorToString( realColor() );
+    setColor( PHIPalette::WidgetText, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
+    return self();
+}
+
+QScriptValue PHIAbstractInputItem::bgColor( const QScriptValue &c )
+{
+    if ( !c.isValid() ) return PHI::colorToString( realBackgroundColor() );
+    setColor( PHIPalette::WidgetBase, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
     return self();
 }
 

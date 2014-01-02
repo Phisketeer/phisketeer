@@ -54,7 +54,7 @@ public:
     inline void setAlignment( quint16 align ) { setData( DAlignment, align ); if ( !isServerItem() ) setWidgetAligment( static_cast<Qt::Alignment>(align) ); }
 
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
-    virtual QColor color( PHIPalette::ItemRole role ) const;
+    virtual QColor colorForRole( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
     virtual void ideInit();
     virtual bool isDraggable() const { return true; }
@@ -376,6 +376,8 @@ public slots:
     virtual QScriptValue val( const QScriptValue &v=QScriptValue() );
     virtual QScriptValue readOnly( const QScriptValue &r=QScriptValue() );
     virtual QScriptValue accessKey( const QScriptValue &a=QScriptValue() );
+    virtual QScriptValue color( const QScriptValue &c=QScriptValue() );
+    virtual QScriptValue bgColor( const QScriptValue &c=QScriptValue() );
 
 protected:
     virtual PHIBooleanData* readOnlyData() { return &_readOnlyData; }

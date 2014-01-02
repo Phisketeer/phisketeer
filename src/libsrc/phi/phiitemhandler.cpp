@@ -597,7 +597,7 @@ QScriptValue PHIBaseItem::drop( const QScriptValue &v )
 
 void PHIBaseItem::checkForDragInMousePressEvent( QGraphicsSceneMouseEvent *e )
 {
-    qDebug( "checkForDragInMousePressEvent()" );
+    qDebug() << "checkForDragInMousePressEvent()" << _id;
     if ( !(e->buttons() & Qt::LeftButton) ) return;
     if ( !(dragDropOptions() & DDDragEnabled) ) return;
     setData( DDragStartPos, e->scenePos() );

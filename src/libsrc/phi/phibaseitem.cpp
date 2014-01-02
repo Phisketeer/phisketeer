@@ -97,6 +97,7 @@ PHIBaseItem::~PHIBaseItem()
     if ( _gw ) {
         QGraphicsScene *s=_gw->scene();
         if ( s ) s->removeItem( _gw ); // get ownership back from scene
+        qDebug() << "delete" << _id << _gw;
         delete _gw;
         _gw=0;
     }
@@ -399,10 +400,10 @@ void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
         << PHIPalette::HighlightText << PHIPalette::Link << PHIPalette::LinkVisited;
     if ( col>=map.count() ) col=0;
     if ( outCol>=map.count() ) outCol=0;
-    setColor( PHIPalette::Foreground, map.at( col ), color( PHIPalette::Foreground ) );
-    setColor( PHIPalette::Background, map.at( outCol ), color( PHIPalette::Background ) );
-    setColor( PHIPalette::WidgetText, map.at( col ), color( PHIPalette::WidgetText ) );
-    setColor( PHIPalette::WidgetBase, map.at( outCol ), color( PHIPalette::WidgetBase ) );
+    setColor( PHIPalette::Foreground, map.at( col ), colorForRole( PHIPalette::Foreground ) );
+    setColor( PHIPalette::Background, map.at( outCol ), colorForRole( PHIPalette::Background ) );
+    setColor( PHIPalette::WidgetText, map.at( col ), colorForRole( PHIPalette::WidgetText ) );
+    setColor( PHIPalette::WidgetBase, map.at( outCol ), colorForRole( PHIPalette::WidgetBase ) );
 }
 
 void PHIBaseItem::privateClientInit()
@@ -410,6 +411,8 @@ void PHIBaseItem::privateClientInit()
     setChecked( realChecked() );
     setDisabled( realDisabled() );
     setVisible( realVisible() );
+    Q_ASSERT( _gw );
+    _gw->setToolTip( realTitle() );
     clientInitData();
     phiPaletteChanged( page()->phiPalette() );
 }
@@ -488,7 +491,7 @@ void PHIBaseItem::phiPaletteChanged( const PHIPalette &pal )
         PHIPalette::ItemRole itemRole=static_cast<PHIPalette::ItemRole>(i);
         PHIPalette::ColorRole role=colorRole( itemRole );
         if ( role==PHIPalette::NoRole ) continue;
-        if ( role==PHIPalette::Custom ) setColor( itemRole, role, color( itemRole ) );
+        if ( role==PHIPalette::Custom ) setColor( itemRole, role, colorForRole( itemRole ) );
         else setColor( itemRole, role, pal.color( role ) );
     }
 }
@@ -922,11 +925,12 @@ void PHIBaseItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
 
 void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &script, bool project3D ) const
 {
-    if ( realOpacity()<1. ) script+=BL( "$('" )+_id+BL( "').opacity(" )
+    if ( Q_UNLIKELY( realOpacity()<1. ) ) script+=BL( "$('" )+_id+BL( "').opacity(" )
         +QByteArray::number( realOpacity(), 'f', 3 )+BL( ");\n" );
-    if ( !realVisible() ) script+=BL( "$('" )+_id+BL( "').hide();\n" );
-    if ( !realAccessKey().isEmpty() ) script+=BL( "$('" )+_id+BL( "').accessKey('" )
-        +realAccessKey().toUtf8()+BL( "');\n" );
+    if ( Q_UNLIKELY( !realVisible() ) ) script+=BL( "$('" )+_id+BL( "').hide();\n" );
+    if ( Q_UNLIKELY( !realAccessKey().isEmpty() ) ) script+=BL( "$('" )+_id+BL( "').accessKey('" )
+        +realAccessKey().toUtf8()+BL( "')\n" );
+    if ( Q_UNLIKELY( realDisabled() ) ) script+=BL( "$('" )+_id+BL( "').disabled(1);\n" );
     out+=BL( " class=\"phi\" id=\"" )+_id;
     if ( _variants.value( DTitle ).isValid() ) out+=BL( "\" title=\"" )+_variants.value( DTitle ).toByteArray();
     out+=BL( "\" style=\"" );

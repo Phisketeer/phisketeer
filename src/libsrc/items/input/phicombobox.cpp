@@ -60,6 +60,7 @@ void PHIComboBox::showPopup()
     pos=view->mapToGlobal( pos );
     defAct=_menu->exec( pos, defAct );
     if ( defAct ) setCurrentIndex( defAct->data().toInt() );
+    repaint();
 }
 
 bool PHIComboBox::event( QEvent *e )

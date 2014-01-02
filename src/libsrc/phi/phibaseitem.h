@@ -253,7 +253,7 @@ public: // not usable by script engine
     inline virtual bool isHeightChangeable() const { return true; }
     inline virtual bool isDraggable() const { return false; }
     inline virtual bool isDroppable() const { return false; }
-    inline virtual QColor color( PHIPalette::ItemRole ) const { return QColor(); }
+    inline virtual QColor colorForRole( PHIPalette::ItemRole ) const { return QColor(); }
     inline virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole ) const { return PHIPalette::NoRole; }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &color );
     virtual void setFont( const QFont &font );
@@ -297,13 +297,15 @@ public slots: // usable by script engine
     inline QScriptValue hide() { setVisible( false ); return self(); }
     inline QScriptValue show() { setVisible( true ); return self(); }
     inline QScriptValue clearEffects() { _effect->clearAll(); updateEffect(); return self(); }
-    inline bool isImage() const { return data( DIsImage, false ).toBool(); qDebug() << "isIm" << data( DIsImage, false ); }
+    inline bool isImage() const { return data( DIsImage, false ).toBool(); }
 
     virtual PHIWID wid() const=0;
     virtual QScriptValue width( const QScriptValue &v=QScriptValue() );
     virtual QScriptValue height( const QScriptValue &v=QScriptValue() );
 
     QScriptValue visible( const QScriptValue &b=QScriptValue() );
+    QScriptValue disabled( const QScriptValue &d=QScriptValue() );
+    QScriptValue title( const QScriptValue &t=QScriptValue() );
     QScriptValue opacity( const QScriptValue &o=QScriptValue() );
     QScriptValue fadeIn( qint32 start=0, qint32 duration=1000, qreal maxOpac=1., const QString &ease=PHI::defaultEasingCurve() );
     QScriptValue fadeOut( qint32 start=0, qint32 duration=1000, qreal minOpac=0, const QString &ease=PHI::defaultEasingCurve() );
@@ -591,8 +593,22 @@ inline QWidget* PHIBaseItem::widget() const
 
 inline QScriptValue PHIBaseItem::visible( const QScriptValue &b )
 {
-    if ( !b.isValid() ) return _variants.value( DVisibility, true ).toBool();
+    if ( !b.isValid() ) return realVisible();
     setVisible( b.toBool() );
+    return self();
+}
+
+inline QScriptValue PHIBaseItem::disabled( const QScriptValue &d )
+{
+    if ( !d.isValid() ) return realDisabled();
+    setDisabled( d.toBool() );
+    return self();
+}
+
+inline QScriptValue PHIBaseItem::title( const QScriptValue &t )
+{
+    if ( !t.isValid() ) return realTitle();
+    setTitle( t.toString() );
     return self();
 }
 

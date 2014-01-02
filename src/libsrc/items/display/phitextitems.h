@@ -26,6 +26,7 @@ class PHILabelItem : public PHIAbstractTextItem
 
 public:
     enum Wid { Label=30 };
+    enum ItemData { DPlainText=1 };
     explicit PHILabelItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ) { if ( isGuiItem() ) initWidget(); }
     PHILabelItem( const PHILabelItem &it ) : PHIAbstractTextItem( it ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHILabelItem() {}
@@ -36,6 +37,14 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/label" ) ); }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual void ideInit();
+    bool isPlainText() const { return data( DPlainText, false ).toBool(); }
+    void setPlainText( bool b ) { setData( DPlainText, b ); }
+
+protected slots:
+    QScriptValue color( const QScriptValue &c=QScriptValue() );
+    QScriptValue bgColor( const QScriptValue &c=QScriptValue() );
+    QScriptValue text( const QScriptValue &t=QScriptValue() );
+    QScriptValue html( const QScriptValue &h=QScriptValue() );
 
 protected:
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;

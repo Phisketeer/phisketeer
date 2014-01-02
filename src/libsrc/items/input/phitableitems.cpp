@@ -313,8 +313,8 @@ void PHIDecoratedTableItem::cssStatic( const PHIRequest *req, QByteArray &out ) 
 {
     QByteArray col, bgCol, head, high, sel, highTxt;
     if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
-        col=cssRgba( color( PHIPalette::WidgetText ) );
-        bgCol=cssRgba( color( PHIPalette::WidgetBase ) );
+        col=cssRgba( colorForRole( PHIPalette::WidgetText ) );
+        bgCol=cssRgba( colorForRole( PHIPalette::WidgetBase ) );
         if ( backgroundColorRole()==PHIPalette::Window ) bgCol=BL( "transparent" );
         head=cssRgba( page()->phiPalette().color( PHIPalette::ButtonText ) );
         high=cssRgba( page()->phiPalette().color( PHIPalette::Highlight ) );
@@ -322,8 +322,8 @@ void PHIDecoratedTableItem::cssStatic( const PHIRequest *req, QByteArray &out ) 
         sel=cssRgba( page()->phiPalette().color( PHIPalette::Error ) );
         highTxt=cssRgba( page()->phiPalette().color( PHIPalette::HighlightText) );
     } else {
-        col=color( PHIPalette::WidgetText ).name().toLatin1();
-        bgCol=color( PHIPalette::WidgetBase ).name().toLatin1();
+        col=colorForRole( PHIPalette::WidgetText ).name().toLatin1();
+        bgCol=colorForRole( PHIPalette::WidgetBase ).name().toLatin1();
         if ( backgroundColorRole()==PHIPalette::Window ) bgCol=BL( "" );
         head=page()->phiPalette().color( PHIPalette::ButtonText ).name().toLatin1();
         high=page()->phiPalette().color( PHIPalette::Highlight ).name().toLatin1();

@@ -414,6 +414,15 @@ $.$=function( s, i, x, y, w, h ) {
             if ( t===undefined ) return j( id+'_phi' ).val();
             j( id+'_phi' ).val( t ); return o;
         };
+        o.text=function( t ) {
+            if ( t===undefined ) return j( id+'_phit' ).text();
+            j( id+'_phit').text( t ); return o;
+        };
+        o.disabled=function(b){
+          if(b===undefined)return j(id+'_phi').prop('disabled');
+          j(id+'_phi').prop('disabled',b); return o;
+        };
+        o.readOnly=function( r ) { return undefined; };
     }
     if ( i===59 ) {
         o.progress=function( v ) {
@@ -425,6 +434,17 @@ $.$=function( s, i, x, y, w, h ) {
     if ( i===42 ) {
         o.isImage=function() { if ( j(id+' svg')===undefined) return true; return false; };
     }
+    if ( i===30 ) {
+        o.html=function( t ) {
+            if (t===undefined)return j(id+'_phit').html();
+            j(id+'_phit').html(t); return o;
+        };
+        o.text=function( t ) {
+            if (t===undefined)return j(id+'_phit').text();
+            j(id+'_phit').text(t); return o;
+        };
+    }
+
     return o;
 };
 

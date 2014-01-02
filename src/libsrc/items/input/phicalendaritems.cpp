@@ -249,5 +249,5 @@ void PHIDateEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
         +QByteArray::number( now.year() )+','+QByteArray::number( now.month()-1 )+','
         +QByteArray::number( now.day() )+BL( "));});\njQuery('#" )+id()
         +BL( "_phib').button({icons:{primary:'ui-icon-calendar'},text:false})"
-            ".click(function(){jQuery('#" )+id()+BL( "_phit').datepicker('show')});\n" );
+            ".click(function(e){e.preventDefault();jQuery('#" )+id()+BL( "_phit').datepicker('show')});\n" );
 }

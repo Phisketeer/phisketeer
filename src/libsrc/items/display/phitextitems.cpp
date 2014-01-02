@@ -39,6 +39,8 @@ void PHILabelItem::ideInit()
 void PHILabelItem::setWidgetText( const QString &t )
 {
     QLabel *l=qobject_cast<QLabel*>(widget());
+    if ( !l ) return;
+    l->setTextFormat( isPlainText() ? Qt::PlainText : Qt::RichText );
     l->setText( t );
 }
 
@@ -58,8 +60,13 @@ void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scr
             out+=BL( "background-color:" )+cssRgba( realBackgroundColor() )+';';
         if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text )
             out+=BL( "color:" )+cssRgba( realColor() )+';';
+    } else {
+        if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
+            out+=BL( "background-color:" )+realBackgroundColor().name().toLatin1()+';';
+        if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text )
+            out+=BL( "color:" )+realColor().name().toLatin1()+';';
     }
-    out+=BL( "\"><table class=\"phi\"><tr><td style=\"" );
+    out+=BL( "\"><table class=\"phi\"><tr><td id=\"" )+id()+BL( "_phit\" style=\"" );
     Qt::Alignment a=static_cast<Qt::Alignment>(realAlignment());
     if ( data( DFont ).isValid() ) {
         QFont f=data( DFont ).value<QFont>();
@@ -71,8 +78,10 @@ void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scr
     else out+=BL( "vertical-align:middle;" );
     if ( a & Qt::AlignHCenter ) out+=BL( "text-align:center;" );
     else if ( a & Qt::AlignRight ) out+=BL( "text-align:right;" );
-    out+=BL( "\">" )+data( DText ).toByteArray().replace( '\n', BL( "<br>" ) )
-        +BL( "</td></tr></table></div>\n" );
+    out+=BL( "\">" )+BL( "</td></tr></table></div>\n" );
+    htmlInitItem( script, false );
+    if ( isPlainText() ) script+=BL( ".text('" )+data( DText ).toByteArray()+BL("');\n" );
+    else script+=BL( ".html('" )+data( DText ).toByteArray()+BL("');\n" );
 }
 
 void PHILabelItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
@@ -125,4 +134,34 @@ void PHILabelItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, 
     QPalette pal=w->palette();
     pal.setColor( role, col );
     w->setPalette( pal );
+}
+
+QScriptValue PHILabelItem::color(const QScriptValue &c )
+{
+    if ( !c.isValid() ) return PHI::colorToString( realColor() );
+    setColor( PHIPalette::WidgetText, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
+    return self();
+}
+
+QScriptValue PHILabelItem::bgColor( const QScriptValue &c )
+{
+    if ( !c.isValid() ) return PHI::colorToString( realBackgroundColor() );
+    setColor( PHIPalette::WidgetBase, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
+    return self();
+}
+
+QScriptValue PHILabelItem::text( const QScriptValue &t )
+{
+    if ( !t.isValid() ) return realText();
+    setText( t.toString() );
+    setPlainText( true );
+    return self();
+}
+
+QScriptValue PHILabelItem::html( const QScriptValue &t )
+{
+    if ( !t.isValid() ) return realText();
+    setPlainText( false );
+    setText( t.toString() );
+    return self();
 }

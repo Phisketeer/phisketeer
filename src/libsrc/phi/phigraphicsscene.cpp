@@ -43,6 +43,7 @@ PHIGraphicsScene::~PHIGraphicsScene()
     foreach ( PHIBaseItem *it, _page->items() ) {
         PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
         if ( lit ) {
+            qDebug() << "breaking layout" << lit->id();
             lit->breakLayout(); // break all page containing layouts
         }
     }

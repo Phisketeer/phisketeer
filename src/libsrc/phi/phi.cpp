@@ -413,7 +413,7 @@ QColor PHI::colorFromString( const QString &name )
         //alpha seems to be always between 0-1
         compo[3]*=255;
         return QColor( (int)compo[0], (int)compo[1], (int)compo[2], (int)compo[3]);
-    } else if ( name.startsWith( QStringLiteral( "rgb(" ) ) ) {
+    } else if ( name.startsWith( SL( "rgb(" ) ) ) {
         ++itr; ++itr; ++itr; ++itr;
         compo=parseNumbersList( itr );
         if (compo.size() != 3) {
@@ -423,10 +423,20 @@ QColor PHI::colorFromString( const QString &name )
             (int)PHIBOUND(compo[1], qreal(0), qreal(255)),
             (int)PHIBOUND(compo[2], qreal(0), qreal(255)));
     } else {
-        //QRgb color;
-        //CSSParser::parseColor(name, color);
         return QColor(name);
     }
+}
+
+QString PHI::colorToString( const QColor &c )
+{
+    QString s;
+    if ( c.alpha()==255 ) s=SL( "rgb(" );
+    else s=SL( "rgba(" );
+    s+=QString::number( c.red() )+SL( ", " );
+    s+=QString::number( c.green() )+SL( ", " );
+    s+=QString::number( c.blue() );
+    if ( c.alpha()==255 ) return s+=QLatin1Char( ')' );
+    return s+=SL( ", " )+QString::number( c.alphaF(), 'f', 3 )+QLatin1Char( ')' );
 }
 
 /*
@@ -446,25 +456,6 @@ Qt::Alignment PHI::toQtAlignment( quint8 align )
     case PHI::AlignLeftBottom: return Qt::AlignBottom | Qt::AlignLeft;
     default: return Qt::AlignLeft | Qt::AlignTop;
     }
-}
-*/
-
-/*
-
-QByteArray PHI::emptyHtmlDoc()
-{
-    QByteArray arr="<html><head></head><body>";
-    arr+=QObject::tr( "empty HTML document" ).toUtf8();
-    arr+="</body></html>";
-    return arr;
-}
-
-QByteArray PHI::emptyYouTubeDoc()
-{
-    QByteArray arr="<html><head></head><body>";
-    arr+=QObject::tr( "ID provided at runtime." ).toUtf8();
-    arr+="</body></html>";
-    return arr;
 }
 */
 

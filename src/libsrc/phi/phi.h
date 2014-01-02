@@ -124,6 +124,7 @@ public:
         qreal &step, int &decimals );
     static QList<qreal> parseNumbersList( QString::const_iterator &itr );
     static QColor colorFromString( const QString &name );
+    static QString colorToString( const QColor &c );
     static qreal adjustedFontSize( qreal s);
 
     static inline const QString& idValidator() { static QString v=QStringLiteral( "[A-Za-z][-_A-Za-z0-9]*" ); return v; }

@@ -55,10 +55,10 @@ PHIWID PHIProgressItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &
 
 void PHIProgressItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    htmlInitItem( script );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
     out+=BL( "\"></div>\n" );
-    htmlInitItem( script );
 }
 
 QScriptValue PHIProgressItem::progress( const QScriptValue &v )

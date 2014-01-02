@@ -39,20 +39,30 @@ public:
     virtual void setChecked( bool b );
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual bool hasValue() const { return true; }
+    virtual QString realValue() const { return QString::fromUtf8( data( DValue ).toByteArray() ); }
+    virtual void setValue( const QString &v ) { setData( DValue, v.toUtf8() ); }
+
+public slots:
+    QScriptValue checked( const QScriptValue &v=QScriptValue() );
+    QScriptValue text( const QScriptValue &v=QScriptValue() );
+
+protected slots:
+    virtual void slotChanged();
 
 protected:
     virtual void ideUpdateData();
     virtual void initWidget();
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
-    virtual bool isCheckable() const { return true; }
     virtual void setWidgetText( const QString &s );
-    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual PHIBooleanData* checkedData() { return &_checkedData; }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
+    virtual void clientPostData( QHttpMultiPart *multiPart ) const;
+    virtual bool isCheckable() const { return true; }
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual PHIBooleanData* checkedData() { return &_checkedData; }
 
 private:
     PHIBooleanData _checkedData;
@@ -78,6 +88,9 @@ public:
 protected:
     virtual void initWidget();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+
+protected slots:
+    virtual void slotChanged();
 };
 
 #endif // PHICHECKITEMS_H

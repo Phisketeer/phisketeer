@@ -81,8 +81,8 @@ void PHIColorPreview::paintEvent( QPaintEvent *e )
 {
     if ( _edit ) {
         QPalette pal=QGuiApplication::palette();
-        pal.setColor( QPalette::Text, _item->color( PHIPalette::WidgetText ) );
-        pal.setColor( QPalette::Base, _item->color( PHIPalette::WidgetBase ) );
+        pal.setColor( QPalette::Text, _item->colorForRole( PHIPalette::WidgetText ) );
+        pal.setColor( QPalette::Base, _item->colorForRole( PHIPalette::WidgetBase ) );
         _edit->setPalette( pal );
         return QWidget::paintEvent( e );
     }
@@ -122,12 +122,12 @@ PHIColorConfig::PHIColorConfig( PHIBaseItem *item, QWidget *parent )
         }
     }
     foreach( PHIPalette::ItemRole ir, _itemRoles ) {
-        _oldColors.insert( ir, item->color( ir ) );
+        _oldColors.insert( ir, item->colorForRole( ir ) );
         _oldRoles.insert( ir, item->colorRole( ir ) );
         if ( ir==PHIPalette::Foreground || ir==PHIPalette::WidgetText )
-            _colorButton->setIcon( colorPixmap( item->color( ir ) ) );
+            _colorButton->setIcon( colorPixmap( item->colorForRole( ir ) ) );
         if ( ir==PHIPalette::Background || ir==PHIPalette::WidgetBase )
-            _outlineColorButton->setIcon( colorPixmap( item->color( ir ) ) );
+            _outlineColorButton->setIcon( colorPixmap( item->colorForRole( ir ) ) );
     }
 }
 
@@ -140,7 +140,7 @@ bool PHIColorConfig::storeData()
 {
     bool changed=false;
     foreach ( PHIPalette::ItemRole ir, _itemRoles ) {
-        if ( _oldColors.value( ir )!=item()->color( ir ) ) changed=true;
+        if ( _oldColors.value( ir )!=item()->colorForRole( ir ) ) changed=true;
     }
     return changed;
 }
@@ -149,7 +149,7 @@ PHIConfigColors PHIColorConfig::oldColors() const
 {
     PHIConfigColors cc;
     foreach ( PHIPalette::ItemRole ir, _itemRoles ) {
-        if ( _oldColors.value( ir )==item()->color( ir ) ) continue;
+        if ( _oldColors.value( ir )==item()->colorForRole( ir ) ) continue;
         cc.insert( ir, qMakePair( _oldRoles.value( ir, PHIPalette::NoRole ), _oldColors.value( ir, QColor() ) ) );
     }
     return cc;
@@ -159,7 +159,7 @@ void PHIColorConfig::on__colorButton_clicked()
 {
     QString title=tr( "Pattern color" );
     if ( _itemRoles.at( 0 )==PHIPalette::WidgetText ) title=tr( "Text color" );
-    QColor col=QColorDialog::getColor( item()->color( _itemRoles.at( 0 ) ), this, title, QColorDialog::ShowAlphaChannel );
+    QColor col=QColorDialog::getColor( item()->colorForRole( _itemRoles.at( 0 ) ), this, title, QColorDialog::ShowAlphaChannel );
     if ( !col.isValid() ) return;
     item()->setColor( _itemRoles.at( 0 ), PHIPalette::Custom, col );
     _colorButton->setIcon( colorPixmap( col ) );
@@ -170,7 +170,7 @@ void PHIColorConfig::on__outlineColorButton_clicked()
 {
     QString title=tr( "Outline color" );
     if ( _itemRoles.at( 1 )==PHIPalette::WidgetBase ) title=tr( "Base color" );
-    QColor col=QColorDialog::getColor( item()->color( _itemRoles.at( 1 ) ), this, title, QColorDialog::ShowAlphaChannel );
+    QColor col=QColorDialog::getColor( item()->colorForRole( _itemRoles.at( 1 ) ), this, title, QColorDialog::ShowAlphaChannel );
     if ( !col.isValid() ) return;
     item()->setColor( _itemRoles.at( 1 ), PHIPalette::Custom, col );
     _outlineColorButton->setIcon( colorPixmap( col ) );

@@ -68,10 +68,9 @@ void PHIHiddenItem::squeeze()
 void PHIHiddenItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     Q_UNUSED( req )
-    Q_UNUSED( script )
+    htmlInitItem( script );
     out+=indent+BL( "<input type=\"hidden\" id=\"" )+id()+BL( "\" value=\"" )
         +data( DText ).toByteArray()+BL( "\" name=\"" )+id()+BL( "\">\n" );
-    htmlInitItem( script );
 }
 
 void PHIRolloverItem::ideInit()

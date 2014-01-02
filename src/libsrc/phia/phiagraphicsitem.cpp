@@ -22,11 +22,19 @@
 #include <QGraphicsSceneHoverEvent>
 #include <QGraphicsSceneDragDropEvent>
 #include "phiagraphicsitem.h"
+#include "phiabstractitems.h"
 #include "phidomevent.h"
 
 bool PHIAGraphicsItem::sceneEvent( QEvent *event )
 {
+    qDebug() << "event" << baseItem()->id() << event->type();
     return QGraphicsProxyWidget::sceneEvent( event );
+}
+
+void PHIAGraphicsItem::grabKeyboardEvent( QEvent *event )
+{
+    qDebug() << "grabKeyboard" << baseItem()->id();
+    PHIGraphicsItem::grabKeyboardEvent( event );
 }
 
 QSizeF PHIAGraphicsItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
@@ -56,6 +64,7 @@ void PHIAGraphicsItem::keyPressEvent( QKeyEvent *event )
         }
         PHIGraphicsItem::keyPressEvent( event );
         baseItem()->keypress( event );
+        qDebug() << "keypress" << baseItem()->id();
         return;
     } else {
         PHIGraphicsItem::keyPressEvent( event );
@@ -71,6 +80,7 @@ void PHIAGraphicsItem::keyReleaseEvent( QKeyEvent *event )
         keyup.setKeyEvent( event );
         baseItem()->trigger( SL( "keyup" ), QScriptValue(), &keyup );
     }
+    qDebug() << "keyup" << baseItem()->id() << event->isAccepted();
 }
 
 void PHIAGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
@@ -178,6 +188,7 @@ void PHIAGraphicsItem::focusInEvent( QFocusEvent *event )
         if ( focus.isDefaultPrevented() ) return event->ignore();
     }
     PHIGraphicsItem::focusInEvent( event );
+    qDebug() << "focus" << baseItem()->id();
     baseItem()->focus( event );
 }
 
@@ -190,6 +201,7 @@ void PHIAGraphicsItem::focusOutEvent( QFocusEvent *event )
         if ( blur.isDefaultPrevented() ) return event->ignore();
     }
     PHIGraphicsItem::focusOutEvent( event );
+    qDebug() << "blur" << baseItem()->id();
     baseItem()->blur( event );
 }
 
