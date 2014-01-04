@@ -38,6 +38,7 @@ public:
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual bool sceneEvent( QEvent *event );
+
     virtual void keyPressEvent( QKeyEvent *event );
     virtual void keyReleaseEvent( QKeyEvent *event );
     virtual void mouseDoubleClickEvent( QGraphicsSceneMouseEvent *event );
@@ -53,7 +54,6 @@ protected:
     virtual void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
-    virtual void grabKeyboardEvent( QEvent *event );
 };
 
 #endif // PHIAGRAPHICSITEM_H

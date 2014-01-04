@@ -27,19 +27,13 @@
 
 bool PHIAGraphicsItem::sceneEvent( QEvent *event )
 {
-    qDebug() << "event" << baseItem()->id() << event->type();
     return QGraphicsProxyWidget::sceneEvent( event );
-}
-
-void PHIAGraphicsItem::grabKeyboardEvent( QEvent *event )
-{
-    qDebug() << "grabKeyboard" << baseItem()->id();
-    PHIGraphicsItem::grabKeyboardEvent( event );
 }
 
 QSizeF PHIAGraphicsItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( which==Qt::MinimumSize ) return QSizeF( 0, 0 ); // needed for animations
+    // a value of QSizeF( 0, 0 ) blocks QLineEdit in layouts (Qt 5.2.0)
+    if ( which==Qt::MinimumSize ) return QSizeF( 1, 1 ); // needed for animations
     QSizeF size=baseItem()->sizeHint( which, constraint );
     if ( size.isValid() ) return size;
     return QGraphicsProxyWidget::sizeHint( which, constraint );
@@ -74,13 +68,13 @@ void PHIAGraphicsItem::keyPressEvent( QKeyEvent *event )
 void PHIAGraphicsItem::keyReleaseEvent( QKeyEvent *event )
 {
     PHIGraphicsItem::keyReleaseEvent( event );
+    event->accept();
     baseItem()->keyup( event );
     if ( baseItem()->flags() & PHIBaseItem::FHasKeyEventHandler ) {
         PHIDomEvent keyup( SL( "keyup" ), baseItem(), false );
         keyup.setKeyEvent( event );
         baseItem()->trigger( SL( "keyup" ), QScriptValue(), &keyup );
     }
-    qDebug() << "keyup" << baseItem()->id() << event->isAccepted();
 }
 
 void PHIAGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent *event )

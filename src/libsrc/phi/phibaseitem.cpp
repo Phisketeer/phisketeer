@@ -97,7 +97,6 @@ PHIBaseItem::~PHIBaseItem()
     if ( _gw ) {
         QGraphicsScene *s=_gw->scene();
         if ( s ) s->removeItem( _gw ); // get ownership back from scene
-        qDebug() << "delete" << _id << _gw;
         delete _gw;
         _gw=0;
     }
@@ -668,7 +667,6 @@ bool PHIBaseItem::sceneEvent( QEvent *e )
             return false;
         case QEvent::KeyPress:
             ideKeyPressEvent( static_cast<QKeyEvent*>(e) );
-            qDebug() << "kyp";
             return true;
         default:;
         }
@@ -987,12 +985,12 @@ void PHIBaseItem::htmlDragDropItem( QByteArray &script ) const
     quint32 opts=dragDropOptions();
     if ( opts & DDDragEnabled ) {
         script+=BL( "jQuery('#" )+_id+BL( "').draggable({zIndex:30000,cursor:'move'," );
-        if ( !(opts & DDMoveAction) ) script+=BL( "helper:'clone'," );
+        if ( !(opts & DDMoveAction) ) script+=BL( "helper:function(e,ui){return jQuery(this).clone(true);}," );
         if ( opts & DDRevertOnAccept && opts & DDRevertOnIgnore ) script+=BL( "revert:true," );
         else if ( opts & DDRevertOnAccept ) script+=BL( "revert:'valid'," );
         else if ( opts & DDRevertOnIgnore ) script+=BL( "revert:'invalid'," );
         qreal opac=data( DDragOpacity, 1. ).toReal();
-        if ( opac<1. ) script+=BL( "opacity:" )+QByteArray::number( opac, 'f', 2 )+',';
+        if ( Q_UNLIKELY( opac<1. ) ) script+=BL( "opacity:" )+QByteArray::number( opac, 'f', 2 )+',';
         QPoint hotspot=data( DDragHotSpot, PHI::defaultHotSpot() ).toPoint();
         if ( data( DDragHotSpotType ).toInt()==1 ) script+=BL( "cursorAt:{left:" )
             +QByteArray::number( qRound(realWidth()/2) )+BL( ",top:" )
@@ -1050,7 +1048,7 @@ void PHIBaseItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByt
             QByteArray filter;
             qreal radius;
             _effect->blur( radius );
-            filter+="progid:DXImageTransform.Microsoft.Blur(PixelRadius=";
+            filter+=BL( "progid:DXImageTransform.Microsoft.Blur(PixelRadius=" );
             filter+=QByteArray::number( radius )+')';
             script+=BL( "$('" )+_id+BL( "').x(" )
                 +QByteArray::number( qRound(_x-radius) )+BL( ").y(" )

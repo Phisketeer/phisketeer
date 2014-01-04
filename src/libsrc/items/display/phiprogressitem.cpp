@@ -26,9 +26,8 @@ void PHIProgressItem::ideInit()
 
 QSizeF PHIProgressItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( isChild() ) return realSize();
-    if ( which==Qt::PreferredSize ) return QSizeF( 160., 16. );
-    if ( which==Qt::MaximumSize ) return QSizeF( 4000., 16. );
+    if ( which==Qt::PreferredSize ) return QSizeF( 160., 18. );
+    if ( which==Qt::MaximumSize ) return QSizeF( 4000., 200. );
     return PHIBaseItem::sizeHint( which, constraint );
 }
 

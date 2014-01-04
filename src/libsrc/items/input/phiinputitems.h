@@ -40,6 +40,7 @@ public:
     virtual void ideInit();
     virtual PHITextData* placeholderData() { return &_placeholderData; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual QString realValue() const;
     void setMaxLength( qint32 l );
     void setPlaceholder( const QString &t );
     inline QString realPlaceholder() const { return QString::fromUtf8( data( DPlaceholder ).toByteArray() ); }
@@ -191,7 +192,7 @@ class PHINumberEditItem : public PHIAbstractInputItem
     Q_OBJECT
 
 public:
-    enum Wid { NumberEdit=52 };
+    enum Wid { NumberEdit=52, RealNumberEdit=53 };
     explicit PHINumberEditItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
     PHINumberEditItem( const PHINumberEditItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHINumberEditItem() {}
@@ -201,39 +202,60 @@ public:
     virtual PHIWID wid() const { return NumberEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
     virtual void ideInit();
+    virtual void setValue( const QString &v );
+    virtual QString realValue() const;
+    virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &headerOut ) const;
+    virtual bool hasHtmlExtension() const { return true; }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+public slots:
+    virtual QScriptValue min( const QScriptValue &m=QScriptValue() );
+    virtual QScriptValue max( const QScriptValue &m=QScriptValue() );
+    virtual QScriptValue step( const QScriptValue &m=QScriptValue() );
 
 protected:
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void setReadOnly( bool b );
 
+protected slots:
+    virtual void slotChanged();
+
 private:
-    void initWidget();
+    virtual void initWidget();
 };
 
-class PHIRealNumberEditItem : public PHIAbstractInputItem
+class PHIRealNumberEditItem : public PHINumberEditItem
 {
     Q_OBJECT
 
 public:
-    enum Wid { RealNumberEdit=53 };
-    explicit PHIRealNumberEditItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
-    PHIRealNumberEditItem( const PHIRealNumberEditItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
+    explicit PHIRealNumberEditItem( const PHIBaseItemPrivate &p ) : PHINumberEditItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIRealNumberEditItem( const PHIRealNumberEditItem &it ) : PHINumberEditItem( it ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHIRealNumberEditItem() {}
 
     virtual QString listName() const { return tr( "Real number" ); }
     virtual QString description() const { return tr( "Real number edit with input type <number>" ); }
     virtual PHIWID wid() const { return RealNumberEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
-    virtual void ideInit();
+    virtual void setValue( const QString &v );
+    virtual QString realValue() const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+public slots:
+    virtual QScriptValue min( const QScriptValue &m=QScriptValue() );
+    virtual QScriptValue max( const QScriptValue &m=QScriptValue() );
+    virtual QScriptValue step( const QScriptValue &m=QScriptValue() );
 
 protected:
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual void setReadOnly( bool b );
+
+protected slots:
+    virtual void slotChanged();
 
 private:
-    void initWidget();
+    virtual void initWidget();
 };
 
 class PHISubmitButtonItem : public PHIAbstractInputItem

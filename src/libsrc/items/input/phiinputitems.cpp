@@ -174,7 +174,15 @@ QScriptValue PHILineEditItem::maxLength( const QScriptValue &l )
 void PHILineEditItem::clientInitData()
 {
     setPlaceholder( realPlaceholder() );
+    setMaxLength( realMaxLength() );
     PHIAbstractInputItem::clientInitData();
+}
+
+QString PHILineEditItem::realValue() const
+{
+    QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
+    if ( !edit ) return QString::fromUtf8( data( DText ).toByteArray() );
+    return edit->text();
 }
 
 void PHIPhoneItem::initWidget()
@@ -195,7 +203,7 @@ void PHIEmailItem::initWidget()
 {
     QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
     Q_ASSERT( edit );
-    edit->setValidator( new QRegExpValidator( QRegExp( QString::fromLatin1( PHI::emailRegExp() ) ), edit ) );
+    edit->setValidator( new QRegExpValidator( QRegExp( QString::fromLatin1( PHI::emailRegExp() ), Qt::CaseInsensitive ), edit ) );
 }
 
 void PHIEmailItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
@@ -259,6 +267,7 @@ void PHITextAreaItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
     htmlInitItem( script );
     out+=indent+BL( "<textarea name=\"" )+id()+'"';
     if ( realReadOnly() ) out+=BL( " readonly=\"readonly\"" );
+    out+=BL( " maxlength=\"" )+QByteArray::number( realMaxLength() )+'"';
     htmlBase( req, out, script );
     out+=BL( "\">" )+data( DText ).toByteArray()+BL( "</textarea>\n" );
 }
@@ -298,21 +307,46 @@ QScriptValue PHITextAreaItem::maxLength( const QScriptValue &l )
 
 void PHINumberEditItem::initWidget()
 {
-    setWidget( new QSpinBox() );
+    QSpinBox *spin=new QSpinBox();
+    setWidget( spin );
+    if ( !isClientItem() ) return;
+    QLineEdit *edit=spin->findChild<QLineEdit*>();
+    connect( edit, SIGNAL(editingFinished()), this, SLOT(slotChanged()) );
+}
+
+void PHINumberEditItem::slotChanged()
+{
+    if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
 }
 
 void PHINumberEditItem::ideInit()
 {
     PHIAbstractInputItem::ideInit();
-    textData()->setText( L1( "1:0:100:1" ) );
+    if ( wid()==NumberEdit ) textData()->setText( L1( "1:0:100:1" ) );
+    else textData()->setText( L1( "1.5:0:10.5:0.5:1" ) );
 }
 
 void PHINumberEditItem::setReadOnly( bool b )
 {
     PHIBaseItem::setReadOnly( b );
-    QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
-    if ( !spin ) return;
-    spin->setReadOnly( b );
+    if ( wid()==NumberEdit ) {
+        QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
+        if ( !spin ) return;
+        QLineEdit *edit=spin->findChild<QLineEdit*>();
+        edit->setReadOnly( b );
+    } else {
+        QDoubleSpinBox *spin=qobject_cast<QDoubleSpinBox*>(widget());
+        if ( !spin ) return;
+        QLineEdit *edit=spin->findChild<QLineEdit*>();
+        edit->setReadOnly( b );
+    }
+}
+
+PHIWID PHINumberEditItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const
+{
+    Q_UNUSED( req )
+    header+=BL( "<script type=\"text/javascript\" src=\"phi.phis?j=ui-spinner\"></script>\n" );
+    return static_cast<PHIWID>(NumberEdit);
 }
 
 void PHINumberEditItem::setWidgetText( const QString &s )
@@ -320,11 +354,63 @@ void PHINumberEditItem::setWidgetText( const QString &s )
     int val, min, max, step;
     PHI::extractNumbers( s.toLatin1(), val, min, max, step );
     QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
-    Q_ASSERT( spin );
+    if ( !spin ) return;
     spin->setValue( val );
     spin->setMinimum( min );
     spin->setMaximum( max );
     spin->setSingleStep( step );
+}
+
+QScriptValue PHINumberEditItem::min( const QScriptValue &m )
+{
+    int val, min, max, step;
+    PHI::extractNumbers( data( DText ).toByteArray(), val, min, max, step );
+    if ( !m.isValid() ) return min;
+    setText( QString( SL( "%1:%2:%3:%4" ) ).arg( val ).arg( m.toInt32() ).arg( max ).arg( step ) );
+    QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
+    if ( spin ) spin->setMinimum( m.toInt32() );
+    return self();
+}
+
+QScriptValue PHINumberEditItem::max( const QScriptValue &m )
+{
+    int val, min, max, step;
+    PHI::extractNumbers( data( DText ).toByteArray(), val, min, max, step );
+    if ( !m.isValid() ) return max;
+    setText( QString( SL( "%1:%2:%3:%4" ) ).arg( val ).arg( min ).arg( m.toInt32() ).arg( step ) );
+    QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
+    if ( spin ) spin->setMaximum( m.toInt32() );
+    return self();
+}
+
+QScriptValue PHINumberEditItem::step( const QScriptValue &m )
+{
+    int val, min, max, step;
+    PHI::extractNumbers( data( DText ).toByteArray(), val, min, max, step );
+    if ( !m.isValid() ) return step;
+    setText( QString( SL( "%1:%2:%3:%4" ) ).arg( val ).arg( min ).arg( max ).arg( m.toInt32() ) );
+    QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
+    if ( spin ) spin->setSingleStep( m.toInt32() );
+    return self();
+}
+
+void PHINumberEditItem::setValue( const QString &v )
+{
+    int val, min, max, step;
+    PHI::extractNumbers( data( DText ).toByteArray(), val, min, max, step );
+    setText( QString( SL( "%1:%2:%3:%4" ) ).arg( v.toInt() ).arg( min ).arg( max ).arg( step ) );
+    QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
+    if ( !spin ) return;
+    spin->setValue( v.toInt() );
+}
+
+QString PHINumberEditItem::realValue() const
+{
+    QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
+    if ( spin ) return spin->text();
+    int val, min, max, step;
+    PHI::extractNumbers( data( DText ).toByteArray(), val, min, max, step );
+    return QString::number( val );
 }
 
 QSizeF PHINumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
@@ -338,15 +424,31 @@ QSizeF PHINumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint
     return PHIAbstractInputItem::sizeHint( which, constraint );
 }
 
-void PHIRealNumberEditItem::initWidget()
+void PHINumberEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    setWidget( new QDoubleSpinBox() );
+    htmlInitItem( script, false );
+    int val, min, max, step;
+    PHI::extractNumbers( data( DText ).toByteArray(), val, min, max, step );
+    script+=BL( ".val(" )+QByteArray::number( val )+BL( ").min(" )
+        +QByteArray::number( min )+BL( ").max(" )+QByteArray::number( max )
+        +BL( ").step(" )+QByteArray::number( step )+BL( ");\n" );
+    out+=indent+BL( "<div" );
+    htmlBase( req, out, script );
+    out+=BL( "\"><input id=\"" )+id()+BL( "_phi\" name=\"" )+id()+BL( "\"></div>\n" );
 }
 
-void PHIRealNumberEditItem::ideInit()
+void PHIRealNumberEditItem::initWidget()
 {
-    PHIAbstractInputItem::ideInit();
-    textData()->setText( L1( "1.5:0:10.5:0.5:1" ) );
+    QDoubleSpinBox *spin=new QDoubleSpinBox();
+    setWidget( spin );
+    if ( !isClientItem() ) return;
+    QLineEdit *edit=spin->findChild<QLineEdit*>();
+    connect( edit, SIGNAL(editingFinished()), this, SLOT(slotChanged()) );
+}
+
+void PHIRealNumberEditItem::slotChanged()
+{
+    if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
 }
 
 void PHIRealNumberEditItem::setWidgetText( const QString &s )
@@ -355,6 +457,7 @@ void PHIRealNumberEditItem::setWidgetText( const QString &s )
     int dec;
     PHI::extractRealNumbers( s.toLatin1(), val, min, max, step, dec );
     QDoubleSpinBox *spin=qobject_cast<QDoubleSpinBox*>(widget());
+    qDebug() << widget();
     Q_ASSERT( spin );
     spin->setValue( val );
     spin->setMinimum( min );
@@ -363,12 +466,61 @@ void PHIRealNumberEditItem::setWidgetText( const QString &s )
     spin->setDecimals( dec );
 }
 
-void PHIRealNumberEditItem::setReadOnly( bool b )
+QScriptValue PHIRealNumberEditItem::min( const QScriptValue &m )
 {
-    PHIBaseItem::setReadOnly( b );
+    qreal val, min, max, step;
+    int decimals;
+    PHI::extractRealNumbers( data( DText ).toByteArray(), val, min, max, step, decimals );
+    if ( !m.isValid() ) return min;
+    setText( QString( SL( "%1:%2:%3:%4:%5" ) ).arg( val ).arg( m.toNumber() ).arg( max ).arg( step ).arg( decimals ) );
     QDoubleSpinBox *spin=qobject_cast<QDoubleSpinBox*>(widget());
-    if( !spin ) return;
-    spin->setReadOnly( b );
+    if ( spin ) spin->setMinimum( m.toNumber() );
+    return self();
+}
+
+QScriptValue PHIRealNumberEditItem::max( const QScriptValue &m )
+{
+    qreal val, min, max, step;
+    int decimals;
+    PHI::extractRealNumbers( data( DText ).toByteArray(), val, min, max, step, decimals );
+    if ( !m.isValid() ) return max;
+    setText( QString( SL( "%1:%2:%3:%4:%5" ) ).arg( val ).arg( min ).arg( m.toNumber() ).arg( step ).arg( decimals ) );
+    QDoubleSpinBox *spin=qobject_cast<QDoubleSpinBox*>(widget());
+    if ( spin ) spin->setMaximum( m.toNumber() );
+    return self();
+}
+
+QScriptValue PHIRealNumberEditItem::step( const QScriptValue &m )
+{
+    qreal val, min, max, step;
+    int decimals;
+    PHI::extractRealNumbers( data( DText ).toByteArray(), val, min, max, step, decimals );
+    if ( !m.isValid() ) return step;
+    setText( QString( SL( "%1:%2:%3:%4:%5" ) ).arg( val ).arg( min ).arg( max ).arg( m.toNumber() ).arg( decimals ) );
+    QDoubleSpinBox *spin=qobject_cast<QDoubleSpinBox*>(widget());
+    if ( spin ) spin->setSingleStep( m.toNumber() );
+    return self();
+}
+
+void PHIRealNumberEditItem::setValue( const QString &v )
+{
+    qreal val, min, max, step;
+    int decimals;
+    PHI::extractRealNumbers( data( DText ).toByteArray(), val, min, max, step, decimals );
+    setText( QString( SL( "%1:%2:%3:%4:%5" ) ).arg( v.toDouble() ).arg( min ).arg( max ).arg( step ).arg( decimals ) );
+    QDoubleSpinBox *spin=qobject_cast<QDoubleSpinBox*>(widget());
+    if ( !spin ) return;
+    spin->setValue( v.toDouble() );
+}
+
+QString PHIRealNumberEditItem::realValue() const
+{
+    QDoubleSpinBox *spin=qobject_cast<QDoubleSpinBox*>(widget());
+    if ( spin ) return spin->text();
+    qreal val, min, max, step;
+    int decimals;
+    PHI::extractRealNumbers( data( DText ).toByteArray(), val, min, max, step, decimals );
+    return QString::number( val, 'g', decimals );
 }
 
 QSizeF PHIRealNumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
@@ -380,6 +532,20 @@ QSizeF PHIRealNumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constr
         return s;
     }
     return PHIAbstractInputItem::sizeHint( which, constraint );
+}
+
+void PHIRealNumberEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    htmlInitItem( script, false );
+    qreal val, min, max, step;
+    int decimals;
+    PHI::extractRealNumbers( data( DText ).toByteArray(), val, min, max, step, decimals );
+    script+=BL( ".val(" )+QByteArray::number( val, 'g', decimals )+BL( ").min(" )
+        +QByteArray::number( min )+BL( ").max(" )+QByteArray::number( max )
+        +BL( ").step(" )+QByteArray::number( step )+BL( ");\n" );
+    out+=indent+BL( "<div" );
+    htmlBase( req, out, script );
+    out+=BL( "\"><input id=\"" )+id()+BL( "_phi\" name=\"" )+id()+BL( "\"></div>\n" );
 }
 
 void PHIPasswordItem::initWidget()

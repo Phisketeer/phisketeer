@@ -444,7 +444,43 @@ $.$=function( s, i, x, y, w, h ) {
             j(id+'_phit').text(t); return o;
         };
     }
-
+    if ( i===52 || i===53 ) {
+        var js=j(id+'_phi').css({width:'100%',height:'100%'});
+        if ( i===52 ) js.spinner();
+        else js.spinner({numberFormat:'n'});
+        o.disabled=function(b) {
+            if ( b===undefined ) return js.spinner('option','disabled');
+            js.spinner('option','disabled',b); return o;
+        };
+        o.val=function(t) {
+           if ( t===undefined ) return js.spinner('value');
+           js.spinner('value',t); return o;
+        };
+        o.min=function(m) {
+            if ( m===undefined ) return js.spinner('option','min');
+            js.spinner('option','min',m); return o;
+        };
+        o.max=function(m) {
+            if ( m===undefined ) return js.spinner('option','max');
+            js.spinner('option','max',m); return o;
+        };
+        o.step=function(m) {
+            if ( m===undefined ) return js.spinner('option','step');
+            js.spinner('option','step',m); return o;
+        };
+        o.readOnly=function( r ) {
+            if ( r===undefined ) return js.prop( 'readOnly' );
+            js.prop( 'readOnly',r ); return o;
+        };
+        o.accessKey=function( a ) {
+          if ( a===undefined ) return js.prop( 'accesskey' );
+          js.prop( 'accesskey', a ); return o;
+        };
+        o.change=function( f ){
+          if(f)js.on('spinchange',function(e){f(e);});
+          else js.trigger('spinchange');return o;
+        };
+    }
     return o;
 };
 

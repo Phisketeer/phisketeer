@@ -530,6 +530,7 @@ void PHISProcessor::genScripts() const
     createJS( L1( "ui-effects.js" ) );
     createJS( L1( "ui-button.js" ) );
     createJS( L1( "ui-transit.js" ) );
+    createJS( L1( "ui-spinner.js" ) );
     //createJS( L1( "ui-mouse.js" ) ); // included in ui-core
     //createJS( L1( "ui-draggable.js" ) ); // included in ui-core
     //createJS( L1( "ui-droppable.js" ) ); // included in ui-core
@@ -582,7 +583,7 @@ void PHISProcessor::createUiCSS() const
     }
     QStringList list;
     list << L1( "ui-core.css" ) << L1( "ui-datepicker.css" ) << L1( "ui-button.css" )
-         << L1( "ui-jqgrid.css" ) << L1( "ui-progressbar.css" );
+         << L1( "ui-jqgrid.css" ) << L1( "ui-progressbar.css" ) << L1( "ui-spinner.css" );
     foreach( const QString css, list ) {
         QFile src( L1( ":/" )+css );
         if ( !src.open( QIODevice::ReadOnly ) ) {

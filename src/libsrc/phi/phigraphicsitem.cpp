@@ -80,14 +80,6 @@ QPainterPath PHIGraphicsItem::shape() const
     return path;
 }
 
-/*
-bool PHIGraphicsItem::sceneEvent( QEvent *e )
-{
-    if ( _it->sceneEvent( e ) ) return true;
-    return QGraphicsProxyWidget::sceneEvent( e );
-}
-*/
-
 QRectF PHIGraphicsItem::boundingRect() const
 {
     return _it->boundingRect();
