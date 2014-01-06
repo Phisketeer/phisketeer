@@ -42,6 +42,14 @@ public:
     virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const;
     virtual PHIWID htmlScriptExtension( const PHIRequest *req, QByteArray &script ) const;
     virtual bool hasHtmlExtension() const { return true; }
+    virtual void setValue( const QString &v );
+    virtual QString realValue() const;
+
+public slots:
+    virtual QScriptValue val( const QScriptValue &v=QScriptValue() );
+    virtual QScriptValue date( const QScriptValue &v=QScriptValue() );
+    virtual QScriptValue minDate( const QScriptValue &v=QScriptValue() );
+    virtual QScriptValue maxDate( const QScriptValue &v=QScriptValue() );
 
 protected:
     virtual void ideUpdateData();
@@ -50,8 +58,11 @@ protected:
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 
+private slots:
+    void slotDateChanged();
+
 private:
-    void initWidget();
+    virtual void initWidget();
 };
 
 class PHIDateEditItem : public PHICalendarItem
@@ -60,8 +71,8 @@ class PHIDateEditItem : public PHICalendarItem
 
 public:
     enum Wid { DateEdit=31 };
-    explicit PHIDateEditItem( const PHIBaseItemPrivate &p ) : PHICalendarItem( p ) { if ( isGuiItem() ) initWidget(); }
-    PHIDateEditItem( const PHIDateEditItem &it ) : PHICalendarItem( it ) { if ( isGuiItem() ) initWidget(); }
+    explicit PHIDateEditItem( const PHIBaseItemPrivate &p ) : PHICalendarItem( p ), _date( 0 ), _button( 0 ) { if ( isGuiItem() ) initWidget(); }
+    PHIDateEditItem( const PHIDateEditItem &it ) : PHICalendarItem( it ), _date( 0 ), _button( 0 ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHIDateEditItem() {}
 
     virtual QString listName() const { return tr( "Date edit" ); }
@@ -70,14 +81,25 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/dateedit" ) ); }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void setValue( const QString &v );
+
+public slots:
+    virtual QScriptValue minDate( const QScriptValue &v=QScriptValue() );
+    virtual QScriptValue maxDate( const QScriptValue &v=QScriptValue() );
 
 protected:
     virtual void ideUpdateData();
     virtual void setWidgetText( const QString &t );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 
+private slots:
+    void slotDateChanged( const QDate &d );
+    void slotButtonClicked();
+
 private:
-    void initWidget();
+    virtual void initWidget();
+
+private:
     QDateEdit *_date;
     QToolButton *_button;
 };

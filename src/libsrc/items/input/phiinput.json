@@ -1,4 +1,4 @@
 { "Keys": [ "lineedit", "textarea", "password", "checkbox", "radiobutton", "button",
     "submit", "reset", "number", "realnumber", "email", "select", "country", "listbox",
     "phone", "calendar", "dateedit", "hidden", "search", "dectable", "checklist",
-    "rollover", "langselect" ] }
+    "filebutton", "rollover", "langselect" ] }

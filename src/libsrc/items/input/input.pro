@@ -24,7 +24,8 @@ HEADERS += phiinput.h \
     phimiscitems.h \
     phiinputtools.h \
     phitableitems.h \
-    phicombobox.h
+    phicombobox.h \
+    phibuttonitems.h
 SOURCES += \ 
     phiinputitems.cpp \
     phicheckitems.cpp \
@@ -32,7 +33,8 @@ SOURCES += \
     phicalendaritems.cpp \
     phimiscitems.cpp \
     phitableitems.cpp \
-    phicombobox.cpp
+    phicombobox.cpp \
+    phibuttonitems.cpp
 TARGET = phiinput
 FORMS = tableconfig.ui
 OTHER_FILES = phiinput.json

@@ -120,7 +120,7 @@ public:
     typedef quint32 DirtyFlags;
 #endif
     /*
-        FILE_BUTTON=9, IMAGE_BUTTON=12,
+        IMAGE_BUTTON=12,
         LINK=23, TEXT=29,
         LAYOUT_DELIVERY=35,
         RICH_TEXT=41
@@ -448,7 +448,7 @@ private:
 
     // IDE related members
     void loadEditorData1_x( const QByteArray &arr );
-    inline void ideSetSelected( bool s ) { if ( _gw ) _gw->setSelected( s ); }
+    void ideSetSelected( bool s );
     inline bool ideIsSelected() const { if ( _gw ) return _gw->isSelected(); return false; }
     virtual PHIConfigWidget* ideConfigWidget() { return 0; }
     virtual void ideSetText( const QString &t, const QByteArray &lang );

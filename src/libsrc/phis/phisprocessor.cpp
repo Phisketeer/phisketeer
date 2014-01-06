@@ -164,6 +164,7 @@ void PHISProcessor::run()
         // send magic number and version number
         dsout << static_cast<quint32>(PHI_MAGIC) << static_cast<quint8>(PHI_SFV)
             << static_cast<quint8>(PHI::CDAll);
+        page->setDefaultLanguage( _req->currentLang() );
         page->save( dsblock, static_cast<int>(PHI_SFV), true );
         dsout << block;
         PHIBaseItem *it;

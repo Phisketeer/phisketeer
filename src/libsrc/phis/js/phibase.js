@@ -429,6 +429,7 @@ $.$=function( s, i, x, y, w, h ) {
           if(v===undefined)return j(id).progressbar('option','value');
           j(id).progressbar('option','value',v);return this;
         };
+        o.val=function( v ) { return o.progress(v); };
         j(id).progressbar({value:0});
     }
     if ( i===42 ) {
@@ -479,6 +480,72 @@ $.$=function( s, i, x, y, w, h ) {
         o.change=function( f ){
           if(f)js.on('spinchange',function(e){f(e);});
           else js.trigger('spinchange');return o;
+        };
+    }
+    if ( i===32 ) {
+        o.bgColor=function( c ) {
+            if ( c===undefined ) return j(id+' [class*=ui-datepicker]').css('background');
+            j(id+' [class*=ui-datepicker]').css('background',c); return o;
+        };
+        o.color=function( c ) {
+            if ( c===undefined ) return j(id+' [class*=ui-datepicker]').css('color');
+            j(id+' [class*=ui-datepicker]').css('color',c); return o;
+        };
+        o.date=function( d ) {
+            if ( d===undefined ) return j(id).datepicker('getDate');
+            var f=j(id).datepicker('option','dateFormat');
+            j(id).datepicker('option','dateFormat','yy-mm-dd').datepicker('setDate',d).datepicker('option','dateFormat',f);
+            return o;
+        };
+        o.minDate=function( d ) {
+            if ( d===undefined ) return j(id).datepicker('option','minDate');
+            var f=j(id).datepicker('option','dateFormat');
+            j(id).datepicker('option','dateFormat','yy-mm-dd').datepicker('option','minDate'.d).datepicker('option','dateFormat',f);
+            return o;
+        };
+        o.maxDate=function( d ) {
+            if ( d===undefined ) return j(id).datepicker('option','maxDate');
+            var f=j(id).datepicker('option','dateFormat');
+            j(id).datepicker('option','dateFormat','yy-mm-dd').datepicker('option','maxDate',d).datepicker('option','dateFormat',f);
+            return o;
+        };
+        o.disabled=function(b){
+          if(b===undefined)return j(id).datepicker('option','disabled');
+          j(id).datepicker('option','disabled',b);
+          return o;
+        };
+    }
+    if ( i===31 ) {
+        o.bgColor=function( c ) {
+            if ( c===undefined ) return j(id+'_phit').css('background');
+            j(id+'_phit').css('background',c); return o;
+        };
+        o.color=function( c ) {
+            if ( c===undefined ) return j(id+'_phit').css('color');
+            j(id+'_phit').css('color',c); return o;
+        };
+        o.date=function( d ) {
+            if ( d===undefined ) return j(id+'_phit').datepicker('getDate');
+            var f=j(id+'_phit').datepicker('option','dateFormat');
+            j(id+'_phit').datepicker('option','dateFormat','yy-mm-dd').datepicker('setDate',d).datepicker('option','dateFormat',f);
+            return o;
+        };
+        o.minDate=function( d ) {
+            if ( d===undefined ) return j(id+'_phit').datepicker('option','minDate');
+            var f=j(id+'_phit').datepicker('option','dateFormat');
+            j(id+'_phit').datepicker('option','dateFormat','yy-mm-dd').datepicker('option','minDate',d).datepicker('option','dateFormat',f);
+            return o;
+        };
+        o.maxDate=function( d ) {
+            if ( d===undefined ) return j(id+'_phit').datepicker('option','maxDate');
+            var f=j(id+'_phit').datepicker('option','dateFormat');
+            j(id+'_phit').datepicker('option','dateFormat','yy-mm-dd').datepicker('option','maxDate',d).datepicker('option','dateFormat',f);
+            return o;
+        };
+        o.disabled=function(b){
+          if(b===undefined)return j(id+'_phit').datepicker('option','disabled');
+          j(id+'_phit').datepicker('option','disabled',b);
+          return o;
         };
     }
     return o;

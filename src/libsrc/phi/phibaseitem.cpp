@@ -125,6 +125,12 @@ void PHIBaseItem::setVisible( bool b )
     }
 }
 
+void PHIBaseItem::ideSetSelected(bool s)
+{
+    if ( !_gw ) return;
+    _gw->setSelected( s );
+}
+
 void PHIBaseItem::privateUpdateData()
 {
     Q_ASSERT( page() );
@@ -407,11 +413,12 @@ void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
 
 void PHIBaseItem::privateClientInit()
 {
+    Q_ASSERT( _gw );
     setChecked( realChecked() );
     setDisabled( realDisabled() );
     setVisible( realVisible() );
-    Q_ASSERT( _gw );
     _gw->setToolTip( realTitle() );
+    qDebug() << "privateClientInit" << font();
     clientInitData();
     phiPaletteChanged( page()->phiPalette() );
 }
