@@ -187,8 +187,8 @@ void PHIFileButtonItem::initWidget()
     _edit->setReadOnly( true );
     _tool=new QToolButton();
     _tool->setArrowType( Qt::RightArrow );
-    _tool->setMinimumHeight( 24 );
-    _tool->setFixedWidth( 24 );
+    _tool->setMinimumHeight( 22 );
+    _tool->setFixedWidth( 22 );
     _tool->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding, QSizePolicy::ToolButton ) );
     connect( _tool, &QToolButton::clicked, this, &PHIFileButtonItem::slotToolClicked );
     QWidget *w=new QWidget();
@@ -205,10 +205,9 @@ void PHIFileButtonItem::initWidget()
 
 QSizeF PHIFileButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( which==Qt::MinimumSize ) return QSizeF( 180., 24. );
-    QSizeF s=PHIAbstractInputItem::sizeHint( which, constraint );
-    if ( s.height()<24. ) s.setHeight( 24. );
-    return s;
+    if ( which==Qt::MinimumSize ) return QSizeF( 200., 22. );
+    if ( which==Qt::PreferredSize ) return QSizeF( 200., 22.);
+    return PHIAbstractInputItem::sizeHint( which, constraint );
 }
 
 void PHIFileButtonItem::clientPostData( QHttpMultiPart *multiPart ) const

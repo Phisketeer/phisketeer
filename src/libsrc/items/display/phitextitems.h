@@ -32,7 +32,7 @@ public:
     virtual ~PHILabelItem() {}
 
     virtual QString listName() const { return tr( "Label" ); }
-    virtual QString description() const { return tr( "Displays a label (single line)" ); }
+    virtual QString description() const { return tr( "Displays a label." ); }
     virtual PHIWID wid() const { return Label; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/label" ) ); }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
@@ -55,6 +55,84 @@ protected:
 
 private:
     void initWidget();
+};
+
+class PHIGraphicRichTextItem : public PHIAbstractTextItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { GraphicRichText=29 };
+    enum ItemData { DImage=1 };
+    explicit PHIGraphicRichTextItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIGraphicRichTextItem( const PHILabelItem &it ) : PHIAbstractTextItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIGraphicRichTextItem() {}
+
+    virtual QString listName() const { return tr( "Graph rich text" ); }
+    virtual QString description() const { return tr( "Displays rich text rendered into an image." ); }
+    virtual PHIWID wid() const { return GraphicRichText; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/richtext" ) ); }
+    virtual void ideInit();
+    virtual bool isHeightChangeable() const;
+    virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
+
+    inline QImage image() const { return data( DImage ).value<QImage>(); }
+    inline void setImage( const QImage &img ) { setData( DImage, img ); update(); }
+
+public slots:
+    QScriptValue html( const QScriptValue &h=QScriptValue() );
+
+protected:
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual void setWidgetText( const QString &t );
+    virtual void setWidgetAligment( Qt::Alignment align ) { Q_UNUSED( align ) }
+    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void squeeze();
+    virtual void ideUpdateData();
+
+private slots:
+    void slotSizeChanged( const QSizeF &s );
+
+private:
+    void initWidget();
+
+private:
+    QImage graphicImage( const QString &text ) const;
+    QSizeF graphicSize( const QString &text ) const;
+};
+
+class PHIRichTextItem : public PHIAbstractTextItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { RichText=41 };
+    explicit PHIRichTextItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ) { if ( isGuiItem() ) initWidget(); }
+    PHIRichTextItem( const PHILabelItem &it ) : PHIAbstractTextItem( it ) { if ( isGuiItem() ) initWidget(); }
+    virtual ~PHIRichTextItem() {}
+
+    virtual QString listName() const { return tr( "Rich text" ); }
+    virtual QString description() const { return tr( "Displays rich text (HTML subset)." ); }
+    virtual PHIWID wid() const { return RichText; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/richtext" ) ); }
+    virtual void ideInit();
+
+public slots:
+    QScriptValue html( const QScriptValue &h=QScriptValue() );
+
+protected:
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual void setWidgetText( const QString &t );
+    virtual void setWidgetAligment( Qt::Alignment align );
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void initWidget();
+
+private slots:
+    void slotAnchorClicked( const QUrl &url );
+    void slotAnchorHover( const QUrl &url );
 };
 
 #endif // PHITEXTITEMS_H

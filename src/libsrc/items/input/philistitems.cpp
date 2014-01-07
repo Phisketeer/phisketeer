@@ -124,7 +124,7 @@ void PHISelectItem::htmlSelectOptions( QByteArray &out, const QByteArray &indent
     bool isChecked;
     const QByteArray checked=BL( "\" selected=\"selected" );
     if ( Q_LIKELY( realDelimiter().size()==1 ) ) {
-        PHIByteArrayList list=data( DText ).toByteArray().split( realDelimiter().at( 0 ).toLatin1() );
+        PHIByteArrayList list=PHIBaseItem::data( DText ).toByteArray().split( realDelimiter().at( 0 ).toLatin1() );
         QByteArray arr, opt;
         foreach( arr, list ) {
             PHI::getItemCheckData( arr, opt, isChecked );
@@ -175,6 +175,13 @@ QScriptValue PHISelectItem::selectOptions( const QString &opts, const QString &d
 {
     setDelimiter( d );
     setText( opts );
+    return self();
+}
+
+QScriptValue PHISelectItem::data( const QScriptValue &d )
+{
+    if ( !d.isValid() ) return realText();
+    setText( d.toString() );
     return self();
 }
 
@@ -281,6 +288,12 @@ QScriptValue PHISelectLangItem::selectOptions( const QString &opts, const QStrin
     Q_UNUSED( opts )
     Q_UNUSED( d )
     return QScriptValue( QScriptValue::UndefinedValue );
+}
+
+QScriptValue PHISelectLangItem::data( const QScriptValue &v )
+{
+    if ( v.isValid() ) return scriptEngine()->undefinedValue();
+    return realText();
 }
 
 void PHISelectLangItem::slotChanged()

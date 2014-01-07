@@ -11,16 +11,21 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QLabel>
+#include <QPainter>
+#include <QGraphicsTextItem>
+#include <QStyleOptionGraphicsItem>
+#include <QTextBrowser>
 #include "phitextitems.h"
 #include "phidatasources.h"
 #include "phibasepage.h"
 #include "phirequest.h"
+#include "phidataparser.h"
 #include "phi.h"
 
 void PHILabelItem::initWidget()
@@ -164,4 +169,227 @@ QScriptValue PHILabelItem::html( const QScriptValue &t )
     setPlainText( false );
     setText( t.toString() );
     return self();
+}
+
+void PHIGraphicRichTextItem::ideInit()
+{
+    textData()->setText( tr( "<b>Rich</b> <i>text<i>" ) );
+    setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+}
+
+void PHIGraphicRichTextItem::initWidget()
+{
+    connect( this, &PHIBaseItem::sizeChanged, this, &PHIGraphicRichTextItem::slotSizeChanged );
+}
+
+void PHIGraphicRichTextItem::ideUpdateData()
+{
+    QString t;
+    if ( textData()->isUnparsedTranslated() ) t=textData()->text( page()->currentLang() );
+    else t=textData()->text();
+    QSizeF s( 16., 16. );
+    if ( textData()->isUnparsedStatic() ) resize( graphicSize( t ) );
+    else if ( textData()->isUnparsedTranslated() ) {
+        foreach( QByteArray l, textData()->langs() ) {
+            QSizeF ls=graphicSize( textData()->text( l ) );
+            if ( ls.width()>s.width() ) s.setWidth( ls.width() );
+            if ( ls.height()>s.height() ) s.setHeight( ls.height() );
+        }
+        resize( s );
+    }
+    setData( DImage, graphicImage( t ) );
+    update();
+    PHIAbstractTextItem::ideUpdateData();
+}
+
+void PHIGraphicRichTextItem::setWidgetText( const QString &t )
+{
+    Q_UNUSED( t );
+}
+
+void PHIGraphicRichTextItem::slotSizeChanged( const QSizeF &s )
+{
+    Q_UNUSED( s )
+    if ( !isIdeItem() || isChild() ) return;
+    blockSignals( true );
+    ideUpdateData();
+    blockSignals( false );
+}
+
+void PHIGraphicRichTextItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
+{
+    PHIAbstractTextItem::setColor( ir, cr, col );
+    setData( DImage, graphicImage( realText() ) );
+    update();
+}
+
+void PHIGraphicRichTextItem::squeeze()
+{
+    PHIAbstractTextItem::squeeze();
+    removeData( DImage );
+}
+
+bool PHIGraphicRichTextItem::isHeightChangeable() const
+{
+    if ( textData()->isUnparsedStatic() || textData()->isUnparsedTranslated() ) return false;
+    return true;
+}
+
+void PHIGraphicRichTextItem::phisCreateData( const PHIDataParser &parser )
+{
+    setData( DText, parser.text( textData() ) );
+    if ( textData()->isUnparsedStatic() ) {
+        setImagePath( parser.createImage( graphicImage( textData()->text() ) ) );
+    } else if ( textData()->isUnparsedTranslated() ) {
+        foreach ( QByteArray l, textData()->langs() ) {
+            QByteArray path=parser.createImage( graphicImage( textData()->text( l ) ), l );
+            qDebug() << id() << path << l;
+        }
+    } else setDirtyFlag( DFText );
+}
+
+void PHIGraphicRichTextItem::phisParseData( const PHIDataParser &parser )
+{
+    if ( Q_UNLIKELY( dirtyFlags() & DFText ) ) {
+        setData( DText, parser.text( textData() ) );
+        // need to create dynamic uncached image
+        setImagePath( parser.createImage( graphicImage( realText() ), PHIData::c(), -1 ) );
+    } else {
+        if ( textData()->isUnparsedStatic() ) {
+            setData( DText, textData()->variant() );
+        } else {
+            Q_ASSERT( textData()->isUnparsedTranslated() );
+            setImagePath( parser.imagePath( page()->currentLang() ) );
+        }
+    }
+}
+
+void PHIGraphicRichTextItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    PHIBaseItem::htmlImg( req, out, script, indent );
+}
+
+QImage PHIGraphicRichTextItem::graphicImage( const QString &text ) const
+{
+    QStyleOptionGraphicsItem opt;
+    opt.state=QStyle::State_None;
+    opt.exposedRect=QRectF();
+    QGraphicsTextItem it;
+    QFont f=font();
+    f.setPointSizeF( PHI::adjustedFontSize( f.pointSizeF() ) );
+    it.setFont( f );
+    it.setDefaultTextColor( realColor() );
+    it.setTextWidth( realWidth() );
+    it.setHtml( text );
+    QImage img( qRound( realWidth() ), qRound( realHeight() ), QImage::Format_ARGB32_Premultiplied );
+    img.fill( realBackgroundColor() );
+    QPainter p( &img );
+    it.paint( &p, &opt, 0 );
+    p.end();
+    return img;
+}
+
+QSizeF PHIGraphicRichTextItem::graphicSize( const QString &text ) const
+{
+    QGraphicsTextItem it;
+    QFont f=font();
+    f.setPointSizeF( PHI::adjustedFontSize( f.pointSizeF() ) );
+    it.setFont( f );
+    it.setDefaultTextColor( realColor() );
+    it.setTextWidth( realWidth() );
+    it.setHtml( text );
+    return QSizeF( realWidth(), it.boundingRect().height() );
+}
+
+QSizeF PHIGraphicRichTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( isChild() || !isIdeItem() ) return rect().size();
+    if ( textData()->isUnparsedStatic() || textData()->isUnparsedTranslated() ) {
+        if ( which==Qt::MinimumSize ) return QSizeF( 16., realHeight() );
+        if ( which==Qt::PreferredSize ) return QSizeF( 200., realHeight() );
+        if ( which==Qt::MaximumSize ) return QSizeF( 10000., realHeight() );
+    }
+    return PHIAbstractTextItem::sizeHint( which, constraint );
+}
+
+void PHIGraphicRichTextItem::paint( QPainter *painter, const QRectF &exposed )
+{
+    Q_UNUSED( exposed );
+    painter->drawImage( 0, 0, image() );
+}
+
+QScriptValue PHIGraphicRichTextItem::html( const QScriptValue &t )
+{
+    if ( !t.isValid() ) return realText();
+    setText( t.toString() );
+    return self();
+}
+
+void PHIRichTextItem::ideInit()
+{
+    textData()->setText( L1( "<b>Rich</b> <i>text</i>" ) );
+    setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+    setColor( PHIPalette::WidgetText, PHIPalette::Text, page()->phiPalette().color( PHIPalette::Text ) );
+}
+
+void PHIRichTextItem::initWidget()
+{
+    QTextBrowser *tb=new QTextBrowser();
+    tb->setReadOnly( true );
+    tb->setUndoRedoEnabled( false );
+    tb->setOpenLinks( false );
+    tb->setOpenExternalLinks( false );
+    setWidget( tb );
+    if ( !isClientItem() ) return;
+    connect( tb, &QTextBrowser::anchorClicked, this, &PHIRichTextItem::slotAnchorClicked );
+    connect( tb, SIGNAL(highlighted( QUrl )), this, SLOT(slotAnchorHover( QUrl )) );
+}
+
+void PHIRichTextItem::setWidgetText( const QString &t )
+{
+    QTextBrowser *tb=qobject_cast<QTextBrowser*>(widget());
+    if ( !tb ) return;
+    tb->setHtml( t );
+}
+
+void PHIRichTextItem::setWidgetAligment( Qt::Alignment align )
+{
+    QTextBrowser *tb=qobject_cast<QTextBrowser*>(widget());
+    if ( !tb ) return;
+    tb->setAlignment( align );
+}
+
+QSizeF PHIRichTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( isChild() ) return realSize();
+    if ( which==Qt::MinimumSize ) return QSizeF( 16., 16. );
+    if ( which==Qt::PreferredSize ) return QSizeF( 300., 200. );
+    return PHIAbstractTextItem::sizeHint( which, constraint );
+}
+
+QScriptValue PHIRichTextItem::html( const QScriptValue &v )
+{
+    if ( !v.isValid() ) return realText();
+    setText( v.toString() );
+    return self();
+}
+
+void PHIRichTextItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    htmlInitItem( script );
+    out+=indent+BL( "<div" );
+    htmlBase( req, out, script );
+    out+=BL( "overflow:auto\">\n" );
+    out+=data( DText ).toByteArray();
+    out+='\n'+indent+BL( "</div>\n" );
+}
+
+void PHIRichTextItem::slotAnchorClicked( const QUrl &url )
+{
+    emit linkRequested( url.toString() );
+}
+
+void PHIRichTextItem::slotAnchorHover( const QUrl &url )
+{
+    emit linkHovered( url.toString() );
 }

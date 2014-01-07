@@ -38,6 +38,12 @@ public:
     virtual bool isWidthChangeable() const { return false; }
     virtual bool isHeightChangeable() const { return false; }
 
+public slots:
+    virtual QScriptValue readOnly( const QScriptValue &r=QScriptValue() ) { Q_UNUSED( r ) return QScriptValue( QScriptValue::UndefinedValue ); }
+    virtual QScriptValue accessKey( const QScriptValue &a=QScriptValue() ) { Q_UNUSED( a ) return QScriptValue( QScriptValue::UndefinedValue ); }
+    virtual QScriptValue color( const QScriptValue &c=QScriptValue() ) { Q_UNUSED( c ) return QScriptValue( QScriptValue::UndefinedValue ); }
+    virtual QScriptValue bgColor( const QScriptValue &c=QScriptValue() ) { Q_UNUSED( c ) return QScriptValue( QScriptValue::UndefinedValue ); }
+
 protected:
     virtual QRectF boundingRect() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;

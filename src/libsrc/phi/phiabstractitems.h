@@ -52,6 +52,7 @@ public:
     inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); if ( !isServerItem() ) setWidgetText( s ); }
     inline quint16 realAlignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
     inline void setAlignment( quint16 align ) { setData( DAlignment, align ); if ( !isServerItem() ) setWidgetAligment( static_cast<Qt::Alignment>(align) ); }
+    inline const PHITextData* textData() const { return &_textData; }
 
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor colorForRole( PHIPalette::ItemRole role ) const;
@@ -180,6 +181,9 @@ public:
     QImage realImage() const { return data( DImage, QImage() ).value<QImage>(); }
     void setImage( const QImage &img ) { setData( DImage, img ); updateImage(); }
     void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+public slots:
+    QScriptValue src( const QScriptValue &v=QScriptValue() );
 
 protected:
     virtual void ideUpdateData();

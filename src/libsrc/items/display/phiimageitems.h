@@ -67,10 +67,10 @@ public:
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
     inline void setText( const QString &s ) { setData( DSvgSource, s.toLatin1() ); initWidget(); }
-    inline QString realText() const { return QString::fromLatin1( data( DSvgSource, QString() ).toByteArray() ); }
+    inline QString realText() const { return QString::fromLatin1( PHIBaseItem::data( DSvgSource, QString() ).toByteArray() ); }
 
 public slots:
-    QScriptValue text( const QScriptValue &v=QScriptValue() );
+    QScriptValue data( const QScriptValue &v=QScriptValue() );
 
 protected:
     virtual void paint( QPainter *painter, const QRectF &exposed );

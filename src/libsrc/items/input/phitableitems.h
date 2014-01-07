@@ -69,20 +69,20 @@ public:
     virtual bool hasDelimiter() const { return true; }
 
     inline void setOptions( quint16 o ) { setData( DOptions, o ); updateWidget(); }
-    inline quint16 options() const { return data( DOptions, SingleSelection ).value<quint16>(); }
+    inline quint16 options() const { return PHIBaseItem::data( DOptions, SingleSelection ).value<quint16>(); }
     inline void setOption( quint8 o, bool b=true ) { quint8 opts=options(); b ? opts |= o : opts &= ~o; setData( DOptions, opts ); updateWidget(); }
-    inline PHIListChar colTypes() const { return data( DColType ).value<PHIListChar>(); }
+    inline PHIListChar colTypes() const { return PHIBaseItem::data( DColType ).value<PHIListChar>(); }
     inline void setColTypes( const PHIListChar &l ) { setData( DColType, qVariantFromValue( l ) ); }
-    inline PHIListChar colAlignments() const { return data( DColAlignment ).value<PHIListChar>(); }
+    inline PHIListChar colAlignments() const { return PHIBaseItem::data( DColAlignment ).value<PHIListChar>(); }
     inline void setColAlignments( const PHIListChar &l ) { setData( DColAlignment, qVariantFromValue( l ) ); }
-    inline PHIListWord colWidths() const { return data( DColWidth ).value<PHIListWord>(); }
+    inline PHIListWord colWidths() const { return PHIBaseItem::data( DColWidth ).value<PHIListWord>(); }
     inline void setColWidths( const PHIListWord &l ) { setData( DColWidth, qVariantFromValue( l ) ); }
     inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
-    inline QString realDelimiter() const { return QString::fromUtf8( data( DDelimiter, BL( "\n" ) ).toByteArray() ); }
+    inline QString realDelimiter() const { return QString::fromUtf8( PHIBaseItem::data( DDelimiter, BL( "\n" ) ).toByteArray() ); }
 
 public slots:
-    QScriptValue delimiter( const QScriptValue &d );
-    void cssStatic( const PHIRequest *req, QByteArray &out ) const;
+    QScriptValue delimiter( const QScriptValue &d=QScriptValue() );
+    QScriptValue data( const QScriptValue &d=QScriptValue() );
 
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -91,6 +91,7 @@ protected:
     virtual void ideInit();
     virtual void initWidget();
     virtual void updateWidget();
+    virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
 };
 
 class PHICheckListItem : public PHIDecoratedTableItem

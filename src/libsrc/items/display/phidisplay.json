@@ -1,2 +1,2 @@
-{ "Keys": [ "rect", "roundedrect", "ellipse", "graphtext", "label",
-    "image", "svg", "slideshow", "sponsor", "canvas", "progress" ] }
+{ "Keys": [ "rect", "roundedrect", "ellipse", "graphtext", "label", "graphrichtext",
+    "image", "svg", "slideshow", "sponsor", "canvas", "progress", "richtext" ] }

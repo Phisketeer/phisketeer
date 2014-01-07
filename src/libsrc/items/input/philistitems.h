@@ -33,7 +33,7 @@ public:
     virtual ~PHISelectItem() {}
 
     virtual QString listName() const { return tr( "Select" ); }
-    virtual QString description() const { return tr( "Input type <select>" ); }
+    virtual QString description() const { return tr( "Input type <select>." ); }
     virtual PHIWID wid() const { return Select; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/selectbox" ) ); }
     virtual QString realValue() const;
@@ -41,12 +41,13 @@ public:
     virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
-    inline QString realDelimiter() const { return QString::fromUtf8( data( DDelimiter, BL( "\n" ) ).toByteArray() ); }
+    inline QString realDelimiter() const { return QString::fromUtf8( PHIBaseItem::data( DDelimiter, BL( "\n" ) ).toByteArray() ); }
 
 public slots:
     virtual QScriptValue delimiter( const QScriptValue &d=QScriptValue() );
     virtual QScriptValue selectOptions( const QString &opts, const QString &d=L1( "\n" ) );
-    virtual QScriptValue selected( const QScriptValue &v=QScriptValue(), const QScriptValue &b=QScriptValue() );
+    virtual QScriptValue selected( const QScriptValue &v=QScriptValue(), const QScriptValue &b=true );
+    virtual QScriptValue data( const QScriptValue &d=QScriptValue() );
 
 protected:
     virtual void initWidget();
@@ -98,6 +99,8 @@ public:
 
 public slots:
     virtual QScriptValue selectOptions( const QString &opts, const QString &d );
+    virtual QScriptValue data( const QScriptValue &v=QScriptValue() );
+    virtual QScriptValue delimiter(const QScriptValue &d=QScriptValue() ) { Q_UNUSED( d ) return QScriptValue( QScriptValue::UndefinedValue ); }
 
 protected slots:
     virtual void slotChanged();

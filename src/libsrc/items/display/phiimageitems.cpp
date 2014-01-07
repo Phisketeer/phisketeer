@@ -124,7 +124,7 @@ void PHISvgItem::ideUpdateData()
         setData( DSvgSource, _textData.text( page()->currentLang() ).toLatin1() );
     else setData( DSvgSource, QByteArray() );
     Q_ASSERT( _renderer );
-    _renderer->load( data( DSvgSource ).toByteArray() );
+    _renderer->load( PHIBaseItem::data( DSvgSource ).toByteArray() );
     if ( _renderer->isValid() ) resize( _renderer->defaultSize() );
     update();
 }
@@ -171,8 +171,9 @@ void PHISvgItem::initWidget()
     _renderer=new QSvgRenderer( this );
 }
 
-QScriptValue PHISvgItem::text( const QScriptValue &v )
+QScriptValue PHISvgItem::data( const QScriptValue &v )
 {
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
     if ( !v.isValid() ) return realText();
     setText( v.toString() );
     return self();
@@ -207,7 +208,7 @@ void PHISvgItem::phisCreateData( const PHIDataParser &parser )
 {
     setData( DSvgSource, parser.text( &_textData ) );
     if ( _textData.isUnparsedStatic() ) {
-        setImagePath( parser.createImage( graphicImage( data( DSvgSource ).toByteArray() ) ) );
+        setImagePath( parser.createImage( graphicImage( PHIBaseItem::data( DSvgSource ).toByteArray() ) ) );
     } else if ( _textData.isUnparsedTranslated() ) {
         foreach ( QByteArray l, _textData.langs() ) {
             QByteArray path=parser.createImage( graphicImage( _textData.variant( l ).toByteArray() ), l );
@@ -221,7 +222,7 @@ void PHISvgItem::phisParseData( const PHIDataParser &parser )
     if ( Q_UNLIKELY( dirtyFlags() & DFText ) ) {
         setData( DSvgSource, parser.text( &_textData ) );
         // need to create dynamic uncached image
-        setImagePath( parser.createImage( graphicImage( data( DSvgSource ).toByteArray() ), PHIData::c(), -1 ) );
+        setImagePath( parser.createImage( graphicImage( PHIBaseItem::data( DSvgSource ).toByteArray() ), PHIData::c(), -1 ) );
     } else {
         if ( !_textData.isUnparsedStatic() ) {
             Q_ASSERT( _textData.isUnparsedTranslated() );
@@ -238,7 +239,7 @@ void PHISvgItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scrip
         htmlInitItem( script );
         out+=indent+BL( "<div" );
         htmlBase( req, out, script );
-        out+=BL( "\">\n" )+data( DSvgSource ).toByteArray()+'\n'+indent+BL( "</div>\n" );
+        out+=BL( "\">\n" )+PHIBaseItem::data( DSvgSource ).toByteArray()+'\n'+indent+BL( "</div>\n" );
         script+=BL( "jQuery('#" )+id()+BL( " svg').css({width:'100%',height:'100%'});\n" );
     } else {
         htmlImg( req, out, script, indent );

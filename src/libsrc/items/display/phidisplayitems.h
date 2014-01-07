@@ -54,6 +54,8 @@ inline PHIBaseItem* PHIDisplayItems::create( PHIWID wid, const PHIBaseItemPrivat
     case PHIGraphicTextItem::GraphText: return new PHIGraphicTextItem( p );
     case PHILabelItem::Label: return new PHILabelItem( p );
     case PHIImageItem::Image: return new PHIImageItem( p );
+    case PHIRichTextItem::RichText: return new PHIRichTextItem( p );
+    case PHIGraphicRichTextItem::GraphicRichText: return new PHIGraphicRichTextItem( p );
     case PHISvgItem::Svg: return new PHISvgItem( p );
     case PHISlideShowItem::SlideShow: return new PHISlideShowItem( p );
     case PHICanvasItem::Canvas: return new PHICanvasItem( p );
@@ -72,6 +74,8 @@ inline PHIBaseItem* PHIDisplayItems::copy( const PHIBaseItem *it ) const
     case PHIGraphicTextItem::GraphText: return new PHIGraphicTextItem( *qobject_cast<const PHIGraphicTextItem*>(it) );
     case PHILabelItem::Label: return new PHILabelItem( *qobject_cast<const PHILabelItem*>(it) );
     case PHIImageItem::Image: return new PHIImageItem( *qobject_cast<const PHIImageItem*>(it) );
+    case PHIRichTextItem::RichText: return new PHIRichTextItem( *qobject_cast<const PHIRichTextItem*>(it) );
+    case PHIGraphicRichTextItem::GraphicRichText: return new PHIGraphicRichTextItem( *qobject_cast<const PHIGraphicRichTextItem*>(it) );
     case PHISvgItem::Svg: return new PHISvgItem( *qobject_cast<const PHISvgItem*>(it) );
     case PHISlideShowItem::SlideShow: return new PHISlideShowItem( *qobject_cast<const PHISlideShowItem*>(it) );
     case PHICanvasItem::Canvas: return new PHICanvasItem( *qobject_cast<const PHICanvasItem*>(it) );
@@ -84,10 +88,10 @@ inline PHIBaseItem* PHIDisplayItems::copy( const PHIBaseItem *it ) const
 inline QStringList PHIDisplayItems::keys() const
 {
     return QStringList() << SL( "rect" ) << SL( "ellipse" )
-        << SL( "roundedrect" ) << SL( "graphtext" )
+        << SL( "roundedrect" ) << SL( "graphtext" ) << SL( "richtext" )
         << SL( "label" ) << SL( "image" )  << SL( "svg" )
         << SL( "slideshow" ) << SL( "sponsor" ) << SL( "canvas" )
-        << SL( "progress" );
+        << SL( "progress" ) << SL( "graphrichtext" );
 }
 
 inline PHIWID PHIDisplayItems::wid( const QString &key ) const
@@ -98,6 +102,8 @@ inline PHIWID PHIDisplayItems::wid( const QString &key ) const
     if ( key==L1( "graphtext" ) ) return PHIGraphicTextItem::GraphText;
     if ( key==L1( "label" ) ) return PHILabelItem::Label;
     if ( key==L1( "image" ) ) return PHIImageItem::Image;
+    if ( key==L1( "richtext" ) ) return PHIRichTextItem::RichText;
+    if ( key==L1( "graphrichtext" ) ) return PHIGraphicRichTextItem::GraphicRichText;
     if ( key==L1( "svg" ) ) return PHISvgItem::Svg;
     if ( key==L1( "slideshow" ) ) return PHISlideShowItem::SlideShow;
     if ( key==L1( "canvas" ) ) return PHICanvasItem::Canvas;

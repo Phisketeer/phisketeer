@@ -45,7 +45,6 @@ public:
 
 public slots:
     QScriptValue progress( const QScriptValue &v=QScriptValue() );
-    inline QScriptValue val( const QScriptValue &v=QScriptValue() ) { return progress( v ); }
 
 protected:
     void ideInit();

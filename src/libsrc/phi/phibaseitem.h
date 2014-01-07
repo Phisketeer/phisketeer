@@ -63,12 +63,12 @@ private:
 class PHIEXPORT PHIBaseItem : public QObject
 {
     friend class PHIGraphicsItem;
-    friend class PHIAbstractLayoutItem; // need access to _gw
+    friend class PHIAbstractLayoutItem; // needs access to _gw
     friend class PHIAGraphicsItem;
     friend class PHIAGraphicsScene;
     friend class ARTGraphicsScene;
     friend class ARTGraphicsItem;
-    friend class ARTUndoDelLayout; // need access to _gw
+    friend class ARTUndoDelLayout; // needs access to _gw
     friend class ARTUndoEffect;
     friend class ARTItemSettings;
     friend class ARTDragDropWidget;
@@ -120,10 +120,7 @@ public:
     typedef quint32 DirtyFlags;
 #endif
     /*
-        IMAGE_BUTTON=12,
-        LINK=23, TEXT=29,
-        LAYOUT_DELIVERY=35,
-        RICH_TEXT=41
+        IMAGE_BUTTON=12, LINK=23, RICH_TEXT=41
     */
     explicit PHIBaseItem( const PHIBaseItemPrivate &p );
     PHIBaseItem( const PHIBaseItem &it );
@@ -296,6 +293,7 @@ public slots: // usable by script engine
     inline QString $() const { return name(); }
     inline QScriptValue hide() { setVisible( false ); return self(); }
     inline QScriptValue show() { setVisible( true ); return self(); }
+    inline QScriptValue toggle() { setVisible( !realVisible() ); return self(); }
     inline QScriptValue clearEffects() { _effect->clearAll(); updateEffect(); return self(); }
     inline bool isImage() const { return data( DIsImage, false ).toBool(); }
 
@@ -345,11 +343,6 @@ public slots: // usable by script engine
     QScriptValue focus( const QScriptValue &v=QScriptValue() );
     QScriptValue blur( const QScriptValue &v=QScriptValue() );
     QScriptValue drop( const QScriptValue &v=QScriptValue() );
-
-    //inline QString label() const { return QString::fromUtf8( _variants.value( DLabel ).toByteArray() ); }
-    //inline virtual void setLabel( const QString &s ) { _variants.insert( DLabel, s.toUtf8() ); }
-    //inline quint16 maxLength() const { return _variants.value( DMaxLength, 100 ).value<quint16>(); }
-    //inline virtual void setMaxLength( quint16 max ) { _variants.insert( DMaxLength, max ); }
 
 protected:
     virtual void loadItemData( QDataStream &in, int version );
@@ -582,7 +575,6 @@ inline QTransform PHIBaseItem::computeTransformation( bool translate ) const
     return t*m.toTransform();
     */
 }
-
 
 inline QWidget* PHIBaseItem::widget() const
 {

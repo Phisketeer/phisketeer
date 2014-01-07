@@ -79,6 +79,13 @@ void PHICalendarItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole c
 
 QScriptValue PHICalendarItem::val( const QScriptValue &v )
 {
+    if ( !v.isValid() ) return realValue();
+    date( v.toString() );
+    return self();
+}
+
+QScriptValue PHICalendarItem::data( const QScriptValue &v )
+{
     if ( !isServerItem() ) return QScriptValue( QScriptValue::UndefinedValue );
     if ( !v.isValid() ) return realText();
     setText( v.toString() );
@@ -87,6 +94,7 @@ QScriptValue PHICalendarItem::val( const QScriptValue &v )
 
 QScriptValue PHICalendarItem::date( const QScriptValue &v )
 {
+    if ( !isClientItem() ) return scriptEngine()->undefinedValue();
     if ( !v.isValid() ) {
         QDate cur=QDate::fromString( realValue(), QString::fromLatin1( PHI::isoDateFormat() ) );
         return scriptEngine()->newDate( QDateTime( cur ) );
@@ -130,7 +138,7 @@ void PHICalendarItem::setValue( const QString &v )
 
 QString PHICalendarItem::realValue() const
 {
-    return data( DValue ).toString();
+    return PHIBaseItem::data( DValue ).toString();
 }
 
 void PHICalendarItem::slotDateChanged()
@@ -199,14 +207,14 @@ PHIWID PHICalendarItem::htmlScriptExtension( const PHIRequest *req, QByteArray &
         +BL( "],\n\tmonthNames:[" )+monthnames.toUtf8()+BL( "],\n\tdayNames:[" )+daynames.toUtf8()
         +BL( "],\n\tdayNamesShort:[" )+shortdaynames.toUtf8()+BL( "],\n\tdayNamesMin:[" )
         +shortdaynames.toUtf8()+BL( "]});\n});\n" );
-    return wid();
+    return static_cast<PHIWID>(Calendar);
 }
 
 void PHICalendarItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     QDate now, start, end;
     static QString isoFmt=QString::fromLatin1( PHI::isoDateFormat() );
-    PHIByteArrayList dates=data( DText ).toByteArray().split( ':' );
+    PHIByteArrayList dates=PHIBaseItem::data( DText ).toByteArray().split( ':' );
     if ( dates.count()>0 ) now=QDate::fromString( QString::fromLatin1( dates[0] ), isoFmt );
     if ( !now.isValid() ) now=QDate::currentDate();
     if ( dates.count()>1 ) start=QDate::fromString( QString::fromLatin1( dates[1] ), isoFmt );
@@ -323,7 +331,7 @@ void PHIDateEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
 {
     QDate now, start, end;
     static QString isoFmt=QString::fromLatin1( PHI::isoDateFormat() );
-    PHIByteArrayList dates=data( DText ).toByteArray().split( ':' );
+    PHIByteArrayList dates=PHIBaseItem::data( DText ).toByteArray().split( ':' );
     if ( dates.count()>0 ) now=QDate::fromString( QString::fromLatin1( dates[0] ), isoFmt );
     if ( !now.isValid() ) now=QDate::currentDate();
     if ( dates.count()>1 ) start=QDate::fromString( QString::fromLatin1( dates[1] ), isoFmt );

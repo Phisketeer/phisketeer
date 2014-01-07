@@ -705,8 +705,29 @@ void PHIAbstractImageItem::clientInitData()
     connect( req, &PHIImageRequest::imageReady, this, &PHIAbstractImageItem::slotImageReady );
 }
 
+QScriptValue PHIAbstractImageItem::src( const QScriptValue &v )
+{
+    if ( !v.isValid() ) {
+        if ( imagePath().startsWith( '/' ) ) return QString::fromUtf8( imagePath() );
+        return L1( "/phi.phis?i=" )+QString::fromUtf8( imagePath() )+L1( "&t=1" );
+    }
+    if ( !v.toString().startsWith( QLatin1Char( '/' ) ) ) {
+        emit javaScriptError( QScriptValue( tr( "Image 'src' must be absolute for '%1'." ).arg( name() ) ) );
+        return self();
+    }
+    setImagePath( v.toString().toUtf8() );
+    if ( !isClientItem() ) return self();
+    QUrl url=page()->baseUrl();
+    url.setPath( v.toString() );
+    qDebug() << "src=" << imagePath() << url;
+    PHIImageRequest *req=new PHIImageRequest( this, url );
+    connect( req, &PHIImageRequest::imageReady, this, &PHIAbstractImageItem::slotImageReady );
+    return self();
+}
+
 void PHIAbstractImageItem::slotImageReady( const QImage &image )
 {
+    trigger( L1( "load" ) );
     setImage( image );
 }
 

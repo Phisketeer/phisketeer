@@ -38,22 +38,6 @@
 #include "phiabstractitems.h"
 #include "phidataparser.h"
 
-/*
-static QStringList _myproperties( const QObject *obj )
-{
-    Q_ASSERT( obj );
-    const QMetaObject *mo=obj->metaObject();
-    QStringList properties;
-    for( int i=1; i < mo->propertyCount(); ++i ) {
-        if ( mo->property( i ).isScriptable() )
-            properties << QString::fromLatin1( mo->property( i ).name() );
-    }
-    properties << QStringLiteral( "style" ) << QStringLiteral( "effect" );
-    properties.sort();
-    return properties;
-}
-*/
-
 PHIBaseItemPrivate::PHIBaseItemPrivate( const PHIBasePage *page )
     : _type( TIDEItem ), _page( const_cast<PHIBasePage*>(page) )
 {
@@ -112,6 +96,7 @@ void PHIBaseItem::setId( const QString &id )
     PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(this);
     if ( lit ) foreach ( PHIBaseItem *it, lit->childItems() ) it->setParentId( id );
     _id=id.toLatin1();
+    _id.squeeze();
     setObjectName( id );
 }
 
@@ -418,7 +403,6 @@ void PHIBaseItem::privateClientInit()
     setDisabled( realDisabled() );
     setVisible( realVisible() );
     _gw->setToolTip( realTitle() );
-    qDebug() << "privateClientInit" << font();
     clientInitData();
     phiPaletteChanged( page()->phiPalette() );
 }
@@ -438,7 +422,9 @@ void PHIBaseItem::setWidget( QWidget *w )
 void PHIBaseItem::updatePageFont( const QFont &f )
 {
     Q_UNUSED( f )
+#ifdef PHIDEBUG
     if ( !page() ) qWarning( "updatePageFont: page not set" );
+#endif
     if ( !page() || !_gw ) return;
     QFont pf=page()->font();
     if ( pf!=font() ) return; // font() returns the current page font if not set
@@ -1268,10 +1254,15 @@ QImage PHIBaseItem::imageFromMimeData( const QMimeData *md )
 {
     Q_ASSERT( md );
     if ( md->hasImage() ) return md->imageData().value<QImage>();
-    QImage img( pathFromMimeData( md ) );
-    if ( !img.isNull() ) return img;
-    QUrl url=urlFromMimeData( md );
-    img=QImage( url.toLocalFile() );
+    QImage img;
+    QString path=pathFromMimeData( md );
+    if ( path.isEmpty() ) {
+        QUrl url=urlFromMimeData( md );
+        if ( !url.isValid() ) return img;
+        img=QImage( url.toLocalFile() );
+    } else {
+        img=QImage( path );
+    }
     return img;
 }
 

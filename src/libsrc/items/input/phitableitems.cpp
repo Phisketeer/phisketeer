@@ -309,6 +309,13 @@ QScriptValue PHIDecoratedTableItem::delimiter( const QScriptValue &d )
     return self();
 }
 
+QScriptValue PHIDecoratedTableItem::data( const QScriptValue &d )
+{
+    if ( !d.isValid() ) return realText();
+    setText( d.toString() );
+    return self();
+}
+
 void PHIDecoratedTableItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
 {
     QByteArray col, bgCol, head, high, sel, highTxt;
@@ -359,7 +366,7 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
         QStringList list=realText().split( realDelimiter() );
         QString s;
         foreach ( s, list ) rows.append( s.toUtf8() );
-    } else rows=data( DText ).toByteArray().split( realDelimiter().toUtf8()[0] );
+    } else rows=PHIBaseItem::data( DText ).toByteArray().split( realDelimiter().toUtf8()[0] );
     if ( rows.count()>0 ) {
         PHIByteArrayList cols=rows.first().split( '|' );
         QByteArray def=BL( "[" ), labels, row, values=BL( "['" );

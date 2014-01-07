@@ -47,6 +47,7 @@ public:
 
 public slots:
     virtual QScriptValue val( const QScriptValue &v=QScriptValue() );
+    virtual QScriptValue data( const QScriptValue &v=QScriptValue() );
     virtual QScriptValue date( const QScriptValue &v=QScriptValue() );
     virtual QScriptValue minDate( const QScriptValue &v=QScriptValue() );
     virtual QScriptValue maxDate( const QScriptValue &v=QScriptValue() );
