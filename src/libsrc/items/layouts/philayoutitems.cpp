@@ -50,7 +50,6 @@ void PHIHorizontalLayoutItem::addBaseItems( const QList<PHIBaseItem*> &list )
 
 void PHIHorizontalLayoutItem::updateChildId( const QString &oldId, const QString &newId )
 {
-    qDebug() << "updateChildId" << id() << oldId << newId;
     int pos=_childIds.indexOf( oldId.toLatin1() );
     Q_ASSERT( pos!=-1 );
     _childIds.replace( pos, newId.toLatin1() );
@@ -236,7 +235,6 @@ void PHIGridLayoutItem::loadItemData( QDataStream &in, int version )
         in >> id >> row >> col >> rowspan >> colspan;
         QRect r( static_cast<int>(col), static_cast<int>(row), static_cast<int>(colspan), static_cast<int>(rowspan) );
         childRects.insert( id, r );
-        qDebug() << id << r.y() << r.x() << r.height() << r.width();
     }
     setChildRects( childRects );
 }
@@ -250,7 +248,6 @@ void PHIGridLayoutItem::saveItemData( QDataStream &out, int version )
         QRect r=rects.value( id );
         out << id << static_cast<quint8>(r.y()) << static_cast<quint8>(r.x())
             << static_cast<quint8>(r.height()) << static_cast<quint8>(r.width());
-        qDebug() << id << r.y() << r.x() << r.height() << r.width();
     }
 }
 

@@ -25,7 +25,7 @@
 class PHIHorizontalLayoutItem : public PHIAbstractLayoutItem
 {
     Q_OBJECT
-    Q_PROPERTY( PHIByteArrayList childIds READ childIds WRITE setChildIds SCRIPTABLE false )
+    Q_PROPERTY( PHIByteArrayList _childIds READ childIds WRITE setChildIds SCRIPTABLE false )
 
 public:
     enum Wid { HorizontalLayout=21 };
@@ -35,7 +35,7 @@ public:
 
     inline virtual PHIWID wid() const { return HorizontalLayout; }
     inline virtual QString listName() const { return tr( "HBox layout" ); }
-    inline virtual QPixmap pixmap() const { return QPixmap(); }
+    inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/layout/horizontal" ) ); }
     inline virtual QString description() const { return tr( "Manages a horizontal layout." ); }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list );
     virtual void activateLayout();
@@ -68,7 +68,7 @@ public:
 
     inline virtual PHIWID wid() const { return VerticalLayout; }
     inline virtual QString listName() const { return tr( "VBox layout" ); }
-    inline virtual QPixmap pixmap() const { return QPixmap(); }
+    inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/layout/vertical" ) ); }
     inline virtual QString description() const { return tr( "Manages a vertical layout." ); }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list );
 };
@@ -76,7 +76,7 @@ public:
 class PHIFormLayoutItem : public PHIAbstractLayoutItem
 {
     Q_OBJECT
-    Q_PROPERTY( PHIRectHash childRects READ childRects WRITE setChildRects SCRIPTABLE false )
+    Q_PROPERTY( PHIRectHash _childRects READ childRects WRITE setChildRects SCRIPTABLE false )
 
 public:
     enum Wid { FormLayout=22 };
@@ -86,7 +86,7 @@ public:
 
     inline virtual PHIWID wid() const { return FormLayout; }
     inline virtual QString listName() const { return tr( "Form layout" ); }
-    inline virtual QPixmap pixmap() const { return QPixmap(); }
+    inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/layout/form" ) ); }
     inline virtual QString description() const { return tr( "Manages a double column layout." ); }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list );
     virtual void activateLayout();
@@ -119,7 +119,7 @@ public:
 
     inline virtual PHIWID wid() const { return GridLayout; }
     inline virtual QString listName() const { return tr( "Grid layout" ); }
-    inline virtual QPixmap pixmap() const { return QPixmap(); }
+    inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/layout/grid" ) ); }
     inline virtual QString description() const { return tr( "Manages items in a grid layout." ); }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list );
 
