@@ -437,7 +437,7 @@ private:
     void phisPrivateCreateData( const PHIDataParser &parser );
     void loadVersion1_x(const QByteArray &arr );
     void cssCustomStyleSheet( QByteArray &out ) const;
-    void htmlEffects( const PHIRequest *req, QByteArray &out, QByteArray &script );
+    void htmlEffects( QByteArray &script ) const;
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
     bool sceneEvent( QEvent *event );
     inline QGraphicsWidget* gw() { return _gw; }

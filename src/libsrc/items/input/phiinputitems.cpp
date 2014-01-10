@@ -129,6 +129,7 @@ void PHILineEditItem::genHtml( const QByteArray &type, const PHIRequest *req, QB
     htmlInitItem( script, false );
     if ( Q_UNLIKELY( realReadOnly() ) ) script+=BL( ".readOnly(1);\n" );
     else script+=BL( ";\n" );
+
     out+=indent+BL( "<input type=\"" )+type+BL( "\" name=\"" )+id()+'"';
     QByteArray arr=data( DText ).toByteArray();
     if ( !arr.isEmpty() ) out+=BL( " value=\"" )+arr+'"';

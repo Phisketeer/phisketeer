@@ -966,7 +966,63 @@ void PHIBaseItem::htmlInitItem( QByteArray &script, bool close ) const
     if ( Q_UNLIKELY( !realAccessKey().isEmpty() ) ) script+=BL( ".accessKey('" )
         +realAccessKey().toUtf8()+BL( "')" );
     if ( Q_UNLIKELY( realDisabled() ) ) script+=BL( ".disabled(1)" );
+    if ( Q_UNLIKELY( _effect->effects()!=PHIEffect::ENone ) ) htmlEffects( script );
     if ( close ) script+=BL( ";\n" );
+}
+
+void PHIBaseItem::htmlEffects( QByteArray &script ) const
+{
+    qint32 start, duration;
+    quint8 ease;
+    if ( _effect->effects() & PHIEffect::EFadeIn ) {
+        qreal maxOpac;
+        _effect->fadeIn( start, duration, maxOpac, ease );
+        script+=BL( ".fadeIn(" )+QByteArray::number( start )+','
+            +QByteArray::number( duration )+','+QByteArray::number( maxOpac, 'f', 2 )
+            +BL( ",'" )+PHI::toEasingCurveByteArray( ease )+BL( "')" );
+    }
+    if ( Q_UNLIKELY( _effect->effects() & PHIEffect::EFadeOut ) ) {
+        qreal minOpac;
+        _effect->fadeOut( start, duration, minOpac, ease );
+        script+=BL( ".fadeOut(" )+QByteArray::number( start )+','
+            +QByteArray::number( duration )+','+QByteArray::number( minOpac, 'f', 2 )
+            +BL( ",'" )+PHI::toEasingCurveByteArray( ease )+BL( "')" );
+    }
+    if ( Q_UNLIKELY( _effect->effects() & PHIEffect::EMoveBy ) ) {
+        qint32 dx, dy, dw, dh;
+        _effect->moveBy( start, duration, dx, dy, dw, dh, ease );
+        script+=BL( ".moveBy(" )+QByteArray::number( dx )+','
+            +QByteArray::number( dy )+','+QByteArray::number( dw )+','
+            +QByteArray::number( dh )+','+QByteArray::number( start )+','
+            +QByteArray::number( duration )+BL( ",'" )+PHI::toEasingCurveByteArray( ease )+BL( "')" );
+    }
+    if ( Q_UNLIKELY( _effect->effects() & PHIEffect::EMoveTo ) ) {
+        qint32 left, top;
+        _effect->moveTo( start, duration, left, top, ease );
+        script+=BL( ".moveTo(" )+QByteArray::number( left )+','
+            +QByteArray::number( top )+','+QByteArray::number( start )+','
+            +QByteArray::number( duration )+BL( ",'" )+PHI::toEasingCurveByteArray( ease )+BL( "')" );
+    }
+    if ( Q_UNLIKELY( _effect->effects() & PHIEffect::ERotateIn ) ) {
+        _effect->rotateIn( ease, start, duration ); // ease used for axis
+        script+=BL( ".rotateIn(" )+QByteArray::number( ease )+','
+            +QByteArray::number( start )+','+QByteArray::number( duration )
+            +BL( ",'" )+PHI::toEasingCurveByteArray( PHI::defaultEasingCurveType() )+BL( "')" );
+    }
+    if ( Q_UNLIKELY( _effect->effects() & PHIEffect::ERotateOut ) ) {
+        _effect->rotateOut( ease, start, duration ); // ease used for axis
+        script+=BL( ".rotateOut(" )+QByteArray::number( ease )+','
+            +QByteArray::number( start )+','+QByteArray::number( duration )
+            +BL( ",'" )+PHI::toEasingCurveByteArray( PHI::defaultEasingCurveType() )+BL( "')" );
+    }
+    if ( Q_UNLIKELY( _effect->effects() & PHIEffect::ERotate ) ) {
+        qreal stepx, stepy, stepz;
+        _effect->rotate( ease, stepx, stepy, stepz ); // ease used for axis
+        script+=BL( ".rotate(" )+QByteArray::number( ease )+','
+            +QByteArray::number( stepx, 'f', 2 )+','+QByteArray::number( stepy, 'f', 2 )
+            +','+QByteArray::number( stepz, 'f', 2 )+BL( ",'" )
+            +PHI::toEasingCurveByteArray( PHI::defaultEasingCurveType() )+BL( "')" );
+    }
 }
 
 void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &script, bool project3D ) const
