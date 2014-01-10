@@ -205,7 +205,10 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
     setTransformPos( _variants.value( DTransformPos, 1 ).value<quint8>() );
     setFont( font() ); // setFont may change height depending on sizeHint
     resize( preserve );
-    if ( isIdeItem() ) privateUpdateData();
+    if ( isIdeItem() ) {
+        ideSetHidden( _flags & FIDEHidden );
+        privateUpdateData();
+    }
     if ( isClientItem() ) privateClientInit();
     if ( _gw ) {
         _gw->setPos( _x, _y );
@@ -318,6 +321,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     setTransformPos( transformPos );
     setTransformation( sH, sV, xRot, yRot, zRot );
     setParentId( parent );
+    if ( attributes & AChild ) _flags |= FChild;
 
     PHIItemData d;
     d.load( properties, dynData );
@@ -325,13 +329,35 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     _titleData=*d.toolTipData();
     _styleSheetData=*d.styleSheetData();
     _disabledData=*d.disabledData();
-    if ( textData() ) *textData()=*d.textData();
-    if ( readOnlyData() ) *readOnlyData()=*d.readOnlyData();
-    if ( checkedData() ) *checkedData()=*d.checkedData();
-    if ( imageData() ) *imageData()=*d.imageData();
-    if ( imageBookData() ) *imageBookData()=*d.imageBookData();
-    if ( intData_1() ) *intData_1()=*d.startAngleData();
-    if ( intData_2() ) *intData_2()=*d.spanAngleData();
+    QByteArray en=BL( "en" );
+    if ( textData() ) {
+        *textData()=*d.textData();
+        if ( textData()->isTranslated() ) textData()->setText( d.textData()->text(), en );
+    }
+    if ( readOnlyData() ) {
+        *readOnlyData()=*d.readOnlyData();
+        if ( readOnlyData()->isTranslated() ) readOnlyData()->setText( d.readOnlyData()->text(), en );
+    }
+    if ( checkedData() ) {
+        *checkedData()=*d.checkedData();
+        if ( checkedData()->isTranslated() ) checkedData()->setText( d.checkedData()->text(), en );
+    }
+    if ( imageData() ) {
+        *imageData()=*d.imageData();
+        if ( imageData()->isTranslated() ) imageData()->setImage( d.imageData()->image(), en );
+    }
+    if ( imageBookData() ) {
+        *imageBookData()=*d.imageBookData();
+        if ( imageBookData()->isTranslated() ) imageBookData()->setImageBook( d.imageBookData()->imageBook(), en );
+    }
+    if ( intData_1() ) {
+        *intData_1()=*d.startAngleData();
+        if ( intData_1()->isTranslated() ) intData_1()->setInteger( d.startAngleData()->integer(), en );
+    }
+    if ( intData_2() ) {
+        *intData_2()=*d.spanAngleData();
+        if ( intData_2()->isTranslated() ) intData_2()->setInteger( d.spanAngleData()->integer(), en );
+    }
     if ( properties & PHIItemData::PStyleSheet ) _flags |= FUseStyleSheet;
     QSizeF s=realSize(); // preserve size
     if ( d.font()!=PHI::invalidFont() ) setFont( d.font() );
@@ -914,16 +940,40 @@ void PHIBaseItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
     Q_UNUSED( out )
 }
 
+void PHIBaseItem::htmlInitItem( QByteArray &script, bool close ) const
+{
+    QRectF r=adjustedRect();
+    quint32 ddopts=dragDropOptions();
+    if ( Q_UNLIKELY( ddopts & DDDragEnabled || ddopts & DDDropEnabled ) ) htmlDragDropItem( script );
+    script+=BL( "$.$('" )+_id+BL( "'," )+QByteArray::number( wid() );
+    if ( QPointF()!=r.topLeft() || realSize()!=r.size() ) {
+        script+=','+QByteArray::number( qRound(r.x() ) )+','+QByteArray::number( qRound(r.y()) );
+        if ( realSize()!=r.size() ) {
+            script+=','+QByteArray::number( qRound(r.width()-realWidth()) )
+                +','+QByteArray::number( qRound(r.height()-realHeight()) );
+        }
+        if ( r.x()!=0 ) script+=BL( ").x(" )+QByteArray::number( qRound(_x) );
+        if ( r.y()!=0 ) script+=BL( ").y(" )+QByteArray::number( qRound(_y) );
+        if ( _width!=r.size().width() )
+            script+=BL( ").width(" )+QByteArray::number( qRound(_width) );
+        if ( _height!=r.size().height() )
+            script+=BL( ").height(" )+QByteArray::number( qRound(_height) );
+    }
+    script+=')';
+    if ( Q_UNLIKELY( realOpacity()<1. ) ) script+=BL( ".opacity(" )
+        +QByteArray::number( realOpacity(), 'f', 3 )+')';
+    if ( Q_UNLIKELY( !realVisible() ) ) script+=BL( ".hide()" );
+    if ( Q_UNLIKELY( !realAccessKey().isEmpty() ) ) script+=BL( ".accessKey('" )
+        +realAccessKey().toUtf8()+BL( "')" );
+    if ( Q_UNLIKELY( realDisabled() ) ) script+=BL( ".disabled(1)" );
+    if ( close ) script+=BL( ";\n" );
+}
+
 void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &script, bool project3D ) const
 {
-    if ( Q_UNLIKELY( realOpacity()<1. ) ) script+=BL( "$('" )+_id+BL( "').opacity(" )
-        +QByteArray::number( realOpacity(), 'f', 3 )+BL( ");\n" );
-    if ( Q_UNLIKELY( !realVisible() ) ) script+=BL( "$('" )+_id+BL( "').hide();\n" );
-    if ( Q_UNLIKELY( !realAccessKey().isEmpty() ) ) script+=BL( "$('" )+_id+BL( "').accessKey('" )
-        +realAccessKey().toUtf8()+BL( "')\n" );
-    if ( Q_UNLIKELY( realDisabled() ) ) script+=BL( "$('" )+_id+BL( "').disabled(1);\n" );
     out+=BL( " class=\"phi\" id=\"" )+_id;
     if ( _variants.value( DTitle ).isValid() ) out+=BL( "\" title=\"" )+_variants.value( DTitle ).toByteArray();
+    if ( isFocusable() && realTabIndex()>0 ) out+=BL( "\" tabindex=\"" )+QByteArray::number( realTabIndex() );
     out+=BL( "\" style=\"" );
     if ( hasGraphicEffect() ) cssGraphicEffect( req, out, script );
     if ( hasTransformation() ) {
@@ -969,8 +1019,6 @@ void PHIBaseItem::htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &
             +QByteArray::number( qRound(o.y()) )+"px;";
     }
     if ( Q_UNLIKELY( _dirtyFlags & DFStyleSheetData ) ) cssCustomStyleSheet( out );
-    quint32 ddopts=dragDropOptions();
-    if ( Q_UNLIKELY( ddopts & DDDragEnabled || ddopts & DDDropEnabled ) ) htmlDragDropItem( script );
 }
 
 void PHIBaseItem::htmlDragDropItem( QByteArray &script ) const

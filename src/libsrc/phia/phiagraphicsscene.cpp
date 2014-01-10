@@ -216,6 +216,7 @@ void PHIAGraphicsScene::init()
     emit pagePaletteChanged( page()->phiPalette() );
     emit pageFontChanged( page()->font() );
     foreach( PHIAbstractLayoutItem *l, _layouts ) l->activateLayout();
+    updateTabOrder();
     _engine=new QScriptEngine( page() );
     new PHIAScriptWindowObj( webView() ); // constructor sets _engine as parent
     new PHIAScriptNavigatorObj( webView() ); // constructor sets _engine as parent
@@ -241,6 +242,18 @@ void PHIAGraphicsScene::init()
         }
     } else {
         emit webView()->javaScriptConsoleMessage( tr( "Could not evaluate JavaScript." ), 0, _requestedUrl.toString() );
+    }
+}
+
+void PHIAGraphicsScene::updateTabOrder()
+{
+    QMultiMap <qint16, QGraphicsWidget*> map;
+    foreach ( PHIBaseItem *it, page()->items() ) {
+        if ( it->isFocusable() ) map.insert( it->realTabIndex(), it->gw() );
+    }
+    QList <QGraphicsWidget*> list=map.values();
+    for ( int i=0; i<list.count()-1; i++ ) {
+        QGraphicsWidget::setTabOrder( list.at( i ), list.at( i+1 ) );
     }
 }
 

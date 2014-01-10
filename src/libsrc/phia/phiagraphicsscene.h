@@ -51,6 +51,7 @@ protected:
     PHIAWebView* webView() const;
     virtual void drawBackground( QPainter *painter, const QRectF &r );
     void init();
+    void updateTabOrder();
 
 signals:
     void titleChanged( const QString &title );

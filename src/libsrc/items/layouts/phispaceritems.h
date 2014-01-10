@@ -34,6 +34,7 @@ public:
     inline virtual QString listName() const { return tr( "HSpacer" ); }
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/hspacer" ) ); }
     inline virtual QString description() const { return tr( "Horizontal spacer item for layouts." ); }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -57,6 +58,7 @@ public:
     inline virtual QString listName() const { return tr( "VSpacer" ); }
     inline virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/vspacer" ) ); }
     inline virtual QString description() const { return tr( "Vertical spacer item for layouts." ); }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;

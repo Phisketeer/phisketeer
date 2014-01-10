@@ -277,7 +277,6 @@ public:
         _textData( it._textData ) { if ( isGuiItem() ) initLayout(); } // _children must not be copied!
     virtual ~PHIAbstractLayoutItem() {}
 
-    virtual bool isFocusable() const { return true; }
     virtual bool isDroppable() const { return true; }
     virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
     virtual void activateLayout()=0; // called once after page loading

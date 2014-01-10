@@ -37,6 +37,7 @@ public:
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual bool isWidthChangeable() const { return false; }
     virtual bool isHeightChangeable() const { return false; }
+    virtual bool isFocusable() const { return false; }
 
 public slots:
     virtual QScriptValue readOnly( const QScriptValue &r=QScriptValue() ) { Q_UNUSED( r ) return QScriptValue( QScriptValue::UndefinedValue ); }

@@ -115,8 +115,8 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/imagebutton" ) ); }
     inline void setTitleList( const QString &toolTip ) { setData( DTitles, toolTip.split( QLatin1Char( ':' ), QString::KeepEmptyParts ) ); }
     inline QString titleList() const { return data( DTitles ).toStringList().join( L1( ":" ) ); }
-    virtual PHIIntData* intData_1() { return &_intervalData; }
-    virtual PHIIntData* intData_2() { return &_fadeTimeData; }
+    virtual PHIIntData* intData_1() { return &_fadeTimeData; }
+    virtual PHIIntData* intData_2() { return &_intervalData; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
     inline void setFadeInterval( int i ) { setData( DInterval, qMax( realFadeTimeMS(), i*1000 ) ); updateImages(); }
@@ -235,7 +235,7 @@ public:
     virtual QString listName() const { return tr( "Sponsor" ); }
     virtual QString description() const { return tr( "Displays the 'powered by' logo." ); }
     virtual PHIWID wid() const { return Sponsor; }
-    virtual QPixmap pixmap() const { return QPixmap(); }
+    virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/imagebutton" ) ); }
     virtual bool isHeightChangeable() const { return false; }
     virtual bool isWidthChangeable() const { return false; }
     virtual bool isPrivateItem() const { return true; }

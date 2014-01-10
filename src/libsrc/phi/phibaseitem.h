@@ -63,12 +63,12 @@ private:
 class PHIEXPORT PHIBaseItem : public QObject
 {
     friend class PHIGraphicsItem;
-    friend class PHIAbstractLayoutItem; // needs access to _gw
+    friend class PHIAbstractLayoutItem; // needs write access to _gw
     friend class PHIAGraphicsItem;
     friend class PHIAGraphicsScene;
     friend class ARTGraphicsScene;
     friend class ARTGraphicsItem;
-    friend class ARTUndoDelLayout; // needs access to _gw
+    friend class ARTUndoDelLayout; // needs write access to _gw
     friend class ARTUndoEffect;
     friend class ARTItemSettings;
     friend class ARTDragDropWidget;
@@ -103,7 +103,7 @@ public:
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
         FStoreDisabledData=0x200, FHasMouseEventHandler=0x400, FHasFocusEventHandler=0x800,
         FHasHoverEventHandler=0x1000, FHasKeyEventHandler=0x2000, FHasChangeEventHandler=0x4000,
-        FHasDropEventHandler=0x8000, FIsAnimating=0x10000 }; //quint32
+        FHasDropEventHandler=0x8000, FIsAnimating=0x10000, FIDEHidden=0x20000 }; //quint32
     enum DragDropOption { DDNone=0, DDMoveAction=0x1, DDRevertOnIgnore=0x2, DDRevertOnAccept=0x4,
         DDHighlightOnMouseOver=0x8, DDDragEnabled=0x10, DDDropEnabled=0x20 };
     enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
@@ -219,6 +219,7 @@ public: // not usable by script engine
     QConicalGradient conicalGradient() const;
     QRadialGradient radialGradient() const;
     QTransform computeTransformation( bool translate=true ) const;
+    const PHIBasePage* page() const;
 
     void phiPaletteChanged( const PHIPalette &pal );
     void setTransformPos( quint8 pos );
@@ -276,12 +277,16 @@ public: // not usable by script engine
     virtual PHIIntData* intData_1() { return 0; }
     virtual PHIIntData* intData_2() { return 0; }
     virtual void ideInit() {}
+
     inline const QGraphicsWidget* graphicsWidget() const { return _gw; }
+    inline bool ideIsHidden() const { return _flags & FIDEHidden; }
+    inline void ideSetHidden( bool b ) { b ? _flags|= FIDEHidden : _flags&= ~FIDEHidden; if ( _gw ) _gw->setVisible( !b ); }
     inline PHITextData* styleSheetData() { return &_styleSheetData; }
     inline PHITextData* titleData() { return &_titleData; }
     inline PHIBooleanData* visibleData() { return &_visibleData; }
     inline PHIBooleanData* disabledData() { return &_disabledData; }
 
+    // static member
     static QByteArray cssRgba( const QColor &c );
     static PHIWID widFromMimeData( const QMimeData *md );
     static QImage imageFromMimeData( const QMimeData *md );
@@ -358,7 +363,6 @@ protected:
     void slideDown( int duration, const QString &ease );
     void setWidget( QWidget* );
     QWidget* widget() const;
-    const PHIBasePage* page() const;
     QScriptValue self();
 
     QImage createImage();
@@ -625,27 +629,6 @@ inline QByteArray PHIBaseItem::cssRgba( const QColor &c )
     arr+=BL( "rgba(" )+QByteArray::number( c.red() )+','+QByteArray::number( c.green() )+','
         +QByteArray::number( c.blue() )+','+(c.alphaF()==1 ? BL( "1" ) : QByteArray::number( c.alphaF(), 'f', 3 ))+')';
     return arr;
-}
-
-inline void PHIBaseItem::htmlInitItem( QByteArray &script, bool close ) const
-{
-    QRectF r=adjustedRect();
-    script+=BL( "$.$('" )+_id+BL( "'," )+QByteArray::number( wid() );
-    if ( QPointF()!=r.topLeft() || realSize()!=r.size() ) {
-        script+=','+QByteArray::number( qRound(r.x() ) )+','+QByteArray::number( qRound(r.y()) );
-        if ( realSize()!=r.size() ) {
-            script+=','+QByteArray::number( qRound(r.width()-realWidth()) )
-                +','+QByteArray::number( qRound(r.height()-realHeight()) );
-        }
-        if ( r.x()!=0 ) script+=BL( ").x(" )+QByteArray::number( qRound(_x) );
-        if ( r.y()!=0 ) script+=BL( ").y(" )+QByteArray::number( qRound(_y) );
-        if ( _width!=r.size().width() )
-            script+=BL( ").width(" )+QByteArray::number( qRound(_width) );
-        if ( _height!=r.size().height() )
-            script+=BL( ").height(" )+QByteArray::number( qRound(_height) );
-    }
-    if ( close ) script+=BL( ");\n" );
-    else script+=')';
 }
 
 inline QByteArray PHIBaseItem::cssImageIEFilter( const QByteArray &imgId, bool alterFilters ) const

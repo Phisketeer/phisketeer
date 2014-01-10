@@ -490,7 +490,7 @@ void PHIBasePage::genJQueryThemeFile( const PHIRequest *req ) const
         theme.replace( QRegExp( _phireg( "fcDefault" ) ),
             QLatin1Char( ' ' )+_pal.color( PHIPalette::WindowText ).name() );
         theme.replace( QRegExp( _phireg( "fcActive" ) ),
-            QLatin1Char( ' ' )+_pal.color( PHIPalette::LinkVisited ).name() );
+            QLatin1Char( ' ' )+_pal.color( PHIPalette::ErrorText ).name() );
         theme.replace( QRegExp( _phireg( "fcHover" ) ),
             QLatin1Char( ' ' )+_pal.color( PHIPalette::Link ).name() );
         theme.replace( QRegExp( _phireg( "fcHighlight" ) ),
@@ -532,7 +532,7 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     if ( _variants.value( DAuthor ).isValid() )
         out+=BL( "\t<meta name=\"author\" content=\"" )+_variants.value( DAuthor ).toByteArray()+eht;
     if ( _variants.value( DCompany ).isValid() )
-        out+=BL( "\t<meta name=\"publisher content=\"" )+_variants.value( DCompany ).toByteArray()+eht;
+        out+=BL( "\t<meta name=\"publisher\" content=\"" )+_variants.value( DCompany ).toByteArray()+eht;
     if ( _variants.value( DCopyright ).isValid() )
         out+=BL( "\t<meta name=\"rights\" content=\"" )+_variants.value( DCopyright ).toByteArray()+eht;
     if ( _variants.value( DVersion ).isValid() )

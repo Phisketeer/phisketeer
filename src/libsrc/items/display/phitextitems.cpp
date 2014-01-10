@@ -58,19 +58,16 @@ void PHILabelItem::setWidgetAligment( Qt::Alignment align )
 
 void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    htmlInitItem( script, false );
+    if ( isPlainText() ) script+=BL( ".text('" )+data( DText ).toByteArray()+BL( "')" );
+    else script+=BL( ".html('" )+data( DText ).toByteArray()+BL( "')" );
+    if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text )
+        script+=BL( ".color('" )+cssRgba( realColor() )+BL( "')" );
+    if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
+        script+=BL( ".bgColor('" )+cssRgba( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";\n" );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
-    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
-        if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
-            out+=BL( "background-color:" )+cssRgba( realBackgroundColor() )+';';
-        if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text )
-            out+=BL( "color:" )+cssRgba( realColor() )+';';
-    } else {
-        if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
-            out+=BL( "background-color:" )+realBackgroundColor().name().toLatin1()+';';
-        if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text )
-            out+=BL( "color:" )+realColor().name().toLatin1()+';';
-    }
     out+=BL( "\"><table class=\"phi\"><tr><td id=\"" )+id()+BL( "_phit\" style=\"" );
     Qt::Alignment a=static_cast<Qt::Alignment>(realAlignment());
     if ( data( DFont ).isValid() ) {
@@ -84,9 +81,6 @@ void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scr
     if ( a & Qt::AlignHCenter ) out+=BL( "text-align:center;" );
     else if ( a & Qt::AlignRight ) out+=BL( "text-align:right;" );
     out+=BL( "\">" )+BL( "</td></tr></table></div>\n" );
-    htmlInitItem( script, false );
-    if ( isPlainText() ) script+=BL( ".text('" )+data( DText ).toByteArray()+BL("');\n" );
-    else script+=BL( ".html('" )+data( DText ).toByteArray()+BL("');\n" );
 }
 
 void PHILabelItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
@@ -376,7 +370,12 @@ QScriptValue PHIRichTextItem::html( const QScriptValue &v )
 
 void PHIRichTextItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    htmlInitItem( script );
+    htmlInitItem( script, false );
+    if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text )
+        script+=BL( ".color('" )+cssRgba( realColor() )+BL( "')" );
+    if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
+        script+=BL( ".bgColor('" )+cssRgba( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";\n" );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
     out+=BL( "overflow:auto\">\n" );

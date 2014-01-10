@@ -48,6 +48,14 @@ void PHIHSpacerItem::paint( QPainter *painter, const QRectF &exposed )
     painter->drawLine( 0, realHeight()/2., realWidth(), realHeight()/2. );
 }
 
+void PHIHSpacerItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    Q_UNUSED( req )
+    Q_UNUSED( script )
+    Q_UNUSED( out )
+    Q_UNUSED( indent )
+}
+
 void PHIVSpacerItem::initWidget()
 {
     setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
@@ -75,4 +83,12 @@ void PHIVSpacerItem::paint( QPainter *painter, const QRectF &exposed )
     painter->drawLine( 0, realHeight(), realWidth(), realHeight() );
     pen.setWidth( 2. );
     painter->drawLine( realWidth()/2., 0, realWidth()/2., realHeight() );
+}
+
+void PHIVSpacerItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    Q_UNUSED( req )
+    Q_UNUSED( script )
+    Q_UNUSED( out )
+    Q_UNUSED( indent )
 }
