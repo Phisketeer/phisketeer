@@ -30,7 +30,7 @@ PHIGraphicsView::PHIGraphicsView( PHIGraphicsScene *scene, QWidget *parent )
     // setRenderHint( QPainter::SmoothPixmapTransform, true );
     // setRenderHint( QPainter::TextAntialiasing, true );
     // setRenderHint( QPainter::HighQualityAntialiasing, true );
-    setViewportUpdateMode( SmartViewportUpdate );
+    setViewportUpdateMode( MinimalViewportUpdate );
     // setViewportUpdateMode( FullViewportUpdate );
     setCacheMode( CacheNone );
     setAlignment( Qt::AlignHCenter | Qt::AlignTop );

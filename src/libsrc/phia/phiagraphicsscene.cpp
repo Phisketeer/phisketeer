@@ -218,6 +218,7 @@ void PHIAGraphicsScene::init()
     foreach( PHIAbstractLayoutItem *l, _layouts ) l->activateLayout();
     updateTabOrder();
     _engine=new QScriptEngine( page() );
+    startAnimations();
     new PHIAScriptWindowObj( webView() ); // constructor sets _engine as parent
     new PHIAScriptNavigatorObj( webView() ); // constructor sets _engine as parent
     new PHIAScriptPhiObj( webView() ); // constructor sets _engine as parent
@@ -254,6 +255,49 @@ void PHIAGraphicsScene::updateTabOrder()
     QList <QGraphicsWidget*> list=map.values();
     for ( int i=0; i<list.count()-1; i++ ) {
         QGraphicsWidget::setTabOrder( list.at( i ), list.at( i+1 ) );
+    }
+}
+
+void PHIAGraphicsScene::startAnimations()
+{
+    QList <PHIBaseItem*> list=page()->items();
+    foreach ( PHIBaseItem *it, list ) {
+        if ( it->effect()->effects()==PHIEffect::ENone ) continue;
+        qint32 start, duration;
+        quint8 ease;
+        if ( it->effect()->effects() & PHIEffect::ERotate ) {
+            qreal stepx, stepy, stepz;
+            it->effect()->rotate( ease, stepx, stepy, stepz );
+            it->rotate( ease, stepx, stepy, stepz );
+        }
+        if ( it->effect()->effects() & PHIEffect::ERotateIn ) {
+            it->effect()->rotateIn( ease, start, duration );
+            it->rotateIn( ease, start, duration, PHI::defaultEasingCurve() );
+        }
+        if ( it->effect()->effects() & PHIEffect::ERotateOut ) {
+            it->effect()->rotateOut( ease, start, duration );
+            it->rotateOut( ease, start, duration, PHI::defaultEasingCurve() );
+        }
+        if ( it->effect()->effects() & PHIEffect::EMoveBy ) {
+            qint32 dx, dy, dw, dh;
+            it->effect()->moveBy( start, duration, dx, dy, dw, dh, ease );
+            it->moveBy( dx, dy, dw, dh, start, duration, PHI::toEasingCurveString( ease ) );
+        }
+        if ( it->effect()->effects() & PHIEffect::EMoveTo ) {
+            qint32 left, top;
+            it->effect()->moveTo( start, duration, left, top, ease );
+            it->moveTo( left, top, start, duration, PHI::toEasingCurveString( ease ) );
+        }
+        if ( it->effect()->effects() & PHIEffect::EFadeIn ) {
+            qreal maxOpac;
+            it->effect()->fadeIn( start, duration, maxOpac, ease );
+            it->fadeIn( start, duration, maxOpac, PHI::toEasingCurveString( ease ) );
+        }
+        if ( it->effect()->effects() & PHIEffect::EFadeOut ) {
+            qreal minOpac;
+            it->effect()->fadeOut( start, duration, minOpac, ease );
+            it->fadeOut( start, duration, minOpac, PHI::toEasingCurveString( ease ) );
+        }
     }
 }
 

@@ -52,6 +52,7 @@ protected:
     virtual void drawBackground( QPainter *painter, const QRectF &r );
     void init();
     void updateTabOrder();
+    void startAnimations();
 
 signals:
     void titleChanged( const QString &title );

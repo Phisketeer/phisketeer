@@ -462,17 +462,18 @@ void PHIBaseItem::updatePageFont( const QFont &f )
 
 void PHIBaseItem::setFont( const QFont &font )
 {
-    if ( _type==PHIBaseItemPrivate::TTemplateItem ) return;
     QFont pf=QGuiApplication::font();
 #ifdef PHIDEBUG
     if ( !page() ) qDebug( "setFont: page not set" );
 #endif
     if ( page() ) pf=page()->font();
-    if ( pf==font ) {
-        _variants.remove( DFont );
-    } else {
-        _variants.insert( DFont, font );
-        pf=font;
+    if ( _type!=PHIBaseItemPrivate::TTemplateItem ) {
+        if ( pf==font ) {
+            _variants.remove( DFont );
+        } else {
+            _variants.insert( DFont, font );
+            pf=font;
+        }
     }
     if ( _gw ) {
         pf.setPointSizeF( PHI::adjustedFontSize( font.pointSizeF() ) );
