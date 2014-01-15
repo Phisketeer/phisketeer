@@ -163,6 +163,12 @@ void PHICalendarItem::phisCreateData(const PHIDataParser &parser)
     setAdjustedRect( QRectF( 0, 0, realWidth()-6, realHeight()-4 ) );
 }
 
+void PHICalendarItem::cssStatic(const PHIRequest *req, QByteArray &out) const
+{
+    Q_UNUSED( req )
+    out+='#'+id()+BL( " .ui-corner-all{border-radius:0px}\n" );
+}
+
 PHIWID PHICalendarItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const
 {
     Q_UNUSED( req )

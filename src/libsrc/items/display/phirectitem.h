@@ -61,12 +61,15 @@ public:
     inline virtual PHIWID wid() const { return Rect; }
     inline PHIIntData* radiusData() { return &_radiusData; }
     virtual QString listName() const { return tr( "Rect" ); }
-    virtual QString description() const { return tr( "Draws a box or rect with optional rounded courners" ); }
+    virtual QString description() const { return tr( "Draws a box or rect with optional rounded courners." ); }
     virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/rect" ) ); }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
     inline virtual qint16 realBorderRadius() const { return data( DBorderRadius, 0 ).value<qint16>(); }
     inline virtual void setBorderRadius( qint16 r ) { setData( DBorderRadius, r ); update(); }
+
+public slots:
+    QScriptValue borderRadius( const QScriptValue &r=QScriptValue() );
 
 protected:
     virtual PHIConfigWidget* ideConfigWidget();
@@ -97,7 +100,7 @@ public:
 
     inline virtual PHIWID wid() const { return Rect; }
     virtual QString listName() const { return tr( "Rounded rect" ); }
-    virtual QString description() const { return tr( "Draws a box with rounded courners" ); }
+    virtual QString description() const { return tr( "Draws a rect with rounded courners." ); }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/roundedrect" ) ); }
     virtual bool isPrivateItem() const { return true; }
 };

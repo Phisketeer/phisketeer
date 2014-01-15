@@ -120,25 +120,28 @@ void PHIRectItem::drawShape( QPainter *p, const QRectF& )
         cr=QRectF( -off, -off, realWidth()+2*off, realHeight()+2*off );
         p->setBrush( Qt::NoBrush );
         p->setPen( pen );
-        if ( realBorderRadius() ) p->drawRoundedRect( cr, realBorderRadius(), realBorderRadius() );
-        else p->drawRect( cr );
+        if ( realBorderRadius() ) {
+            if ( realPenWidth()>1. ) p->setRenderHint( QPainter::Antialiasing );
+            p->drawRoundedRect( cr, realBorderRadius(), realBorderRadius() );
+        } else p->drawRect( cr );
     }
 }
 
 void PHIRectItem::phisCreateData( const PHIDataParser &parser )
 {
     setData( DBorderRadius, parser.text( &_radiusData ) );
-    if ( !_radiusData.isUnparsedStatic() ) {
-        setDirtyFlag( DFInt1 );
-        setFlag( FDoNotCache );
-    }
-    // create image only if we are not able to cache
-    if ( !(flags() & FDoNotCache) ) PHIAbstractShapeItem::phisCreateData( parser );
+    if ( !_radiusData.isUnparsedStatic() ) setDirtyFlag( DFInt1 );
+    PHIAbstractShapeItem::phisCreateData( parser );
 }
 
 void PHIRectItem::phisParseData( const PHIDataParser &parser )
 {
-    if ( dirtyFlags() & DFInt1 ) setData( DBorderRadius, parser.text( &_radiusData ) );
+    if ( dirtyFlags() & DFInt1 ) {
+        setData( DBorderRadius, parser.text( &_radiusData ) );
+        setImagePath( parser.createImage( createImage(), PHIData::c(), -1 ) );
+    } else if ( dirtyFlags() & DFDoNotCache || dirtyFlags() & DFColor || dirtyFlags() & DFBackgroundColor ) {
+        setImagePath( parser.createImage( createImage(), PHIData::c(), -1 ) );
+    }
 }
 
 void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
@@ -160,21 +163,20 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
         else if ( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::Transform3D) ) ) needImage=true;
     }
     if ( Q_LIKELY( !needImage ) ) {
+        QByteArray tmp;
         out+=indent+BL( "<div" );
         htmlBase( req, out, script, true );
-        if ( realPattern()==1 ) out+=BL( "background-color:" )+cssRgba( realColor() )+';';
+        if ( realPattern()==1 ) tmp+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
         else if ( realPattern()==15 ) cssLinearGradient( req, out );
         if ( realBorderRadius() ) { // rounded corners
-            QByteArray prefix=QByteArray();
-            if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()<534 ) prefix=req->agentPrefix();
-            else if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()<2 ) prefix=req->agentPrefix();
-            out+=prefix+BL( "border-radius:" )+QByteArray::number( realBorderRadius() )+BL( "px;" );
+            tmp+=BL( ".borderRadius(" )+QByteArray::number( realBorderRadius() )+')';
         }
         if ( realLine()>0 ) { // border
             QByteArray style=BL( "solid" );
             if ( realLine()==2 ) style=BL( "dashed" );
             else if ( realLine()==3 ) style=BL( "dotted" );
-            out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+' '+cssRgba( realOutlineColor() )+';';
+            out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+';';
+            tmp+=BL( ".borderColor('" )+cssColor( realOutlineColor() )+BL( "')" );
             QPointF off=boundingRect().topLeft();
             if ( hasTransformation() ) off=computeTransformation( false ).map( off );
             setAdjustedRect( QRectF( off, realSize() ) );
@@ -192,6 +194,8 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
             out+=QByteArray::number( qRound(radius) )+"px "+cssRgba( c )+';';
         }
         out+=BL( "\"></div>\n" );
+        htmlInitItem( script, false );
+        script+=tmp+BL( ";\n" );
     } else {
         out+=indent+BL( "<img" );
         htmlBase( req, out, script, false );
@@ -199,8 +203,16 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
         QByteArray imgId=PHIDataParser::createTransformedImage( req, this, 0, br );
         out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
         setAdjustedRect( br );
+        htmlInitItem( script );
     }
-    htmlInitItem( script );
+}
+
+QScriptValue PHIRectItem::borderRadius( const QScriptValue &r )
+{
+    if ( !r.isValid() ) return realBorderRadius();
+    setDirtyFlag( DFDoNotCache );
+    setBorderRadius( static_cast<qint16>(r.toInt32()) );
+    return self();
 }
 
 void PHIRectItem::loadItemData( QDataStream &in, int version )
@@ -223,6 +235,7 @@ void PHIRectItem::squeeze()
 
 void PHIRectItem::ideUpdateData()
 {
+    PHIAbstractShapeItem::ideUpdateData();
     if ( _radiusData.isUnparsedStatic() ) setData( DBorderRadius, _radiusData.integer() );
     else if ( _radiusData.isUnparsedTranslated() ) setData( DBorderRadius, _radiusData.integer( page()->currentLang() ) );
     else setData( DBorderRadius, 0 );

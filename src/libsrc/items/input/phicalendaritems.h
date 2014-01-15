@@ -55,6 +55,7 @@ public slots:
 protected:
     virtual void ideUpdateData();
     virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;

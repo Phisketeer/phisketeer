@@ -26,7 +26,7 @@ class PHILabelItem : public PHIAbstractTextItem
 
 public:
     enum Wid { Label=30 };
-    enum ItemData { DPlainText=1 };
+    enum ItemData { DHtmlText=1 };
     explicit PHILabelItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ) { if ( isGuiItem() ) initWidget(); }
     PHILabelItem( const PHILabelItem &it ) : PHIAbstractTextItem( it ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHILabelItem() {}
@@ -37,12 +37,10 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/label" ) ); }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual void ideInit();
-    bool isPlainText() const { return data( DPlainText, false ).toBool(); }
-    void setPlainText( bool b ) { setData( DPlainText, b ); }
+    bool isHtmlText() const { return data( DHtmlText, false ).toBool(); }
+    void setHtmlText( bool b ) { if ( !b ) removeData( DHtmlText ); else setData( DHtmlText, b ); }
 
 protected slots:
-    QScriptValue color( const QScriptValue &c=QScriptValue() );
-    QScriptValue bgColor( const QScriptValue &c=QScriptValue() );
     QScriptValue text( const QScriptValue &t=QScriptValue() );
     QScriptValue html( const QScriptValue &h=QScriptValue() );
 
@@ -68,7 +66,7 @@ public:
     PHIGraphicRichTextItem( const PHILabelItem &it ) : PHIAbstractTextItem( it ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHIGraphicRichTextItem() {}
 
-    virtual QString listName() const { return tr( "Graph rich text" ); }
+    virtual QString listName() const { return tr( "Graphic rich text" ); }
     virtual QString description() const { return tr( "Displays rich text rendered into an image." ); }
     virtual PHIWID wid() const { return GraphicRichText; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/richtext" ) ); }
@@ -81,13 +79,15 @@ public:
 
 public slots:
     QScriptValue html( const QScriptValue &h=QScriptValue() );
+    virtual QScriptValue color( const QScriptValue &c=QScriptValue() );
+    virtual QScriptValue bgColor( const QScriptValue &c=QScriptValue() );
 
 protected:
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual void setWidgetText( const QString &t );
-    virtual void setWidgetAligment( Qt::Alignment align ) { Q_UNUSED( align ) }
+    virtual void setWidgetAligment( Qt::Alignment align );
     virtual void paint( QPainter *painter, const QRectF &exposed );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void squeeze();
@@ -129,6 +129,7 @@ protected:
     virtual void setWidgetAligment( Qt::Alignment align );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void initWidget();
+    virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
 
 private slots:
     void slotAnchorClicked( const QUrl &url );

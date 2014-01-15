@@ -44,10 +44,10 @@ public:
         _backgroundColorRole( it._backgroundColorRole ), _textData( it._textData ) {}
     virtual ~PHIAbstractTextItem() {}
 
+    QColor realColor() const;
+    QColor realBackgroundColor() const;
     inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
     inline void setBackgroundColor( const QColor &col ) { setColor( PHIPalette::WidgetBase, _backgroundColorRole, col ); }
-    inline QColor realColor() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
-    inline QColor realBackgroundColor() const { return data( DBackgroundColor, QColor( Qt::white ) ).value<QColor>(); }
     inline QString realText() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
     inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); if ( !isServerItem() ) setWidgetText( s ); }
     inline quint16 realAlignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
@@ -61,7 +61,9 @@ public:
     virtual bool isDraggable() const { return true; }
 
 public slots:
-    QScriptValue textAlign( const QScriptValue &v=QScriptValue() );
+    virtual QScriptValue textAlign( const QScriptValue &v=QScriptValue() );
+    virtual QScriptValue color( const QScriptValue &c=QScriptValue() );
+    virtual QScriptValue bgColor( const QScriptValue &c=QScriptValue() );
 
 protected:
     virtual bool isSingleLine() const { return true; }
@@ -118,7 +120,7 @@ public:
     virtual ~PHIAbstractShapeItem() {}
 
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
-    virtual QColor color( PHIPalette::ItemRole role ) const;
+    virtual QColor colorForRole( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
     virtual bool hasGradient() const { return true; }
     virtual bool isDraggable() const { return true; }
@@ -129,13 +131,17 @@ public:
     void setLine( quint8 l );
     void setPattern( quint8 p );
     void setPenWidth( qreal w );
+    QColor realColor() const;
+    QColor realOutlineColor() const;
     inline void setColor( const QColor &col ) { setColor( PHIPalette::Foreground, _colorRole, col ); }
     inline void setOutlineColor( const QColor &col ) { setColor( PHIPalette::Background, _outlineColorRole, col ); }
     inline quint8 realLine() const { return data( DLineStyle, 0 ).value<quint8>(); }
     inline quint8 realPattern() const { return data( DPatternStyle, 1 ).value<quint8>(); }
-    inline QColor realColor() const { return data( DColor, QColor( Qt::black ) ).value<QColor>(); }
-    inline QColor realOutlineColor() const { return data( DOutlineColor, QColor( Qt::black ) ).value<QColor>(); }
     inline qreal realPenWidth() const { return data( DPenWidth, 1. ).toReal(); }
+
+public slots:
+    virtual QScriptValue color( const QScriptValue &c=QScriptValue() );
+    virtual QScriptValue borderColor( const QScriptValue &c=QScriptValue() );
 
 protected:
     virtual QRectF boundingRect() const;
@@ -149,6 +155,7 @@ protected:
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
     virtual void clientPrepareData();
     virtual void clientInitData();
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;

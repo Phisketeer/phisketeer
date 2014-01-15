@@ -439,26 +439,6 @@ QString PHI::colorToString( const QColor &c )
     return s+=SL( ", " )+QString::number( c.alphaF(), 'f', 3 )+QLatin1Char( ')' );
 }
 
-/*
-Qt::Alignment PHI::toQtAlignment( quint8 align )
-{
-    switch ( static_cast<PHI::Alignment>(align) ) {
-    case PHI::AlignCenter: return Qt::AlignVCenter | Qt::AlignHCenter;
-    case PHI::AlignBottom: return Qt::AlignBottom | Qt::AlignHCenter;
-    case PHI::AlignTopHCenter:
-    case PHI::AlignTop: return Qt::AlignTop | Qt::AlignHCenter;
-    case PHI::AlignJustify: return Qt::AlignJustify;
-    case PHI::AlignRightTop:
-    case PHI::AlignRight: return Qt::AlignTop | Qt::AlignRight;
-    case PHI::AlignRightVCenter: return Qt::AlignVCenter | Qt::AlignRight;
-    case PHI::AlignRightBottom: return Qt::AlignBottom | Qt::AlignRight;
-    case PHI::AlignLeftVCenter: return Qt::AlignVCenter | Qt::AlignLeft;
-    case PHI::AlignLeftBottom: return Qt::AlignBottom | Qt::AlignLeft;
-    default: return Qt::AlignLeft | Qt::AlignTop;
-    }
-}
-*/
-
 Qt::CursorShape PHI::toCursorShape( const QByteArray &s )
 {
     if ( s=="crosshair" ) return Qt::CrossCursor;

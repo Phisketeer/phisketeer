@@ -42,7 +42,7 @@
 #include <QHash>
 #include <QGradientStops>
 #include <QFont>
-#include <QSize>
+#include <QSizeF>
 #include <QPoint>
 #include <QFileInfo>
 #include <QImage>
@@ -76,9 +76,6 @@ class PHIEXPORT PHI
 public:
     enum LogFilter { None=0x00, Trace=0x01, Error=0x02, Warning=0x04, Critical=0x08,
         Debug=0x10, User=0x20 };
-    //enum Alignment { AlignLeftVCenter=0, AlignLeftTop=1, AlignLeftBottom=2, AlignRightVCenter=3, AlignRightTop=4,
-    //    AlignRightBottom=5, AlignTopHCenter=6, AlignBottomHCenter=7, AlignJustify=8, AlignCenter=9,
-    //    AlignLeft=10, AlignRight=11, AlignTop=12, AlignBottom=13 }; //quint8 in DataStream
     enum ContentData { CDAll=0, CDUpdate=1, CDRequest=2, CDMessage=3, CDTemplatePage=4, CDImage=5,
         CDStream=6 }; // quint8 in DataStream
     enum Origin { Custom=0, TopLeft=1, TopMid=2, TopRight=3, MidLeft=4, MidMid=5,
@@ -127,6 +124,7 @@ public:
     static QString colorToString( const QColor &c );
     static qreal adjustedFontSize( qreal s);
 
+    static inline QSizeF maxItemSize() { return QSizeF( 8000., 8000. ); }
     static inline const QString& idValidator() { static QString v=QStringLiteral( "[A-Za-z][-_A-Za-z0-9]*" ); return v; }
     static inline QSize patternIconSize() { return QSize( 48, 12 ); }
     static inline QSize colorIconSize() { return QSize( 14, 14 ); }

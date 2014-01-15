@@ -47,9 +47,9 @@ public:
         User6_60=66, User6_80=67, User6_100=68, User6_120=69, User6_140=70,
         User6_160=71, User6_180=72, Black=73, White=74,
         Error=75, ErrorText=76, ColorRoleMax=77 };
-    enum ItemRole { Foreground=0, Background=1, Hover, HoverBackground,
-        Url, WidgetText, WidgetBase, User1, User2, User3, User4, User5, User6,
-        ItemRoleMax };
+    enum ItemRole { Foreground=0, Background=1, Hover=2, HoverBackground=3,
+        Url=4, WidgetText=5, WidgetBase=6, User1=7, User2=8, User3=9, User4=10,
+        User5=11, User6=12, ItemRoleMax=13 };
 
     explicit PHIPalette();
     PHIPalette( const PHIPalette &p );

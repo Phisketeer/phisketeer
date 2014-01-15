@@ -29,9 +29,11 @@
         <file alias="ui-button.css">css/jquery.ui.button.min.css</file>
         <file alias="ui-jqgrid.js">js/jquery.jqGrid.min.js</file>
         <file alias="ui-jqgrid.css">css/ui.jqgrid.css</file>
-        <file alias="ui-transit.js">js/jquery.transit.min.js</file>
+        <file alias="transit.js">js/jquery.transit.min.js</file>
         <file alias="ui-spinner.js">js/jquery.ui.spinner.min.js</file>
         <file alias="ui-spinner.css">css/jquery.ui.spinner.min.css</file>
+        <file alias="ui-jqgrid-en.js">js/grid.locale-en.js</file>
+        <file alias="datefmt.js">js/date.format.js</file>
     </qresource>
     <qresource prefix="/gnome">
         <file alias="brokenimage">../../icons/scalable/stock/gtk-brokenimage.svg</file>

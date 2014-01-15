@@ -108,8 +108,8 @@ public:
         DDHighlightOnMouseOver=0x8, DDDragEnabled=0x10, DDDropEnabled=0x20 };
     enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
         DFText=0x8, DFHasFilePath=0x10, DFUseFilePathInHTML=0x20,
-        DFInt1=0x100, DFInt2=0x200, DFReadOnlyData=0x400, DFDisabledData=0x800,
-        DFHeader=0x1000, DFPlaceholder=DFHeader, DFDoNotCache=0x2000,
+        DFInt1=0x100, DFInt2=0x200, DFReadOnlyData=0x400, DFDisabledData=0x800, DFHeader=0x1000,
+        DFPlaceholder=DFHeader, DFDoNotCache=0x2000, DFColor=0x4000, DFBackgroundColor=0x10000,
         DFCustom1=0x100000, DFCustom2=0x200000, DFCustom3=0x400000, DFCustom4=0x800000,
         DFCustom5=0x1000000, DFCustom6=0x2000000, DFCustom7=0x4000000, DFCustom8=0x8000000 };
 #ifdef PHIDEBUG
@@ -140,7 +140,7 @@ public: // not usable by script engine
     inline void update( const QRectF &r=QRectF() ) { if ( _gw ) _gw->update( r ); }
     inline const PHIEffect* effect() const { return _effect; }
     inline bool hasGraphicEffect() const { return _effect->effects() & PHIEffect::EGraphics; }
-    void updateEffect();
+    void updateGraphicEffect();
     inline void storeFlags() { _variants.insert( DFlags, static_cast<quint32>(_flags) ); }
     inline void setFlag( Flag f, bool b=true ) { b ? _flags |= f : _flags &= ~f; }
     inline Flags flags() const { return _flags; }
@@ -299,7 +299,7 @@ public slots: // usable by script engine
     inline QScriptValue hide() { setVisible( false ); return self(); }
     inline QScriptValue show() { setVisible( true ); return self(); }
     inline QScriptValue toggle() { setVisible( !realVisible() ); return self(); }
-    inline QScriptValue clearEffects() { _effect->clearAll(); updateEffect(); return self(); }
+    inline QScriptValue clearEffects() { _effect->clearAll(); updateGraphicEffect(); return self(); }
     inline bool isImage() const { return data( DIsImage, false ).toBool(); }
 
     virtual PHIWID wid() const=0;
@@ -402,6 +402,7 @@ protected:
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
     bool cssGradientCreateable( const PHIRequest *req ) const;
     void cssLinearGradient( const PHIRequest *req, QByteArray &out ) const;
+    QByteArray cssColor( const QColor &c ) const;
     QByteArray cssImageIEFilter( const QByteArray &imgId, bool alterFilters=true ) const;
     void htmlBase( const PHIRequest *req, QByteArray &out, QByteArray &script, bool project3D=true ) const; // includes id tag
     void htmlInitItem( QByteArray &script, bool close=true ) const;
@@ -627,8 +628,14 @@ inline QByteArray PHIBaseItem::cssRgba( const QColor &c )
     QByteArray arr;
     arr.reserve( 50 );
     arr+=BL( "rgba(" )+QByteArray::number( c.red() )+','+QByteArray::number( c.green() )+','
-        +QByteArray::number( c.blue() )+','+(c.alphaF()==1 ? BL( "1" ) : QByteArray::number( c.alphaF(), 'f', 3 ))+')';
+        +QByteArray::number( c.blue() )+','+(c.alphaF()==1. ? BL( "1" ) : QByteArray::number( c.alphaF(), 'f', 3 ))+')';
     return arr;
+}
+
+inline QByteArray PHIBaseItem::cssColor( const QColor &c ) const
+{
+    if ( c.alphaF()==1. ) return c.name().toLatin1();
+    return cssRgba( c );
 }
 
 inline QByteArray PHIBaseItem::cssImageIEFilter( const QByteArray &imgId, bool alterFilters ) const

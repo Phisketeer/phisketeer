@@ -97,5 +97,6 @@ void PHIGraphicsItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *
     if ( !isVisible() ) return;
     painter->save();
     _it->paint( painter, option, widget );
+    QGraphicsProxyWidget::paint( painter, option, widget );
     painter->restore();
 }

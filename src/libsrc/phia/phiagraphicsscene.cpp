@@ -183,7 +183,6 @@ void PHIAGraphicsScene::slotDataAvailable()
                 if ( it ) {
                     it->setId( id );
                     it->load( arr, _version );
-                    qDebug() << "adding item" << id;
                     addItem( it->gw() );
                 }
                 PHIAbstractLayoutItem *l=qobject_cast<PHIAbstractLayoutItem*>(it);

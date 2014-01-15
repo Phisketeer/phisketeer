@@ -525,17 +525,19 @@ void PHISProcessor::genScripts() const
     createJS( L1( "jquery.js" ) );
     createJS( L1( "jqueryiefix.js" ) );
     createJS( L1( "excanvas.js" ) );
-    createJS( L1( "ui-core.js" ) );
+    createJS( L1( "datefmt.js" ) );
+    createJS( L1( "transit.js" ) );
     createJS( L1( "ui-datepicker.js" ) );
     createJS( L1( "ui-progressbar.js" ) );
     createJS( L1( "ui-effects.js" ) );
     createJS( L1( "ui-button.js" ) );
-    createJS( L1( "ui-transit.js" ) );
     createJS( L1( "ui-spinner.js" ) );
+    createJS( L1( "ui-core.js" ) );
     //createJS( L1( "ui-mouse.js" ) ); // included in ui-core
     //createJS( L1( "ui-draggable.js" ) ); // included in ui-core
     //createJS( L1( "ui-droppable.js" ) ); // included in ui-core
     //createJS( L1( "ui-widget.js" ) ); // included in ui-core
+    createJS( L1( "ui-jqgrid-en.js" ) );
     createJS( L1( "ui-jqgrid.js" ) );
     createUiCSS();
 }

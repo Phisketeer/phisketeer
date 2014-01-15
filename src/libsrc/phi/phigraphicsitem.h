@@ -54,8 +54,6 @@ protected:
     virtual bool sceneEvent( QEvent *event )=0;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual QPainterPath shape() const;
-
-private:
     virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget );
 
 private:

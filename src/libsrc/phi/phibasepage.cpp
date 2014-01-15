@@ -552,11 +552,12 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )
         out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jqueryiefix\"></script>\n" );
     else out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jquery\"></script>\n" );
-    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-core\"></script>\n" );
-    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-effects\"></script>\n" );
-    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-button\"></script>\n" );
-    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-transit\"></script>\n" );
-    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=phibase\"></script>\n" );
+    out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-core\"></script>\n"
+        "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-effects\"></script>\n"
+        "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-button\"></script>\n"
+        "\t<script type=\"text/javascript\" src=\"phi.phis?j=transit\"></script>\n"
+        "\t<script type=\"text/javascript\" src=\"phi.phis?j=datefmt\"></script>\n"
+        "\t<script type=\"text/javascript\" src=\"phi.phis?j=phibase\"></script>\n" );
     QByteArray script, indent="\t", tmp;
     script.reserve( 4*1024 );
     foreach ( tmp, _scriptExtensions.values() ) script+=tmp;
@@ -803,6 +804,7 @@ void PHIBasePage::save( QDataStream &out, int version, bool client )
             _variants.insert( DDBOptions, _dbOptions.toUtf8() );
         }
     }
+
     out << _id << static_cast<quint32>(_flags) << _pal;
     if ( !client ) out << _pageData;
     out << static_cast<quint16>( itemCount() ) << _variants
@@ -865,7 +867,6 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in, bool client )
     in >> internalVersion >> attributes >> _id >> _width >> _height >> itemCount;
     if ( attributes & ABgColor ) in >> _bgColor;
     else _bgColor=QColor( Qt::white );
-    qDebug() << attributes << _id << _width << _height << itemCount;
     if ( attributes & APalette ) {
         QPalette pal;
         QColor cwt, cba, ct, cb, cbt, ch, cht, cl, clv;
@@ -955,6 +956,7 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in, bool client )
         if ( attributes & ADocumentLeft ) _flags |= FPageLeftAlign;
         if ( attributes & AUseOpenGraph ) _flags |= FUseOpenGraph;
         if ( attributes & ANoUnderlineLinks ) _flags |= FNoUnderlinedLinks;
+        if ( attributes & APalette ) _flags |= FUseOwnPalette;
         if ( extensions & EHidePhiMenu ) _flags |= FHidePhiMenu;
         // @todo: check AUsejQueryUI
     }

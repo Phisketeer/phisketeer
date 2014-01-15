@@ -38,6 +38,29 @@
 #include "phiabstractitems.h"
 #include "phidataparser.h"
 
+// used for version 1.x:
+static Qt::Alignment _toQtAlignment( quint8 align )
+{
+    enum Alignment { AlignLeftVCenter=0, AlignLeftTop=1, AlignLeftBottom=2, AlignRightVCenter=3, AlignRightTop=4,
+        AlignRightBottom=5, AlignTopHCenter=6, AlignBottomHCenter=7, AlignJustify=8, AlignCenter=9,
+        AlignLeft=10, AlignRight=11, AlignTop=12, AlignBottom=13 };
+
+    switch ( static_cast<Alignment>(align) ) {
+    case AlignCenter: return Qt::AlignVCenter | Qt::AlignHCenter;
+    case AlignBottom: return Qt::AlignBottom | Qt::AlignHCenter;
+    case AlignTopHCenter:
+    case AlignTop: return Qt::AlignTop | Qt::AlignHCenter;
+    case AlignJustify: return Qt::AlignJustify;
+    case AlignRightTop:
+    case AlignRight: return Qt::AlignTop | Qt::AlignRight;
+    case AlignRightVCenter: return Qt::AlignVCenter | Qt::AlignRight;
+    case AlignRightBottom: return Qt::AlignBottom | Qt::AlignRight;
+    case AlignLeftVCenter: return Qt::AlignVCenter | Qt::AlignLeft;
+    case AlignLeftBottom: return Qt::AlignBottom | Qt::AlignLeft;
+    default: return Qt::AlignLeft | Qt::AlignTop;
+    }
+}
+
 PHIBaseItemPrivate::PHIBaseItemPrivate( const PHIBasePage *page )
     : _type( TIDEItem ), _page( const_cast<PHIBasePage*>(page) )
 {
@@ -214,8 +237,9 @@ void PHIBaseItem::load( const QByteArray &arr, int version )
         _gw->setPos( _x, _y );
         _gw->setTransform( computeTransformation() );
         _gw->setZValue( _zIndex );
+        _gw->setOpacity( realOpacity() );
+        updateGraphicEffect();
         _gw->update();
-        updateEffect();
     }
 }
 
@@ -261,7 +285,7 @@ QByteArray PHIBaseItem::save( int version )
     if ( _flags & FStoreEffectData ) out << _effect->save( version );
     saveItemData( out, version );
     if ( isIdeItem() ) privateUpdateData(); // restore all dynamic item data cleaned by squeeze()
-    updateEffect();
+    updateGraphicEffect();
     return arr;
 }
 
@@ -322,6 +346,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     setTransformation( sH, sV, xRot, yRot, zRot );
     setParentId( parent );
     if ( attributes & AChild ) _flags |= FChild;
+    if ( properties & PHIItemData::PNoCache ) _flags |= FDoNotCache;
 
     PHIItemData d;
     d.load( properties, dynData );
@@ -363,8 +388,14 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     if ( d.font()!=PHI::invalidFont() ) setFont( d.font() );
     else setFont( page() ? page()->font() : QGuiApplication::font() );
     resize( s );
-    setColor( PHIPalette::Foreground, colorRole( PHIPalette::Foreground ), d.color() );
-    setColor( PHIPalette::Background, colorRole( PHIPalette::Background ), d.outlineColor() );
+    if ( d.color().isValid() ) {
+        setColor( PHIPalette::Foreground, colorRole( PHIPalette::Foreground ), d.color() );
+        setColor( PHIPalette::WidgetText, colorRole( PHIPalette::WidgetText ), d.color() );
+    }
+    if ( d.outlineColor().isValid() ) {
+        setColor( PHIPalette::Background, colorRole( PHIPalette::Background ), d.outlineColor() );
+        setColor( PHIPalette::WidgetBase, colorRole( PHIPalette::WidgetBase ), d.outlineColor() );
+    }
     setTabIndex( static_cast<qint16>( d.tabOrder() ) );
     if ( property( "_penWidth" ).isValid() ) setProperty( "_penWidth", d.penWidth() );
     if ( property( "_line" ).isValid() ) setProperty( "_line", d.line() );
@@ -373,6 +404,8 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
     if ( property( "_url" ).isValid() ) setProperty( "_url", d.url() );
     if ( property( "_accessKey" ).isValid() ) setProperty( "_accessKey", d.shortCut() );
     if ( property( "_maxLength" ).isValid() ) setProperty( "_maxLength", d.maxSize() );
+    if ( property( "_align" ).isValid() )
+        setProperty( "_align", static_cast<quint16>(_toQtAlignment( d.alignment() )) );
     if ( hasGradient() ) {
         QGradient g=d.gradient();
         if ( g.type()==QGradient::ConicalGradient ) setGradient( d.conicalGradient() );
@@ -393,7 +426,7 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         setProperty( "_bottomMargin", 0 );
     }
     if ( wid()==49 ) textData()->setText( d.url() ); // html doc
-    updateEffect();
+    updateGraphicEffect();
     if ( isIdeItem() ) privateUpdateData();
 }
 
@@ -416,10 +449,11 @@ void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
         << PHIPalette::HighlightText << PHIPalette::Link << PHIPalette::LinkVisited;
     if ( col>=map.count() ) col=0;
     if ( outCol>=map.count() ) outCol=0;
-    setColor( PHIPalette::Foreground, map.at( col ), colorForRole( PHIPalette::Foreground ) );
-    setColor( PHIPalette::Background, map.at( outCol ), colorForRole( PHIPalette::Background ) );
-    setColor( PHIPalette::WidgetText, map.at( col ), colorForRole( PHIPalette::WidgetText ) );
-    setColor( PHIPalette::WidgetBase, map.at( outCol ), colorForRole( PHIPalette::WidgetBase ) );
+    Q_ASSERT( page() );
+    setColor( PHIPalette::Foreground, map.at( col ), page()->phiPalette().color( map.at( col ) ) );
+    setColor( PHIPalette::Background, map.at( outCol ), page()->phiPalette().color( map.at( outCol ) ) );
+    setColor( PHIPalette::WidgetText, map.at( col ), page()->phiPalette().color( map.at( col ) ) );
+    setColor( PHIPalette::WidgetBase, map.at( outCol ), page()->phiPalette().color( map.at( outCol ) ) );
 }
 
 void PHIBaseItem::privateClientInit()
@@ -428,6 +462,7 @@ void PHIBaseItem::privateClientInit()
     setChecked( realChecked() );
     setDisabled( realDisabled() );
     setVisible( realVisible() );
+    _gw->setOpacity( realOpacity() );
     _gw->setToolTip( realTitle() );
     clientInitData();
     phiPaletteChanged( page()->phiPalette() );
@@ -616,7 +651,7 @@ QSizeF PHIBaseItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) con
     switch ( which ) {
     case Qt::MinimumSize: return QSizeF( 16, 16 );
     case Qt::PreferredSize: return QSizeF( 300, 200 );
-    case Qt::MaximumSize: return QSizeF( 4000, 4000 );
+    case Qt::MaximumSize: return PHI::maxItemSize();
     default:;
     }
     return QSizeF(); // invalid size: call base implementation of QGraphicsProxyWidget
@@ -625,9 +660,7 @@ QSizeF PHIBaseItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) con
 void PHIBaseItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget )
 {
     Q_UNUSED( widget );
-    painter->save();
     paint( painter, options->exposedRect );
-    painter->restore();
 }
 
 void PHIBaseItem::paint( QPainter *painter, const QRectF &exposed )
@@ -640,7 +673,7 @@ void PHIBaseItem::paint( QPainter *painter, const QRectF &exposed )
     painter->setRenderHint( QPainter::TextAntialiasing );
     painter->setRenderHint( QPainter::SmoothPixmapTransform );
     if ( hasTransformation() ) painter->setRenderHint( QPainter::Antialiasing );
-    proxy->widget()->render( painter, exposedRect.topLeft(), exposedRect );
+    //proxy->widget()->render( painter, exposedRect.topLeft(), exposedRect );
 }
 
 void PHIBaseItem::paintHighlight( QPainter *painter )
@@ -946,7 +979,7 @@ void PHIBaseItem::htmlInitItem( QByteArray &script, bool close ) const
     QRectF r=adjustedRect();
     quint32 ddopts=dragDropOptions();
     if ( Q_UNLIKELY( ddopts & DDDragEnabled || ddopts & DDDropEnabled ) ) htmlDragDropItem( script );
-    script+=BL( "$.$('" )+_id+BL( "'," )+QByteArray::number( wid() );
+    script+=BL( "$$('" )+_id+BL( "'," )+QByteArray::number( wid() );
     if ( QPointF()!=r.topLeft() || realSize()!=r.size() ) {
         script+=','+QByteArray::number( qRound(r.x() ) )+','+QByteArray::number( qRound(r.y()) );
         if ( realSize()!=r.size() ) {
@@ -1282,7 +1315,7 @@ void PHIBaseItem::cssLinearGradient( const PHIRequest *req, QByteArray &out ) co
     out+=BL( ");" );
 }
 
-void PHIBaseItem::updateEffect()
+void PHIBaseItem::updateGraphicEffect()
 {
     if ( !_gw ) return;
     if ( _effect->effects() & PHIEffect::EGraphics ) {
