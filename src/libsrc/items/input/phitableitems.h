@@ -48,7 +48,7 @@ class PHIDecoratedTableItem : public PHIAbstractInputItem
 
 public:
     enum Wid { DecoratedTable=46, CheckList=43 };
-    enum DataType { DOptions=1, DColWidth=2, DColType=3, DColAlignment=4, DColSortable=5, DColCheckable=6, DDelimiter=7 };
+    enum DataType { DOptions=1, DColWidth=2, DColType=3, DColAlignment=4, DColSortable=5, DColCheckable=6, DDelimiter=7, DDateFormat=8 };
     enum CellType { CString=0, CNumber=1, CFloat=2, CDate=3, CCurrency=4 };
     enum CellAlign { ALeft=0, ARight=1, ACenter=2, ASortable=8 };
     enum Option { None=0x0, SingleSelection=0x1, MultiSelection=0x2, AltRowColors=0x4, ShowRowIndex=0x8,
@@ -67,6 +67,7 @@ public:
     virtual PHIWID htmlScriptExtension( const PHIRequest *req, QByteArray &script ) const;
     virtual bool hasHtmlExtension() const { return true; }
     virtual bool hasDelimiter() const { return true; }
+    virtual void clientPostData( QHttpMultiPart *multiPart ) const;
 
     inline void setOptions( quint16 o ) { setData( DOptions, o ); updateWidget(); }
     inline quint16 options() const { return PHIBaseItem::data( DOptions, SingleSelection ).value<quint16>(); }
@@ -79,10 +80,29 @@ public:
     inline void setColWidths( const PHIListWord &l ) { setData( DColWidth, qVariantFromValue( l ) ); }
     inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
     inline QString realDelimiter() const { return QString::fromUtf8( PHIBaseItem::data( DDelimiter, BL( "\n" ) ).toByteArray() ); }
+    inline QString realDateFormat() const { return PHIBaseItem::data( DDateFormat ).toString(); }
+    void setDateFormat( const QString &s );
 
 public slots:
+    virtual QScriptValue val( const QScriptValue &v=QScriptValue() ) { Q_UNUSED( v ) return QScriptValue( QScriptValue::UndefinedValue ); }
+    QScriptValue clear();
     QScriptValue delimiter( const QScriptValue &d=QScriptValue() );
     QScriptValue data( const QScriptValue &d=QScriptValue() );
+    QScriptValue rowCount() const;
+    QScriptValue hideRow( int row, bool b=true );
+    QScriptValue hideCol( int col, bool b=true );
+    QScriptValue label( int col, const QScriptValue &v=QScriptValue() );
+    QScriptValue cellText( int row, int col, const QScriptValue &v=QScriptValue() );
+    QScriptValue cellColor( int row, int col, const QScriptValue &v=QScriptValue() );
+    QScriptValue cellBgColor( int row, int col, const QScriptValue &v=QScriptValue() );
+    QScriptValue checked( const QScriptValue &r, const QScriptValue &v=QScriptValue() );
+    QScriptValue dateFormat( const QScriptValue &df=QScriptValue() );
+    QScriptValue selected( const QScriptValue &row=QScriptValue() );
+    QScriptValue addRow( const QScriptValue &v=QScriptValue(), const QScriptValue &pos=QScriptValue() );
+
+protected slots:
+    void slotSectionClicked( int );
+    void slotItemSelectionChanged();
 
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -92,6 +112,7 @@ protected:
     virtual void initWidget();
     virtual void updateWidget();
     virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
+    int logicRow( int row ) const;
 };
 
 class PHICheckListItem : public PHIDecoratedTableItem
@@ -107,6 +128,7 @@ public:
     virtual QString description() const { return tr( "Checkable list with multiselection." ); }
     virtual PHIWID wid() const { return CheckList; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/checklist" ) ); }
+    virtual void clientPostData( QHttpMultiPart *multiPart ) const;
 
 protected:
     virtual void ideInit();
