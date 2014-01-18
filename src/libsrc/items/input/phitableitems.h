@@ -93,6 +93,7 @@ public slots:
     QScriptValue hideCol( int col, bool b=true );
     QScriptValue label( int col, const QScriptValue &v=QScriptValue() );
     QScriptValue cellText( int row, int col, const QScriptValue &v=QScriptValue() );
+    QScriptValue cellHtml( int row, int col, const QScriptValue &v=QScriptValue() );
     QScriptValue cellColor( int row, int col, const QScriptValue &v=QScriptValue() );
     QScriptValue cellBgColor( int row, int col, const QScriptValue &v=QScriptValue() );
     QScriptValue checked( const QScriptValue &r, const QScriptValue &v=QScriptValue() );

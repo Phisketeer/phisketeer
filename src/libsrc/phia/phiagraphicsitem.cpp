@@ -88,6 +88,7 @@ void PHIAGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
     }
     baseItem()->checkForDragInMousePressEvent( event );
     PHIGraphicsItem::mousePressEvent( event );
+    event->accept();
     baseItem()->mousedown( event );
 }
 

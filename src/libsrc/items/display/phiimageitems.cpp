@@ -19,12 +19,17 @@
 #include <QPainter>
 #include <QTimer>
 #include <QSvgRenderer>
+#include <QSpinBox>
+#include <QToolButton>
+#include <QLabel>
+#include <QHBoxLayout>
 #include "phiimageitems.h"
 #include "phibasepage.h"
 #include "phidataparser.h"
 #include "phirequest.h"
 #include "phicontext2d.h"
 #include "phiimagerequest.h"
+#include "phicolorconfig.h"
 
 void PHIImageItem::updateImage()
 {
@@ -191,7 +196,7 @@ QImage PHISvgItem::graphicImage( const QByteArray &source ) const
     return img;
 }
 
-void PHISvgItem::paint( QPainter *p, const QRectF &exposed )
+bool PHISvgItem::paint( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
     if ( _renderer && _renderer->isValid() ) _renderer->render( p, rect() );
@@ -202,6 +207,7 @@ void PHISvgItem::paint( QPainter *p, const QRectF &exposed )
         p->setPen( Qt::darkGray );
         p->drawText( rect(), L1( "SVG" ), QTextOption( Qt::AlignCenter ) );
     }
+    return true;
 }
 
 void PHISvgItem::phisCreateData( const PHIDataParser &parser )
@@ -300,6 +306,11 @@ void PHISlideShowItem::fadeTimeout()
     update();
 }
 
+PHIConfigWidget *PHISlideShowItem::ideConfigWidget()
+{
+    return new PHISlideShowConfig( this );
+}
+
 void PHISlideShowItem::pauseTimeout()
 {
     Q_ASSERT( _pauseTimer );
@@ -335,7 +346,7 @@ QScriptValue PHISlideShowItem::display( const QScriptValue &c )
     return self();
 }
 
-void PHISlideShowItem::paint( QPainter *painter, const QRectF &exposed )
+bool PHISlideShowItem::paint( QPainter *painter, const QRectF &exposed )
 {
     const PHIImageHash hash=realImages();
     if ( !hash.count() ) {
@@ -343,7 +354,7 @@ void PHISlideShowItem::paint( QPainter *painter, const QRectF &exposed )
     }
     if ( !hash.value( "0" ).isNull() && hash.value( "1" ).isNull() ) {
         painter->drawImage( rect(), hash.value( "0" ) );
-        return;
+        return true;
     }
     painter->setRenderHint( QPainter::Antialiasing, false );
     painter->setRenderHint( QPainter::SmoothPixmapTransform, true );
@@ -356,6 +367,7 @@ void PHISlideShowItem::paint( QPainter *painter, const QRectF &exposed )
     if ( !img1.isNull() ) painter->drawImage( rect(), img1 );
     painter->setOpacity( 1.-currentOpacity() );
     if ( !img2.isNull() ) painter->drawImage( rect(), img2 );
+    return true;
 }
 
 void PHISlideShowItem::updateImages()
@@ -533,7 +545,7 @@ void PHICanvasItem::initWidget()
     update();
 }
 
-void PHICanvasItem::paint( QPainter *p, const QRectF &exposed )
+bool PHICanvasItem::paint( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
     QImage img=realImage();
@@ -548,6 +560,7 @@ void PHICanvasItem::paint( QPainter *p, const QRectF &exposed )
         p->setClipRect( rect() );
         p->drawImage( 0, 0, img );
     }
+    return true;
 }
 
 void PHICanvasItem::slotSizeChanged( const QSizeF &s )
@@ -646,11 +659,12 @@ void PHISponsorItem::squeeze()
     setVSkew( 0 );
 }
 
-void PHISponsorItem::paint( QPainter *painter, const QRectF &exposed )
+bool PHISponsorItem::paint( QPainter *painter, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
     painter->setRenderHint( QPainter::SmoothPixmapTransform );
     painter->drawImage( 0, 0, _image );
+    return true;
 }
 
 void PHISponsorItem::phisCreateData( const PHIDataParser &parser )
@@ -671,4 +685,387 @@ void PHISponsorItem::html( const PHIRequest *req, QByteArray &out, QByteArray &s
             +QByteArray::number( qRound(realX()) )+BL( "px;top:" )+QByteArray::number( qRound(realY()) )
             +BL( "px;opacity:1\" src=\"phi.phis?i=" )+imagePath()+BL( "&t=1\">\n" );
     }
+}
+
+PHISlideShowConfig::PHISlideShowConfig( PHIBaseItem *it, QWidget *parent )
+    : PHIConfigWidget( it, parent )
+{
+    _orgIntervalData=new PHIIntData();
+    _orgFadeData=new PHIIntData();
+    _intervalTool=new QToolButton();
+    _intervalTool->setArrowType( Qt::RightArrow );
+    connect( _intervalTool, &QToolButton::clicked, this, &PHISlideShowConfig::intervalToolClicked );
+    _fadeTool=new QToolButton();
+    _fadeTool->setArrowType( Qt::RightArrow );
+    connect( _fadeTool, &QToolButton::clicked, this, &PHISlideShowConfig::fadeToolClicked );
+    _intervalSpin=new QSpinBox();
+    _intervalSpin->setRange( 1, 600 );
+    _intervalSpin->setSingleStep( 1 );
+    _fadeSpin=new QSpinBox();
+    _fadeSpin->setRange( 1, 600 );
+    _fadeSpin->setSingleStep( 1 );
+    _intervalLabel=new QLabel( tr( "Interval time" ) );
+    _intervalLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+    QVBoxLayout *vbox=new QVBoxLayout();
+    vbox->setContentsMargins( 24, 24, 24, 24 );
+    QLabel *label=new QLabel();
+    label->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding );
+    vbox->addWidget( label );
+    label=new QLabel( tr( "Note: the interval time value must be higher than the fade time value." ) );
+    vbox->addWidget( label );
+    label=new QLabel();
+    label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    QHBoxLayout *l=new QHBoxLayout();
+    l->setContentsMargins( 12, 6, 12, 6 );
+    l->setSpacing( 6 );
+    l->addWidget( label );
+    l->addWidget( _intervalLabel );
+    l->addWidget( _intervalSpin );
+    l->addWidget( _intervalTool );
+    label=new QLabel();
+    label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    _fadeLabel=new QLabel( tr( "Fade time" ) );
+    _fadeLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+    l->addWidget( _fadeLabel );
+    l->addWidget( _fadeSpin );
+    l->addWidget( _fadeTool );
+    l->addWidget( label );
+    vbox->addItem( l );
+    label=new QLabel();
+    label->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding );
+    vbox->addWidget( label );
+    setLayout( vbox );
+    PHISlideShowItem *sit=qobject_cast<PHISlideShowItem*>(it);
+    _intervalSpin->setEnabled( sit->intData_2()->isUnparsedStatic() );
+    _intervalLabel->setEnabled( sit->intData_2()->isUnparsedStatic() );
+    _fadeSpin->setEnabled( sit->intData_1()->isUnparsedStatic() );
+    _fadeLabel->setEnabled( sit->intData_1()->isUnparsedStatic() );
+    _intervalSpin->setValue( sit->intData_2()->isUnparsedStatic() ? sit->intData_2()->integer() : 4 );
+    _fadeSpin->setValue( sit->intData_1()->isUnparsedStatic() ? sit->intData_1()->integer() : 2 );
+    *_orgIntervalData=*sit->intData_2();
+    *_orgFadeData=*sit->intData_1();
+    connect( _intervalSpin, SIGNAL(valueChanged(int)), this, SLOT(intervalTimeChanged(int)) );
+    connect( _fadeSpin, SIGNAL(valueChanged(int)), this, SLOT(fadeTimeChanged(int)) );
+}
+
+PHISlideShowConfig::~PHISlideShowConfig()
+{
+    delete _orgIntervalData;
+    delete _orgFadeData;
+}
+
+void PHISlideShowConfig::intervalTimeChanged( int v )
+{
+    PHISlideShowItem *sit=qobject_cast<PHISlideShowItem*>(item());
+    sit->intData_2()->setInteger( v );
+    sit->privateUpdateData();
+    repaint();
+}
+
+void PHISlideShowConfig::fadeTimeChanged( int v )
+{
+    PHISlideShowItem *sit=qobject_cast<PHISlideShowItem*>(item());
+    sit->intData_1()->setInteger( v );
+    sit->privateUpdateData();
+    repaint();
+}
+
+PHIConfigData PHISlideShowConfig::originalData() const
+{
+    PHISlideShowItem *sit=qobject_cast<PHISlideShowItem*>(item());
+    PHIConfigData cd;
+    if ( *sit->intData_2()!=*_orgIntervalData ) cd.insert( sit->intData_2(), _orgIntervalData );
+    if ( *sit->intData_1()!=*_orgFadeData ) cd.insert( sit->intData_1(), _orgFadeData );
+    return cd;
+}
+
+void PHISlideShowConfig::intervalToolClicked()
+{
+    PHISlideShowItem *it=qobject_cast<PHISlideShowItem*>(item());
+    emit requestTextConfig( it->intData_2() );
+    _intervalSpin->setEnabled( it->intData_2()->isUnparsedStatic() );
+    _intervalLabel->setEnabled( it->intData_2()->isUnparsedStatic() );
+    _intervalSpin->blockSignals( true );
+    if ( it->intData_2()->isUnparsedStatic() ) _intervalSpin->setValue( it->intData_2()->integer() );
+    else _intervalSpin->setValue( 4 );
+    _intervalSpin->blockSignals( false );
+    it->privateUpdateData();
+}
+
+void PHISlideShowConfig::fadeToolClicked()
+{
+    PHISlideShowItem *it=qobject_cast<PHISlideShowItem*>(item());
+    emit requestTextConfig( it->intData_1() );
+    _fadeSpin->setEnabled( it->intData_1()->isUnparsedStatic() );
+    _fadeLabel->setEnabled( it->intData_1()->isUnparsedStatic() );
+    _fadeSpin->blockSignals( true );
+    if ( it->intData_1()->isUnparsedStatic() ) _fadeSpin->setValue( it->intData_1()->integer() );
+    else _fadeSpin->setValue( 2 );
+    _fadeSpin->blockSignals( false );
+    it->privateUpdateData();
+}
+
+bool PHISlideShowConfig::storeData()
+{
+    PHISlideShowItem *it=qobject_cast<PHISlideShowItem*>(item());
+    bool changed=false;
+    if ( *_orgIntervalData!=*it->intData_2() ) changed=true;
+    if ( *_orgFadeData!=*it->intData_1() ) changed=true;
+    return changed;
+}
+
+void PHIRolloverItem::ideInit()
+{
+    setLine( 0 ); // no border
+    setPattern( 1 ); // solid pattern
+    setColor( PHIPalette::Foreground, PHIPalette::WindowText, page()->phiPalette().color( PHIPalette::WindowText ) );
+    setColor( PHIPalette::Background, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+    setColor( PHIPalette::Hover, PHIPalette::HighlightText, page()->phiPalette().color( PHIPalette::HighlightText ) );
+    setColor( PHIPalette::HoverBackground, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+    _textData.setText( L1( "Rollover" ) );
+}
+
+// called form IDE only:
+void PHIRolloverItem::ideSetText( const QString &t, const QByteArray &lang )
+{
+    if ( _textData.isTranslated() ) {
+        _textData.setText( t, lang );
+        setText( t );
+    } else if ( _textData.isStatic() ) {
+        _textData.setSource( PHIData::Translated );
+        _textData.setText( t, lang );
+        setText( t );
+    } else setText( _textData.text() );
+    if ( isChild() ) {
+        PHIBaseItem *it=page()->findItem( parentId() );
+        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+        if ( lit ) lit->invalidateLayout();
+    }
+}
+
+void PHIRolloverItem::ideUpdateData()
+{
+    PHIAbstractShapeItem::ideUpdateData();
+    if ( _textData.isTranslated() ) {
+        setText( _textData.text( page()->currentLang() ) );
+    } else {
+        setText( _textData.text() );
+    }
+    if ( _imageBookData.isTranslated() ) {
+        setImages( _imageBookData.imageBook( page()->currentLang() ) );
+    } else {
+        setImages( _imageBookData.imageBook() );
+    }
+    if ( isChild() ) {
+        PHIBaseItem *it=page()->findItem( parentId() );
+        PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(it);
+        if ( lit ) lit->invalidateLayout();
+    }
+}
+
+QString PHIRolloverItem::ideText( const QByteArray &lang ) const
+{
+    if ( _textData.isTranslated() ) return _textData.text( lang );
+    return _textData.text();
+}
+
+QColor PHIRolloverItem::realHoverColor() const
+{
+    if ( _hoverColorRole==PHIPalette::Custom ) return data( DHoverColor, QColor( Qt::black ) ).value<QColor>();
+    if ( page() ) return page()->phiPalette().color( _hoverColorRole );
+    return Qt::black;
+}
+
+QColor PHIRolloverItem::realHoverBgColor() const
+{
+    if ( _hoverBgColorRole==PHIPalette::Custom ) return data( DHoverBgColor, QColor( Qt::transparent ) ).value<QColor>();
+    if ( page() ) return page()->phiPalette().color( _hoverBgColorRole );
+    return Qt::transparent;
+}
+
+QColor PHIRolloverItem::colorForRole( PHIPalette::ItemRole role ) const
+{
+    if ( role==PHIPalette::Foreground ) return realColor();
+    if ( role==PHIPalette::Background ) return realOutlineColor();
+    if ( role==PHIPalette::Hover ) return realHoverColor();
+    if ( role==PHIPalette::HoverBackground ) return realHoverBgColor();
+    return QColor();
+}
+
+PHIPalette::ColorRole PHIRolloverItem::colorRole( PHIPalette::ItemRole role ) const
+{
+    if ( role==PHIPalette::Foreground ) return PHIAbstractShapeItem::colorRole( role );
+    if ( role==PHIPalette::Background ) return PHIAbstractShapeItem::colorRole( role );
+    if ( role==PHIPalette::Hover ) return _hoverColorRole;
+    if ( role==PHIPalette::HoverBackground ) return _hoverBgColorRole;
+    return PHIPalette::NoRole;
+}
+
+void PHIRolloverItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
+{
+    if ( ir==PHIPalette::Foreground ) PHIAbstractShapeItem::setColor( ir, cr, col );
+    if ( ir==PHIPalette::Background ) PHIAbstractShapeItem::setColor( ir, cr, col );
+    if ( ir==PHIPalette::Hover ) {
+        _hoverColorRole=cr;
+        setData( DHoverColor, col );
+    }
+    if ( ir==PHIPalette::HoverBackground ) {
+        _hoverBgColorRole=cr;
+        setData( DHoverBgColor, col );
+    }
+    update();
+}
+
+QSizeF PHIRolloverItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( which==Qt::MinimumSize ) return QSizeF( 20., 20. );
+    if ( which==Qt::PreferredSize ) {
+        QFont f=font();
+        f.setPointSizeF( PHI::adjustedFontSize( font().pointSizeF() ) );
+        QFontMetricsF m( f );
+        qreal minWidth=64.;
+        if ( page() ) {
+            foreach ( QString l, page()->languages() ) {
+                l=ideText( l.toLatin1() );
+                if ( m.width( l )>minWidth ) minWidth=qRound(m.width( l ));
+            }
+        }
+        return QSizeF( minWidth, qMax( 22., qRound(m.height())+8. ) );
+    }
+    return PHIBaseItem::sizeHint( which, constraint );
+}
+
+void PHIRolloverItem::drawShape( QPainter *p, const QRectF &exposed )
+{
+    Q_UNUSED( exposed )
+    p->setRenderHint( QPainter::TextAntialiasing );
+    QFont f=font();
+    f.setPointSizeF( PHI::adjustedFontSize( f.pointSizeF() ) );
+    p->setFont( f );
+    QBrush brush=p->brush();
+    QImage img;
+    if ( _hover ) {
+        img=realImages().value( "1" );
+        if ( realPattern()!=15 ) {
+            brush.setColor( realHoverBgColor() );
+            p->setBrush( brush );
+        }
+    } else {
+        img=realImages().value( "0" );
+        if ( realPattern()!=15 ) {
+            brush.setColor( realOutlineColor() );
+            p->setBrush( brush );
+        }
+    }
+    p->drawRect( rect() ); // draw background (incl. border if any)
+    if ( _hover ) p->setPen( QPen( realHoverColor() ) );
+    else p->setPen( QPen( realColor() ) );
+    if ( !img.isNull() ) p->drawImage( rect(), img );
+    p->drawText( rect(), realText(), QTextOption( Qt::AlignCenter ) );
+}
+
+void PHIRolloverItem::squeeze()
+{
+    PHIAbstractShapeItem::squeeze();
+    removeData( DText );
+    removeData( DImages );
+}
+
+void PHIRolloverItem::loadItemData( QDataStream &in, int version )
+{
+    PHIAbstractShapeItem::loadItemData( in, version );
+    quint8 reserved, hoverColor, hoverBgColor;
+    in >> &_textData >> hoverColor >> hoverBgColor >> reserved >> reserved;
+    _hoverColorRole=static_cast<PHIPalette::ColorRole>(hoverColor);
+    _hoverBgColorRole=static_cast<PHIPalette::ColorRole>(hoverBgColor);
+    QByteArray arr;
+    in >> arr;
+    arr=qUncompress( arr );
+    QDataStream ds( &arr, QIODevice::ReadOnly );
+    ds.setVersion( QDataStream::Qt_5_2 );
+    ds >> &_imageBookData;
+}
+
+void PHIRolloverItem::saveItemData( QDataStream &out, int version )
+{
+    PHIAbstractShapeItem::saveItemData( out, version );
+    quint8 reserved( 0 );
+    out << &_textData << static_cast<quint8>(_hoverColorRole)
+        << static_cast<quint8>(_hoverBgColorRole) << reserved << reserved;
+    QByteArray arr;
+    QDataStream ds( &arr, QIODevice::WriteOnly );
+    ds.setVersion( QDataStream::Qt_5_2 );
+    ds << &_imageBookData;
+    out << qCompress( arr, 9 );
+}
+
+void PHIRolloverItem::phisCreateData( const PHIDataParser &parser )
+{
+    setData( DText, parser.text( &_textData ) );
+    if ( !_textData.isUnparsedStatic() ) setDirtyFlag( DFText );
+    parser.createImages( &_imageBookData );
+}
+
+void PHIRolloverItem::phisParseData( const PHIDataParser &parser )
+{
+    if ( dirtyFlags() & DFText ) setData( DText, parser.text( &_textData ) );
+    setImagePathes( parser.imagePathes( &_imageBookData ) );
+}
+
+void PHIRolloverItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+
+}
+
+void PHIRolloverItem::clientPrepareData()
+{
+    PHIAbstractShapeItem::clientPrepareData();
+    setData( DTmpHoverRole, static_cast<quint8>(_hoverColorRole) );
+    setData( DTmpHoverBgRole, static_cast<quint8>(_hoverBgColorRole) );
+    if ( _hoverColorRole!=PHIPalette::Custom ) removeData( DHoverColor );
+    if ( _hoverBgColorRole!=PHIPalette::Custom ) removeData( DHoverBgColor );
+}
+
+void PHIRolloverItem::clientInitData()
+{
+    PHIAbstractShapeItem::clientInitData();
+    _hoverColorRole=static_cast<PHIPalette::ColorRole>(data( DTmpHoverRole ).value<quint8>());
+    _hoverBgColorRole=static_cast<PHIPalette::ColorRole>(data( DTmpHoverBgRole ).value<quint8>());
+}
+
+void PHIRolloverItem::click( const QGraphicsSceneMouseEvent *e )
+{
+    Q_UNUSED( e )
+    if ( !realUrl().isEmpty() ) emit linkRequested( realUrl() );
+}
+
+void PHIRolloverItem::mouseover( const QGraphicsSceneHoverEvent *e )
+{
+    Q_UNUSED( e )
+    _hover=true;
+    update();
+}
+
+void PHIRolloverItem::mouseout( const QGraphicsSceneHoverEvent *e )
+{
+    Q_UNUSED( e )
+    _hover=false;
+    update();
+}
+
+class PHIRolloverConfig : public PHIHoverColorConfig
+{
+public:
+    PHIRolloverConfig( PHIBaseItem *it, QWidget *parent=0 );
+};
+
+PHIRolloverConfig::PHIRolloverConfig( PHIBaseItem *it, QWidget *parent )
+    : PHIHoverColorConfig( it, parent )
+{
+    qDebug() << it->id() << it->colorForRole( PHIPalette::Hover );
+}
+
+PHIConfigWidget* PHIRolloverItem::ideConfigWidget()
+{
+    return new PHIRolloverConfig( this );
 }

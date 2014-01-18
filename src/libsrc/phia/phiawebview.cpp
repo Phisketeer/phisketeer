@@ -35,6 +35,7 @@ PHIAWebView::PHIAWebView( QWidget *parent )
     setLayout( l );
     connect( s, &PHIAGraphicsScene::iconChanged, this, &PHIAWebView::slotIconChanged );
     connect( s, &PHIAGraphicsScene::titleChanged, this, &PHIAWebView::slotTitleChanged );
+    connect( s, &PHIAGraphicsScene::linkRequested, this, &PHIAWebView::slotLinkRequested );
 }
 
 PHIAGraphicsScene* PHIAWebView::scene() const

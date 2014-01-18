@@ -120,7 +120,7 @@ public:
     typedef quint32 DirtyFlags;
 #endif
     /*
-        IMAGE_BUTTON=12, LINK=23, RICH_TEXT=41
+        IMAGE_BUTTON=12
     */
     explicit PHIBaseItem( const PHIBaseItemPrivate &p );
     PHIBaseItem( const PHIBaseItem &it );
@@ -258,7 +258,7 @@ public: // not usable by script engine
     virtual void setGradient( QLinearGradient g );
     virtual void setGradient( QConicalGradient g );
     virtual void setGradient( QRadialGradient g );
-    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual bool paint( QPainter *painter, const QRectF &exposed )=0;
     virtual void setDisabled( bool b );
     virtual void setChecked( bool b ) { b ? _flags|= FChecked : _flags&= ~FChecked; }
     virtual void setReadOnly( bool b ) { b ? _flags|= FReadOnly : _flags&= ~FReadOnly; }
@@ -359,6 +359,7 @@ protected:
     inline void removeData( quint8 t ) { _variants.remove( t ); }
     inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
     void setAccessKey( const QString &s );
+    void setCursor( Qt::CursorShape cur );
     void slideUp( int duration, const QString &ease );
     void slideDown( int duration, const QString &ease );
     void setWidget( QWidget* );
@@ -439,7 +440,7 @@ private:
     void loadVersion1_x(const QByteArray &arr );
     void cssCustomStyleSheet( QByteArray &out ) const;
     void htmlEffects( QByteArray &script ) const;
-    void paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
+    bool paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget );
     bool sceneEvent( QEvent *event );
     inline QGraphicsWidget* gw() { return _gw; }
     QPointF adjustedPos() const;

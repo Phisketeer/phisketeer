@@ -109,13 +109,14 @@ QString PHIUnknownItem::listName() const
     return tr( "Unknown" );
 }
 
-void PHIUnknownItem::paint( QPainter *painter, const QRectF &exposed )
+bool PHIUnknownItem::paint( QPainter *painter, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
     QRectF r( 0, 0, realWidth(), realHeight() );
     painter->fillRect( r, QColor( Qt::lightGray ) );
     painter->setPen( Qt::darkGray );
     painter->drawText( r, Qt::AlignCenter, tr( "Unknown" )+QString( L1( "\nWID %1" ) ).arg( _requestedWID ) );
+    return true;
 }
 
 QSizeF PHIUnknownItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const

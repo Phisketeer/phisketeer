@@ -40,6 +40,7 @@ public:
     virtual void setValue( const QString &v );
     virtual void ideInit();
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual bool isButton() const { return true; }
     inline void setDelimiter( const QString &d ) { setData( DDelimiter, d.toUtf8() ); }
     inline QString realDelimiter() const { return QString::fromUtf8( PHIBaseItem::data( DDelimiter, BL( "\n" ) ).toByteArray() ); }
 
@@ -127,6 +128,7 @@ public:
     virtual void ideInit();
     virtual QString realValue() const { return QString(); }
     virtual void setValue( const QString &v ) { Q_UNUSED( v ) }
+    virtual bool isButton() const { return false; }
 
 public slots:
     virtual QScriptValue val( const QScriptValue &v ) { Q_UNUSED( v ) return QScriptValue( QScriptValue::UndefinedValue ); }

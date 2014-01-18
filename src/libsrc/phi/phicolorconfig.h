@@ -53,16 +53,35 @@ public:
     explicit PHIColorConfig( PHIBaseItem *item, QWidget *parent=0 );
     virtual ~PHIColorConfig();
     virtual bool storeData();
-    virtual PHIConfigColors oldColors() const;
+    virtual PHIConfigColors originalColors() const;
+    void addColor( PHIPalette::ItemRole ir );
+    static QPixmap colorPixmap( const QColor &col, const QSize &s=QSize( 24, 24 ) );
 
 protected slots:
     void on__colorButton_clicked();
     void on__outlineColorButton_clicked();
 
-protected:
+private:
     QList <PHIPalette::ItemRole> _itemRoles;
-    QHash <PHIPalette::ItemRole, QColor> _oldColors;
-    QHash <PHIPalette::ItemRole, PHIPalette::ColorRole> _oldRoles;
+    QHash <PHIPalette::ItemRole, QColor> _originalColors;
+    QHash <PHIPalette::ItemRole, PHIPalette::ColorRole> _originalRoles;
+};
+
+class PHIEXPORT PHIHoverColorConfig : public PHIColorConfig
+{
+    Q_OBJECT
+
+public:
+    explicit PHIHoverColorConfig( PHIBaseItem *it, QWidget *parent=0 );
+    virtual ~PHIHoverColorConfig() {}
+
+protected slots:
+    void hoverToolClicked();
+    void hoverBgToolClicked();
+
+private:
+    QLabel *_hoverLabel, *_hoverBgLabel;
+    QToolButton *_hoverTool, *_hoverBgTool;
 };
 
 #endif // PHICOLORCONFIG_H

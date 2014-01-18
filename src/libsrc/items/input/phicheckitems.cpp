@@ -65,10 +65,10 @@ void PHICheckBoxItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole c
 {
     if ( ir==PHIPalette::WidgetText ) {
         setData( DColor, col );
-        setColorRole( cr );
+        setColorRole( ir, cr );
     } else if ( ir==PHIPalette::WidgetBase ) {
         setData( DBackgroundColor, col );
-        setBackgroundColorRole( cr );
+        setColorRole( ir, cr );
     } else return;
     QWidget *w=widget();
     if ( !w ) return;
@@ -124,15 +124,13 @@ void PHICheckBoxItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
 {
     htmlInitItem( script, false );
     if ( realChecked() ) script+=BL( ".checked(1);\n" );
-    else script+=BL( ";\n" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
+        script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
+        script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";\n" );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
-    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
-        if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
-            out+=BL( "background-color:" )+cssRgba( realBackgroundColor() )+';';
-        if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::WindowText )
-            out+=BL( "color:" )+cssRgba( realColor() )+';';
-    }
     out+=BL( "\">\n" )+indent+BL( "\t<table class=\"phi\"><tr style=\"vertical-align\"><td style=\"" );
     if ( data( DFont ).isValid() ) {
         QFont f=data( DFont ).value<QFont>();
@@ -225,15 +223,13 @@ void PHIRadioButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArra
 {
     htmlInitItem( script, false );
     if ( realChecked() ) script+=BL( ".checked(1);\n" );
-    else script+=BL( ";\n" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
+        script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
+        script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";\n" );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
-    if ( Q_LIKELY( req->agentFeatures() & PHIRequest::RGBA ) ) {
-        if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
-            out+=BL( "background-color:" )+cssRgba( realBackgroundColor() )+';';
-        if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::WindowText )
-            out+=BL( "color:" )+cssRgba( realColor() )+';';
-    }
     // @todo: implement align?
     out+=BL( "\">\n" )+indent
         +BL( "\t<table class=\"phi\"><tr style=\"vertical-align\"><td style=\"" );

@@ -449,7 +449,7 @@ $$=function( s, i, x, y, w, h ) {
     if ( i===42 ) {
         o.isImage=function() { return j(id+' svg')===undefined ? true : false; };
     }
-    if ( i===30 ) {
+    if ( i===23 || i===30 ) {
         o.html=function( t ) {
             if (t===undefined)return j(id+'_phit').html();
             j(id+'_phit').html(t); return o;
@@ -569,7 +569,7 @@ $$=function( s, i, x, y, w, h ) {
           j(id+'_phit').datepicker('option','disabled',b);return o;
         };
     }
-    if ( i===14 ) {
+    if ( i===14 || (i>18 && i<23) || (i>33 && i<37) || (i>37 && i<41) ) {
         o.color=function(c) {
             if ( o.isImage() ) { if ( c===undefined ) return 'rgba(0, 0, 0, 0)'; return o; }
             if ( c===undefined ) return j(id).css('background-color');
@@ -651,9 +651,17 @@ $$table=function( s, m, d, n, v, h, ms, chk ) {
     };
     o.cellText=function(r,c,t){
         r=parseInt(r);c=parseInt(c);
+        if ( t===undefined ) {
+            t=String(j(gid).jqGrid('getCell',r+'r',c+'c'));
+            return t.replace(/<[^>]*>/g,'');
+        }
+        t=String(t).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        j(gid).jqGrid('setCell',r+'r',c+'c',t,'','',true); return o;
+    };
+    o.cellHtml=function(r,c,t){
+        r=parseInt(r);c=parseInt(c);
         if ( t===undefined ) return j(gid).jqGrid('getCell',r+'r',c+'c');
-        j(gid).jqGrid('setCell',r+'r',c+'c',t,'','',true);
-        return o;
+        j(gid).jqGrid('setCell',r+'r',c+'c',t,'','',true); return o;
     };
     o.cellColor=function(r,c,t){
         r=parseInt(r);c=parseInt(c);
@@ -666,6 +674,10 @@ $$table=function( s, m, d, n, v, h, ms, chk ) {
         o._b[r+'.'+c]=t;
         j(gid).jqGrid('setCell',r+'r',c+'c','',{backgroundColor:t},'',false);
         return o;
+    };
+    o.color=function(c){
+        if (c===undefined) return j('#'+s+' .ui-jqgrid .ui-jqgrid-bdiv td').css('color');
+        j('#'+s+' .ui-jqgrid .ui-jqgrid-bdiv td').css('color',c); return o;
     };
     o.checked=function(r,c) {
         if ( !ms ) return undefined;
@@ -686,8 +698,10 @@ $$table=function( s, m, d, n, v, h, ms, chk ) {
             var i=parseInt(j(gid).jqGrid('getGridParam','selrow'));
             if ( i>-1 ) return i; return -1;
         }
+        if ( typeof(r)==='string' ) r=o._getRowForName(r);
+        if ( typeof(r)!=='number' ) return o;
         if ( r>=o.rowCount()) return o;
-        o._s=parseInt(r)+'r';
+        o._s=r+'r';
         j(gid).jqGrid('setSelection',o._s);return o;
     };
     o.addRow=function(d,p) {

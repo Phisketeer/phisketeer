@@ -139,6 +139,19 @@ void PHIAbstractTextItem::clientInitData()
     else setColor( PHIPalette::WidgetBase, _backgroundColorRole, page()->phiPalette().color( _backgroundColorRole ) );
 }
 
+bool PHIAbstractTextItem::paint( QPainter *painter, const QRectF &exposed )
+{
+    Q_UNUSED( painter )
+    Q_UNUSED( exposed )
+    return false;
+}
+
+void PHIAbstractTextItem::setColorRole( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr )
+{
+    if ( ir==PHIPalette::WidgetText ) _colorRole=cr;
+    else if ( ir==PHIPalette::WidgetBase ) _backgroundColorRole=cr;
+}
+
 QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     if ( which==Qt::MinimumSize ) {
@@ -394,7 +407,7 @@ void PHIAbstractShapeItem::clientInitData()
     else setColor( PHIPalette::Background, _outlineColorRole, page()->phiPalette().color( _outlineColorRole ) );
 }
 
-void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
+bool PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
 {
     QPen pen;
     Qt::PenStyle style=static_cast<Qt::PenStyle>(realLine());
@@ -415,6 +428,7 @@ void PHIAbstractShapeItem::paint( QPainter *p, const QRectF &exposed )
     p->setPen( pen );
     p->setRenderHint( QPainter::SmoothPixmapTransform );
     drawShape( p, exposed );
+    return true;
 }
 
 QColor PHIAbstractShapeItem::colorForRole( PHIPalette::ItemRole role ) const
@@ -429,6 +443,12 @@ PHIPalette::ColorRole PHIAbstractShapeItem::colorRole( PHIPalette::ItemRole role
     if ( role==PHIPalette::Foreground ) return _colorRole;
     if ( role==PHIPalette::Background ) return _outlineColorRole;
     return PHIPalette::NoRole;
+}
+
+void PHIAbstractShapeItem::setColorRole( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr )
+{
+    if ( ir==PHIPalette::Foreground ) _colorRole=cr;
+    else if ( ir==PHIPalette::Background ) _outlineColorRole=cr;
 }
 
 void PHIAbstractShapeItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
@@ -479,7 +499,6 @@ QScriptValue PHIAbstractShapeItem::color( const QScriptValue &c )
 {
     if ( !c.isValid() ) return PHI::colorToString( realColor() );
     setColor( PHIPalette::Foreground, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
-    setPattern( 1 );
     setDirtyFlag( DFColor );
     return self();
 }
@@ -724,7 +743,7 @@ void PHIAbstractImageItem::saveItemData( QDataStream &out, int version )
     }
     QByteArray arr;
     QDataStream ds( &arr, QIODevice::WriteOnly );
-    ds.setVersion( QDataStream::Qt_5_1 );
+    ds.setVersion( QDataStream::Qt_5_2 );
     ds << &_imageData;
     out << qCompress( arr, 9 );
 }
@@ -736,7 +755,7 @@ void PHIAbstractImageItem::loadItemData( QDataStream &in, int version )
     in >> arr;
     arr=qUncompress( arr );
     QDataStream ds( &arr, QIODevice::ReadOnly );
-    ds.setVersion( QDataStream::Qt_5_1 );
+    ds.setVersion( QDataStream::Qt_5_2 );
     ds >> &_imageData;
 }
 
@@ -751,7 +770,7 @@ QSizeF PHIAbstractImageItem::sizeHint( Qt::SizeHint which, const QSizeF &constra
     return PHIBaseItem::sizeHint( which, constraint );
 }
 
-void PHIAbstractImageItem::paint( QPainter *p, const QRectF &exposed )
+bool PHIAbstractImageItem::paint( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
     if ( realImage().isNull() ) {
@@ -768,6 +787,7 @@ void PHIAbstractImageItem::paint( QPainter *p, const QRectF &exposed )
         p->setRenderHint( QPainter::Antialiasing );
         p->drawImage( rect(), realImage() );
     }
+    return true;
 }
 
 void PHIAbstractImageItem::phisCreateData( const PHIDataParser &parser )
@@ -854,7 +874,7 @@ void PHIAbstractImageBookItem::ideUpdateData()
     setData( DImages, v );
 }
 
-void PHIAbstractImageBookItem::paint( QPainter *p, const QRectF &exposed )
+bool PHIAbstractImageBookItem::paint( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
     if ( !realImages().count() ) {
@@ -867,6 +887,7 @@ void PHIAbstractImageBookItem::paint( QPainter *p, const QRectF &exposed )
         if ( !isClientItem() ) p->drawText( rect(), tr( "Image not available" ), QTextOption( Qt::AlignCenter ) );
         else p->drawText( rect(), tr( "Image is loading..." ) );
     }
+    return true;
 }
 
 void PHIAbstractImageBookItem::phisCreateData( const PHIDataParser &parser )
@@ -921,7 +942,7 @@ void PHIAbstractImageBookItem::loadItemData( QDataStream &in, int version )
     in >> arr;
     arr=qUncompress( arr );
     QDataStream ds( &arr, QIODevice::ReadOnly );
-    ds.setVersion( QDataStream::Qt_5_1 );
+    ds.setVersion( QDataStream::Qt_5_2 );
     ds >> &_imageBookData;
 }
 
@@ -930,7 +951,7 @@ void PHIAbstractImageBookItem::saveItemData( QDataStream &out, int version )
     Q_UNUSED( version )
     QByteArray arr;
     QDataStream ds( &arr, QIODevice::WriteOnly );
-    ds.setVersion( QDataStream::Qt_5_1 );
+    ds.setVersion( QDataStream::Qt_5_2 );
     ds << &_imageBookData;
     out << qCompress( arr, 9 );
 }
@@ -1152,10 +1173,10 @@ void PHIAbstractLayoutItem::drawShape( QPainter *p, const QRectF &exposed )
     p->drawPath( path );
 }
 
-void PHIAbstractLayoutItem::paint( QPainter *p, const QRectF &exposed )
+bool PHIAbstractLayoutItem::paint( QPainter *p, const QRectF &exposed )
 {
     PHIAbstractShapeItem::paint( p, exposed ); // draw background
-    PHIBaseItem::paint( p, exposed ); // draw children
+    return false;
 }
 
 QSizeF PHIAbstractLayoutItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
@@ -1291,21 +1312,6 @@ QScriptValue PHIAbstractInputItem::accessKey( const QScriptValue &a )
     return self();
 }
 
-
-QScriptValue PHIAbstractInputItem::color( const QScriptValue &c )
-{
-    if ( !c.isValid() ) return PHI::colorToString( realColor() );
-    setColor( PHIPalette::WidgetText, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
-    return self();
-}
-
-QScriptValue PHIAbstractInputItem::bgColor( const QScriptValue &c )
-{
-    if ( !c.isValid() ) return PHI::colorToString( realBackgroundColor() );
-    setColor( PHIPalette::WidgetBase, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
-    return self();
-}
-
 void PHIAbstractInputItem::clientPostData( QHttpMultiPart *multiPart ) const
 {
     QHttpPart hp;
@@ -1326,6 +1332,13 @@ QSizeF PHIAbstractExternalItem::sizeHint( Qt::SizeHint which, const QSizeF &cons
     if ( isChild() ) return realSize();
     if ( which==Qt::PreferredSize ) return QSizeF( 300., 200. );
     return PHIBaseItem::sizeHint( which, constraint );
+}
+
+bool PHIAbstractExternalItem::paint( QPainter *painter, const QRectF &exposed )
+{
+    Q_UNUSED( painter )
+    Q_UNUSED( exposed )
+    return false;
 }
 
 void PHIAbstractExternalItem::phisCreateData( const PHIDataParser &parser )

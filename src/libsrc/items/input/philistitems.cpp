@@ -92,14 +92,14 @@ void PHISelectItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr,
 {
     if ( ir==PHIPalette::WidgetText ) {
         setData( DColor, col );
-        setColorRole( cr );
+        setColorRole( ir, cr );
     } else if ( ir==PHIPalette::WidgetBase ) {
         setData( DBackgroundColor, col );
-        setBackgroundColorRole( cr );
+        setColorRole( ir, cr );
     } else return;
     QWidget *w=widget();
     if ( !w ) return;
-    QPalette::ColorRole role=QPalette::ButtonText;
+    QPalette::ColorRole role=QPalette::Text;
     if ( ir==PHIPalette::WidgetBase ) role=QPalette::Button;
     QPalette pal=w->palette();
     pal.setColor( role, col );

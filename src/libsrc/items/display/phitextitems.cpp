@@ -21,6 +21,7 @@
 #include <QGraphicsTextItem>
 #include <QStyleOptionGraphicsItem>
 #include <QTextBrowser>
+#include "phicolorconfig.h"
 #include "phitextitems.h"
 #include "phidatasources.h"
 #include "phibasepage.h"
@@ -61,9 +62,9 @@ void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scr
     htmlInitItem( script, false );
     if ( Q_UNLIKELY( isHtmlText() ) ) script+=BL( ".html('" )+data( DText ).toByteArray()+BL( "')" );
     else script+=BL( ".text('" )+data( DText ).toByteArray()+BL( "')" );
-    if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text )
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
         script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
-    if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window )
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
         script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
     script+=BL( ";\n" );
     out+=indent+BL( "<div" );
@@ -86,11 +87,11 @@ void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scr
 void PHILabelItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
 {
     Q_UNUSED( req )
-    out+='#'+id()+BL( "{overflow:hidden;white-space:nowrap;" );
+    out+='#'+id()+BL( "{overflow:hidden;white-space:nowrap;}\n" );
     // fallback:
-    if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::WindowText ) out+=BL( "color:" )+realColor().name().toLatin1()+';';
-    if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window ) out+=BL( "background-color:" )+realBackgroundColor().name().toLatin1()+';';
-    out+=BL( "}\n" );
+    //if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::WindowText ) out+=BL( "color:" )+realColor().name().toLatin1()+';';
+    //if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Window ) out+=BL( "background-color:" )+realBackgroundColor().name().toLatin1()+';';
+    //out+=BL( "}\n" );
 }
 
 void PHILabelItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const
@@ -121,10 +122,10 @@ void PHILabelItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, 
 {
     if ( ir==PHIPalette::WidgetText ) {
         setData( DColor, col );
-        setColorRole( cr );
+        setColorRole( ir, cr );
     } else if ( ir==PHIPalette::WidgetBase ) {
         setData( DBackgroundColor, col );
-        setBackgroundColorRole( cr );
+        setColorRole( ir, cr );
     } else return;
     QWidget *w=widget();
     if ( !w ) return;
@@ -137,7 +138,10 @@ void PHILabelItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, 
 
 QScriptValue PHILabelItem::text( const QScriptValue &t )
 {
-    if ( !t.isValid() ) return realText();
+    if ( !t.isValid() ) {
+        QString s=realText();
+        return s.replace( QRegExp( L1( "<[^>]*>" ) ), QString() );
+    }
     setText( t.toString() );
     setHtmlText( false );
     return self();
@@ -151,10 +155,153 @@ QScriptValue PHILabelItem::html( const QScriptValue &t )
     return self();
 }
 
+void PHILinkItem::ideInit()
+{
+    textData()->setText( L1( "Link item" ) );
+    setColor( PHIPalette::WidgetText, PHIPalette::Link, page()->phiPalette().color( PHIPalette::Link ) );
+    setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+    setColor( PHIPalette::Hover, PHIPalette::Highlight, page()->phiPalette().color( PHIPalette::Highlight ) );
+    setColor( PHIPalette::HoverBackground, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+}
+
+PHIPalette::ColorRole PHILinkItem::colorRole( PHIPalette::ItemRole role ) const
+{
+    if ( role==PHIPalette::WidgetText || role==PHIPalette::WidgetBase ) return PHILabelItem::colorRole( role );
+    if ( role==PHIPalette::Hover ) return _hoverColorRole;
+    if ( role==PHIPalette::HoverBackground ) return _hoverBackgroundColorRole;
+    return PHIPalette::NoRole;
+}
+
+QColor PHILinkItem::colorForRole(PHIPalette::ItemRole role) const
+{
+    if ( role==PHIPalette::WidgetText || role==PHIPalette::WidgetBase ) return PHILabelItem::colorForRole( role );
+    if ( role==PHIPalette::Hover ) return realHoverColor();
+    if ( role==PHIPalette::HoverBackground ) return realHoverBgColor();
+    return QColor();
+}
+
+QColor PHILinkItem::realHoverColor() const
+{
+    if ( _hoverColorRole==PHIPalette::Custom ) return data( DHoverColor, QColor( Qt::black ) ).value<QColor>();
+    if ( page() ) return page()->phiPalette().color( _hoverColorRole );
+    return Qt::black;
+}
+
+QColor PHILinkItem::realHoverBgColor() const
+{
+    if ( _hoverBackgroundColorRole==PHIPalette::Custom ) return data( DHoverBgColor, QColor( Qt::transparent ) ).value<QColor>();
+    if ( page() ) return page()->phiPalette().color( _hoverBackgroundColorRole );
+    return Qt::transparent;
+}
+
+void PHILinkItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    PHILabelItem::html( req, out, script, indent );
+    QColor col=realHoverColor();
+    script+=BL( "$('" )+id()+BL( "').on('mouseover',function(){$('" )+id()+BL( "').color('" );
+    script+=cssColor( col )+BL( "')" );
+    col=realHoverBgColor();
+    if ( col!=Qt::transparent ) script+=BL( ".bgColor('" )+cssColor( col )+BL( "')" );
+    script+=BL( ";}).on('mouseout',function(){$('" )+id()+BL( "').color('" );
+    script+=cssColor( realColor() )+BL( "')" );
+    if ( realBackgroundColor()!=Qt::transparent || col!=Qt::transparent ) script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";})" );
+    QByteArray url=data( DUrl ).toByteArray();
+    if ( !url.isEmpty() ) {
+        script+=BL( ".on('click',function(){phi.href('" )+url;
+        script+=BL( "');})" );
+    }
+    script+=BL( ";\n" );
+}
+
+void PHILinkItem::saveItemData( QDataStream &out, int version )
+{
+    PHILabelItem::saveItemData( out, version );
+    out << static_cast<quint8>(_hoverColorRole) << static_cast<quint8>(_hoverBackgroundColorRole);
+}
+
+void PHILinkItem::loadItemData( QDataStream &in, int version )
+{
+    PHILabelItem::loadItemData( in, version );
+    quint8 hcr, hbr;
+    in >> hcr >> hbr;
+    _hoverColorRole=static_cast<PHIPalette::ColorRole>(hcr);
+    _hoverBackgroundColorRole=static_cast<PHIPalette::ColorRole>(hbr);
+}
+
+void PHILinkItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
+{
+    if ( ir==PHIPalette::Hover ) {
+        _hoverColorRole=cr;
+        setData( DHoverColor, col );
+    } else if ( ir==PHIPalette::HoverBackground ) {
+        _hoverBackgroundColorRole=cr;
+        setData( DHoverBgColor, col );
+    }
+    PHILabelItem::setColor( ir, cr, col );
+}
+
+void PHILinkItem::mouseover( const QGraphicsSceneHoverEvent *e )
+{
+    Q_UNUSED( e )
+    QWidget *w=widget();
+    if ( !w ) return;
+    QColor txtCol=page()->phiPalette().color( _hoverColorRole );
+    if ( _hoverColorRole==PHIPalette::Custom ) txtCol=realHoverColor();
+    QColor bgCol=page()->phiPalette().color( _hoverBackgroundColorRole );
+    if ( _hoverBackgroundColorRole==PHIPalette::Custom ) bgCol=realHoverBgColor();
+    QPalette pal=w->palette();
+    pal.setColor( QPalette::WindowText, txtCol );
+    pal.setColor( QPalette::Window, bgCol );
+    w->setPalette( pal );
+}
+
+void PHILinkItem::mouseout( const QGraphicsSceneHoverEvent *e )
+{
+    Q_UNUSED( e )
+    QWidget *w=widget();
+    if ( !w ) return;
+    QColor txtCol=page()->phiPalette().color( colorRole( PHIPalette::WidgetText ) );
+    if ( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) txtCol=realColor();
+    QColor bgCol=page()->phiPalette().color( colorRole( PHIPalette::WidgetBase ) );
+    if ( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) bgCol=realBackgroundColor();
+    QPalette pal=w->palette();
+    pal.setColor( QPalette::WindowText, txtCol );
+    pal.setColor( QPalette::Window, bgCol );
+    w->setPalette( pal );
+}
+
+void PHILinkItem::click( const QGraphicsSceneMouseEvent *e )
+{
+    Q_UNUSED( e )
+    if ( !realUrl().isEmpty() ) emit linkRequested( realUrl() );
+}
+
+void PHILinkItem::clientPrepareData()
+{
+    PHILabelItem::clientPrepareData();
+    setData( DTmpHoverRole, static_cast<quint8>(_hoverColorRole) );
+    setData( DTmpHoverBgRole, static_cast<quint8>(_hoverBackgroundColorRole) );
+}
+
+void PHILinkItem::clientInitData()
+{
+    PHILabelItem::clientInitData();
+    _hoverColorRole=static_cast<PHIPalette::ColorRole>(data( DTmpHoverRole ).value<quint8>());
+    _hoverBackgroundColorRole=static_cast<PHIPalette::ColorRole>(data( DTmpHoverBgRole ).value<quint8>());
+    //setCursor( Qt::PointingHandCursor );
+}
+
+PHIConfigWidget *PHILinkItem::ideConfigWidget()
+{
+    return new PHIHoverColorConfig( this );
+}
+
 void PHIGraphicRichTextItem::ideInit()
 {
     textData()->setText( tr( "<b>Rich</b> <i>text<i>" ) );
     setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+    setColor( PHIPalette::WidgetText, PHIPalette::WindowText, page()->phiPalette().color( PHIPalette::WindowText ) );
 }
 
 void PHIGraphicRichTextItem::initWidget()
@@ -305,10 +452,11 @@ QSizeF PHIGraphicRichTextItem::sizeHint( Qt::SizeHint which, const QSizeF &const
     return PHIAbstractTextItem::sizeHint( which, constraint );
 }
 
-void PHIGraphicRichTextItem::paint( QPainter *painter, const QRectF &exposed )
+bool PHIGraphicRichTextItem::paint( QPainter *painter, const QRectF &exposed )
 {
     Q_UNUSED( exposed );
     painter->drawImage( 0, 0, image() );
+    return true;
 }
 
 QScriptValue PHIGraphicRichTextItem::html( const QScriptValue &t )
@@ -340,7 +488,7 @@ void PHIRichTextItem::ideInit()
 {
     textData()->setText( L1( "<b>Rich</b> <i>text</i>" ) );
     setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
-    setColor( PHIPalette::WidgetText, PHIPalette::Text, page()->phiPalette().color( PHIPalette::Text ) );
+    setColor( PHIPalette::WidgetText, PHIPalette::WindowText, page()->phiPalette().color( PHIPalette::WindowText ) );
 }
 
 void PHIRichTextItem::initWidget()

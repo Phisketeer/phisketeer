@@ -35,10 +35,10 @@ QSizeF PHIHSpacerItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) 
     return PHIBaseItem::sizeHint( which, constraint );
 }
 
-void PHIHSpacerItem::paint( QPainter *painter, const QRectF &exposed )
+bool PHIHSpacerItem::paint( QPainter *painter, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
-    if ( !isIdeItem() ) return;
+    if ( !isIdeItem() ) return true;
     QPen pen( Qt::blue );
     pen.setWidthF( 1. );
     painter->setPen( pen );
@@ -46,6 +46,7 @@ void PHIHSpacerItem::paint( QPainter *painter, const QRectF &exposed )
     painter->drawLine( realWidth(), 0, realWidth(), realHeight() );
     pen.setWidth( 2. );
     painter->drawLine( 0, realHeight()/2., realWidth(), realHeight()/2. );
+    return true;
 }
 
 void PHIHSpacerItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
@@ -72,10 +73,10 @@ QSizeF PHIVSpacerItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) 
     return PHIBaseItem::sizeHint( which, constraint );
 }
 
-void PHIVSpacerItem::paint( QPainter *painter, const QRectF &exposed )
+bool PHIVSpacerItem::paint( QPainter *painter, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
-    if ( !isIdeItem() ) return;
+    if ( !isIdeItem() ) return true;
     QPen pen( Qt::blue );
     pen.setWidthF( 1. );
     painter->setPen( pen );
@@ -83,6 +84,7 @@ void PHIVSpacerItem::paint( QPainter *painter, const QRectF &exposed )
     painter->drawLine( 0, realHeight(), realWidth(), realHeight() );
     pen.setWidth( 2. );
     painter->drawLine( realWidth()/2., 0, realWidth()/2., realHeight() );
+    return true;
 }
 
 void PHIVSpacerItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const

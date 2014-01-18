@@ -57,12 +57,14 @@ protected:
 signals:
     void titleChanged( const QString &title );
     void iconChanged( const QIcon &icon );
+    void linkRequested( const QUrl &url );
 
 private slots:
     void slotDataAvailable();
     void slotReplyFinished();
     void slotMetaDataChanged();
     void slotBgImageReady( const QImage &img );
+    void slotLinkActivated( const QString &url );
 
 private:
     QNetworkReply *_reply;

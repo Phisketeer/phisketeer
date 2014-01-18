@@ -85,11 +85,8 @@ protected:
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void clientPrepareData();
     virtual void clientInitData();
-
-    inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
-    inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
-    inline void setBackgroundColorRole( PHIPalette::ColorRole cr ) { _backgroundColorRole=cr; }
-    inline PHIPalette::ColorRole backgroundColorRole() const { return _backgroundColorRole; }
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
+    virtual void setColorRole( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr );
 
 private:
     virtual void ideSetText( const QString &t, const QByteArray &lang );
@@ -146,7 +143,7 @@ public slots:
 protected:
     virtual QRectF boundingRect() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual void paint( QPainter *p, const QRectF &exposed );
+    virtual bool paint( QPainter *p, const QRectF &exposed );
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
@@ -160,12 +157,8 @@ protected:
     virtual void clientInitData();
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
     virtual void squeeze();
+    virtual void setColorRole( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr );
     virtual PHIConfigWidget* ideConfigWidget();
-
-    inline void setColorRole( PHIPalette::ColorRole cr ) { _colorRole=cr; }
-    inline PHIPalette::ColorRole colorRole() const { return _colorRole; }
-    inline void setOutlineColorRole( PHIPalette::ColorRole cr ) { _outlineColorRole=cr; }
-    inline PHIPalette::ColorRole outlineColorRole() const { return _outlineColorRole; }
 
 private:
     PHIPalette::ColorRole _colorRole, _outlineColorRole;
@@ -187,7 +180,7 @@ public:
     virtual PHIImageData* imageData() { return &_imageData; }
     QImage realImage() const { return data( DImage, QImage() ).value<QImage>(); }
     void setImage( const QImage &img ) { setData( DImage, img ); updateImage(); }
-    void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 public slots:
     QScriptValue src( const QScriptValue &v=QScriptValue() );
@@ -198,7 +191,7 @@ protected:
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
-    virtual void paint( QPainter *p, const QRectF &exposed );
+    virtual bool paint( QPainter *p, const QRectF &exposed );
     virtual void ideDragEnterEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
@@ -241,7 +234,7 @@ protected:
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void updateImages()=0;
-    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
     virtual void clientInitData();
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
@@ -259,17 +252,6 @@ class PHIEXPORT PHIAbstractLayoutItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
     Q_PROPERTY( quint16 _align READ realAlignment WRITE setAlignment SCRIPTABLE false )
-    //Q_PROPERTY( qreal topLeftRadius READ topLeftRadius WRITE setTopLeftRadius )
-    //Q_PROPERTY( qreal topRightRadius READ topRightRadius WRITE setTopRightRadius )
-    //Q_PROPERTY( qreal bottomLeftRadius READ bottomLeftRadius WRITE setBottomLeftRadius )
-    //Q_PROPERTY( qreal bottomRightRadius READ bottomRightRadius WRITE setBottomRightRadius )
-    //Q_PROPERTY( qreal leftMargin READ leftMargin WRITE setLeftMargin )
-    //Q_PROPERTY( qreal topMargin READ topMargin WRITE setTopMargin )
-    //Q_PROPERTY( qreal rightMargin READ rightMargin WRITE setRightMargin )
-    //Q_PROPERTY( qreal bottomMargin READ bottomMargin WRITE setBottomMargin )
-    //Q_PROPERTY( qreal horizontalSpacing READ horizontalSpacing WRITE setHorizontalSpacing )
-    //Q_PROPERTY( qreal verticalSpacing READ verticalSpacing WRITE setVerticalSpacing )
-    //Q_PROPERTY( bool enableHeader READ enableHeader WRITE setEnableHeader )
     Q_PROPERTY( QString _header READ realHeader WRITE setHeader )
 
 public:
@@ -333,7 +315,7 @@ protected:
     virtual void loadItemData( QDataStream &in, int version );
     virtual bool hasText() const { return true; }
     virtual PHITextData* textData() { return &_textData; }
-    virtual void paint( QPainter *p, const QRectF &exposed );
+    virtual bool paint( QPainter *p, const QRectF &exposed );
     virtual void drawShape( QPainter *p, const QRectF &exposed );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual PHIConfigWidget* ideConfigWidget();
@@ -370,13 +352,14 @@ class PHIEXPORT PHIAbstractInputItem : public PHIAbstractTextItem
     Q_PROPERTY( QString _value WRITE setValue READ realValue SCRIPTABLE false )
 
 public:
-    enum ItemData { DAccessKey=-99, DValue=-98, DMaxLength=-97 };
+    enum ItemData { DMaxLength=-99, DValue=-98 };
     explicit PHIAbstractInputItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ) {}
     PHIAbstractInputItem( const PHIAbstractInputItem &it ) : PHIAbstractTextItem( it ) {}
     virtual ~PHIAbstractInputItem() {}
     virtual bool isFocusable() const { return true; }
     virtual bool isDroppable() const { return true; }
     virtual bool isDraggable() const { return false; }
+    virtual bool isButton() const { return false; }
     virtual void clientPostData( QHttpMultiPart *multiPart ) const;
     virtual void reset();
     virtual void setValue( const QString &v ) { setText( v ); }
@@ -386,8 +369,6 @@ public slots:
     virtual QScriptValue val( const QScriptValue &v=QScriptValue() );
     virtual QScriptValue readOnly( const QScriptValue &r=QScriptValue() );
     virtual QScriptValue accessKey( const QScriptValue &a=QScriptValue() );
-    virtual QScriptValue color( const QScriptValue &c=QScriptValue() );
-    virtual QScriptValue bgColor( const QScriptValue &c=QScriptValue() );
 
 protected:
     virtual PHIBooleanData* readOnlyData() { return &_readOnlyData; }
@@ -416,7 +397,6 @@ class PHIEXPORT PHIAbstractExternalItem : public PHIAbstractTextItem
     Q_PROPERTY( QString _accessKey WRITE setAccessKey READ realAccessKey SCRIPTABLE false )
 
 public:
-    enum ItemData { DAccessKey=-99 };
     explicit PHIAbstractExternalItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ), _webPage( 0 ) { if ( isGuiItem() ) initWidget(); }
     PHIAbstractExternalItem( const PHIAbstractExternalItem &it ) : PHIAbstractTextItem( it ), _webPage( 0 ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHIAbstractExternalItem() {}
@@ -433,6 +413,7 @@ protected:
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
 
     inline PHIWebPage* webPage() const { return _webPage; }
     QByteArray escapeChars( const QByteArray &a ) const;

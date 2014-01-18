@@ -47,7 +47,7 @@ public:
     virtual bool isHeightChangeable() const { return false; }
 
 protected:
-    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
     virtual bool isPrivateItem() const { return true; }
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
 

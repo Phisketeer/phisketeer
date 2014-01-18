@@ -544,9 +544,8 @@ void PHIBaseItem::phiPaletteChanged( const PHIPalette &pal )
     for ( int i=0; i<PHIPalette::ItemRoleMax; i++ ) {
         PHIPalette::ItemRole itemRole=static_cast<PHIPalette::ItemRole>(i);
         PHIPalette::ColorRole role=colorRole( itemRole );
-        if ( role==PHIPalette::NoRole ) continue;
-        if ( role==PHIPalette::Custom ) setColor( itemRole, role, colorForRole( itemRole ) );
-        else setColor( itemRole, role, pal.color( role ) );
+        if ( role==PHIPalette::NoRole || role==PHIPalette::Custom ) continue;
+        setColor( itemRole, role, pal.color( role ) );
     }
 }
 
@@ -645,6 +644,12 @@ void PHIBaseItem::setAccessKey( const QString &s )
     connect( scut, &QShortcut::activated, this, &PHIBaseItem::accessKeyTriggered );
 }
 
+void PHIBaseItem::setCursor( Qt::CursorShape cur )
+{
+    if ( _gw ) _gw->setCursor( QCursor( cur ) );
+    if ( widget() ) widget()->setCursor( QCursor( cur ) );
+}
+
 QSizeF PHIBaseItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     Q_UNUSED( constraint )
@@ -657,23 +662,10 @@ QSizeF PHIBaseItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) con
     return QSizeF(); // invalid size: call base implementation of QGraphicsProxyWidget
 }
 
-void PHIBaseItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget )
+bool PHIBaseItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *options, QWidget *widget )
 {
     Q_UNUSED( widget );
-    paint( painter, options->exposedRect );
-}
-
-void PHIBaseItem::paint( QPainter *painter, const QRectF &exposed )
-{
-    QGraphicsProxyWidget *proxy=qgraphicsitem_cast<QGraphicsProxyWidget*>(_gw);
-    if ( !proxy ) return;
-    if ( !proxy->widget() ) return;
-    const QRect exposedRect=( exposed & boundingRect() ).toAlignedRect();
-    if ( exposedRect.isEmpty() ) return;
-    painter->setRenderHint( QPainter::TextAntialiasing );
-    painter->setRenderHint( QPainter::SmoothPixmapTransform );
-    if ( hasTransformation() ) painter->setRenderHint( QPainter::Antialiasing );
-    //proxy->widget()->render( painter, exposedRect.topLeft(), exposedRect );
+    return paint( painter, options->exposedRect );
 }
 
 void PHIBaseItem::paintHighlight( QPainter *painter )
@@ -947,6 +939,14 @@ void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) con
         if ( f.italic() ) out+=BL( "font-style:italic;" );
         if ( f.underline() ) out+=BL( "text-decoration:underline;" );
     }
+    if ( colorForRole( PHIPalette::WidgetText ).isValid() )
+        out+=BL( "color:" )+cssColor( page()->phiPalette().color( colorRole( PHIPalette::WidgetText ) ) )+';';
+    if ( colorForRole( PHIPalette::WidgetBase ).isValid() && colorForRole( PHIPalette::WidgetBase )!=QColor( Qt::transparent ) ) {
+        // hack: exclude native buttons
+        const PHIAbstractInputItem *inp=qobject_cast<const PHIAbstractInputItem*>(this);
+        if ( !inp || !inp->isButton() )
+            out+=BL( "background-color:" )+cssColor( page()->phiPalette().color( colorRole( PHIPalette::WidgetBase ) ) )+';';
+    }
     out+=BL( "}\n" );
     cssStatic( req, out );
     if ( _flags & FUseStyleSheet && !(_dirtyFlags & DFStyleSheetData) ) {
@@ -981,7 +981,7 @@ void PHIBaseItem::htmlInitItem( QByteArray &script, bool close ) const
     if ( Q_UNLIKELY( ddopts & DDDragEnabled || ddopts & DDDropEnabled ) ) htmlDragDropItem( script );
     script+=BL( "$$('" )+_id+BL( "'," )+QByteArray::number( wid() );
     if ( QPointF()!=r.topLeft() || realSize()!=r.size() ) {
-        script+=','+QByteArray::number( qRound(r.x() ) )+','+QByteArray::number( qRound(r.y()) );
+        script+=','+QByteArray::number( qRound(r.x()) )+','+QByteArray::number( qRound(r.y()) );
         if ( realSize()!=r.size() ) {
             script+=','+QByteArray::number( qRound(r.width()-realWidth()) )
                 +','+QByteArray::number( qRound(r.height()-realHeight()) );

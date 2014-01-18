@@ -19,10 +19,37 @@
 #ifndef PHIIMAGEITEMS_H
 #define PHIIMAGEITEMS_H
 #include "phiabstractitems.h"
+#include "phiconfigwidget.h"
 
 class QTimer;
 class QSvgRenderer;
+class QLabel;
+class QSpinBox;
+class QToolButton;
 class PHIContext2D;
+
+class PHISlideShowConfig : public PHIConfigWidget
+{
+    Q_OBJECT
+
+public:
+    explicit PHISlideShowConfig( PHIBaseItem *it, QWidget *parent=0 );
+    virtual ~PHISlideShowConfig();
+    virtual bool storeData();
+    virtual PHIConfigData originalData() const;
+
+protected slots:
+    void intervalTimeChanged( int );
+    void fadeTimeChanged( int );
+    void intervalToolClicked();
+    void fadeToolClicked();
+
+private:
+    QLabel *_intervalLabel, *_fadeLabel;
+    QSpinBox *_intervalSpin, *_fadeSpin;
+    QToolButton *_intervalTool, *_fadeTool;
+    PHIIntData *_orgIntervalData, *_orgFadeData;
+};
 
 class PHIImageItem : public PHIAbstractImageItem
 {
@@ -73,7 +100,7 @@ public slots:
     QScriptValue data( const QScriptValue &v=QScriptValue() );
 
 protected:
-    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void squeeze();
     virtual void loadItemData( QDataStream &in, int version );
@@ -143,13 +170,12 @@ public slots:
     QScriptValue count() const { return realImages().count(); }
 
 protected:
-    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
     virtual void updateImages();
     virtual void squeeze();
     virtual void loadItemData( QDataStream &in, int version );
     virtual void saveItemData( QDataStream &out, int version );
     virtual void ideInit();
-    void initWidget();
     inline qreal step() const { return data( DCurrentStep, 50. ).toReal(); }
     inline void setStep( qreal s ) { setData( DCurrentStep, s ); }
     inline int currentImageNum() const { return data( DCurrentImageNum, 0 ).toInt(); }
@@ -165,6 +191,8 @@ protected slots:
     void fadeTimeout();
 
 private:
+    virtual PHIConfigWidget* ideConfigWidget();
+    void initWidget();
     PHIIntData _intervalData;
     PHIIntData _fadeTimeData;
     QTimer *_fadeTimer, *_pauseTimer;
@@ -203,7 +231,7 @@ protected slots:
     void slotSizeChanged( const QSizeF &s );
 
 protected:
-    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void squeeze();
     virtual void loadItemData( QDataStream &in, int version );
@@ -220,6 +248,74 @@ private:
 
     PHITextData _textData;
     PHIContext2D *_ctx2D;
+};
+
+class PHIRolloverItem : public PHIAbstractShapeItem
+{
+    Q_OBJECT
+    Q_PROPERTY( QString _text READ realText WRITE setText SCRIPTABLE false )
+    Q_PROPERTY( PHIImageHash _images READ realImages WRITE setImages SCRIPTABLE false )
+    Q_PROPERTY( QString _url READ realUrl WRITE setUrl SCRIPTABLE false )
+    Q_PROPERTY( QString _accessKey READ realAccessKey WRITE setAccessKey SCRIPTABLE false )
+
+public:
+    enum Wid { Rollover=37 };
+    enum ItemData { DText=1, DImages=2, DUrl=3, DHoverColor=4, DHoverBgColor=5, DTmpHoverRole=6, DTmpHoverBgRole=7 };
+    explicit PHIRolloverItem( const PHIBaseItemPrivate &p ) : PHIAbstractShapeItem( p ), _hover( false ) {}
+    PHIRolloverItem( const PHIRolloverItem &it ) : PHIAbstractShapeItem( it ),
+        _textData( it._textData ), _imageBookData( it._imageBookData ),
+        _hoverColorRole( it._hoverColorRole ), _hoverBgColorRole( it._hoverBgColorRole ), _hover( false ) {}
+    virtual ~PHIRolloverItem() {}
+
+    virtual QString listName() const { return tr( "Rollover" ); }
+    virtual QString description() const { return tr( "Creates a button with rollover effect." ); }
+    virtual PHIWID wid() const { return Rollover; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/rollover" ) ); }
+    virtual bool hasUrl() const { return true; }
+    virtual bool isFocusable() const { return true; }
+    virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
+    virtual QColor colorForRole( PHIPalette::ItemRole role ) const;
+    virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
+    QColor realHoverColor() const;
+    QColor realHoverBgColor() const;
+
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual bool hasText() const { return true; }
+    virtual PHITextData* textData() { return &_textData; }
+    virtual bool hasImages() const { return true; }
+    virtual PHIImageBookData* imageBookData() { return &_imageBookData; }
+    inline PHIImageHash realImages() const { return data( DImages ).value<PHIImageHash>(); }
+    inline void setImages( const PHIImageHash &imgs ) { QVariant v; v.setValue( imgs ); setData( DImages, v ); update(); }
+    inline QString realText() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
+    inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); update(); }
+    inline QString realUrl() const { return QString::fromUtf8( data( DUrl ).toByteArray() ); }
+    inline void setUrl( const QString &url ) { setData( DUrl, url.toUtf8() ); }
+
+protected:
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void drawShape( QPainter *p, const QRectF &exposed );
+    virtual void ideInit();
+    virtual void squeeze();
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void ideUpdateData();
+    virtual void clientPrepareData();
+    virtual void clientInitData();
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
+    virtual void click( const QGraphicsSceneMouseEvent *e );
+    virtual void mouseover( const QGraphicsSceneHoverEvent *e );
+    virtual void mouseout( const QGraphicsSceneHoverEvent *e );
+
+private:
+    virtual void ideSetText( const QString &t, const QByteArray &lang );
+    virtual QString ideText( const QByteArray &lang ) const;
+    virtual PHIConfigWidget* ideConfigWidget();
+
+    PHITextData _textData;
+    PHIImageBookData _imageBookData;
+    PHIPalette::ColorRole _hoverColorRole, _hoverBgColorRole;
+    bool _hover;
 };
 
 class PHISponsorItem : public PHIBaseItem
@@ -242,7 +338,7 @@ public:
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 protected:
-    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
     virtual void squeeze();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void phisCreateData( const PHIDataParser &parser );

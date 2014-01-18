@@ -164,7 +164,7 @@ void PHISProcessor::run()
         // send magic number and version number
         dsout << static_cast<quint32>(PHI_MAGIC) << static_cast<quint8>(PHI_SFV)
             << static_cast<quint8>(PHI::CDAll);
-        page->setDefaultLanguage( _req->currentLang() );
+        //page->setDefaultLanguage( _req->currentLang() );
         page->save( dsblock, static_cast<int>(PHI_SFV), true );
         dsout << block;
         PHIBaseItem *it;
@@ -273,7 +273,7 @@ void PHISProcessor::parseMaster( PHIBasePage *master, PHIBasePage *page ) const
         }
         it->phisPrivateParseData( parser );
         it->setParent( page );
-        it->setZIndex( -10000+it->realZIndex() );
+        it->setZIndex( -PHI::maxZIndex()+it->realZIndex() );
         if ( it->hasHtmlExtension() ) {
             QByteArray ext;
             PHIWID wid=it->htmlHeaderExtension( _req, ext );
@@ -332,7 +332,7 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
     QList <PHIAbstractLayoutItem*> layouts;
     for ( quint16 i=0; i<itemCount; i++ ) {
         in >> id >> wid;
-        if ( id=="philang" ) page->setHasPhiLang();
+        if ( id=="philang" ) page->setHasPhiLangItem();
         if ( Q_UNLIKELY( wid==0 ) ) in >> wid16;
         else wid16=static_cast<quint16>(wid);
         try {
@@ -569,9 +569,9 @@ void PHISProcessor::createJS( const QString &name ) const
         str.replace( L1( "{ " ), L1( "{" ) );
         str.replace( L1( " }" ), L1( "}" ) );
         str.replace( L1( "} " ), L1( "}" ) );
-#ifndef PHIDEBUG
-        str.replace( QRegExp( L1( "\n{1,1}" ) ), QString() );
-#endif
+//#ifndef PHIDEBUG
+//        str.replace( QRegExp( L1( "\n{1,1}" ) ), QString() );
+//#endif
         f.write( str.toLatin1() );
     } else f.write( src.readAll() );
 }

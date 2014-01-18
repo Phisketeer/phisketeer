@@ -217,6 +217,8 @@ protected:
     virtual void setWidgetText( const QString &s );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void setReadOnly( bool b );
+    virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
+    virtual bool isButton() const { return true; }
 
 protected slots:
     virtual void slotChanged();

@@ -278,7 +278,19 @@ void PHIDecoratedTableItem::setWidgetText( const QString &t )
             QStringList cols=line.split( L1( "|" ) );
             for ( int col=0; col<cols.count(); col++ ) {
                 PHITableItem *it=new PHITableItem( cols.at( col ) );
-                Q_ASSERT( it );
+                // @todo: implement real HTML subset for cell
+                QString html=cols.at( col );
+                if ( html.contains( QLatin1Char( '<' ) ) ) {
+                    it->setData( Qt::UserRole+3, html );
+                    QFont f=it->font();
+                    if ( html.contains( L1( "<b>" ) ) ) f.setBold( true );
+                    else f.setBold( false );
+                    if ( html.contains( L1( "<i>" ) ) ) f.setItalic( true );
+                    else f.setItalic( false );
+                    it->setFont( f );
+                    html.replace( QRegExp( L1( "<[^>]*>") ), QString() );
+                    it->setData( Qt::DisplayRole, html );
+                }
                 table->setItem( row, col+off, it );
                 if ( col==0 ) {
                     if ( val.isEmpty() ) val=cols.at( 0 );
@@ -286,6 +298,11 @@ void PHIDecoratedTableItem::setWidgetText( const QString &t )
                     it->setData( Qt::UserRole+1, row );
                 }
             }
+            // fill empty cells:
+            for ( int col=cols.count()+off; col<table->columnCount(); col++ ) {
+                PHITableItem *it=new PHITableItem( QString() );
+                Q_ASSERT( it );
+                table->setItem( row, col, it );            }
             if ( off ) {
                 QTableWidgetItem *it=new QTableWidgetItem();
                 it->setData( Qt::CheckStateRole, checked.toInt() ? Qt::Checked : Qt::Unchecked );
@@ -424,6 +441,36 @@ QScriptValue PHIDecoratedTableItem::label( int col, const QScriptValue &v )
     return self();
 }
 
+QScriptValue PHIDecoratedTableItem::cellHtml( int row, int col, const QScriptValue &v )
+{
+    if ( !isClientItem() ) return scriptEngine()->undefinedValue();
+    QTableWidget *table=qobject_cast<QTableWidget*>(widget());
+    Q_ASSERT( table );
+    if ( wid()==CheckList ) col++;
+    if ( !v.isValid() ) {
+        if ( row>=table->rowCount() || col>=table->columnCount() ) return false;
+        PHITableItem *it=dynamic_cast<PHITableItem*>(table->item( logicRow( row ), col ) );
+        if ( !it ) return false;
+        if ( it->data( Qt::UserRole+3 ).isValid() ) return it->data( Qt::UserRole+3 ).toString();
+        return it->text();
+    }
+    if ( row>=table->rowCount() || col>=table->columnCount() ) return self();
+    QTableWidgetItem *it=table->item( logicRow( row ), col );
+    Q_ASSERT( it );
+    it->setData( Qt::UserRole+3, v.toString() );
+    // @todo: implement real HTML subset for cell
+    QString html=v.toString();
+    QFont f=it->font();
+    if ( html.contains( L1( "<b>" ) ) ) f.setBold( true );
+    else f.setBold( false );
+    if ( html.contains( L1( "<i>" ) ) ) f.setItalic( true );
+    else f.setItalic( false );
+    it->setFont( f );
+    html.replace( QRegExp( L1( "<[^>]*>") ), QString() );
+    it->setData( Qt::DisplayRole, html );
+    return self();
+}
+
 QScriptValue PHIDecoratedTableItem::cellText( int row, int col, const QScriptValue &v )
 {
     if ( !isClientItem() ) return scriptEngine()->undefinedValue();
@@ -434,11 +481,15 @@ QScriptValue PHIDecoratedTableItem::cellText( int row, int col, const QScriptVal
         if ( row>=table->rowCount() || col>=table->columnCount() ) return false;
         PHITableItem *it=dynamic_cast<PHITableItem*>(table->item( logicRow( row ), col ) );
         if ( !it ) return false;
-        //if ( it->cellType()==CDate ) return it->data( Qt::UserRole+2 ).toDateTime().toString( Qt::ISODate );
         return it->text();
     }
     if ( row>=table->rowCount() || col>=table->columnCount() ) return self();
-    table->item( logicRow( row ), col )->setData( Qt::DisplayRole, v.toString() );
+    QTableWidgetItem *it=table->item( logicRow( row ), col );
+    QFont f=it->font();
+    f.setBold( false );
+    f.setItalic( false );
+    it->setFont( f );
+    it->setData( Qt::DisplayRole, v.toString() );
     return self();
 }
 
@@ -455,7 +506,7 @@ QScriptValue PHIDecoratedTableItem::cellColor( int row, int col, const QScriptVa
     }
     */
     if ( row>=table->rowCount() || col>=table->columnCount() ) return self();
-    if ( !table->item( logicRow( row ), col ) ) return self();
+    Q_ASSERT( table->item( logicRow( row ), col ) );
     table->item( logicRow( row ), col )->setTextColor( PHI::colorFromString( v.toString() ) );
     return self();
 }
@@ -473,7 +524,7 @@ QScriptValue PHIDecoratedTableItem::cellBgColor( int row, int col, const QScript
     }
     */
     if ( row>=table->rowCount() || col>=table->columnCount() ) return self();
-    if ( !table->item( logicRow( row ), col ) ) return self();
+    Q_ASSERT( table->item( logicRow( row ), col ) );
     table->item( logicRow( row ), col )->setBackgroundColor( PHI::colorFromString( v.toString() ));
     return self();
 }
@@ -525,6 +576,15 @@ QScriptValue PHIDecoratedTableItem::selected( const QScriptValue &row )
     Q_ASSERT( table );
     int r;
     if ( !row.isValid() ) return logicRow( table->currentRow() );
+    if ( row.isString() ) {
+        QString val=row.toString();
+        for ( int i=0; i<table->rowCount(); i++ ) {
+            if ( table->item( i, 0 )->data( Qt::UserRole ).toString()==val ) {
+                table->selectRow( i );
+                return self();
+            }
+        }
+    }
     r=row.toInt32();
     for ( int i=0; i<table->rowCount(); i++ ) {
         if ( table->item( i, 0 )->data( Qt::UserRole+1 ).toInt()==r ) {
@@ -600,16 +660,14 @@ void PHIDecoratedTableItem::slotItemSelectionChanged()
 void PHIDecoratedTableItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
 {
     Q_UNUSED( req )
-    QByteArray col, bgCol, head, high, sel, highTxt;
+    QByteArray col, head, high, sel, highTxt;
     col=cssColor( colorForRole( PHIPalette::WidgetText ) );
-    bgCol=cssColor( colorForRole( PHIPalette::WidgetBase ) );
-    if ( backgroundColorRole()==PHIPalette::Window ) bgCol=BL( "transparent" );
     head=cssColor( page()->phiPalette().color( PHIPalette::ButtonText ) );
     high=cssColor( page()->phiPalette().color( PHIPalette::Highlight ) );
     // @todo: choose appropriate hover color
     sel=cssColor( page()->phiPalette().color( PHIPalette::Error ) );
     highTxt=cssColor( page()->phiPalette().color( PHIPalette::HighlightText) );
-    out+='#'+id()+BL( " .ui-jqgrid{background-color:" )+bgCol+BL( " !important;background-image:none !important}\n" );
+    out+='#'+id()+BL( " .ui-jqgrid{background-color:transparent !important;background:none !important}\n" );
     out+='#'+id()+BL( " .ui-jqgrid .ui-jqgrid-bdiv td{color:" )+col+BL( "}\n" );
     out+='#'+id()+BL( " .ui-jqgrid-labels .ui-th-column{color:" )+head+BL( "}\n" );
     out+='#'+id()+BL( " .ui-jqgrid .ui-jqgrid-bdiv .ui-state-highlight{border-color:#cccccc;background:none;background-color:" )+sel+BL( "}\n" );
@@ -731,7 +789,12 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
     if ( options() & HideBorder ) setAdjustedRect( rect().adjusted( -1, -1, -1, -24 ) );
     else setAdjustedRect( rect().adjusted( 0, 0, -2, -25 ) );
     htmlInitItem( script, false );
-    script+=BL( ".dateFormat('" )+QLocale( page()->lang() ).dateFormat( QLocale::ShortFormat ).toLatin1().toLower()+BL( "');\n" );
+    script+=BL( ".dateFormat('" )+QLocale( page()->lang() ).dateFormat( QLocale::ShortFormat ).toLatin1().toLower()+BL( "')" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
+        script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
+        script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";\n" );
 }
 
 PHIWID PHIDecoratedTableItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const
@@ -785,7 +848,7 @@ void PHIDecoratedTableItem::setDateFormat( const QString &s )
         it=dynamic_cast<PHITableItem*>(table->item( 0, col ) );
         ++col;
         if ( it->cellType()!=CDate ) continue;
-        for ( int row=0; row<table->columnCount(); row++ ) {
+        for ( int row=0; row<table->rowCount(); row++ ) {
             it=dynamic_cast<PHITableItem*>(table->item( row, col-1 ) );
             QDateTime d=it->data( Qt::UserRole+2 ).toDateTime();
             it->setData( Qt::DisplayRole, d );

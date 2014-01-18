@@ -64,15 +64,11 @@ OTHER_FILES += js/phibase.js js/excanvas.js \
     phishtmltrident5.h \
     phishtmltrident6.h \
     phishtmlgecko100.h \
-    phidataparserold.h \
     phiprocessor.h \
     phihtmlgenerator.h \
-    phigenerator.h \
     phishtmlbase.h \
     phiprocessor.cpp \
-    phidataparserold.cpp \
     phihtmlgenerator.cpp \
-    phigenerator.cpp \
     phishtmlbase.cpp \
     phishtmlgeneric.cpp \
     phishtmlimgcreator.cpp \

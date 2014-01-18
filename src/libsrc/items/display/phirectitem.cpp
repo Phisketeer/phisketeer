@@ -91,7 +91,7 @@ bool PHIRectConfig::storeData()
     return changed;
 }
 
-PHIConfigData PHIRectConfig::oldData() const
+PHIConfigData PHIRectConfig::originalData() const
 {
     PHIRectItem *it=qobject_cast<PHIRectItem*>(item());
     PHIConfigData cd;

@@ -95,7 +95,7 @@ void PHIEllipseConfig::spanSpinChanged( int v )
     repaint();
 }
 
-PHIConfigData PHIEllipseConfig::oldData() const
+PHIConfigData PHIEllipseConfig::originalData() const
 {
     PHIEllipseItem *eit=qobject_cast<PHIEllipseItem*>(item());
     PHIConfigData cd;

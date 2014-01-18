@@ -61,10 +61,6 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
     bool needImage=false;
     out+=indent+BL( "<div" );
     htmlBase( req, out, script, true );
-    if ( static_cast<Qt::BrushStyle>(realPattern())==Qt::SolidPattern ) {
-        if ( Q_UNLIKELY( !( req->agentFeatures() & PHIRequest::RGBA ) ) ) needImage=true;
-        else out+=BL( "background-color:" )+cssRgba( realColor() )+';';
-    }
     if ( Q_UNLIKELY( realLine()>3 ) ) needImage=true;
     else if ( Q_UNLIKELY( hasBorderRadius() && !(req->agentFeatures() & PHIRequest::BorderRadius) ) ) needImage=true;
     // else if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) needImage=true;
@@ -77,7 +73,7 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
             QByteArray style=BL( "solid" );
             if ( realLine()==2 ) style=BL( "dashed" );
             else if ( realLine()==3 ) style=BL( "dotted" );
-            out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+' '+cssRgba( realOutlineColor() )+';';
+            out+=BL( "border:" )+QByteArray::number( qRound(realPenWidth()) )+BL( "px " )+style+';';
             if ( hasBorderRadius() ) {
                 QByteArray prefix=QByteArray();
                 if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()<534 ) prefix=req->agentPrefix();
@@ -92,7 +88,11 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
             setAdjustedRect( QRectF( off, realSize() ) );
         }
         out+=BL( "\">\n" );
-    } else {
+        htmlInitItem( script, false );
+        if ( colorRole( PHIPalette::Foreground )!=PHIPalette::Window ) script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+        if ( realLine()>0 ) script+=BL( ".borderColor('" )+cssColor( realOutlineColor() )+BL( "')" );
+        script+=BL( ";\n" );
+    } else { // create an image
         out+=BL( "\">\n" );
         QByteArray imgId=imagePath();
         if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
@@ -103,8 +103,8 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
         } else {
             out+=indent+BL( "\t<img id=\"phibgi_" )+_id+BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
         }
+        htmlInitItem( script );
     }
-    htmlInitItem( script );
     // generate child items:
     PHIBaseItem *it;
     foreach( it, _children ) it->html( req, out, script, indent+'\t' );

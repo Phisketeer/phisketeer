@@ -33,7 +33,7 @@ public:
     explicit PHIRectConfig( PHIBaseItem *it, QWidget *parent=0 );
     virtual ~PHIRectConfig();
     virtual bool storeData();
-    virtual PHIConfigData oldData() const;
+    virtual PHIConfigData originalData() const;
 
 protected slots:
     void radiusSpinChanged( int );

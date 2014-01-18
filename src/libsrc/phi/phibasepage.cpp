@@ -387,6 +387,7 @@ void PHIBasePage::createCSSFile( const PHIRequest *req ) const
         out+="canvas.phi{position:absolute;"+ori+"}\nspan.phi{position:absolute;"+ori+"}\n";
         out+="object.phi{position:absolute;border:none;"+ori
             +"}\niframe.phi{position:absolute;border:none;background-color:transparent;overflow:visible;"+ori+"}\n";
+        /*
         out+=".phibuttontext{color:"+_pal.color( PHIPalette::ButtonText ).name().toLatin1()+"}\n";
         out+=".phibutton{background-color:"+_pal.color( PHIPalette::Button ).name().toLatin1()+"}\n";
         out+=".phihighlight{background-color:"+_pal.color( PHIPalette::Highlight ).name().toLatin1()+"}\n";
@@ -398,6 +399,7 @@ void PHIBasePage::createCSSFile( const PHIRequest *req ) const
         out+=".phierror{background-color:"+_pal.color( PHIPalette::Error ).name().toLatin1()+"}\n";
         out+=".phierrortext{background-color:"+_pal.color( PHIPalette::ErrorText ).name().toLatin1()+"}\n";
         out+=".phicleartablecell{background-color:transparent;background-image:none}\n";
+        */
         if ( _flags & FPageLeftAlign ) {
             out+=".phicontent{z-index:0;display:block;position:relative;left:0;top:0;width:"
                 +QByteArray::number( _width )+"px;margin:0;padding:0}\n";
@@ -593,7 +595,7 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         it->html( req, out, script, indent );
     }
     if ( _flags & FHasAction ) {
-        if ( !(_flags & FHasPhiLang) && currentLang()!=BL( "C" ) )
+        if ( !(_flags & FHasPhiLangItem) && currentLang()!=BL( "C" ) )
             out+=indent+BL( "<input type=\"hidden\" name=\"philang\" value=\"" )+currentLang()+BL( "\">\n" );
         if ( _variants.value( DSession ).isValid() )
             out+=indent+BL( "<input type=\"hidden\" name=\"phisid\" value=\"" )
@@ -605,7 +607,7 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         +_variants.value( DSession ).toByteArray()+BL( "');\n" )+script;
     if ( _flags & FJavaScript ) {
         out+=BL( "/* BEGIN custom script */\n" )+_variants.value( DJavascript ).toByteArray();
-        out+=BL( "/* END custom script */\n" );
+        out+=BL( "\n/* END custom script */\n" );
     }
     out+=BL( "/* ]]> */\n</script>\n</body>\n</html>\n" );
 }

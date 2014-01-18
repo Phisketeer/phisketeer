@@ -127,8 +127,12 @@ void PHILineEditItem::genHtml( const QByteArray &type, const PHIRequest *req, QB
 {
     setAdjustedRect( PHIInputTools::adjustedLineEdit( req, rect() ) );
     htmlInitItem( script, false );
-    if ( Q_UNLIKELY( realReadOnly() ) ) script+=BL( ".readOnly(1);\n" );
-    else script+=BL( ";\n" );
+    if ( Q_UNLIKELY( realReadOnly() ) ) script+=BL( ".readOnly(1)" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
+        script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
+        script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";\n" );
 
     out+=indent+BL( "<input type=\"" )+type+BL( "\" name=\"" )+id()+'"';
     QByteArray arr=data( DText ).toByteArray();
@@ -265,7 +269,12 @@ void PHITextAreaItem::setReadOnly( bool b )
 void PHITextAreaItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     setAdjustedRect( PHIInputTools::adjustedTextArea( req, rect() ) );
-    htmlInitItem( script );
+    htmlInitItem( script, false );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
+        script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
+        script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";\n" );
     out+=indent+BL( "<textarea name=\"" )+id()+'"';
     if ( realReadOnly() ) out+=BL( " readonly=\"readonly\"" );
     out+=BL( " maxlength=\"" )+QByteArray::number( realMaxLength() )+'"';
@@ -341,6 +350,13 @@ void PHINumberEditItem::setReadOnly( bool b )
         QLineEdit *edit=spin->findChild<QLineEdit*>();
         edit->setReadOnly( b );
     }
+}
+
+void PHINumberEditItem::cssStatic(const PHIRequest *req, QByteArray &out) const
+{
+    Q_UNUSED( req )
+    out+='#'+id()+BL( "{font-size:" )+QByteArray::number( qRound(font().pointSizeF()*.8) );
+    out+=BL( "pt}\n" );
 }
 
 PHIWID PHINumberEditItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const
@@ -427,6 +443,7 @@ QSizeF PHINumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint
 
 void PHINumberEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    setAdjustedRect( rect().adjusted( 0, 1, 0, 5 ) );
     htmlInitItem( script, false );
     int val, min, max, step;
     PHI::extractNumbers( data( DText ).toByteArray(), val, min, max, step );

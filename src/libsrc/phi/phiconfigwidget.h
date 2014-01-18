@@ -43,10 +43,10 @@ public:
     virtual QToolBar* toolBar() const { return 0; }
     virtual bool storeData()=0; // return false if data is unchanged
     // properties which are needed to be updated in undo stack and are NOT stored in _variants:
-    virtual PHIConfigProperties oldProperties() const { return PHIConfigProperties(); }
-    virtual PHIConfigColors oldColors() const { return PHIConfigColors(); }
-    // PHIConfData: QHash <PHIData *ref, PHIData *oldData>
-    virtual PHIConfigData oldData() const { return PHIConfigData(); }
+    virtual PHIConfigProperties originalProperties() const { return PHIConfigProperties(); }
+    virtual PHIConfigColors originalColors() const { return PHIConfigColors(); }
+    // PHIConfData: QHash <PHIData *ref, PHIData *orgData>
+    virtual PHIConfigData originalData() const { return PHIConfigData(); }
 
 signals:
     void requestTextConfig( PHIData* );

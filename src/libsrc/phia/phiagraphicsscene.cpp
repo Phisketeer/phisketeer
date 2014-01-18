@@ -184,6 +184,7 @@ void PHIAGraphicsScene::slotDataAvailable()
                     it->setId( id );
                     it->load( arr, _version );
                     addItem( it->gw() );
+                    connect( it, &PHIBaseItem::linkRequested, this, &PHIAGraphicsScene::slotLinkActivated );
                 }
                 PHIAbstractLayoutItem *l=qobject_cast<PHIAbstractLayoutItem*>(it);
                 if ( l ) _layouts.append( l );
@@ -336,6 +337,17 @@ void PHIAGraphicsScene::slotBgImageReady( const QImage &img )
     page()->setBgImage( img );
 }
 
+void PHIAGraphicsScene::slotLinkActivated( const QString &s )
+{
+    QUrl url=PHI::createUrlForLink( _requestedUrl, s );
+    QUrlQuery query( url );
+    if ( !query.hasQueryItem( L1( "philang" ) ) ) query.addQueryItem( L1( "philang" ), page()->lang() );
+    if ( !query.hasQueryItem( L1( "phisid" ) ) && !page()->session().isEmpty() )
+        query.addQueryItem( L1( "phisid" ), page()->session() );
+    url.setQuery( query );
+    emit linkRequested( url );
+}
+
 void PHIAGraphicsScene::slotSubmitForm( const QString &buttonId )
 {
     QScriptValue phi=_engine->globalObject().property( L1( "phi" ) );
@@ -371,7 +383,7 @@ void PHIAGraphicsScene::slotSubmitForm( const QString &buttonId )
         part.setBody( page()->session().toUtf8() );
         multiPart->append( part );
     }
-    if ( !(page()->flags() & PHIBasePage::FHasPhiLang) && !page()->currentLang().isEmpty() ) {
+    if ( !(page()->flags() & PHIBasePage::FHasPhiLangItem ) ) {
         QHttpPart part;
         part.setHeader( QNetworkRequest::ContentTypeHeader, BL( "text/plain" ) );
         part.setHeader( QNetworkRequest::ContentDispositionHeader, BL( "form-data; name=\"philang\"" ) );

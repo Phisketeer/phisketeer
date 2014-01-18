@@ -45,6 +45,13 @@ void PHIProgressItem::updateWidget()
     bar->setValue( realProgress() );
 }
 
+bool PHIProgressItem::paint( QPainter *painter, const QRectF &exposed )
+{
+    Q_UNUSED( painter )
+    Q_UNUSED( exposed )
+    return false;
+}
+
 PHIWID PHIProgressItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &out ) const
 {
     Q_UNUSED( req )

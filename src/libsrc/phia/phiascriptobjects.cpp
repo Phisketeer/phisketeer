@@ -174,7 +174,9 @@ void PHIAScriptWindowObj::timerEvent( QTimerEvent *e )
 
 void PHIAScriptWindowObj::alert( const QString &s ) const
 {
-    QMessageBox::warning( _view, phiApp->applicationName(), s, QMessageBox::Ok );
+    QString esc=s;
+    esc.replace( QLatin1Char( '<' ), L1( "&lt;" ) ).replace( QLatin1Char( '>'), L1( "&gt;" ) );
+    QMessageBox::warning( _view, phiApp->applicationName(), esc, QMessageBox::Ok );
 }
 
 QString PHIAScriptWindowObj::prompt( const QString &text, const QString &value ) const

@@ -50,12 +50,13 @@ void PHISubmitButtonItem::setWidgetText( const QString &t )
     b->setText( t );
 }
 
-void PHISubmitButtonItem::paint( QPainter *painter, const QRectF &exposed )
+bool PHISubmitButtonItem::paint( QPainter *painter, const QRectF &exposed )
 {
+    Q_UNUSED( exposed )
 #ifdef Q_OS_MAC
-    painter->translate( 0, -4 );
+    painter->translate( 0, -2 );
 #endif
-    PHIAbstractInputItem::paint( painter, exposed );
+    return false;
 }
 
 QSizeF PHISubmitButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
@@ -74,15 +75,17 @@ void PHISubmitButtonItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRo
 {
     if ( ir==PHIPalette::WidgetText ) {
         setData( DColor, col );
-        setColorRole( cr );
+        setColorRole( ir, cr );
     } else if ( ir==PHIPalette::WidgetBase ) {
         setData( DBackgroundColor, col );
-        setBackgroundColorRole( cr );
+        setColorRole( ir, cr );
+        // @todo: set button background color with stylesheet?
+        return;
     } else return;
     QWidget *w=widget();
     if ( !w ) return;
     QPalette::ColorRole role=QPalette::ButtonText;
-    if ( ir==PHIPalette::WidgetBase ) role=QPalette::Button;
+    //if ( ir==PHIPalette::WidgetBase ) role=QPalette::Button;
     QPalette pal=w->palette();
     pal.setColor( role, col );
     w->setPalette( pal );
@@ -91,7 +94,12 @@ void PHISubmitButtonItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRo
 void PHISubmitButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     setAdjustedRect( PHIInputTools::adjustedButton( req, rect() ) );
-    htmlInitItem( script );
+    htmlInitItem( script, false );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
+        script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
+        script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";\n" );
     out+=indent+BL( "<input type=\"submit\" name=\"" )+id()+BL( "\" value=\"" )
         +data( DText ).toByteArray()+'"';
     htmlBase( req, out, script );
@@ -116,7 +124,12 @@ void PHIResetButtonItem::ideInit()
 void PHIResetButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     setAdjustedRect( PHIInputTools::adjustedButton( req, rect() ) );
-    htmlInitItem( script );
+    htmlInitItem( script, false );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
+        script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
+        script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";\n" );
     out+=indent+BL( "<input type=\"reset\" value=\"" )+data( DText ).toByteArray()+'"';
     htmlBase( req, out, script );
     if ( realHeight()>34 ) {
@@ -147,6 +160,10 @@ void PHIButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
 {
     setAdjustedRect( PHIInputTools::adjustedButton( req, rect() ) );
     htmlInitItem( script, false );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
+        script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
+        script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
     if ( !realUrl().isEmpty() ) {
         qDebug() << "url" << realUrl();
         QUrl url( realUrl() );

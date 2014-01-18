@@ -34,7 +34,7 @@ public:
     explicit PHIEllipseConfig( PHIBaseItem *it, QWidget *parent=0 );
     virtual ~PHIEllipseConfig();
     virtual bool storeData();
-    virtual PHIConfigData oldData() const;
+    virtual PHIConfigData originalData() const;
 
 protected slots:
     void startSpinChanged( int );

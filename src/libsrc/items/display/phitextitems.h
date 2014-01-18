@@ -55,6 +55,49 @@ private:
     void initWidget();
 };
 
+class PHILinkItem : public PHILabelItem
+{
+    Q_OBJECT
+    Q_PROPERTY( QString _url READ realUrl WRITE setUrl SCRIPTABLE false )
+
+public:
+    enum Wid { Link=23 };
+    enum ItemData { DHoverColor=1, DHoverBgColor=2, DTmpHoverRole=3, DTmpHoverBgRole=4, DUrl=5 };
+    explicit PHILinkItem( const PHIBaseItemPrivate &p ) : PHILabelItem( p ) {}
+    PHILinkItem( const PHILinkItem &it ) : PHILabelItem( it ), _hoverColorRole( it._hoverColorRole ),
+        _hoverBackgroundColorRole( it._hoverBackgroundColorRole ) {}
+    virtual ~PHILinkItem() {}
+
+    virtual QString listName() const { return tr( "Link" ); }
+    virtual QString description() const { return tr( "Creates a link item with hover effect." ); }
+    virtual PHIWID wid() const { return Link; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/button" ) ); }
+    virtual bool hasUrl() const { return true; }
+    virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
+    virtual QColor colorForRole( PHIPalette::ItemRole role ) const;
+
+    QColor realHoverColor() const;
+    QColor realHoverBgColor() const;
+    QString realUrl() const { return QString::fromUtf8( data( DUrl, QString() ).toByteArray() ); }
+    void setUrl( const QString &url ) { setData( DUrl, url.toUtf8() ); }
+    void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+protected:
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void ideInit();
+    virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
+    virtual void mouseover( const QGraphicsSceneHoverEvent *e );
+    virtual void mouseout( const QGraphicsSceneHoverEvent *e );
+    virtual void click( const QGraphicsSceneMouseEvent *e );
+    virtual void clientPrepareData();
+    virtual void clientInitData();
+
+private:
+    virtual PHIConfigWidget* ideConfigWidget();
+    PHIPalette::ColorRole _hoverColorRole, _hoverBackgroundColorRole;
+};
+
 class PHIGraphicRichTextItem : public PHIAbstractTextItem
 {
     Q_OBJECT
@@ -88,7 +131,7 @@ protected:
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual void setWidgetText( const QString &t );
     virtual void setWidgetAligment( Qt::Alignment align );
-    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void squeeze();
     virtual void ideUpdateData();

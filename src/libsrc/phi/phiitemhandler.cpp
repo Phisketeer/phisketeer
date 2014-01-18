@@ -443,6 +443,7 @@ QScriptValue PHIBaseItem::cursor( const QScriptValue &v )
     if ( !isClientItem() ) return self();
     if ( !v.isValid() ) return QString::fromLatin1( PHI::toCursorString( _gw->cursor().shape() ) );
     _gw->setCursor( QCursor( PHI::toCursorShape( v.toString().toLatin1() ) ) );
+    if ( widget() ) widget()->setCursor( _gw->cursor() );
     return self();
 }
 
@@ -729,40 +730,3 @@ void PHIBaseItem::checkDropEvent( QGraphicsSceneDragDropEvent *e )
     ui.setProperty( L1( "offset" ), offset );
     trigger( L1( "drop" ), ui, &dropevent );
 }
-
-/*
-void PHIAItem::slotOnClick( QGraphicsSceneMouseEvent *e )
-{
-    qDebug( "Item onclick %s", id().data() );
-    QScriptEngine *engine=view()->scriptEngine();
-    if ( !engine ) return;
-    bool isSubmit( wid()==PHI::SUBMIT_BUTTON );
-    bool isReset( wid()==PHI::RESET_BUTTON );
-    bool isButton( wid()==PHI::BUTTON || wid()==PHI::IMAGE_BUTTON );
-    bool isRollover( wid()==PHI::ROLLOVER_BUTTON || wid()==PHI::PHISYS_LINK || wid()==PHI::LINK );
-    QScriptValue item=baseItemToScriptValue( engine, this );
-    QScriptValue onclick=item.property( "onclick" );
-    if ( onclick.isFunction() || hasOnEvents( EClick ) ) {
-        PHIAScriptEvent *se=getEvent( EClick, true );
-        se->setMouseEvent( e );
-        QScriptValue event=engine->toScriptValue( se );
-        if ( hasOnEvents( EClick ) ) callOnEvents( EClick, QScriptValueList() << event );
-        if ( onclick.isFunction() ) {
-            QScriptValue res=onclick.call( item, QScriptValueList() << event );
-            if ( res.isError() ) view()->throwJavaScriptError( res );
-            //if ( isSubmit && res.toBool()  ) return emit submitForm(); // return val checked later
-            if ( se->defaultCanceled() ) return;
-            if ( isSubmit ) emit submitForm( this->name() ); //submit button name
-            if ( res.isValid() && !res.toBool() ) return;
-            if ( isReset ) emit resetForm();
-            if ( isButton && !url().isEmpty() ) slotLinkActivated( url() );
-            if ( isRollover && !url().isEmpty() ) slotLinkActivated( url() );
-            return;
-        }
-    }
-    if ( isSubmit ) emit submitForm( this->name() );
-    if ( isReset ) emit resetForm();
-    if ( isButton && !url().isEmpty() ) slotLinkActivated( url() );
-    if ( isRollover && !url().isEmpty() ) slotLinkActivated( url() );
-}
-*/

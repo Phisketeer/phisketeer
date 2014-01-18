@@ -27,7 +27,7 @@
 #include "phibaseitem.h"
 #include "phiabstractitems.h"
 
-static void drawBox( QPainter *p, const QRect &r )
+static void _drawBox( QPainter *p, const QRect &r )
 {
     QColor c1( Qt::white );
     c1.setAlpha( 200 );
@@ -44,7 +44,7 @@ static void drawBox( QPainter *p, const QRect &r )
     p->drawLine( 1, r.height(), r.width(), r.height() );
 }
 
-static void drawChessPattern( QPainter *p, const QRect &r )
+static void _drawChessPattern( QPainter *p, const QRect &r )
 {
     p->fillRect( 0, 0, r.width()/2, r.height()/2, Qt::darkGray );
     p->fillRect( r.width()/2, 0, r.width()/2, r.height()/2, Qt::lightGray );
@@ -52,14 +52,14 @@ static void drawChessPattern( QPainter *p, const QRect &r )
     p->fillRect( r.width()/2, r.height()/2, r.width()/2, r.height()/2, Qt::darkGray );
 }
 
-static QPixmap colorPixmap( const QColor &c, const QSize &s=QSize( 24, 24 ) )
+static QPixmap _colorPixmap( const QColor &c, const QSize &s=QSize( 24, 24 ) )
 {
     QPixmap pix( s );
     QRect r( QPoint(), s );
     QPainter p( &pix );
-    drawChessPattern( &p, r );
+    _drawChessPattern( &p, r );
     p.fillRect( r, c );
-    drawBox( &p, r );
+    _drawBox( &p, r );
     p.end();
     return pix;
 }
@@ -122,12 +122,12 @@ PHIColorConfig::PHIColorConfig( PHIBaseItem *item, QWidget *parent )
         }
     }
     foreach( PHIPalette::ItemRole ir, _itemRoles ) {
-        _oldColors.insert( ir, item->colorForRole( ir ) );
-        _oldRoles.insert( ir, item->colorRole( ir ) );
+        _originalColors.insert( ir, item->colorForRole( ir ) );
+        _originalRoles.insert( ir, item->colorRole( ir ) );
         if ( ir==PHIPalette::Foreground || ir==PHIPalette::WidgetText )
-            _colorButton->setIcon( colorPixmap( item->colorForRole( ir ) ) );
+            _colorButton->setIcon( _colorPixmap( item->colorForRole( ir ) ) );
         if ( ir==PHIPalette::Background || ir==PHIPalette::WidgetBase )
-            _outlineColorButton->setIcon( colorPixmap( item->colorForRole( ir ) ) );
+            _outlineColorButton->setIcon( _colorPixmap( item->colorForRole( ir ) ) );
     }
 }
 
@@ -140,19 +140,31 @@ bool PHIColorConfig::storeData()
 {
     bool changed=false;
     foreach ( PHIPalette::ItemRole ir, _itemRoles ) {
-        if ( _oldColors.value( ir )!=item()->colorForRole( ir ) ) changed=true;
+        if ( _originalColors.value( ir )!=item()->colorForRole( ir ) ) changed=true;
     }
     return changed;
 }
 
-PHIConfigColors PHIColorConfig::oldColors() const
+PHIConfigColors PHIColorConfig::originalColors() const
 {
     PHIConfigColors cc;
     foreach ( PHIPalette::ItemRole ir, _itemRoles ) {
-        if ( _oldColors.value( ir )==item()->colorForRole( ir ) ) continue;
-        cc.insert( ir, qMakePair( _oldRoles.value( ir, PHIPalette::NoRole ), _oldColors.value( ir, QColor() ) ) );
+        if ( _originalColors.value( ir )==item()->colorForRole( ir ) ) continue;
+        cc.insert( ir, qMakePair( _originalRoles.value( ir, PHIPalette::NoRole ), _originalColors.value( ir, QColor() ) ) );
     }
     return cc;
+}
+
+void PHIColorConfig::addColor( PHIPalette::ItemRole ir )
+{
+    _itemRoles << ir;
+    _originalRoles.insert( ir, item()->colorRole( ir ) );
+    _originalColors.insert( ir, item()->colorForRole( ir ) );
+}
+
+QPixmap PHIColorConfig::colorPixmap( const QColor &col, const QSize &s )
+{
+    return _colorPixmap( col, s );
 }
 
 void PHIColorConfig::on__colorButton_clicked()
@@ -175,4 +187,61 @@ void PHIColorConfig::on__outlineColorButton_clicked()
     item()->setColor( _itemRoles.at( 1 ), PHIPalette::Custom, col );
     _outlineColorButton->setIcon( colorPixmap( col ) );
     _preview->repaint();
+}
+
+PHIHoverColorConfig::PHIHoverColorConfig( PHIBaseItem *it, QWidget *parent )
+    : PHIColorConfig( it, parent )
+{
+    _outlineColorButton->setEnabled( true );
+    _outlineColorLabel->setEnabled( true );
+    _outlineColorLabel->setText( tr( "Background color" ) );
+    _colorLabel->setText( tr( "Text color" ) );
+    _configBox->show();
+    _configBox->setTitle( tr( "Hover colors" ) );
+    _hoverTool=new QToolButton();
+    connect( _hoverTool, &QToolButton::clicked, this, &PHIHoverColorConfig::hoverToolClicked );
+    _hoverBgTool=new QToolButton();
+    connect( _hoverBgTool, &QToolButton::clicked, this, &PHIHoverColorConfig::hoverBgToolClicked );
+    _hoverLabel=new QLabel( tr( "Hover text color" ) );
+    _hoverLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+    QLabel *label=new QLabel();
+    label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    QHBoxLayout *l=new QHBoxLayout();
+    l->setContentsMargins( 12, 6, 12, 6 );
+    l->setSpacing( 6 );
+    l->addWidget( label );
+    l->addWidget( _hoverLabel );
+    l->addWidget( _hoverTool );
+    label=new QLabel();
+    label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    _hoverBgLabel=new QLabel( tr( "Hover background color" ) );
+    _hoverBgLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+    l->addWidget( _hoverBgLabel );
+    l->addWidget( _hoverBgTool );
+    l->addWidget( label );
+    _configBox->setLayout( l );
+    addColor( PHIPalette::Hover );
+    addColor( PHIPalette::HoverBackground );
+    _hoverTool->setIcon( colorPixmap( it->colorForRole( PHIPalette::Hover ) ) );
+    _hoverBgTool->setIcon( colorPixmap( it->colorForRole( PHIPalette::HoverBackground ) ) );
+}
+
+void PHIHoverColorConfig::hoverToolClicked()
+{
+    QColor col=QColorDialog::getColor( item()->colorForRole( PHIPalette::Hover ), this,
+        tr( "Hover color" ), QColorDialog::ShowAlphaChannel );
+    if ( !col.isValid() ) return;
+    item()->setColor( PHIPalette::Hover, PHIPalette::Custom, col );
+    _hoverTool->setIcon( colorPixmap( col ) );
+    repaint();
+}
+
+void PHIHoverColorConfig::hoverBgToolClicked()
+{
+    QColor col=QColorDialog::getColor( item()->colorForRole( PHIPalette::HoverBackground ), this,
+        tr( "Hover background color" ), QColorDialog::ShowAlphaChannel );
+    if ( !col.isValid() ) return;
+    item()->setColor( PHIPalette::HoverBackground, PHIPalette::Custom, col );
+    _hoverBgTool->setIcon( colorPixmap( col ) );
+    repaint();
 }

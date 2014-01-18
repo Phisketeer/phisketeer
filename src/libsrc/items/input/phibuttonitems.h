@@ -32,6 +32,7 @@ public:
     explicit PHISubmitButtonItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
     PHISubmitButtonItem( const PHISubmitButtonItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHISubmitButtonItem() {}
+    virtual bool isButton() const { return true; }
 
     virtual QString listName() const { return tr( "Submit button" ); }
     virtual QString description() const { return tr( "Submit button with input type <submit>" ); }
@@ -46,7 +47,7 @@ public slots:
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual PHIBooleanData* readOnlyData() { return 0; }
-    virtual void paint( QPainter *painter, const QRectF &exposed );
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
     virtual void initWidget();
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );

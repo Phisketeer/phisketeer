@@ -50,6 +50,7 @@ protected:
     void ideInit();
     QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void updateWidget();
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
 
 private:
     void initWidget();
