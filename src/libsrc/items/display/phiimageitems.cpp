@@ -324,7 +324,7 @@ void PHISlideShowItem::pauseTimeout()
 QScriptValue PHISlideShowItem::stop()
 {
     if ( _pauseTimer ) _pauseTimer->stop();
-    return self();
+    return PHIBaseItem::stop();
 }
 
 QScriptValue PHISlideShowItem::start()

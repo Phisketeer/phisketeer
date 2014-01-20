@@ -171,7 +171,7 @@ function PhiItem( obj ) {
       if (x) xd=xd/Math.abs(x);
       if (y) yd=yd/Math.abs(y);
       if (z) zd=zd/Math.abs(z);
-      if (x>0) c=-360; else c=360;
+      if (x>0) c=360; else c=-360;
       if (a & 1)j(id).css({rotateX:0}).animate({rotateX:c},{queue:false,duration:xd,easing:e,complete:function(){$(obj.id).rotate(1,x);}});
       if (y>0) c=-360; else c=360;
       if (a & 2)j(id).css({rotateY:0}).animate({rotateY:c},{queue:false,duration:yd,easing:e,complete:function(){$(obj.id).rotate(2,0,y);}});
@@ -179,9 +179,12 @@ function PhiItem( obj ) {
       if (a & 4)j(id).css({rotate:0}).animate({rotate:c},{queue:false,duration:zd,easing:e,complete:function(){$(obj.id).rotate(4,0,0,z);}});
       return this;
   };
-  this.rotateX=function(a){if(a===undefined)return parseFloat(j(id).css('rotateX'));j(id).css({perspective:'1000px',rotateX:-a});return this;};
+  this.rotateX=function(a){if(a===undefined)return parseFloat(j(id).css('rotateX'));j(id).css({perspective:'1000px',rotateX:a});return this;};
   this.rotateY=function(a){if(a===undefined)return parseFloat(j(id).css('rotateY'));j(id).css({perspective:'1000px',rotateY:-a});return this;};
   this.rotateZ=function(a){if(a===undefined)return parseFloat(j(id).css('rotate'));j(id).css({rotate:a});return this;};
+  this.rotateToX=function(a,d,e){j(id).animate({perspective:'1000px',rotateX:a},{queue:false,duration:(d?d:1000),easing:e});return this;};
+  this.rotateToY=function(a,d,e){j(id).animate({perspective:'1000px',rotateY:-a},{queue:false,duration:(d?d:1000),easing:e});return this;};
+  this.rotateToZ=function(a,d,e){j(id).animate({perspective:'1000px',rotate:a},{queue:false,duration:(d?d:1000),easing:e});return this;};
   this.title=function( t ) {
     if(t===undefined)return j(id).attr('title');
     j(id).attr('title',t);return this;

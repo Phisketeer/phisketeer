@@ -53,6 +53,7 @@ protected:
     void init();
     void updateTabOrder();
     void startAnimations();
+    void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
 
 signals:
     void titleChanged( const QString &title );

@@ -40,6 +40,7 @@ public:
     inline PHIBasePage* page() const { return _page; }
     inline void setPage( PHIBasePage *page ) { _page=page; }
     inline QString fileName() const { return objectName(); }
+    inline QPointF dragMovePos() const { return _dragMovePos; }
     QList<PHIBaseItem*> selectedBaseItems() const;
     PHIBaseItem* focusBaseItem() const;
 
@@ -50,6 +51,7 @@ protected slots:
 protected:
     virtual void mouseMoveEvent( QGraphicsSceneMouseEvent *event );
     virtual void drawBackground( QPainter *painter, const QRectF &rect );
+    inline void setDragMovePos( const QPointF &pos ) { _dragMovePos=pos; }
 
 signals:
     void mousePos( const QPointF& );
@@ -59,6 +61,7 @@ signals:
 
 private:
     PHIBasePage *_page;
+    QPointF _dragMovePos;
 };
 
 #endif // PHIGRAPHICSSCENE_H

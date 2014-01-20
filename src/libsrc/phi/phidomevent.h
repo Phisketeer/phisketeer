@@ -43,7 +43,7 @@ public:
         EMouseOut, EChange, EFocus, EBlur, EKeyPress, EKeyDown, EKeyUp, EDrop, ECustom,
         ESubmit, ESelect, ELoad };
     explicit PHIDomEvent( const QString &type, PHIBaseItem *item, bool cancelable=false );
-    virtual ~PHIDomEvent();
+    virtual ~PHIDomEvent() {}
 
     void setMouseEvent( QGraphicsSceneMouseEvent *e );
     void setHoverEvent( QGraphicsSceneHoverEvent *e );

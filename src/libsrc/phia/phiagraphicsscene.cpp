@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QGraphicsView>
+#include <QGraphicsSceneDragDropEvent>
 #include <QHttpMultiPart>
 #include <QHttpPart>
 #include "phiagraphicsscene.h"
@@ -299,6 +300,12 @@ void PHIAGraphicsScene::startAnimations()
             it->fadeOut( start, duration, minOpac, PHI::toEasingCurveString( ease ) );
         }
     }
+}
+
+void PHIAGraphicsScene::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
+{
+    setDragMovePos( event->scenePos() );
+    PHIGraphicsScene::dragMoveEvent( event );
 }
 
 void PHIAGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )

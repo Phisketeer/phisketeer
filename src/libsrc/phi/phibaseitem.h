@@ -332,6 +332,9 @@ public slots: // usable by script engine
     QScriptValue rotateX( const QScriptValue &v=QScriptValue() );
     QScriptValue rotateY( const QScriptValue &v=QScriptValue() );
     QScriptValue rotateZ( const QScriptValue &v=QScriptValue() );
+    QScriptValue rotateToX( int angle, int duration=1000, const QString &ease=PHI::defaultEasingCurve() );
+    QScriptValue rotateToY( int angle, int duration=1000, const QString &ease=PHI::defaultEasingCurve() );
+    QScriptValue rotateToZ( int angle, int duration=1000, const QString &ease=PHI::defaultEasingCurve() );
     QScriptValue slide( const QString &dir=SL( "up" ), int duration=400, const QString &ease=PHI::defaultEasingCurve() );
 
     QScriptValue click( const QScriptValue &v=QScriptValue() );

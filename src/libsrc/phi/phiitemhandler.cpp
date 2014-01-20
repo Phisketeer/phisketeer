@@ -35,6 +35,7 @@
 #include "phibaseitem.h"
 #include "phidomevent.h"
 #include "phianimations.h"
+#include "phigraphicsscene.h"
 #include "qpixmapfilter_p.h"
 
 #define PHIBOUND(x) qBound( -10000, x, 10000 )
@@ -468,9 +469,42 @@ QScriptValue PHIBaseItem::rotateZ( const QScriptValue &v )
     return self();
 }
 
+QScriptValue PHIBaseItem::rotateToX( int angle, int duration, const QString &ease )
+{
+    if ( !isClientItem() ) return scriptEngine()->undefinedValue();
+    QPropertyAnimation *xrot=new QPropertyAnimation( this, BL( "_xRotation" ) );
+    xrot->setEndValue( angle );
+    xrot->setDuration( duration );
+    xrot->setEasingCurve( PHI::toEasingCurveType( ease ) );
+    xrot->start( QAbstractAnimation::DeleteWhenStopped );
+    return self();
+}
+
+QScriptValue PHIBaseItem::rotateToY( int angle, int duration, const QString &ease )
+{
+    if ( !isClientItem() ) return scriptEngine()->undefinedValue();
+    QPropertyAnimation *yrot=new QPropertyAnimation( this, BL( "_yRotation" ) );
+    yrot->setEndValue( angle );
+    yrot->setDuration( duration );
+    yrot->setEasingCurve( PHI::toEasingCurveType( ease ) );
+    yrot->start( QAbstractAnimation::DeleteWhenStopped );
+    return self();
+}
+
+QScriptValue PHIBaseItem::rotateToZ( int angle, int duration, const QString &ease )
+{
+    if ( !isClientItem() ) return scriptEngine()->undefinedValue();
+    QPropertyAnimation *zrot=new QPropertyAnimation( this, BL( "_zRotation" ) );
+    zrot->setEndValue( angle );
+    zrot->setDuration( duration );
+    zrot->setEasingCurve( PHI::toEasingCurveType( ease ) );
+    zrot->start( QAbstractAnimation::DeleteWhenStopped );
+    return self();
+}
+
 QScriptValue PHIBaseItem::slide( const QString &dir, int duration, const QString &ease )
 {
-    if ( !isClientItem() ) return self();
+    if ( !isClientItem() ) return scriptEngine()->undefinedValue();
     if ( dir==L1( "down" ) ) slideDown( duration, ease );
     else slideUp( duration, ease );
     return self();
@@ -621,8 +655,8 @@ void PHIBaseItem::checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e )
     p.setRenderHint( QPainter::SmoothPixmapTransform );
     p.setOpacity( dragOpacity() );
     QStyleOptionGraphicsItem opt;
-    paint( &p, &opt, 0 );
-    //if ( proxy && !PHI::isLayoutContainer( static_cast<PHI::Widget>(this->wid()) ) ) proxy->widget()->render( &p );
+    if ( widget() ) widget()->render( &p );
+    else paint( &p, &opt, 0 );
     p.end();
 
     QPixmap pix=QPixmap::fromImage( img, Qt::ColorOnly );
@@ -634,7 +668,6 @@ void PHIBaseItem::checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e )
     }
     QMimeData *mimeData=new QMimeData();
     mimeData->setImageData( img );
-    //mimeData->setText( name() );
 
     QByteArray output;
     QBuffer outputBuffer( &output );
@@ -642,29 +675,33 @@ void PHIBaseItem::checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e )
     QDataStream ds( &outputBuffer );
     ds.setVersion( PHI_DSV2 );
     ds << static_cast<quint8>(1) << name() << data( DDragOriginalPos ).toPointF()
-       << data( DDragDropOptions, 0 ).value<quint32>();
+       << data( DDragDropOptions, 0 ).value<quint32>() << drag->hotSpot();
     mimeData->setData( L1( "application/x-phi-dd" ), output );
     drag->setMimeData( mimeData );
     Qt::DropAction action=drag->exec( dragMoveAction() ? Qt::MoveAction : Qt::CopyAction );
 
-    qDebug( "Drop action: %d", static_cast<int>(action) );
     if ( action==Qt::CopyAction ) return;
     if ( !dragMoveAction() ) return;
 
-    QPointF startPos=data( DDragStartPos ).toPointF();
+    // QPointF startPos=data( DDragStartPos ).toPointF();
     QPointF origPos=data( DDragOriginalPos ).toPointF();
-    startPos-=drag->hotSpot();
-    qDebug() << startPos;
+    QPointF dragMovePos=qobject_cast<PHIGraphicsScene*>(_gw->scene())->dragMovePos();
+    qDebug() << "drop (move action)" << _id << origPos << dragMovePos;
     setVisible( true );
     if ( action==Qt::IgnoreAction ) {
         if ( dragDropOptions() & DDRevertOnIgnore ) {
-            moveTo( origPos.x(), origPos.y(), 0, 500, PHI::defaultEasingCurve() );
+            // done by Qt:
+            // moveTo( origPos.x(), origPos.y(), 0, 500, PHI::defaultEasingCurve() );
+        } else {
+            setPos( dragMovePos-drag->hotSpot() );
         }
     } else {
         if ( dragDropOptions() & DDRevertOnAccept ) {
             qreal curOpac=realOpacity();
             setOpacity( 0 );
             fadeIn( 0, 1000, curOpac, PHI::defaultEasingCurve() );
+        } else {
+            setPos( dragMovePos-drag->hotSpot() );
         }
     }
 }
@@ -710,16 +747,19 @@ void PHIBaseItem::checkDropEvent( QGraphicsSceneDragDropEvent *e )
     ds.setVersion( PHI_DSV2 );
     quint8 version;
     QString sourceId;
-    ds >> version >> sourceId;
-    qDebug() << "checkDropEvent" << _id << sourceId;
+    QPointF orgPos;
+    quint32 opts;
+    QPoint hotspot;
+    ds >> version >> sourceId >> orgPos >> opts >> hotspot;
+    qDebug() << "checkDropEvent" << _id << sourceId << hotspot << e->scenePos();
 
     PHIDomEvent dropevent( L1( "drop" ), this, false );
     dropevent.setDropEvent( e );
     QScriptValue ui=scriptEngine()->newObject();
     QScriptValue offset=scriptEngine()->newObject();
     QScriptValue position=scriptEngine()->newObject();
-    QPoint off=dropevent.mapFromScene( e->scenePos() );
-    QPoint pos=e->scenePos().toPoint();
+    QPoint off=dropevent.mapFromScene( e->scenePos() )-hotspot;
+    QPoint pos=e->scenePos().toPoint()-hotspot;
     offset.setProperty( L1( "left" ), off.x() );
     offset.setProperty( L1( "top" ), off.y() );
     position.setProperty( L1( "left" ), pos.x() );

@@ -104,7 +104,7 @@ PHIDomEvent::PHIDomEvent( const QString &type, PHIBaseItem *item, bool cancelabl
     : QObject( item->scriptEngine() ), _item( item ), _cancelDefault( false ),
     _stopPropagation( false ), _cancelable( cancelable )
 {
-    qDebug( "PHIDomEvent::PHIDomEvent()" );
+    //qDebug( "PHIDomEvent::PHIDomEvent()" );
     _timestamp=QDateTime::currentMSecsSinceEpoch();
     PHIDomItem *domItem=new PHIDomItem( item, this );
     QScriptValue target=item->scriptEngine()->newQObject( domItem, QScriptEngine::QtOwnership, PHIDOMSCRIPTOPTIONS );
@@ -117,11 +117,6 @@ PHIDomEvent::PHIDomEvent( const QString &type, PHIBaseItem *item, bool cancelabl
     _self.setProperty( L1( "eventPhase" ), 1, QScriptValue::ReadOnly );
     _self.setProperty( L1( "view" ), item->scriptEngine()->globalObject(), QScriptValue::ReadOnly );
     _self.setProperty( L1( "detail" ), 0, QScriptValue::ReadOnly );
-}
-
-PHIDomEvent::~PHIDomEvent()
-{
-    qDebug( "PHIDomEvent::~PHIDomEvent()" );
 }
 
 bool PHIDomEvent::isMetaKey( int k )
