@@ -873,6 +873,7 @@ QColor PHIRolloverItem::realHoverColor() const
 {
     if ( _hoverColorRole==PHIPalette::Custom ) return data( DHoverColor, QColor( Qt::black ) ).value<QColor>();
     if ( page() ) return page()->phiPalette().color( _hoverColorRole );
+    qDebug() << "NO page()!!!";
     return Qt::black;
 }
 
@@ -907,11 +908,11 @@ void PHIRolloverItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole c
     if ( ir==PHIPalette::Background ) PHIAbstractShapeItem::setColor( ir, cr, col );
     if ( ir==PHIPalette::Hover ) {
         _hoverColorRole=cr;
-        setData( DHoverColor, col );
+        if ( cr==PHIPalette::Custom ) setData( DHoverColor, col );
     }
     if ( ir==PHIPalette::HoverBackground ) {
         _hoverBgColorRole=cr;
-        setData( DHoverBgColor, col );
+        if ( cr==PHIPalette::Custom ) setData( DHoverBgColor, col );
     }
     update();
 }
@@ -969,6 +970,8 @@ void PHIRolloverItem::squeeze()
     PHIAbstractShapeItem::squeeze();
     removeData( DText );
     removeData( DImages );
+    if ( _hoverColorRole!=PHIPalette::Custom ) removeData( DHoverColor );
+    if ( _hoverBgColorRole!=PHIPalette::Custom ) removeData( DHoverBgColor );
 }
 
 void PHIRolloverItem::loadItemData( QDataStream &in, int version )

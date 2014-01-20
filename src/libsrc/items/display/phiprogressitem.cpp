@@ -61,6 +61,7 @@ PHIWID PHIProgressItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &
 
 void PHIProgressItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    setAdjustedRect( rect().adjusted( 0, 0, -2, -2 ) );
     htmlInitItem( script );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );

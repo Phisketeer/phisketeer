@@ -32,8 +32,6 @@ class PHIWebPage;
 class PHIEXPORT PHIAbstractTextItem : public PHIBaseItem
 {
     Q_OBJECT
-    Q_PROPERTY( QColor _textColor READ realColor WRITE setColor SCRIPTABLE false )
-    Q_PROPERTY( QColor _backgroundColor READ realBackgroundColor WRITE setBackgroundColor SCRIPTABLE false )
     Q_PROPERTY( QString _text READ realText WRITE setText SCRIPTABLE false )
     Q_PROPERTY( quint16 _align READ realAlignment WRITE setAlignment SCRIPTABLE false )
 
@@ -46,8 +44,8 @@ public:
 
     QColor realColor() const;
     QColor realBackgroundColor() const;
-    inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
-    inline void setBackgroundColor( const QColor &col ) { setColor( PHIPalette::WidgetBase, _backgroundColorRole, col ); }
+    //inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
+    //inline void setBackgroundColor( const QColor &col ) { setColor( PHIPalette::WidgetBase, _backgroundColorRole, col ); }
     inline QString realText() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
     inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); if ( !isServerItem() ) setWidgetText( s ); }
     inline quint16 realAlignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
@@ -66,6 +64,7 @@ public slots:
     virtual QScriptValue bgColor( const QScriptValue &c=QScriptValue() );
 
 protected:
+    void setColorRole( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr );
     virtual bool isSingleLine() const { return true; }
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void ideUpdateData();
@@ -86,7 +85,6 @@ protected:
     virtual void clientPrepareData();
     virtual void clientInitData();
     virtual bool paint( QPainter *painter, const QRectF &exposed );
-    virtual void setColorRole( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr );
 
 private:
     virtual void ideSetText( const QString &t, const QByteArray &lang );
@@ -102,8 +100,6 @@ class PHIEXPORT PHIAbstractShapeItem : public PHIBaseItem
     Q_OBJECT
     Q_PROPERTY( quint8 _line READ realLine WRITE setLine SCRIPTABLE false )
     Q_PROPERTY( quint8 _pattern READ realPattern WRITE setPattern SCRIPTABLE false )
-    Q_PROPERTY( QColor _color READ realColor WRITE setColor SCRIPTABLE false )
-    Q_PROPERTY( QColor _outlineColor READ realOutlineColor WRITE setOutlineColor SCRIPTABLE false )
     Q_PROPERTY( qreal _penWidth READ realPenWidth WRITE setPenWidth SCRIPTABLE false )
 
 public:
@@ -130,8 +126,8 @@ public:
     void setPenWidth( qreal w );
     QColor realColor() const;
     QColor realOutlineColor() const;
-    inline void setColor( const QColor &col ) { setColor( PHIPalette::Foreground, _colorRole, col ); }
-    inline void setOutlineColor( const QColor &col ) { setColor( PHIPalette::Background, _outlineColorRole, col ); }
+    //inline void setColor( const QColor &col ) { setColor( PHIPalette::Foreground, _colorRole, col ); }
+    //inline void setOutlineColor( const QColor &col ) { setColor( PHIPalette::Background, _outlineColorRole, col ); }
     inline quint8 realLine() const { return data( DLineStyle, 0 ).value<quint8>(); }
     inline quint8 realPattern() const { return data( DPatternStyle, 1 ).value<quint8>(); }
     inline qreal realPenWidth() const { return data( DPenWidth, 1. ).toReal(); }
@@ -141,6 +137,7 @@ public slots:
     virtual QScriptValue borderColor( const QScriptValue &c=QScriptValue() );
 
 protected:
+    void setColorRole( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr );
     virtual QRectF boundingRect() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual bool paint( QPainter *p, const QRectF &exposed );
@@ -157,7 +154,6 @@ protected:
     virtual void clientInitData();
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
     virtual void squeeze();
-    virtual void setColorRole( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr );
     virtual PHIConfigWidget* ideConfigWidget();
 
 private:

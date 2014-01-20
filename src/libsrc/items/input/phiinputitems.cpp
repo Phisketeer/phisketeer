@@ -319,6 +319,9 @@ void PHINumberEditItem::initWidget()
 {
     QSpinBox *spin=new QSpinBox();
     setWidget( spin );
+    QPalette pal=spin->palette();
+    pal.setColor( QPalette::Window, Qt::transparent );
+    spin->setPalette( pal );
     if ( !isClientItem() ) return;
     QLineEdit *edit=spin->findChild<QLineEdit*>();
     connect( edit, SIGNAL(editingFinished()), this, SLOT(slotChanged()) );
@@ -459,6 +462,9 @@ void PHIRealNumberEditItem::initWidget()
 {
     QDoubleSpinBox *spin=new QDoubleSpinBox();
     setWidget( spin );
+    QPalette pal=spin->palette();
+    pal.setColor( QPalette::Window, Qt::transparent );
+    spin->setPalette( pal );
     if ( !isClientItem() ) return;
     QLineEdit *edit=spin->findChild<QLineEdit*>();
     connect( edit, SIGNAL(editingFinished()), this, SLOT(slotChanged()) );

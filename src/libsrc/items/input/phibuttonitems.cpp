@@ -34,6 +34,9 @@ void PHISubmitButtonItem::initWidget()
 {
     setWidget( new QPushButton() );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::PushButton ) );
+    QPalette pal=widget()->palette();
+    pal.setColor( QPalette::Window, Qt::transparent );
+    widget()->setPalette( pal );
 }
 
 void PHISubmitButtonItem::ideInit()
@@ -194,6 +197,7 @@ QScriptValue PHIButtonItem::url( const QScriptValue &u )
 
 void PHIFileButtonItem::ideInit()
 {
+    PHIAbstractTextItem::ideInit();
     textData()->setText( L1( "*.*" ) );
 }
 
@@ -207,7 +211,6 @@ void PHIFileButtonItem::initWidget()
     _tool->setMinimumHeight( 22 );
     _tool->setFixedWidth( 22 );
     _tool->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding, QSizePolicy::ToolButton ) );
-    connect( _tool, &QToolButton::clicked, this, &PHIFileButtonItem::slotToolClicked );
     QWidget *w=new QWidget();
     QHBoxLayout *l=new QHBoxLayout();
     l->setContentsMargins( 0, 0, 0, 0 );
@@ -218,6 +221,11 @@ void PHIFileButtonItem::initWidget()
     w->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
     setWidget( w );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
+    QPalette pal=w->palette();
+    pal.setColor( QPalette::Window, Qt::transparent );
+    w->setPalette( pal );
+    if ( !isClientItem() ) return;
+    connect( _tool, &QToolButton::clicked, this, &PHIFileButtonItem::slotToolClicked );
 }
 
 QSizeF PHIFileButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const

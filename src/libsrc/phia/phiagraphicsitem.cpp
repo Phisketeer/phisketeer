@@ -183,7 +183,6 @@ void PHIAGraphicsItem::focusInEvent( QFocusEvent *event )
         if ( focus.isDefaultPrevented() ) return event->ignore();
     }
     PHIGraphicsItem::focusInEvent( event );
-    qDebug() << "focus" << baseItem()->id();
     baseItem()->focus( event );
 }
 
@@ -196,7 +195,6 @@ void PHIAGraphicsItem::focusOutEvent( QFocusEvent *event )
         if ( blur.isDefaultPrevented() ) return event->ignore();
     }
     PHIGraphicsItem::focusOutEvent( event );
-    qDebug() << "blur" << baseItem()->id();
     baseItem()->blur( event );
 }
 

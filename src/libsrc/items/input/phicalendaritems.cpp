@@ -265,6 +265,9 @@ void PHIDateEditItem::initWidget()
     w->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
     setWidget( w );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
+    QPalette pal=w->palette();
+    pal.setColor( QPalette::Window, Qt::transparent );
+    w->setPalette( pal );
     if ( !isClientItem() ) return;
     connect( _date, &QDateEdit::dateChanged, this, &PHIDateEditItem::slotDateChanged );
     connect( _button, &QToolButton::clicked, this, &PHIDateEditItem::slotButtonClicked );

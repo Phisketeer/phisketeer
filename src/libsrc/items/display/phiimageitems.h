@@ -273,7 +273,6 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/rollover" ) ); }
     virtual bool hasUrl() const { return true; }
     virtual bool isFocusable() const { return true; }
-    virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual QColor colorForRole( PHIPalette::ItemRole role ) const;
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
     QColor realHoverColor() const;
@@ -294,6 +293,7 @@ public:
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void drawShape( QPainter *p, const QRectF &exposed );
+    virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual void ideInit();
     virtual void squeeze();
     virtual void saveItemData( QDataStream &out, int version );

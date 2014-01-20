@@ -540,7 +540,6 @@ void PHIBaseItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, c
 
 void PHIBaseItem::phiPaletteChanged( const PHIPalette &pal )
 {
-    if ( widget() ) widget()->setPalette( pal.palette() );
     for ( int i=0; i<PHIPalette::ItemRoleMax; i++ ) {
         PHIPalette::ItemRole itemRole=static_cast<PHIPalette::ItemRole>(i);
         PHIPalette::ColorRole role=colorRole( itemRole );

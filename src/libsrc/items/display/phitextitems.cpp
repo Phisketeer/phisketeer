@@ -31,7 +31,9 @@
 
 void PHILabelItem::initWidget()
 {
-    setWidget( new QLabel() );
+    QLabel *l=new QLabel();
+    l->setIndent( 1 );
+    setWidget( l );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
 
@@ -121,10 +123,10 @@ void PHILabelItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QBy
 void PHILabelItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
 {
     if ( ir==PHIPalette::WidgetText ) {
-        setData( DColor, col );
+        if ( cr==PHIPalette::Custom ) setData( DColor, col );
         setColorRole( ir, cr );
     } else if ( ir==PHIPalette::WidgetBase ) {
-        setData( DBackgroundColor, col );
+        if ( cr==PHIPalette::Custom ) setData( DBackgroundColor, col );
         setColorRole( ir, cr );
     } else return;
     QWidget *w=widget();
@@ -498,6 +500,9 @@ void PHIRichTextItem::initWidget()
     tb->setUndoRedoEnabled( false );
     tb->setOpenLinks( false );
     tb->setOpenExternalLinks( false );
+    QPalette pal=tb->palette();
+    pal.setColor( QPalette::Window, Qt::transparent );
+    tb->setPalette( pal );
     setWidget( tb );
     if ( !isClientItem() ) return;
     connect( tb, &QTextBrowser::anchorClicked, this, &PHIRichTextItem::slotAnchorClicked );

@@ -235,6 +235,9 @@ void PHIDecoratedTableItem::initWidget()
     t->setSelectionBehavior( QAbstractItemView::SelectRows );
     t->horizontalHeader()->setHighlightSections( false );
     t->setSortingEnabled( false );
+    QPalette pal=t->palette();
+    pal.setColor( QPalette::Window, Qt::transparent );
+    t->setPalette( pal );
     if ( !isClientItem() ) return;
     connect( t->horizontalHeader(), &QHeaderView::sectionClicked, this, &PHIDecoratedTableItem::slotSectionClicked );
     connect( t, &QTableWidget::itemSelectionChanged, this, &PHIDecoratedTableItem::slotItemSelectionChanged );
@@ -665,7 +668,7 @@ void PHIDecoratedTableItem::cssStatic( const PHIRequest *req, QByteArray &out ) 
     head=cssColor( page()->phiPalette().color( PHIPalette::ButtonText ) );
     high=cssColor( page()->phiPalette().color( PHIPalette::Highlight ) );
     // @todo: choose appropriate hover color
-    sel=cssColor( page()->phiPalette().color( PHIPalette::Error ) );
+    sel=cssColor( page()->phiPalette().color( PHIPalette::AlternateBase ) );
     highTxt=cssColor( page()->phiPalette().color( PHIPalette::HighlightText) );
     out+='#'+id()+BL( " .ui-jqgrid{background-color:transparent !important;background:none !important}\n" );
     out+='#'+id()+BL( " .ui-jqgrid .ui-jqgrid-bdiv td{color:" )+col+BL( "}\n" );
