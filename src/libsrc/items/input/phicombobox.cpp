@@ -27,13 +27,13 @@
 PHIComboBox::PHIComboBox( PHIBaseItem *it, QWidget *parent )
     : QComboBox( parent ), _it( it ), _menu( 0 )
 {
-    qDebug( "PHIComboBox::PHIComboBox()" );
+    //qDebug( "PHIComboBox::PHIComboBox()" );
 }
 
 PHIComboBox::~PHIComboBox()
 {
     delete _menu;
-    qDebug( "PHIComboBox::~PHIComboBox()" );
+    //qDebug( "PHIComboBox::~PHIComboBox()" );
 }
 
 void PHIComboBox::showPopup()

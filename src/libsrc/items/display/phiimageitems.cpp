@@ -985,7 +985,7 @@ void PHIRolloverItem::loadItemData( QDataStream &in, int version )
     in >> arr;
     arr=qUncompress( arr );
     QDataStream ds( &arr, QIODevice::ReadOnly );
-    ds.setVersion( QDataStream::Qt_5_2 );
+    ds.setVersion( PHI_DSV2 );
     ds >> &_imageBookData;
 }
 
@@ -997,7 +997,7 @@ void PHIRolloverItem::saveItemData( QDataStream &out, int version )
         << static_cast<quint8>(_hoverBgColorRole) << reserved << reserved;
     QByteArray arr;
     QDataStream ds( &arr, QIODevice::WriteOnly );
-    ds.setVersion( QDataStream::Qt_5_2 );
+    ds.setVersion( PHI_DSV2 );
     ds << &_imageBookData;
     out << qCompress( arr, 9 );
 }

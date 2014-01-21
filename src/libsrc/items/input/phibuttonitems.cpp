@@ -29,6 +29,8 @@
 #include <QGraphicsView>
 #include "phibuttonitems.h"
 #include "phiinputtools.h"
+#include "phidataparser.h"
+#include "phiimagerequest.h"
 
 void PHISubmitButtonItem::initWidget()
 {
@@ -193,6 +195,136 @@ QScriptValue PHIButtonItem::url( const QScriptValue &u )
     if ( !u.isValid() ) return realUrl();
     setUrl( u.toString() );
     return self();
+}
+
+void PHIImageButtonItem::ideInit()
+{
+    PHIButtonItem::ideInit();
+    _imageData.setImage( QImage( L1( ":/file/phiappview" ) ) );
+}
+
+void PHIImageButtonItem::ideUpdateData()
+{
+    PHIButtonItem::ideUpdateData();
+    QPushButton *b=qobject_cast<QPushButton*>(widget());
+    if ( !b ) return;
+    if ( _imageData.isUnparsedTranslated() ) {
+        b->setIcon( QPixmap::fromImage( _imageData.image( page()->currentLang() ) ) );
+    } else {
+        b->setIcon( QPixmap::fromImage( _imageData.image() ) );
+    }
+}
+
+QSizeF PHIImageButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
+{
+    if ( which==Qt::MinimumSize ) return QSizeF( 60., 24. );
+    if ( which==Qt::PreferredSize ) return QSizeF( 80., 35. );
+    return PHIButtonItem::sizeHint( which, constraint );
+}
+
+void PHIImageButtonItem::squeeze()
+{
+    PHIButtonItem::squeeze();
+    removeData( DImage );
+}
+
+void PHIImageButtonItem::loadItemData( QDataStream &in, int version )
+{
+    PHIButtonItem::loadItemData( in, version );
+    QByteArray arr;
+    in >> arr;
+    arr=qUncompress( arr );
+    QDataStream ds( &arr, QIODevice::ReadOnly );
+    ds.setVersion( PHI_DSV2 );
+    ds >> &_imageData;
+}
+
+void PHIImageButtonItem::saveItemData( QDataStream &out, int version )
+{
+    PHIButtonItem::saveItemData( out, version );
+    QSize s=QSize( realSize().toSize().height(), realSize().toSize().height() );
+    if ( _imageData.isTranslated() ) {
+        foreach ( QByteArray lang, _imageData.langs() ) {
+            QImage img=_imageData.image( lang );
+            if ( img.isNull() ) _imageData.remove( lang );
+            else {
+                if ( img.size()!=s ) img=img.scaled( s, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+                _imageData.setImage( img, lang );
+            }
+        }
+    } else {
+        QImage img=_imageData.image();
+        if ( img.isNull() ) _imageData.remove( _imageData.c() );
+        else {
+            foreach( QByteArray key, _imageData.langs() ) {
+                _imageData.remove( key );
+            }
+            if ( img.size()!=s ) img=img.scaled( s, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+            _imageData.setImage( img );
+        }
+    }
+    QByteArray arr;
+    QDataStream ds( &arr, QIODevice::WriteOnly );
+    ds.setVersion( PHI_DSV2 );
+    ds << &_imageData;
+    out << qCompress( arr, 9 );
+}
+
+void PHIImageButtonItem::phisCreateData( const PHIDataParser &parser )
+{
+    PHIButtonItem::phisCreateData( parser );
+    parser.createImages( &_imageData );
+}
+
+void PHIImageButtonItem::phisParseData( const PHIDataParser &parser )
+{
+    PHIButtonItem::phisParseData( parser );
+    setImagePath( parser.imagePath( &_imageData ) );
+}
+
+void PHIImageButtonItem::clientInitData()
+{
+    PHIButtonItem::clientInitData();
+    QUrl url=page()->baseUrl();
+    if ( imagePath().startsWith( '/' ) ) {
+        url.setPath( QString::fromUtf8( imagePath() ) );
+    } else {
+        url.setPath( L1( "/phi.phis" ) );
+        QUrlQuery query;
+        query.addQueryItem( L1( "i" ), QString::fromUtf8( imagePath() ) );
+        query.addQueryItem( L1( "t" ) , L1( "1" ) );
+        url.setQuery( query );
+    }
+    PHIImageRequest *req=new PHIImageRequest( this, url );
+    connect( req, &PHIImageRequest::imageReady, this, &PHIImageButtonItem::slotImageReady );
+}
+
+void PHIImageButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    setAdjustedRect( PHIInputTools::adjustedImageButton( req, rect() ) );
+    htmlInitItem( script );
+    out+=indent+BL( "<button" );
+    htmlBase( req, out, script );
+    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
+
+    } else {
+        QByteArray s=QByteArray::number( qRound( realHeight()-24 < 16 ? 16 : realHeight()-24 ) );
+        out+=BL( "\"><table width=\"100%\"><tr><td style=\"padding:0;width:" )+s+BL( "px\"><img" );
+        out+=BL( " width=\"" )+s+BL( "\" height=\"" )+s+BL( "\" src=\"" );
+        if ( dirtyFlags() & DFUseFilePathInHTML ) out+=imagePath()+BL( "\">" );
+        else out+=BL( "phi.phis?i=" )+imagePath()+BL( "&t=1\">" );
+        out+=BL( "</td><td>" )+data( DText ).toByteArray()+BL( "</td></tr></table>" );
+    }
+    out+=BL( "</button>\n" );
+}
+
+void PHIImageButtonItem::slotImageReady( const QImage &img )
+{
+    QPushButton *b=qobject_cast<QPushButton*>(widget());
+    b->setIcon( QPixmap::fromImage( img ) );
+    int s=qRound( realHeight() )-24;
+    if ( s<16 ) s=16;
+    b->setIconSize( QSize( s, s ) );
 }
 
 void PHIFileButtonItem::ideInit()

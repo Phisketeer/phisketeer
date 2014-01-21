@@ -295,8 +295,8 @@ void PHIAbstractTextItem::loadItemData( QDataStream &in, int version )
     in >> &_textData >> cr >> bgcr;
     _colorRole=static_cast<PHIPalette::ColorRole>(cr);
     _backgroundColorRole=static_cast<PHIPalette::ColorRole>(bgcr);
-    //setColor( PHIPalette::WidgetText, _colorRole, realColor() );
-    //setColor( PHIPalette::WidgetBase, _backgroundColorRole, realBackgroundColor() );
+    setColor( PHIPalette::WidgetText, _colorRole, realColor() );
+    setColor( PHIPalette::WidgetBase, _backgroundColorRole, realBackgroundColor() );
 }
 
 void PHIAbstractTextItem::saveItemData( QDataStream &out, int version )
@@ -720,7 +720,7 @@ void PHIAbstractImageItem::saveItemData( QDataStream &out, int version )
     }
     QByteArray arr;
     QDataStream ds( &arr, QIODevice::WriteOnly );
-    ds.setVersion( QDataStream::Qt_5_2 );
+    ds.setVersion( PHI_DSV2 );
     ds << &_imageData;
     out << qCompress( arr, 9 );
 }
@@ -732,7 +732,7 @@ void PHIAbstractImageItem::loadItemData( QDataStream &in, int version )
     in >> arr;
     arr=qUncompress( arr );
     QDataStream ds( &arr, QIODevice::ReadOnly );
-    ds.setVersion( QDataStream::Qt_5_2 );
+    ds.setVersion( PHI_DSV2 );
     ds >> &_imageData;
 }
 
@@ -919,7 +919,7 @@ void PHIAbstractImageBookItem::loadItemData( QDataStream &in, int version )
     in >> arr;
     arr=qUncompress( arr );
     QDataStream ds( &arr, QIODevice::ReadOnly );
-    ds.setVersion( QDataStream::Qt_5_2 );
+    ds.setVersion( PHI_DSV2 );
     ds >> &_imageBookData;
 }
 
@@ -928,7 +928,7 @@ void PHIAbstractImageBookItem::saveItemData( QDataStream &out, int version )
     Q_UNUSED( version )
     QByteArray arr;
     QDataStream ds( &arr, QIODevice::WriteOnly );
-    ds.setVersion( QDataStream::Qt_5_2 );
+    ds.setVersion( PHI_DSV2 );
     ds << &_imageBookData;
     out << qCompress( arr, 9 );
 }

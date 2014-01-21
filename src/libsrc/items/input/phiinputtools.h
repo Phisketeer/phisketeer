@@ -29,6 +29,7 @@ public:
     static QRectF adjustedMultiSelect( const PHIRequest *req, const QRectF &r );
     static QRectF adjustedSelect( const PHIRequest *req, const QRectF &r );
     static QRectF adjustedFileButton( const PHIRequest *req, const QRectF &r );
+    static QRectF adjustedImageButton( const PHIRequest *req, const QRectF &r );
 };
 
 inline QRectF PHIInputTools::adjustedLineEdit( const PHIRequest *req, const QRectF &r )
@@ -95,6 +96,18 @@ inline QRectF PHIInputTools::adjustedFileButton( const PHIRequest *req, const QR
 {
     switch ( req->agentEngine() ) {
     case PHIRequest::WebKit: return r.adjusted( 0, 0, 0, 0 );
+    case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
+    case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
+    case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );
+    default:;
+    }
+    return r;
+}
+
+inline QRectF PHIInputTools::adjustedImageButton( const PHIRequest *req, const QRectF &r )
+{
+    switch ( req->agentEngine() ) {
+    case PHIRequest::WebKit: return r.adjusted( 6, 2, -6, -10 );
     case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
     case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
     case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );

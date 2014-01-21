@@ -69,6 +69,7 @@ inline PHIBaseItem* PHIInput::create( PHIWID wid , const PHIBaseItemPrivate &p )
     case PHIDateEditItem::DateEdit: return new PHIDateEditItem( p );
     case PHICalendarItem::Calendar: return new PHICalendarItem( p );
     case PHIFileButtonItem::FileButton: return new PHIFileButtonItem( p );
+    case PHIImageButtonItem::ImageButton: return new PHIImageButtonItem( p );
     case PHISelectCountryItem::CountrySelect: return new PHISelectCountryItem( p );
     case PHIResetButtonItem::ResetButton: return new PHIResetButtonItem( p );
     case PHISelectLangItem::LangSelect: return new PHISelectLangItem( p );
@@ -99,6 +100,7 @@ inline PHIBaseItem* PHIInput::copy( const PHIBaseItem *it ) const
     case PHIPhoneItem::Phone: return new PHIPhoneItem( *qobject_cast<const PHIPhoneItem*>(it) );
     case PHICheckListItem::CheckList: return new PHICheckListItem( *qobject_cast<const PHICheckListItem*>(it) );
     case PHIFileButtonItem::FileButton: return new PHIFileButtonItem( *qobject_cast<const PHIFileButtonItem*>(it) );
+    case PHIImageButtonItem::ImageButton: return new PHIImageButtonItem( *qobject_cast<const PHIImageButtonItem*>(it) );
     case PHISelectCountryItem::CountrySelect: return new PHISelectCountryItem( *qobject_cast<const PHISelectCountryItem*>(it) );
     case PHIResetButtonItem::ResetButton: return new PHIResetButtonItem( *qobject_cast<const PHIResetButtonItem*>(it) );
     case PHISelectLangItem::LangSelect: return new PHISelectLangItem( *qobject_cast<const PHISelectLangItem*>(it) );
@@ -115,7 +117,8 @@ inline QStringList PHIInput::keys() const
         << SL( "select" ) << SL( "country" ) << SL( "listbox" )
         << SL( "phone" ) << SL( "calendar" ) << SL( "dateedit" )
         << SL( "hidden" ) << SL( "search" ) << SL( "dectable" )
-        << SL( "checklist" ) << SL( "langselect" ) << SL( "filebutton" );
+        << SL( "checklist" ) << SL( "langselect" ) << SL( "filebutton" )
+        << SL( "imagebutton" );
 }
 
 inline PHIWID PHIInput::wid( const QString &key ) const
@@ -140,6 +143,7 @@ inline PHIWID PHIInput::wid( const QString &key ) const
     if ( key==L1( "phone" ) ) return PHIPhoneItem::Phone;
     if ( key==L1( "checklist" ) ) return PHICheckListItem::CheckList;
     if ( key==L1( "filebutton" ) ) return PHIFileButtonItem::FileButton;
+    if ( key==L1( "imagebutton" ) ) return PHIImageButtonItem::ImageButton;
     if ( key==L1( "country" ) ) return PHISelectCountryItem::CountrySelect;
     if ( key==L1( "reset" ) ) return PHIResetButtonItem::ResetButton;
     if ( key==L1( "langselect" ) ) return PHISelectLangItem::LangSelect;

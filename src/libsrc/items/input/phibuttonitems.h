@@ -35,7 +35,7 @@ public:
     virtual bool isButton() const { return true; }
 
     virtual QString listName() const { return tr( "Submit button" ); }
-    virtual QString description() const { return tr( "Submit button with input type <submit>" ); }
+    virtual QString description() const { return tr( "Submit button with input type <submit>." ); }
     virtual PHIWID wid() const { return SubmitButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/submit" ) ); }
     virtual void ideInit();
@@ -66,7 +66,7 @@ public:
     virtual ~PHIResetButtonItem() {}
 
     virtual QString listName() const { return tr( "Reset button" ); }
-    virtual QString description() const { return tr( "Reset button with input type <reset>" ); }
+    virtual QString description() const { return tr( "Reset button with input type <reset>." ); }
     virtual PHIWID wid() const { return ResetButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/reset" ) ); }
     virtual void ideInit();
@@ -89,7 +89,7 @@ public:
     virtual ~PHIButtonItem() {}
 
     virtual QString listName() const { return tr( "Button" ); }
-    virtual QString description() const { return tr( "Native button with input type <button>" ); }
+    virtual QString description() const { return tr( "Native button with input type <button>." ); }
     virtual PHIWID wid() const { return Button; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/button" ) ); }
     virtual bool hasUrl() const { return true; }
@@ -105,6 +105,43 @@ public slots:
 protected:
     virtual void squeeze();
     virtual void click( const QGraphicsSceneMouseEvent *e );
+};
+
+class PHIImageButtonItem : public PHIButtonItem
+{
+    Q_OBJECT
+
+public:
+    enum Wid { ImageButton=12 };
+    enum ItemData { DUrl=1, DImage=2 };
+    explicit PHIImageButtonItem( const PHIBaseItemPrivate &p ) : PHIButtonItem( p ) {}
+    PHIImageButtonItem( const PHIImageButtonItem &it ) : PHIButtonItem( it ), _imageData( it._imageData ) {}
+    virtual ~PHIImageButtonItem() {}
+
+    virtual QString listName() const { return tr( "Image button" ); }
+    virtual QString description() const { return tr( "Native button containing a small icon." ); }
+    virtual PHIWID wid() const { return ImageButton; }
+    virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/imagebutton" ) ); }
+    virtual  bool hasSingleImage() const { return true; }
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual void ideInit();
+    virtual PHIImageData* imageData() { return &_imageData; }
+
+protected:
+    virtual void squeeze();
+    virtual void loadItemData( QDataStream &in, int version );
+    virtual void saveItemData( QDataStream &out, int version );
+    virtual void ideUpdateData();
+    virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void phisCreateData( const PHIDataParser &parser );
+    virtual void phisParseData( const PHIDataParser &parser );
+    virtual void clientInitData();
+
+private slots:
+    void slotImageReady( const QImage &img );
+
+private:
+    PHIImageData _imageData;
 };
 
 class PHIFileButtonItem : public PHIAbstractInputItem

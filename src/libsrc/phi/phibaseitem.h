@@ -119,9 +119,6 @@ public:
     typedef quint32 Flags;
     typedef quint32 DirtyFlags;
 #endif
-    /*
-        IMAGE_BUTTON=12
-    */
     explicit PHIBaseItem( const PHIBaseItemPrivate &p );
     PHIBaseItem( const PHIBaseItem &it );
     virtual ~PHIBaseItem();

@@ -34,7 +34,10 @@ void PHILabelItem::initWidget()
     QLabel *l=new QLabel();
     l->setIndent( 1 );
     setWidget( l );
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
+    QPalette pal=l->palette();
+    pal.setColor( QPalette::Window, Qt::transparent );
+    l->setPalette( pal );
 }
 
 void PHILabelItem::ideInit()
