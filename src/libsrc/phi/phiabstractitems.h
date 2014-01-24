@@ -319,6 +319,7 @@ protected:
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void ideUpdateData();
     virtual void clientInitData();
+    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
 
     inline const QGraphicsGridLayout* layout() const { return _l; }
     void insertBaseItem( PHIBaseItem *it, int row, int column=0, int rowSpan=1, int columnSpan=1 );

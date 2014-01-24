@@ -823,7 +823,7 @@ void PHIAbstractImageItem::slotImageReady( const QImage &image )
 void PHIAbstractImageItem::ideDragEnterEvent( QGraphicsSceneDragDropEvent *e )
 {
     QImage img=imageFromMimeData( e->mimeData() );
-    if ( img.isNull() ) e->ignore();
+    if ( img.isNull() ) return e->ignore();
     setData( DTmpImage, data( DImage ) );
     setData( DImage, img );
     update();
@@ -1067,6 +1067,11 @@ void PHIAbstractLayoutItem::clientInitData()
     _l->setVerticalSpacing( verticalSpacing() );
     invalidateLayout();
     update();
+}
+
+void PHIAbstractLayoutItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const
+{
+    PHIBaseItem::cssGraphicEffect( req, out, script );
 }
 
 void PHIAbstractLayoutItem::loadItemData( QDataStream &in, int version )

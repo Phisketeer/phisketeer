@@ -1152,9 +1152,9 @@ void PHIBaseItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByt
             QColor c;
             qreal xOff, yOff, radius;
             _effect->shadow( c, xOff, yOff, radius );
-            filter+="progid:DXImageTransform.Microsoft.DropShadow(Color='#";
-            filter+=QByteArray::number( c.rgba(), 16 )+"',OffX="+QByteArray::number( xOff );
-            filter+=",OffY="+QByteArray::number( yOff )+')';
+            filter+=BL( "progid:DXImageTransform.Microsoft.DropShadow(Color='#" );
+            filter+=QByteArray::number( c.rgba(), 16 )+BL( "',OffX=" )+QByteArray::number( xOff );
+            filter+=BL( ",OffY=" )+QByteArray::number( yOff )+')';
             if ( xOff<0 ) script+=BL( "$('" )+_id+BL( "').x(" )
                 +QByteArray::number( qRound(_x+xOff) )+BL( ");\n" );
             if ( yOff<0 ) script+=BL( "$('" )+_id+BL( "').y(" )
@@ -1292,6 +1292,18 @@ bool PHIBaseItem::cssGradientCreateable( const PHIRequest *req ) const
     QRectF r( 0, 0, 1., 1. );
     if ( !r.contains( g.start() ) ) return false;
     if ( !r.contains( g.finalStop() ) ) return false;
+    // @todo: improve CSS gradient handling
+    qreal x=g.start().x(), y=g.start().y();
+    if ( !qFuzzyIsNull(x) && !qFuzzyCompare(x,1.) )
+        if ( !qFuzzyIsNull(y) && !qFuzzyCompare(y,1.) ) return false;
+    x=g.finalStop().x(); y=g.finalStop().y();
+    if ( !qFuzzyIsNull(x) && !qFuzzyCompare(x,1.) )
+        if ( !qFuzzyIsNull(y) && !qFuzzyCompare(y,1.) ) return false;
+    if (  qFuzzyCompare(x,1.) && !qFuzzyIsNull(g.start().x()) ) return false;
+    else if ( qFuzzyCompare(g.start().x(),1.) && !qFuzzyIsNull(x) ) return false;
+    if (  qFuzzyCompare(y,1.) && !qFuzzyIsNull(g.start().y()) ) return false;
+    else if ( qFuzzyCompare(g.start().y(),1.) && !qFuzzyIsNull(y) ) return false;
+    qDebug() <<"passed";
     return true;
 }
 
@@ -1301,9 +1313,12 @@ void PHIBaseItem::cssLinearGradient( const PHIRequest *req, QByteArray &out ) co
     static const qreal PI=3.14159265358979323846;
     QLinearGradient g=linearGradient();
     QPointF v=g.finalStop()-g.start();
+    QLineF( g.start(), g.finalStop() ).angle();
+    qreal angle=QLineF( g.start(), g.finalStop() ).angle();
     qDebug() << "linear gradient" << g.start() << g.finalStop() << -atan(v.y()/v.x())*180./PI;
     out+=BL( "background:" )+req->agentPrefix()+BL( "linear-gradient(" )
-        +QByteArray::number( -atan(v.y()/v.x())*180./PI, 'f', 2 )+BL( "deg," );
+        +QByteArray::number( angle, 'f', 2 )+BL( "deg," );
+    qDebug() << "angle" << angle;
     QGradientStop stop;
     foreach ( stop, g.stops() ) {
         out+=cssRgba( stop.second )+' '
@@ -1317,7 +1332,7 @@ void PHIBaseItem::cssLinearGradient( const PHIRequest *req, QByteArray &out ) co
 void PHIBaseItem::updateGraphicEffect()
 {
     if ( !_gw ) return;
-    if ( _effect->effects() & PHIEffect::EGraphics ) {
+    if ( hasGraphicEffect() ) {
         qreal eStrength, eRadius, eXOff, eYOff;
         QColor eColor;
         switch ( _effect->graphicsType() ) {

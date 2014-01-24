@@ -33,7 +33,7 @@ class PHIGraphicTextItem : public PHIAbstractShapeItem
 
 public:
     enum Wid { GraphText=28 };
-    enum ItemData { DText=1, DAlignment=2, DTmpImgPathes=3 };
+    enum ItemData { DText=1, DAlignment=2, DTmpImgPath=3 };
     explicit PHIGraphicTextItem( const PHIBaseItemPrivate &p ) : PHIAbstractShapeItem( p ) {}
     PHIGraphicTextItem( const PHIGraphicTextItem &it ) : PHIAbstractShapeItem( it ), _textData( it._textData ) {}
     virtual ~PHIGraphicTextItem() {}
@@ -65,10 +65,18 @@ protected:
     virtual void squeeze();
     virtual QRectF boundingRect() const;
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
+    virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideUpdateData();
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual void clientPrepareData();
+    virtual void clientInitData();
+
+private slots:
+    void slotImageReady( const QImage &img );
 
 private:
     virtual void ideSetText( const QString &t, const QByteArray &lang );

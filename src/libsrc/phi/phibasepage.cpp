@@ -719,6 +719,7 @@ void PHIBasePage::copyMasterData( const PHIBasePage *m )
 {
     if ( _flags & FUseMasterPalette ) {
         _pal=m->phiPalette();
+        _flags |= FUseOwnPalette;
         PHIBaseItem *it;
         foreach( it, findChildren<PHIBaseItem*>() ) it->phiPaletteChanged( _pal );
         _bgColor=m->backgroundColor();

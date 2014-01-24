@@ -181,6 +181,8 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
             if ( hasTransformation() ) off=computeTransformation( false ).map( off );
             setAdjustedRect( QRectF( off, realSize() ) );
         }
+        if ( hasGraphicEffect() ) PHIBaseItem::cssGraphicEffect( req, out, script );
+        /*
         if ( effect()->graphicsType()==PHIEffect::GTShadow ) {
             QByteArray prefix=req->agentPrefix();
             if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
@@ -193,6 +195,7 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
             out+=QByteArray::number( qRound(yOff) )+"px ";
             out+=QByteArray::number( qRound(radius) )+"px "+cssRgba( c )+';';
         }
+        */
         out+=BL( "\"></div>\n" );
         htmlInitItem( script, false );
         script+=tmp+BL( ";\n" );

@@ -165,7 +165,7 @@ void PHILinkItem::ideInit()
     textData()->setText( L1( "Link item" ) );
     setColor( PHIPalette::WidgetText, PHIPalette::Link, page()->phiPalette().color( PHIPalette::Link ) );
     setColor( PHIPalette::WidgetBase, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
-    setColor( PHIPalette::Hover, PHIPalette::Highlight, page()->phiPalette().color( PHIPalette::Highlight ) );
+    setColor( PHIPalette::Hover, PHIPalette::HighlightText, page()->phiPalette().color( PHIPalette::HighlightText ) );
     setColor( PHIPalette::HoverBackground, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
 }
 

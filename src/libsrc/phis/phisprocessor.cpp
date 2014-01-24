@@ -412,8 +412,8 @@ void PHISProcessor::initDb( const PHIBasePage *page )
                     _req->responseRec()->log( PHILOGWARN, PHIRC_DB_ERROR, tr(
                         "Page '%1' with ID '%2' is marked for database access. But the DB could not be "
                         "opened using DB name '%3', user '%4', host '%5', port '%6'. DB error: [%7] %8" )
-                        .arg( _req->canonicalFilename() ).arg( page->id() ).arg( _db.databaseName() )
-                        .arg( _db.userName() ).arg( _db.hostName() ).arg( _db.port() )
+                        .arg( _req->canonicalFilename() ).arg( page->id() ).arg( page->dbName() )
+                        .arg( page->dbUser() ).arg( page->dbHost() ).arg( page->dbPort() )
                         .arg( _db.lastError().number() ).arg( _db.lastError().text() ) );
                 } else qDebug( "Opening DB with connection ID %d", _dbConnId );
             }
@@ -421,8 +421,8 @@ void PHISProcessor::initDb( const PHIBasePage *page )
             _req->responseRec()->log( PHILOGWARN, PHIRC_DB_ERROR, tr(
                 "Page '%1' with ID '%2' is marked for database access. But the DB is invalid "
                 "using DB name '%3', user '%4', host '%5', port '%6'. DB error: [%7] %8" )
-                .arg( _req->canonicalFilename() ).arg( page->id() ).arg( _db.databaseName() )
-                .arg( _db.userName() ).arg( _db.hostName() ).arg( _db.port() )
+                .arg( _req->canonicalFilename() ).arg( page->id() ).arg( page->dbName() )
+                .arg( page->dbUser() ).arg( page->dbHost() ).arg( page->dbPort() )
                 .arg( _db.lastError().number() ).arg( _db.lastError().text() ) );
         }
     }

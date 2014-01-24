@@ -62,7 +62,7 @@ unix {
         distmac.depends = all
 
         mysqlmac.target = mysqlsetup
-        mysqlmac.commands = cd ~/Downloads/qt-everywhere-commercial-src-$$[QT_VERSION]/qtbase/src/plugins/sqldrivers/mysql/;
+        mysqlmac.commands = cd ~/Downloads/qt-everywhere-enterprise-src-$$[QT_VERSION]/qtbase/src/plugins/sqldrivers/mysql/;
         mysqlmac.commands += $$[QT_INSTALL_BINS]/qmake INCLUDEPATH+="/usr/local/mysql/include" \
             LIBS+=\"-L/usr/local/mysql/lib -lmysqlclient_r\";
         mysqlmac.commands += make; sudo make install;

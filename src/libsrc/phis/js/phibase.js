@@ -572,7 +572,7 @@ $$=function( s, i, x, y, w, h ) {
           j(id+'_phit').datepicker('option','disabled',b);return o;
         };
     }
-    if ( i===14 || (i>18 && i<23) || (i>33 && i<37) || (i>37 && i<41) ) {
+    if ( i===14 || i===17 || (i>18 && i<23) || (i>33 && i<37) || (i>37 && i<41) ) {
         o.color=function(c) {
             if ( o.isImage() ) { if ( c===undefined ) return 'rgba(0, 0, 0, 0)'; return o; }
             if ( c===undefined ) return j(id).css('background-color');

@@ -22,6 +22,7 @@
 #include "phicolorconfig.h"
 #include "phibasepage.h"
 #include "phidataparser.h"
+#include "phiimagerequest.h"
 
 void PHIGraphicTextItem::ideInit()
 {
@@ -158,6 +159,34 @@ void PHIGraphicTextItem::html( const PHIRequest *req, QByteArray &out, QByteArra
     PHIBaseItem::htmlImg( req, out, script, indent );
 }
 
+void PHIGraphicTextItem::clientPrepareData()
+{
+    setData( DTmpImgPath, imagePath() );
+}
+
+void PHIGraphicTextItem::clientInitData()
+{
+    setData( DIsImage, true );
+    QUrl url=page()->baseUrl();
+    if ( imagePath().startsWith( '/' ) ) {
+        url.setPath( QString::fromUtf8( data( DTmpImgPath ).toByteArray() ) );
+    } else {
+        url.setPath( L1( "/phi.phis" ) );
+        QUrlQuery query;
+        query.addQueryItem( L1( "i" ), QString::fromUtf8( data( DTmpImgPath ).toByteArray() ) );
+        query.addQueryItem( L1( "t" ) , L1( "1" ) );
+        url.setQuery( query );
+    }
+    PHIImageRequest *req=new PHIImageRequest( this, url );
+    connect( req, &PHIImageRequest::imageReady, this, &PHIGraphicTextItem::slotImageReady );
+}
+
+void PHIGraphicTextItem::slotImageReady( const QImage &img )
+{
+    _image=img;
+    update();
+}
+
 void PHIGraphicTextItem::drawShape( QPainter *p, const QRectF &r )
 {
     Q_UNUSED( r )
@@ -232,6 +261,27 @@ QSizeF PHIGraphicTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constrain
     if ( isChild() || !isIdeItem() ) return rect().size();
     if ( _textData.isUnparsedStatic() || _textData.isUnparsedTranslated() ) return rect().size();
     return PHIAbstractShapeItem::sizeHint( which, constraint );
+}
+
+void PHIGraphicTextItem::ideDragMoveEvent( QGraphicsSceneDragDropEvent *event )
+{
+    PHIAbstractShapeItem::ideDragMoveEvent( event );
+    _image=graphicImage( realText() );
+    update();
+}
+
+void PHIGraphicTextItem::ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event )
+{
+    PHIAbstractShapeItem::ideDragLeaveEvent( event );
+    _image=graphicImage( realText() );
+    update();
+}
+
+void PHIGraphicTextItem::ideDropEvent( QGraphicsSceneDragDropEvent *event )
+{
+    PHIAbstractShapeItem::ideDropEvent( event );
+    _image=graphicImage( realText() );
+    update();
 }
 
 PHIConfigWidget* PHIGraphicTextItem::ideConfigWidget()
