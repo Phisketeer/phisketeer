@@ -173,6 +173,7 @@ protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void initWidget();
     virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
+    virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
 
 private slots:
     void slotAnchorClicked( const QUrl &url );

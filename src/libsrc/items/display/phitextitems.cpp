@@ -570,6 +570,30 @@ void PHIRichTextItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
     out+='\n'+indent+BL( "</div>\n" );
 }
 
+void PHIRichTextItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const
+{
+    if ( effect()->graphicsType()==PHIEffect::GTShadow && !(req->agentFeatures() & PHIRequest::IE678) ) {
+        QColor c;
+        qreal radius, xoff, yoff;
+        effect()->shadow( c, xoff, yoff, radius );
+        QByteArray col=cssRgba( c );
+        if ( !(req->agentFeatures() & PHIRequest::RGBA) ) col=c.name().toLatin1();
+        if ( colorRole( PHIPalette::WidgetBase )==PHIPalette::Window ) {
+            out+=BL( "text-shadow:" )+QByteArray::number( qRound(xoff) )
+                +BL( "px " )+QByteArray::number( qRound(yoff) )+BL( "px " )
+                +QByteArray::number( qRound(radius) )+BL( "px " )+col+';';
+        } else {
+            QByteArray prefix=req->agentPrefix();
+            if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
+            else if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()>534 ) prefix=QByteArray();
+            else if ( req->agentEngine()==PHIRequest::Presto ) prefix=QByteArray();
+            out+=prefix+BL( "box-shadow:" )+QByteArray::number( qRound(xoff) )+"px ";
+            out+=QByteArray::number( qRound(yoff) )+"px ";
+            out+=QByteArray::number( qRound(radius) )+"px "+col+';';
+        }
+    } else PHIAbstractTextItem::cssGraphicEffect( req, out, script );
+}
+
 void PHIRichTextItem::slotAnchorClicked( const QUrl &url )
 {
     emit linkRequested( url.toString() );
