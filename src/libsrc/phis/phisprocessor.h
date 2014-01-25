@@ -23,6 +23,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include "phirequest.h"
+#include "phibasepage.h"
 #include "phis.h"
 
 class PHIBasePage;
@@ -37,6 +38,7 @@ class PHISEXPORT PHISProcessor
 public:
     explicit PHISProcessor( const PHIRequest *req, int dbConnId )
         : _req( req ), _dbConnId( dbConnId ) {}
+    ~PHISProcessor() {}
     void run();
     QString resolveRelativeFile( const QString &file ) const;
 

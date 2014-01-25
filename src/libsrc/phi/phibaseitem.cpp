@@ -1303,7 +1303,6 @@ bool PHIBaseItem::cssGradientCreateable( const PHIRequest *req ) const
     else if ( qFuzzyCompare(g.start().x(),1.) && !qFuzzyIsNull(x) ) return false;
     if (  qFuzzyCompare(y,1.) && !qFuzzyIsNull(g.start().y()) ) return false;
     else if ( qFuzzyCompare(g.start().y(),1.) && !qFuzzyIsNull(y) ) return false;
-    qDebug() <<"passed";
     return true;
 }
 
@@ -1315,7 +1314,6 @@ void PHIBaseItem::cssLinearGradient( const PHIRequest *req, QByteArray &out ) co
     QPointF v=g.finalStop()-g.start();
     QLineF( g.start(), g.finalStop() ).angle();
     qreal angle=QLineF( g.start(), g.finalStop() ).angle();
-    qDebug() << "linear gradient" << g.start() << g.finalStop() << -atan(v.y()/v.x())*180./PI;
     out+=BL( "background:" )+req->agentPrefix()+BL( "linear-gradient(" )
         +QByteArray::number( angle, 'f', 2 )+BL( "deg," );
     qDebug() << "angle" << angle;
@@ -1453,71 +1451,3 @@ QColor PHIBaseItem::colorFromMimeData( const QMimeData *md )
     }
     return QColor();
 }
-
-/*
-QDataStream& operator<<( QDataStream &out, const PHIBaseItem *it )
-{
-    quint8 vid;
-    foreach ( vid, it->_variants.keys() ) {
-        qDebug( "%d=%d", vid, it->_variants.value( vid ).toInt() );
-    }
-    //qDebug( "<< VARIANT count %d", it->_variants.count() );
-    if ( it->_effect->effects()!=PHIEffect::ENone ) {
-        it->_effectData=it->_effect->save();
-    } else it->_effectData.clear();
-    return out << dynamic_cast<const PHIItem*>(it) << it->_variants;
-}
-
-QDataStream& operator>>( QDataStream &in, PHIBaseItem *it )
-{
-    in >> dynamic_cast<PHIItem*>(it) >> it->_variants;
-    //qDebug( ">> VARIANT count %d", it->_variants.count() );
-    if ( it->attributes() & PHIItem::AEffectData ) it->_effect->load( it->_effectData );
-    else it->_effect->clearAll();
-    return in;
-}
-
-PHIBaseStyle::PHIBaseStyle( PHIBaseItem *it )
-    : QObject( it ), _it( it )
-{
-    setObjectName( QStringLiteral( "style" ) );
-}
-
-void PHIBaseStyle::setVisibility( const QString &s )
-{
-    if ( s.toLower()==QLatin1String( "hidden" ) ) _it->setVisible( false );
-    else _it->setVisible( true );
-}
-
-QString PHIBaseStyle::visibility() const
-{
-    if ( _it->visible() ) return QStringLiteral( "visible" );
-    else return QStringLiteral( "hidden" );
-}
-
-PHIBaseEffect::PHIBaseEffect( PHIBaseItem *it )
-    : QObject( it ), _it( it )
-{
-    setObjectName( QStringLiteral( "effect" ) );
-}
-
-PHIBaseEffect::~PHIBaseEffect()
-{
-}
-
-void PHIBaseEffect::shadow( const QString &color, qreal opac, qreal xOff, qreal yOff, qreal radius )
-{
-    QColor c=QColor( color );
-    c.setAlphaF( opac );
-    _it->setShadow( c, xOff, yOff, radius );
-}
-
-void PHIBaseEffect::rotate( quint8 axis, qreal step, const QString &ease )
-{
-    qreal xstep=0, ystep=0, zstep=0;
-    if ( axis & 0x1 ) xstep=step;
-    if ( axis & 0x2 ) ystep=step;
-    if ( axis & 0x4 ) zstep=step;
-    _it->setRotate( axis, xstep, ystep, zstep, ease );
-}
-*/

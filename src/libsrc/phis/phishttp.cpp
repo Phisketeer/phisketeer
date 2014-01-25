@@ -48,16 +48,6 @@ PHISHttp::PHISHttp( QObject *parent )
 
 PHISHttp::~PHISHttp()
 {
-    if ( QSqlDatabase::contains( QString::number( _dbConnId ) ) ) {
-        { // needed to delete db instance before removing
-            QSqlDatabase db=QSqlDatabase::database( QString::number( _dbConnId ) );
-            if ( db.isValid() && db.isOpen() ) {
-                qDebug( "Removing DB connection Id %d", _dbConnId );
-                db.close();
-            }
-        } // remove db instance
-        QSqlDatabase::removeDatabase( QString::number( _dbConnId ) );
-    }
     PHISPageCache::removeDbId( _dbConnId );
     qDebug( "PHISHttp::~PHISHttp()" );
 }
@@ -142,8 +132,20 @@ PHIRC PHISHttp::sendResponse( QString &err )
     qWarning( "sendResponse %s", qPrintable( _req->url().toString() ) );
     QTime t=QTime::currentTime();
 #endif
-    PHISProcessor proc( _req, _dbConnId );
-    proc.run();
+    {
+        PHISProcessor proc( _req, _dbConnId );
+        proc.run();
+    }
+    if ( QSqlDatabase::contains( QString::number( _dbConnId ) ) ) {
+        { // needed to delete db instance before removing
+            QSqlDatabase db=QSqlDatabase::database( QString::number( _dbConnId ) );
+            if ( db.isValid() && db.isOpen() ) {
+                qDebug( "Removing DB connection Id %d", _dbConnId );
+                db.close();
+            }
+        } // remove db instance
+        QSqlDatabase::removeDatabase( QString::number( _dbConnId ) );
+    }
 
 #ifdef PHIDEBUG
     qWarning( "Time elapsed: %d", t.msecsTo( QTime::currentTime() ) );
