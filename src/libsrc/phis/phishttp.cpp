@@ -352,7 +352,6 @@ PHIRC PHISHttp::readUrlEncoded( QString &err )
 
 PHIRC PHISHttp::readMultipartEncoded( QString &err )
 {
-    //qDebug( "readMultipartEncoded <%s>", _boundary.constData() );
     QByteArray arr;
     _headerStr=QString();
 

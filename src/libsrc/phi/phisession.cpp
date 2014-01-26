@@ -87,6 +87,7 @@ QString PHISession::createSession( const PHIRequest *req, qint32 timeout, const 
     }
     qDebug( "SESSION create %s (%d)", qPrintable( uid ), timeout );
     QSqlQuery query( _db );
+    query.exec( SL( "DELETE FROM sess WHERE sid='" )+uid+SL( "'" ) );
     QDateTime cdt=QDateTime::currentDateTime();
     QString sql=SL( "INSERT INTO sess (sid,dtime,tout) VALUES('" );
     sql+=uid+L1( "','" )+cdt.toString( PHI::dtFormatString() )
