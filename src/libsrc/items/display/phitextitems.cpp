@@ -527,6 +527,10 @@ void PHIRichTextItem::setWidgetText( const QString &t )
 {
     QTextBrowser *tb=qobject_cast<QTextBrowser*>(widget());
     if ( !tb ) return;
+    QString css=L1( "a:link {text-decoration:" )+((page()->flags() & PHIBasePage::FNoUnderlinedLinks) ? L1( "none" )
+        : L1( "underline" ))+L1( ";color:" )+QString::fromLatin1( cssRgba(
+        page()->phiPalette().color( PHIPalette::Link) ) )+L1( "}" );
+    tb->document()->setDefaultStyleSheet( css );
     tb->setHtml( t );
 }
 
@@ -557,6 +561,7 @@ QScriptValue PHIRichTextItem::html( const QScriptValue &v )
 
 void PHIRichTextItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    setAdjustedRect( rect().adjusted( 0, 0, -8, -8 ));
     htmlInitItem( script, false );
     if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text )
         script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
