@@ -248,7 +248,11 @@ class PHIEXPORT PHIAbstractLayoutItem : public PHIAbstractShapeItem
 {
     Q_OBJECT
     Q_PROPERTY( quint16 _align READ realAlignment WRITE setAlignment SCRIPTABLE false )
-    Q_PROPERTY( QString _header READ realHeader WRITE setHeader )
+    Q_PROPERTY( QString _header READ realHeader WRITE setHeader SCRIPTABLE false )
+    Q_PROPERTY( qreal _leftMargin READ leftMargin WRITE setLeftMargin SCRIPTABLE false )
+    Q_PROPERTY( qreal _rightMargin READ rightMargin WRITE setRightMargin SCRIPTABLE false )
+    Q_PROPERTY( qreal _topMargin READ topMargin WRITE setTopMargin SCRIPTABLE false )
+    Q_PROPERTY( qreal _bottomMargin READ bottomMargin WRITE setBottomMargin SCRIPTABLE false )
 
 public:
     enum ItemData { DRadiusTopLeft=-99, DRadiusTopRight=-98, DRadiusBottomLeft=-97,
