@@ -450,8 +450,13 @@ void PHIBaseItem::loadEditorData1_x( const QByteArray &arr )
     if ( col>=map.count() ) col=0;
     if ( outCol>=map.count() ) outCol=0;
     Q_ASSERT( page() );
-    setColor( PHIPalette::Foreground, map.at( col ), page()->phiPalette().color( map.at( col ) ) );
-    setColor( PHIPalette::Background, map.at( outCol ), page()->phiPalette().color( map.at( outCol ) ) );
+    if ( qobject_cast<PHIAbstractLayoutItem*>(this) ) {
+        setColor( PHIPalette::Outline, map.at( col ), page()->phiPalette().color( map.at( col ) ) );
+        setColor( PHIPalette::Foreground, map.at( outCol ), page()->phiPalette().color( map.at( outCol ) ) );
+    } else {
+        setColor( PHIPalette::Foreground, map.at( col ), page()->phiPalette().color( map.at( col ) ) );
+        setColor( PHIPalette::Background, map.at( outCol ), page()->phiPalette().color( map.at( outCol ) ) );
+    }
     setColor( PHIPalette::WidgetText, map.at( col ), page()->phiPalette().color( map.at( col ) ) );
     setColor( PHIPalette::WidgetBase, map.at( outCol ), page()->phiPalette().color( map.at( outCol ) ) );
 }
@@ -1053,8 +1058,7 @@ void PHIBaseItem::htmlEffects( QByteArray &script ) const
         _effect->rotate( ease, stepx, stepy, stepz ); // ease used for axis
         script+=BL( ".rotate(" )+QByteArray::number( ease )+','
             +QByteArray::number( stepx, 'f', 2 )+','+QByteArray::number( stepy, 'f', 2 )
-            +','+QByteArray::number( stepz, 'f', 2 )+BL( ",'" )
-            +PHI::toEasingCurveByteArray( PHI::defaultEasingCurveType() )+BL( "')" );
+            +','+QByteArray::number( stepz, 'f', 2 )+BL( ")" );
     }
 }
 
@@ -1309,9 +1313,7 @@ bool PHIBaseItem::cssGradientCreateable( const PHIRequest *req ) const
 void PHIBaseItem::cssLinearGradient( const PHIRequest *req, QByteArray &out ) const
 {
     // @todo: enable gradients
-    static const qreal PI=3.14159265358979323846;
     QLinearGradient g=linearGradient();
-    QPointF v=g.finalStop()-g.start();
     QLineF( g.start(), g.finalStop() ).angle();
     qreal angle=QLineF( g.start(), g.finalStop() ).angle();
     out+=BL( "background:" )+req->agentPrefix()+BL( "linear-gradient(" )
