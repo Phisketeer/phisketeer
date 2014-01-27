@@ -62,11 +62,15 @@ public slots:
         const QString &codec=_utf8 );
 
     inline QString md5( const QString &s ) const { return QString::fromUtf8(
-        QCryptographicHash::hash( s.toUtf8(), QCryptographicHash::Md5 ) ); }
+        QCryptographicHash::hash( s.toUtf8(), QCryptographicHash::Md5 ).toHex() ); }
     inline QString md4( const QString &s ) const { return QString::fromUtf8(
-        QCryptographicHash::hash( s.toUtf8(), QCryptographicHash::Md4 ) ); }
+        QCryptographicHash::hash( s.toUtf8(), QCryptographicHash::Md4 ).toHex() ); }
     inline QString sha1( const QString &s ) const { return QString::fromUtf8(
-        QCryptographicHash::hash( s.toUtf8(), QCryptographicHash::Sha1 ) ); }
+        QCryptographicHash::hash( s.toUtf8(), QCryptographicHash::Sha1 ).toHex() ); }
+    inline QString sha512( const QString &s ) const { return QString::fromUtf8(
+        QCryptographicHash::hash( s.toUtf8(), QCryptographicHash::Sha512 ).toHex() ); }
+    inline QString sha3_512( const QString &s ) const { return QString::fromUtf8(
+        QCryptographicHash::hash( s.toUtf8(), QCryptographicHash::Sha3_512 ).toHex() ); }
     inline QString createUuid() const {
         return QUuid::createUuid().toString().mid( 1, 36 ); }
     inline QString toLocaleString( const QDateTime &dt, const QString &lang=_C ) {
