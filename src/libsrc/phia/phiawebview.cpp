@@ -18,6 +18,7 @@
 */
 #include <QPrinter>
 #include <QVBoxLayout>
+#include <QDesktopServices>
 #include "phiawebview.h"
 #include "phiagraphicsscene.h"
 #include "phigraphicsview.h"
@@ -140,7 +141,8 @@ void PHIAWebView::throwJavaScriptError( const QScriptValue &err )
 
 void PHIAWebView::slotLinkRequested( const QUrl &url )
 {
-    setUrl( url );
+    if ( !url.scheme().startsWith( L1 ( "http" ) ) ) QDesktopServices::openUrl( url );
+    else setUrl( url );
 }
 
 void PHIAWebView::slotBack()
