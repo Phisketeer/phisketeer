@@ -185,7 +185,6 @@ PHIRC PHISHttp::sendResponse( QString &err )
             return PHIRC_HTTP_NOT_FOUND;
         }
         _resp.clear();
-        //redirected=true;
         return sendResponse( err );
     }
     if ( _resp.options() & PHIResponseRec::SendFile ) {

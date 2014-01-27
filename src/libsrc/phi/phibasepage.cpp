@@ -27,6 +27,7 @@
 #include "phiresponserec.h"
 #include "phidomitem.h"
 #include "phiabstractitems.h"
+#include "phisession.h"
 
 PHIDynPageData::PHIDynPageData()
 {
@@ -597,9 +598,9 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     if ( _flags & FHasAction ) {
         if ( !(_flags & FHasPhiLangItem) && currentLang()!=BL( "C" ) )
             out+=indent+BL( "<input type=\"hidden\" name=\"philang\" value=\"" )+currentLang()+BL( "\">\n" );
-        if ( _variants.value( DSession ).isValid() )
-            out+=indent+BL( "<input type=\"hidden\" name=\"phisid\" value=\"" )
-                +_variants.value( DSession ).toByteArray()+BL( "\">\n" );
+        if ( _variants.value( DSession ).isValid() ) {
+            out+=indent+BL( "<input type=\"hidden\" name=\"phisid\" value=\"" )+_variants.value( DSession ).toByteArray()+BL( "\">\n" );
+        }
         out+=BL( "</form>\n" );
     }
     out+=BL( "</div>\n<script type=\"text/javascript\">\n/* <![CDATA[ */\n" );

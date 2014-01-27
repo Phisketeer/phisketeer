@@ -67,12 +67,12 @@ void PHISProcessor::run()
         return;
     }
 
-    // normal processing
     PHIBasePage *page=PHISPageCache::page( _req, _req->canonicalFilename() ); // implicitly copies items
     if ( Q_UNLIKELY( !page ) ) page=PHISPageCache::insert( _req, loadPage( f ), _req->canonicalFilename() );
     else initDb( page );
-    if ( Q_UNLIKELY( !page ) ) return _req->responseRec()->error( PHILOGCRIT,
-        PHIRC_HTTP_INTERNAL_SERVER_ERROR, tr( "Resource error." ) );
+    if ( Q_UNLIKELY( !page ) ) return _req->responseRec()->error( PHILOGCRIT, PHIRC_HTTP_INTERNAL_SERVER_ERROR, tr( "Resource error." ) );
+
+    // normal processing
     _findMatchingLang( page, _req );
     _req->setDefaultLang( page->defaultLanguage() );
     page->setLang( _req->currentLang() );
@@ -109,6 +109,14 @@ void PHISProcessor::run()
         }
     }
 
+    // create session if requested
+    static const QString phisid( L1( "phisid" ) );
+    QString sessionKey;
+    if ( Q_UNLIKELY( page->sessionOptions() & PHIBasePage::SCreateSession ) ) {
+        page->setSession( PHISession::instance()->createSession( _req, page->sessionTimeout(), page->session() ) );
+        sessionKey=page->session();
+    } else page->setSession( _req->requestValue( phisid ) );
+
     // run server script
     bool ownContent=false;
     if ( master && !master->serverScript().isNull() ) {
@@ -116,35 +124,36 @@ void PHISProcessor::run()
     } else if ( !page->serverScript().isNull() ) {
         ownContent=runScript( 0, page );
     }
-    delete master; // not needed anymore
-    if ( Q_UNLIKELY( ownContent ) ) {
-        // true: content changed by user in a server scripting class
-        Q_ASSERT( !_req->responseRec()->contentType().isEmpty() );
-        delete page;
-        return;
-    }
+    delete master; // master template is not needed anymore
 
     // session management
-    static const QString phisid( L1( "phisid" ) );
-    if ( Q_UNLIKELY( page->sessionOptions() & PHIBasePage::SCreateSession ) ) {
-        page->setSession( PHISession::instance()->createSession( _req, page->sessionTimeout(), page->session() ) );
-        if ( page->sessionOptions() & PHIBasePage::SSessionCookie ) {
-            _req->responseRec()->setCookie( phisid, page->session(), page->sessionTimeout() );
-        }
-    }
     if ( page->sessionOptions() & PHIBasePage::SRequiresSession ) {
-        QString sid=_req->requestValue( phisid );
-        if ( Q_LIKELY( PHISession::instance()->validateSession( _req, page->sessionTimeout(), sid ) ) ) {
-            page->setSession( sid );
-            if ( page->sessionOptions() & PHIBasePage::SSessionCookie ) {
-                _req->responseRec()->setCookie( phisid, sid, page->sessionTimeout() );
-            }
-        } else {
+        if ( page->session().isEmpty() || Q_UNLIKELY( !PHISession::instance()->validateSession( _req, page->sessionTimeout(), page->session() ) ) ) {
             _req->responseRec()->redirect( resolveRelativeFile( page->sessionRedirect() ) );
             delete page;
             return;
         }
     }
+    if ( Q_UNLIKELY( !sessionKey.isNull() ) ) {
+        if ( Q_UNLIKELY( !page->session().isEmpty() ) ) {
+            if ( Q_UNLIKELY( page->session()!=sessionKey ) ) {// session key overwrite with server script
+                PHISession::instance()->createSession( _req, page->sessionTimeout(), page->session() );
+            }
+        } else if ( Q_UNLIKELY( page->sessionOptions() & PHIBasePage::SCreateSession ) ) {
+            page->setSession( PHISession::instance()->createSession( _req, page->sessionTimeout() ) );
+        }
+    }
+    if ( Q_UNLIKELY( page->sessionOptions() & PHIBasePage::SSessionCookie ) ) {
+        _req->responseRec()->setCookie( phisid, page->session(), page->sessionTimeout() );
+    }
+
+    if ( Q_UNLIKELY( ownContent ) ) {
+        // true: content changed by user via a server script class
+        Q_ASSERT( !_req->responseRec()->contentType().isEmpty() );
+        delete page;
+        return;
+    }
+
     bool genPhi=false;
     if ( Q_UNLIKELY( _req->requestKeys().contains( SL( "phis" ) ) ) ) {
         if ( _req->requestValue( SL( "phis" ) ).toInt()==1 ) genPhi=true;

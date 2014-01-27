@@ -403,7 +403,7 @@ bool PHIRequest::setRedirectedFile( const QString &file )
     path.replace( _documentRoot, QString() );
     _url.setPath( path );
     _url.setQuery( url.query() );
-    qDebug( "REDIRECTED: %s", qPrintable( _url.toString() ) );
+    qDebug() << "REDIRECTED" << _url.toString() << _postData;
     return true;
 }
 

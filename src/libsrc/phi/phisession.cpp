@@ -73,7 +73,6 @@ PHISession::~PHISession()
 
 QString PHISession::createSession( const PHIRequest *req, qint32 timeout, const QString &sid ) const
 {
-    qDebug( "PHISession::createSession()" );
     Q_ASSERT( parent() );
     if ( Q_UNLIKELY( !_db.isOpen() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_DB_ERROR, tr( "Session DB is not open." ) );
@@ -120,7 +119,6 @@ QString PHISession::createSession( const PHIRequest *req, qint32 timeout, const 
 
 bool PHISession::validateSession( const PHIRequest *req, qint32 timeout, const QString &uid ) const
 {
-    qDebug( "PHISession::validateSession" );
     if ( Q_UNLIKELY( !_db.isOpen() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_DB_ERROR,
             tr( "Session DB is not open: %1" ).arg( _db.lastError().text() ) );
