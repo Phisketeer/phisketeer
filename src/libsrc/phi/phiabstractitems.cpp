@@ -966,6 +966,8 @@ void PHIAbstractLayoutItem::initLayout()
     gw()->setLayout( _l );
     setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
     connect( this, &PHIAbstractLayoutItem::layoutChanged, this, &PHIAbstractLayoutItem::updateLayoutGeometry, Qt::QueuedConnection );
+    setColor( PHIPalette::Foreground, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
+    setColor( PHIPalette::Background, PHIPalette::Black, page()->phiPalette().color( PHIPalette::Black ) );
 }
 
 void PHIAbstractLayoutItem::ideInit()
@@ -1357,6 +1359,11 @@ void PHIAbstractExternalItem::initWidget()
     QWebView *view=new QWebView();
     _webPage=new PHIWebPage( this );
     view->setPage( _webPage );
+    QPalette pal=view->palette();
+    pal.setBrush( QPalette::Base, Qt::transparent ) ;
+    view->setPalette( pal );
+    view->setAttribute( Qt::WA_OpaquePaintEvent, false );
+    view->setAttribute( Qt::WA_TranslucentBackground );
     setWidget( view );
 }
 
@@ -1365,8 +1372,6 @@ void PHIAbstractExternalItem::setWidgetText( const QString &t )
     if ( !_webPage ) return;
     QUrl url( QString::fromLatin1( source() )+t );
     if ( url==_webPage->mainFrame()->url() ) return;
-    // need to clear content - otherwise webkit crashes (Qt5.1):
-    _webPage->mainFrame()->setContent( QByteArray() );
     _webPage->mainFrame()->setUrl( url);
 }
 
