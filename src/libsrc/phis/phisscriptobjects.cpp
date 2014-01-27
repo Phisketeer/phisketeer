@@ -32,11 +32,25 @@
 #define PHISSCRIPTEXTENSION QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject |\
     QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeDeleteLater
 
-static QScriptValue print( QScriptContext *ctx, QScriptEngine* )
+static QScriptValue eval( QScriptContext *ctx, QScriptEngine *engine, void *args )
+{
+    Q_UNUSED( ctx )
+    PHISInterface *phisif=static_cast<PHISInterface*>(args);
+    Q_ASSERT( phisif );
+    QString s=QObject::tr( "Security risk: 'eval()' in ServerScript is not permitted!" );
+    phisif->log( PHISInterface::LTError, __FILE__, __LINE__, QDateTime::currentDateTime(), s );
+    qWarning() << s;
+    return engine->undefinedValue();
+}
+
+static QScriptValue print( QScriptContext *ctx, QScriptEngine *engine, void *args )
 {
     QScriptValue s=ctx->argument( 0 );
+    PHISInterface *phisif=static_cast<PHISInterface*>(args);
+    Q_ASSERT( phisif );
+    phisif->log( PHISInterface::LTUser, __FILE__, __LINE__, QDateTime::currentDateTime(), s.toString() );
     qWarning() << s.toString();
-    return QScriptValue();
+    return engine->undefinedValue();
 }
 
 static QScriptValue newImage( QScriptContext*, QScriptEngine *engine )
@@ -74,7 +88,7 @@ QScriptValue loadModule( QScriptContext *ctx, QScriptEngine *engine, void *args 
     if ( Q_UNLIKELY( !mod ) ) {
         factory->unlock();
         phisif->log( PHISInterface::LTError, __FILE__, __LINE__, QDateTime::currentDateTime(),
-            QObject::tr( "Could not find requested module '%1'." ).arg( m ) );
+            QObject::tr( "Could not allocate module '%1'." ).arg( m ) );
         return QScriptValue( false );
     }
     PHISScriptObj *obj=mod->create( m, phisif );
@@ -96,8 +110,9 @@ PHISGlobalScriptObj::PHISGlobalScriptObj( PHIBasePage *page, const PHIRequest *r
 {
     PHISInterface *phisif=new PHISInterface( req, page, db ); // parent=page
     QScriptValue go=engine->globalObject();
+    go.setProperty( SL( "eval" ), engine->newFunction( eval, static_cast<void*>(phisif) ) );
     go.setProperty( SL( "loadModule" ), engine->newFunction( loadModule, static_cast<void*>(phisif) ) );
-    go.setProperty( SL( "print" ), engine->newFunction( print, 1 ) );
+    go.setProperty( SL( "print" ), engine->newFunction( print, static_cast<void*>(phisif) ) );
     go.setProperty( SL( "Image" ), engine->newFunction( newImage, 0 ) );
     go.setProperty( SL( "$" ), engine->newFunction( getItemFunc, 1 ) );
 }
