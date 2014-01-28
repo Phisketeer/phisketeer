@@ -773,6 +773,10 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
             //if ( options() & PHIDecoratedTableItem::ShowRowIndex ) data+=QByteArray::number( i )+BL( "','" );
             data+=row.replace( '|', BL( "','" ) )+BL( "']},\"\n" );
         }
+        if ( rows.count()==1 ) {
+            data+=BL( "+\",\"\n" ); // handle empty rows
+            values+=BL( "','" );
+        }
         data.chop( 3 ); // remove last ",\"\n"
         def.chop( 1 ); // remove last ","
         values.chop( 2 ); // remove ",'"
