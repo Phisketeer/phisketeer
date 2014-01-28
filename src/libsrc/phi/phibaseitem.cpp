@@ -496,7 +496,8 @@ void PHIBaseItem::updatePageFont( const QFont &f )
     if ( pf!=font() ) return; // font() returns the current page font if not set
     pf.setPointSizeF( PHI::adjustedFontSize( pf.pointSizeF() ) );
     _gw->setFont( pf );
-    _gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
+    PHIAbstractInputItem *iit=qobject_cast<PHIAbstractInputItem*>(this);
+    if ( iit ) _gw->resize( _width, sizeHint( Qt::PreferredSize ).height() );
     _height=_gw->size().height();
 }
 
