@@ -73,6 +73,7 @@ public:
     virtual PHIWID wid() const { return Link; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/button" ) ); }
     virtual bool hasUrl() const { return true; }
+    virtual bool isFocusable() const { return true; }
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
     virtual QColor colorForRole( PHIPalette::ItemRole role ) const;
 
@@ -81,6 +82,9 @@ public:
     QString realUrl() const { return QString::fromUtf8( data( DUrl, QString() ).toByteArray() ); }
     void setUrl( const QString &url ) { setData( DUrl, url.toUtf8() ); }
     void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+
+public slots:
+    QScriptValue url( const QScriptValue &v=QScriptValue() );
 
 protected:
     virtual void saveItemData( QDataStream &out, int version );
@@ -161,6 +165,7 @@ public:
     virtual QString description() const { return tr( "Displays rich text (HTML subset)." ); }
     virtual PHIWID wid() const { return RichText; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/richtext" ) ); }
+    virtual bool isFocusable() const { return true; }
     virtual void ideInit();
 
 public slots:

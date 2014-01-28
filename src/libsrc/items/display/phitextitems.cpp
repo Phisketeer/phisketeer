@@ -219,6 +219,14 @@ void PHILinkItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
     script+=BL( ";\n" );
 }
 
+QScriptValue PHILinkItem::url( const QScriptValue &v )
+{
+    if ( !isServerItem() ) return QScriptValue( QScriptValue::UndefinedValue );
+    if ( !v.isValid() ) return realUrl();
+    setUrl( v.toString() );
+    return self();
+}
+
 void PHILinkItem::saveItemData( QDataStream &out, int version )
 {
     PHILabelItem::saveItemData( out, version );
