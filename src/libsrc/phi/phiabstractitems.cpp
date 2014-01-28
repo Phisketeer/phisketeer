@@ -164,7 +164,7 @@ QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constrai
                     if ( m.width( l )>minWidth ) minWidth=qRound(m.width( l ));
                 }
             }
-            return QSizeF( minWidth+2., qMax( 22., qRound(m.height())+8. ) );
+            return QSizeF( minWidth+4., qMax( 22., qRound(m.height())+8. ) );
         }
         return QSizeF( 160, qMax( qRound(m.height())+8., 96. ) );
     }
@@ -631,7 +631,10 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
         }
         // drag from color button
         if ( r.contains( e->pos() ) ) {
+            emit beginUndoStackMacro( tr( "Pattern" )+ut );
             emit pushUndoStack( PHIPalette::Foreground, newCR, e->mimeData()->colorData().value<QColor>() );
+            if ( realPattern()==15 ) emit pushUndoStack( "_pattern", 1 );
+            emit endUndoStackMacro();
         } else {
             emit pushUndoStack( PHIPalette::Background, newCR, e->mimeData()->colorData().value<QColor>() );
         }
@@ -640,7 +643,10 @@ void PHIAbstractShapeItem::ideDropEvent( QGraphicsSceneDragDropEvent *e )
     }
     // drag from external app
     if ( r.contains( e->pos() ) ) {
+        emit beginUndoStackMacro( tr( "Pattern" )+ut );
         emit pushUndoStack( PHIPalette::Foreground, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
+        if ( realPattern()==15 ) emit pushUndoStack( "_pattern", 1 );
+        emit endUndoStackMacro();
     } else {
         emit pushUndoStack( PHIPalette::Background, PHIPalette::Custom, e->mimeData()->colorData().value<QColor>() );
     }
@@ -966,8 +972,8 @@ void PHIAbstractLayoutItem::initLayout()
     gw()->setLayout( _l );
     setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
     connect( this, &PHIAbstractLayoutItem::layoutChanged, this, &PHIAbstractLayoutItem::updateLayoutGeometry, Qt::QueuedConnection );
-    setColor( PHIPalette::Foreground, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
-    setColor( PHIPalette::Background, PHIPalette::Black, page()->phiPalette().color( PHIPalette::Black ) );
+    setColor( PHIPalette::Foreground, PHIPalette::Window, QColor( Qt::transparent ) );
+    setColor( PHIPalette::Background, PHIPalette::Black, QColor( Qt::black ) );
 }
 
 void PHIAbstractLayoutItem::ideInit()
