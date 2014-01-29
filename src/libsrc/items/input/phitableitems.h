@@ -68,6 +68,8 @@ public:
     virtual bool hasHtmlExtension() const { return true; }
     virtual bool hasDelimiter() const { return true; }
     virtual void clientPostData( QHttpMultiPart *multiPart ) const;
+    virtual void setValue( const QString &v ) { Q_UNUSED( v ) }
+    virtual QString realValue() const { return QString(); }
 
     inline void setOptions( quint16 o ) { setData( DOptions, o ); updateWidget(); }
     inline quint16 options() const { return PHIBaseItem::data( DOptions, SingleSelection ).value<quint16>(); }

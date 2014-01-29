@@ -684,17 +684,15 @@ void PHIDecoratedTableItem::cssStatic( const PHIRequest *req, QByteArray &out ) 
         out+='#'+id()+BL( " .ui-jqgrid{border-color:transparent}\n" );
     }
     QFont f=font();
-    if ( f!=page()->font() ) {
-        out+='#'+id()+BL( " .ui-jqgrid tr.jqgrow td{font-family:'" )+f.family().toUtf8();
-        if ( !f.lastResortFamily().isEmpty() ) {
-            out+=BL( "','" )+f.lastResortFamily().toUtf8();
-        }
-        out+=BL( "';font-size:" )+QByteArray::number( f.pointSize() )+BL( "pt;" );
-        if ( f.bold() ) out+=BL( "font-weight:bold;" );
-        if ( f.italic() ) out+=BL( "font-style:italic;" );
-        if ( f.underline() ) out+=BL( "text-decoration:underline;" );
-        out+=BL( "}\n" );
+    out+='#'+id()+BL( " .ui-jqgrid tr.jqgrow td{font-family:'" )+f.family().toUtf8();
+    if ( !f.lastResortFamily().isEmpty() ) {
+        out+=BL( "','" )+f.lastResortFamily().toUtf8();
     }
+    out+=BL( "';font-size:" )+QByteArray::number( f.pointSize() )+BL( "pt;" );
+    if ( f.bold() ) out+=BL( "font-weight:bold;" );
+    if ( f.italic() ) out+=BL( "font-style:italic;" );
+    if ( f.underline() ) out+=BL( "text-decoration:underline;" );
+    out+=BL( "}\n" );
 }
 
 void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
