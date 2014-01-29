@@ -588,6 +588,12 @@ $$=function( s, i, x, y, w, h ) {
             j(id).css('borderRadius',r); return o;
         };
     }
+    if ( i===41 ) {
+        o.html=function( t ) {
+            if (t===undefined)return j(id).html();
+            j(id).html(t); return o;
+        };
+    }
     return o;
 };
 

@@ -56,6 +56,7 @@ public slots:
         PHIS_IF()->database().tables() : QStringList(); }
     inline bool next() const { return _query.next(); }
     inline QVariant value( int index ) const { return _query.value( index ); }
+    inline QVariant value( const QString &col ) const { return _query.value( col ); }
     inline int numRowsAffected() const { return _query.numRowsAffected(); }
     inline int rows() const { return _query.isValid() ? _query.size() : 0; }
     inline bool transaction() { return PHIS_IF()->database().isOpen() ?

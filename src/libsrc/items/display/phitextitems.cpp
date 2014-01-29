@@ -38,6 +38,10 @@ void PHILabelItem::initWidget()
     QPalette pal=l->palette();
     pal.setColor( QPalette::Window, Qt::transparent );
     l->setPalette( pal );
+    if ( !isClientItem() ) return;
+    l->setTextInteractionFlags( Qt::TextBrowserInteraction );
+    connect( l, &QLabel::linkActivated, this, &PHILabelItem::linkRequested );
+    connect( l, &QLabel::linkHovered, this, &PHILabelItem::linkHovered );
 }
 
 void PHILabelItem::ideInit()
@@ -158,6 +162,16 @@ QScriptValue PHILabelItem::html( const QScriptValue &t )
     setHtmlText( true );
     setText( t.toString() );
     return self();
+}
+
+void PHILabelItem::slotAnchorClicked( const QUrl &url )
+{
+    emit linkRequested( url.toString() );
+}
+
+void PHILabelItem::slotAnchorHover( const QUrl &url )
+{
+    emit linkHovered( url.toString() );
 }
 
 void PHILinkItem::ideInit()

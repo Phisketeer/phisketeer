@@ -51,6 +51,10 @@ protected:
     virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
     virtual void cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByteArray &script ) const;
 
+private slots:
+    void slotAnchorClicked( const QUrl &url );
+    void slotAnchorHover( const QUrl &url );
+
 private:
     void initWidget();
 };
