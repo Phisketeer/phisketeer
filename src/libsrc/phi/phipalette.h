@@ -90,8 +90,8 @@ inline PHIPalette& PHIPalette::operator=( const PHIPalette &p )
 
 inline bool PHIPalette::operator==( const PHIPalette &p ) const
 {
-    if ( _pal!=p._pal ) return false;
     if ( _userColors!=p._userColors ) return false;
+    if ( _pal!=p._pal ) return false;
     return true;
 }
 

@@ -329,32 +329,9 @@ void PHIApplication::loadTranslations()
 // returns -1 on error, 0 not running, 1 running
 int PHIApplication::checkPhisService()
 {
-    if ( !QFile::exists( _serverBin ) ) return -1;
-#ifdef Q_OS_MAC
-    QSettings *s=_settings;
-    // Sandboxing in Mac OS X requires a little hack: we check if the server responds
-    // to a QNetworkRequest to determine if the phis service is running
-    s->beginGroup( PHI::defaultString() );
-    QUrl url( QStringLiteral( "http://localhost/phi.phis?ping=1" ) );
-    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
-    s->endGroup();
-    QNetworkRequest req;
-    req.setUrl( url );
-    QNetworkAccessManager mg;
-    QNetworkReply *rep=mg.get( req );
-    while ( !rep->isFinished() ) {
-        _app->processEvents();
-    }
-    rep->deleteLater();
-    if ( rep->error()!=QNetworkReply::NoError ) {
-        // phis responses with "access denied" to phi.phis?ping=1
-        // so we can asume the service is running
-        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
-        qWarning( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
-        return 0;
-    }
-    return 0;
-#else // Unix or Windows
+#ifdef PHIEMBEDEDSERVER
+    return -1;
+#else
     QProcess proc;
     proc.setProcessChannelMode( QProcess::MergedChannels );
     proc.start( _serverBin, QStringList() << QStringLiteral( "-v" ) );
@@ -369,23 +346,9 @@ int PHIApplication::checkPhisService()
 
 bool PHIApplication::startPhisService()
 {
-    if ( !QFile::exists( _serverBin ) ) return false;
-#ifdef Q_OS_MAC
-/*
-#ifdef PHIAPPSTORE
-    QSettings *s=app->settings();
-    // Sandboxing in Mac OS X requires a little hack: we check if the server responds
-    // to a QNetworkRequest to determine if the phis service is running
-    s->beginGroup( defaultString() );
-    const QString baseDir=s->value( L1( "BaseDir" ) ).toString();
-    s->beginGroup( L1( "localhost" ) );
-    const QString root=s->value( L1( "DocumentRoot" ), baseDir+L1( "/localhost" ) ).toString();
-    s->endGroup();
-    s->endGroup();
-#endif
-*/
-    return QProcess::startDetached( _serverBin );
-#else // Unix or Windows
+#ifdef PHIEMBEDEDSERVER
+    return false;
+#else
     QProcess proc;
 #ifdef Q_OS_WIN
     proc.execute( _serverBin, QStringList() << QStringLiteral( "-i" ) );
@@ -399,33 +362,12 @@ bool PHIApplication::startPhisService()
 
 bool PHIApplication::stopPhisService()
 {
-    if ( !QFile::exists( _serverBin ) ) return false;
-#ifdef Q_OS_MAC
-    // Sandboxing in Mac OS X requires a little hack: we send
-    // a QNetworkRequest to stop the phis service
-    QSettings *s=_settings;
-    s->beginGroup( PHI::defaultString() );
-    QUrl url( QStringLiteral( "http://localhost/phi.phis?stop=1" ) );
-    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
-    s->endGroup();
-    QNetworkRequest req;
-    req.setUrl( url );
-    QNetworkAccessManager mg;
-    QNetworkReply *rep=mg.get( req );
-    while ( !rep->isFinished() ) {
-        _app->processEvents();
-    }
-    rep->deleteLater();
-    if ( rep->error()!=QNetworkReply::NoError ) {
-        // phis responses with "access denied" to phi.phis?stop=1
-        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return true;
-        qDebug( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
-        return false;
-    }
+#ifdef PHIEMBEDEDSERVER
     return false;
-#else // Unix or Windows
+#else
+    if ( !QFile::exists( _serverBin ) ) return false;
     QProcess proc;
-    int res=proc.execute( _serverBin, QStringList() << QStringLiteral( "-t" ) );
+    int res=proc.execute( _serverBin, QStringList() << L1( "-t" ) );
     if ( res ) return false;
     return true;
 #endif
@@ -433,31 +375,10 @@ bool PHIApplication::stopPhisService()
 
 bool PHIApplication::clearPhisServiceCache()
 {
+#ifdef PHIEMBEDEDSERVER
+    return false;
+#else
     if ( !QFile::exists( _serverBin ) ) return false;
-#ifdef Q_OS_MAC
-    // sandboxing in Mac OS X requires a little hack: we send
-    // a QNetworkRequest to invalidate the phis cache
-    QSettings *s=_settings;
-    s->beginGroup( PHI::defaultString() );
-    QUrl url( QStringLiteral( "http://localhost/phi.phis?invalidate=1" ) );
-    url.setPort( s->value( QStringLiteral( "ListenerPort" ), 8080 ).toInt() );
-    s->endGroup();
-    QNetworkRequest req;
-    req.setUrl( url );
-    QNetworkAccessManager mg;
-    QNetworkReply *rep=mg.get( req );
-    while ( !rep->isFinished() ) {
-        _app->processEvents();
-    }
-    rep->deleteLater();
-    if ( rep->error()!=QNetworkReply::NoError ) {
-        // phis responses with "access denied" to phi.phis?invalidate=1
-        if( rep->error()==QNetworkReply::ContentOperationNotPermittedError ) return 1;
-        qDebug( "REPLY %d %s", rep->error(), qPrintable( rep->errorString() ) );
-        return 0;
-    }
-    return 0;
-#else // Unix or Windows
     QProcess proc;
     int res=proc.execute( _serverBin, QStringList() << QStringLiteral( "-c" ) );
     if ( res ) return false;

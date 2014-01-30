@@ -35,40 +35,6 @@ SOURCES += \
     phiawebview.cpp \
     phiaauthdlg.cpp \
     phiaappwindow.cpp
-OTHER_FILES += \
-    phiatools.h \
-    phiawebview.org.h \
-    phiascene.h \
-    phiamainwindow.org.h \
-    phiaitem.h \
-    gitems.h \
-    phiahistory.h \
-    phiaformprocessor.h \
-    gwidgetitems.h \
-    glayoutitems.h \
-    gwidgetitem.h \
-    phiaconfig.h \
-    phiasettingsdlg.h \
-    phiaaddressdlg.h \
-    phiadownloaddlg.h \
-    phiaanimation.h \
-    phiajavascriptlog.h \
-    phiatools.cpp \
-    phiawebview.org.cpp \
-    phiascene.cpp \
-    phiamainwindow.org.cpp \
-    phiaitem.h \
-    phiaitem.cpp \
-    phiahistory.cpp \
-    phiaformprocessor.cpp \
-    phiaconfig.cpp \
-    phiasettingsdlg.cpp \
-    phiaaddressdlg.cpp \
-    phiascriptitem.cpp \
-    phiaitemhandler.cpp \
-    phiadownloaddlg.cpp \
-    phiaanimation.cpp \
-    phiajavascriptlog.cpp
 
 include( ../../../phiconf.pri )
 VERSION = $$PHIRELEASE

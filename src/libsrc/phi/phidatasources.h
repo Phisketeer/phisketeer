@@ -324,7 +324,7 @@ inline QDataStream& operator>>( QDataStream &in, PHIIntData *phiData )
 
 inline PHIBooleanData::PHIBooleanData( bool b )
 {
-    _data.insert( _c, b );
+    if ( b ) _data.insert( _c, b );
 }
 
 inline QDataStream& operator>>( QDataStream &in, PHIBooleanData *phiData )

@@ -33,7 +33,7 @@
 PHISParent* PHISParent::_instance=0;
 
 PHISParent::PHISParent( QObject *parent, const QString &name )
-    : QObject( parent ), _name( name )
+    : QObject( parent ), _name( name ), _listenerRunning( false )
 {
     qDebug( "PHISParent::PHISParent()" );
     PHIError::instance( this );
@@ -61,36 +61,45 @@ PHISParent::PHISParent( QObject *parent, const QString &name )
     s->sync();
 
     PHISLogWriterThread::instance()->init( this, name );
-    invalidate();
     QString error;
     PHIRC rc;
     rc=PHIImageCache::instance()->init( error, this );
     if ( rc!=PHIRC_OK ) PHISLogWriter::instance()->log( PHILOGCRIT, rc, error );
     rc=PHISession::instance()->init( error, this );
     if ( rc!=PHIRC_OK ) PHISLogWriter::instance()->log( PHILOGCRIT, rc, error );
-    QTimer::singleShot( 0, this, SLOT( initListener() ) );
+    QTimer::singleShot( 0, this, SLOT( startService() ) );
 }
 
 PHISParent::~PHISParent()
 {
-    // delete listener before cleaning page cache
-    if ( value( SL( "SSLEnabled" ) ).toBool() ) {
-        delete PHISslListener::instance();
-    }
-    delete PHISListener::instance(); // disconnect all clients
-    PHISPageCache::invalidate(); // PHIPageCache is static so invalidate only
+    stopService();
     _lock.lockForWrite();
     _instance=0;
     _lock.unlock();
     qDebug( "PHISParent::~PHISParent()" );
 }
 
-void PHISParent::initListener()
+void PHISParent::stopService()
 {
+    if ( !_listenerRunning ) return;
+    // delete listener before cleaning page cache
+    if ( value( SL( "SSLEnabled" ) ).toBool() ) {
+        delete PHISslListener::instance();
+    }
+    delete PHISListener::instance(); // disconnect all clients
+    PHISPageCache::invalidate(); // PHIPageCache is static so invalidate only
+    _listenerRunning=false;
+}
+
+void PHISParent::startService()
+{
+    if ( _listenerRunning ) return;
+    invalidate();
     PHIRC rc=PHISListener::instance()->init( this );
     if ( rc==PHIRC_OK ) {
         PHISLogWriter::instance()->log( PHILOGTRACE, PHIRC_MGR_START,
             tr( "Phis '%1' ready for service." ).arg( _name ) );
+        _listenerRunning=true;
     }
     if ( value( SL( "SSLEnabled" ) ).toBool() ) {
         rc=PHISslListener::instance()->init( this );

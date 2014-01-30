@@ -43,12 +43,13 @@ public:
     inline QString admin() const { QReadLocker lock( &_lock ); return _admin; }
     inline const QString& name() const { return _name; }
 
+public slots:
+    void startService();
+    void stopService();
+
 protected:
     PHISParent( QObject *parent, const QString &name );
     void clearTmpDir( const QString &tmp );
-
-protected slots:
-    void initListener();
 
 private:
     static PHISParent *_instance;
@@ -59,6 +60,7 @@ private:
     QDateTime _invalidateTouch;
     QString _admin, _index;
     qint32 _keepAlive;
+    bool _listenerRunning;
 };
 
 inline PHISParent* PHISParent::instance( QObject *parent, const QString &name )

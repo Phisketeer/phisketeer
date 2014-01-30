@@ -115,3 +115,6 @@ win32 {
 TEMPLATE = subdirs
 SUBDIRS = src
 exists( private/cfg.pri ): include( private/cfg.pri )
+
+RESOURCES += \
+    src/libsrc/phia/sconfig.qrc

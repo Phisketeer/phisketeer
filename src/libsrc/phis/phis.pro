@@ -28,7 +28,8 @@ HEADERS += \
     phisserverrec.h \
     phisserverrequest.h \
     phisscriptobjects.h \
-    phisprocessor.h
+    phisprocessor.h \
+    phisserverconf.h
 SOURCES += \
     phis.cpp \
     phisparent.cpp \
@@ -41,7 +42,8 @@ SOURCES += \
     phispagecache.cpp \
     phisserverrequest.cpp \
     phisscriptobjects.cpp \
-    phisprocessor.cpp
+    phisprocessor.cpp \
+    phisserverconf.cpp
 include( ../../../phiconf.pri )
 VERSION = $$PHIRELEASE
 TEMPLATE = lib
@@ -49,41 +51,9 @@ TARGET = phis
 QT = gui core network sql svg script widgets
 INCLUDEPATH += ../phi
 DEFINES += PHISLIB PHISVERSION=\\\"$$VERSION\\\"
-RESOURCES += phis.qrc
-OTHER_FILES += js/phibase.js js/excanvas.js \
-    phishtmlgeneric.h \
-    phishtmlgecko19.h \
-    phishtmlwebkit533.h \
-    phishtmltrident4.h \
-    phishtmlpresto22.h \
-    phishtmlpresto23.h \
-    phishtmlwebkit532.h \
-    phishtml5base.h \
-    phishtmlgecko20.h \
-    phishtmlwebkit534.h \
-    phishtmltrident5.h \
-    phishtmltrident6.h \
-    phishtmlgecko100.h \
-    phiprocessor.h \
-    phihtmlgenerator.h \
-    phishtmlbase.h \
-    phiprocessor.cpp \
-    phihtmlgenerator.cpp \
-    phishtmlbase.cpp \
-    phishtmlgeneric.cpp \
-    phishtmlimgcreator.cpp \
-    phishtmlgecko19.cpp \
-    phishtmlwebkit533.cpp \
-    phishtmltrident4.cpp \
-    phishtmlpresto22.cpp \
-    phishtmlpresto23.cpp \
-    phishtmlwebkit532.cpp \
-    phishtml5base.cpp \
-    phishtmlgecko20.cpp \
-    phishtmlwebkit534.cpp \
-    phishtmltrident5.cpp \
-    phishtmltrident6.cpp \
-    phishtmlgecko100.cpp
+RESOURCES += phis.qrc serverconf.qrc
+OTHER_FILES += js/phibase.js js/excanvas.js
+FORMS += serverconf.ui
 
 win32 { 
     LIBS = -L../../../bin phi2.lib

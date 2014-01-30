@@ -18,27 +18,16 @@
 */
 #include <QApplication>
 #include "sconfig.h"
-#include "phi.h"
-#include "phiqt5fixes.h"
+#include "phiapplication.h"
 
 int main ( int argc, char **argv )
 {
-    phiSetPluginPath( argc, argv );
-    //QApplication::setDesktopSettingsAware( false );
-    QApplication app( argc, argv );
-    app.setApplicationName( QStringLiteral( "Phisconf" ) );
-    app.setApplicationVersion( QStringLiteral( PHIVERSION ) );
+    PHIApplication app( argc, argv );
 #ifdef Q_OS_LINUX
     app.setStyle( QStringLiteral( "fusion" ) );
 #endif
-    PHI::setupApplication( &app );
 
     SConfig dlg;
     dlg.show();
-#ifdef Q_OS_MAC
-    // we need to set LSUIElement to true to prevent appearing the icon of the phis daemon in the panel
-    // in the Info.plist of the editor. However this doesn't bring SConfig automatically to the front
-    dlg.raise();
-#endif
     return app.exec();
 }
