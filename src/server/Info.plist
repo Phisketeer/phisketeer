@@ -7,14 +7,14 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
     	<key>CFBundleGetInfoString</key>
-    	<string>Phis V1.1.1</string>
+        <string>Phis V2.0.0</string>
 	<key>CFBundleSignature</key>
 	<string>@TYPEINFO@</string>
 	<key>CFBundleExecutable</key>
 	<string>@EXECUTABLE@</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.phisys.@EXECUTABLE@</string>
+        <string>org.phisketeer.@EXECUTABLE@</string>
 	<key>NOTE</key>
-	<string>Copyright 2010-2011 Phisys AG Switzerland. All rights reserved.</string>
+        <string>©2011-2012 Phisys AG Switzerland. ©2013-2014 Phisketeer team. All rights reserved.</string>
 </dict>
 </plist>

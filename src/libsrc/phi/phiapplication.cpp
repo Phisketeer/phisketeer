@@ -47,6 +47,11 @@ PHIPrivateApplication::PHIPrivateApplication( int &argc, char **argv )
     qDebug( "PHIPrivateApplication::PHIPrivateApplication()" );
 }
 
+PHIPrivateApplication::~PHIPrivateApplication()
+{
+    qDebug( "PHIPrivateApplication::~PHIPrivateApplication()" );
+}
+
 bool PHIPrivateApplication::event( QEvent *e )
 {
 #ifdef Q_OS_MAC
@@ -184,13 +189,6 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     }
 
     Q_ASSERT( _settings );
-    Q_ASSERT( _app );
-    _app->setApplicationName( objectName() );
-    _app->setApplicationVersion( QString::fromLatin1( version ) );
-    _app->setOrganizationDomain( domain );
-    _app->setOrganizationName( org );
-    _app->addLibraryPath( _pluginsPath );
-
     _cachePath=QStandardPaths::writableLocation( QStandardPaths::CacheLocation );
     _tmpPath=QStandardPaths::writableLocation( QStandardPaths::TempLocation )
         +QLatin1Char( '/' )+objectName();
@@ -250,14 +248,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qWarning( "Data dir: %s", qPrintable( _dataPath ) );
     qWarning( "User doc dir: %s", qPrintable( _usrDocPath ) );
 #endif
-    loadTranslations();
-    PHINetManager::instance();
-    new PHIItemFactory( _itemsPath, this );
-    QWebSettings *ws=QWebSettings::globalSettings();
-    ws->setAttribute( QWebSettings::PluginsEnabled, true );
-    ws->setAttribute( QWebSettings::JavascriptCanOpenWindows, true );
-    ws->setAttribute( QWebSettings::LocalContentCanAccessRemoteUrls, true );
-    ws->setAttribute( QWebSettings::JavascriptEnabled, true );
+    if ( _app ) setupApplication( _app, domain, org, version );
 }
 
 PHIApplication::~PHIApplication()
@@ -268,6 +259,25 @@ PHIApplication::~PHIApplication()
     _settings=0;
     _serverSettings=0;
     qDebug( "PHIApplication::~PHIApplication()" );
+}
+
+void PHIApplication::setupApplication( QGuiApplication *app, const QString &domain, const QString &org, const char *version )
+{
+    _app=app;
+    _app->setApplicationName( objectName() );
+    _app->setApplicationVersion( QString::fromLatin1( version ) );
+    _app->setOrganizationDomain( domain );
+    _app->setOrganizationName( org );
+    _app->addLibraryPath( _pluginsPath );
+    loadTranslations();
+    PHINetManager::instance();
+    new PHIItemFactory( _itemsPath, this );
+
+    QWebSettings *ws=QWebSettings::globalSettings();
+    ws->setAttribute( QWebSettings::PluginsEnabled, true );
+    ws->setAttribute( QWebSettings::JavascriptCanOpenWindows, true );
+    ws->setAttribute( QWebSettings::LocalContentCanAccessRemoteUrls, true );
+    ws->setAttribute( QWebSettings::JavascriptEnabled, true );
 }
 
 void PHIApplication::invalidate()

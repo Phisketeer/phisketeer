@@ -14,37 +14,11 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-HEADERS += phimanager.h \
-    phiconfig.h \
-    philistener.h \
-    phiconnthread.h \
-    phihttp.h \
-    phihttpheader.h \
-    phiobject.h \
-    philogwriter.h \
-    phiserverrequest.h \
-    phiserverrec.h
+HEADERS += phisservice.h
 SOURCES += main.cpp \
-    phimanager.cpp \
-    phiconfig.cpp \
-    philistener.cpp \
-    phiconnthread.cpp \
-    phihttp.cpp \
-    phihttpheader.cpp \
-    phiobject.cpp \
-    philogwriter.cpp \
-    phiserverrequest.cpp \
-    phiserverrec.cpp
-mac {
-    HEADERS +=macservice.h
-    SOURCES +=macservice.cpp
-} else {
-    HEADERS +=phiservice.h
-    SOURCES +=phiservice.cpp
-}
+    phisservice.cpp
 
-include( ../../scripts/phiconf.pri )
+include( ../../phiconf.pri )
 VERSION = $$PHIRELEASE
 TEMPLATE = app
 TARGET = phis
@@ -52,10 +26,10 @@ CONFIG += console
 QT = core gui widgets network sql script
 INCLUDEPATH += ../libsrc/phi ../libsrc/phis
 DEFINES += PHIVERSION=\\\"$$VERSION\\\"
+include( qtservice-2.6/src/qtservice.pri )
 
 win32 { 
     DESTDIR = ../../bin
-    # LIBS = -L../../bin -lphi1 -lphis1 -l"C:\Program Files\Microsoft SDKs\Windows\V6.0A\lib\advapi32"
     LIBS = -L../../bin phi1.lib phis1.lib
     CONFIG(debug,debug|release) { 
         LIBS = -L../../bin phid1.lib phisd1.lib
@@ -63,7 +37,6 @@ win32 {
     }
     QMAKE_CLEAN += phis_resource.rc phisd_resource.rc
     QMAKE_DISTCLEAN += phis_resource.rc phisd_resource.rc
-    include( qtservice-2.6/src/qtservice.pri )
 }
 unix {
     LIBS = -L../../lib -lphi -lphis
@@ -75,11 +48,11 @@ unix {
     mac {
         LIBS = -L../../lib -lphi -lphis
         QMAKE_INFO_PLIST = Info.plist
+        OTHER_FILES += Info.plist
         CONFIG -= app_bundle
         ICON = phis.icns
         TARGET = phis
     } else {
         QMAKE_LFLAGS +=-Wl,-rpath,\'\$$ORIGIN/../lib\',-rpath-link,$$[QT_INSTALL_LIBS]
-        include( qtservice-2.6/src/qtservice.pri )
     }
 }

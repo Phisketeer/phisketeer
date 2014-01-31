@@ -16,18 +16,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QApplication>
-#include "sconfig.h"
+#include "phisserverconf.h"
 #include "phiapplication.h"
+#include "phi.h"
 
 int main ( int argc, char **argv )
 {
-    PHIApplication app( argc, argv );
+    PHIApplication app( argc, argv, "Phisconf", PHIVERSION );
 #ifdef Q_OS_LINUX
-    app.setStyle( QStringLiteral( "fusion" ) );
+    app.setStyle( L1( "fusion" ) );
 #endif
-
-    SConfig dlg;
-    dlg.show();
-    return app.exec();
+    PHISServerConf dlg;
+    dlg.exec();
+    return 0;
 }

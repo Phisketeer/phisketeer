@@ -22,17 +22,16 @@ include( ../../phiconf.pri )
 VERSION = 2.0.0
 TEMPLATE = app
 TARGET = phisconf
+DESTDIR = ../../bin
 QT = core gui widgets network
-INCLUDEPATH += ../libsrc/phi ../libsrc/phis ../libsrc/phia
+INCLUDEPATH += ../libsrc/phi ../libsrc/phis
 DEFINES += PHIVERSION=\\\"$$VERSION\\\"
-#TRANSLATIONS =  phisconf_de.ts \
-#                phisconf_fr.ts
 
 win32 {
-    LIBS = -L../../bin phi2.lib phis2.lib phia2.lib
+    LIBS = -L../../bin phi2.lib phis2.lib
     CONFIG(debug,debug|release) {
         CONFIG += console
-        LIBS = -L../../bin phid2.lib phisd2.lib phiad2.lib
+        LIBS = -L../../bin phid2.lib phisd2.lib
         TARGET = phisconfd
     }
     RC_FILE = sconfig.rc
@@ -40,13 +39,13 @@ win32 {
     OTHER_FILES += sconfig.rc
 }
 unix {
-    LIBS = -L../../lib -lphi -lphis -lphia
+    LIBS = -L../../lib -lphi -lphis
     CONFIG(debug,debug|release) {
-        LIBS = -L../../lib -lphi_debug -lphis_debug -lphia_debug
+        LIBS = -L../../lib -lphi_debug -lphis_debug
         TARGET = phisconf_debug
     }
     mac {
-        LIBS = -L../../lib -lphi -lphis -lphia
+        LIBS = -L../../lib -lphi -lphis
         QMAKE_INFO_PLIST = Info.plist
         OTHER_FILES += Info.plist
         CONFIG -= app_bundle

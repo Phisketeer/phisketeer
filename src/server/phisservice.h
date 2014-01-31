@@ -16,29 +16,29 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PHIMANAGER_H
-#define PHIMANAGER_H
+#ifndef PHISSERVICE_H
+#define PHISSERVICE_H
 
-#include <QObject>
+#include <QtServiceBase>
 
-class PHIManager : public QObject
+class PHIApplication;
+
+class PHISService : public QtServiceBase
 {
-    Q_OBJECT
-
 public:
-    explicit PHIManager( QObject *parent, const QString& );
-    virtual ~PHIManager();
+    explicit PHISService( int argc, char **argv, const QString &name );
+    virtual ~PHISService();
 
-public:
-    void start();
-    void updateConfig();
-    void stop();
+    virtual void createApplication( int &argc, char **argv );
+    virtual int executeApplication();
+    virtual void pause();
+    virtual void processCommand( int code );
+    virtual void resume();
+    virtual void start();
+    virtual void stop();
 
-signals:
-    void processServiceCommand( int code ); // needed for Mac OS X
-
-private:
-    bool _logWriterStart, _sslListenerStart;
+protected:
+    PHIApplication *_app;
 };
 
-#endif // PHIMANAGER_H
+#endif // PHISSERVICE_H

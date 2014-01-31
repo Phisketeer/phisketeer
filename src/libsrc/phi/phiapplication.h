@@ -31,7 +31,7 @@ class PHIPrivateApplication : public QApplication
 
 public:
     explicit PHIPrivateApplication( int &argc, char **argv );
-    //virtual ~PHIPrivateApplication();
+    virtual ~PHIPrivateApplication();
 
 signals:
     void openFileRequest( QString );
@@ -71,6 +71,7 @@ public:
     bool startPhisService();
     int checkPhisService();
     bool clearPhisServiceCache();
+    void setupApplication( QGuiApplication *app, const QString &domain, const QString &org, const char *version );
     static PHIApplication* instance() { return _instance; }
 
 public slots:

@@ -24,9 +24,13 @@
 #include <QPixmap>
 #include <QDir>
 #include <QFile>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include "phisserverconf.h"
 #include "phiapplication.h"
 #include "phislogwriter.h"
+#include "phisparent.h"
+#include "phinetmanager.h"
 
 PHISServerConf::PHISServerConf( QWidget *parent )
     : QDialog( parent, Qt::Sheet )
@@ -36,7 +40,6 @@ PHISServerConf::PHISServerConf( QWidget *parent )
     _virtualTree->setIndentation( 0 );
     _tab->setCurrentIndex( 0 );
     resize( 600, 300 );
-
     _base=phiApp->dataPath();
 
     QSettings *s=phiApp->serverSettings();
@@ -54,7 +57,7 @@ PHISServerConf::PHISServerConf( QWidget *parent )
     _email->setText( s->value( L1( "Admin" ), L1( "admin@localhost" ) ).toString() );
     _index->setText( s->value( L1( "Index" ), L1( "index.phis,index.html,index.html" ) ).toString() );
     _baseDir->setText( _base );
-    _mime->setText( s->value( L1( "MimeTypesFile" ), _base+QDir::separator()+QLatin1String( "mimetypes->txt" ) ).toString() );
+    _mime->setText( s->value( L1( "MimeTypesFile" ), _base+QDir::separator()+L1( "mimetypes.txt" ) ).toString() );
 
     _port->setValue( s->value( L1( "ListenerPort" ), 8080 ).toInt() );
     _interface->setText( s->value( L1( "ListenerIF" ), L1( "Any" ) ).toString() );
@@ -102,34 +105,39 @@ PHISServerConf::~PHISServerConf()
 
 void PHISServerConf::slotInit()
 {
-    /*
-    QSettings *s=PHI::globalSettings();
+    QSettings *s=phiApp->serverSettings();
     if ( !s->isWritable() ) { // always true in Mac OS X
-        QMessageBox::critical( this, tr( "Missing privileges" ), tr( "You must be administrator "
-            "or root to run this application." ), QMessageBox::Ok );
+        QMessageBox::critical( this, tr( "Missing privileges" ), tr( "Can not write to the config file\n"
+            "'%1'. Try as 'root' or 'Administrator'." ).arg( s->fileName() ), QMessageBox::Ok );
         reject();
         return;
     }
-    _bin=s->value( L1( "BinDir" ), qApp->applicationDirPath() ).toString();
-    if ( !QFile::exists( _bin ) ) _bin=QString();
-    if ( _bin.isEmpty() ) {
-        _bin=QFileDialog::getExistingDirectory( this,
-            tr( "Please select the binary directory of the Phisketeer installation." ),
-            PHI::applicationRoot() );
-        if ( _bin.isEmpty() ) return;
-        s->setValue( L1( "BinDir" ), _bin );
-        s->sync();
-    }
     slotCheckService();
-    */
 }
 
 void PHISServerConf::slotCheckService()
 {
-    /*
-    int res=PHI::checkService();
-    qDebug( "RES=%d", res );
-    if ( res==1 ) {
+    int running=-1;
+    QSettings *s=phiApp->serverSettings();
+#ifdef PHIEMBEDEDSERVER
+    s->beginGroup( PHI::defaultString() );
+    int lport=s->value( L1( "ListenerPort" ), 8080 ).toInt();
+    s->endGroup();
+    QUrl url( L1( "http://localhost/phi.phis?i=ping" ) );
+    url.setPort( lport );
+    QNetworkRequest req( url );
+    QNetworkReply *reply=PHINetManager::instance()->networkAccessManager()->get( req );
+    QEventLoop loop;
+    connect( reply, &QNetworkReply::finished, &loop, &QEventLoop::quit );
+    loop.exec( QEventLoop::ExcludeUserInputEvents );
+    if ( reply->error()==QNetworkReply::NoError ) {
+        if ( reply->readAll().startsWith( "alive" ) ) running=1;
+    }
+    reply->deleteLater();
+#else
+    running=phiApp->checkPhisService();
+#endif
+    if ( running==1 ) {
         _stop->setEnabled( true );
         _interface->setEnabled( false );
         _port->setEnabled( false );
@@ -146,7 +154,6 @@ void PHISServerConf::slotCheckService()
         _start->setEnabled( true );
         _icon->setPixmap( QPixmap( L1( ":/gnome/del" ) ) );
     }
-    */
 }
 
 void PHISServerConf::accept()
@@ -214,56 +221,60 @@ void PHISServerConf::save()
 
 void PHISServerConf::on__start_clicked()
 {
-    /*
     QMessageBox::Button res=QMessageBox::warning( this, tr( "Overwrite config" ),
         tr( "This will store your current configuration." )+QLatin1Char( '\n' )
         +tr( "Are you sure you want to continue?" ),
         QMessageBox::Yes | QMessageBox::Abort, QMessageBox::Abort );
     if ( res==QMessageBox::Abort ) return;
     save();
-    if ( !PHI::startPhisService() ) {
-        QMessageBox::warning( this, tr( "Error" ), tr( "Could not start the server." ),
-            QMessageBox::Ok );
+#ifdef PHIEMBEDEDSERVER
+    PHISParent::instance()->startService();
+#else
+    if ( !phiApp->startPhisService() ) {
+        QMessageBox::warning( this, tr( "Error" ),
+            tr( "Could not start the Phis Web service." ), QMessageBox::Ok );
         return;
     }
+#endif
     _start->setEnabled( false );
     _stop->setEnabled( false );
-    QTimer::singleShot( 2000, this, SLOT( slotCheckService() ) );
-    */
+    QTimer::singleShot( 1000, this, SLOT( slotCheckService() ) );
 }
 
 void PHISServerConf::on__stop_clicked()
 {
-    /*
-    if ( !PHI::stopPhisService() ) {
-        QMessageBox::warning( this, tr( "Error" ), tr( "Could not stop the server." ),
-            QMessageBox::Ok );
+#ifdef PHIEMBEDEDSERVER
+    PHISParent::instance()->stopService();
+#else
+    if ( !phiApp->stopPhisService() ) {
+        QMessageBox::warning( this, tr( "Error" ),
+            tr( "Could not stop the Phis Web service." ), QMessageBox::Ok );
         return;
     }
+#endif
     _start->setEnabled( false );
     _stop->setEnabled( false );
-    QTimer::singleShot( 2000, this, SLOT( slotCheckService() ) );
-    */
+    QTimer::singleShot( 1000, this, SLOT( slotCheckService() ) );
 }
 
 void PHISServerConf::on__clearCache_clicked()
 {
-    /*
-    if ( !PHI::clearPhisServiceCache() ) {
+#ifdef PHIEMBEDEDSERVER
+    PHISParent::instance()->invalidate();
+#else
+    if ( !phiApp->clearPhisServiceCache() ) {
         QMessageBox::warning( this, tr( "Error" ), tr( "Could not clear the server cache." ),
             QMessageBox::Ok );
     }
-    */
+#endif
 }
 
 void PHISServerConf::on__baseDirTool_clicked()
 {
-    /*
     QString file=QFileDialog::getExistingDirectory( this, tr( "Base directory" ), _base );
     if ( file.isEmpty() ) return;
     _base=file;
     _baseDir->setText( file );
-    */
 }
 
 void PHISServerConf::on__mimeTool_clicked()
@@ -310,7 +321,15 @@ void PHISServerConf::on__sslKeyTool_clicked()
 
 void PHISServerConf::on__addTool_clicked()
 {
-    QTreeWidgetItem *it=new QTreeWidgetItem();
+    QTreeWidgetItem *it;
+    for ( int i=0; i<_virtualTree->topLevelItemCount(); i++ ) {
+        it=_virtualTree->topLevelItem( i );
+        if ( it->text( 0 )==_host->text() ) {
+            QMessageBox::warning( this, tr( "Error"), tr( "Current virtual hostname already exists." ), QMessageBox::Ok );
+            return;
+        }
+    }
+    it=new QTreeWidgetItem();
     it->setText( 0, _host->text() );
     it->setText( 1, _root->text() );
     it->setText( 2, _temp->text() );

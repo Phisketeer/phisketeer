@@ -18,5 +18,5 @@
 CONFIG += ordered
 SUBDIRS += libsrc apache server sconfig #installer browser
 win32: SUBDIRS -= installer
-mac: SUBDIRS -= installer apache server sconfig #server is embedded in Mac OS X
+mac: SUBDIRS -= installer apache
 TEMPLATE = subdirs

@@ -16,23 +16,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QObject>
-#include "phiqt5fixes.h"
-
-#ifdef Q_OS_MAC
-#include "macservice.h"
-#else
-#include "phiservice.h"
-#endif
+#include "phisservice.h"
+#include "phi.h"
 
 int main( int argc, char **argv )
 {
-    phiSetPluginPath( argc, argv );
-#ifdef Q_OS_MAC
-    // Unfortunately Mac OS X sandboxing requires special handling
-    MACService service( argc, argv, QStringLiteral( "phis" ) );
-#else
-    PHIService service( argc, argv, QStringLiteral( "phis" ) );
-#endif
+    PHISService service( argc, argv, L1( "phis" ) );
     return service.exec();
 }

@@ -67,7 +67,6 @@ PHISParent::PHISParent( QObject *parent, const QString &name )
     if ( rc!=PHIRC_OK ) PHISLogWriter::instance()->log( PHILOGCRIT, rc, error );
     rc=PHISession::instance()->init( error, this );
     if ( rc!=PHIRC_OK ) PHISLogWriter::instance()->log( PHILOGCRIT, rc, error );
-    QTimer::singleShot( 0, this, SLOT( startService() ) );
 }
 
 PHISParent::~PHISParent()
@@ -88,6 +87,8 @@ void PHISParent::stopService()
     }
     delete PHISListener::instance(); // disconnect all clients
     PHISPageCache::invalidate(); // PHIPageCache is static so invalidate only
+    PHISLogWriter::instance()->log( PHILOGTRACE, PHIRC_MGR_STOP,
+        tr( "Phis '%1' service stopped." ).arg( _name ) );
     _listenerRunning=false;
 }
 
