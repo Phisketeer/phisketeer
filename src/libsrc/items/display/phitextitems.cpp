@@ -18,8 +18,8 @@
 */
 #include <QLabel>
 #include <QPainter>
-#include <QGraphicsTextItem>
-#include <QStyleOptionGraphicsItem>
+#include <QTextDocument>
+#include <QAbstractTextDocumentLayout>
 #include <QTextBrowser>
 #include "phicolorconfig.h"
 #include "phitextitems.h"
@@ -434,38 +434,45 @@ void PHIGraphicRichTextItem::html( const PHIRequest *req, QByteArray &out, QByte
 
 QImage PHIGraphicRichTextItem::graphicImage( const QString &text ) const
 {
-    QStyleOptionGraphicsItem opt;
-    opt.state=QStyle::State_None;
-    opt.exposedRect=QRectF();
-    QGraphicsTextItem it;
     QFont f=font();
     f.setPointSizeF( PHI::adjustedFontSize( f.pointSizeF() ) );
-    it.setFont( f );
-    it.setDefaultTextColor( realColor() );
-    it.setTextWidth( realWidth() );
-    QTextDocument *doc=it.document();
-    QTextOption topt=doc->defaultTextOption();
-    topt.setAlignment( static_cast<Qt::Alignment>(realAlignment()) );
-    doc->setDefaultTextOption( topt );
-    it.setHtml( text );
+    QTextDocument doc;
+    QTextOption opt=doc.defaultTextOption();
+    opt.setAlignment( static_cast<Qt::Alignment>(realAlignment()) );
+    doc.setDefaultTextOption( opt );
+    doc.setDefaultFont( f );
+    doc.setTextWidth( realWidth() );
+    doc.setDefaultStyleSheet( styleSheet() );
+    doc.setHtml( text );
+    QAbstractTextDocumentLayout::PaintContext ctx;
+    ctx.palette.setColor( QPalette::Text, realColor() );
+    ctx.clip=rect();
+    //QTextCharFormat format;
+    //format.setForeground( realColor() );
+    //QTextCursor cursor( &doc );
+    //cursor.select( QTextCursor::Document );
+    //cursor.mergeCharFormat( format );
     QImage img( qRound( realWidth() ), qRound( realHeight() ), QImage::Format_ARGB32_Premultiplied );
     img.fill( realBackgroundColor() );
     QPainter p( &img );
-    it.paint( &p, &opt, 0 );
+    doc.documentLayout()->draw( &p, ctx );
     p.end();
     return img;
 }
 
 QSizeF PHIGraphicRichTextItem::graphicSize( const QString &text ) const
 {
-    QGraphicsTextItem it;
     QFont f=font();
     f.setPointSizeF( PHI::adjustedFontSize( f.pointSizeF() ) );
-    it.setFont( f );
-    it.setDefaultTextColor( realColor() );
-    it.setTextWidth( realWidth() );
-    it.setHtml( text );
-    return QSizeF( realWidth(), it.boundingRect().height() );
+    QTextDocument doc;
+    QTextOption opt=doc.defaultTextOption();
+    opt.setAlignment( static_cast<Qt::Alignment>(realAlignment()) );
+    doc.setDefaultTextOption( opt );
+    doc.setDefaultFont( f );
+    doc.setDefaultStyleSheet( styleSheet() );
+    doc.setTextWidth( realWidth() );
+    doc.setHtml( text );
+    return QSizeF( realWidth(), doc.size().height() );
 }
 
 QSizeF PHIGraphicRichTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
