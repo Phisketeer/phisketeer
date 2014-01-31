@@ -12,21 +12,20 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 HEADERS = apacherequest.h
 SOURCES = mod_phi.cpp \
     apacherequest.cpp
 
-include( ../../scripts/phiconf.pri )
-VERSION = 1.1.9
+include( ../../phiconf.pri )
+VERSION = 2.0.0
 DEFINES += PHIVERSION=\\\"$$VERSION\\\"
 TEMPLATE = lib
 TARGET = mod_phi
 QT = core gui network sql script widgets
 INCLUDEPATH += ../libsrc/phi ../libsrc/phis
-#DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
 
 unix {
     INCLUDEPATH += /usr/include/apr-1.0 /usr/include/apr-1 /usr/include/openssl /usr/include/xmltok /usr/include/apache2

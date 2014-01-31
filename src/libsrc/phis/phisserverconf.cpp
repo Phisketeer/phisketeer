@@ -36,6 +36,8 @@ PHISServerConf::PHISServerConf( QWidget *parent )
     : QDialog( parent, Qt::Sheet )
 {
     setupUi( this );
+    setWindowIcon( QIcon( L1( ":/phi/logo" ) ) );
+    setWindowTitle( tr( "Phisconf %1" ).arg( L1( PHISVERSION ) ) );
     _configCombo->insertItem( 0, PHI::defaultString() );
     _virtualTree->setIndentation( 0 );
     _tab->setCurrentIndex( 0 );
@@ -135,6 +137,7 @@ void PHISServerConf::slotCheckService()
     }
     reply->deleteLater();
 #else
+    Q_UNUSED( s )
     running=phiApp->checkPhisService();
 #endif
     if ( running==1 ) {

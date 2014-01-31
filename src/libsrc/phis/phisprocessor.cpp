@@ -66,7 +66,6 @@ void PHISProcessor::run()
             _req->responseRec()->timeEncoded( QFileInfo( f ).lastModified() ) );
         return;
     }
-
     PHIBasePage *page=PHISPageCache::page( _req, _req->canonicalFilename() ); // implicitly copies items
     if ( Q_UNLIKELY( !page ) ) page=PHISPageCache::insert( _req, loadPage( f ), _req->canonicalFilename() );
     else initDb( page );
@@ -325,6 +324,7 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
     } catch ( std::bad_alloc& ) {
         return 0;
     }
+
     PHIDataParser parser( _req, page->id(), _db );
     try {
         page->phisCreateData( parser );
@@ -332,6 +332,7 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
         delete page;
         return 0;
     }
+
     quint8 wid;
     quint16 wid16;
     QByteArray id, arr;

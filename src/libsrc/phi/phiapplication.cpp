@@ -115,23 +115,23 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _appBin=_binPath+L1( "/PhiApp" );
     _dataPath=QStandardPaths::writableLocation( QStandardPaths::DataLocation )+L1( "/" )+objectName();
 #elif defined Q_OS_LINUX
+    Q_UNUSED( phis )
     QString conf;
     if ( PHISysInfo::effUserId()==0 ) conf=L1( "/etc/phi/phis.conf" );
     else conf=QStandardPaths::writableLocation( QStandardPaths::HomeLocation )+L1( "/.phi/phis.conf" );
     _serverSettings=new QSettings( conf, QSettings::IniFormat, this );
     if ( type!=ApacheModule ) { // normal application
-        qFatal( "not implemented" );
         QFileInfo fi( QString::fromLatin1( "/proc/%1/exe" ).arg( PHISysInfo::processId() ) );
-        if ( fi.exists() && fi.isSymLink() ) rootDir=fi.dir();
-        else rootDir=QFileInfo( QString::fromLocal8Bit( argv[0] ) ).dir();
+        if ( fi.exists() && fi.isSymLink() ) _binPath=fi.canonicalPath();
+        else _binPath=QFileInfo( QString::fromLocal8Bit( argv[0] ) ).canonicalPath();
     } else { // Apache module
-        conf="/opt/phi/bin"; // fallback
+        conf=L1( "/opt/phi/bin" ); // fallback
         _binPath=_serverSettings->value( L1( "BinDir" ), conf ).toString();
-        conf="/opt/phi/plugins"; // fallback
+        conf=L1( "/opt/phi/plugins" ); // fallback
         _pluginsPath=_serverSettings->value( L1( "PluginsPath" ), conf ).toString();
-        rootDir.setPath( _binPath );
-        rootDir.cdUp();
     }
+    rootDir.setPath( _binPath );
+    rootDir.cdUp();
     _rootPath=rootDir.canonicalPath();
     if ( _pluginsPath.isEmpty() ) _pluginsPath=_rootPath+L1( "/plugins" );
     _modulesPath=_pluginsPath+L1( "/modules" );
@@ -141,7 +141,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _serverBin=_binPath+L1( "/phis" );
     _appBin=_binPath+L1( "/phiapp" );
     if ( PHISysInfo::effUserId()==0 )  _dataPath=_rootPath+L1( "/var/phis/" );
-    else _dataPath=QStandardPaths::writableLocation( QStandardPaths::HomeLocation )+L1( ".phi/phis" );
+    else _dataPath=QStandardPaths::writableLocation( QStandardPaths::HomeLocation )+L1( "/.phi/phis" );
 #else
 #error Unsupported system
 #endif
@@ -154,7 +154,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     if ( type==ApacheModule ) {
         QStringList argList;
         argList << _libPath+L1( "/libmod_phi.so" );
-        argList << QStringLiteral( "-platform" ) << QStringLiteral( "offscreen" );
+        argList << L1( "-platform" ) << L1( "offscreen" );
         int p_argc=argList.size();
         QVector<char *> p_argv( p_argc );
         QList<QByteArray> argvData;
@@ -181,8 +181,9 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
         _settings=new QSettings( QSettings::UserScope, org, objectName(), this );
 #elif defined Q_OS_LINUX
         QString s=QStandardPaths::writableLocation( QStandardPaths::HomeLocation )
-            +"/.phi/"+objectName()+".conf";
+            +L1( "/.phi/" )+objectName()+L1( ".conf" );
         _settings=new QSettings( s, QSettings::IniFormat, this );
+        qobject_cast<QApplication*>(_app)->setStyle( L1( "fusion" ) );
 #else
 #error Unsupported system
 #endif

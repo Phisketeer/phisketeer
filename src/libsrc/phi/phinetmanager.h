@@ -21,6 +21,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 #include <QNetworkCookie>
+#include <QMutexLocker>
 #include "phi.h"
 
 class QNetworkReply;

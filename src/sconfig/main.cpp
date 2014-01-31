@@ -23,9 +23,7 @@
 int main ( int argc, char **argv )
 {
     PHIApplication app( argc, argv, "Phisconf", PHIVERSION );
-#ifdef Q_OS_LINUX
-    app.setStyle( L1( "fusion" ) );
-#endif
+    Q_UNUSED( app )
     PHISServerConf dlg;
     dlg.exec();
     return 0;
