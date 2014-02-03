@@ -26,6 +26,7 @@
 #include "phidatasources.h"
 #include "phiinputtools.h"
 #include "phicombobox.h"
+#include "phidataparser.h"
 
 void PHISelectItem::initWidget()
 {

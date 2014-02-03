@@ -18,12 +18,12 @@
 */
 #ifndef PHISSERVERCONF_H
 #define PHISSERVERCONF_H
-
 #include <QDialog>
 #include <QTreeWidgetItem>
 #include "ui_serverconf.h"
+#include "phis.h"
 
-class PHISServerConf : public QDialog, private Ui::ServerConf
+class PHISEXPORT PHISServerConf : public QDialog, private Ui::ServerConf
 {
     Q_OBJECT
 

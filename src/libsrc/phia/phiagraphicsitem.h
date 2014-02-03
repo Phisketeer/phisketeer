@@ -19,6 +19,7 @@
 #ifndef PHIAGRAPHICSITEM_H
 #define PHIAGRAPHICSITEM_H
 #include "phigraphicsitem.h"
+#include "phia.h"
 
 class QEvent;
 class QKeyEvent;
@@ -27,7 +28,7 @@ class QGraphicsSceneMouseEvent;
 class QGraphicsSceneDragDropEvent;
 class QGraphicsSceneHoverEvent;
 
-class PHIAGraphicsItem : public PHIGraphicsItem
+class PHIAEXPORT PHIAGraphicsItem : public PHIGraphicsItem
 {
     Q_OBJECT
 

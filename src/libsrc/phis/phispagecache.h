@@ -18,13 +18,13 @@
 */
 #ifndef PHISPAGECACHE_H
 #define PHISPAGECACHE_H
-
 #include <QReadWriteLock>
 #include <QHash>
 #include <QSet>
 #include <QMutex>
 #include <QDateTime>
 #include <QString>
+#include "phis.h"
 
 class PHIRequest;
 class PHIBasePage;
@@ -32,7 +32,7 @@ class PHIBasePage;
 typedef QHash<QString, const PHIBasePage*> PageHash; // canonical file name -> page
 typedef QHash<QString, QDateTime> PageModified; // page id -> date time
 
-class PHISPageCache
+class PHISEXPORT PHISPageCache
 {
     Q_DISABLE_COPY( PHISPageCache )
 

@@ -30,9 +30,9 @@ include( qtservice-2.6/src/qtservice.pri )
 
 win32 { 
     DESTDIR = ../../bin
-    LIBS = -L../../bin phi1.lib phis1.lib
+    LIBS = -L../../bin phi2.lib phis2.lib
     CONFIG(debug,debug|release) { 
-        LIBS = -L../../bin phid1.lib phisd1.lib
+        LIBS = -L../../bin phid2.lib phisd2.lib
         TARGET = phisd
     }
     QMAKE_CLEAN += phis_resource.rc phisd_resource.rc

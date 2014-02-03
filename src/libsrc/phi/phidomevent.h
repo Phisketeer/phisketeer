@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QScriptValue>
 #include <QMultiHash>
+#include "phi.h"
 
 typedef QMultiHash<QString, QScriptValue> PHIEventHash;
 Q_DECLARE_METATYPE( PHIEventHash )
@@ -32,7 +33,7 @@ class QGraphicsSceneDragDropEvent;
 class QKeyEvent;
 class QFocusEvent;
 
-class PHIDomEvent : public QObject
+class PHIEXPORT PHIDomEvent : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY( PHIDomEvent )

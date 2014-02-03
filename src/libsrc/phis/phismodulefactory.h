@@ -22,11 +22,12 @@
 #include <QStringList>
 #include <QHash>
 #include <QReadWriteLock>
+#include "phis.h"
 
 class PHISInterface;
 class PHISModule;
 
-class PHISModuleFactory : public QObject
+class PHISEXPORT PHISModuleFactory : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY( PHISModuleFactory )

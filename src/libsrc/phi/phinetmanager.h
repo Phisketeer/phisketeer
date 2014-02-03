@@ -69,8 +69,11 @@ public:
 protected:
     virtual QNetworkReply* createRequest( Operation op, const QNetworkRequest&, QIODevice* outgoingData=0 );
 
-protected:
-    static QByteArray _agent, _accept, _charset, _acceptedLangs;
+private:
+    static QByteArray _agent;
+    static QByteArray _accept;
+    static QByteArray _charset;
+    static QByteArray _acceptedLangs;
 };
 
 class PHIEXPORT PHINetManager : public QObject

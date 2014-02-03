@@ -127,7 +127,8 @@ signals:
     void locationBarVisibilityChangeRequested( bool visible );
 
 protected:
-    static QIcon _defaultIcon, _missingIcon;
+    static QIcon _defaultIcon;
+    static QIcon _missingIcon;
     static QNetworkAccessManager *_networkAccessManager;
 };
 

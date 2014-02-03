@@ -16,11 +16,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <httpd.h>
-#include <http_core.h>
 #include <QDir>
 #include "apacherequest.h"
 #include "apachereqparent.h"
+
+#include <httpd.h>
+#include <http_core.h>
 
 static int addHeaderItem( void *data, const char *key, const char *value )
 {

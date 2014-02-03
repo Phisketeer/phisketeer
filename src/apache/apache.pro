@@ -51,10 +51,10 @@ unix {
 }
 win32 {
     CONFIG(debug,debug|release){
-        LIBS += -L../../bin phid1.lib phisd1.lib
+        LIBS += -L../../bin phid2.lib phisd2.lib
         TARGET = mod_phid
     } else {
-        LIBS += -L../../bin phi1.lib phis1.lib
+        LIBS += -L../../bin phi2.lib phis2.lib
     }
     DESTDIR = ../../bin
     INCLUDEPATH +="C:/Program Files (x86)/Apache Software Foundation/Apache2.2/include"
