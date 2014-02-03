@@ -106,6 +106,7 @@ TEMPLATE = lib
 TARGET = phi
 QT = core gui network script widgets sql webkit webkitwidgets
 DEFINES += PHILIB PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
+DEFINES += PHIPRINTDIRS
 RESOURCES += phi.qrc
 unix { 
     DESTDIR = ../../../lib

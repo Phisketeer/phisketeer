@@ -22,7 +22,7 @@
 int main ( int argc, char **argv )
 {
     QApplication app( argc, argv );
-    app.setApplicationName( "PhiInstaller" );
+    app.setApplicationName( "PHIInstaller" );
     app.setApplicationVersion( QString::fromLatin1( PHIVERSION ) );
     app.setOrganizationDomain( QString::fromLatin1( PHIDOM ) );
     app.setOrganizationName( QString::fromLatin1( PHIORG ) );

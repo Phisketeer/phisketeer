@@ -5,7 +5,8 @@ QTLIBS=$2
 QTBINS=$3
 QTPLUGINS=$4
 QTTS=$5
-USEQT="libQt5Core libQt5Network libQt5Sql libQt5Gui libQt5Widgets libQt5PrintSupport libQt5Svg libQt5Script libQt5WebKit libQt5WebKitWidgets libQt5Xml"
+USEQT="libQt5Core libQt5Network libQt5Sql libQt5Gui libQt5Widgets libQt5PrintSupport libQt5Svg libQt5Qml libQt5OpenGL\
+    libQt5Script libQt5WebKit libQt5WebKitWidgets libQt5Xml libQt5Quick libQt5Sensors libQt5Positioning"
 
 rm -rf $DESTDIR
 echo "Creating directories"
@@ -46,7 +47,9 @@ echo "Copying Phi"
 cp -p lib/*.so.? $DESTDIR/lib
 #cp -p lib/libphiplugin.so $DESTDIR/lib
 cp -p lib/modules/*.so $DESTDIR/plugins/modules
-if [ -e /usr/lib/libmysqlclient_r.so.16 ]; then
+if [ -e /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so.18 ]; then
+    cp -p /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so.18 $DESTDIR/lib
+elif [ -e /usr/lib/libmysqlclient_r.so.16 ]; then
     cp -p /usr/lib/libmysqlclient_r.so.16 $DESTDIR/lib
 elif [ -e /usr/lib64/mysql/libmysqlclient_r.so.15 ]; then
     cp -p /usr/lib64/mysql/libmysqlclient_r.so.15 $DESTDIR/lib
@@ -67,10 +70,17 @@ if [ -f /usr/lib/libssl.so.0.9.8 ]; then
     cp -p /usr/lib/libssl.so.0.9.8 $DESTDIR/lib/
 fi
 # ICUI is not installed on every system
-if [ -f /usr/lib/libicui18n.so.42 ]; then
-    cp -p /usr/lib/libicui18n.so.42 $DESTDIR/lib/
-    cp -p /usr/lib/libicuuc.so.42 $DESTDIR/lib/
-    cp -p /usr/lib/libicudata.so.42 $DESTDIR/lib/
+if [ -f $QTLIBS/libicui18n.so.?? ]; then
+    cp -p $QTLIBS/libicui18n.so.?? $DESTDIR/lib/
+    cp -p $QTLIBS/libicuuc.so.?? $DESTDIR/lib/
+    cp -p $QTLIBS/libicudata.so.?? $DESTDIR/lib/
+fi
+# Additional libs
+if [ -f /usr/lib/x86_64-linux-gnu/libXcomposite.so.1 ]; then
+    cp -p /usr/lib/x86_64-linux-gnu/libXcomposite.so.1 $DESTDIR/lib
+fi
+if [ -f /usr/lib/x86_64-linux-gnu/mesa/libGL.so.1 ]; then
+    cp -p /usr/lib/x86_64-linux-gnu/mesa/libGL.so.1 $DESTDIR/lib
 fi
 
 strip --strip-unneeded $DESTDIR/lib/*

@@ -14,8 +14,6 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-include( ../../scripts/phiconf.pri )
-
 HEADERS += phiwizard.h
 SOURCES += main.cpp \
     phiwizard.cpp \
@@ -23,12 +21,12 @@ SOURCES += main.cpp \
 TEMPLATE = app
 TARGET = phiinstaller
 QT = core gui widgets
-
+include( ../../phiconf.pri )
 DEFINES += PHIVERSION=\\\"$$PHIRELEASE\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
 DEFINES -= QT_NO_CAST_FROM_ASCII
 RESOURCES += installer.qrc
 
-win32 { 
+win32 {
         error( "The installer application is not supported for Windows." )
 }
 unix { 

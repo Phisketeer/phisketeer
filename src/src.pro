@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 CONFIG += ordered
-SUBDIRS += libsrc server sconfig apache #installer browser
+SUBDIRS += libsrc server sconfig apache installer #browser
 win32: SUBDIRS -= installer
 mac: SUBDIRS -= installer apache
 TEMPLATE = subdirs
