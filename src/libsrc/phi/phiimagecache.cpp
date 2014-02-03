@@ -36,10 +36,13 @@ PHIRC PHIImageCache::init( QString &error, QObject *parent )
 {
     if ( parent ) setParent( parent );
     else setParent( phiApp );
-    _name.sprintf( "%s-%p.db", "phiimagecache", QThread::currentThread() );
+    _name.sprintf( "%s.db", "phiimagecache" );
     QString path=phiApp->tmpPath()+L1( "/db/" );
     QDir dir( path );
-    if ( !dir.exists() ) dir.mkpath( path );
+    if ( !dir.exists() && !dir.mkpath( path ) ) {
+        error=tr( "Could not access path '%1'." ).arg( path );
+        return PHIRC_IO_FILE_ACCESS_ERROR;
+    }
     path=path+_name;
     qDebug() << "PHIImageCache DB name:" << path;
     _db=QSqlDatabase::addDatabase( SL( "QSQLITE" ), _name );
@@ -74,9 +77,9 @@ PHIImageCache::~PHIImageCache()
         }
         _db.close();
     }
-    QFile::remove( phiApp->tmpPath()+L1( "/db/" )+ _name );
     _db=QSqlDatabase();
     QSqlDatabase::removeDatabase( _name );
+    _instance=0;
     qDebug( "PHIImageCache::~PHIImageCache(): %s", qPrintable( _name ) );
 }
 

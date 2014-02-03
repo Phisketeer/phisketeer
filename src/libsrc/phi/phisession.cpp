@@ -39,7 +39,10 @@ PHIRC PHISession::init( QString &error, QObject *parent )
     _name=L1( "phisession.db" );
     QString path=phiApp->tmpPath()+L1( "/db/" );
     QDir dir( path );
-    if ( !dir.exists() ) dir.mkpath( path );
+    if ( !dir.exists() && !dir.mkpath( path ) ) {
+        error=tr( "Could not access path '%1'." ).arg( path );
+        return PHIRC_IO_FILE_ACCESS_ERROR;
+    }
     path=path+_name;
     qDebug() << "PHISession DB name:" << path;
     _db=QSqlDatabase::addDatabase( SL( "QSQLITE" ), _name );
@@ -47,7 +50,7 @@ PHIRC PHISession::init( QString &error, QObject *parent )
     // @todo: implement shared memory to speed up db access
     _db.setDatabaseName( path );
     if ( !_db.open() ) {
-        error=tr( "Could not create session DB '%1': '%2'" )
+        error=tr( "Could not create session DB '%1': '%2'." )
             .arg( path ).arg( _db.lastError().text() );
         return PHIRC_DB_ERROR;
     }
@@ -55,7 +58,7 @@ PHIRC PHISession::init( QString &error, QObject *parent )
     if ( tables.isEmpty() ) {
         QSqlQuery query( _db );
         if ( !query.exec( QString::fromLatin1( PHICREATETABLE ) ) ) {
-            error=tr( "Could not create session table: %1" )
+            error=tr( "Could not create session table: '%1'." )
                 .arg( query.lastError().text() );
             return PHIRC_QUERY_ERROR;
         }
@@ -68,6 +71,7 @@ PHISession::~PHISession()
     if ( _db.isValid() && _db.isOpen() ) _db.close();
     _db=QSqlDatabase();
     QSqlDatabase::removeDatabase( _name );
+    _instance=0;
     qDebug( "PHISession::~PHISession(): %s", qPrintable( _name ) );
 }
 

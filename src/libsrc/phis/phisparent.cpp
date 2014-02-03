@@ -80,6 +80,7 @@ PHISParent::~PHISParent()
 
 void PHISParent::stopService()
 {
+    QWriteLocker lock( &_lock );
     if ( !_listenerRunning ) return;
     // delete listener before cleaning page cache
     if ( value( SL( "SSLEnabled" ) ).toBool() ) {
@@ -94,6 +95,7 @@ void PHISParent::stopService()
 
 void PHISParent::startService()
 {
+    QWriteLocker lock( &_lock );
     if ( _listenerRunning ) return;
     invalidate();
     PHIRC rc=PHISListener::instance()->init( this );
@@ -139,7 +141,7 @@ QString PHISParent::tempDir( const QString &domain )
     s->endGroup();
     _tmpDirs.insert( domain, tmp );
     QStringList subdirs;
-    subdirs << SL( "/img" ) << SL( "/css" ) << SL( "/db" ) << SL( "/js" );
+    subdirs << SL( "/img" ) << SL( "/css" ) << SL( "/js" );
     foreach ( QString subdir, subdirs ) {
         QDir sub( tmp+subdir );
         sub.mkpath( tmp+subdir );

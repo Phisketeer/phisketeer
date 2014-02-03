@@ -16,25 +16,21 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include "apacherequest.h"
-#include "phiparent.h"
 #include <httpd.h>
 #include <http_core.h>
+#include <QDir>
+#include "apacherequest.h"
+#include "apachereqparent.h"
 
 static int addHeaderItem( void *data, const char *key, const char *value )
 {
     QHash <QByteArray, QByteArray> *hash=static_cast<QHash <QByteArray, QByteArray> *>(data);
-    //qDebug( "addTableItem %s %s", key, value );
-    //hash->insert( QString::fromUtf8( QByteArray::fromRawData( key, qstrlen( key ) ) ),
-    //    QString::fromUtf8( QByteArray::fromRawData( value, qstrlen( value ) ) ) );
-    hash->insert( QByteArray::fromRawData( key, qstrlen( key ) ),
-        QByteArray::fromRawData( value, qstrlen( value ) ) );
+    hash->insert( QByteArray::fromRawData( key, qstrlen( key ) ), QByteArray::fromRawData( value, qstrlen( value ) ) );
     return 1;
 }
 
 ApacheRequest::ApacheRequest( request_rec *r, PHIResponseRec *resp )
-    : PHISRequest()
+    : PHIRequest()
 {
     //qDebug( "ApacheRequest::ApacheRequest()" );
     _resp=resp;
@@ -50,10 +46,8 @@ ApacheRequest::ApacheRequest( request_rec *r, PHIResponseRec *resp )
 
     _keywords.insert( KMethod, QByteArray::fromRawData( r->method, qstrlen( r->method ) ) );
     _url.setHost( QString::fromUtf8( QByteArray::fromRawData( r->hostname, qstrlen( r->hostname ) ) ) );
-    if ( _url.userName().isEmpty() )
-        _url.setUserName( QString::fromUtf8( QByteArray::fromRawData( r->user, qstrlen( r->user ) ) ) );
-    if ( _url.password().isEmpty() )
-        _url.setPassword( QString() );
+    if ( _url.userName().isEmpty() ) _url.setUserName( QString::fromUtf8( QByteArray::fromRawData( r->user, qstrlen( r->user ) ) ) );
+    if ( _url.password().isEmpty() ) _url.setPassword( QString() ); // @todo: extract password from request_rec?!
 
     QByteArray arr=QByteArray::fromRawData( r->protocol, qstrlen( r->protocol ) );
     _httpMajor=arr.mid( 5, 1 ).toInt();
@@ -70,23 +64,17 @@ ApacheRequest::ApacheRequest( request_rec *r, PHIResponseRec *resp )
     if ( s->port>0 ) _url.setPort( s->port );
 
     /** @todo implement SSL stuff properly */
-    if ( s->port==443 ) _url.setScheme( QStringLiteral( "https" ) );
-    else _url.setScheme( QStringLiteral( "http" ) );
+    if ( s->port==443 ) _url.setScheme( SL( "https" ) );
+    else _url.setScheme( SL( "http" ) );
 
     _keepAlive=static_cast<qint32>( s->keep_alive_timeout/1000 );
-    _tmpDir=PHIParent::instance()->tempDir( _url.host() );
-    _imgDir=_tmpDir+QDir::separator()+QLatin1String( "img" );
-    //qDebug( "_tmpDir=%s", qPrintable( _tmpDir ) );
+    _tmpDir=ApacheReqParent::instance()->tempDir( _url.host() );
+    _imgDir=_tmpDir+SL( "/img" );
 
     conn_rec *c=r->connection;
     Q_ASSERT( c );
     _localIP=QHostAddress( QString::fromLatin1( c->local_ip ) );
     _remoteIP=QHostAddress( QString::fromLatin1( c->remote_ip ) );
-}
-
-ApacheRequest::~ApacheRequest()
-{
-    //qDebug( "ApacheRequest::~ApacheRequest()" );
 }
 
 void ApacheRequest::setPostEncodedUrl( const QByteArray &query )

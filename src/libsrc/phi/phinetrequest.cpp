@@ -105,7 +105,7 @@ void PHINetRequest::start()
         _sem->release( 1 );
         return;
     }
-    QNetworkAccessManager *manager=PHINetManager::instance()->networkAccessManager();
+    QNetworkAccessManager *manager=PHINetManager::instance()->networkAccessManager( this );
     connect( manager, &QNetworkAccessManager::finished, this, &PHINetRequest::requestFinished );
     manager->get( _req );
 }

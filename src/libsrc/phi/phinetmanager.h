@@ -21,6 +21,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 #include <QNetworkCookie>
+#include <QNetworkProxy>
 #include <QMutexLocker>
 #include "phi.h"
 
@@ -54,15 +55,22 @@ class PHIEXPORT PHINetworkAccessManager : public QNetworkAccessManager
     Q_OBJECT
 
 public:
-    explicit PHINetworkAccessManager( QObject *parent=0 );
-    virtual ~PHINetworkAccessManager();
-    inline QString userAgent() const { return QString::fromUtf8( _agent ); }
+    explicit PHINetworkAccessManager( QObject *parent=0, bool serverMode=false );
+    virtual ~PHINetworkAccessManager() {}
+    static inline QString userAgent() { return QString::fromUtf8( _agent ); }
+    static inline QString accept() { return QString::fromLatin1( _accept ); }
+    static inline QString charset() { return QString::fromLatin1( _charset ); }
+    static inline QString acceptedLangs() { return QString::fromLatin1( _acceptedLangs ); }
+    static inline void setUserAgent( const QString &a ) { _agent=a.toUtf8(); }
+    static inline void setAccept( const QString &a ) { _accept=a.toLatin1(); }
+    static inline void setCharset( const QString &c ) { _charset=c.toLatin1(); }
+    static inline void setAcceptedLangs( const QString &a ) { _acceptedLangs=a.toLatin1(); }
 
 protected:
     virtual QNetworkReply* createRequest( Operation op, const QNetworkRequest&, QIODevice* outgoingData=0 );
 
 protected:
-    QByteArray _agent, _accept, _charset, _acceptedLangs;
+    static QByteArray _agent, _accept, _charset, _acceptedLangs;
 };
 
 class PHIEXPORT PHINetManager : public QObject
@@ -71,17 +79,19 @@ class PHIEXPORT PHINetManager : public QObject
 
 public:
     static PHINetManager* instance();
-    inline PHINetworkAccessManager* networkAccessManager() const { return _networkAccessManager; }
-    inline QString userAgent() const { return networkAccessManager()->userAgent(); }
+    virtual ~PHINetManager();
+    PHINetworkAccessManager* networkAccessManager( QObject *parent );
+    inline PHINetworkAccessManager* defaultNetworkAccessManager() const { return _defaultNam; }
+    const QNetworkProxy& proxy() const { return _proxy; }
     void updateProxy();
 
 protected:
     PHINetManager( QObject *parent=0 );
-    virtual ~PHINetManager();
 
 private:
-    PHINetworkAccessManager *_networkAccessManager;
     static PHINetManager *_instance;
+    QNetworkProxy _proxy;
+    PHINetworkAccessManager *_defaultNam;
 };
 
 #endif // PHINETMANAGER_H

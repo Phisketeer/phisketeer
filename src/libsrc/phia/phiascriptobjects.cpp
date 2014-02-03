@@ -575,7 +575,7 @@ QString PHIAScriptNavigatorObj::platform() const
 
 QString PHIAScriptNavigatorObj::userAgent() const
 {
-    return PHINetManager::instance()->networkAccessManager()->userAgent();
+    return PHINetworkAccessManager::userAgent();
 }
 
 PHIAScriptPhiObj::PHIAScriptPhiObj( PHIAWebView *view )

@@ -13,23 +13,21 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 #ifndef APACHEREQUEST_H
 #define APACHEREQUEST_H
-
-#include "phisrequest.h"
+#include "phirequest.h"
 #include "phiresponserec.h"
 
 struct request_rec;
 
-class ApacheRequest : public PHISRequest
+class ApacheRequest : public PHIRequest
 {
 public:
     explicit ApacheRequest( request_rec *rec, PHIResponseRec *resp );
-    virtual ~ApacheRequest();
+    virtual ~ApacheRequest() {}
 
     inline void insertTmpFile( const QByteArray &name, QTemporaryFile *tmpFile )
         { _tmpFiles.insertMulti( name, tmpFile ); }

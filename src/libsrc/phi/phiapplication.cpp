@@ -66,7 +66,7 @@ bool PHIPrivateApplication::event( QEvent *e )
 PHIApplication* PHIApplication::_instance=0;
 
 PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const char *version, Type type )
-    : QObject( 0 ), _app( 0 ), _settings( 0 ), _serverSettings( 0 )
+    : QObject( 0 ), _app( 0 ), _settings( 0 ), _serverSettings( 0 ), _type( type )
 {
     qDebug( "PHIApplication::PHIApplication()" );
     Q_ASSERT( argc>0 );
@@ -129,6 +129,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
         _binPath=_serverSettings->value( L1( "BinDir" ), conf ).toString();
         conf=L1( "/opt/phi/plugins" ); // fallback
         _pluginsPath=_serverSettings->value( L1( "PluginsPath" ), conf ).toString();
+        _usrDocPath=L1( "/root/Documents" );
     }
     rootDir.setPath( _binPath );
     rootDir.cdUp();
@@ -151,19 +152,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _pluginsPath=_serverSettings->value( L1( "PluginsPath" ), _pluginsPath ).toString();
     qputenv( "QT_PLUGIN_PATH", _pluginsPath.toUtf8() );
 
-    if ( type==ApacheModule ) {
-        QStringList argList;
-        argList << _libPath+L1( "/libmod_phi.so" );
-        argList << L1( "-platform" ) << L1( "offscreen" );
-        int p_argc=argList.size();
-        QVector<char *> p_argv( p_argc );
-        QList<QByteArray> argvData;
-        for ( int i=0; i<p_argc; ++i ) argvData.append( argList.at( i ).toLatin1() );
-        for ( int i=0; i<p_argc; ++i ) p_argv[i]=argvData[i].data();
-        _app=new QGuiApplication( p_argc, p_argv.data() );
-        delete _settings;
-        _settings=_serverSettings;
-    } else if ( type==Service ) {
+    if ( type==ApacheModule || type==Service ) {
 #ifdef Q_OS_MAC
         qputenv( "QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "1" );
 #endif
@@ -191,8 +180,11 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
 
     Q_ASSERT( _settings );
     _cachePath=QStandardPaths::writableLocation( QStandardPaths::CacheLocation );
-    _tmpPath=QStandardPaths::writableLocation( QStandardPaths::TempLocation )
-        +QLatin1Char( '/' )+objectName();
+    _tmpPath=QStandardPaths::writableLocation( QStandardPaths::TempLocation )+QLatin1Char( '/' )+objectName();
+    _tmpPath=_settings->value( L1( "TempDir" ), _tmpPath ).toString();
+    if ( type==Service || type==ApacheModule ) {
+        _cachePath=_tmpPath+L1( "/cache" );
+    }
     if ( !QFileInfo( _cachePath ).exists() ) QDir( _cachePath ).mkpath( _cachePath );
     if ( !QFileInfo( _tmpPath ).exists() ) QDir( _tmpPath ).mkpath( _tmpPath );
 
@@ -208,6 +200,8 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qRegisterMetaType<QSizePolicy>("QSizePolicy");
 
 #ifdef PHIDEBUG
+    _rootPath=L1( PHIDIR );
+    _binPath=L1( PHIDIR )+L1( "/bin" );
     _pluginsPath=L1( PHIDIR )+L1( "/plugins" );
     _itemsPath=_pluginsPath+L1( "/items" );
     _serverBin=L1( PHIDIR )+L1( "/bin/Phisd" );
@@ -232,39 +226,28 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
 #ifdef PHIEMBEDEDAPP
     _appBin=QString();
 #endif
-    qWarning( "Application name: %s", name );
-    qWarning( "Version: %s", version );
-    qWarning( "Settings file: %s", qPrintable( _settings->fileName() ) );
-    qWarning( "Server settings file: %s", qPrintable( _serverSettings->fileName() ) );
-    qWarning( "Plug-in dir: %s", qPrintable( _pluginsPath ) );
-    qWarning( "Items dir: %s", qPrintable( _itemsPath ) );
-    qWarning( "Modules dir: %s", qPrintable( _modulesPath ) );
-    qWarning( "Server bin: %s", qPrintable( _serverBin ) );
-    qWarning( "PhiApp bin: %s", qPrintable( _appBin ) );
-    qWarning( "TS dir: %s", qPrintable( _tsPath ) );
-    qWarning( "Root dir: %s", qPrintable( _rootPath ) );
-    qWarning( "Lib dir: %s", qPrintable( _libPath ) );
-    qWarning( "Tmp dir: %s", qPrintable( _tmpPath ) );
-    qWarning( "Cache dir: %s", qPrintable( _cachePath ) );
-    qWarning( "Data dir: %s", qPrintable( _dataPath ) );
-    qWarning( "User doc dir: %s", qPrintable( _usrDocPath ) );
 #endif
-    if ( _app ) setupApplication( _app, domain, org, version );
-}
+#ifdef PHIPRINTDIRS
+    qWarning( "App name:       %s", name );
+    qWarning( "Version:        %s", version );
+    qWarning( "Settings file:  %s", qPrintable( _settings->fileName() ) );
+    qWarning( "Server setings: %s", qPrintable( _serverSettings->fileName() ) );
+    qWarning( "Plug-in dir:    %s", qPrintable( _pluginsPath ) );
+    qWarning( "Items dir:      %s", qPrintable( _itemsPath ) );
+    qWarning( "Modules dir:    %s", qPrintable( _modulesPath ) );
+    qWarning( "Bin dir:        %s", qPrintable( _binPath ) );
+    qWarning( "Server bin:     %s", qPrintable( _serverBin ) );
+    qWarning( "PhiApp bin:     %s", qPrintable( _appBin ) );
+    qWarning( "TS dir:         %s", qPrintable( _tsPath ) );
+    qWarning( "Root dir:       %s", qPrintable( _rootPath ) );
+    qWarning( "Lib dir:        %s", qPrintable( _libPath ) );
+    qWarning( "Tmp dir:        %s", qPrintable( _tmpPath ) );
+    qWarning( "Cache dir:      %s", qPrintable( _cachePath ) );
+    qWarning( "Data dir:       %s", qPrintable( _dataPath ) );
+    qWarning( "User doc dir:   %s", qPrintable( _usrDocPath ) );
+#endif
 
-PHIApplication::~PHIApplication()
-{
-    delete _app;
-    _app=0;
-    _instance=0;
-    _settings=0;
-    _serverSettings=0;
-    qDebug( "PHIApplication::~PHIApplication()" );
-}
-
-void PHIApplication::setupApplication( QGuiApplication *app, const QString &domain, const QString &org, const char *version )
-{
-    _app=app;
+    Q_ASSERT( _app );
     _app->setApplicationName( objectName() );
     _app->setApplicationVersion( QString::fromLatin1( version ) );
     _app->setOrganizationDomain( domain );
@@ -279,6 +262,17 @@ void PHIApplication::setupApplication( QGuiApplication *app, const QString &doma
     ws->setAttribute( QWebSettings::JavascriptCanOpenWindows, true );
     ws->setAttribute( QWebSettings::LocalContentCanAccessRemoteUrls, true );
     ws->setAttribute( QWebSettings::JavascriptEnabled, true );
+}
+
+PHIApplication::~PHIApplication()
+{
+    delete PHINetManager::instance();
+    delete _app;
+    _app=0;
+    _instance=0;
+    _settings=0;
+    _serverSettings=0;
+    qDebug( "PHIApplication::~PHIApplication()" );
 }
 
 void PHIApplication::invalidate()

@@ -29,9 +29,17 @@
 class PHIDiskCache : public QNetworkDiskCache
 {
 public:
-    explicit PHIDiskCache( QObject *parent );
+    static PHIDiskCache* instance();
     virtual ~PHIDiskCache();
+
+protected:
+    PHIDiskCache( QObject *parent );
+
+private:
+    static PHIDiskCache *_instance;
 };
+
+PHIDiskCache* PHIDiskCache::_instance=0;
 
 PHIDiskCache::PHIDiskCache( QObject *parent )
     : QNetworkDiskCache( parent )
@@ -46,28 +54,30 @@ PHIDiskCache::PHIDiskCache( QObject *parent )
 
 PHIDiskCache::~PHIDiskCache()
 {
+    _instance=0;
     qDebug( "PHIDiskCache::~PHIDiskCache()" );
 }
 
-PHINetworkAccessManager::PHINetworkAccessManager( QObject *parent )
+PHIDiskCache* PHIDiskCache::instance()
+{
+    if ( _instance ) return _instance;
+    _instance=new PHIDiskCache( phiApp );
+    return _instance;
+}
+
+QByteArray PHINetworkAccessManager::_accept=PHI::phiMimeType();
+QByteArray PHINetworkAccessManager::_agent="Mozilla/5.0";
+QByteArray PHINetworkAccessManager::_charset="utf-8,*;q=0.8";
+QByteArray PHINetworkAccessManager::_acceptedLangs="en-us,en";
+
+PHINetworkAccessManager::PHINetworkAccessManager( QObject *parent, bool serverMode )
     : QNetworkAccessManager( parent )
 {
     qDebug( "PHINetworkAccessManager::PHINetworkAccessManager()" );
-    _agent="Mozilla/5.0 ("+PHISysInfo::systemString().toUtf8()+") "
-        +QByteArray( "AppleWebKit/" )+qWebKitVersion().toLatin1()+QByteArray( " (KHTML, like Gecko) " )
-        +phiApp->applicationName().toLatin1()+"/"+PHI::libVersion().toLatin1();
-    _accept=PHI::phiMimeType()+",text/html,application/xml;q=0.9,application/xhtml+xml;q=0.8,"
-        "text/plain;q=0.8,image/png,image/*;q=0.6,*/*;q=0.5";
-    _charset="utf-8,*;q=0.7";
-    QSettings *s=phiApp->settings();
-    s->beginGroup( SL( "Client" ) );
-    _acceptedLangs=s->value( SL( "AcceptedLanguages" ), QByteArray( "en-us,en") ).toByteArray();
-    s->endGroup();
-}
-
-PHINetworkAccessManager::~PHINetworkAccessManager()
-{
-    qDebug( "PHINetworkAccessManager::~PHINetworkAccessManager()" );
+    if ( !serverMode )  {
+        setCookieJar( PHINetworkCookies::instance() );
+        setCache( PHIDiskCache::instance() );
+    }
 }
 
 QNetworkReply* PHINetworkAccessManager::createRequest( QNetworkAccessManager::Operation op,
@@ -92,14 +102,31 @@ PHINetManager* PHINetManager::instance()
 }
 
 PHINetManager::PHINetManager( QObject *parent )
-    : QObject( parent )
+    : QObject( parent ), _defaultNam( 0 )
 {
-    qDebug( "PHINetManager::PHINetManager()" );
-    PHINetworkCookies::instance()->setParent( this );
-    _networkAccessManager=new PHINetworkAccessManager( this );
-    _networkAccessManager->setCookieJar( PHINetworkCookies::instance() );
-    _networkAccessManager->setCache( new PHIDiskCache( _networkAccessManager ) );
+    QString tmp;
+    tmp=L1( "Mozilla/5.0 (" )+PHISysInfo::systemString()+L1( ") " )
+        +L1( "AppleWebKit/" )+qWebKitVersion()+L1( " (KHTML, like Gecko) " )
+        +phiApp->applicationName()+L1( "/" )+PHI::libVersion();
+    PHINetworkAccessManager::setUserAgent( tmp );
+    tmp=QString::fromLatin1( PHI::phiMimeType() )+L1( ",text/html,application/xml;q=0.9,application/xhtml+xml;q=0.8,"
+        "text/plain;q=0.8,image/png,image/*;q=0.6,*/*;q=0.5" );
+    PHINetworkAccessManager::setAccept( tmp );
+    QSettings *s=phiApp->settings();
+    s->beginGroup( SL( "Client" ) );
+    tmp=s->value( SL( "AcceptedLanguages" ), SL( "en-us,en") ).toString();
+    s->endGroup();
+    PHINetworkAccessManager::setAcceptedLangs( tmp );
+    if ( phiApp->type()!=PHIApplication::ApacheModule ) _defaultNam=new PHINetworkAccessManager( this, false );
     updateProxy();
+    qDebug( "PHINetManager::PHINetManager()" );
+}
+
+PHINetManager::~PHINetManager()
+{
+    delete _defaultNam;
+    _instance=0;
+    qDebug( "PHINetManager::~PHINetManager()" );
 }
 
 void PHINetManager::updateProxy()
@@ -110,20 +137,21 @@ void PHINetManager::updateProxy()
     quint16 port=s->value( SL( "ProxyPort" ) ).value<quint16>();
     s->endGroup();
     if ( proxyHost.isEmpty() ) {
-        _networkAccessManager->setProxy( QNetworkProxy() );
+        _proxy=QNetworkProxy();
+        if ( _defaultNam ) _defaultNam->setProxy( _proxy );
         return;
     }
-    QNetworkProxy proxy;
-    proxy.setType( QNetworkProxy::HttpProxy );
-    proxy.setHostName( proxyHost );
-    proxy.setPort( port );
-    _networkAccessManager->setProxy( proxy );
+    _proxy.setType( QNetworkProxy::HttpProxy );
+    _proxy.setHostName( proxyHost );
+    _proxy.setPort( port );
+    if ( _defaultNam ) _defaultNam->setProxy( _proxy );
 }
 
-PHINetManager::~PHINetManager()
+PHINetworkAccessManager *PHINetManager::networkAccessManager( QObject *parent )
 {
-    _instance=0;
-    qDebug( "PHINetManager::~PHINetManager()" );
+    PHINetworkAccessManager *nam=new PHINetworkAccessManager( parent, true );
+    nam->setProxy( _proxy );
+    return nam;
 }
 
 PHINetworkCookies* PHINetworkCookies::_instance=0;
@@ -168,6 +196,7 @@ PHINetworkCookies::~PHINetworkCookies()
         foreach ( cookie, list ) ds << cookie.toRawForm();
         f.close();
     }
+    _instance=0;
     qDebug( "PHINetworkCookies::~PHINetworkCookies()" );
 }
 

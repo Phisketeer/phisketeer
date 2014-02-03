@@ -40,7 +40,7 @@ PHIImageRequest::~PHIImageRequest()
 
 QNetworkAccessManager* PHIImageRequest::networkAccessManager()
 {
-    if ( _nam==0 ) return PHINetManager::instance()->networkAccessManager();
+    if ( _nam==0 ) return PHINetManager::instance()->defaultNetworkAccessManager();
     return _nam;
 }
 

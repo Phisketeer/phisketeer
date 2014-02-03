@@ -110,13 +110,16 @@ RESOURCES += phi.qrc
 unix { 
     DESTDIR = ../../../lib
     SOURCES += phisysinfo_unix.cpp
-    CONFIG(debug,debug|release): TARGET = phi_debug
+    CONFIG(debug,debug|release) {
+        TARGET = phi_debug
+        DEFINES += PHIPRINTDIRS
+    }
     mac {
         contains( PHICONF, macappstore ){
             OBJECTIVE_SOURCES += macfilebookmark.mm
             OBJECTIVE_HEADERS += macfilebookmark.h
             LIBS = -framework AppKit
-        }
+        } else: DEFINES += PHIPRINTDIRS
         TARGET = phi
     } else {
         QMAKE_LFLAGS +=-Wl,-rpath,\'\$$ORIGIN\'
@@ -125,6 +128,9 @@ unix {
 win32 {
     DESTDIR = ../../../bin
     SOURCES += phisysinfo_win32.cpp
-    CONFIG(debug,debug|release): TARGET = phid
+    CONFIG(debug,debug|release) {
+        TARGET = phid
+        DEFINES += PHIPRINTDIRS
+    }
     QMAKE_DISTCLEAN += phi_resource.rc phid_resource.rc
 }

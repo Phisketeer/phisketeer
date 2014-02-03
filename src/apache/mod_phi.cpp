@@ -13,7 +13,7 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 **    # example for apache2.conf
@@ -43,12 +43,12 @@
 #include <QDir>
 #include <QObject>
 
-#include "phiprocessor.h"
+#include "phisprocessor.h"
 #include "phiresponserec.h"
-#include "phiparent.h"
 #include "phierror.h"
 #include "phispagecache.h"
 #include "apacherequest.h"
+#include "apachereqparent.h"
 
 #include "httpd.h"
 //#include "apr_pools.h"
@@ -77,7 +77,7 @@ extern "C" {
     static_cast<int>((rc)),(file),(line),cleanString((str)));
 
 static int cleanupResponseRec( void *ptr ) { delete static_cast<PHIResponseRec*>(ptr); return 0; }
-static int cleanupPHIParent( void *ptr ) { delete static_cast<PHIParent*>(ptr); return 0; }
+static int cleanupApacheReqParent( void *ptr ) { delete static_cast<ApacheReqParent*>(ptr); return 0; }
 
 static int translateReturnCode( PHIRC rc )
 {
@@ -98,14 +98,14 @@ static const char* cleanString( const QString &s )
 static int parseMultipartPostData( request_rec *r, ApacheRequest *req )
 {
     qDebug( "parsing POST data" );
-    if ( !req->keyword( PHISRequest::KContentType ).contains( "boundary=" ) ) {
+    if ( !req->keyword( PHIRequest::KContentType ).contains( "boundary=" ) ) {
         QString err=QObject::tr( "Missing boundary for media type (multipart/form-data)." );
         PHI_RLOG_ERR(PHIRC_HTTP_BAD_REQUEST,__FILE__,__LINE__,err);
         PHI_RLOG_RC(PHIRC_HTTP_BAD_REQUEST);
         return HTTP_BAD_REQUEST;
     }
-    QByteArray boundary="--"+req->keyword( PHISRequest::KContentType )
-        .mid( req->keyword( PHISRequest::KContentType ).indexOf( '=' )+1 );
+    QByteArray boundary="--"+req->keyword( PHIRequest::KContentType )
+        .mid( req->keyword( PHIRequest::KContentType ).indexOf( '=' )+1 );
     QByteArray name, contentEntity, arr;
     QTemporaryFile *tmpFile=0;
 
@@ -280,17 +280,17 @@ static int phi_handler( request_rec *r )
     apr_pool_cleanup_register( r->pool, static_cast<void*>(resp), cleanupResponseRec, apr_pool_cleanup_null );
 
     ApacheRequest areq( r, resp );
-    if ( areq.keyword( PHISRequest::KMethod ) != "GET" && areq.keyword( PHISRequest::KMethod ) != "POST"
-            && areq.keyword( PHISRequest::KMethod ) != "HEAD" ) return HTTP_METHOD_NOT_ALLOWED;
+    if ( areq.keyword( PHIRequest::KMethod ) != "GET" && areq.keyword( PHIRequest::KMethod ) != "POST"
+            && areq.keyword( PHIRequest::KMethod ) != "HEAD" ) return HTTP_METHOD_NOT_ALLOWED;
 
     //PHIParent::instance()->readLicenseFile( areq.documentRoot(), areq.hostname() );
 
-    if ( areq.keyword( PHISRequest::KMethod ) == "POST" ) {
+    if ( areq.keyword( PHIRequest::KMethod ) == "POST" ) {
         int status=OK;
-        if ( areq.keyword( PHISRequest::KContentType ).startsWith( "application/x-www-form-urlencoded" )
+        if ( areq.keyword( PHIRequest::KContentType ).startsWith( "application/x-www-form-urlencoded" )
                 && areq.contentLength() > 0 )
             status=parseUrlEncodedPostData( r, &areq );
-        else if ( areq.keyword( PHISRequest::KContentType ).startsWith( "multipart/form-data" )
+        else if ( areq.keyword( PHIRequest::KContentType ).startsWith( "multipart/form-data" )
                 && areq.contentLength() > 0 )
             status=parseMultipartPostData( r, &areq );
         if ( status!=OK ) return status;
@@ -302,8 +302,9 @@ static int phi_handler( request_rec *r )
 
     int dbId=PHISPageCache::getDbId();
     {
-    PHIProcessor phiproc( &areq, dbId ); // process request (PHI engine)
-    phiproc.run();
+        PHISProcessor phiproc( &areq, dbId ); // process request (PHI engine)
+        phiproc.run();
+    }
     // Print out any occured log entries
     PHIResponseRecLogEntry entry;
     foreach ( entry, resp->logEntries() ) {
@@ -315,7 +316,7 @@ static int phi_handler( request_rec *r )
             QString err=QObject::tr( "Redirected file '%1' not found." ).arg( resp->fileName() );
             resp->error( PHILOGERR, PHIRC_HTTP_NOT_FOUND, err );
         } else {
-            PHIProcessor phiproc2( &areq, dbId );
+            PHISProcessor phiproc2( &areq, dbId );
             phiproc2.run();
             // Print out any occured log entries
             foreach ( entry, resp->logEntries() ) {
@@ -324,7 +325,7 @@ static int phi_handler( request_rec *r )
             }
         }
     }
-    }
+
     if ( QSqlDatabase::contains( QString::number( dbId ) ) ) {
         { // needed to delete db instance before removing
             QSqlDatabase db=QSqlDatabase::database( QString::number( dbId ) );
@@ -365,7 +366,7 @@ static int phi_handler( request_rec *r )
         if ( rc==HTTP_NOT_MODIFIED ) {
             if ( resp->options() & PHIResponseRec::SendFile ) {
                 QFileInfo fi( resp->fileName() );
-                QByteArray type=PHI::mimeType( fi );
+                QByteArray type=PHI::mimeTypeForFile( fi );
                 if ( type.isEmpty() ) {
                     PHIRC rcm=PHIRC_HTTP_UNSUPPORTED_MEDIA_TYPE;
                     QString err=QObject::tr( "Unknown media type '%1'." ).arg( fi.suffix() );
@@ -384,7 +385,7 @@ static int phi_handler( request_rec *r )
     if ( resp->options() & PHIResponseRec::HeaderOnly ) return OK;
     if ( resp->options() & PHIResponseRec::SendFile ) {
         QFileInfo fi( resp->fileName() );
-        QByteArray type=PHI::mimeType( fi );
+        QByteArray type=PHI::mimeTypeForFile( fi );
         if ( type.isEmpty() ) {
             PHIRC rcm=PHIRC_HTTP_UNSUPPORTED_MEDIA_TYPE;
             QString err=QObject::tr( "Unknown media type '%1'." ).arg( fi.suffix() );
@@ -421,7 +422,6 @@ static int phi_handler( request_rec *r )
         }
         apr_file_close( fd );
     } else {
-        //const QByteArray body=resp->body();
         apr_status_t rv;
         apr_bucket_brigade *bb;
         apr_bucket *b;
@@ -476,13 +476,19 @@ static int global_init( apr_pool_t *p, apr_pool_t *plog, apr_pool_t *ptemp, serv
 {
     Q_UNUSED( plog );
     Q_UNUSED( ptemp );
-    PHIParent *parent=PHIParent::instance();
-    apr_pool_cleanup_register( p, static_cast<void*>(parent), cleanupPHIParent, apr_pool_cleanup_null );
-    /** @todo Make mime type filename configurable. */
+    ApacheReqParent *parent=ApacheReqParent::instance();
+    apr_pool_cleanup_register( p, static_cast<void*>(parent), cleanupApacheReqParent, apr_pool_cleanup_null );
+    /** @todo: Make mime type filename configurable. */
+
     QString tmp=QObject::tr( "Apache mod_phi v%1 loaded (libphis v%2)." )
         .arg( QString::fromLatin1( PHIVERSION ) ).arg( PHIS::libVersion() );
     PHI_SLOG_NOTICE(PHIRC_SUCCESS,__FILE__,__LINE__,tmp);
-    PHIRC rc=PHIRC_MODULE_LOAD_ERROR;
+    PHIRC rc=PHIRC_MGR_INIT_ERROR;
+    foreach ( tmp, parent->initErrors() ) {
+        PHI_SLOG_ERR(rc,__FILE__,__LINE__,tmp);
+        PHI_SLOG_RC(rc);
+    }
+    rc=PHIRC_MODULE_LOAD_ERROR;
     foreach ( tmp, parent->moduleLoadErrors() ) {
         PHI_SLOG_ERR(rc,__FILE__,__LINE__,tmp);
         PHI_SLOG_RC(rc);

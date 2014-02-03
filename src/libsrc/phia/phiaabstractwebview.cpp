@@ -157,7 +157,7 @@ PHIAAbstractWebView::~PHIAAbstractWebView()
 
 QNetworkAccessManager* PHIAAbstractWebView::networkAccessManager()
 {
-    if ( !_networkAccessManager ) return PHINetManager::instance()->networkAccessManager();
+    if ( !_networkAccessManager ) return PHINetManager::instance()->defaultNetworkAccessManager();
     return _networkAccessManager;
 }
 

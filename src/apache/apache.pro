@@ -15,9 +15,11 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-HEADERS = apacherequest.h
+HEADERS = apacherequest.h \
+    apachereqparent.h
 SOURCES = mod_phi.cpp \
-    apacherequest.cpp
+    apacherequest.cpp \
+    apachereqparent.cpp
 
 include( ../../phiconf.pri )
 VERSION = 2.0.0

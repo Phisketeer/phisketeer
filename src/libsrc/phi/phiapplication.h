@@ -67,11 +67,11 @@ public:
     inline QSettings* settings() const { return _settings; }
     inline int exec() { return _app->exec(); }
     inline QString applicationName() const { return _app->applicationName(); }
+    inline Type type() const { return _type; }
     bool stopPhisService();
     bool startPhisService();
     int checkPhisService();
     bool clearPhisServiceCache();
-    void setupApplication( QGuiApplication *app, const QString &domain, const QString &org, const char *version );
     static PHIApplication* instance() { return _instance; }
 
 public slots:
@@ -89,6 +89,7 @@ private:
     QString _pluginsPath, _rootPath, _binPath, _libPath, _modulesPath, _lang;
     QString _itemsPath, _tsPath, _serverBin, _cachePath, _tmpPath, _appBin;
     QString _usrDocPath, _dataPath;
+    Type _type;
 };
 
 #endif // PHIAPPLICATION_H

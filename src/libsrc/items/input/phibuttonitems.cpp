@@ -57,6 +57,7 @@ void PHISubmitButtonItem::setWidgetText( const QString &t )
 
 bool PHISubmitButtonItem::paint( QPainter *painter, const QRectF &exposed )
 {
+    Q_UNUSED( painter )
     Q_UNUSED( exposed )
 #ifdef Q_OS_MAC
     painter->translate( 0, -2 );

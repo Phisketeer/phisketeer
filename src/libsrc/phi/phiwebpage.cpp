@@ -24,7 +24,7 @@
 PHIWebPage::PHIWebPage( QObject *parent )
     : QWebPage( parent )
 {
-    setNetworkAccessManager( PHINetManager::instance()->networkAccessManager() );
+    setNetworkAccessManager( PHINetManager::instance()->defaultNetworkAccessManager() );
     mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
     mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
     setLinkDelegationPolicy( QWebPage::DelegateExternalLinks );
