@@ -77,23 +77,20 @@ PHISLogWriter::PHISLogWriter( QObject *parent, const QString &name )
     QSettings *s=phiApp->serverSettings();
     s->beginGroup( name );
     quint32 filterFlags=s->value( SL( "LogFilter" ), 0 ).value<quint32>();
-    QString logDir=s->value( SL( "LogDir" ), phiApp->cachePath()+L1( "/log" ) ).toString();
+    QString logDir=s->value( SL( "LogDir" ), phiApp->dataPath()+QDir::toNativeSeparators( L1( "/log" ) ) ).toString();
     s->endGroup();
-#ifdef Q_OS_MAC
     QDir dir( logDir );
     if ( !dir.exists() ) dir.mkpath( logDir );
-#endif
     _filter=All;
     _filter&= ~(static_cast<PHISLogWriter::Filter>(filterFlags));
     _logFile=logDir+L1( "/error.log" );
     _file.setFileName( _logFile );
-    qDebug( "Using log file '%s'", qPrintable( _logFile ) );
     if ( !_file.open( QFile::WriteOnly | QFile::Append ) ){
         PHIError::instance()->print( PHIRC_LOG_INIT_ERROR,
             tr( "Check if '%1' is writable." ).arg( _logFile )
             +QLatin1Char( ' ' )+tr( "Disabling error log file." ) );
         _file.open( stderr, QIODevice::WriteOnly );
-    }
+    } else qWarning( "Using log file: '%s'", qPrintable( _logFile ) );
     _out.setDevice( &_file );
 }
 

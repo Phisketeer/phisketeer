@@ -98,7 +98,6 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _tsPath=_rootPath+L1( "/ts" );
     _serverBin=_binPath+L1( "/Phis.exe" );
     _appBin=_binPath+L1( "/PhiApp.exe" );
-    _dataPath=_rootPath+L1( "/data" );
 #elif defined Q_OS_MAC
     _serverSettings=new QSettings( domain, phis, this );
     rootDir=QFileInfo( QString::fromLocal8Bit( argv[0] ) ).dir(); // bundleID/Contents/MacOS
@@ -180,7 +179,12 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
 
     Q_ASSERT( _settings );
     _cachePath=QStandardPaths::writableLocation( QStandardPaths::CacheLocation );
+#ifdef Q_OS_WIN
+    _dataPath=_settings->value( L1( "BaseDir" ), _rootPath+L1( "/data" ) ).toString();
+    _tmpPath=_dataPath+L1( "/temp" );
+#else
     _tmpPath=QStandardPaths::writableLocation( QStandardPaths::TempLocation )+QLatin1Char( '/' )+objectName();
+#endif
     _tmpPath=_settings->value( L1( "TempDir" ), _tmpPath ).toString();
     if ( type==Service || type==ApacheModule ) {
         _cachePath=_tmpPath+L1( "/cache" );
@@ -220,13 +224,28 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     _serverBin=L1( PHIDIR )+L1( "/bin/phis_debug" );
     _appBin=L1( PHIDIR )+L1( "/bin/phiapp_debug" );
 #endif
+
+#endif
 #ifdef PHIEMBEDEDSERVER
     _serverBin=QString();
 #endif
 #ifdef PHIEMBEDEDAPP
     _appBin=QString();
 #endif
-#endif
+    _pluginsPath=QDir::toNativeSeparators( _pluginsPath );
+    _itemsPath=QDir::toNativeSeparators( _itemsPath );
+    _modulesPath=QDir::toNativeSeparators( _modulesPath );
+    _binPath=QDir::toNativeSeparators( _binPath );
+    _serverBin=QDir::toNativeSeparators( _serverBin );
+    _appBin=QDir::toNativeSeparators( _appBin );
+    _tsPath=QDir::toNativeSeparators( _tsPath );
+    _rootPath=QDir::toNativeSeparators( _rootPath );
+    _libPath=QDir::toNativeSeparators( _libPath );
+    _tmpPath=QDir::toNativeSeparators( _tmpPath );
+    _cachePath=QDir::toNativeSeparators( _cachePath );
+    _dataPath=QDir::toNativeSeparators( _dataPath );
+    _usrDocPath=QDir::toNativeSeparators( _usrDocPath );
+
 #ifdef PHIPRINTDIRS
     qWarning( "App name:       %s", name );
     qWarning( "Version:        %s", version );
@@ -285,7 +304,8 @@ void PHIApplication::loadTranslations()
     Q_ASSERT( _app );
     _lang=QLocale::system().name();
     Q_ASSERT( _settings );
-    _lang=_settings->value( QStringLiteral( "Language" ), _lang ).toString();
+    _lang=_settings->value( L1( "Language" ), _lang ).toString();
+    _settings->setValue( L1( "Language" ), _lang );
     QLocale::setDefault( QLocale( _lang ) );
     qDebug( "SETTING LOCALE %s", qPrintable( _lang ) );
     QTranslator *tr=new QTranslator( _app );
@@ -351,9 +371,12 @@ int PHIApplication::checkPhisService()
 
 bool PHIApplication::startPhisService()
 {
+    qWarning() << "phiapp start" << _serverBin;
 #ifdef PHIEMBEDEDSERVER
     return false;
 #else
+    if ( !QFile::exists( _serverBin ) ) return false;
+    qWarning() << "phiapp start" << _serverBin;
     QProcess proc;
 #ifdef Q_OS_WIN
     proc.execute( _serverBin, QStringList() << QStringLiteral( "-i" ) );

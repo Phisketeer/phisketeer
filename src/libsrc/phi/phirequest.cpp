@@ -98,7 +98,7 @@ void PHIRequest::init() // must be executed AFTER all GET and POST var extractio
             pos+=10;
         } else if ( (pos=arr.indexOf( BL( "Trident" ) ))!=-1 ) {
             _agentEngine=Trident;
-            _agentId=UnknownAgent;
+            _agentId=IE;
             pos+=8;
         } else {
             pos=-1;

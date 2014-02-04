@@ -32,8 +32,8 @@ win32 {
     CONFIG(debug,debug|release) {
         CONFIG += console
         LIBS = -L../../bin phid2.lib phisd2.lib
-        TARGET = phisconfd
-    }
+        TARGET = PhisConfd
+    } else: TARGET = PhisConf
     RC_FILE = sconfig.rc
     QMAKE_LFLAGS += /MANIFESTUAC:level=\'requireAdministrator\'
     OTHER_FILES += sconfig.rc

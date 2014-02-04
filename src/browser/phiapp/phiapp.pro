@@ -17,7 +17,7 @@
 
 SOURCES = main.cpp
 HEADERS = 
-include( ../../../scripts/phiconf.pri )
+include( ../../../phiconf.pri )
 TEMPLATE = app
 TARGET = phiapp
 DESTDIR = ../../../bin
@@ -27,12 +27,12 @@ INCLUDEPATH = ../../libsrc/phi ../../libsrc/phia
 DEFINES += PHIVERSION=\\\"$$VERSION\\\"
 
 win32 {
-    LIBS = -L../../../bin phi1.lib phia1.lib
+    LIBS = -L../../../bin phi2.lib phia2.lib
     CONFIG(debug,debug|release){
         CONFIG += console
-        LIBS = -L../../../bin phid1.lib phiad1.lib
-        TARGET = phiappd
-    }
+        LIBS = -L../../../bin phid2.lib phiad2.lib
+        TARGET = PhiAppd
+    } else: TARGET = PhiApp
     RC_FILE=phiapp.rc
     OTHER_FILES +=phiapp.rc
 }

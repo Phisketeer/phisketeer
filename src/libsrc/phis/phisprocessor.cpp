@@ -453,14 +453,14 @@ void PHISProcessor::genImage() const
     bool useTmp=_req->getKeys().contains( SL( "t" ) );
     QString imgPath=_req->getValue( SL( "i" ) );
     if ( Q_UNLIKELY( !useTmp ) ) {
-#ifdef PHIEMBEDEDSERVER
+//#ifdef PHIEMBEDEDSERVER
         if ( Q_UNLIKELY( imgPath==L1( "ping" ) ) ) {
             _req->responseRec()->setContentType( BL( "text/plain" ) );
             _req->responseRec()->setBody( BL( "alive" ) );
             _req->responseRec()->setContentLength( 5 );
             return;
         }
-#endif
+//#endif
         imgPath=resolveRelativeFile( imgPath );
     } else {
         if ( Q_UNLIKELY( imgPath.endsWith( SL( ".ico" ) ) ) ) {

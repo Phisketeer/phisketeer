@@ -16,29 +16,20 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QApplication>
-#include "phiamainwindow.h"
-#include "phi.h"
-#include "phia.h"
-#include "phiqt5fixes.h"
-
+#include <QObject>
+#include "phiapplication.h"
+#include "phiaappwindow.h"
 int main ( int argc, char **argv )
 {
-    phiSetPluginPath( argc, argv );
-    QApplication app( argc, argv );
-    app.setApplicationName( PHIA::browserName() );
-    app.setApplicationVersion( QStringLiteral( PHIVERSION ) );
-    PHI::setupApplication( &app );
-    app.connect( &app, SIGNAL( lastWindowClosed() ), &app, SLOT( quit() ) );
+    PHIApplication app( argc, argv, "PhiApp", PHIVERSION );
+    QObject::connect( qApp, SIGNAL( lastWindowClosed() ), qApp, SLOT( quit() ) );
 
-    QStringList args=app.arguments();
+    QStringList args=qApp->arguments();
     QString url;
     if ( args.count()>1 ) url=args.at( 1 );
 
-    PHIAMainWindow *mw=new PHIAMainWindow( url );
-    mw->show();
-#ifdef Q_OS_MAC
-    mw->raise();
-#endif
+    PHIAAppWindow win;
+    win.show();
+    if ( !url.isEmpty() ) win.setUrl( QUrl( url ) );
     return app.exec();
 }

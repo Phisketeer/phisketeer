@@ -37,7 +37,7 @@ PHISServerConf::PHISServerConf( QWidget *parent )
 {
     setupUi( this );
     setWindowIcon( QIcon( L1( ":/phi/logo" ) ) );
-    setWindowTitle( tr( "Phisconf %1" ).arg( L1( PHISVERSION ) ) );
+    setWindowTitle( tr( "PhisConf %1" ).arg( L1( PHISVERSION ) ) );
     _configCombo->insertItem( 0, PHI::defaultString() );
     _virtualTree->setIndentation( 0 );
     _tab->setCurrentIndex( 0 );
@@ -233,6 +233,7 @@ void PHISServerConf::on__start_clicked()
 #ifdef PHIEMBEDEDSERVER
     PHISParent::instance()->startService();
 #else
+    qWarning() << "start clicked";
     if ( !phiApp->startPhisService() ) {
         QMessageBox::warning( this, tr( "Error" ),
             tr( "Could not start the Phis Web service." ), QMessageBox::Ok );

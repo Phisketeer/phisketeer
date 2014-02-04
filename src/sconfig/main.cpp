@@ -22,7 +22,7 @@
 
 int main ( int argc, char **argv )
 {
-    PHIApplication app( argc, argv, "Phisconf", PHIVERSION );
+    PHIApplication app( argc, argv, "PhisConf", PHIVERSION );
     Q_UNUSED( app )
     PHISServerConf dlg;
     dlg.exec();

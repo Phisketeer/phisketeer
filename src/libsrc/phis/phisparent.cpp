@@ -47,11 +47,11 @@ PHISParent::PHISParent( QObject *parent, const QString &name )
     s->setValue( SL( "SSLEnabled" ), s->value( SL( "SSLEnabled" ), false ) );
     s->setValue( SL( "SSLListenerPort" ), s->value( SL( "SSLListenerPort" ), 443 ) );
     s->setValue( SL( "SSLListenerIF" ), s->value( SL( "SSLListenerIF" ), SL( "Any" ) ) );
-    s->setValue( SL( "SSLCertificate" ), s->value( SL( "SSLCertificate" ), phiApp->dataPath()+L1( "/ssl/localhost.crt" ) ) );
-    s->setValue( SL( "SSLPrivateKey" ), s->value( SL( "SSLPrivateKey" ), phiApp->dataPath()+L1( "/ssl/localhost.key" ) ) );
+    s->setValue( SL( "SSLCertificate" ), s->value( SL( "SSLCertificate" ), phiApp->dataPath()+QDir::toNativeSeparators( L1( "/ssl/localhost.crt" ) ) ) );
+    s->setValue( SL( "SSLPrivateKey" ), s->value( SL( "SSLPrivateKey" ), phiApp->dataPath()+QDir::toNativeSeparators( L1( "/ssl/localhost.key" ) ) ) );
     s->setValue( SL( "KeepAlive" ), s->value( SL( "KeepAlive" ), 60000 ) );
     s->setValue( SL( "Admin" ), s->value( SL( "Admin" ), SL( "webmaster@localhost" ) ) );
-    s->setValue( SL( "LogDir" ), s->value( SL( "LogDir" ), phiApp->cachePath()+L1( "/log" ) ) );
+    s->setValue( SL( "LogDir" ), s->value( SL( "LogDir" ), phiApp->dataPath()+QDir::toNativeSeparators( L1( "/log" ) ) ) );
     s->setValue( SL( "LogFilter" ), s->value( SL( "LogFilter" ), 0x10 ) ); // supress debug messages
     s->setValue( SL( "Index" ), s->value( SL( "Index" ), SL( "index.phis,index.html,index.htm" ) ) );
     _index=s->value( SL( "Index" ) ).toString();
@@ -80,7 +80,6 @@ PHISParent::~PHISParent()
 
 void PHISParent::stopService()
 {
-    QWriteLocker lock( &_lock );
     if ( !_listenerRunning ) return;
     // delete listener before cleaning page cache
     if ( value( SL( "SSLEnabled" ) ).toBool() ) {
@@ -95,7 +94,6 @@ void PHISParent::stopService()
 
 void PHISParent::startService()
 {
-    QWriteLocker lock( &_lock );
     if ( _listenerRunning ) return;
     invalidate();
     PHIRC rc=PHISListener::instance()->init( this );
@@ -173,10 +171,10 @@ QString PHISParent::documentRoot( const QString &domain )
 void PHISParent::invalidate( const QString &domain )
 {
     qDebug( "PHISParent::invalidate '%s'", qPrintable( domain.isEmpty() ? L1( "all" ) : domain ) );
-    _invalidateTouch=QDateTime::currentDateTime();
     PHISModuleFactory::instance()->invalidate();
     PHISPageCache::invalidate();
     _lock.lockForWrite();
+    _invalidateTouch=QDateTime::currentDateTime();
     QSettings *s=phiApp->serverSettings();
     s->beginGroup( _name );
     _index=s->value( SL( "Index" ), SL( "index.phis" ) ).toString();

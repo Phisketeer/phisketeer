@@ -20,8 +20,9 @@
 #define PHIAAPPWINDOW_H
 #include <QMainWindow>
 #include "phiaabstractwebview.h"
+#include "phia.h"
 
-class PHIAAppWindow : public QMainWindow
+class PHIAEXPORT PHIAAppWindow : public QMainWindow
 {
     Q_OBJECT
 
