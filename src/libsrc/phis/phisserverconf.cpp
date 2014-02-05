@@ -128,7 +128,7 @@ void PHISServerConf::slotCheckService()
     QUrl url( L1( "http://localhost/phi.phis?i=ping" ) );
     url.setPort( lport );
     QNetworkRequest req( url );
-    QNetworkReply *reply=PHINetManager::instance()->networkAccessManager()->get( req );
+    QNetworkReply *reply=PHINetManager::instance()->defaultNetworkAccessManager()->get( req );
     QEventLoop loop;
     connect( reply, &QNetworkReply::finished, &loop, &QEventLoop::quit );
     loop.exec( QEventLoop::ExcludeUserInputEvents );

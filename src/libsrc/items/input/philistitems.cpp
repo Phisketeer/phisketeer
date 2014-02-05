@@ -21,6 +21,7 @@
 #include <QHttpMultiPart>
 #include <QHttpPart>
 #include <QLocale>
+#include <QPainter>
 #include "philistitems.h"
 #include "phibasepage.h"
 #include "phidatasources.h"
@@ -118,6 +119,16 @@ QSizeF PHISelectItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) c
         s.setWidth( 96. );
     }
     return s;
+}
+
+bool PHISelectItem::paint( QPainter *painter, const QRectF &exposed )
+{
+    Q_UNUSED( painter )
+    Q_UNUSED( exposed )
+#ifdef Q_OS_MAC
+    painter->translate( 0, -1 );
+#endif
+    return false;
 }
 
 void PHISelectItem::htmlSelectOptions( QByteArray &out, const QByteArray &indent ) const

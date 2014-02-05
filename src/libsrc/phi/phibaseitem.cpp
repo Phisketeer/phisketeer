@@ -851,13 +851,16 @@ void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &s
         }
     }
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
-        if ( needCalc ) {
-            QRectF br=boundingRect();
-            cssImageIEFilter( PHIDataParser::createTransformedImage( req, this, 0, br ) );
-            setAdjustedRect( br );
-        } else cssImageIEFilter( imagePath() );
         out+=indent+BL( "<div" );
         htmlBase( req, out, script, false );
+        out+=BL( "filter:" );
+        if ( needCalc ) {
+            QRectF br=boundingRect();
+            out+=cssImageIEFilter( PHIDataParser::createTransformedImage( req, this, 0, br ), false );
+            setAdjustedRect( br );
+        } else {
+            out+=cssImageIEFilter( imagePath(), false );
+        }
         out+=BL( "\"></div>\n" );
     } else {
         QByteArray imgId;
@@ -866,11 +869,11 @@ void PHIBaseItem::htmlImg( const PHIRequest *req, QByteArray &out, QByteArray &s
             imgId=PHIDataParser::createTransformedImage( req, this, 0, br );
             setAdjustedRect( br );
         } else imgId=imagePath();
-        out+=indent+BL( "<img" );
+        out+=indent+BL( "<img alt=\"\"" );
         htmlBase( req, out, script, false );
         out+=BL( "\" src=\"" );
         if ( _dirtyFlags & DFUseFilePathInHTML ) out+=imgId+BL( "\">\n" );
-        else out+=BL( "phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
+        else out+=BL( "phi.phis?i=" )+imgId+BL( "&amp;t=1\">\n" );
     }
     htmlInitItem( script );
 }
@@ -901,10 +904,10 @@ void PHIBaseItem::htmlImages( const PHIRequest *req, QByteArray &out, QByteArray
                 if ( i==0 ) setAdjustedRect( br );
             } else {
                 filter=cssImageIEFilter( imagePathes().at( i ), false );
-                out+=indent+BL( "\t<div class=\"phi\" id=\"" )+_id+BL( "_phi_" )
-                    +QByteArray::number( i )+BL( "\" style=\"width:100%;height:100%" )
-                    +filter+BL( "\"></div>\n" );
             }
+            out+=indent+BL( "\t<div class=\"phi\" id=\"" )+_id+BL( "_phi_" )
+                +QByteArray::number( i )+BL( "\" style=\"width:100%;height:100%;filter:" )
+                +filter+BL( "\"></div>\n" );
         }
     } else {
         QByteArray imgId;
@@ -915,10 +918,10 @@ void PHIBaseItem::htmlImages( const PHIRequest *req, QByteArray &out, QByteArray
                 if ( i==0 ) setAdjustedRect( br );
                 qDebug() << "resize" << boundingRect() << br;
             } else imgId=imagePathes().at( i );
-            out+=indent+BL( "\t<img class=\"phi\" id=\"" )+_id+BL( "_phi_" )
+            out+=indent+BL( "\t<img alt=\"\" class=\"phi\" id=\"" )+_id+BL( "_phi_" )
                 +QByteArray::number( i )+BL( "\" style=\"width:100%;height:100%\" src=\"" );
             if ( _dirtyFlags & DFUseFilePathInHTML ) out+=imgId+BL( "\">\n" );
-            else out+=BL( "phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
+            else out+=BL( "phi.phis?i=" )+imgId+BL( "&amp;t=1\">\n" );
         }
     }
     out+=indent+BL( "</div>\n" );
@@ -946,11 +949,15 @@ void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) con
     }
     if ( colorForRole( PHIPalette::WidgetText ).isValid() )
         out+=BL( "color:" )+cssColor( page()->phiPalette().color( colorRole( PHIPalette::WidgetText ) ) )+';';
-    if ( colorForRole( PHIPalette::WidgetBase ).isValid() && colorForRole( PHIPalette::WidgetBase )!=QColor( Qt::transparent ) ) {
-        // hack: exclude native buttons
+    QColor bgCol=colorForRole( PHIPalette::WidgetBase );
+    if ( bgCol.isValid() && bgCol!=QColor( Qt::transparent ) ) {
+        // handle native input elements as they change look on changing background-color:
         const PHIAbstractInputItem *inp=qobject_cast<const PHIAbstractInputItem*>(this);
-        if ( !inp || !inp->isButton() )
-            out+=BL( "background-color:" )+cssColor( page()->phiPalette().color( colorRole( PHIPalette::WidgetBase ) ) )+';';
+        if ( inp ) {
+            if ( !inp->isButton() && colorRole( PHIPalette::WidgetBase )!=PHIPalette::Base ) {
+                out+=BL( "border-width:1px;background-color:" )+cssColor( bgCol );
+            }
+        } else out+=BL( "background-color:" )+cssColor( bgCol )+';';
     }
     out+=BL( "}\n" );
     cssStatic( req, out );

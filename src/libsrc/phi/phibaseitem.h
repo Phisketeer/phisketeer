@@ -644,8 +644,8 @@ inline QByteArray PHIBaseItem::cssImageIEFilter( const QByteArray &imgId, bool a
     QByteArray tmp=BL( "phi.phis?i=" );
     if ( _dirtyFlags & DFUseFilePathInHTML ) tmp=QByteArray();
     tmp=BL( "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" )+tmp+imgId;
-    if ( _dirtyFlags & DFUseFilePathInHTML ) tmp+BL( "')" );
-    else tmp+=BL( "&t=1')" );
+    if ( _dirtyFlags & DFUseFilePathInHTML ) tmp+BL( "',sizingMethod='scale')" );
+    else tmp+=BL( "&t=1',sizingMethod='scale')" );
     if ( !alterFilters ) return tmp;
     if ( _variants.value( DIEFilter ).isValid() ) {
         _variants.insert( DIEFilter, tmp+_variants.value( DIEFilter ).toByteArray() );

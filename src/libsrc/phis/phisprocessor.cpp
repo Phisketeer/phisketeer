@@ -541,6 +541,7 @@ void PHISProcessor::genScripts() const
     createJS( L1( "phibase.js" ) );
     createJS( L1( "jquery.js" ) );
     createJS( L1( "jqueryiefix.js" ) );
+    createJS( L1( "jquerymigrate.js" ) );
     createJS( L1( "excanvas.js" ) );
     createJS( L1( "datefmt.js" ) );
     createJS( L1( "transit.js" ) );
@@ -556,6 +557,7 @@ void PHISProcessor::genScripts() const
     //createJS( L1( "ui-widget.js" ) ); // included in ui-core
     createJS( L1( "ui-jqgrid-en.js" ) );
     createJS( L1( "ui-jqgrid.js" ) );
+    createJS( L1( "ui-jqgridiefix.js" ) );
     createUiCSS();
 }
 

@@ -69,7 +69,7 @@ void PHIProcessor::run()
     _resp->clear();
     _resp->_minorHttpVer=_req->httpServerMinorVersion();
     if ( _req->keyword( PHISRequest::KMethod )=="HEAD" ) _resp->_options|=PHIResponseRec::HeaderOnly;
-    if ( _req->canonicalFilename().endsWith( QStringLiteral( "/phi.phis" ) ) ) return genSysItem();
+    if ( _req->canonicalFilename().endsWith( SL( "/phi.phis" ) ) ) return genSysItem();
 // #ifdef PHIAPPSTORE
 //    PHISecFile f( _req->canonicalFilename() );
 // #else
@@ -190,19 +190,19 @@ void PHIProcessor::run()
 void PHIProcessor::genSysItem() const
 {
     QStringList list=_req->getKeys();
-    if ( list.contains( QStringLiteral( "phiimg" ) ) ) return genImage();
-    else if ( list.contains( QStringLiteral( "phicss" ) ) ) return genCSS();
-    else if ( list.contains( QStringLiteral( "phijs" ) ) ) return genJS();
-    else if ( list.contains( QStringLiteral( "philicense" ) ) ) return genLicense();
+    if ( list.contains( SL( "phiimg" ) ) ) return genImage();
+    else if ( list.contains( SL( "phicss" ) ) ) return genCSS();
+    else if ( list.contains( SL( "phijs" ) ) ) return genJS();
+    else if ( list.contains( SL( "philicense" ) ) ) return genLicense();
     return _resp->error( PHILOGERR, PHIRC_HTTP_NOT_FOUND,
         QObject::tr( "Could not access requested system item.") );
 }
 
 void PHIProcessor::genCSS() const
 {
-    QString file=_req->getValue( QStringLiteral( "phicss" ) );
-    QString path=_req->tmpDir()+QDir::separator()+QLatin1String( "css" )+QDir::separator()
-        +file+QLatin1String( ".css" );
+    QString file=_req->getValue( SL( "phicss" ) );
+    QString path=_req->tmpDir()+QDir::separator()+L1( "css" )+QDir::separator()
+        +file+L1( ".css" );
     if ( !QFile::exists( path ) ) {
         _resp->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
             QObject::tr( "Could not access CSS file '%1'." ).arg( path ) );
@@ -226,9 +226,9 @@ void PHIProcessor::genCSS() const
 
 void PHIProcessor::genJS() const
 {
-    QString file=_req->getValue( QStringLiteral( "phijs" ) );
-    QString path=_req->tmpDir()+QDir::separator()+QLatin1String( "js" )+QDir::separator()
-        +file+QLatin1String( ".js" );
+    QString file=_req->getValue( SL( "phijs" ) );
+    QString path=_req->tmpDir()+QDir::separator()+L1( "js" )+QDir::separator()
+        +file+L1( ".js" );
     if ( !QFile::exists( path ) ) {
         _resp->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
             QObject::tr( "Could not access JavaScript file '%1'." ).arg( path ) );
@@ -253,9 +253,9 @@ void PHIProcessor::genJS() const
 void PHIProcessor::genImage() const
 {
     try {
-        QString path=_req->getValue( QStringLiteral( "phitmp" ) );
+        QString path=_req->getValue( SL( "phitmp" ) );
         bool useTmp=path.isEmpty() ? false : true;
-        QString imgId=_req->getValue( QStringLiteral( "phiimg" ) );
+        QString imgId=_req->getValue( SL( "phiimg" ) );
         if ( !useTmp ) {
             if ( imgId.startsWith( QLatin1Char( '/' ) ) || imgId.startsWith( QLatin1Char( '\\' ) ) ) {
                 path=_req->documentRoot()+imgId;
@@ -337,7 +337,7 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
                     }
                 }
             }
-            if ( !found ) _req->setCurrentLang( QStringLiteral( "C" ) );
+            if ( !found ) _req->setCurrentLang( SL( "C" ) );
             script.clear();
         //}
     }
@@ -420,15 +420,15 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
                 page.addExtensions( master->extensions() );
             }
         }
-        QString sessPath=_req->tmpDir()+QDir::separator()+QLatin1String( "db" );
+        QString sessPath=_req->tmpDir()+QDir::separator()+L1( "db" );
         if ( page.attributes() & PHIPage::ARequiresSession ) {
             qDebug( "requires SESSION" );
             PHISession ses( _resp, sessPath );
-            QString sid=_req->requestValue( QStringLiteral( "phisid" ) );
+            QString sid=_req->requestValue( SL( "phisid" ) );
             if ( ses.validateSession( sid, p->sessionTimeout() ) ) {
                 page.setSession( sid );
                 if ( page.attributes() & PHIPage::ASetCookie )
-                    _resp->setCookie( QStringLiteral( "phisid" ), page.session(), p->sessionTimeout() );
+                    _resp->setCookie( SL( "phisid" ), page.session(), p->sessionTimeout() );
             } else {
                 page.setSessionRedirect( parser.text( pId, p->sessionRedirectData() ) );
                 if ( master && page.sessionRedirect().isEmpty() )
@@ -488,7 +488,7 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
             PHISession sess( _resp, sessPath );
             page.setSession( sess.createSession( p->sessionTimeout(), page.session() ) );
             if ( page.attributes() & PHIPage::ASetCookie )
-                _resp->setCookie( QStringLiteral( "phisid" ), page.session(), p->sessionTimeout() );
+                _resp->setCookie( SL( "phisid" ), page.session(), p->sessionTimeout() );
         }
     } catch( std::bad_alloc& ) {
         _resp->error( PHILOGCRIT, PHIRC_HTTP_SERVICE_UNAVAILABLE, QObject::tr( _resourceError.constData() ) );
@@ -508,9 +508,9 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
 
     bool genPhi=false;
     //qDebug( "-------%s", qPrintable( _vars.value( "accept", PHIVars::Server ) ) );
-    if ( _req->requestKeys().contains( QStringLiteral( "phis" ) ) ) {
-        if ( _req->requestValue( QStringLiteral( "phis" ) ).toInt()==1 ) genPhi=true;
-    } else if ( _req->serverValue( QStringLiteral( "accept" ) ).contains( QString::fromLatin1( PHI::mimeType() ), Qt::CaseSensitive ) ) {
+    if ( _req->requestKeys().contains( SL( "phis" ) ) ) {
+        if ( _req->requestValue( SL( "phis" ) ).toInt()==1 ) genPhi=true;
+    } else if ( _req->serverValue( SL( "accept" ) ).contains( QString::fromLatin1( PHI::mimeType() ), Qt::CaseSensitive ) ) {
         genPhi=true;
         if ( page.attributes() & PHIPage::AForceHtmlOutput ) genPhi=false;
     }
@@ -519,8 +519,8 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
         arr=phiGenerator.genPhi( &page );
     } else {
         //if ( !(page.attributes() & PHIPage::ANoSystemCSS) ) {
-            QFileInfo cssinfo( _req->tmpDir()+QDir::separator()+QLatin1String( "css" )
-                +QDir::separator()+page.id()+QLatin1String( ".css" ) );
+            QFileInfo cssinfo( _req->tmpDir()+QDir::separator()+L1( "css" )
+                +QDir::separator()+page.id()+L1( ".css" ) );
             if ( cssinfo.exists() ) {
                 if ( _req->lastModified() > cssinfo.lastModified() ) createSystemCSS( &page );
             } else createSystemCSS( &page );
@@ -534,7 +534,7 @@ QByteArray PHIProcessor::parse( const PHISPage *const p )
 
 void PHIProcessor::createJS( const QString &name ) const
 {
-    QString file=_req->tmpDir()+QDir::separator()+QLatin1String( "js" );
+    QString file=_req->tmpDir()+QDir::separator()+L1( "js" );
     QDir dir( file );
     if ( !dir.exists( file ) ) {
         if ( !dir.mkpath( file ) ) {
@@ -543,7 +543,7 @@ void PHIProcessor::createJS( const QString &name ) const
             return;
         }
     }
-    QFile src( QLatin1String( ":/" )+name );
+    QFile src( L1( ":/" )+name );
     if ( !src.open( QIODevice::ReadOnly ) ) {
         _resp->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
             QObject::tr( "Could not read JavaScript file '%1'." ).arg( name ) );
@@ -555,21 +555,21 @@ void PHIProcessor::createJS( const QString &name ) const
             QObject::tr( "Could not write JavaScript file '%1'." ).arg( file+QDir::separator()+name ) );
         return;
     }
-    if ( name==QLatin1String( "phibase.js" ) ) {
+    if ( name==L1( "phibase.js" ) ) {
         QString str=QString::fromLatin1( src.readAll() );
 
-        str.replace( QRegExp( QStringLiteral( " {2,}" ) ), QString() );
-        str.replace( QStringLiteral( " (" ), QStringLiteral( "(" ) );
-        str.replace( QStringLiteral( "( " ), QStringLiteral( "(" ) );
-        str.replace( QStringLiteral( " )" ), QStringLiteral( ")" ) );
-        str.replace( QStringLiteral( ") " ), QStringLiteral( ")" ) );
-        str.replace( QStringLiteral( ", " ), QStringLiteral( "," ) );
-        str.replace( QStringLiteral( " {" ), QStringLiteral( "{" ) );
-        str.replace( QStringLiteral( "{ " ), QStringLiteral( "{" ) );
-        str.replace( QStringLiteral( " }" ), QStringLiteral( "}" ) );
-        str.replace( QStringLiteral( "} " ), QStringLiteral( "}" ) );
+        str.replace( QRegExp( SL( " {2,}" ) ), QString() );
+        str.replace( SL( " (" ), SL( "(" ) );
+        str.replace( SL( "( " ), SL( "(" ) );
+        str.replace( SL( " )" ), SL( ")" ) );
+        str.replace( SL( ") " ), SL( ")" ) );
+        str.replace( SL( ", " ), SL( "," ) );
+        str.replace( SL( " {" ), SL( "{" ) );
+        str.replace( SL( "{ " ), SL( "{" ) );
+        str.replace( SL( " }" ), SL( "}" ) );
+        str.replace( SL( "} " ), SL( "}" ) );
 #ifndef PHIDEBUG
-        str.replace( QRegExp( QStringLiteral( "\n{1,1}" ) ), QString() );
+        str.replace( QRegExp( SL( "\n{1,1}" ) ), QString() );
 #endif
         f.write( str.toLatin1() );
     } else f.write( src.readAll() );
@@ -579,7 +579,7 @@ void PHIProcessor::createJS( const QString &name ) const
 
 void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
 {
-    QString file=_req->tmpDir()+QDir::separator()+QLatin1String( "css" );
+    QString file=_req->tmpDir()+QDir::separator()+L1( "css" );
     QDir dir( file );
     if ( !dir.exists( file ) ) {
         if ( !dir.mkpath( file ) ) {
@@ -588,7 +588,7 @@ void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
             return;
         }
     }
-    file+=QDir::separator()+p->id()+QLatin1String( ".css" );
+    file+=QDir::separator()+p->id()+L1( ".css" );
     QFile css( file );
     if ( !css.open( QIODevice::WriteOnly ) ) {
         _resp->log( PHILOGERR, PHIRC_IO_FILE_CREATION_ERROR,
@@ -666,7 +666,7 @@ void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
 
     if ( !(p->attributes() & PHIPage::ANoUiCSS) ) {
         // jQuery
-        QFile f( QStringLiteral( ":/ui-core.css" ) ); //jquery ui core CSS
+        QFile f( SL( ":/ui-core.css" ) ); //jquery ui core CSS
         if ( f.open( QIODevice::ReadOnly ) ) { out+='\n'+f.readAll(); f.close(); }
         out+=createjQueryTheme( p );
     }
@@ -691,10 +691,10 @@ void PHIProcessor::createSystemCSS( const PHIBasePage* const p ) const
     css.close();
 }
 
-static QString _phireg( const QByteArray &s ) { return QLatin1String( " [^ ]*/\\*\\{" )
-    +QString::fromLatin1( s )+QLatin1String( "\\}\\*/" ); }
-static QString _phiurl( const QByteArray &s ) { return QLatin1String( " url(phi.phis?phiimg=" )
-    +QString::fromLatin1( s )+QLatin1String( "&phitmp=1)" ); }
+static QString _phireg( const QByteArray &s ) { return L1( " [^ ]*/\\*\\{" )
+    +QString::fromLatin1( s )+L1( "\\}\\*/" ); }
+static QString _phiurl( const QByteArray &s ) { return L1( " url(phi.phis?phiimg=" )
+    +QString::fromLatin1( s )+L1( "&phitmp=1)" ); }
 
 QByteArray PHIProcessor::createjQueryTheme( const PHIBasePage* const p ) const
 {
@@ -704,38 +704,38 @@ QByteArray PHIProcessor::createjQueryTheme( const PHIBasePage* const p ) const
     if ( !font.lastResortFamily().isEmpty() ) fontarr+="','"+font.lastResortFamily().toUtf8();
     fontarr+="'";
     const char* png="PNG";
-    if ( !QFile::exists( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconscontent.png" ) ) ) {
-        QImage icons( QStringLiteral( ":/iconsContent" ) ); //Indexed8
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconscontent.png" ), png );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconsheader.png" ), png );
-        icons.load( QStringLiteral( ":/iconsActive" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconsactive.png" ), png );
-        icons.load( QStringLiteral( ":/iconsDefault" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconsdefault.png" ), png );
-        icons.load( QStringLiteral( ":/iconsError" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconserror.png" ), png );
-        icons.load( QStringLiteral( ":/iconsHighlight" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uiiconshighlight.png" ), png );
-        icons.load( QStringLiteral( ":/bgImgUrlHover" ) );
+    if ( !QFile::exists( _req->imgDir()+QDir::separator()+L1( "uiiconscontent.png" ) ) ) {
+        QImage icons( SL( ":/iconsContent" ) ); //Indexed8
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uiiconscontent.png" ), png );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uiiconsheader.png" ), png );
+        icons.load( SL( ":/iconsActive" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uiiconsactive.png" ), png );
+        icons.load( SL( ":/iconsDefault" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uiiconsdefault.png" ), png );
+        icons.load( SL( ":/iconsError" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uiiconserror.png" ), png );
+        icons.load( SL( ":/iconsHighlight" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uiiconshighlight.png" ), png );
+        icons.load( SL( ":/bgImgUrlHover" ) );
         /** @todo colorize background images to respect palette. */
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlhover.png" ), png );
-        icons.load( QStringLiteral( ":/bgImgUrlActive" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlactive.png" ), png );
-        icons.load( QStringLiteral( ":/bgImgUrlHeader" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlheader.png" ), png );
-        icons.load( QStringLiteral( ":/bgImgUrlError" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlerror.png" ), png );
-        icons.load( QStringLiteral( ":/bgImgUrlContent" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlcontent.png" ), png );
-        icons.load( QStringLiteral( ":/bgImgUrlDefault" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurldefault.png" ), png );
-        icons.load( QStringLiteral( ":/bgImgUrlOverlay" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurloverlay.png" ), png );
-        icons.load( QStringLiteral( ":/bgImgUrlHighlight" ) );
-        icons.save( _req->imgDir()+QDir::separator()+QLatin1String( "uibgimgurlhighlight.png" ), png );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uibgimgurlhover.png" ), png );
+        icons.load( SL( ":/bgImgUrlActive" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uibgimgurlactive.png" ), png );
+        icons.load( SL( ":/bgImgUrlHeader" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uibgimgurlheader.png" ), png );
+        icons.load( SL( ":/bgImgUrlError" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uibgimgurlerror.png" ), png );
+        icons.load( SL( ":/bgImgUrlContent" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uibgimgurlcontent.png" ), png );
+        icons.load( SL( ":/bgImgUrlDefault" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uibgimgurldefault.png" ), png );
+        icons.load( SL( ":/bgImgUrlOverlay" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uibgimgurloverlay.png" ), png );
+        icons.load( SL( ":/bgImgUrlHighlight" ) );
+        icons.save( _req->imgDir()+QDir::separator()+L1( "uibgimgurlhighlight.png" ), png );
     }
     QString theme;
-    QFile f( QStringLiteral( ":/ui-theme.css" ) ); //jquery ui theme CSS
+    QFile f( SL( ":/ui-theme.css" ) ); //jquery ui theme CSS
     if ( f.open( QIODevice::ReadOnly ) ) {
         theme=QString::fromLatin1( f.readAll() );
         f.close();
@@ -784,13 +784,13 @@ QByteArray PHIProcessor::createjQueryTheme( const PHIBasePage* const p ) const
         out+=theme.toLatin1();
     }
     if ( p->attributes() & PHIPage::AHasCalendar ) {
-        f.setFileName( QStringLiteral( ":/ui-datepicker.css" ) ); //jquery ui datepicker CSS
+        f.setFileName( SL( ":/ui-datepicker.css" ) ); //jquery ui datepicker CSS
         if ( f.open( QIODevice::ReadOnly ) ) { out+='\n'+f.readAll(); f.close(); }
         out+=( "\n.phical .ui-datepicker {left:0px;width:100%;height:100%;padding:.2em "
             ".2em 0;display:none;}\n.ui-datepicker {font-size:90%;min-width:240px;}\n" );
     }
     if ( p->extensions() & PHIPage::EProgressBar ) {
-        f.setFileName( QStringLiteral( ":/ui-progressbar.css" ) ); //jquery ui progressbar CSS
+        f.setFileName( SL( ":/ui-progressbar.css" ) ); //jquery ui progressbar CSS
         if ( f.open( QIODevice::ReadOnly ) ) { out+='\n'+f.readAll(); f.close(); }
     }
     return out;
@@ -806,7 +806,7 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
     QScriptValue doc=engine.newQObject( p, QScriptEngine::QtOwnership,
         QScriptEngine::PreferExistingWrapperObject |
         QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
-    engine.globalObject().setProperty( QStringLiteral( "document" ), doc );
+    engine.globalObject().setProperty( SL( "document" ), doc );
     //PHISReplyObj *replyObj(0);
     if ( p->scriptModules()!=PHIPage::SNone ) { // keep old module style working
         //PHISServerObj *serverObj(0);
@@ -824,13 +824,13 @@ bool PHIProcessor::runScriptEngine( PHIBasePage *p, const QString &script )
         //if ( p->scriptModules() & PHIPage::SEmail ) emailObj=new PHISEmailObj( _req, &engine, _resp );
         PHISModuleFactory *factory=PHISModuleFactory::instance();
         QMap <PHIPage::ScriptModule, QString> smmap;
-        smmap.insert( PHIPage::SEmail, QStringLiteral( "email" ) );
-        smmap.insert( PHIPage::SSystem, QStringLiteral( "system" ) );
-        smmap.insert( PHIPage::SServer, QStringLiteral( "server" ) );
-        smmap.insert( PHIPage::SFile, QStringLiteral( "file" ) );
-        smmap.insert( PHIPage::SRequest, QStringLiteral( "request" ) );
-        smmap.insert( PHIPage::SReply, QStringLiteral( "reply" ) );
-        smmap.insert( PHIPage::SDatabase, QStringLiteral( "sql" ) );
+        smmap.insert( PHIPage::SEmail, SL( "email" ) );
+        smmap.insert( PHIPage::SSystem, SL( "system" ) );
+        smmap.insert( PHIPage::SServer, SL( "server" ) );
+        smmap.insert( PHIPage::SFile, SL( "file" ) );
+        smmap.insert( PHIPage::SRequest, SL( "request" ) );
+        smmap.insert( PHIPage::SReply, SL( "reply" ) );
+        smmap.insert( PHIPage::SDatabase, SL( "sql" ) );
         QString key;
         PHISInterface *phisif=new PHISInterface( _req, p, _db );
         factory->lock(); //locking for read
@@ -979,7 +979,7 @@ void PHIProcessor::loadPage( PHISPage *&page, QFile *f, bool isMasterPage )
 
         if ( page->attributes() & PHIPage::AIcon ) {
             QImage icon=page->image();
-            QString path=_req->imgDir()+QDir::separator()+page->id()+QLatin1String( ".ico" );
+            QString path=_req->imgDir()+QDir::separator()+page->id()+L1( ".ico" );
             icon.save( path, "ICO" );
             QFile iconFile( path );
             iconFile.setPermissions( iconFile.permissions() | QFile::ReadGroup | QFile::ReadOther );
@@ -1028,20 +1028,20 @@ void PHIProcessor::loadPage( PHISPage *&page, QFile *f, bool isMasterPage )
             }
         }
         // Check if JavaScript files are already created
-        QString file=_req->tmpDir()+QDir::separator()+QLatin1String( "js" )
-            +QDir::separator()+QLatin1String( "phibase.js" );
+        QString file=_req->tmpDir()+QDir::separator()+L1( "js" )
+            +QDir::separator()+L1( "phibase.js" );
         if ( !QFile::exists( file ) ) {
-            createJS( QStringLiteral( "phibase.js" ) );
-            createJS( QStringLiteral( "jquery.js" ) );
-            createJS( QStringLiteral( "excanvas.js" ) );
-            createJS( QStringLiteral( "ui-core.js" ) );
-            createJS( QStringLiteral( "ui-widget.js" ) );
-            createJS( QStringLiteral( "ui-datepicker.js" ) );
-            createJS( QStringLiteral( "ui-progressbar.js" ) );
-            createJS( QStringLiteral( "ui-effects.js" ) );
-            createJS( QStringLiteral( "ui-mouse.js" ) );
-            createJS( QStringLiteral( "ui-draggable.js" ) );
-            createJS( QStringLiteral( "ui-droppable.js" ) );
+            createJS( L1( "phibase.js" ) );
+            createJS( L1( "jquery.js" ) );
+            createJS( L1( "excanvas.js" ) );
+            createJS( L1( "ui-core.js" ) );
+            createJS( L1( "ui-widget.js" ) );
+            createJS( L1( "ui-datepicker.js" ) );
+            createJS( L1( "ui-progressbar.js" ) );
+            createJS( L1( "ui-effects.js" ) );
+            createJS( L1( "ui-mouse.js" ) );
+            createJS( L1( "ui-draggable.js" ) );
+            createJS( L1( "ui-droppable.js" ) );
         }
 
         lock->unlock();

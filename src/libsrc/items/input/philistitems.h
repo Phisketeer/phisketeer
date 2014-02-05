@@ -53,6 +53,7 @@ public slots:
 protected:
     virtual void initWidget();
     virtual bool hasDelimiter() const { return true; }
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
     virtual void squeeze();
     virtual void setWidgetText( const QString &t );
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );

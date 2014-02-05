@@ -736,6 +736,7 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
                 else colspec+=BL( "'text'" );
                 if ( w>0 ) colspec+=BL( ",width:'" )+QByteArray::number( w )+BL( "px'" );
             }
+            if ( cols[i].isEmpty() ) cols[i]=BL( " " );
             labels+=BL( ".label(" )+QByteArray::number( i )+BL( ",'" )+cols[i].replace( '\'', BL( "\\'" ) )+BL( "')" );
             def+=BL( "{name:'" )+QByteArray::number( i )+BL( "c'" )+colspec+BL( "}," );
         }
@@ -805,9 +806,9 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
 PHIWID PHIDecoratedTableItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const
 {
     header+=BL( "<script type=\"text/javascript\" src=\"phi.phis?j=ui-jqgrid-en\"></script>\n\t" );
-    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )
+    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
         header+=BL( "<script type=\"text/javascript\" src=\"phi.phis?j=ui-jqgridiefix\"></script>\n" );
-    else header+=BL( "<script type=\"text/javascript\" src=\"phi.phis?j=ui-jqgrid\"></script>\n" );
+    } else header+=BL( "<script type=\"text/javascript\" src=\"phi.phis?j=ui-jqgrid\"></script>\n" );
     return static_cast<PHIWID>(DecoratedTable);
 }
 

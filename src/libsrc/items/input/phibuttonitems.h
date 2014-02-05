@@ -133,6 +133,7 @@ protected:
     virtual void saveItemData( QDataStream &out, int version );
     virtual void ideUpdateData();
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual bool paint( QPainter *painter, const QRectF &exposed );
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void phisParseData( const PHIDataParser &parser );
     virtual void clientInitData();

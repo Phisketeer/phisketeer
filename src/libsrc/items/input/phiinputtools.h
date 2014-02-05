@@ -35,10 +35,19 @@ public:
 inline QRectF PHIInputTools::adjustedLineEdit( const PHIRequest *req, const QRectF &r )
 {
     switch ( req->agentEngine() ) {
-    case PHIRequest::WebKit: return r.adjusted( 0, 0, -4, -4 );
-    case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
-    case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
-    case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );
+    case PHIRequest::WebKit: {
+        if ( req->osType()==PHIRequest::iOS ) return r.adjusted( 0, 0, -2, -2 );
+        return r.adjusted( 0, 0, -4, -4 );
+    }
+    case PHIRequest::Trident:
+        if ( req->agentFeatures() & PHIRequest::IE678 || req->engineMajorVersion()==5 )
+            return r.adjusted( 0, 0, -4, -4 );
+        return r.adjusted( 0, 0, -2, -2 );
+    case PHIRequest::Gecko:
+        if ( req->osType()==PHIRequest::Windows ) return r.adjusted( 0, 0, -2, -2 );
+        else if ( req->osType()==PHIRequest::Linux ) return r.adjusted( -1, -1, -5, -5 );
+        return r.adjusted( 0, 0, -6, -6 );
+    case PHIRequest::Presto: return r.adjusted( 0, 0, -4, -4 );
     default:;
     }
     return r;
@@ -47,10 +56,19 @@ inline QRectF PHIInputTools::adjustedLineEdit( const PHIRequest *req, const QRec
 inline QRectF PHIInputTools::adjustedButton( const PHIRequest *req, const QRectF &r )
 {
     switch ( req->agentEngine() ) {
-    case PHIRequest::WebKit: return r.adjusted( 5, 3, -4, 0 );
-    case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
-    case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
-    case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );
+    case PHIRequest::WebKit: {
+        if ( req->osType()==PHIRequest::MacOS ) return r.adjusted( 4, 3, -4, 0 );
+        else if ( req->osType()==PHIRequest::Windows ) return r;
+        else if ( req->osType()==PHIRequest::iOS ) return r.adjusted( 1, 1, -1, -1 );
+        return r.adjusted( 1, 1, -1, -1 );
+    }
+    case PHIRequest::Trident:
+        if ( req->agentFeatures() & PHIRequest::IE678 || req->engineMajorVersion()==5 ) return r;
+        return r.adjusted( 1, 1, -1, -1 );
+    case PHIRequest::Gecko:
+        if ( req->osType()==PHIRequest::Windows || req->osType()==PHIRequest::Linux ) return r;
+        return r.adjusted( 1, 1, -1, -1 );
+    case PHIRequest::Presto: return r;
     default:;
     }
     return r;
@@ -60,9 +78,12 @@ inline QRectF PHIInputTools::adjustedTextArea( const PHIRequest *req, const QRec
 {
     switch ( req->agentEngine() ) {
     case PHIRequest::WebKit: return r.adjusted( 0, 0, -6, -6 );
-    case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
-    case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
-    case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );
+    case PHIRequest::Trident: return r.adjusted( 0, 0, -6, -6 );
+    case PHIRequest::Gecko:
+        if ( req->osType()==PHIRequest::Windows ) return r.adjusted( 0, -1, -6, -7 );
+        else if ( req->osType()==PHIRequest::Linux ) return r.adjusted( -1, -2, -5, -6 );
+        return r.adjusted( 0, -1, -2, -3 );
+    case PHIRequest::Presto: return r.adjusted( 0, 0, -6, -6 );
     default:;
     }
     return r;
@@ -70,50 +91,36 @@ inline QRectF PHIInputTools::adjustedTextArea( const PHIRequest *req, const QRec
 
 inline QRectF PHIInputTools::adjustedMultiSelect( const PHIRequest *req, const QRectF &r )
 {
-    switch ( req->agentEngine() ) {
-    case PHIRequest::WebKit: return r;
-    case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
-    case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
-    case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );
-    default:;
-    }
+    Q_UNUSED( req )
     return r;
 }
 
 inline QRectF PHIInputTools::adjustedSelect( const PHIRequest *req, const QRectF &r )
 {
     switch ( req->agentEngine() ) {
-    case PHIRequest::WebKit: return r.adjusted( 1, 3, -2, -2 );
-    case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
-    case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
-    case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );
-    default:;
+    case PHIRequest::WebKit:
+        if ( req->osType()==PHIRequest::MacOS ) return r.adjusted( 1, 3, -1, -3 );
+        else if ( req->osType()==PHIRequest::iOS ) return r.adjusted( 0, 1, 0, -1 );
+    case PHIRequest::Gecko:
+        if ( req->osType()==PHIRequest::Linux ) return r.adjusted( -1, 0, 1, 0 );
     }
-    return r;
+    return r.adjusted( 0, 1, 0, -1 );
 }
 
 inline QRectF PHIInputTools::adjustedFileButton( const PHIRequest *req, const QRectF &r )
 {
     switch ( req->agentEngine() ) {
-    case PHIRequest::WebKit: return r.adjusted( 0, 0, 0, 0 );
-    case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
-    case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
-    case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );
+    case PHIRequest::Gecko:
+        if ( req->osType()==PHIRequest::Windows || req->osType()==PHIRequest::Linux ) return r;
     default:;
     }
-    return r;
+    return r.adjusted( 1, 1, -1, -1 );
 }
 
 inline QRectF PHIInputTools::adjustedImageButton( const PHIRequest *req, const QRectF &r )
 {
-    switch ( req->agentEngine() ) {
-    case PHIRequest::WebKit: return r.adjusted( 6, 2, -6, -10 );
-    case PHIRequest::Trident: return r.adjusted( 0, 0, 0, -6 );
-    case PHIRequest::Gecko: return r.adjusted( 0, 0, 0, 0 );
-    case PHIRequest::Presto: return r.adjusted( 0, 0, 0, 0 );
-    default:;
-    }
-    return r;
+    Q_UNUSED( req )
+    return r.adjusted( 3, 3, -3, -3 );
 }
 
 #endif // PHIINPUTTOOLS_H

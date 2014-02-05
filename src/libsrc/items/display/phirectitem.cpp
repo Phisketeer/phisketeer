@@ -146,12 +146,11 @@ void PHIRectItem::phisParseData( const PHIDataParser &parser )
 
 void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )
-        return PHIAbstractShapeItem::html( req, out, script, indent );
+    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) return PHIAbstractShapeItem::html( req, out, script, indent );
     bool needImage=false;
     if ( Q_UNLIKELY( realBorderRadius() && !(req->agentFeatures() & PHIRequest::BorderRadius) ) ) needImage=true;
-    else if ( Q_UNLIKELY( realLine()>3 ) ) needImage=true;
     else if ( Q_UNLIKELY( !(req->agentFeatures() & PHIRequest::RGBA) ) ) needImage=true;
+    else if ( Q_UNLIKELY( realLine()>3 ) ) needImage=true;
     else if ( Q_UNLIKELY( realPattern()>1 && realPattern()<15 ) ) needImage=true;
     else if ( realPattern()==15 && !cssGradientCreateable( req ) ) needImage=true;
     else if ( hasGraphicEffect() ) {

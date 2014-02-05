@@ -202,6 +202,7 @@ PHIWID PHICalendarItem::htmlScriptExtension( const PHIRequest *req, QByteArray &
     format.replace( L1( "MMM" ), L1( "M" ) );
     format.replace( L1( "MM" ), L1( "M" ) );
     format.replace( L1( "M" ), L1( "m" ) );
+    format.replace( L1( "dd" ), L1( "d" ) );
     QByteArray dayOfWeek=QByteArray::number( locale.firstDayOfWeek()==Qt::Sunday ? 0 :
         static_cast<int>(locale.firstDayOfWeek()) );
 
@@ -359,19 +360,19 @@ void PHIDateEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
         +QByteArray::number( now.day() )+BL( "));});\njQuery('#" )+id()
         +BL( "_phib').button({icons:{primary:'ui-icon-calendar'},text:false})"
             ".click(function(e){e.preventDefault();jQuery('#" )+id()+BL( "_phit').datepicker('show')});\n" );
-    QRectF le=rect();
-    le.setWidth( realWidth()-26 );
-    le=PHIInputTools::adjustedLineEdit( req, le );
+    QRectF le=PHIInputTools::adjustedLineEdit( req, rect() ).adjusted( 1, 1, -28, -1 );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
     out+=BL( "\">\n" )+indent+BL( "\t<input type=\"hidden\" id=\"" )+id()
         +BL( "_phi\" name=\"" )+id()+BL( "\">\n" )+indent
         +BL( "\t<input type=\"text\" class=\"phi\" id=\"" )+id()
-        +BL( "_phit\" readonly=\"readonly\" style=\"width:" )
+        +BL( "_phit\" readonly=\"readonly\" style=\"top:" )
+        +QByteArray::number( qRound(le.y()) )+BL( "px;left:" )
+        +QByteArray::number( qRound(le.x()) )+BL( "px;width:" )
         +QByteArray::number( qRound(le.width()) )+BL( "px;height:" )
         +QByteArray::number( qRound(le.height()) )+BL( "px\">\n" )+indent
         +BL( "\t<button id=\"" )+id()+BL( "_phib\" style=\"position:absolute;top:0;left:" )
-        +QByteArray::number( qRound(le.width()+6) )+BL( "px;width:24px;height:" )
+        +QByteArray::number( qRound(realWidth()-24) )+BL( "px;width:24px;height:" )
         +QByteArray::number( qRound(realHeight()) )+BL( "px\"></button>\n" );
         //+indent+BL( "<span class=\"ui-icon ui-icon-calendar\" style=\"position:absolute;top:0;left:20px\"></span>\n" );
     out+=indent+BL( "</div>\n" );

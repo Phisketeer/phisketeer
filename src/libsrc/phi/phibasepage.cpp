@@ -551,10 +551,11 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     if ( Q_LIKELY( !(_flags & FNoSystemCSS) ) )
         out+=BL( "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"phi.phis?s=" )+_id+eht;
     if ( Q_LIKELY( _flags & FHasFavicon ) )
-        out+=BL( "\t<link rel=\"shortcut icon\" href=\"phi.phis?i=" )+_id+BL( ".ico&t=1" )+eht;
-    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) )
+        out+=BL( "\t<link rel=\"shortcut icon\" href=\"phi.phis?i=" )+_id+BL( ".ico&amp;t=1" )+eht;
+    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
         out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jqueryiefix\"></script>\n" );
-    else out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jquery\"></script>\n" );
+        out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jquerymigrate\"></script>\n" );
+    } else out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=jquery\"></script>\n" );
     out+=BL( "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-core\"></script>\n"
         "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-effects\"></script>\n"
         "\t<script type=\"text/javascript\" src=\"phi.phis?j=ui-button\"></script>\n"

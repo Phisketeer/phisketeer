@@ -65,13 +65,14 @@ void PHIRequest::init() // must be executed AFTER all GET and POST var extractio
             } else _engineMajorVersion=2; // MSIE <6
             pos=-1;
         } else if ( (pos=arr.indexOf( BL( "WebKit" ) ))!=-1 ) {
-            if ( arr.indexOf( BL( "Chrome" ) )!=-1 ) _agentId=Chrome;
-            else if ( arr.indexOf( BL( "Konqueror" ) )!=-1 ) _agentId=Konqueror;
-            else if ( arr.indexOf( BL( "Android" ) )!=-1 ) _agentId=Chrome;
-            else if ( arr.indexOf( BL( "Safari" ) )!=-1 ) _agentId=Safari;
-            else if ( arr.indexOf( BL( "Opera" ) )!=-1 ) _agentId=Opera;
-            else if ( arr.indexOf( BL( "Amphibia" ) )!=-1 ) _agentId=Amphibia;
-            else if ( arr.indexOf( BL( "Phis" ) )!=-1 ) _agentId=Phis;
+            if ( arr.indexOf( BL( "OPR/" ), pos )!=-1 ) _agentId=Opera;
+            else if ( arr.indexOf( BL( "Chrome" ), pos )!=-1 ) _agentId=Chrome;
+            else if ( arr.indexOf( BL( "Konqueror" ), pos )!=-1 ) _agentId=Konqueror;
+            else if ( arr.indexOf( BL( "Android" ), pos )!=-1 ) _agentId=Chrome;
+            else if ( arr.indexOf( BL( "Safari" ), pos )!=-1 ) _agentId=Safari;
+            else if ( arr.indexOf( BL( "Amphibia" ), pos )!=-1 ) _agentId=Amphibia;
+            else if ( arr.indexOf( BL( "PhiApp" ), pos )!=-1 ) _agentId=Amphibia;
+            else if ( arr.indexOf( BL( "Artephis" ), pos )!=-1 ) _agentId=Amphibia;
             else _agentId=UnknownAgent;
             _agentEngine=WebKit;
             pos+=7;

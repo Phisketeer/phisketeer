@@ -57,10 +57,11 @@ void PHISubmitButtonItem::setWidgetText( const QString &t )
 
 bool PHISubmitButtonItem::paint( QPainter *painter, const QRectF &exposed )
 {
-    Q_UNUSED( painter )
     Q_UNUSED( exposed )
 #ifdef Q_OS_MAC
     painter->translate( 0, -2 );
+#else
+    Q_UNUSED( painter )
 #endif
     return false;
 }
@@ -214,6 +215,9 @@ void PHIImageButtonItem::ideUpdateData()
     } else {
         b->setIcon( QPixmap::fromImage( _imageData.image() ) );
     }
+    int s=qRound( realHeight() )-24;
+    if ( s<16 ) s=16;
+    b->setIconSize( QSize( s, s ) );
 }
 
 QSizeF PHIImageButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
@@ -221,6 +225,17 @@ QSizeF PHIImageButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constrain
     if ( which==Qt::MinimumSize ) return QSizeF( 60., 24. );
     if ( which==Qt::PreferredSize ) return QSizeF( 80., 35. );
     return PHIButtonItem::sizeHint( which, constraint );
+}
+
+bool PHIImageButtonItem::paint( QPainter *painter, const QRectF &exposed )
+{
+    Q_UNUSED( exposed )
+#ifdef Q_OS_MAC
+    painter->translate( 0, 1 );
+#else
+    Q_UNUSED( painter )
+#endif
+    return false;
 }
 
 void PHIImageButtonItem::squeeze()
@@ -307,13 +322,16 @@ void PHIImageButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArra
     out+=indent+BL( "<button" );
     htmlBase( req, out, script );
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
-
+        QByteArray s=QByteArray::number( qRound( realHeight()-24 < 16 ? 16 : realHeight()-24 ) );
+        out+=BL( "\"><table width=\"100%\"><tr><td style=\"padding:0;width:" )+s+BL( "px\"><div style=\"width:" );
+        out+=s+BL( "px;height:" )+s+BL( "px;filter:" )+cssImageIEFilter( imagePath(), false )+BL( "\"></div>" );
+        out+=BL( "</td><td>" )+data( DText ).toByteArray()+BL( "</td></tr></table>" );
     } else {
         QByteArray s=QByteArray::number( qRound( realHeight()-24 < 16 ? 16 : realHeight()-24 ) );
-        out+=BL( "\"><table width=\"100%\"><tr><td style=\"padding:0;width:" )+s+BL( "px\"><img" );
+        out+=BL( "\"><table width=\"100%\"><tr><td style=\"padding:0;width:" )+s+BL( "px\"><img alt=\"\"" );
         out+=BL( " width=\"" )+s+BL( "\" height=\"" )+s+BL( "\" src=\"" );
         if ( dirtyFlags() & DFUseFilePathInHTML ) out+=imagePath()+BL( "\">" );
-        else out+=BL( "phi.phis?i=" )+imagePath()+BL( "&t=1\">" );
+        else out+=BL( "phi.phis?i=" )+imagePath()+BL( "&amp;t=1\">" );
         out+=BL( "</td><td>" )+data( DText ).toByteArray()+BL( "</td></tr></table>" );
     }
     out+=BL( "</button>\n" );

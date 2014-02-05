@@ -34,6 +34,8 @@
         <file alias="ui-spinner.css">css/jquery.ui.spinner.min.css</file>
         <file alias="ui-jqgrid-en.js">js/grid.locale-en.js</file>
         <file alias="datefmt.js">js/date.format.js</file>
+        <file alias="ui-jqgridiefix.js">js/jquery.jqGrid.iefix.min.js</file>
+        <file alias="jquerymigrate.js">js/jquery-migrate.min.js</file>
     </qresource>
     <qresource prefix="/gnome">
         <file alias="brokenimage">../../icons/scalable/stock/gtk-brokenimage.svg</file>

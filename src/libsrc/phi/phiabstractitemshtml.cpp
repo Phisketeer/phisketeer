@@ -101,7 +101,7 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
             out+=data( DIEFilter ).toByteArray();
             out+=BL( "\"></div>\n" );
         } else {
-            out+=indent+BL( "\t<img id=\"phibgi_" )+_id+BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
+            out+=indent+BL( "\t<img alt=\"\" id=\"phibgi_" )+_id+BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&amp;t=1\">\n" );
         }
         htmlInitItem( script );
     }
