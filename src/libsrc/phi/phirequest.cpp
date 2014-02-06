@@ -67,8 +67,8 @@ void PHIRequest::init() // must be executed AFTER all GET and POST var extractio
         } else if ( (pos=arr.indexOf( BL( "WebKit" ) ))!=-1 ) {
             if ( arr.indexOf( BL( "OPR/" ), pos )!=-1 ) _agentId=Opera;
             else if ( arr.indexOf( BL( "Chrome" ), pos )!=-1 ) _agentId=Chrome;
-            else if ( arr.indexOf( BL( "Konqueror" ), pos )!=-1 ) _agentId=Konqueror;
-            else if ( arr.indexOf( BL( "Android" ), pos )!=-1 ) _agentId=Chrome;
+            else if ( arr.indexOf( BL( "Konqueror" ), 10 )!=-1 ) _agentId=Konqueror;
+            else if ( arr.indexOf( BL( "Android" ), 10 )!=-1 ) _agentId=Chrome;
             else if ( arr.indexOf( BL( "Safari" ), pos )!=-1 ) _agentId=Safari;
             else if ( arr.indexOf( BL( "Amphibia" ), pos )!=-1 ) _agentId=Amphibia;
             else if ( arr.indexOf( BL( "PhiApp" ), pos )!=-1 ) _agentId=Amphibia;
@@ -76,6 +76,10 @@ void PHIRequest::init() // must be executed AFTER all GET and POST var extractio
             else _agentId=UnknownAgent;
             _agentEngine=WebKit;
             pos+=7;
+        } else if ( (pos=arr.indexOf( BL( "Trident" ) ))!=-1 ) {
+            _agentEngine=Trident;
+            _agentId=IE;
+            pos+=8;
         } else if ( (pos=arr.indexOf( BL( "Blink" ) ))!=-1 ) {
             if ( arr.indexOf( BL( "Chrome" ) )!=-1 ) _agentId=Chrome;
             else if ( arr.indexOf( BL( "Opera" ) )!=-1 ) _agentId=Opera;
@@ -97,10 +101,6 @@ void PHIRequest::init() // must be executed AFTER all GET and POST var extractio
             _agentEngine=Gecko;
             _agentId=SeaMonkey;
             pos+=10;
-        } else if ( (pos=arr.indexOf( BL( "Trident" ) ))!=-1 ) {
-            _agentEngine=Trident;
-            _agentId=IE;
-            pos+=8;
         } else {
             pos=-1;
             _agentEngine=UnknownEngine;
