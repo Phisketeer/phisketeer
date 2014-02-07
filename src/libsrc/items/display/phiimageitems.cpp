@@ -939,6 +939,13 @@ QSizeF PHIRolloverItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint )
 void PHIRolloverItem::drawShape( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
+    if ( isClientItem() ) {
+        QImage img;
+        if ( _hover ) img=realImages().value( "1" );
+        else img=realImages().value( "0" );
+        if ( !img.isNull() ) p->drawImage( rect(), img );
+        return;
+    }
     p->setRenderHint( QPainter::TextAntialiasing );
     QFont f=font();
     f.setPointSizeF( PHI::adjustedFontSize( f.pointSizeF() ) );
@@ -1002,38 +1009,146 @@ void PHIRolloverItem::saveItemData( QDataStream &out, int version )
     out << qCompress( arr, 9 );
 }
 
+QImage PHIRolloverItem::createImage( const QString &t, const QImage &img, const QColor &col, const QColor &bgCol ) const
+{
+    QFont f=font();
+    f.setPointSizeF( PHI::adjustedFontSize( f.pointSizeF() ) );
+    QImage dest( realSize().toSize(), QImage::Format_ARGB32_Premultiplied );
+    dest.fill( bgCol );
+    QPainter p( &dest );
+    p.setRenderHint( QPainter::SmoothPixmapTransform );
+    p.setRenderHint( QPainter::Antialiasing );
+    p.setRenderHint( QPainter::TextAntialiasing );
+    if ( !img.isNull() ) p.drawImage( rect(), img );
+    p.setPen( col );
+    p.setFont( f );
+    if ( !t.isEmpty() ) p.drawText( rect(), t, QTextOption( Qt::AlignCenter ) );
+    p.end();
+    return dest;
+}
+
+QString PHIRolloverItem::resolvePath( const PHIRequest *req, const QString &path, QByteArray &lang )
+{
+    QString fn=QDir::fromNativeSeparators( path );
+    if ( fn.startsWith( QLatin1Char( '/' ) ) ) fn=req->documentRoot()+fn;
+    else fn=QFileInfo( req->canonicalFilename() ).absolutePath()+QLatin1Char( '/' )+fn;
+    if ( fn.indexOf( SL( "/C/" ) )>-1 ) {
+        QString l=QLatin1Char( '/' )+QString::fromLatin1( lang )+QLatin1Char( '/' );
+        fn.replace( SL( "/C/" ), l );
+        if ( QFileInfo( fn ).exists() ) return fn;
+        else return fn.replace( l, SL( "/C/" ) );
+    }
+    lang=PHIData::c();
+    return fn;
+}
+
 void PHIRolloverItem::phisCreateData( const PHIDataParser &parser )
 {
     setData( DText, parser.text( &_textData ) );
-    if ( !_textData.isUnparsedStatic() ) setDirtyFlag( DFText );
+    if ( !_textData.isUnparsedStatic() && !_textData.isUnparsedTranslated() ) setDirtyFlag( DFText );
     parser.createImages( &_imageBookData );
+    if ( !_imageBookData.isUnparsedStatic() && !_imageBookData.isUnparsedTranslated()
+         && _imageBookData.source()!=PHIData::File ) setDirtyFlag( DFCustom1 );
+    if ( dirtyFlags() & DFText || dirtyFlags() & DFCustom1 ) return;
+    // cacheable static or translated images:
+    foreach( QString lang, page()->languages() ) {
+        QByteArray l=lang.toLatin1();
+        QString text=_textData.text( l );
+        if ( text.isEmpty() ) text=_textData.text();
+        QStringList pathes;
+        if ( _imageBookData.source()==PHIData::File ) {
+            if ( _imageBookData.fileNames().count() ) pathes << resolvePath( parser.request(), _imageBookData.fileNames().at( 0 ), l );
+            else pathes.append( QString() );
+            if ( _imageBookData.fileNames().count()>1 ) pathes << resolvePath( parser.request(), _imageBookData.fileNames().at( 1 ), l );
+            else pathes.append( QString() );
+        } else {
+            PHIByteArrayList list=_imageBookData.imageIds( l );
+            if ( list.isEmpty() ) {
+                list=_imageBookData.imageIds();
+                l=PHIData::c();
+            }
+            QString imgDir=parser.request()->imgDir()+QDir::separator();
+            if ( list.count() ) pathes.append( imgDir+QString::fromUtf8( list.at( 0 ) )+L1( ".png" ) );
+            else pathes.append( QString() );
+            if ( list.count()>1 ) pathes.append( imgDir+QString::fromUtf8( list.at( 1 ) )+L1( ".png" ) );
+            else pathes.append( QString() );
+        }
+        Q_ASSERT( pathes.count()==2 );
+        QImage img1, img2;
+        if ( !pathes.at( 0 ).isEmpty() ) img1=QImage( pathes.at( 0 ) );
+        img1=createImage( text, img1, realColor(), realOutlineColor() );
+        PHIByteArrayList list;
+        list << parser.createImage( img1, l, 0 ); // overwrite
+        if ( !pathes.at( 1 ).isEmpty() ) img2=QImage( pathes.at( 1 ) );
+        else img2=img1;
+        img2=createImage( text, img2, realHoverColor(), realHoverBgColor() );
+        list << parser.createImage( img2, l, 1 ); // overwrite
+        _imageBookData.setImageIds( list, l ); // |= TmpObjectCreated
+    }
+    if ( _imageBookData.source()==PHIData::File ) _imageBookData.setSource( PHIData::Translated );
 }
 
 void PHIRolloverItem::phisParseData( const PHIDataParser &parser )
 {
-    if ( dirtyFlags() & DFText ) setData( DText, parser.text( &_textData ) );
-    setImagePathes( parser.imagePathes( &_imageBookData ) );
+    if ( Q_UNLIKELY( dirtyFlags() & DFText || dirtyFlags() & DFCustom1 ) ) {
+        setData( DText, parser.text( &_textData ) );
+        PHIByteArrayList pathes=parser.imagePathes( &_imageBookData );
+        pathes << "" << ""; // force at least two entries
+        QImage img;
+        if ( !pathes.at( 0 ).isEmpty() )
+            img=QImage( parser.request()->imgDir()+QDir::separator()+QString::fromUtf8( pathes.at( 0 ) )+SL( ".png" ) );
+        // expensive:
+        pathes[0]=parser.createImage( createImage( realText(), img, realColor(), realOutlineColor() ), PHIData::c(), -1 );
+        if ( !pathes.at( 1 ).isEmpty() )
+            img=QImage( parser.request()->imgDir()+QDir::separator()+QString::fromUtf8( pathes.at( 1 ) )+SL( ".png") );
+        pathes[1]=parser.createImage( createImage( realText(), img, realHoverColor(), realHoverBgColor() ), PHIData::c(), -1 );
+        setImagePathes( PHIByteArrayList() << pathes[0] << pathes[1] );
+    } else {
+        setImagePathes( parser.imagePathes( &_imageBookData ) );
+    }
 }
 
 void PHIRolloverItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-
+    htmlImages( req, out, script, indent );
+    script+=BL( "$$rollover('" )+id()+BL( "','" )+data( DUrl ).toByteArray()+BL( "');\n" );
 }
 
 void PHIRolloverItem::clientPrepareData()
 {
-    PHIAbstractShapeItem::clientPrepareData();
-    setData( DTmpHoverRole, static_cast<quint8>(_hoverColorRole) );
-    setData( DTmpHoverBgRole, static_cast<quint8>(_hoverBgColorRole) );
-    if ( _hoverColorRole!=PHIPalette::Custom ) removeData( DHoverColor );
-    if ( _hoverBgColorRole!=PHIPalette::Custom ) removeData( DHoverBgColor );
+    PHIRolloverItem::squeeze();
+    removeData( DHoverColor );
+    removeData( DHoverBgColor );
+
 }
 
 void PHIRolloverItem::clientInitData()
 {
-    PHIAbstractShapeItem::clientInitData();
-    _hoverColorRole=static_cast<PHIPalette::ColorRole>(data( DTmpHoverRole ).value<quint8>());
-    _hoverBgColorRole=static_cast<PHIPalette::ColorRole>(data( DTmpHoverBgRole ).value<quint8>());
+    setData( DIsImage, true );
+    for ( int i=0; i<imagePathes().count(); i++ ) {
+        QByteArray path=imagePathes().value( i );
+        QUrl url=page()->baseUrl();
+        if ( path.startsWith( '/' ) ) { // should never happen - images are always created
+            url.setPath( QString::fromUtf8( path ) );
+        } else {
+            url.setPath( L1( "/phi.phis" ) );
+            QUrlQuery query;
+            query.addQueryItem( L1( "i" ), QString::fromUtf8( path ) );
+            query.addQueryItem( L1( "t" ) , L1( "1" ) );
+            url.setQuery( query );
+        }
+        qDebug() << "init data" << url << i;
+        PHIImageRequest *req=new PHIImageRequest( this, url, i );
+        connect( req, &PHIImageRequest::imageReady, this, &PHIRolloverItem::slotImageReady );
+    }
+}
+
+void PHIRolloverItem::slotImageReady( const QImage &img, int i )
+{
+    PHIImageHash v=realImages();
+    v.insert( QByteArray::number( i ), img );
+    setImages( v );
+    update();
 }
 
 void PHIRolloverItem::click( const QGraphicsSceneMouseEvent *e )

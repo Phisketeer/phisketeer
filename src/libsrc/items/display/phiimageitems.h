@@ -284,11 +284,13 @@ public:
     virtual bool hasImages() const { return true; }
     virtual PHIImageBookData* imageBookData() { return &_imageBookData; }
     inline PHIImageHash realImages() const { return data( DImages ).value<PHIImageHash>(); }
-    inline void setImages( const PHIImageHash &imgs ) { QVariant v; v.setValue( imgs ); setData( DImages, v ); update(); }
+    inline void setImages( const PHIImageHash &imgs ) { setData( DImages, qVariantFromValue( imgs ) ); update(); }
     inline QString realText() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
     inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); update(); }
     inline QString realUrl() const { return QString::fromUtf8( data( DUrl ).toByteArray() ); }
     inline void setUrl( const QString &url ) { setData( DUrl, url.toUtf8() ); }
+    inline PHIVariantHash imageLangPathes() const { return data( DImages ).value<PHIVariantHash>(); }
+    inline void setImageLangPathes( const PHIVariantHash &v ) { setData( DImages, qVariantFromValue( v ) ); }
 
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -307,10 +309,15 @@ protected:
     virtual void mouseover( const QGraphicsSceneHoverEvent *e );
     virtual void mouseout( const QGraphicsSceneHoverEvent *e );
 
+private slots:
+    void slotImageReady( const QImage &img, int i );
+
 private:
     virtual void ideSetText( const QString &t, const QByteArray &lang );
     virtual QString ideText( const QByteArray &lang ) const;
     virtual PHIConfigWidget* ideConfigWidget();
+    QImage createImage( const QString &t, const QImage &img, const QColor &col, const QColor &bgCol ) const;
+    QString resolvePath( const PHIRequest *req, const QString &path, QByteArray &lang );
 
     PHITextData _textData;
     PHIImageBookData _imageBookData;

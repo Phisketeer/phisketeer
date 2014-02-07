@@ -744,3 +744,12 @@ $$table=function( s, m, d, n, v, h, ms, chk ) {
     }
     return o;
 };
+
+$$rollover=function( s, u )
+{
+    var o=$(s);
+    if ( u.length>0 ) o.click(function(){phi.href(u);});
+    $(s+'_phi_1').hide();
+    o.on('mouseover',function(){$(s+'_phi_0').hide();$(s+'_phi_1').show();});
+    o.on('mouseout',function(){$(s+'_phi_1').hide();$(s+'_phi_0').show();});
+};

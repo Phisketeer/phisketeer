@@ -669,7 +669,9 @@ PHIByteArrayList PHIDataParser::imagePathes( PHIImageBookData *data ) const
             return ids;
         } else {
             if ( _currentItem ) {
+                // internally used in PHIDataParser:
                 _currentItem->setDirtyFlag( PHIBaseItem::DFHasFilePath );
+                // subclasses can query:
                 _currentItem->setDirtyFlag( PHIBaseItem::DFUseFilePathInHTML );
             }
             QString fn;
@@ -826,17 +828,4 @@ QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const P
     qDebug() << "saving transformed image" << it->id() << arr << br << it->adjustedRect();
     img.save( req->imgDir()+QLatin1Char( '/' )+QString::fromLatin1( arr )+SL( ".png" ), "PNG" );
     return arr;
-}
-
-QString PHIDataParser::resolvePath( const QString &filename ) const
-{
-    QString fn=QDir::fromNativeSeparators( filename );
-    if ( fn.startsWith( QLatin1Char( '/' ) ) ) {
-        fn=_req->documentRoot()+fn;
-    } else {
-        fn=QFileInfo( _req->canonicalFilename() ).absolutePath()+QLatin1Char( '/' )+fn;
-    }
-    if ( !_currentItem ) fn.prepend( QLatin1Char( '@' ) ); // marker for page image (DFUseFilePath does not exist)
-    qDebug() << (_currentItem ? _currentItem->name() : _pageId) << "resolved path" << fn;
-    return fn;
 }

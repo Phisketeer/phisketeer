@@ -64,9 +64,9 @@ protected:
     QImage loadImageFromUrl( const QString &url ) const;
     QImage loadImageFromDB( const QString &statement ) const;
     QList <QImage> loadImagesFromDB( const QString &statement ) const;
-    QByteArray resolveImageFile( const QString &filename, QByteArray &matchedLang ) const;
     QByteArray matchedLangForResolvedFilename( const QString &filename ) const;
     QString resolvePath( const QString &path ) const;
+    QByteArray resolveImageFile( const QString &filename, QByteArray &matchedLang ) const;
     void saveImage( const QImage &img, const QByteArray &id ) const;
     void cacheText( PHIData *data, const QString &t, const QByteArray &lang=PHIData::c() ) const;
     void cacheImageFile( PHIImageData *data, const QString &filename ) const;
@@ -185,6 +185,16 @@ inline QRectF PHIDataParser::graphicsImageRect( const QByteArray &id )
     QRectF br=_imageGraphicsRects.value( id, QRectF() );
     _lock.unlock();
     return br;
+}
+
+inline QString PHIDataParser::resolvePath( const QString &filename ) const
+{
+    QString fn=QDir::fromNativeSeparators( filename );
+    if ( fn.startsWith( QLatin1Char( '/' ) ) ) fn=_req->documentRoot()+fn;
+    else fn=QFileInfo( _req->canonicalFilename() ).absolutePath()+QLatin1Char( '/' )+fn;
+    if ( Q_UNLIKELY( !_currentItem ) ) fn.prepend( QLatin1Char( '@' ) ); // marker for page image (DFUseFilePath does not exist)
+    qDebug() << (_currentItem ? _currentItem->name() : _pageId) << "resolved path" << fn;
+    return fn;
 }
 
 #endif // PHIDATAPARSER_H
