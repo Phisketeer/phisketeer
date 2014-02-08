@@ -4,6 +4,8 @@ You find all recent changes at http://wiki.phisketeer.org by clicking on "Change
 Professional installation and compiling support is available through our main sponsor Phisys AG.
 Please visit: http://www.phisys.com for further information.
 
+Note: dialog and IDE translations are not yet finished. Please use English.
+
 Phi components:
 ===============
 - Artephis is your intuitive editor creating genius Phi Web pages
