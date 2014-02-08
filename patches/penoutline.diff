@@ -1,0 +1,10 @@
+--- a/qtbase/src/gui/text/qtextengine.cpp
++++ b/qtbase/src/gui/text/qtextengine.cpp
+@@ -2207,6 +2207,7 @@ int QTextEngine::formatIndex(const QScriptItem *si) const
+
+ QTextCharFormat QTextEngine::format(const QScriptItem *si) const
+ {
++    resolveAdditionalFormats();
+     if (const QTextFormatCollection *formats = this->formats())
+         return formats->charFormat(formatIndex(si));
+     return QTextCharFormat();
