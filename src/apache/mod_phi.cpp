@@ -282,15 +282,15 @@ static int phi_handler( request_rec *r )
     apr_pool_cleanup_register( r->pool, static_cast<void*>(resp), cleanupResponseRec, apr_pool_cleanup_null );
 
     ApacheRequest areq( r, resp );
-    if ( areq.keyword( PHIRequest::KMethod )!=BL( "GET" ) && areq.keyword( PHIRequest::KMethod )!=BL( "POST" )
-            && areq.keyword( PHIRequest::KMethod )!=BL( "HEAD" ) ) return HTTP_METHOD_NOT_ALLOWED;
+    if ( areq.keyword( PHIRequest::KMethod )!="GET" && areq.keyword( PHIRequest::KMethod )!="POST"
+            && areq.keyword( PHIRequest::KMethod )!="HEAD" ) return HTTP_METHOD_NOT_ALLOWED;
 
-    if ( areq.keyword( PHIRequest::KMethod )==BL( "POST" ) ) {
+    if ( areq.keyword( PHIRequest::KMethod )=="POST" ) {
         int status=OK;
-        if ( areq.keyword( PHIRequest::KContentType ).startsWith( BL( "application/x-www-form-urlencoded" ) )
+        if ( areq.keyword( PHIRequest::KContentType ).startsWith( "application/x-www-form-urlencoded" )
                 && areq.contentLength() > 0 )
             status=parseUrlEncodedPostData( r, &areq );
-        else if ( areq.keyword( PHIRequest::KContentType ).startsWith( BL( "multipart/form-data" ) )
+        else if ( areq.keyword( PHIRequest::KContentType ).startsWith( "multipart/form-data" )
                 && areq.contentLength() > 0 )
             status=parseMultipartPostData( r, &areq );
         if ( status!=OK ) return status;
@@ -344,7 +344,7 @@ static int phi_handler( request_rec *r )
 
     QByteArray arr;
     foreach ( arr, resp->headersOut().keys() ) {
-        if ( arr.startsWith( BL( "Set-Cookie" ) ) ) continue;
+        if ( arr.startsWith( "Set-Cookie" ) ) continue;
         apr_table_set( r->headers_out, arr.constData(), resp->headersOut().value( arr ).constData() );
     }
     QList <QByteArray> setcookies=resp->headersOut().values( "Set-Cookie" );
