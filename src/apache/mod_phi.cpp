@@ -79,6 +79,7 @@ extern "C" {
 
 static int cleanupResponseRec( void *ptr ) { delete static_cast<PHIResponseRec*>(ptr); return 0; }
 static int cleanupApacheReqParent( void *ptr ) { delete static_cast<ApacheReqParent*>(ptr); return 0; }
+static int cleanupApacheReqChild( void *ptr ) { delete static_cast<ApacheReqChild*>(ptr); return 0; }
 
 static int translateReturnCode( PHIRC rc )
 {
@@ -281,17 +282,15 @@ static int phi_handler( request_rec *r )
     apr_pool_cleanup_register( r->pool, static_cast<void*>(resp), cleanupResponseRec, apr_pool_cleanup_null );
 
     ApacheRequest areq( r, resp );
-    if ( areq.keyword( PHIRequest::KMethod ) != "GET" && areq.keyword( PHIRequest::KMethod ) != "POST"
-            && areq.keyword( PHIRequest::KMethod ) != "HEAD" ) return HTTP_METHOD_NOT_ALLOWED;
+    if ( areq.keyword( PHIRequest::KMethod )!=BL( "GET" ) && areq.keyword( PHIRequest::KMethod )!=BL( "POST" )
+            && areq.keyword( PHIRequest::KMethod )!=BL( "HEAD" ) ) return HTTP_METHOD_NOT_ALLOWED;
 
-    //PHIParent::instance()->readLicenseFile( areq.documentRoot(), areq.hostname() );
-
-    if ( areq.keyword( PHIRequest::KMethod ) == "POST" ) {
+    if ( areq.keyword( PHIRequest::KMethod )==BL( "POST" ) ) {
         int status=OK;
-        if ( areq.keyword( PHIRequest::KContentType ).startsWith( "application/x-www-form-urlencoded" )
+        if ( areq.keyword( PHIRequest::KContentType ).startsWith( BL( "application/x-www-form-urlencoded" ) )
                 && areq.contentLength() > 0 )
             status=parseUrlEncodedPostData( r, &areq );
-        else if ( areq.keyword( PHIRequest::KContentType ).startsWith( "multipart/form-data" )
+        else if ( areq.keyword( PHIRequest::KContentType ).startsWith( BL( "multipart/form-data" ) )
                 && areq.contentLength() > 0 )
             status=parseMultipartPostData( r, &areq );
         if ( status!=OK ) return status;
@@ -303,7 +302,6 @@ static int phi_handler( request_rec *r )
 
     int dbId=PHISPageCache::getDbId();
     {
-        qWarning() << "DB" << dbId << QThread::currentThreadId();
         PHISProcessor phiproc( &areq, dbId ); // process request (PHI engine)
         phiproc.run();
     }
@@ -335,11 +333,9 @@ static int phi_handler( request_rec *r )
                 db.close();
             }
         } // remove db instance
-        qWarning() << "Removing DB" << dbId << QThread::currentThreadId();
         QSqlDatabase::removeDatabase( QString::number( dbId ) );
     }
     PHISPageCache::removeDbId( dbId );
-
 
 #ifdef PHIDEBUG
     qWarning( "Time elapsed: %d", t.msecsTo( QTime::currentTime() ) );
@@ -348,7 +344,7 @@ static int phi_handler( request_rec *r )
 
     QByteArray arr;
     foreach ( arr, resp->headersOut().keys() ) {
-        if ( arr.startsWith( "Set-Cookie" ) ) continue;
+        if ( arr.startsWith( BL( "Set-Cookie" ) ) ) continue;
         apr_table_set( r->headers_out, arr.constData(), resp->headersOut().value( arr ).constData() );
     }
     QList <QByteArray> setcookies=resp->headersOut().values( "Set-Cookie" );
@@ -465,15 +461,19 @@ static int phi_handler( request_rec *r )
     return OK;
 }
 
-/*  // Used for ap_hook_child_init
-static void global_init( apr_pool_t *p, server_rec* )
+// Used for ap_hook_child_init
+static void child_init( apr_pool_t *p, server_rec *s )
 {
-    qWarning( "--- phi --- child_init" );
-    PHIParent *parent=PHIParent::instance();
-    apr_pool_cleanup_register( p, static_cast<void*>(parent), cleanupPHIParent, apr_pool_cleanup_null );
+    ApacheReqChild *child=ApacheReqChild::instance();
+    apr_pool_cleanup_register( p, static_cast<void*>(child), cleanupApacheReqChild, apr_pool_cleanup_null );
+    foreach ( QString tmp, child->initErrors() ) {
+        PHIRC rc=PHIRC_OBJ_ACCESS_ERROR;
+        PHI_SLOG_ERR(rc,__FILE__,__LINE__,tmp);
+        PHI_SLOG_RC(rc);
+    }
 }
-*/
 
+// Used for ap_hook_post_init
 static int global_init( apr_pool_t *p, apr_pool_t *plog, apr_pool_t *ptemp, server_rec *s )
 {
     Q_UNUSED( plog );
@@ -505,8 +505,8 @@ static int global_init( apr_pool_t *p, apr_pool_t *plog, apr_pool_t *ptemp, serv
 
 static void phi_register_hooks( apr_pool_t* )
 {
-    //ap_hook_child_init( global_init, NULL, NULL, APR_HOOK_MIDDLE );
     ap_hook_post_config( global_init, NULL, NULL, APR_HOOK_MIDDLE );
+    ap_hook_child_init( child_init, NULL, NULL, APR_HOOK_MIDDLE );
     ap_hook_handler( phi_handler, NULL, NULL, APR_HOOK_MIDDLE );
 }
 

@@ -928,6 +928,11 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in, bool client )
         quint8 geom;
         dse >> geom;
         setGeometry( static_cast<Geometry>(geom) );
+        qreal w=_width, h=_height;
+        if ( attributes & ALandscape ) {
+            _width=h;
+            _height=w;
+        }
         QColor c;
         QList <PHIPalette::ColorRole> roles;
         roles << PHIPalette::User1_100 << PHIPalette::User2_100 << PHIPalette::User3_100
@@ -949,6 +954,7 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in, bool client )
     // map attributes
     {
         _flags=FNone;
+        _flags |= FVersion1x;
         if ( attributes & ATemplate ) _flags |= FHasMasterTemplate;
         if ( attributes & AStyleSheet ) _flags |= FUseCSS;
         if ( attributes & AJavascript ) _flags |= FJavaScript;
@@ -963,8 +969,10 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in, bool client )
         if ( attributes & AUseOpenGraph ) _flags |= FUseOpenGraph;
         if ( attributes & ANoUnderlineLinks ) _flags |= FNoUnderlinedLinks;
         if ( attributes & APalette ) _flags |= FUseOwnPalette;
+        if ( attributes & AFormAction ) _flags |= FHasAction;
         if ( extensions & EHidePhiMenu ) _flags |= FHidePhiMenu;
         // @todo: check AUsejQueryUI
+
     }
     // store old Serverscript modules style
     {

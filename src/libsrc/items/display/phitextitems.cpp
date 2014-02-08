@@ -69,8 +69,6 @@ void PHILabelItem::setWidgetAligment( Qt::Alignment align )
 void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     htmlInitItem( script, false );
-    if ( Q_UNLIKELY( isHtmlText() ) ) script+=BL( ".html('" )+data( DText ).toByteArray()+BL( "')" );
-    else script+=BL( ".text('" )+data( DText ).toByteArray()+BL( "')" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
         script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
@@ -90,7 +88,7 @@ void PHILabelItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scr
     else out+=BL( "vertical-align:middle;" );
     if ( a & Qt::AlignHCenter ) out+=BL( "text-align:center;" );
     else if ( a & Qt::AlignRight ) out+=BL( "text-align:right;" );
-    out+=BL( "\">" )+BL( "</td></tr></table></div>\n" );
+    out+=BL( "\">" )+data( DText ).toByteArray()+BL( "</td></tr></table></div>\n" );
 }
 
 void PHILabelItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
@@ -109,7 +107,7 @@ void PHILabelItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QBy
         QColor c;
         qreal radius, xoff, yoff;
         effect()->shadow( c, xoff, yoff, radius );
-        QByteArray col=cssRgba( c );
+        QByteArray col=cssColor( c );
         if ( !(req->agentFeatures() & PHIRequest::RGBA) ) col=c.name().toLatin1();
         if ( colorRole( PHIPalette::WidgetBase )==PHIPalette::Window ) {
             out+=BL( "text-shadow:" )+QByteArray::number( qRound(xoff) )
@@ -227,7 +225,7 @@ void PHILinkItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
     script+=BL( ";})" );
     QByteArray url=data( DUrl ).toByteArray();
     if ( !url.isEmpty() ) {
-        script+=BL( ".on('click',function(){phi.href('" )+url;
+        script+=BL( ".on('click',function(){phi.href('" )+url.replace( '\'', BL( "\\'" ) );
         script+=BL( "');})" );
     }
     script+=BL( ";\n" );
@@ -610,7 +608,7 @@ void PHIRichTextItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, 
         QColor c;
         qreal radius, xoff, yoff;
         effect()->shadow( c, xoff, yoff, radius );
-        QByteArray col=cssRgba( c );
+        QByteArray col=cssColor( c );
         if ( !(req->agentFeatures() & PHIRequest::RGBA) ) col=c.name().toLatin1();
         if ( colorRole( PHIPalette::WidgetBase )==PHIPalette::Window ) {
             out+=BL( "text-shadow:" )+QByteArray::number( qRound(xoff) )

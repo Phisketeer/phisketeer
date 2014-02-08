@@ -396,6 +396,12 @@ void PHIBaseItem::loadVersion1_x( const QByteArray &arr )
         setColor( PHIPalette::Background, colorRole( PHIPalette::Background ), d.outlineColor() );
         setColor( PHIPalette::WidgetBase, colorRole( PHIPalette::WidgetBase ), d.outlineColor() );
     }
+    if ( d.rolloverTextColor().isValid() ) {
+        setColor( PHIPalette::Hover, PHIPalette::Custom, d.rolloverTextColor() );
+    } else setColor( PHIPalette::Hover, PHIPalette::Window, QColor( Qt::transparent ) );
+    if ( d.rolloverBackgroundColor().isValid() ) {
+        setColor( PHIPalette::HoverBackground, PHIPalette::Custom, d.rolloverBackgroundColor() );
+    } else setColor( PHIPalette::HoverBackground, PHIPalette::Window, QColor( Qt::transparent ) );
     setTabIndex( static_cast<qint16>( d.tabOrder() ) );
     if ( property( "_penWidth" ).isValid() ) setProperty( "_penWidth", d.penWidth() );
     if ( property( "_line" ).isValid() ) setProperty( "_line", d.line() );
@@ -969,15 +975,11 @@ void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) con
 void PHIBaseItem::cssCustomStyleSheet( QByteArray &out ) const
 {
     QByteArray el=_variants.value( DStyleSheet ).toByteArray().simplified();
-    PHIByteArrayList list=el.split( '}' );
-    if ( list.count()==1 ) {
-        if ( el.contains( '{' ) ) out+='#'+_id+el+'\n';
-        else out+='#'+_id+BL( "{" )+el+BL( "}\n" );
-    } else {
-        foreach( el, list ) {
-            out+='#'+_id+el+BL( "}\n" );
-        }
-    }
+    if ( Q_UNLIKELY( el.count( '}' )>1 ) ) {
+        PHIByteArrayList list=el.split( '}' );
+        foreach( el, list ) if ( el.count( '{' )==1 ) out+='#'+_id+' '+el+BL( "}\n" );
+    } else if ( Q_LIKELY( el.count( '}')==1 ) ) out+='#'+_id+' '+el+'\n';
+    else out+='#'+_id+BL( " {" )+el+BL( "}\n" );
 }
 
 void PHIBaseItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
@@ -1183,7 +1185,7 @@ void PHIBaseItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByt
             _effect->shadow( c, xOff, yOff, radius );
             out+=prefix+BL( "box-shadow:" )+QByteArray::number( qRound(xOff) )+"px ";
             out+=QByteArray::number( qRound(yOff) )+"px ";
-            out+=QByteArray::number( qRound(radius) )+"px "+cssRgba( c )+';';
+            out+=QByteArray::number( qRound(radius) )+"px "+cssColor( c )+';';
         }
     } else if ( _effect->graphicsType()==PHIEffect::GTBlur ) {
         if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {

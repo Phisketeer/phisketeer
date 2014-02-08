@@ -30,7 +30,7 @@ class ApacheReqParent : public QObject
 public:
     virtual ~ApacheReqParent();
     static ApacheReqParent* instance();
-    QStringList initErrors() const;
+    inline QStringList initErrors() const { return _errors; }
     QStringList moduleLoadErrors() const;
     QStringList loadedModules() const;
     QString tempDir( const QString &domain );
@@ -48,6 +48,29 @@ private:
 inline ApacheReqParent* ApacheReqParent::instance()
 {
     if ( !_instance ) _instance=new ApacheReqParent();
+    return _instance;
+}
+
+class ApacheReqChild : public QObject
+{
+    Q_OBJECT
+
+public:
+    virtual ~ApacheReqChild();
+    static ApacheReqChild* instance();
+    inline QStringList initErrors() const { return _errors; }
+
+protected:
+    explicit ApacheReqChild( QObject *parent=0 );
+
+private:
+    static ApacheReqChild *_instance;
+    QStringList _errors;
+};
+
+inline ApacheReqChild* ApacheReqChild::instance()
+{
+    if ( Q_UNLIKELY( !_instance ) ) _instance=new ApacheReqChild();
     return _instance;
 }
 

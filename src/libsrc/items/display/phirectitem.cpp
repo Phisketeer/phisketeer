@@ -204,7 +204,7 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
         htmlBase( req, out, script, false );
         QRectF br=boundingRect();
         QByteArray imgId=PHIDataParser::createTransformedImage( req, this, 0, br );
-        out+=BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&t=1\">\n" );
+        out+=BL( "\" alt=\"\" src=\"phi.phis?i=" )+imgId+BL( "&amp;t=1\">\n" );
         setAdjustedRect( br );
         htmlInitItem( script );
     }

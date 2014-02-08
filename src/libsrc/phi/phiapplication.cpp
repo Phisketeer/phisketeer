@@ -196,10 +196,10 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
         _settings->beginGroup( PHI::defaultString() );
         _dataPath=_settings->value( L1( "BaseDir" ), _dataPath ).toString();
         _settings->endGroup();
+    } else {
+        if ( !QFileInfo( _cachePath ).exists() ) QDir( _cachePath ).mkpath( _cachePath );
+        if ( !QFileInfo( _tmpPath ).exists() ) QDir( _tmpPath ).mkpath( _tmpPath );
     }
-    if ( !QFileInfo( _cachePath ).exists() ) QDir( _cachePath ).mkpath( _cachePath );
-    if ( !QFileInfo( _tmpPath ).exists() ) QDir( _tmpPath ).mkpath( _tmpPath );
-
     qRegisterMetaTypeStreamOperators<PHIRectHash>("PHIRectHash");
     qRegisterMetaTypeStreamOperators<PHIByteArrayList>("PHIByteArrayList");
     qRegisterMetaTypeStreamOperators<PHIImageHash>("PHIImageHash");

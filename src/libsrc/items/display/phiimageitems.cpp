@@ -683,7 +683,7 @@ void PHISponsorItem::html( const PHIRequest *req, QByteArray &out, QByteArray &s
     } else {
         out+=indent+BL( "<img style=\"z-index:" )+QByteArray::number( PHI::maxZIndex()+1 )+BL( ";position:absolute;left:" )
             +QByteArray::number( qRound(realX()) )+BL( "px;top:" )+QByteArray::number( qRound(realY()) )
-            +BL( "px;opacity:1\" src=\"phi.phis?i=" )+imagePath()+BL( "&t=1\">\n" );
+            +BL( "px;opacity:1\" alt=\"Phisys AG Switzerland\" src=\"phi.phis?i=" )+imagePath()+BL( "&amp;t=1\">\n" );
     }
 }
 
@@ -1111,7 +1111,7 @@ void PHIRolloverItem::phisParseData( const PHIDataParser &parser )
 void PHIRolloverItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     htmlImages( req, out, script, indent );
-    script+=BL( "$$rollover('" )+id()+BL( "','" )+data( DUrl ).toByteArray()+BL( "');\n" );
+    script+=BL( "$$rollover('" )+id()+BL( "','" )+data( DUrl ).toByteArray().replace( '\'', BL( "\\'" ) )+BL( "');\n" );
 }
 
 void PHIRolloverItem::clientPrepareData()

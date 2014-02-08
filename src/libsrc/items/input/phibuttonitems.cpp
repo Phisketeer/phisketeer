@@ -171,10 +171,8 @@ void PHIButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
         script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
         script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
-    if ( !realUrl().isEmpty() ) {
-        qDebug() << "url" << realUrl();
-        QUrl url( realUrl() );
-        script+=BL( ".click(function(){phi.href('" )+url.toEncoded()+BL( "')})" );
+    if ( !data( DUrl ).toByteArray().isEmpty() ) {
+        script+=BL( ".click(function(){phi.href('" )+data( DUrl ).toByteArray().replace( '\'', BL( "\\'" ) )+BL( "')})" );
     }
     script+=BL( ";\n" );
     out+=indent+BL( "<input type=\"button\" value=\"" )+data( DText ).toByteArray()+'"';

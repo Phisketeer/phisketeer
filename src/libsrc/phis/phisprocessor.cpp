@@ -36,6 +36,7 @@
 
 static void _findMatchingLang( const PHIBasePage *p, const PHIRequest *req )
 {
+    if ( req->currentLangByteArray()==PHIData::c() ) req->setCurrentLang( SL( "en" ) );
     if ( p->languages().contains( req->currentLang() ) ) return;
     // document does not provide the requested language, look if we find a matching one
     QByteArray lang;
@@ -99,7 +100,7 @@ void PHISProcessor::run()
         if ( Q_LIKELY( f.exists() ) ) {
             master=PHISPageCache::page( _req, f.fileName() );
             if ( Q_UNLIKELY( !master ) ) master=PHISPageCache::insert( _req, loadPage( f ), f.fileName() );
-            if ( master ) parseMaster( master, page );
+            if ( Q_LIKELY( master ) ) parseMaster( master, page );
         } else {
             _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_NOT_FOUND_ERROR,
                 tr( "The page '%1' is marked for using a master template '%2'.\n"
@@ -270,6 +271,7 @@ void PHISProcessor::parseMaster( PHIBasePage *master, PHIBasePage *page ) const
     page->copyMasterData( master );
     PHIBaseItem *it;
     PHIByteArrayList itemIds=page->itemIdsByteArray();
+    qint16 count=master->itemCount()+1;
     foreach( it, master->items() ) {
         if ( Q_UNLIKELY( itemIds.contains( it->id() ) ) ) {
             _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_IN_USE_ERROR,
@@ -278,10 +280,10 @@ void PHISProcessor::parseMaster( PHIBasePage *master, PHIBasePage *page ) const
                 .arg( _req->canonicalFilename() ).arg( it->name() ).arg( master->id() ) );
             continue;
         }
-        it->phisPrivateParseData( parser );
         it->setParent( page );
-        it->setZIndex( -PHI::maxZIndex()+it->realZIndex() );
-        if ( it->hasHtmlExtension() ) {
+        it->phisPrivateParseData( parser );
+        if ( Q_LIKELY( !(master->flags() & PHIBasePage::FVersion1x ) ) ) it->setZIndex( -count+it->realZIndex() );
+        if ( Q_UNLIKELY( it->hasHtmlExtension() ) ) {
             QByteArray ext;
             PHIWID wid=it->htmlHeaderExtension( _req, ext );
             if ( wid ) page->insertHtmlHeaderExtension( wid, ext );

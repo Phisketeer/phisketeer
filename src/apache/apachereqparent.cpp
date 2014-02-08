@@ -33,7 +33,7 @@ ApacheReqParent::ApacheReqParent( QObject *parent )
     qDebug( "ApacheReqParent::ApacheReqParent()" );
     QStringList argList;
     argList << L1( "libmod_phi.so" );
-#ifdef Q_OS_LINUX
+#ifdef Q_OS_UNIX
     argList << L1( "-platform" ) << L1( "offscreen" );
 #endif
     int p_argc=argList.size();
@@ -43,26 +43,14 @@ ApacheReqParent::ApacheReqParent( QObject *parent )
     for ( int i=0; i<p_argc; ++i ) p_argv[i]=argvData[i].data();
     new PHIApplication( p_argc, p_argv.data(), "phis", PHIVERSION, PHIApplication::ApacheModule );
     PHIError::instance( this );
-    QString error;
     PHISModuleFactory::instance( this );
-    PHIRC rc=PHIImageCache::instance()->init( error, this );
-    if ( rc!=PHIRC_OK ) _errors << error;
-    rc=PHISession::instance()->init( error, this );
-    if ( rc!=PHIRC_OK ) _errors << error;
 }
 
 ApacheReqParent::~ApacheReqParent()
 {
-    delete PHISession::instance();
-    delete PHIImageCache::instance();
     delete phiApp;
     _instance=0;
     qDebug( "ApacheReqParent::~ApacheReqParent()" );
-}
-
-QStringList ApacheReqParent::initErrors() const
-{
-    return _errors;
 }
 
 QStringList ApacheReqParent::moduleLoadErrors() const
@@ -102,4 +90,27 @@ QString ApacheReqParent::tempDir( const QString &domain )
         sub.mkpath( tmp+subdir );
     }
     return tmp;
+}
+
+ApacheReqChild* ApacheReqChild::_instance=0;
+
+ApacheReqChild::ApacheReqChild( QObject *parent )
+    : QObject( parent )
+{
+    qDebug( "ApacheReqChild::ApacheReqChild()" );
+    QString error;
+    PHIRC rc=PHIImageCache::instance()->init( error, this );
+    if ( Q_UNLIKELY( rc!=PHIRC_OK ) ) _errors << error;
+    rc=PHISession::instance()->init( error, this );
+    if ( Q_UNLIKELY( rc!=PHIRC_OK ) ) _errors << error;
+    QDir cache( phiApp->cachePath() );
+    if ( !cache.exists() ) cache.mkpath( phiApp->cachePath() );
+}
+
+ApacheReqChild::~ApacheReqChild()
+{
+    delete PHISession::instance();
+    delete PHIImageCache::instance();
+    _instance=0;
+    qDebug( "ApacheReqChild::~ApacheReqChild()" );
 }

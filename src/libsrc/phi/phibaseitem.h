@@ -635,7 +635,7 @@ inline QByteArray PHIBaseItem::cssRgba( const QColor &c )
 
 inline QByteArray PHIBaseItem::cssColor( const QColor &c ) const
 {
-    if ( c.alphaF()==1. ) return c.name().toLatin1();
+    if ( Q_LIKELY( c.alphaF()==1. ) ) return c.name().toLatin1();
     return cssRgba( c );
 }
 

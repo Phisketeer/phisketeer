@@ -192,11 +192,11 @@ void PHISRequest::init() // should be executed AFTER all GET and POST var extrac
         if( pos>0 ) str=str.left( pos ); // remove qualifier
         _acceptedLangs.append( str.toLower() );
     }
-    if ( _acceptedLangs.isEmpty() ) _lang=QStringLiteral( "C" );
+    if ( _acceptedLangs.isEmpty() ) _lang=SL( "en" );
     else _lang=_acceptedLangs.first();
 
     // Extract cookies
-    QString philang=QStringLiteral( "philang" );
+    QString philang=SL( "philang" );
     list=QString::fromUtf8( _headers.value( "Cookie" ) ).split( QLatin1Char( ';' ), QString::SkipEmptyParts );
     if ( list.count()>0 ) {
         _cookies.clear();
@@ -218,10 +218,13 @@ void PHISRequest::init() // should be executed AFTER all GET and POST var extrac
     }
     if ( _postData.contains( philang ) ) {
         _lang=_postData.value( philang );
+        if ( _lang==SL( "C" ) ) _lang=SL( "en" );
         _philang=true;
     }
-    if ( ! QUrlQuery( _url ).queryItemValue( philang ).isEmpty() ) {
+    if ( !QUrlQuery( _url ).queryItemValue( philang ).isEmpty() ) {
         _lang=QUrlQuery( _url ).queryItemValue( philang );
+        if ( _lang==SL( "C" ) ) _lang=SL( "en" );
+        qWarning() << "lang" << _lang;
         _philang=true;
     }
     _langByteArray=_lang.toLatin1();
@@ -284,47 +287,47 @@ QString PHISRequest::serverValue( const QString &key ) const
 QString PHISRequest::userEngine() const
 {
     switch ( _agentEngine ) {
-    case Trident: return QStringLiteral( "Trident" );
-    case WebKit: return QStringLiteral( "WebKit" );
-    case Gecko: return QStringLiteral( "Gecko" );
-    case Presto: return QStringLiteral( "Presto" );
+    case Trident: return SL( "Trident" );
+    case WebKit: return SL( "WebKit" );
+    case Gecko: return SL( "Gecko" );
+    case Presto: return SL( "Presto" );
     default:;
     }
-    return QStringLiteral( "Unknown" );
+    return SL( "Unknown" );
 }
 
 QString PHISRequest::userAgent() const
 {
     switch( _agentId ) {
-    case IE: return QStringLiteral( "MSIE" );
-    case Safari: return QStringLiteral( "Safari" );
-    case Firefox: return QStringLiteral( "Firefox" );
-    case Chrome: return QStringLiteral( "Chrome" );
-    case Konqueror: return QStringLiteral( "Konqueror" );
-    case Opera: return QStringLiteral( "Opera" );
-    case SeaMonkey: return QStringLiteral( "SeaMonkey" );
-    case Amphibia: return QStringLiteral( "Amphibia" );
+    case IE: return SL( "MSIE" );
+    case Safari: return SL( "Safari" );
+    case Firefox: return SL( "Firefox" );
+    case Chrome: return SL( "Chrome" );
+    case Konqueror: return SL( "Konqueror" );
+    case Opera: return SL( "Opera" );
+    case SeaMonkey: return SL( "SeaMonkey" );
+    case Amphibia: return SL( "Amphibia" );
     default:;
     }
-    return QStringLiteral( "Unknown" );
+    return SL( "Unknown" );
 }
 
 QString PHISRequest::userOS() const
 {
     switch( osType() ) {
-    case PHISRequest::Windows: return QStringLiteral( "Windows" );
-    case PHISRequest::MacOS: return QStringLiteral( "MacOSX" );
-    case PHISRequest::iOS: return QStringLiteral( "iOS" );
-    case PHISRequest::Android: return QStringLiteral( "Android" );
-    case PHISRequest::WindowsMobile: return QStringLiteral( "WindowsMobile" );
-    case PHISRequest::Linux: return QStringLiteral( "Linux" );
-    case PHISRequest::Symbian: return QStringLiteral( "Symbian" );
-    case PHISRequest::Solaris: return QStringLiteral( "Solaris" );
-    case PHISRequest::HPUX: return QStringLiteral( "HPUX" );
-    case PHISRequest::AIX: return QStringLiteral( "AIX" );
+    case PHISRequest::Windows: return SL( "Windows" );
+    case PHISRequest::MacOS: return SL( "MacOSX" );
+    case PHISRequest::iOS: return SL( "iOS" );
+    case PHISRequest::Android: return SL( "Android" );
+    case PHISRequest::WindowsMobile: return SL( "WindowsMobile" );
+    case PHISRequest::Linux: return SL( "Linux" );
+    case PHISRequest::Symbian: return SL( "Symbian" );
+    case PHISRequest::Solaris: return SL( "Solaris" );
+    case PHISRequest::HPUX: return SL( "HPUX" );
+    case PHISRequest::AIX: return SL( "AIX" );
     default:;
     }
-    return QStringLiteral( "Unknown" );
+    return SL( "Unknown" );
 }
 
 bool PHISRequest::setRedirectedFile( const QString &file )
@@ -354,14 +357,14 @@ void PHISRequest::dump() const
     quint8 id;
     qWarning( "[Config]" );
     qWarning( "Started: %s", qPrintable( _started.toLocalTime().toString( PHI::dtFormatString() ) ) );
-    qWarning( "UTC: %s", qPrintable( serverValue( QStringLiteral( "nowutc" ) ) ) );
+    qWarning( "UTC: %s", qPrintable( serverValue( SL( "nowutc" ) ) ) );
     qWarning( "Filename: %s", qPrintable( _canonicalFilename ) );
     qWarning( "TmpDir: %s", qPrintable( _tmpDir ) );
     qWarning( "ImgDir: %s", qPrintable( _imgDir ) );
     qWarning( "Keep-Alive: %d", _keepAlive );
     qWarning( "DocumentRoot: %s", qPrintable( _documentRoot ) );
     qWarning( "URL: %s", _url.toEncoded().data() );
-    qWarning( "POST data: %s", qPrintable( serverValue( QStringLiteral( "postdata" ) ) ) );
+    qWarning( "POST data: %s", qPrintable( serverValue( SL( "postdata" ) ) ) );
     qWarning( "HTTP major: %d", _httpMajor );
     qWarning( "HTTP minor: %d", _httpMinor );
     qWarning( "Content length: %lld", _contentLength );
