@@ -369,8 +369,11 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
     foreach ( l, layouts ) l->activateLayout();
     page->genJQueryThemeFile( _req );
     static bool created=false;
-    if ( !created ) genScripts(); // @todo: create once at server start
-    created=true;
+    if ( Q_UNLIKELY( !created ) ) {
+        genScripts(); // @todo: create once at server start
+        created=true;
+    }
+    if ( Q_UNLIKELY( !QFileInfo( _req->tmpDir()+SL( "/js/phibase.js" ) ).exists() ) ) genScripts();
     return page;
 }
 
@@ -493,7 +496,7 @@ void PHISProcessor::genImage() const
 void PHISProcessor::genCSS() const
 {
     QString path=_req->getValue( SL( "s" ) );
-    path=_req->tmpDir()+L1( "/css/" )+path+L1( ".css" );
+    path=_req->tmpDir()+SL( "/css/" )+path+SL( ".css" );
     if ( Q_UNLIKELY( !QFile::exists( path ) ) ) {
         _req->responseRec()->log( PHILOGERR, PHIRC_IO_FILE_ACCESS_ERROR,
             tr( "Could not access CSS file '%1'." ).arg( path ) );

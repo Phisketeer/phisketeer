@@ -123,24 +123,24 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
         QFileInfo fi( QString::fromLatin1( "/proc/%1/exe" ).arg( PHISysInfo::processId() ) );
         if ( fi.exists() && fi.isSymLink() ) _binPath=fi.canonicalPath();
         else _binPath=QFileInfo( QString::fromLocal8Bit( argv[0] ) ).canonicalPath();
+        rootDir.setPath( _binPath );
+        rootDir.cdUp();
+        _rootPath=rootDir.canonicalPath();
     } else { // Apache module
-        conf=L1( "/opt/phi/bin" ); // fallback
-        _binPath=_serverSettings->value( L1( "BinDir" ), conf ).toString();
-        conf=L1( "/opt/phi/plugins" ); // fallback
-        _pluginsPath=_serverSettings->value( L1( "PluginsPath" ), conf ).toString();
+        conf=L1( "/opt/phi" ); // fallback
+        _rootPath=_serverSettings->value( L1( "RootDir" ), conf ).toString();
+        _binPath=_rootPath+L1( "/bin" );
+        conf=_rootPath+L1( "/plugins" ); // fallback
         _usrDocPath=L1( "/root/Documents" );
     }
-    rootDir.setPath( _binPath );
-    rootDir.cdUp();
-    _rootPath=rootDir.canonicalPath();
-    if ( _pluginsPath.isEmpty() ) _pluginsPath=_rootPath+L1( "/plugins" );
+    _pluginsPath=_rootPath+L1( "/plugins" );
     _modulesPath=_pluginsPath+L1( "/modules" );
     _itemsPath=_pluginsPath+L1( "/items" );
     _libPath=_rootPath+L1( "/lib" );
     _tsPath=_rootPath+L1( "/ts" );
     _serverBin=_binPath+L1( "/phis" );
     _appBin=_binPath+L1( "/phiapp" );
-    if ( PHISysInfo::effUserId()==0 )  _dataPath=_rootPath+L1( "/var/phis/" );
+    if ( PHISysInfo::effUserId()==0 )  _dataPath=L1( "/var/phis/" );
     else _dataPath=QStandardPaths::writableLocation( QStandardPaths::HomeLocation )+L1( "/.phi/phis" );
 #else
 #error Unsupported system
@@ -154,6 +154,9 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     if ( type==ApacheModule || type==Service ) {
 #ifdef Q_OS_MAC
         qputenv( "QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "1" );
+#elif defined Q_OS_LINUX
+        QByteArray fdir=_serverSettings->value( L1( "FontDir" ), _libPath+L1( "/fonts" ) ).toString().toUtf8();
+        qputenv( "QT_QPA_FONTDIR", fdir );
 #endif
         _app=new QGuiApplication( argc, argv );
         delete _settings;
@@ -182,12 +185,17 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
 #ifdef Q_OS_WIN
     _dataPath=_settings->value( L1( "BaseDir" ), _rootPath+L1( "/data" ) ).toString();
     _tmpPath=_dataPath+L1( "/temp" );
-#else
+#elif defined Q_OS_MAC
     _tmpPath=QStandardPaths::writableLocation( QStandardPaths::TempLocation )+QLatin1Char( '/' )+objectName();
+#else
+    _tmpPath=L1( "/tmp/" )+objectName();
 #endif
     _tmpPath=_settings->value( L1( "TempDir" ), _tmpPath ).toString();
     if ( type==Service || type==ApacheModule ) {
         _cachePath=_tmpPath+L1( "/cache" );
+        _settings->beginGroup( PHI::defaultString() );
+        _dataPath=_settings->value( L1( "BaseDir" ), _dataPath ).toString();
+        _settings->endGroup();
     }
     if ( !QFileInfo( _cachePath ).exists() ) QDir( _cachePath ).mkpath( _cachePath );
     if ( !QFileInfo( _tmpPath ).exists() ) QDir( _tmpPath ).mkpath( _tmpPath );
@@ -251,6 +259,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qWarning( "Version:        %s", version );
     qWarning( "Settings file:  %s", qPrintable( _settings->fileName() ) );
     qWarning( "Server setings: %s", qPrintable( _serverSettings->fileName() ) );
+    qWarning( "Root dir:       %s", qPrintable( _rootPath ) );
     qWarning( "Plug-in dir:    %s", qPrintable( _pluginsPath ) );
     qWarning( "Items dir:      %s", qPrintable( _itemsPath ) );
     qWarning( "Modules dir:    %s", qPrintable( _modulesPath ) );
@@ -258,7 +267,6 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     qWarning( "Server bin:     %s", qPrintable( _serverBin ) );
     qWarning( "PhiApp bin:     %s", qPrintable( _appBin ) );
     qWarning( "TS dir:         %s", qPrintable( _tsPath ) );
-    qWarning( "Root dir:       %s", qPrintable( _rootPath ) );
     qWarning( "Lib dir:        %s", qPrintable( _libPath ) );
     qWarning( "Tmp dir:        %s", qPrintable( _tmpPath ) );
     qWarning( "Cache dir:      %s", qPrintable( _cachePath ) );

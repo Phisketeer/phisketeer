@@ -42,6 +42,7 @@
 #include <QSqlDatabase>
 #include <QDir>
 #include <QObject>
+#include <QThread>
 
 #include "phisprocessor.h"
 #include "phiresponserec.h"
@@ -302,6 +303,7 @@ static int phi_handler( request_rec *r )
 
     int dbId=PHISPageCache::getDbId();
     {
+        qWarning() << "DB" << dbId << QThread::currentThreadId();
         PHISProcessor phiproc( &areq, dbId ); // process request (PHI engine)
         phiproc.run();
     }
@@ -316,8 +318,8 @@ static int phi_handler( request_rec *r )
             QString err=QObject::tr( "Redirected file '%1' not found." ).arg( resp->fileName() );
             resp->error( PHILOGERR, PHIRC_HTTP_NOT_FOUND, err );
         } else {
-            PHISProcessor phiproc2( &areq, dbId );
-            phiproc2.run();
+            PHISProcessor phiproc( &areq, dbId );
+            phiproc.run();
             // Print out any occured log entries
             foreach ( entry, resp->logEntries() ) {
                 PHI_RLOG_ERR(entry._rc,entry._file,entry._line,entry._desc);
@@ -333,7 +335,7 @@ static int phi_handler( request_rec *r )
                 db.close();
             }
         } // remove db instance
-        qDebug( "Removing DB connection Id %d", dbId );
+        qWarning() << "Removing DB" << dbId << QThread::currentThreadId();
         QSqlDatabase::removeDatabase( QString::number( dbId ) );
     }
     PHISPageCache::removeDbId( dbId );

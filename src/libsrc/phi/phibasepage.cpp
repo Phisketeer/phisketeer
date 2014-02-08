@@ -949,6 +949,7 @@ quint16 PHIBasePage::loadVersion1_x( QDataStream &in, bool client )
     // map attributes
     {
         _flags=FNone;
+        if ( attributes & ATemplate ) _flags |= FHasMasterTemplate;
         if ( attributes & AStyleSheet ) _flags |= FUseCSS;
         if ( attributes & AJavascript ) _flags |= FJavaScript;
         if ( attributes & ADatabase ) _flags |= FUseDB;

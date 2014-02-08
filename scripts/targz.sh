@@ -18,7 +18,9 @@ mkdir $DESTDIR/plugins/platforms
 mkdir $DESTDIR/plugins/mediaservice
 mkdir $DESTDIR/plugins/printsupport
 mkdir $DESTDIR/plugins/modules
+mkdir $DESTDIR/plugins/items
 mkdir $DESTDIR/lib
+mkdir $DESTDIR/lib/fonts
 mkdir $DESTDIR/bin
 mkdir $DESTDIR/ts
 
@@ -43,10 +45,14 @@ cp -p $QTPLUGINS/platforms/*.so $DESTDIR/plugins/platforms/
 cp -p $QTPLUGINS/printsupport/*.so $DESTDIR/plugins/printsupport/
 cp -p $QTPLUGINS/mediaservice/*.so $DESTDIR/plugins/mediaservice/
 
+echo "Copying fonts"
+cp -Rp $QTLIBS/fonts/* $DESTDIR/lib/fonts/
+
 echo "Copying Phi"
 cp -p lib/*.so.? $DESTDIR/lib
 #cp -p lib/libphiplugin.so $DESTDIR/lib
 cp -p lib/modules/*.so $DESTDIR/plugins/modules
+cp -p plugins/items/*.so $DESTDIR/plugins/items
 if [ -e /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so.18 ]; then
     cp -p /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so.18 $DESTDIR/lib
 elif [ -e /usr/lib/libmysqlclient_r.so.16 ]; then
@@ -58,22 +64,26 @@ else
 fi
 cp -p bin/* $DESTDIR/bin
 rm -f $DESTDIR/bin/philicense
-if [ ! -e $DESTDIR/bin/artephis ]; then
-    if [ `uname -m` = "x86_64" ]; then cp -p 3rdparty/linux/artephis_64 $DESTDIR/bin/artephis;
-    else cp -p 3rdparty/linux/artephis_32 $DESTDIR/bin/artephis; fi
+if [ ! -e $DESTDIR/bin/Artephis ]; then
+    if [ `uname -m` = "x86_64" ]; then cp -p 3rdparty/linux/Artephis_64 $DESTDIR/bin/Artephis;
+    else cp -p 3rdparty/linux/Artephis_32 $DESTDIR/bin/Artephis; fi
 fi
 # Some recent Linux distributions only provide libcrypto.so and libssl.so version 1.0.0
-if [ -f /usr/lib/libcrypto.so.0.9.8 ]; then
-    cp -p /usr/lib/libcrypto.so.0.9.8 $DESTDIR/lib/
-fi
-if [ -f /usr/lib/libssl.so.0.9.8 ]; then
-    cp -p /usr/lib/libssl.so.0.9.8 $DESTDIR/lib/
-fi
+#if [ -f /usr/lib/libcrypto.so.0.9.8 ]; then
+#    cp -p /usr/lib/libcrypto.so.0.9.8 $DESTDIR/lib/
+#fi
+#if [ -f /usr/lib/libssl.so.0.9.8 ]; then
+#    cp -p /usr/lib/libssl.so.0.9.8 $DESTDIR/lib/
+#fi
 # ICUI is not installed on every system
 if [ -f $QTLIBS/libicui18n.so.?? ]; then
     cp -p $QTLIBS/libicui18n.so.?? $DESTDIR/lib/
     cp -p $QTLIBS/libicuuc.so.?? $DESTDIR/lib/
     cp -p $QTLIBS/libicudata.so.?? $DESTDIR/lib/
+elif [ -f /usr/lib/libicui18n.so.?? ]; then
+    cp -p /usr/lib/libicui18n.so.?? $DESTDIR/lib/
+    cp -p /usr/lib/libicuuc.so.?? $DESTDIR/lib/
+    cp -p /usr/lib/libicudata.so.?? $DESTDIR/lib/
 fi
 # Additional libs
 if [ -f /usr/lib/x86_64-linux-gnu/libXcomposite.so.1 ]; then
@@ -81,6 +91,9 @@ if [ -f /usr/lib/x86_64-linux-gnu/libXcomposite.so.1 ]; then
 fi
 if [ -f /usr/lib/x86_64-linux-gnu/mesa/libGL.so.1 ]; then
     cp -p /usr/lib/x86_64-linux-gnu/mesa/libGL.so.1 $DESTDIR/lib
+fi
+if [ -f /usr/lib/x86_64-linux-gnu/libXxf86vm.so.1 ]; then
+    cp -p /usr/lib/x86_64-linux-gnu/libXxf86vm.so.1 $DESTDIR/lib
 fi
 
 strip --strip-unneeded $DESTDIR/lib/*

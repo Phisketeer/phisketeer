@@ -23,6 +23,7 @@
 #include "phiimagecache.h"
 #include "phisession.h"
 #include "phierror.h"
+#include "phisysinfo.h"
 
 ApacheReqParent* ApacheReqParent::_instance=0;
 
@@ -31,7 +32,10 @@ ApacheReqParent::ApacheReqParent( QObject *parent )
 {
     qDebug( "ApacheReqParent::ApacheReqParent()" );
     QStringList argList;
-    argList << L1( "libmod_phi.so" ) << L1( "-platform" ) << L1( "offscreen" );
+    argList << L1( "libmod_phi.so" );
+#ifdef Q_OS_LINUX
+    argList << L1( "-platform" ) << L1( "offscreen" );
+#endif
     int p_argc=argList.size();
     QVector<char *> p_argv( p_argc );
     QList<QByteArray> argvData;

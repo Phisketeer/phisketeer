@@ -33,7 +33,7 @@ unix {
     INCLUDEPATH += /usr/include/apr-1.0 /usr/include/apr-1 /usr/include/openssl /usr/include/xmltok /usr/include/apache2
     DEFINES += _LARGEFILE64_SOURCE
     DESTDIR = ../../lib
-    LIBS = -L../../lib -lphi -lphis
+    LIBS = -L../../lib -lphi -lphis -lapr-1 -laprutil-1
     CONFIG(debug,debug|release) {
         TARGET = mod_phi_debug
         LIBS = -L../../lib -lphi_debug -lphis_debug

@@ -1,4 +1,4 @@
-infile(config.pri, SOLUTIONS_LIBRARY, yes): CONFIG += qtservice-uselib
+#infile(config.pri, SOLUTIONS_LIBRARY, yes): CONFIG += qtservice-uselib
 TEMPLATE += fakelib
 QTSERVICE_LIBNAME = $$qtLibraryTarget(QtSolutions_Service-2.6)
 TEMPLATE -= fakelib
