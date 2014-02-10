@@ -30,6 +30,7 @@
 #include <QFileOpenEvent>
 #include <QWebSettings>
 #include <QSizePolicy>
+#include <QMessageBox>
 #include "phiapplication.h"
 #include "phisysinfo.h"
 #include "phi.h"
@@ -387,11 +388,9 @@ bool PHIApplication::startPhisService()
     qWarning() << "phiapp start" << _serverBin;
     QProcess proc;
 #ifdef Q_OS_WIN
-    proc.execute( _serverBin, QStringList() << QStringLiteral( "-i" ) );
+    proc.execute( _serverBin, QStringList() << L1( "-i" ) );
 #endif
-    proc.start( _serverBin );
-    if ( !proc.waitForStarted() ) return false;
-    if ( !proc.waitForFinished() ) return false;
+    if ( proc.execute( _serverBin, QStringList() )!=0 ) return false;
     return true;
 #endif
 }
@@ -403,8 +402,7 @@ bool PHIApplication::stopPhisService()
 #else
     if ( !QFile::exists( _serverBin ) ) return false;
     QProcess proc;
-    int res=proc.execute( _serverBin, QStringList() << L1( "-t" ) );
-    if ( res ) return false;
+    if ( proc.execute( _serverBin, QStringList() << L1( "-t" ) )!=0 ) return false;
     return true;
 #endif
 }
