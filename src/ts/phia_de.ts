@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="de_DE">
+<TS version="2.1" language="de_DE">
 <context>
     <name>AddressDlg</name>
     <message>
@@ -262,14 +262,12 @@
 <context>
     <name>GFileItem</name>
     <message>
-        <location filename="gwidgetitems.cpp" line="1118"/>
         <source>File to send</source>
-        <translation>Datei für Upload</translation>
+        <translation type="vanished">Datei für Upload</translation>
     </message>
     <message>
-        <location filename="gwidgetitems.cpp" line="1119"/>
         <source>Images (*.png *.jpg *.gif *.tif);;Text (*.txt *.doc *.html *.xml *.svg);; All (*.*)</source>
-        <translation>Bilder (*.png *.jpg *.gif *.tif);;Text (*.txt *.doc *.html *.xml *.svg);; Alle (*.*)</translation>
+        <translation type="vanished">Bilder (*.png *.jpg *.gif *.tif);;Text (*.txt *.doc *.html *.xml *.svg);; Alle (*.*)</translation>
     </message>
 </context>
 <context>
@@ -279,7 +277,7 @@
         <source>MainWindow</source>
         <translation></translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="mainwindow.ui" line="32"/>
         <source>Φ</source>
         <translation></translation>
@@ -389,45 +387,48 @@
 <context>
     <name>PHIAAbstractWebView</name>
     <message>
-        <location filename="phiaabstractwebview.cpp" line="172"/>
         <source>SSL</source>
-        <translation>
+        <translation type="vanished">
 </translation>
     </message>
     <message>
-        <location filename="phiaabstractwebview.cpp" line="172"/>
         <source>You are not securely connected.</source>
-        <translation>Es besteht keine geschützte Verbindung.</translation>
+        <translation type="vanished">Es besteht keine geschützte Verbindung.</translation>
     </message>
     <message>
-        <location filename="phiaabstractwebview.cpp" line="177"/>
         <source>Issuer:</source>
-        <translation>Herausgeber:</translation>
+        <translation type="vanished">Herausgeber:</translation>
     </message>
     <message>
-        <location filename="phiaabstractwebview.cpp" line="178"/>
-        <source>Organisation (O):</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="phiaabstractwebview.cpp" line="179"/>
         <source>Common name (CN):</source>
-        <translation>Name (CN):</translation>
+        <translation type="vanished">Name (CN):</translation>
     </message>
     <message>
-        <location filename="phiaabstractwebview.cpp" line="180"/>
         <source>Expiry date:</source>
-        <translation>Verfalldatum:</translation>
+        <translation type="vanished">Verfalldatum:</translation>
     </message>
     <message>
-        <location filename="phiaabstractwebview.cpp" line="181"/>
         <source>Country (C):</source>
-        <translation>Land (C):</translation>
+        <translation type="vanished">Land (C):</translation>
     </message>
     <message>
-        <location filename="phiaabstractwebview.cpp" line="182"/>
         <source>Host SSL certificate</source>
-        <translation>SSL Zertifikat</translation>
+        <translation type="vanished">SSL Zertifikat</translation>
+    </message>
+    <message>
+        <location filename="phiaabstractwebview.cpp" line="216"/>
+        <source>Reply:</source>
+        <translation type="unfinished">Antwort:</translation>
+    </message>
+    <message>
+        <location filename="phiaabstractwebview.cpp" line="220"/>
+        <source>Do you want to continue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiaabstractwebview.cpp" line="221"/>
+        <source>SSL error</source>
+        <translation type="unfinished">SSL Fehler</translation>
     </message>
 </context>
 <context>
@@ -441,46 +442,28 @@
 <context>
     <name>PHIAConfig</name>
     <message>
-        <location filename="phiaconfig.cpp" line="287"/>
-        <source>Download</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="phiaconfig.cpp" line="288"/>
         <source>Do you really want to download &apos;%1&apos; to the local file system?</source>
-        <translation>Möchten Sie wirklich &apos;%1&apos; auf Ihr lokales Dateisystem herunterladen?</translation>
+        <translation type="vanished">Möchten Sie wirklich &apos;%1&apos; auf Ihr lokales Dateisystem herunterladen?</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="306"/>
-        <location filename="phiaconfig.cpp" line="600"/>
         <source>Save error</source>
-        <translation>Fehler beim Speichern</translation>
+        <translation type="vanished">Fehler beim Speichern</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="307"/>
         <source>Could not save download DB &apos;%1&apos;.</source>
-        <translation>Die Download-DB &apos;%1&apos; konnte nicht gespeichert werden.</translation>
+        <translation type="vanished">Die Download-DB &apos;%1&apos; konnte nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="367"/>
-        <source>Update</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="phiaconfig.cpp" line="367"/>
         <source>Another update process is currently running, please wait until the process has finished.</source>
-        <translation>Ein anderer Aktualisierungsprozess läuft bereits. Bitte warten Sie bis dieser beendet ist.</translation>
+        <translation type="vanished">Ein anderer Aktualisierungsprozess läuft bereits. Bitte warten Sie bis dieser beendet ist.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="390"/>
         <source>Network reply error</source>
-        <translation>Netzwerk-Antwortfehler</translation>
+        <translation type="vanished">Netzwerk-Antwortfehler</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="391"/>
-        <location filename="phiaconfig.cpp" line="518"/>
         <source>Reply: %1</source>
-        <translation>Antwort: %1</translation>
+        <translation type="vanished">Antwort: %1</translation>
     </message>
     <message>
         <source>Please select the binary directory of the Phi installation:</source>
@@ -499,238 +482,198 @@
         <translation type="obsolete">Das Phi Bin-Verzeichnis konnte nicht ermittelt werden, bitte überprüfen Sie manuell auf Updates.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="435"/>
-        <location filename="phiaconfig.cpp" line="443"/>
         <source>Product information</source>
-        <translation>Produktinformation</translation>
+        <translation type="vanished">Produktinformation</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="436"/>
         <source>Your installed Phi version is up to date.</source>
-        <translation>Ihre installierte Phi-Version is aktuell.</translation>
+        <translation type="vanished">Ihre installierte Phi-Version is aktuell.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="443"/>
         <source>A new Phi version (%1) is available.</source>
-        <translation>Eine neue Phi-Version (%1) ist verfügbar.</translation>
+        <translation type="vanished">Eine neue Phi-Version (%1) ist verfügbar.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="445"/>
         <source>Release date: %1</source>
-        <translation>Erscheinungsdatum: %1</translation>
+        <translation type="vanished">Erscheinungsdatum: %1</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="447"/>
         <source>Do you want to download it?</source>
-        <translation>Möchten Sie diese herunterladen?</translation>
+        <translation type="vanished">Möchten Sie diese herunterladen?</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="515"/>
         <source>The download of the Phi update software (%1) was aborted.</source>
-        <translation>Das Herunterladen des Phi-Updates (%1) wurde unterbrochen.</translation>
+        <translation type="vanished">Das Herunterladen des Phi-Updates (%1) wurde unterbrochen.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="519"/>
-        <location filename="phiaconfig.cpp" line="536"/>
         <source>Update aborted</source>
-        <translation>Update wurde unterbrochen</translation>
+        <translation type="vanished">Update wurde unterbrochen</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="535"/>
         <source>The download of the Phi update software was aborted.</source>
-        <translation>Das Herunterladen des Phi-Updates wurde unterbrochen.</translation>
+        <translation type="vanished">Das Herunterladen des Phi-Updates wurde unterbrochen.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="551"/>
         <source>Download completed</source>
-        <translation>Download vollständig geladen</translation>
+        <translation type="vanished">Download vollständig geladen</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="552"/>
         <source>The download of the Phi software update package &apos;%1&apos; is completed. Please close all browser and application windows which are displaying Phi content immediately after clicking &apos;Yes&apos;. Do you want to start the setup now?</source>
-        <translation>Das Herunterladen der Phi-Software &apos;%1&apos; ist beendet. Bitte schließsen Sie alle Browser- und Anwendungsfenster, die Phi-Inhalte darstellen direkt nachdem Sie &apos;Ja&apos; geklickt haben. Wollen Sie das Setup nun starten?</translation>
+        <translation type="vanished">Das Herunterladen der Phi-Software &apos;%1&apos; ist beendet. Bitte schließsen Sie alle Browser- und Anwendungsfenster, die Phi-Inhalte darstellen direkt nachdem Sie &apos;Ja&apos; geklickt haben. Wollen Sie das Setup nun starten?</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="582"/>
         <source>Save as</source>
-        <translation>Speichern unter</translation>
+        <translation type="vanished">Speichern unter</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="583"/>
         <source>Phi user config</source>
-        <translation>Phi Benutzerprofil</translation>
+        <translation type="vanished">Phi Benutzerprofil</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="585"/>
         <source>Save user config</source>
-        <translation>Benutzerprofil speichern</translation>
+        <translation type="vanished">Benutzerprofil speichern</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="586"/>
         <source>User config is not stored!</source>
-        <translation>Benutzerprofil wurde nicht gespeichert!</translation>
+        <translation type="vanished">Benutzerprofil wurde nicht gespeichert!</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="601"/>
         <source>Could not save config to &apos;%1&apos;. Please check the file permissions.</source>
-        <translation>Konnte die Konfiguration nicht unter &apos;%1&apos; speichern. Bitte überprüfen Sie die Zugriffsrechte.</translation>
+        <translation type="vanished">Konnte die Konfiguration nicht unter &apos;%1&apos; speichern. Bitte überprüfen Sie die Zugriffsrechte.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="622"/>
         <source>Password</source>
-        <translation>Paßwort</translation>
+        <translation type="vanished">Paßwort</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="623"/>
         <source>Your user profile is password protected.</source>
-        <translation>Ihr Benutzerprofil ist Paßwort geschützt.</translation>
+        <translation type="vanished">Ihr Benutzerprofil ist Paßwort geschützt.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="626"/>
         <source>Wrong password</source>
-        <translation>Ungültiges Paßwort</translation>
+        <translation type="vanished">Ungültiges Paßwort</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="627"/>
         <source>The password you entered is invalid.</source>
-        <translation>Das eingegebene Paßwort ist ungültig.</translation>
+        <translation type="vanished">Das eingegebene Paßwort ist ungültig.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="669"/>
         <source>Reply:</source>
-        <translation>Antwort:</translation>
+        <translation type="vanished">Antwort:</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="673"/>
         <source>Do you want to connect anyway?</source>
-        <translation>Wollen Sie trotzdem die Verbindung herstellen?</translation>
+        <translation type="vanished">Wollen Sie trotzdem die Verbindung herstellen?</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="674"/>
         <source>SSL error</source>
-        <translation>SSL Fehler</translation>
+        <translation type="vanished">SSL Fehler</translation>
     </message>
     <message>
-        <location filename="phiaconfig.h" line="194"/>
         <source>Never</source>
-        <translation>Niemals</translation>
+        <translation type="vanished">Niemals</translation>
     </message>
     <message>
-        <location filename="phiaconfig.h" line="194"/>
         <source>Every day</source>
-        <translation>Jeden Tag</translation>
+        <translation type="vanished">Jeden Tag</translation>
     </message>
     <message>
-        <location filename="phiaconfig.h" line="194"/>
         <source>Every week</source>
-        <translation>Jede Woche</translation>
+        <translation type="vanished">Jede Woche</translation>
     </message>
     <message>
-        <location filename="phiaconfig.h" line="195"/>
         <source>Every two weeks</source>
-        <translation>Alle zwei Wochen</translation>
+        <translation type="vanished">Alle zwei Wochen</translation>
     </message>
     <message>
-        <location filename="phiaconfig.h" line="195"/>
         <source>Every month</source>
-        <translation>Jeden Monat</translation>
+        <translation type="vanished">Jeden Monat</translation>
     </message>
 </context>
 <context>
     <name>PHIACookieDlg</name>
     <message>
-        <location filename="phiatools.cpp" line="164"/>
-        <source>Cookies</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="phiatools.cpp" line="196"/>
         <source>Clear</source>
-        <translation>Löschen</translation>
+        <translation type="vanished">Löschen</translation>
     </message>
     <message>
-        <location filename="phiatools.cpp" line="197"/>
         <source>Are you sure you want to clear all cookies?</source>
-        <translation>Möchten Sie wirklich alle Cookies löschen?</translation>
+        <translation type="vanished">Möchten Sie wirklich alle Cookies löschen?</translation>
     </message>
 </context>
 <context>
     <name>PHIADownloadDlg</name>
     <message>
-        <location filename="phiadownloaddlg.cpp" line="80"/>
-        <source>Downloads</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="phiadownloaddlg.cpp" line="115"/>
         <source>Aborted</source>
-        <translation>Abgebrochen</translation>
+        <translation type="vanished">Abgebrochen</translation>
     </message>
     <message>
-        <location filename="phiadownloaddlg.cpp" line="116"/>
         <source>Error</source>
-        <translation>Fehler</translation>
+        <translation type="vanished">Fehler</translation>
     </message>
     <message>
-        <location filename="phiadownloaddlg.cpp" line="122"/>
         <source>Completed</source>
-        <translation>Vollständig</translation>
+        <translation type="vanished">Vollständig</translation>
     </message>
     <message>
-        <location filename="phiadownloaddlg.cpp" line="137"/>
         <source>Clear list</source>
-        <translation>Liste löschen</translation>
+        <translation type="vanished">Liste löschen</translation>
     </message>
     <message>
-        <location filename="phiadownloaddlg.cpp" line="138"/>
         <source>This will also stop your current downloads. Are you sure?</source>
-        <translation>Der Vorgang unterbricht auch Ihre aktuellen Downloads. Sind Sie sicher?</translation>
+        <translation type="vanished">Der Vorgang unterbricht auch Ihre aktuellen Downloads. Sind Sie sicher?</translation>
     </message>
     <message>
-        <location filename="phiadownloaddlg.cpp" line="154"/>
         <source>Open file</source>
-        <translation>Datei öffnen</translation>
+        <translation type="vanished">Datei öffnen</translation>
     </message>
     <message>
-        <location filename="phiadownloaddlg.cpp" line="155"/>
         <source>Only completely downloaded files can be opened.</source>
-        <translation>Nur vollständig geladene Dateien können geöffnet werden.</translation>
+        <translation type="vanished">Nur vollständig geladene Dateien können geöffnet werden.</translation>
     </message>
 </context>
 <context>
     <name>PHIADownloadEntry</name>
     <message>
-        <location filename="phiaconfig.cpp" line="123"/>
-        <source>Download</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="phiaconfig.cpp" line="123"/>
         <source>Could not open file &apos;%1&apos; for writing.</source>
-        <translation>Konnte Datei &apos;%1&apos; nicht zum Schreiben öffnen.</translation>
+        <translation type="vanished">Konnte Datei &apos;%1&apos; nicht zum Schreiben öffnen.</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="152"/>
         <source>Network error</source>
-        <translation>Netzwerkfehler</translation>
+        <translation type="vanished">Netzwerkfehler</translation>
     </message>
     <message>
-        <location filename="phiaconfig.cpp" line="153"/>
         <source>Reply: %1</source>
-        <translation>Antwort: %1</translation>
+        <translation type="vanished">Antwort: %1</translation>
+    </message>
+</context>
+<context>
+    <name>PHIAGraphicsScene</name>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="119"/>
+        <source>Magic number</source>
+        <translation type="unfinished">Magische Nummer</translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="120"/>
+        <source>Content type is &apos;%1&apos; but document contains invalid data.</source>
+        <translation type="unfinished">Inhaltstyp ist &apos;%1&apos; aber das Dokument beinhaltet ungültige Daten.</translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="246"/>
+        <source>Could not evaluate JavaScript.</source>
+        <translation type="unfinished">Konnte JavaScript nicht ausführen.</translation>
     </message>
 </context>
 <context>
     <name>PHIAJavaScriptLog</name>
     <message>
-        <location filename="phiajavascriptlog.cpp" line="27"/>
         <source>JavaScript console</source>
-        <translation>JavaScript Konsole</translation>
+        <translation type="vanished">JavaScript Konsole</translation>
     </message>
     <message>
-        <location filename="phiajavascriptlog.cpp" line="56"/>
         <source>Line:</source>
-        <translation>Zeile:</translation>
+        <translation type="vanished">Zeile:</translation>
     </message>
 </context>
 <context>
@@ -740,151 +683,139 @@
         <translation type="obsolete">Zeile:</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="313"/>
         <source>Unsupported content</source>
-        <translation>Nicht unterstützter Inhalt</translation>
+        <translation type="vanished">Nicht unterstützter Inhalt</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="314"/>
         <source>Phi can not display the contents of the requested file.</source>
-        <translation>Phi kann den Inhalt der angeforderten Datei nicht darstellen.</translation>
+        <translation type="vanished">Phi kann den Inhalt der angeforderten Datei nicht darstellen.</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="315"/>
         <source>Do you want to open it in a new browser window or save it to the local file system?</source>
-        <translation>Möchten Sie ihn in einem neuen Browser-Fenster anzeigen oder auf das lokale Dateisystem speichern?</translation>
+        <translation type="vanished">Möchten Sie ihn in einem neuen Browser-Fenster anzeigen oder auf das lokale Dateisystem speichern?</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="328"/>
         <source>About %1</source>
         <oldsource>About</oldsource>
-        <translation>Über %1</translation>
+        <translation type="vanished">Über %1</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="329"/>
         <source>version:</source>
-        <translation>Version:</translation>
+        <translation type="vanished">Version:</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="330"/>
         <source>Phi library version:</source>
-        <translation>Phi-Bibliotheksversion:</translation>
+        <translation type="vanished">Phi-Bibliotheksversion:</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="331"/>
         <source>Phia library version:</source>
-        <translation>Phia Bibliotheksversion:</translation>
+        <translation type="vanished">Phia Bibliotheksversion:</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="352"/>
         <source>Open file</source>
-        <translation>Datei öffnen</translation>
+        <translation type="vanished">Datei öffnen</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="353"/>
         <source>Phi page</source>
-        <translation>Phi Seite</translation>
+        <translation type="vanished">Phi Seite</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="380"/>
         <source>Save as</source>
-        <translation>Speichern unter</translation>
+        <translation type="vanished">Speichern unter</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="385"/>
         <source>Error</source>
-        <translation>Fehler</translation>
+        <translation type="vanished">Fehler</translation>
     </message>
     <message>
-        <location filename="phiamainwindow.cpp" line="385"/>
         <source>Could not open file &apos;%1&apos; for writing.</source>
-        <translation>Konnte Datei &apos;%1&apos; nicht zum Schreiben öffnen.</translation>
+        <translation type="vanished">Konnte Datei &apos;%1&apos; nicht zum Schreiben öffnen.</translation>
     </message>
 </context>
 <context>
     <name>PHIAProgressHandler</name>
     <message>
-        <location filename="phiadownloaddlg.cpp" line="61"/>
         <source>Completed</source>
-        <translation>Vollständig</translation>
+        <translation type="vanished">Vollständig</translation>
     </message>
     <message>
-        <location filename="phiadownloaddlg.cpp" line="62"/>
         <source>Error</source>
-        <translation>Fehler</translation>
+        <translation type="vanished">Fehler</translation>
     </message>
     <message>
-        <location filename="phiadownloaddlg.cpp" line="63"/>
         <source>Aborted</source>
-        <translation>Abgebrochen</translation>
+        <translation type="vanished">Abgebrochen</translation>
     </message>
 </context>
 <context>
     <name>PHIAProxyDlg</name>
     <message>
-        <location filename="phiaauthdlg.cpp" line="47"/>
         <source>Proxy authentication required</source>
-        <translation>Proxy-Authentifikation notwendig</translation>
+        <translation type="vanished">Proxy-Authentifikation notwendig</translation>
     </message>
 </context>
 <context>
     <name>PHIAScriptAjaxObj</name>
     <message>
-        <location filename="phiascriptobjects.cpp" line="271"/>
+        <location filename="phiascriptobjects.cpp" line="260"/>
         <source>Unknown method &apos;%1&apos;.</source>
         <translation>Unbekannte Methode &apos;%1&apos;.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="274"/>
+        <location filename="phiascriptobjects.cpp" line="263"/>
         <source>Allowed methods are GET, POST and HEAD.</source>
         <translation>Gültige Methoden sind GET, POST und HEAD.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="277"/>
+        <location filename="phiascriptobjects.cpp" line="266"/>
         <source>URL is invalid &apos;%1&apos;.</source>
         <translation>URL &apos;%1&apos; ist ungültig.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="280"/>
+        <location filename="phiascriptobjects.cpp" line="269"/>
         <source>Security violation using a different host name.</source>
         <translation>Sicherheitsproblem beim Benutzen unterschiedlicher Host-Namen.</translation>
+    </message>
+    <message>
+        <location filename="phiascriptobjects.cpp" line="314"/>
+        <source>Could not send, in wrong &apos;readyState&apos;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>phi.ajax is an invalid object.</source>
         <translation type="obsolete">phi.ajax ist ein ungültiges Objekt.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="292"/>
+        <location filename="phiascriptobjects.cpp" line="281"/>
         <source>AJAX: invalid object.</source>
         <translation>AJAX: Ungültiges Objekt.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="305"/>
+        <location filename="phiascriptobjects.cpp" line="294"/>
         <source>Could not set a header, wrong readyState.</source>
         <translation>Eine Kopfzeile konnte nicht gesetzt werden, falscher &apos;readyState&apos;.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="312"/>
+        <location filename="phiascriptobjects.cpp" line="301"/>
         <source>Header &apos;%1&apos; can not be overwritten.</source>
         <translation>Kopfzeile &apos;%1&apos; kann nicht überschrieben werden.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="314"/>
+        <location filename="phiascriptobjects.cpp" line="303"/>
         <source>Header &apos;%1&apos; is not allowed to be set.</source>
         <translation>Kopfzeile &apos;%1&apos; darf nicht überschrieben werden.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="325"/>
         <source>Could not send, wrong readyState.</source>
-        <translation>Daten konnten nicht geschickt werden, falscher &apos;readyState&apos;.</translation>
+        <translation type="vanished">Daten konnten nicht geschickt werden, falscher &apos;readyState&apos;.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="327"/>
+        <location filename="phiascriptobjects.cpp" line="316"/>
         <source>A request is already in progress.</source>
         <translation>Eine Anfrage ist bereits aktiv.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="330"/>
+        <location filename="phiascriptobjects.cpp" line="319"/>
         <source>Phi does not yet support syncronus requests.</source>
         <translation>Phi unterstützt derzeit keine synchronen Anfragen.</translation>
     </message>
@@ -892,42 +823,42 @@
 <context>
     <name>PHIAScriptMenuObj</name>
     <message>
-        <location filename="phiascriptobjects.cpp" line="900"/>
-        <location filename="phiascriptobjects.cpp" line="920"/>
-        <location filename="phiascriptobjects.cpp" line="927"/>
-        <location filename="phiascriptobjects.cpp" line="954"/>
-        <location filename="phiascriptobjects.cpp" line="961"/>
-        <location filename="phiascriptobjects.cpp" line="1026"/>
-        <location filename="phiascriptobjects.cpp" line="1033"/>
+        <location filename="phiascriptobjects.cpp" line="731"/>
+        <location filename="phiascriptobjects.cpp" line="751"/>
+        <location filename="phiascriptobjects.cpp" line="758"/>
+        <location filename="phiascriptobjects.cpp" line="785"/>
+        <location filename="phiascriptobjects.cpp" line="792"/>
+        <location filename="phiascriptobjects.cpp" line="857"/>
+        <location filename="phiascriptobjects.cpp" line="864"/>
         <source>Menu item with ID &apos;%1&apos; not found.</source>
         <translation>Menü-Eintrag mit ID &apos;%1&apos; wurde nicht gefunden.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="909"/>
-        <location filename="phiascriptobjects.cpp" line="937"/>
-        <location filename="phiascriptobjects.cpp" line="946"/>
+        <location filename="phiascriptobjects.cpp" line="740"/>
+        <location filename="phiascriptobjects.cpp" line="768"/>
+        <location filename="phiascriptobjects.cpp" line="777"/>
         <source>Menu or menu item with ID &apos;%1&apos; not found.</source>
         <translation>Menü oder Menü-Eintrag mit ID &apos;%1&apos; wurde nicht gefunden.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="918"/>
+        <location filename="phiascriptobjects.cpp" line="749"/>
         <source>Menu item with ID &apos;%1&apos; is not checkable.</source>
         <translation>Menü-Eintrag mit ID &apos;%1&apos; ist nicht markierbar.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="970"/>
-        <location filename="phiascriptobjects.cpp" line="989"/>
+        <location filename="phiascriptobjects.cpp" line="801"/>
+        <location filename="phiascriptobjects.cpp" line="820"/>
         <source>Parent menu with ID &apos;%1&apos; not found.</source>
         <translation>Eltern-Menü mit ID &apos;%1&apos; wurde nicht gefunden.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="975"/>
-        <location filename="phiascriptobjects.cpp" line="994"/>
+        <location filename="phiascriptobjects.cpp" line="806"/>
+        <location filename="phiascriptobjects.cpp" line="825"/>
         <source>Menu item with ID &apos;%1&apos; already exists.</source>
         <translation>Menü-Eintrag mit ID &apos;%1&apos; existiert bereits.</translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="1011"/>
+        <location filename="phiascriptobjects.cpp" line="842"/>
         <source>Menu or menu item with ID &apos;%1&apos; already exists.</source>
         <translation>Menü oder Menü-Eintrag mit ID &apos;%1&apos; existiert bereits.</translation>
     </message>
@@ -935,161 +866,127 @@
 <context>
     <name>PHIASettingsDlg</name>
     <message>
-        <location filename="phiasettingsdlg.cpp" line="39"/>
         <source>Phi user profile</source>
-        <translation>Phi Benutzerprofil</translation>
+        <translation type="vanished">Phi Benutzerprofil</translation>
     </message>
     <message>
-        <location filename="phiasettingsdlg.cpp" line="273"/>
         <source>Error</source>
-        <translation>Fehler</translation>
+        <translation type="vanished">Fehler</translation>
     </message>
     <message>
-        <location filename="phiasettingsdlg.cpp" line="273"/>
         <source>Passwords don&apos;t match.</source>
-        <translation>Unterschiedliche Paßwörter.</translation>
+        <translation type="vanished">Unterschiedliche Paßwörter.</translation>
     </message>
     <message>
-        <location filename="phiasettingsdlg.cpp" line="281"/>
         <source>Save settings</source>
-        <translation>Einstellungen speichern</translation>
+        <translation type="vanished">Einstellungen speichern</translation>
     </message>
     <message>
-        <location filename="phiasettingsdlg.cpp" line="282"/>
         <source>Phi user config</source>
-        <translation>Phi Benutzerprofil</translation>
+        <translation type="vanished">Phi Benutzerprofil</translation>
     </message>
     <message>
-        <location filename="phiasettingsdlg.cpp" line="359"/>
         <source>Select cache directory</source>
-        <translation>Wählen Sie das Zwischenspeicher-Verzeichnis aus</translation>
+        <translation type="vanished">Wählen Sie das Zwischenspeicher-Verzeichnis aus</translation>
     </message>
     <message>
-        <location filename="phiasettingsdlg.cpp" line="367"/>
         <source>Select downloads directory</source>
-        <translation>Wählen Sie das Download-Verzeichnis aus</translation>
+        <translation type="vanished">Wählen Sie das Download-Verzeichnis aus</translation>
     </message>
     <message>
-        <location filename="phiasettingsdlg.cpp" line="378"/>
         <source>Clear cache</source>
-        <translation>Zwischenspeicher löschen</translation>
+        <translation type="vanished">Zwischenspeicher löschen</translation>
     </message>
     <message>
-        <location filename="phiasettingsdlg.cpp" line="379"/>
         <source>Do you really want to remove the files in &apos;%1&apos;?</source>
-        <translation>Möchten Sie die Dateien in &apos;%1&apos; wirklich löschen?</translation>
+        <translation type="vanished">Möchten Sie die Dateien in &apos;%1&apos; wirklich löschen?</translation>
     </message>
 </context>
 <context>
     <name>PHIAWebView</name>
     <message>
-        <location filename="phiawebview.cpp" line="95"/>
         <source>No page loaded.</source>
-        <translation>Keine Seite geladen.</translation>
+        <translation type="vanished">Keine Seite geladen.</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="97"/>
+        <location filename="phiawebview.cpp" line="108"/>
         <source>There is no JavaScript attached to this Phi page.</source>
         <translation>Für diese Phi-Seite ist kein JavaScript verfügbar.</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="290"/>
         <source>Magic number</source>
-        <translation>Magische Nummer</translation>
+        <translation type="vanished">Magische Nummer</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="291"/>
         <source>Content type is &apos;%1&apos; but document contains invalid data.</source>
-        <translation>Inhaltstyp ist &apos;%1&apos; aber das Dokument beinhaltet ungültige Daten.</translation>
+        <translation type="vanished">Inhaltstyp ist &apos;%1&apos; aber das Dokument beinhaltet ungültige Daten.</translation>
     </message>
     <message>
         <source>Content type is &apos;%1&apos; but document contains an unknown version number.</source>
         <translation type="obsolete">Inhaltstyp ist &apos;%1&apos; aber das Dokument beinhaltet eine ungültige Versionsnummer.</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="363"/>
         <source>Network error</source>
-        <translation>Netzwerkfehler</translation>
+        <translation type="vanished">Netzwerkfehler</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="364"/>
         <source>Reply error string:</source>
-        <translation>Netzwerk-Antwortfehler:</translation>
+        <translation type="vanished">Netzwerk-Antwortfehler:</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="461"/>
         <source>Could not evaluate JavaScript.</source>
-        <translation>Konnte JavaScript nicht ausführen.</translation>
+        <translation type="vanished">Konnte JavaScript nicht ausführen.</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="535"/>
         <source>Path to PhiApp</source>
-        <translation>Pfad zu &apos;PhiApp&apos;</translation>
+        <translation type="vanished">Pfad zu &apos;PhiApp&apos;</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="536"/>
         <source>All</source>
-        <translation>Alle</translation>
+        <translation type="vanished">Alle</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="538"/>
         <source>Error</source>
-        <translation>Fehler</translation>
+        <translation type="vanished">Fehler</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="539"/>
         <source>Could not open the PhiApp for the application mode of Phi.</source>
-        <translation>Konnte &apos;PhiApp&apos; nicht öffnen, um die Anwendung im Phi-Modus zu starten.</translation>
+        <translation type="vanished">Konnte &apos;PhiApp&apos; nicht öffnen, um die Anwendung im Phi-Modus zu starten.</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="544"/>
         <source>Start</source>
-        <translation>Starte</translation>
+        <translation type="vanished">Starte</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="545"/>
         <source>This page is marked to run in application mode. Do you want to start it?</source>
-        <translation>Diese Seite wurde für den Anwendungsmodus definiert. Möchten Sie den Anwendugsmodus starten?</translation>
+        <translation type="vanished">Diese Seite wurde für den Anwendungsmodus definiert. Möchten Sie den Anwendugsmodus starten?</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="592"/>
-        <location filename="phiawebview.cpp" line="624"/>
-        <location filename="phiawebview.cpp" line="653"/>
         <source>Auto fill out</source>
-        <translation>Automatisches Ausfüllen</translation>
+        <translation type="vanished">Automatisches Ausfüllen</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="593"/>
         <source>Phi can fill out address information automatically if you define it in the user profile menu.</source>
-        <translation>Phi kann automatisch Adress-Informationen ausfüllen, wenn Sie diese im Benutzerprofil bereitstellen.</translation>
+        <translation type="vanished">Phi kann automatisch Adress-Informationen ausfüllen, wenn Sie diese im Benutzerprofil bereitstellen.</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="625"/>
         <source>Phi can fill out credit card information automatically if you define it in the user profile menu.</source>
-        <translation>Phi kann automatisch Kreditkarten-Informationen ausfüllen, wenn Sie diese im Benutzerprofil bereitstellen.</translation>
+        <translation type="vanished">Phi kann automatisch Kreditkarten-Informationen ausfüllen, wenn Sie diese im Benutzerprofil bereitstellen.</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="654"/>
         <source>Phi can fill out contact information automatically if you define it in the user profile menu.</source>
-        <translation>Phi kann automatisch Kontakt-Informationen ausfüllen, wenn Sie diese im Benutzerprofil bereitstellen.</translation>
+        <translation type="vanished">Phi kann automatisch Kontakt-Informationen ausfüllen, wenn Sie diese im Benutzerprofil bereitstellen.</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="phiaconfig.cpp" line="715"/>
         <source>Do not show this message again</source>
-        <translation>Diese Meldung nicht erneut anzeigen</translation>
+        <translation type="vanished">Diese Meldung nicht erneut anzeigen</translation>
     </message>
     <message>
-        <location filename="phiascene.cpp" line="72"/>
         <source>User profile</source>
-        <translation>Benutzerprofil</translation>
-    </message>
-    <message>
-        <location filename="phiascene.cpp" line="74"/>
-        <source>JavaScript</source>
-        <translation></translation>
+        <translation type="vanished">Benutzerprofil</translation>
     </message>
 </context>
 <context>

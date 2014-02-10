@@ -10,12 +10,13 @@ PHIMAS=$6
 MYSQLC=libmysql.16.dylib
 MYSQLDIR=/usr/local/mysql
 USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtOpenGL QtWidgets QtWebKit QtWebKitWidgets \
-    QtPrintSupport QtXml QtQuick QtQml QtV8"
+    QtPrintSupport QtXml QtPosition QtSensors"
 PLUGINPATH="sqldrivers imageformats iconengines platforms printsupport accessible"
-PHILIBS="libphi.1.dylib libphis.1.dylib libphia.1.dylib"
-PHIAPPS="Artephis Amphibia"
+PHILIBS="libphi.2.dylib libphis.2.dylib libphia.2.dylib"
+PHIAPPS="Artephis"
 PHIBINS="phis phiapp phisconf"
-PHIMODULES="email request sql system wrapper"
+PHIMODULES="email request sql system"
+PHIITEMS="
 DEVCERT="Developer ID Application: Phisys AG"
 INSCERT="Developer ID Installer: Phisys AG"
 
@@ -95,15 +96,15 @@ for L in $PHIMODULES ; do
     cp -p "lib/modules/libphis$L.dylib" $DESTDIR/Artephis.app/Contents/PlugIns/modules/
 done
 
-echo "Copying Amphibia stuff"
-cp -Rp bin/phiapp $DESTDIR/Amphibia.app/Contents/MacOS/
+#echo "Copying Amphibia stuff"
+#cp -Rp bin/phiapp $DESTDIR/Amphibia.app/Contents/MacOS/
 #cp -p src/libsrc/phi/images/own/philogo_fade_512.png $DESTDIR/Amphibia.app/Contents/Resources
-cp -p src/ts/*.qm $DESTDIR/Amphibia.app/Contents/Resources/ts/
+#cp -p src/ts/*.qm $DESTDIR/Amphibia.app/Contents/Resources/ts/
 #if [ -f $MYSQLDIR/lib/$MYSQLC ] ; then
 #    cp -p $MYSQLDIR/lib/$MYSQLC $DESTDIR/Amphibia.app/Contents/PlugIns/phi
 #fi
-chmod a-wx $DESTDIR/Amphibia.app/Contents/Resources/ts/*
-chmod u+w $DESTDIR/Amphibia.app/Contents/Resources/ts/*
+#chmod a-wx $DESTDIR/Amphibia.app/Contents/Resources/ts/*
+#chmod u+w $DESTDIR/Amphibia.app/Contents/Resources/ts/*
 
 echo Stripping libs
 for A in $PHIAPPS ; do

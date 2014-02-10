@@ -873,7 +873,6 @@ QColor PHIRolloverItem::realHoverColor() const
 {
     if ( _hoverColorRole==PHIPalette::Custom ) return data( DHoverColor, QColor( Qt::black ) ).value<QColor>();
     if ( page() ) return page()->phiPalette().color( _hoverColorRole );
-    qDebug() << "NO page()!!!";
     return Qt::black;
 }
 
