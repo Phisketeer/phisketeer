@@ -56,7 +56,6 @@ PHIRC PHISListener::init( QObject *parent, const QString &name )
     QString address=s->value( SL( "ListenerIF" ), SL( "Any" ) ).toString();
     quint16 port=s->value( SL( "ListenerPort" ), 80 ).value<quint16>();
     s->endGroup();
-    qWarning() << "listener init";
     QString todo=tr( "Check '%1' in your Phis service configuration." );
     if ( address.toUpper()==L1( "ANY" ) ) host.setAddress( QHostAddress::Null );
     else if ( address.toUpper()==L1( "LOCALHOST" ) ) host.setAddress( QHostAddress::LocalHost );
