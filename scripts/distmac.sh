@@ -7,16 +7,16 @@ QTBINS=$3
 QTPLUGINS=$4
 QTTS=$5
 PHIMAS=$6
-MYSQLC=libmysql.16.dylib
+MYSQLC=libmysqlclient.18.dylib
 MYSQLDIR=/usr/local/mysql
 USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtOpenGL QtWidgets QtWebKit QtWebKitWidgets \
-    QtPrintSupport QtXml QtPosition QtSensors"
+    QtPrintSupport QtXml QtPositioning QtSensors QtMultimedia QtMultimediaWidgets"
 PLUGINPATH="sqldrivers imageformats iconengines platforms printsupport accessible"
 PHILIBS="libphi.2.dylib libphis.2.dylib libphia.2.dylib"
 PHIAPPS="Artephis"
 PHIBINS="phis phiapp phisconf"
 PHIMODULES="email request sql system"
-PHIITEMS="
+PHIITEMS="input display layout external"
 DEVCERT="Developer ID Application: Phisys AG"
 INSCERT="Developer ID Installer: Phisys AG"
 
@@ -33,6 +33,7 @@ for A in $PHIAPPS ; do
     cp -Rp bin/$A.app $DESTDIR/
     mkdir -p $DESTDIR/$A.app/Contents/PlugIns/phi
     mkdir -p $DESTDIR/$A.app/Contents/PlugIns/modules
+    mkdir -p $DESTDIR/$A.app/Contents/PlugIns/items
     for P in $PLUGINPATH ; do
         mkdir $DESTDIR/$A.app/Contents/PlugIns/$P
     done
@@ -95,6 +96,9 @@ chmod u+w $DESTDIR/Artephis.app/Contents/Resources/ts/*
 for L in $PHIMODULES ; do
     cp -p "lib/modules/libphis$L.dylib" $DESTDIR/Artephis.app/Contents/PlugIns/modules/
 done
+for L in $PHIITEMS ; do
+    cp -p "plugins/items/libphi${L}items.dylib" $DESTDIR/Artephis.app/Contents/PlugIns/items/
+done
 
 #echo "Copying Amphibia stuff"
 #cp -Rp bin/phiapp $DESTDIR/Amphibia.app/Contents/MacOS/
@@ -143,6 +147,14 @@ for A in $PHIAPPS ; do
                     "$DESTDIR/$A.app/Contents/PlugIns/modules/libphis$I.dylib"
             done
         done
+        for I in $PHIITEMS ; do
+            install_name_tool -id "@executable_path/../PlugIns/items/libphi${I}items.dylib"\
+                "$DESTDIR/$A.app/Contents/PlugIns/items/libphi${I}items.dylib"
+            for L in $PHILIBS ; do
+                install_name_tool -change $L @executable_path/../PlugIns/phi/$L\
+                    "$DESTDIR/$A.app/Contents/PlugIns/items/libphi${I}items.dylib"
+            done
+        done
     fi
 done
 
@@ -165,8 +177,8 @@ for L in $PHILIBS ; do
         $DESTDIR/Artephis.app/Contents/MacOs/phisconf
     install_name_tool -change $L @executable_path/../PlugIns/phi/$L\
         $DESTDIR/Artephis.app/Contents/MacOS/phiapp
-    install_name_tool -change $L @executable_path/../PlugIns/phi/$L\
-        $DESTDIR/Amphibia.app/Contents/MacOS/phiapp
+    #install_name_tool -change $L @executable_path/../PlugIns/phi/$L\
+    #    $DESTDIR/Amphibia.app/Contents/MacOS/phiapp
 done
 
 for A in $PHIAPPS; do
@@ -193,9 +205,9 @@ for I in $USEQT; do
     install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
         @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Artephis.app/Contents/MacOS/phiapp
-    install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
-        @executable_path/../Frameworks/$I.framework/Versions/5/$I\
-        $DESTDIR/Amphibia.app/Contents/MacOS/phiapp
+    #install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+    #    @executable_path/../Frameworks/$I.framework/Versions/5/$I\
+    #    $DESTDIR/Amphibia.app/Contents/MacOS/phiapp
     # if -no-rpath was set:
     install_name_tool -change $I.framework/Versions/5/$I\
         @executable_path/../Frameworks/$I.framework/Versions/5/$I\
@@ -206,9 +218,9 @@ for I in $USEQT; do
     install_name_tool -change $I.framework/Versions/5/$I\
         @executable_path/../Frameworks/$I.framework/Versions/5/$I\
         $DESTDIR/Artephis.app/Contents/MacOS/phiapp
-    install_name_tool -change $I.framework/Versions/5/$I\
-        @executable_path/../Frameworks/$I.framework/Versions/5/$I\
-        $DESTDIR/Amphibia.app/Contents/MacOS/phiapp
+    #install_name_tool -change $I.framework/Versions/5/$I\
+    #    @executable_path/../Frameworks/$I.framework/Versions/5/$I\
+    #    $DESTDIR/Amphibia.app/Contents/MacOS/phiapp
 
     for A in $PHIAPPS ; do
         install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
@@ -250,6 +262,14 @@ for I in $USEQT; do
                 install_name_tool -change $I.framework/Versions/5/$I\
                     @executable_path/../Frameworks/$I.framework/Versions/5/$I\
                     "$DESTDIR/$A.app/Contents/PlugIns/modules/libphis$L.dylib"
+            done
+            for L in $PHIITEMS ; do
+                install_name_tool -change $QTLIBS/$I.framework/Versions/5/$I\
+                    @executable_path/../Frameworks/$I.framework/Versions/5/$I\
+                    "$DESTDIR/$A.app/Contents/PlugIns/items/libphi${L}items.dylib"
+                install_name_tool -change $I.framework/Versions/5/$I\
+                    @executable_path/../Frameworks/$I.framework/Versions/5/$I\
+                    "$DESTDIR/$A.app/Contents/PlugIns/items/libphi${L}items.dylib"
             done
         fi
     done
