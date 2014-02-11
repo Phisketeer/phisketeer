@@ -32,11 +32,11 @@ class QAuthenticator;
 class QNetworkAccessManager;
 class QPrinter;
 
-class PHIAEXPORT PHIAExtractWindowOpts
+class PHIAEXPORT PHIAWindowOpts
 {
 public:
-    explicit PHIAExtractWindowOpts( const QString &options );
-    ~PHIAExtractWindowOpts();
+    explicit PHIAWindowOpts( const QString &options );
+    ~PHIAWindowOpts();
     int width() const;
     int height() const;
     int left() const;
@@ -93,7 +93,7 @@ public slots:
     virtual void slotZoomOut()=0;
     virtual void slotZoomNormal()=0;
     virtual void slotSetZoomFactor( qreal )=0;
-    virtual void slotPrint( QPrinter* )=0;
+    virtual void slotPrint( QPrinter *printer )=0;
 
 protected slots:
     virtual void slotSslErrors( QNetworkReply *reply, const QList<QSslError>& );
@@ -103,11 +103,10 @@ protected slots:
 signals:
     void iconChanged( PHIAAbstractWebView* );
     void titleChanged( PHIAAbstractWebView* );
-    void unsupportedContent( PHIAAbstractWebView*, QNetworkReply* );
+    void unsupportedContent( PHIAAbstractWebView*, const QUrl &url );
     void urlChanged( const QUrl& );
     void statusBarMessage( const QString&, int timout=0 );
-    void loadProgress( int );
-    void progressMaximum( int );
+    void loadProgress( qint64 progress, qint64 maximum );
     void windowCloseRequested();
     void loading( bool );
     void linkHovered( const QString &link, const QString &title, const QString &textContent );
@@ -122,9 +121,11 @@ signals:
     void toolBarVisibilityChangeRequested( bool visible );
     void scrollBarVisibilityChangeRequested( bool visible );
     void javaScriptConsoleMessage( const QString &msg, int lineNumber, const QString& sourceId );
+    void showJavaScriptConsole();
     void geometryChangeRequested( const QRect &geom );
     void resizableChangeRequested( bool resizable );
     void locationBarVisibilityChangeRequested( bool visible );
+    void openWindowRequested( const QString &l, const QUrl &ref, const QString &target, const QString &opts );
 
 protected:
     static QIcon _defaultIcon;

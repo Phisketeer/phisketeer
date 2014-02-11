@@ -23,6 +23,8 @@
 
 class QScriptEngine;
 class QNetworkReply;
+class QMenuBar;
+class QPrinter;
 class PHIAWebView;
 class PHIAbstractLayoutItem;
 
@@ -33,7 +35,7 @@ class PHIAGraphicsScene : public PHIGraphicsScene
 public:
     enum ReadingType { RTHeader=0, RTPage=1, RTPageSize=2, RTItem=3, RTItemSize=4 };
     explicit PHIAGraphicsScene( QObject *parent );
-    virtual ~PHIAGraphicsScene() { abort(); }
+    virtual ~PHIAGraphicsScene();
 
     void setUrl( const QUrl &url );
     inline QUrl url() const { return _requestedUrl; }
@@ -45,7 +47,7 @@ public slots:
     void slotSubmitForm( const QString &buttonId );
     void slotResetForm( const QString &buttonId );
     void slotLangChangeRequested( const QString &lang );
-    void slotRequestPrint();
+    void slotRequestPrint( QPrinter *printer=0 );
 
 protected:
     PHIAWebView* webView() const;
@@ -54,6 +56,7 @@ protected:
     void updateTabOrder();
     void startAnimations();
     void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
+    void initMenuBar( QMenuBar *menubar );
 
 signals:
     void titleChanged( const QString &title );
@@ -66,6 +69,10 @@ private slots:
     void slotMetaDataChanged();
     void slotBgImageReady( const QImage &img );
     void slotLinkActivated( const QString &url );
+    void slotOpenUrlTriggered();
+    void slotPrintPreview();
+    void slotPaintRequested( QPrinter *printer );
+    void slotShowPageInfo();
 
 private:
     QNetworkReply *_reply;
@@ -77,6 +84,7 @@ private:
     quint32 _itemSize;
     quint8 _version;
     QList <PHIAbstractLayoutItem*> _layouts;
+    QPrinter *_printer;
 };
 
 #endif // PHIAGRAPHICSSCENE_H

@@ -25,6 +25,12 @@
 #include <QGraphicsSceneDragDropEvent>
 #include <QHttpMultiPart>
 #include <QHttpPart>
+#include <QMenuBar>
+#include <QMenu>
+#include <QPrinter>
+#include <QPrintPreviewDialog>
+#include <QPrintDialog>
+#include <QInputDialog>
 #include "phiagraphicsscene.h"
 #include "phibasepage.h"
 #include "phiawebview.h"
@@ -38,6 +44,15 @@
 PHIAGraphicsScene::PHIAGraphicsScene( QObject *parent )
     : PHIGraphicsScene( parent ), _reply( 0 ), _engine( 0 )
 {
+    _printer=new QPrinter();
+    _printer->setResolution( 1200 );
+}
+
+PHIAGraphicsScene::~PHIAGraphicsScene()
+{
+    abort();
+    delete _engine;
+    delete _printer;
 }
 
 QScriptEngine* PHIAGraphicsScene::scriptEngine() const
@@ -74,6 +89,7 @@ void PHIAGraphicsScene::setUrl( const QUrl &url )
     connect( _reply, &QNetworkReply::metaDataChanged, this, &PHIAGraphicsScene::slotMetaDataChanged );
     connect( _reply, &QNetworkReply::readyRead, this, &PHIAGraphicsScene::slotDataAvailable );
     connect( _reply, &QNetworkReply::finished, this, &PHIAGraphicsScene::slotReplyFinished );
+    connect( _reply, &QNetworkReply::downloadProgress, webView(), &PHIAAbstractWebView::loadProgress );
     emit webView()->statusBarMessage( _reply->url().toString(), 30000 );
     emit webView()->loading( true );
     slotDataAvailable();
@@ -98,7 +114,8 @@ void PHIAGraphicsScene::slotDataAvailable()
             disconnect( _reply, 0, this, 0 );
             qDebug() << "unsupported content" << _reply->header( QNetworkRequest::ContentTypeHeader ).toByteArray();
             emit webView()->loading( false );
-            emit webView()->unsupportedContent( webView(), _reply );
+            emit webView()->unsupportedContent( webView(), _reply->url() );
+            _reply->abort();
             return;
         } else {
             delete _engine;
@@ -119,6 +136,15 @@ void PHIAGraphicsScene::slotDataAvailable()
                     QMessageBox::critical( webView(), tr( "Magic number" ),
                         tr( "Content type is '%1' but document contains invalid data." )
                         .arg( QString::fromLatin1( PHI::phiMimeType() ) ), QMessageBox::Abort );
+                    emit webView()->loading( false );
+                    disconnect( _reply, 0, this, 0 );
+                    _reply->abort();
+                    return;
+                }
+                if ( _version<3 ) {
+                    disconnect( _reply, 0, this, 0 );
+                    emit webView()->loading( false );
+                    emit webView()->unsupportedContent( webView(), _reply->url() );
                     _reply->abort();
                     return;
                 }
@@ -225,8 +251,10 @@ void PHIAGraphicsScene::init()
     new PHIAScriptPhiObj( webView() ); // constructor sets _engine as parent
     PHIAAppWindow *appwin=qobject_cast<PHIAAppWindow*>(webView()->parent());
     // we need the menu bar object of the main window to initialize the menu for scripting
-    if ( appwin ) new PHIAScriptMenuObj( webView(), appwin->menuBar() );
-    qDebug( "evaluating script" );
+    if ( appwin ) {
+        initMenuBar( appwin->menuBar() );
+        new PHIAScriptMenuObj( webView(), appwin->menuBar() );
+    }
     QString script=page()->javascript();
     if ( _engine->canEvaluate( script ) ) {
         QScriptValue doc=_engine->evaluate( script );
@@ -431,7 +459,96 @@ void PHIAGraphicsScene::slotLangChangeRequested( const QString &lang )
     setUrl( url );
 }
 
-void PHIAGraphicsScene::slotRequestPrint()
+void PHIAGraphicsScene::initMenuBar( QMenuBar *bar )
 {
+    //bar->setNativeMenuBar( false );
+    bar->clear();
+    if ( page()->flags() & PHIBasePage::FHidePhiMenu ) return;
+    qDebug( "add phi menu" );
+    QMenu *menu=new QMenu( L1( "PhiApp" ) );
+    QAction *act;
 
+    act=menu->addAction( QIcon( L1( ":/gnome/info" ) ), tr( "Page info" ) );
+    act->setShortcuts( QKeySequence::HelpContents );
+    connect( act, SIGNAL(triggered()), this, SLOT(slotShowPageInfo()) );
+    act=menu->addAction( QIcon( L1( ":/gnome/inetfolder" ) ), tr( "Open URL" ) );
+    act->setShortcuts( QKeySequence::Open );
+    connect( act, SIGNAL(triggered()), this, SLOT(slotOpenUrlTriggered()) );
+    act=menu->addAction( QIcon( L1( ":/gnome/script" ) ), tr( "JS console" ) );
+    act->setShortcut( QKeySequence( L1( "Ctrl+J" ) ) );
+    connect( act, SIGNAL(triggered()), webView(), SIGNAL(showJavaScriptConsole()) );
+
+    QMenu *sub=new QMenu( tr( "Zoom" ) );
+    act=sub->addAction( QIcon( L1( ":/gnome/zoomin" ) ), tr( "Zoom in" ) );
+    act->setShortcuts( QKeySequence::ZoomIn );
+    connect( act, SIGNAL(triggered()), webView(), SLOT(slotZoomIn()) );
+    act=sub->addAction( QIcon( L1( ":/gnome/zoomout" ) ), tr( "Zoom out" ) );
+    act->setShortcuts( QKeySequence::ZoomOut );
+    connect( act, SIGNAL(triggered()), webView(), SLOT(slotZoomOut()) );
+    act=sub->addAction( QIcon( L1( ":/gnome/zoomnormal" ) ), tr( "Zoom normal" ) );
+    act->setShortcut( QKeySequence( L1( "Ctrl+0" ) ) );
+    connect( act, SIGNAL(triggered()), webView(), SLOT(slotZoomNormal()) );
+    menu->addMenu( sub );
+
+    menu->addSeparator();
+    act=menu->addAction( QIcon( L1( ":/gnome/print" ) ), tr( "Print" ) );
+    act->setShortcuts( QKeySequence::Print );
+    connect( act, SIGNAL(triggered()), this, SLOT(slotRequestPrint()) );
+    act=menu->addAction( QIcon( L1( ":/gnome/printpreview" ) ), tr( "Print preview" ) );
+    connect( act, SIGNAL(triggered()), this, SLOT(slotPrintPreview()) );
+
+    menu->addSeparator();
+    act=menu->addAction( QIcon( L1( ":/gnome/quit" ) ), tr( "Close" ) );
+    act->setShortcuts( QKeySequence::Close );
+    connect( act, SIGNAL(triggered()), webView(), SIGNAL(windowCloseRequested()) );
+
+    bar->addMenu( menu );
+}
+
+void PHIAGraphicsScene::slotShowPageInfo()
+{
+    QMessageBox::information( webView(), tr( "Page information" ),
+        L1( "<b>" )+tr( "Author:" )+L1( "</b> <i>" )+page()->author()+L1( "</i><br>" )
+        +L1( "<b>" )+tr( "Company:" )+L1( "</b> <i>" )+page()->company()+L1( "</i><br>" )
+        +L1( "<b>" )+tr( "Copyright:" )+L1( "</b> <i>" )+page()->copyright()+L1( "</i><br>" )
+        +L1( "<b>" )+tr( "Version:" )+L1( "</b> <i>" )+page()->version()+L1( "</i><br>" )
+        +L1( "<b>" )+tr( "Description:" )+L1( "</b> <i>" )+page()->description()+L1( "</i><br>" ),
+        QMessageBox::Ok );
+}
+
+void PHIAGraphicsScene::slotOpenUrlTriggered()
+{
+    QString u=QInputDialog::getText( webView(), tr( "Open new URL" ), tr( "Please enter the new URL" ),
+        QLineEdit::Normal, _requestedUrl.toString(), 0, Qt::Sheet );
+    QUrl url( u );
+    if ( url.isRelative() ) url=PHI::createUrlForLink( _requestedUrl, u );
+    setUrl( url );
+}
+
+void PHIAGraphicsScene::slotRequestPrint( QPrinter *printer )
+{
+    if ( !printer ) printer=_printer;
+    if ( page()->width()>page()->height() ) printer->setOrientation( QPrinter::Landscape );
+    else printer->setOrientation( QPrinter::Portrait );
+    QPrintDialog dlg( printer, webView() );
+    if ( dlg.exec()!=QPrintDialog::Accepted ) return;
+    QPainter p( printer );
+    render( &p );
+    p.end();
+}
+
+void PHIAGraphicsScene::slotPrintPreview()
+{
+    if ( page()->width()>page()->height() ) _printer->setOrientation( QPrinter::Landscape );
+    else _printer->setOrientation( QPrinter::Portrait );
+    QPrintPreviewDialog dlg( _printer, webView() );
+    connect( &dlg, &QPrintPreviewDialog::paintRequested, this, &PHIAGraphicsScene::slotPaintRequested );
+    dlg.exec();
+}
+
+void PHIAGraphicsScene::slotPaintRequested( QPrinter *printer )
+{
+    QPainter p( printer );
+    render( &p );
+    p.end();
 }

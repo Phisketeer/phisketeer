@@ -22,23 +22,40 @@
 #include "phiaabstractwebview.h"
 #include "phia.h"
 
+class QProgressBar;
+class QPlainTextEdit;
+
 class PHIAEXPORT PHIAAppWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
     explicit PHIAAppWindow( QWidget *parent=0 );
+    virtual ~PHIAAppWindow();
     void setUrl( const QUrl &url );
 
 protected slots:
     void slotFaviconChanged( PHIAAbstractWebView *view );
     void slotTitleChanged( PHIAAbstractWebView *view );
+    void slotUnsupportedContent( PHIAAbstractWebView *view, const QUrl &url );
+    void slotShowStatusBar( bool b );
+    void slotGeometryChangeRequested( const QRect &geom );
+    void slotWindowCloseRequested();
+    void slotOpenWindowRequested( const QString &link, const QUrl &ref, const QString &target, const QString &opts );
+    void slotIsLoading( bool b );
+    void slotLoadProgress( qint64 progress, qint64 max );
+    void slotStatusBarMessage( const QString &s, int timeout );
+    void slotShowJSConsole();
+    void slotJSMessage( const QString &error, int linenumber, const QString &id );
 
 protected:
     void connectSignals( PHIAAbstractWebView *view );
 
 private:
     PHIAAbstractWebView *_view;
+    QProgressBar *_progress;
+    QWidget *_jsWidget;
+    QPlainTextEdit *_jsConsole;
 };
 
 #endif // PHIAAPPWINDOW_H

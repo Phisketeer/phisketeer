@@ -634,7 +634,6 @@ PHIAScriptMenuObj::PHIAScriptMenuObj( PHIAWebView *view, QMenuBar *menubar )
     Q_ASSERT( _view );
     Q_ASSERT( _engine );
     if ( !_menubar ) return;
-    _menubar->clear();
 
     QScriptValue phi=_engine->globalObject().property( L1( "phi" ) );
     QScriptValue m=_engine->newQObject( this, PHIASCRIPTEXTENSION );
@@ -671,7 +670,7 @@ PHIAScriptMenuObj::PHIAScriptMenuObj( PHIAWebView *view, QMenuBar *menubar )
                     _menus.insert( entry.id(), menu );
                 } else {
                     QAction *act=menu->addAction( QIcon( entry.pixmap() ), text );
-                    act->setShortcut( QKeySequence( shortcut ) );
+                    if ( text!=shortcut ) act->setShortcut( QKeySequence( shortcut ) );
                     if ( entry.options() & PHIPageMenuEntry::Checkable ) {
                         act->setCheckable( true );
                         if ( entry.options() & PHIPageMenuEntry::Checked ) act->setChecked( true );

@@ -112,13 +112,9 @@ QString PHIAWebView::source() const
 void PHIAWebView::slotCreateWindow( const QString &u, const QString &target, const QString &opts )
 {
     if ( target==L1( "_self" ) ) {
-        PHIAExtractWindowOpts wo( opts );
-        QRect r=PHI::defaultWindowRect();
-        if ( wo.height()>-1 ) r.setHeight( wo.height() );
-        if ( wo.width()>-1 ) r.setWidth( wo.width() );
-        if ( wo.top()>-1 ) r.setY( wo.top() );
-        if ( wo.left()>-1 ) r.setX( wo.left() );
-        if ( r!=PHI::defaultWindowRect() ) emit geometryChangeRequested( r );
+        PHIAWindowOpts wo( opts );
+        QRect r( wo.left(), wo.top(), wo.width(), wo.height() );
+        emit geometryChangeRequested( r );
         if ( wo.contains( L1( "status" ) ) ) emit statusBarVisibilityChangeRequested( wo.showStatusBar() );
         if ( wo.contains( L1( "menubar" ) ) ) emit menuBarVisibilityChangeRequested( wo.showMenuBar() );
         if ( wo.contains( L1( "scrollbars" ) ) ) emit scrollBarVisibilityChangeRequested( wo.showScrollBars() );
@@ -127,7 +123,7 @@ void PHIAWebView::slotCreateWindow( const QString &u, const QString &target, con
         if ( wo.contains( L1( "resizable" ) ) ) emit resizableChangeRequested( wo.resizable() );
         setScrollBarsEnabled( wo.showScrollBars() );
         setUrl( PHI::createUrlForLink( url(), u ) );
-    } //else PHIAMainWindow::createWindow( u, url(), target, opts );
+    } else openWindowRequested( u, url(), target, opts );
 }
 
 void PHIAWebView::throwJavaScriptError( const QScriptValue &err )
@@ -162,7 +158,7 @@ void PHIAWebView::slotStop()
 
 void PHIAWebView::slotPrint( QPrinter *printer )
 {
-
+    scene()->slotRequestPrint( printer );
 }
 
 void PHIAWebView::slotReload()

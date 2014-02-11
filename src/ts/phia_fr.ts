@@ -392,6 +392,19 @@
     </message>
 </context>
 <context>
+    <name>PHIAAppWindow</name>
+    <message>
+        <location filename="phiaappwindow.cpp" line="51"/>
+        <source>Start:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiaappwindow.cpp" line="54"/>
+        <source>JavaScript log</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PHIAAuthDlg</name>
     <message>
         <location filename="phiaauthdlg.cpp" line="26"/>
@@ -402,18 +415,108 @@
 <context>
     <name>PHIAGraphicsScene</name>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="119"/>
+        <location filename="phiagraphicsscene.cpp" line="136"/>
         <source>Magic number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="120"/>
+        <location filename="phiagraphicsscene.cpp" line="137"/>
         <source>Content type is &apos;%1&apos; but document contains invalid data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="246"/>
+        <location filename="phiagraphicsscene.cpp" line="274"/>
         <source>Could not evaluate JavaScript.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="471"/>
+        <source>Page info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="474"/>
+        <source>Open URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="477"/>
+        <source>JS console</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="481"/>
+        <source>Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="482"/>
+        <source>Zoom in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="485"/>
+        <source>Zoom out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="488"/>
+        <source>Zoom normal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="494"/>
+        <source>Print</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="497"/>
+        <source>Print preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="501"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="510"/>
+        <source>Page information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="511"/>
+        <source>Author:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="512"/>
+        <source>Company:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="513"/>
+        <source>Copyright:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="514"/>
+        <source>Version:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="515"/>
+        <source>Description:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="521"/>
+        <source>Open new URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="521"/>
+        <source>Please enter the new URL</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -478,42 +581,42 @@
 <context>
     <name>PHIAScriptMenuObj</name>
     <message>
-        <location filename="phiascriptobjects.cpp" line="731"/>
-        <location filename="phiascriptobjects.cpp" line="751"/>
-        <location filename="phiascriptobjects.cpp" line="758"/>
-        <location filename="phiascriptobjects.cpp" line="785"/>
-        <location filename="phiascriptobjects.cpp" line="792"/>
-        <location filename="phiascriptobjects.cpp" line="857"/>
-        <location filename="phiascriptobjects.cpp" line="864"/>
+        <location filename="phiascriptobjects.cpp" line="730"/>
+        <location filename="phiascriptobjects.cpp" line="750"/>
+        <location filename="phiascriptobjects.cpp" line="757"/>
+        <location filename="phiascriptobjects.cpp" line="784"/>
+        <location filename="phiascriptobjects.cpp" line="791"/>
+        <location filename="phiascriptobjects.cpp" line="856"/>
+        <location filename="phiascriptobjects.cpp" line="863"/>
         <source>Menu item with ID &apos;%1&apos; not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="740"/>
-        <location filename="phiascriptobjects.cpp" line="768"/>
-        <location filename="phiascriptobjects.cpp" line="777"/>
+        <location filename="phiascriptobjects.cpp" line="739"/>
+        <location filename="phiascriptobjects.cpp" line="767"/>
+        <location filename="phiascriptobjects.cpp" line="776"/>
         <source>Menu or menu item with ID &apos;%1&apos; not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="749"/>
+        <location filename="phiascriptobjects.cpp" line="748"/>
         <source>Menu item with ID &apos;%1&apos; is not checkable.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="801"/>
-        <location filename="phiascriptobjects.cpp" line="820"/>
+        <location filename="phiascriptobjects.cpp" line="800"/>
+        <location filename="phiascriptobjects.cpp" line="819"/>
         <source>Parent menu with ID &apos;%1&apos; not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="806"/>
-        <location filename="phiascriptobjects.cpp" line="825"/>
+        <location filename="phiascriptobjects.cpp" line="805"/>
+        <location filename="phiascriptobjects.cpp" line="824"/>
         <source>Menu item with ID &apos;%1&apos; already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiascriptobjects.cpp" line="842"/>
+        <location filename="phiascriptobjects.cpp" line="841"/>
         <source>Menu or menu item with ID &apos;%1&apos; already exists.</source>
         <translation type="unfinished"></translation>
     </message>

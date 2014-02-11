@@ -33,7 +33,7 @@ QIcon PHIAAbstractWebView::_defaultIcon=QIcon();
 QIcon PHIAAbstractWebView::_missingIcon=QIcon();
 QNetworkAccessManager* PHIAAbstractWebView::_networkAccessManager=0;
 
-PHIAExtractWindowOpts::PHIAExtractWindowOpts( const QString &options )
+PHIAWindowOpts::PHIAWindowOpts( const QString &options )
 {
     QStringList list=options.simplified().split( QLatin1Char(',') );
     QString key, value;
@@ -48,17 +48,17 @@ PHIAExtractWindowOpts::PHIAExtractWindowOpts( const QString &options )
     }
 }
 
-PHIAExtractWindowOpts::~PHIAExtractWindowOpts()
+PHIAWindowOpts::~PHIAWindowOpts()
 {
 }
 
-bool PHIAExtractWindowOpts::contains( const QString &key ) const
+bool PHIAWindowOpts::contains( const QString &key ) const
 {
     if ( _options.contains( key.toLower() ) ) return true;
     return false;
 }
 
-int PHIAExtractWindowOpts::left() const
+int PHIAWindowOpts::left() const
 {
     if ( !_options.contains( L1( "left" ) ) ) return -1;
     int x=_options.value( L1( "left" ) ).toInt();
@@ -68,7 +68,7 @@ int PHIAExtractWindowOpts::left() const
     return x;
 }
 
-int PHIAExtractWindowOpts::top() const
+int PHIAWindowOpts::top() const
 {
     if ( !_options.contains( L1( "top" ) ) ) return -1;
     int y=_options.value( L1( "top" ) ).toInt();
@@ -78,7 +78,7 @@ int PHIAExtractWindowOpts::top() const
     return y;
 }
 
-int PHIAExtractWindowOpts::height() const
+int PHIAWindowOpts::height() const
 {
     if ( !_options.contains( L1( "height" ) ) ) return -1;
     int h=_options.value( L1( "height" ) ).toInt();
@@ -88,7 +88,7 @@ int PHIAExtractWindowOpts::height() const
     return h;
 }
 
-int PHIAExtractWindowOpts::width() const
+int PHIAWindowOpts::width() const
 {
     if ( !_options.contains( L1( "width" ) ) ) return -1;
     int w=_options.value( L1( "width" ) ).toInt();
@@ -98,42 +98,42 @@ int PHIAExtractWindowOpts::width() const
     return w;
 }
 
-bool PHIAExtractWindowOpts::showStatusBar() const
+bool PHIAWindowOpts::showStatusBar() const
 {
     if ( !_options.contains( L1( "status" ) ) ) return false;
     if ( _options.value( L1( "status" ) )==L1( "yes" ) ) return true;
     return false;
 }
 
-bool PHIAExtractWindowOpts::showLocationBar() const
+bool PHIAWindowOpts::showLocationBar() const
 {
     if ( !_options.contains( L1( "location" ) ) ) return false;
     if ( _options.value( L1( "location" ) )==L1( "yes" ) ) return true;
     return false;
 }
 
-bool PHIAExtractWindowOpts::showMenuBar() const
+bool PHIAWindowOpts::showMenuBar() const
 {
     if ( !_options.contains( L1( "menubar" ) ) ) return false;
     if ( _options.value( L1( "menubar" ) )==L1( "yes" ) ) return true;
     return false;
 }
 
-bool PHIAExtractWindowOpts::showToolBar() const
+bool PHIAWindowOpts::showToolBar() const
 {
     if ( !_options.contains( L1( "toolbar" ) ) ) return false;
     if ( _options.value( L1( "toolbar" ) )==L1( "yes" ) ) return true;
     return false;
 }
 
-bool PHIAExtractWindowOpts::resizable() const
+bool PHIAWindowOpts::resizable() const
 {
     if ( !_options.contains( L1( "resizable" ) ) ) return false;
     if ( _options.value( L1( "resizable" ) )==L1( "yes" ) ) return true;
     return false;
 }
 
-bool PHIAExtractWindowOpts::showScrollBars() const
+bool PHIAWindowOpts::showScrollBars() const
 {
     if ( !_options.contains( L1( "scrollbars" ) ) ) return false;
     if ( _options.value( L1( "scrollbars" ) )==L1( "yes" ) ) return true;

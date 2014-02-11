@@ -57,7 +57,7 @@ public slots:
     virtual void slotZoomOut();
     virtual void slotZoomNormal();
     virtual void slotSetZoomFactor( qreal );
-    virtual void slotPrint( QPrinter* );
+    virtual void slotPrint( QPrinter *printer );
 
 protected slots:
     void slotIconChanged( const QIcon &icon );
