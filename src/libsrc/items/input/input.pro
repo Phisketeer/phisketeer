@@ -35,6 +35,6 @@ SOURCES += \
     phitableitems.cpp \
     phicombobox.cpp \
     phibuttonitems.cpp
-TARGET = phiinput
+TARGET = phiinputitems
 FORMS = tableconfig.ui
 OTHER_FILES = phiinput.json
