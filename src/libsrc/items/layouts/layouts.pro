@@ -23,5 +23,5 @@ HEADERS += philayouts.h \
 SOURCES += philayoutitems.cpp \
     phicontaineritems.cpp \
     phispaceritems.cpp
-TARGET = philayouts
+TARGET = philayoutitems
 OTHER_FILES = philayouts.json
