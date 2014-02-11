@@ -370,7 +370,7 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
         <location filename="phisserverconf.cpp" line="270"/>
         <location filename="phisserverconf.cpp" line="332"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fehler</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="239"/>
@@ -390,12 +390,12 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
     <message>
         <location filename="phisserverconf.cpp" line="278"/>
         <source>Base directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Basis-Verzeichnis</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="286"/>
         <source>Mime types file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mime-Typen Datei</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="293"/>
@@ -405,7 +405,7 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
     <message>
         <location filename="phisserverconf.cpp" line="300"/>
         <source>Document root</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Wurzelverzeichnis</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="307"/>
@@ -540,22 +540,22 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
     <message>
         <location filename="serverconf.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="25"/>
         <source>Phi server configuration for</source>
-        <translation type="unfinished"></translation>
+        <translation>Phi Server-Konfiguration für</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="73"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="79"/>
         <source>Base directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Basis-Verzeichnis</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="89"/>
@@ -568,160 +568,160 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
         <location filename="serverconf.ui" line="597"/>
         <location filename="serverconf.ui" line="618"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="100"/>
         <source>Mime types file</source>
-        <translation type="unfinished"></translation>
+        <translation>Mime-Typen Datei</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="121"/>
         <source>Admin email</source>
-        <translation type="unfinished"></translation>
+        <translation>Admin E-Mail</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="131"/>
         <source>Index files</source>
-        <translation type="unfinished"></translation>
+        <translation>Index Dateien</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="142"/>
         <source>Service</source>
-        <translation type="unfinished"></translation>
+        <translation>Dienst</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="148"/>
         <location filename="serverconf.ui" line="396"/>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Schnittstelle</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="158"/>
         <location filename="serverconf.ui" line="419"/>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="191"/>
         <source>Keep alive</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;Keep alive&apos;</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="245"/>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="252"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="259"/>
         <source>Clear cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Cache löschen</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="281"/>
         <source>Run service on system startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Dienst bei Systemstart laden</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="289"/>
         <source>Log</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="297"/>
         <source>Log dir</source>
-        <translation type="unfinished"></translation>
+        <translation>Log-Verzeichnis</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="320"/>
         <source>Log filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Log-Filter</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="329"/>
         <source>Critical</source>
-        <translation type="unfinished"></translation>
+        <translation>Kritische</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="336"/>
         <source> User (JavaScript)</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzer (JavaScript)</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="343"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="350"/>
         <source>Trace</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;Trace&apos;</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="357"/>
         <source>Warnings</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnungen</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="364"/>
         <source>Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;Debug&apos;</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="375"/>
         <source>SSL</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="381"/>
         <source>Enable SSL</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL aktivieren</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="452"/>
         <source>Certificate</source>
-        <translation type="unfinished"></translation>
+        <translation>Zertifikat</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="473"/>
         <source>Private key</source>
-        <translation type="unfinished"></translation>
+        <translation>Privater Schlüssel</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="517"/>
         <source>Virtual hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Hosts</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="526"/>
         <location filename="serverconf.ui" line="629"/>
         <source>Host</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="531"/>
         <source>Document root</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="536"/>
         <source>Temp dir</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporäres Verzeichnis</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="587"/>
         <source>Root</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzel</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="608"/>
         <source>Temp</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 </TS>

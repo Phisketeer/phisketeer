@@ -418,17 +418,17 @@
     <message>
         <location filename="phiaabstractwebview.cpp" line="216"/>
         <source>Reply:</source>
-        <translation type="unfinished">Antwort:</translation>
+        <translation>Antwort:</translation>
     </message>
     <message>
         <location filename="phiaabstractwebview.cpp" line="220"/>
         <source>Do you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie trotzdem fortfahren?</translation>
     </message>
     <message>
         <location filename="phiaabstractwebview.cpp" line="221"/>
         <source>SSL error</source>
-        <translation type="unfinished">SSL Fehler</translation>
+        <translation>SSL Fehler</translation>
     </message>
 </context>
 <context>
@@ -436,12 +436,12 @@
     <message>
         <location filename="phiaappwindow.cpp" line="51"/>
         <source>Start:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="phiaappwindow.cpp" line="54"/>
         <source>JavaScript log</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript-Log</translation>
     </message>
 </context>
 <context>
@@ -665,107 +665,107 @@
     <message>
         <location filename="phiagraphicsscene.cpp" line="136"/>
         <source>Magic number</source>
-        <translation type="unfinished">Magische Nummer</translation>
+        <translation>Magische Nummer</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="137"/>
         <source>Content type is &apos;%1&apos; but document contains invalid data.</source>
-        <translation type="unfinished">Inhaltstyp ist &apos;%1&apos; aber das Dokument beinhaltet ungültige Daten.</translation>
+        <translation>Inhaltstyp ist &apos;%1&apos; aber das Dokument enthält ungültige Daten.</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="274"/>
         <source>Could not evaluate JavaScript.</source>
-        <translation type="unfinished">Konnte JavaScript nicht ausführen.</translation>
+        <translation>Konnte JavaScript nicht ausführen.</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="471"/>
         <source>Page info</source>
-        <translation type="unfinished"></translation>
+        <translation>Information</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="474"/>
         <source>Open URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL öffnen</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="477"/>
         <source>JS console</source>
-        <translation type="unfinished"></translation>
+        <translation>JS-Konsole</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="481"/>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="482"/>
         <source>Zoom in</source>
-        <translation type="unfinished">Hineinzoomen</translation>
+        <translation>Hineinzoomen</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="485"/>
         <source>Zoom out</source>
-        <translation type="unfinished">Herauszoomen</translation>
+        <translation>Herauszoomen</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="488"/>
         <source>Zoom normal</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="494"/>
         <source>Print</source>
-        <translation type="unfinished">Drucken</translation>
+        <translation>Drucken</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="497"/>
         <source>Print preview</source>
-        <translation type="unfinished">Druckvorschau</translation>
+        <translation>Druckvorschau</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="501"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließen</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="510"/>
         <source>Page information</source>
-        <translation type="unfinished"></translation>
+        <translation>Seiten-Information</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="511"/>
         <source>Author:</source>
-        <translation type="unfinished"></translation>
+        <translation>Autor:</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="512"/>
         <source>Company:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesellschaft:</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="513"/>
         <source>Copyright:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="514"/>
         <source>Version:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="515"/>
         <source>Description:</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung:</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="521"/>
         <source>Open new URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuen URL öffnen</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="521"/>
         <source>Please enter the new URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte geben Sie den neuen URL ein</translation>
     </message>
 </context>
 <context>
@@ -882,7 +882,7 @@
     <message>
         <location filename="phiascriptobjects.cpp" line="314"/>
         <source>Could not send, in wrong &apos;readyState&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Senden fehlgeschlagen. Falscher &apos;readyState&apos; Zustand.</translation>
     </message>
     <message>
         <source>phi.ajax is an invalid object.</source>

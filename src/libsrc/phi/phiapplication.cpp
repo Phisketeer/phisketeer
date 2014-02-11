@@ -346,6 +346,20 @@ void PHIApplication::loadTranslations()
         _app->installTranslator( tr );
     }
     tr=new QTranslator( _app );
+    if ( !tr->load( L1( "phi_" )+_lang, _tsPath ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( L1( "phi_" )+_lang ), qPrintable( _tsPath ) );
+        delete tr;
+    } else {
+        _app->installTranslator( tr );
+    }
+    tr=new QTranslator( _app );
+    if ( !tr->load( L1( "phis_" )+_lang, _tsPath ) ) {
+        qDebug( "Could not load %s in %s", qPrintable( L1( "phis_" )+_lang ), qPrintable( _tsPath ) );
+        delete tr;
+    } else {
+        _app->installTranslator( tr );
+    }
+    tr=new QTranslator( _app );
     if ( !tr->load( L1( "phia_" )+_lang, _tsPath ) ) {
         qDebug( "Could not load %s in %s", qPrintable( L1( "phia_" )+_lang ), qPrintable( _tsPath ) );
         delete tr;
