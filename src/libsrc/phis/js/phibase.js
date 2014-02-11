@@ -189,6 +189,8 @@ function PhiItem( obj ) {
     if(t===undefined)return j(id).attr('title');
     j(id).attr('title',t);return this;
   };
+  this.scale=function(s) { if(s===undefined)return j(id).css('scale');j(id).css('scale',s); return this;}
+  this.scaleTo=function(a,d,e){j(id).animate({scale:a},{queue:false,duration:(d?d:1000),easing:e});return this;};
   this.tabIndex=function(t) { if(t===undefined)return j(id).prop('tabindex');j(id).prop('tabindex',t); return this;}
   this.isImage=function() { return (j(id).attr('src')===undefined && j(id).children().attr('src')===undefined) ? false : true; };
   this.dblclick=function( f ){if(f)j(id).dblclick(function(e){f(_e(e));});else j(id).dbclick();return this;};

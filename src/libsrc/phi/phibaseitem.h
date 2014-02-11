@@ -84,6 +84,7 @@ class PHIEXPORT PHIBaseItem : public QObject
     Q_PROPERTY( qreal _xRotation READ xRotation WRITE setXRotation SCRIPTABLE false )
     Q_PROPERTY( qreal _yRotation READ yRotation WRITE setYRotation SCRIPTABLE false )
     Q_PROPERTY( qreal _zRotation READ zRotation WRITE setZRotation SCRIPTABLE false )
+    Q_PROPERTY( qreal _scale READ realScale WRITE setScale SCRIPTABLE false )
 
 public:
     enum Wid { Unknown=0, User=1000 };
@@ -193,11 +194,13 @@ public: // not usable by script engine
     inline void setZRotation( qreal z ) { _zRot=z; if ( _gw ) _gw->setTransform( computeTransformation() ); }
     inline void setHSkew( qreal h ) { _hSkew=h; if ( _gw ) _gw->setTransform( computeTransformation() ); }
     inline void setVSkew( qreal v ) { _vSkew=v; if ( _gw ) _gw->setTransform( computeTransformation() ); }
+    inline void setScale( qreal s ) { if ( _gw ) _gw->setScale( s ); }
     inline qreal xRotation() const { return _xRot; }
     inline qreal yRotation() const { return _yRot; }
     inline qreal zRotation() const { return _zRot; }
     inline qreal hSkew() const { return _hSkew; }
     inline qreal vSkew() const { return _vSkew; }
+    inline qreal realScale() const { if ( _gw ) return _gw->scale(); else return 1.; }
     inline bool hasTransformation() const { return _xRot+_yRot+_zRot+_hSkew+_vSkew ? true : false; }
     inline bool isIdeItem() const { return _type==PHIBaseItemPrivate::TIDEItem; }
     inline bool isTemplateItem() const { return _type==PHIBaseItemPrivate::TTemplateItem; }
@@ -332,6 +335,8 @@ public slots: // usable by script engine
     QScriptValue rotateToX( int angle, int duration=1000, const QString &ease=PHI::defaultEasingCurve() );
     QScriptValue rotateToY( int angle, int duration=1000, const QString &ease=PHI::defaultEasingCurve() );
     QScriptValue rotateToZ( int angle, int duration=1000, const QString &ease=PHI::defaultEasingCurve() );
+    QScriptValue scale( const QScriptValue &v=QScriptValue() );
+    QScriptValue scaleTo( double f, int duration=1000, const QString &ease=PHI::defaultEasingCurve() );
     QScriptValue slide( const QString &dir=SL( "up" ), int duration=400, const QString &ease=PHI::defaultEasingCurve() );
 
     QScriptValue click( const QScriptValue &v=QScriptValue() );

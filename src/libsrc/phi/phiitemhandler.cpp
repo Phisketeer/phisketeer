@@ -502,6 +502,25 @@ QScriptValue PHIBaseItem::rotateToZ( int angle, int duration, const QString &eas
     return self();
 }
 
+QScriptValue PHIBaseItem::scale( const QScriptValue &v )
+{
+    if ( !isClientItem() ) return scriptEngine()->undefinedValue();
+    if ( !v.isValid() ) return realScale();
+    setScale( v.toNumber() );
+    return self();
+}
+
+QScriptValue PHIBaseItem::scaleTo( double f, int duration, const QString &ease )
+{
+    if ( !isClientItem() ) return scriptEngine()->undefinedValue();
+    QPropertyAnimation *scale=new QPropertyAnimation( this, BL( "_scale" ) );
+    scale->setEndValue( f );
+    scale->setDuration( duration );
+    scale->setEasingCurve( PHI::toEasingCurveType( ease ) );
+    scale->start( QAbstractAnimation::DeleteWhenStopped );
+    return self();
+}
+
 QScriptValue PHIBaseItem::slide( const QString &dir, int duration, const QString &ease )
 {
     if ( !isClientItem() ) return scriptEngine()->undefinedValue();
