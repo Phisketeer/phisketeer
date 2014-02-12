@@ -214,21 +214,12 @@ QColor PHILinkItem::realHoverBgColor() const
 void PHILinkItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     PHILabelItem::html( req, out, script, indent );
-    QColor col=realHoverColor();
-    script+=BL( "$('" )+id()+BL( "').on('mouseover',function(){$('" )+id()+BL( "').color('" );
-    script+=cssColor( col )+BL( "')" );
-    col=realHoverBgColor();
-    if ( col!=Qt::transparent ) script+=BL( ".bgColor('" )+cssColor( col )+BL( "')" );
-    script+=BL( ";}).on('mouseout',function(){$('" )+id()+BL( "').color('" );
-    script+=cssColor( realColor() )+BL( "')" );
-    if ( realBackgroundColor()!=Qt::transparent || col!=Qt::transparent ) script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
-    script+=BL( ";})" );
-    QByteArray url=data( DUrl ).toByteArray();
-    if ( !url.isEmpty() ) {
-        script+=BL( ".on('click',function(){phi.href('" )+url.replace( '\'', BL( "\\'" ) );
-        script+=BL( "');})" );
-    }
-    script+=BL( ";\n" );
+    script+=BL( "$$link('" )+id()+BL( "','" )+data( DUrl ).toByteArray().replace( '\'', BL( "\\'" ) );
+    script+=BL( "','" )+cssColor( realColor() )+BL( "','" );
+    if ( realBackgroundColor()!=QColor( Qt::transparent ) ) script+=cssColor( realBackgroundColor() );
+    script+=BL( "','" )+cssColor( realHoverColor() )+BL( "','" );
+    if ( realHoverBgColor()!=QColor( Qt::transparent ) ) script+=cssColor( realHoverBgColor() );
+    script+=BL( "');\n" );
 }
 
 QScriptValue PHILinkItem::url( const QScriptValue &v )
@@ -275,6 +266,7 @@ void PHILinkItem::mouseover( const QGraphicsSceneHoverEvent *e )
     if ( _hoverColorRole==PHIPalette::Custom ) txtCol=realHoverColor();
     QColor bgCol=page()->phiPalette().color( _hoverBackgroundColorRole );
     if ( _hoverBackgroundColorRole==PHIPalette::Custom ) bgCol=realHoverBgColor();
+    if ( bgCol==QColor( Qt::transparent ) ) bgCol=realBackgroundColor();
     QPalette pal=w->palette();
     pal.setColor( QPalette::WindowText, txtCol );
     pal.setColor( QPalette::Window, bgCol );
@@ -402,7 +394,6 @@ void PHIGraphicRichTextItem::phisCreateData( const PHIDataParser &parser )
     } else if ( textData()->isUnparsedTranslated() ) {
         foreach ( QByteArray l, textData()->langs() ) {
             QByteArray path=parser.createImage( graphicImage( textData()->text( l ) ), l );
-            qDebug() << id() << path << l;
         }
     } else setDirtyFlag( DFText );
 }
@@ -475,7 +466,7 @@ QSizeF PHIGraphicRichTextItem::graphicSize( const QString &text ) const
 
 QSizeF PHIGraphicRichTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( isChild() || !isIdeItem() ) return rect().size();
+    if ( !isIdeItem() ) return rect().size();
     if ( textData()->isUnparsedStatic() || textData()->isUnparsedTranslated() ) {
         if ( which==Qt::MinimumSize ) return QSizeF( 16., realHeight() );
         if ( which==Qt::PreferredSize ) return QSizeF( 200., realHeight() );
@@ -573,7 +564,6 @@ void PHIRichTextItem::setWidgetAligment( Qt::Alignment align )
 
 QSizeF PHIRichTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( isChild() ) return realSize();
     if ( which==Qt::MinimumSize ) return QSizeF( 16., 16. );
     if ( which==Qt::PreferredSize ) return QSizeF( 300., 200. );
     return PHIAbstractTextItem::sizeHint( which, constraint );
