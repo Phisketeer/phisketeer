@@ -267,6 +267,7 @@ public:
     virtual ~PHIAbstractLayoutItem() {}
 
     virtual bool isDroppable() const { return true; }
+    virtual void setFont( const QFont &font );
     virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
     virtual void activateLayout()=0; // called once after page loading
     virtual void updateChildId( const QString &oldId, const QString &newId )=0;
@@ -277,9 +278,9 @@ public:
     inline bool hasBorderRadius() const { return topLeftRadius()+topRightRadius()+bottomLeftRadius()+bottomRightRadius() > 0 ? true : false; }
     void breakLayout();
     void invalidateLayout();
+    void setAlignment( quint16 align );
 
     inline quint16 realAlignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
-    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); update(); }
     inline qreal topLeftRadius() const { return data( DRadiusTopLeft, 0 ).toReal(); }
     inline void setTopLeftRadius( qreal r ) { setData( DRadiusTopLeft, r ); update(); }
     inline qreal topRightRadius() const { return data( DRadiusTopRight, 0 ).toReal(); }
