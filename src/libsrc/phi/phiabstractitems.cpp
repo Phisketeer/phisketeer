@@ -986,6 +986,18 @@ void PHIAbstractLayoutItem::ideInit()
     setPattern( 1 ); // solid pattern
 }
 
+void PHIAbstractLayoutItem::setAlignment( quint16 align )
+{
+    setData( DAlignment, align );
+    foreach ( PHIBaseItem *it, _children ) {
+        if ( it->property( "_align" ).isValid() ) {
+            it->setProperty( "_align", align );
+            break;
+        }
+    }
+    update();
+}
+
 void PHIAbstractLayoutItem::ideUpdateData()
 {
     PHIAbstractShapeItem::ideUpdateData();
@@ -1028,6 +1040,14 @@ void PHIAbstractLayoutItem::updateLayoutGeometry()
     resize( s );
     //if ( s!=oldSize ) emit pushUndoStack( oldSize );
     update();
+}
+
+void PHIAbstractLayoutItem::setFont( const QFont &font )
+{
+    foreach ( PHIBaseItem *it, _children ) {
+        it->setFont( font );
+    }
+    PHIBaseItem::setFont( font );
 }
 
 void PHIAbstractLayoutItem::squeeze()
