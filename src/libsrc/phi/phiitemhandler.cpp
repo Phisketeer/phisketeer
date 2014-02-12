@@ -256,6 +256,7 @@ QScriptValue PHIBaseItem::fadeIn( qint32 start, qint32 duration, qreal maxOpac, 
 {
     _effect->setFadeIn( start, duration, maxOpac, PHI::toEasingCurveType( ease ) );
     if ( !isClientItem() ) return self();
+    if ( !start ) if ( realOpacity()>=maxOpac ) return self();
     show();
     setOpacity( 0 );
     QPropertyAnimation *anim=new QPropertyAnimation( this, BL( "_opacity" ), this );
@@ -271,6 +272,7 @@ QScriptValue PHIBaseItem::fadeOut( qint32 start, qint32 duration, qreal minOpac,
 {
     _effect->setFadeOut( start, duration, minOpac, PHI::toEasingCurveType( ease ) );
     if ( !isClientItem() ) return self();
+    if ( !start ) if ( realOpacity()<=minOpac ) return self();
     show();
     setOpacity( 1. );
     QPropertyAnimation *anim=new QPropertyAnimation( this, BL( "_opacity" ), this );
