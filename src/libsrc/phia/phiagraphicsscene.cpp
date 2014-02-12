@@ -273,6 +273,7 @@ void PHIAGraphicsScene::init()
     } else {
         emit webView()->javaScriptConsoleMessage( tr( "Could not evaluate JavaScript." ), 0, _requestedUrl.toString() );
     }
+    invalidate();
 }
 
 void PHIAGraphicsScene::updateTabOrder()
