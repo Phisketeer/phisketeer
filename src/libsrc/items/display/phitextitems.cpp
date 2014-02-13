@@ -525,6 +525,7 @@ void PHIRichTextItem::initWidget()
     pal.setColor( QPalette::Window, Qt::transparent );
     tb->setPalette( pal );
     setWidget( tb );
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
     if ( !isClientItem() ) return;
     connect( tb, &QTextBrowser::anchorClicked, this, &PHIRichTextItem::slotAnchorClicked );
     connect( tb, SIGNAL(highlighted( QUrl )), this, SLOT(slotAnchorHover( QUrl )) );

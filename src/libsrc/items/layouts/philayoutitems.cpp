@@ -153,6 +153,7 @@ void PHIFormLayoutItem::activateLayout()
         insertBaseItem( it, r.y(), r.x(), r.height(), r.width() );
     }
     resize( tmpWidth, tmpHeight );
+    update();
 }
 
 void PHIFormLayoutItem::clientPrepareData()

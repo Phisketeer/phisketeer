@@ -31,6 +31,7 @@
 #include <QPrintPreviewDialog>
 #include <QPrintDialog>
 #include <QInputDialog>
+#include <QTimer>
 #include "phiagraphicsscene.h"
 #include "phibasepage.h"
 #include "phiawebview.h"
@@ -165,7 +166,7 @@ void PHIAGraphicsScene::slotDataAvailable()
             if ( length >= size ) {
                 length-=size;
                 page()->load( in, static_cast<qint32>(_version), true );
-                qDebug() << "page loaded" << page()->id();
+                webView()->hide();
                 emit page()->documentSizeChanged();
                 if ( page()->flags() & PHIBasePage::FPageLeftAlign ) setAlignment( Qt::AlignLeft | Qt::AlignTop );
                 else setAlignment( Qt::AlignHCenter | Qt::AlignTop );
@@ -233,7 +234,10 @@ void PHIAGraphicsScene::slotReplyFinished()
     QUrl url=_reply->attribute( QNetworkRequest::RedirectionTargetAttribute ).toUrl();
     if ( url.isValid() ) return setUrl( url );
     if ( _reply->error()==QNetworkReply::NoError ) init();
-    else qDebug() << _reply->errorString();
+    else {
+        webView()->show();
+        qDebug() << _reply->errorString();
+    }
     _reply->deleteLater();
     _reply=0;
 }
@@ -242,10 +246,9 @@ void PHIAGraphicsScene::init()
 {
     emit pagePaletteChanged( page()->phiPalette() );
     emit pageFontChanged( page()->font() );
-    foreach( PHIAbstractLayoutItem *l, _layouts ) l->activateLayout();
     updateTabOrder();
+    foreach( PHIAbstractLayoutItem *l, _layouts ) l->activateLayout();
     _engine=new QScriptEngine( page() );
-    startAnimations();
     new PHIAScriptWindowObj( webView() ); // constructor sets _engine as parent
     new PHIAScriptNavigatorObj( webView() ); // constructor sets _engine as parent
     new PHIAScriptPhiObj( webView() ); // constructor sets _engine as parent
@@ -255,6 +258,20 @@ void PHIAGraphicsScene::init()
         initMenuBar( appwin->menuBar() );
         new PHIAScriptMenuObj( webView(), appwin->menuBar() );
     }
+    invalidate();
+    webView()->show();
+    QTimer::singleShot( 0, this, SLOT(slotRun()) );
+}
+
+void PHIAGraphicsScene::slotRun()
+{
+    foreach( PHIAbstractLayoutItem *lit, _layouts ) {
+        foreach( PHIBaseItem *it, lit->childItems() ) {
+            it->gw()->setPos( it->realPos() );
+            it->gw()->resize( it->realSize() );
+        }
+    }
+    startAnimations();
     QString script=page()->javascript();
     if ( _engine->canEvaluate( script ) ) {
         QScriptValue doc=_engine->evaluate( script );
@@ -270,10 +287,7 @@ void PHIAGraphicsScene::init()
                 qDebug() << doc.toString();
             }
         }
-    } else {
-        emit webView()->javaScriptConsoleMessage( tr( "Could not evaluate JavaScript." ), 0, _requestedUrl.toString() );
-    }
-    invalidate();
+    } else emit webView()->javaScriptConsoleMessage( tr( "Could not evaluate JavaScript." ), 0, _requestedUrl.toString() );
 }
 
 void PHIAGraphicsScene::updateTabOrder()

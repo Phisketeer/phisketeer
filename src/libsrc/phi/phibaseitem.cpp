@@ -538,7 +538,7 @@ void PHIBaseItem::setFont( const QFont &font )
 QFont PHIBaseItem::font() const
 {
     QFont f=QGuiApplication::font();
-    if ( !page() ) qWarning( "font: page not set for %s", id().constData() );
+    if ( !page() ) qDebug( "font: page not set for %s", id().constData() );
     if ( page() ) f=page()->font();
     return _variants.value( DFont, f ).value<QFont>();
 }
@@ -569,6 +569,16 @@ void PHIBaseItem::setDisabled( bool b )
 {
     b ? _flags|= FDisabled : _flags&= ~FDisabled;
     if ( widget() && !isIdeItem() ) widget()->setDisabled( b );
+}
+
+void PHIBaseItem::ideSetHidden( bool b )
+{
+    if ( b ) _flags |= FIDEHidden;
+    else _flags &= ~FIDEHidden;
+    if ( _gw ) {
+        _gw->setVisible( !b );
+        _gw->setPos( realPos() );
+    }
 }
 
 void PHIBaseItem::setStyleSheet( const QString &s )

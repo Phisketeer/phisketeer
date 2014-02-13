@@ -21,17 +21,13 @@
 
 void PHIHSpacerItem::initWidget()
 {
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
 }
 
 QSizeF PHIHSpacerItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     if ( which==Qt::MinimumSize ) return QSizeF( 20., 20. );
-    if ( isChild() ) {
-        if ( which==Qt::PreferredSize ) return realSize();
-    } else {
-        if ( which==Qt::PreferredSize ) return QSizeF( 80., 20. );
-    }
+    if ( which==Qt::PreferredSize ) return QSizeF( 80., 20. );
     return PHIBaseItem::sizeHint( which, constraint );
 }
 
@@ -59,17 +55,13 @@ void PHIHSpacerItem::html( const PHIRequest *req, QByteArray &out, QByteArray &s
 
 void PHIVSpacerItem::initWidget()
 {
-    setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
 }
 
 QSizeF PHIVSpacerItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     if ( which==Qt::MinimumSize ) return QSizeF( 20., 20. );
-    if ( isChild() ) {
-        if ( which==Qt::PreferredSize ) return realSize();
-    } else {
-        if ( which==Qt::PreferredSize ) return QSizeF( 20., 80. );
-    }
+    if ( which==Qt::PreferredSize ) return QSizeF( 20., 80. );
     return PHIBaseItem::sizeHint( which, constraint );
 }
 

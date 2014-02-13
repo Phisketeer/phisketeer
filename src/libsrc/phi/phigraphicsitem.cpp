@@ -49,6 +49,7 @@ PHIGraphicsItem::PHIGraphicsItem()
 void PHIGraphicsItem::setBaseItem( PHIBaseItem *it )
 {
     Q_ASSERT( it );
+    _it=it;
     if ( it->isIdeItem() ) {
         setFlag( ItemIsFocusable, true );
         setFlag( ItemIsSelectable, true );
@@ -70,7 +71,7 @@ void PHIGraphicsItem::setBaseItem( PHIBaseItem *it )
     }
     setFlag( ItemSendsGeometryChanges, false );
     setFlag( ItemUsesExtendedStyleOption, false );
-    _it=it;
+    setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 }
 
 QPainterPath PHIGraphicsItem::shape() const

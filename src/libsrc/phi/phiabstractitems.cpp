@@ -906,7 +906,6 @@ void PHIAbstractImageBookItem::clientInitData()
 
 void PHIAbstractImageBookItem::slotImageReady( const QImage &image, int num )
 {
-    qDebug() << "slotImageReady" << image.isNull() << num;
     PHIImageHash hash=realImages();
     hash.insert( QByteArray::number( num ), image );
     setImages( hash );
@@ -970,7 +969,7 @@ void PHIAbstractLayoutItem::initLayout()
     _l=new QGraphicsGridLayout();
     _l->setContentsMargins( leftMargin(), topMargin(), rightMargin(), bottomMargin() );
     gw()->setLayout( _l );
-    setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
     connect( this, &PHIAbstractLayoutItem::layoutChanged, this, &PHIAbstractLayoutItem::updateLayoutGeometry, Qt::QueuedConnection );
     setColor( PHIPalette::Foreground, PHIPalette::Window, QColor( Qt::transparent ) );
     setColor( PHIPalette::Background, PHIPalette::Black, QColor( Qt::black ) );
@@ -1012,6 +1011,7 @@ void PHIAbstractLayoutItem::invalidateLayout()
 {
     if ( !_l ) return;
     _l->invalidate();
+    if ( isClientItem() ) return;
     emit layoutChanged(); // queued connection to updateLayoutGeometry()
     foreach ( PHIBaseItem *it, childItems() ) {
         PHIGraphicsItem *git=qgraphicsitem_cast<PHIGraphicsItem*>(it->gw());
@@ -1025,18 +1025,26 @@ void PHIAbstractLayoutItem::invalidateLayout()
 void PHIAbstractLayoutItem::updateLayoutGeometry()
 {
     foreach ( PHIBaseItem *it, childItems() ) {
-        it->setPos( it->gw()->pos() );
-        it->resize( it->gw()->size() );
+        if ( isIdeItem() ) {
+            it->setPos( it->gw()->pos() );
+            it->resize( it->gw()->size() );
+        } else {
+            it->gw()->setPos( realPos() );
+            it->gw()->resize( it->realSize() );
+            qDebug() << it->id() << it->realSize();
+        }
         it->update();
     }
     // hack to adjust layout size:
     // QSizeF oldSize=size();
     QSizeF s=realSize();
-    if ( gw()->minimumWidth()>s.width() ) s.setWidth( gw()->minimumWidth() );
-    if ( gw()->minimumHeight()>s.height() ) s.setHeight( gw()->minimumHeight() );
-    if ( gw()->maximumWidth()<s.width() ) s.setWidth( gw()->maximumWidth() );
-    if ( gw()->maximumHeight()<s.height() ) s.setHeight( gw()->maximumHeight() );
-    resize( 1, 1 );
+    if ( !isClientItem() ) {
+        if ( gw()->minimumWidth()>s.width() ) s.setWidth( gw()->minimumWidth() );
+        if ( gw()->minimumHeight()>s.height() ) s.setHeight( gw()->minimumHeight() );
+        if ( gw()->maximumWidth()<s.width() ) s.setWidth( gw()->maximumWidth() );
+        if ( gw()->maximumHeight()<s.height() ) s.setHeight( gw()->maximumHeight() );
+        resize( 1, 1 );
+    }
     resize( s );
     //if ( s!=oldSize ) emit pushUndoStack( oldSize );
     update();
@@ -1127,7 +1135,7 @@ void PHIAbstractLayoutItem::insertBaseItem( PHIBaseItem *it, int row, int column
     if ( !_l ) return; // server
     setChildItem( it );
     _l->addItem( it->gw(), row, column, rowSpan, columnSpan );
-    _l->invalidate();
+    //_l->invalidate();
     update();
 }
 
@@ -1159,28 +1167,38 @@ void PHIAbstractLayoutItem::releaseItem( PHIBaseItem *it )
 void PHIAbstractLayoutItem::drawShape( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
-    if ( p->pen().style()==Qt::NoPen && p->brush().style()==Qt::NoBrush ) return;
-    qreal rtl=data( DRadiusTopLeft, 0 ).toReal();
-    qreal rtr=data( DRadiusTopRight, 0 ).toReal();
-    qreal rbr=data( DRadiusBottomRight, 0 ).toReal();
-    qreal rbl=data( DRadiusBottomLeft, 0 ).toReal();
-    QRectF cr=rect();
-    if ( realLine()>0 ) { // border
-        qreal off=realPenWidth()/2.;
-        cr=QRectF( -off, -off, realWidth()+off, realHeight()+off );
+    if ( p->pen().style()!=Qt::NoPen || p->brush().style()!=Qt::NoBrush ) {
+        qreal rtl=data( DRadiusTopLeft, 0 ).toReal();
+        qreal rtr=data( DRadiusTopRight, 0 ).toReal();
+        qreal rbr=data( DRadiusBottomRight, 0 ).toReal();
+        qreal rbl=data( DRadiusBottomLeft, 0 ).toReal();
+        QRectF cr=rect();
+        if ( realLine()>0 ) { // border
+            qreal off=realPenWidth()/2.;
+            cr=QRectF( -off, -off, realWidth()+off, realHeight()+off );
+        }
+        QPainterPath path;
+        path.moveTo( cr.x(), cr.y()+rtl );
+        path.arcTo( cr.x(), cr.y(), rtl*2, rtl*2, 180., -90. );
+        path.lineTo( cr.width()-rtr, cr.y() );
+        path.arcTo( cr.width()-rtr*2, cr.y(), rtr*2, rtr*2, 90., -90. );
+        path.lineTo( cr.width(), cr.height()-rbr );
+        path.arcTo( cr.width()-rbr*2, cr.height()-rbr*2, rbr*2, rbr*2, 0, -90. );
+        path.lineTo( cr.x()+rbl, cr.height() );
+        path.arcTo( cr.x(), cr.height()-rbl*2, rbl*2, rbl*2, -90., -90. );
+        path.lineTo( cr.x(), cr.y()+rtl );
+        p->setRenderHint( QPainter::Antialiasing, hasTransformation() );
+        p->drawPath( path );
     }
-    QPainterPath path;
-    path.moveTo( cr.x(), cr.y()+rtl );
-    path.arcTo( cr.x(), cr.y(), rtl*2, rtl*2, 180., -90. );
-    path.lineTo( cr.width()-rtr, cr.y() );
-    path.arcTo( cr.width()-rtr*2, cr.y(), rtr*2, rtr*2, 90., -90. );
-    path.lineTo( cr.width(), cr.height()-rbr );
-    path.arcTo( cr.width()-rbr*2, cr.height()-rbr*2, rbr*2, rbr*2, 0, -90. );
-    path.lineTo( cr.x()+rbl, cr.height() );
-    path.arcTo( cr.x(), cr.height()-rbl*2, rbl*2, rbl*2, -90., -90. );
-    path.lineTo( cr.x(), cr.y()+rtl );
-    p->setRenderHint( QPainter::Antialiasing, hasTransformation() );
-    p->drawPath( path );
+    if ( !isIdeItem() || flags() & FIDEHideChildRects ) return;
+    p->setBrush( Qt::NoBrush );
+    QPen pen( Qt::blue );
+    pen.setWidth( 1 );
+    pen.setStyle( Qt::DotLine );
+    p->setPen( pen );
+    foreach ( PHIBaseItem *it, _children ) {
+        p->drawRect( QRectF( it->realPos(), it->realSize() ) );
+    }
 }
 
 bool PHIAbstractLayoutItem::paint( QPainter *p, const QRectF &exposed )

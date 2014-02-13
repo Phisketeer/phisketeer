@@ -73,6 +73,7 @@ private slots:
     void slotPrintPreview();
     void slotPaintRequested( QPrinter *printer );
     void slotShowPageInfo();
+    void slotRun();
 
 private:
     QNetworkReply *_reply;

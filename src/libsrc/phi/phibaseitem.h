@@ -104,7 +104,8 @@ public:
         FDisabled=0x80, FStoreEffectData=0x100, FLayoutHeader=0x200,
         FStoreDisabledData=0x200, FHasMouseEventHandler=0x400, FHasFocusEventHandler=0x800,
         FHasHoverEventHandler=0x1000, FHasKeyEventHandler=0x2000, FHasChangeEventHandler=0x4000,
-        FHasDropEventHandler=0x8000, FIsAnimating=0x10000, FIDEHidden=0x20000 }; //quint32
+        FHasDropEventHandler=0x8000, FIsAnimating=0x10000, FIDEHidden=0x20000,
+        FIDEFix=0x40000, FIDEHideChildRects=0x80000 }; //quint32
     enum DragDropOption { DDNone=0, DDMoveAction=0x1, DDRevertOnIgnore=0x2, DDRevertOnAccept=0x4,
         DDHighlightOnMouseOver=0x8, DDDragEnabled=0x10, DDDropEnabled=0x20 };
     enum DirtyFlag { DFClean=0x0, DFTitleData=0x1, DFVisibleData=0x2, DFStyleSheetData=0x4,
@@ -155,6 +156,7 @@ public: // not usable by script engine
     void setVisible( bool b );
     void prepareForAnimation();
     void restoreFromAnimation();
+    void ideSetHidden( bool b );
 
     // prefixing with 'real' for internal using:
     inline qreal realX() const { return _x; }
@@ -280,7 +282,6 @@ public: // not usable by script engine
 
     inline const QGraphicsWidget* graphicsWidget() const { return _gw; }
     inline bool ideIsHidden() const { return _flags & FIDEHidden; }
-    inline void ideSetHidden( bool b ) { b ? _flags|= FIDEHidden : _flags&= ~FIDEHidden; if ( _gw ) _gw->setVisible( !b ); }
     inline PHITextData* styleSheetData() { return &_styleSheetData; }
     inline PHITextData* titleData() { return &_titleData; }
     inline PHIBooleanData* visibleData() { return &_visibleData; }
