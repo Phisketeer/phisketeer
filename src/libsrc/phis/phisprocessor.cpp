@@ -343,7 +343,7 @@ PHIBasePage* PHISProcessor::loadPage( QFile &file )
     QList <PHIAbstractLayoutItem*> layouts;
     for ( quint16 i=0; i<itemCount; i++ ) {
         in >> id >> wid;
-        if ( id=="philang" ) page->setHasPhiLangItem();
+        if ( id==BL( "philang" ) ) page->setHasPhiLangItem();
         if ( Q_UNLIKELY( wid==0 ) ) in >> wid16;
         else wid16=static_cast<quint16>(wid);
         try {
