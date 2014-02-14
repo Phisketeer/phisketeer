@@ -164,9 +164,9 @@ QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constrai
                     if ( m.width( l )>minWidth ) minWidth=qRound(m.width( l ));
                 }
             }
-            return QSizeF( minWidth+4., qMax( 22., qRound(m.height())+8. ) );
+            return QSizeF( minWidth+4., qMax( 22., qRound(m.height())+6. ) );
         }
-        return QSizeF( 160, qMax( qRound(m.height())+8., 96. ) );
+        return QSizeF( 160, qMax( qRound(m.height())+6., 96. ) );
     }
     return PHIBaseItem::sizeHint( which, constraint );
 }
@@ -1197,7 +1197,7 @@ void PHIAbstractLayoutItem::drawShape( QPainter *p, const QRectF &exposed )
     pen.setStyle( Qt::DotLine );
     p->setPen( pen );
     foreach ( PHIBaseItem *it, _children ) {
-        p->drawRect( QRectF( it->realPos(), it->realSize() ) );
+        p->drawRect( QRectF( it->realPos(), QSizeF( it->realWidth()-1, it->realHeight()-1 ) ) );
     }
 }
 

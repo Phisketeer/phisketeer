@@ -34,6 +34,7 @@ QSizeF PHIAGraphicsItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint 
 {
     // a value of QSizeF( 0, 0 ) blocks QLineEdit in layouts (Qt 5.2.0)
     if ( which==Qt::MinimumSize ) return QSizeF( 1, 1 ); // needed for animations
+    if ( which==Qt::PreferredSize ) return baseItem()->realSize();
     QSizeF size=baseItem()->sizeHint( which, constraint );
     if ( size.isValid() ) return size;
     return QGraphicsProxyWidget::sizeHint( which, constraint );

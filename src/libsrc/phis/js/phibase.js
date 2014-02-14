@@ -502,6 +502,14 @@ $$=function( s, i, x, y, w, h ) {
           if(f)js.on('spinchange',function(e){f(e);});
           else js.trigger('spinchange');return o;
         };
+        o.bgColor=function( c ) {
+            if ( c===undefined ) return j(id+' [class*=ui-spinner-input]').css('background-color');
+            j(id+' [class*=ui-spinner-input]').css('background-color',c); return o;
+        };
+        o.color=function( c ) {
+            if ( c===undefined ) return j(id+' [class*=ui-spinner-input]').css('color');
+            j(id+' [class*=ui-spinner-input]').css('color',c); return o;
+        };
     }
     if ( i===32 ) {
         o.bgColor=function( c ) {

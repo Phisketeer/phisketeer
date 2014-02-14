@@ -123,7 +123,7 @@ void PHICheckBoxItem::phisParseData( const PHIDataParser &parser )
 void PHICheckBoxItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     htmlInitItem( script, false );
-    if ( realChecked() ) script+=BL( ".checked(1);\n" );
+    if ( realChecked() ) script+=BL( ".checked(1)" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
         script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
@@ -222,7 +222,7 @@ QSizeF PHIRadioButtonItem::sizeHint( Qt::SizeHint which, const QSizeF &constrain
 void PHIRadioButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     htmlInitItem( script, false );
-    if ( realChecked() ) script+=BL( ".checked(1);\n" );
+    if ( realChecked() ) script+=BL( ".checked(1)" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
         script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )

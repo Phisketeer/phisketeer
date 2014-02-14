@@ -576,8 +576,8 @@ void PHIBaseItem::ideSetHidden( bool b )
     if ( b ) _flags |= FIDEHidden;
     else _flags &= ~FIDEHidden;
     if ( _gw ) {
-        _gw->setVisible( !b );
         _gw->setPos( realPos() );
+        _gw->setVisible( !b );
     }
 }
 
@@ -953,16 +953,7 @@ void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) con
         +QByteArray::number( qRound(_height) )+BL( "px;z-index:" )
         +QByteArray::number( _zIndex )+';';
     QFont f=_variants.value( DFont, page()->font() ).value<QFont>();
-    if ( f!=page()->font() ) {
-        out+=BL( "font-family:'" )+f.family().toUtf8();
-        if ( !f.lastResortFamily().isEmpty() ) {
-            out+=BL( "','" )+f.lastResortFamily().toUtf8();
-        }
-        out+=BL( "';font-size:" )+QByteArray::number( f.pointSize() )+BL( "pt;" );
-        if ( f.bold() ) out+=BL( "font-weight:bold;" );
-        if ( f.italic() ) out+=BL( "font-style:italic;" );
-        if ( f.underline() ) out+=BL( "text-decoration:underline;" );
-    }
+    if ( f!=page()->font() ) out+=cssFont( f )+';';
     if ( colorForRole( PHIPalette::WidgetText ).isValid() )
         out+=BL( "color:" )+cssColor( page()->phiPalette().color( colorRole( PHIPalette::WidgetText ) ) )+';';
     QColor bgCol=colorForRole( PHIPalette::WidgetBase );

@@ -289,6 +289,7 @@ public: // not usable by script engine
 
     // static member
     static QByteArray cssRgba( const QColor &c );
+    static QByteArray cssFont( const QFont &f );
     static PHIWID widFromMimeData( const QMimeData *md );
     static QImage imageFromMimeData( const QMimeData *md );
     static QString pathFromMimeData( const QMimeData *md );
@@ -657,6 +658,20 @@ inline QByteArray PHIBaseItem::cssImageIEFilter( const QByteArray &imgId, bool a
         _variants.insert( DIEFilter, tmp+_variants.value( DIEFilter ).toByteArray() );
     } else _variants.insert( DIEFilter, tmp );
     return tmp;
+}
+
+inline QByteArray PHIBaseItem::cssFont( const QFont &f )
+{
+    QByteArray out;
+    out.reserve( 200 );
+    out+=BL( "font-family:'" )+f.family().toUtf8();
+    if ( !f.lastResortFamily().isEmpty() ) out+=BL( "','" )+f.lastResortFamily().toUtf8();
+    out+=BL( "';font-size:" )+QByteArray::number( f.pointSize() )+BL( "pt;" );
+    if ( f.bold() ) out+=BL( "font-weight:bold;" );
+    if ( f.italic() ) out+=BL( "font-style:italic;" );
+    if ( f.underline() ) out+=BL( "text-decoration:underline;" );
+    out.chop(1);
+    return out;
 }
 
 #endif // PHIBASEITEM_H

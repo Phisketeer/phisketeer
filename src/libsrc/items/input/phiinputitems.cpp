@@ -358,8 +358,10 @@ void PHINumberEditItem::setReadOnly( bool b )
 void PHINumberEditItem::cssStatic(const PHIRequest *req, QByteArray &out) const
 {
     Q_UNUSED( req )
-    out+='#'+id()+BL( "{font-size:" )+QByteArray::number( qRound(font().pointSizeF()*.8) );
-    out+=BL( "pt}\n" );
+    out+='#'+id()+BL( " .ui-spinner-input{margin:0;margin-left:1px;margin-right:30px;" )+cssFont( font() )
+        +BL( ";color:" )+cssColor( realColor() )+BL( ";background-color:" )+cssColor( realBackgroundColor() )+BL( "}\n" );
+    out+='#'+id()+BL( " .ui-widget{border-radius:0}\n" );
+    out+='#'+id()+BL( " .ui-spinner{height:" )+QByteArray::number( qRound(realHeight()-2) )+BL( "px}\n" );
 }
 
 PHIWID PHINumberEditItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const
@@ -446,8 +448,10 @@ QSizeF PHINumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint
 
 void PHINumberEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    setAdjustedRect( rect().adjusted( 0, 1, 0, 5 ) );
+    //setAdjustedRect( rect().adjusted( 0, 0, 0, -2 ) );
     htmlInitItem( script, false );
+    if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text ) script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Base ) script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
     int val, min, max, step;
     PHI::extractNumbers( data( DText ).toByteArray(), val, min, max, step );
     script+=BL( ".val(" )+QByteArray::number( val )+BL( ").min(" )
@@ -559,7 +563,10 @@ QSizeF PHIRealNumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constr
 
 void PHIRealNumberEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    //setAdjustedRect( rect().adjusted( 0, 0, 0, -4 ) );
     htmlInitItem( script, false );
+    if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text ) script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Base ) script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
     qreal val, min, max, step;
     int decimals;
     PHI::extractRealNumbers( data( DText ).toByteArray(), val, min, max, step, decimals );

@@ -332,6 +332,16 @@ QSizeF PHIDateEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint )
     return s;
 }
 
+void PHIDateEditItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
+{
+    Q_UNUSED( req )
+    out+='#'+id()+BL( "_phit{color:" )+cssColor( realColor() )+BL( ";background-color:" )
+        +cssColor( realBackgroundColor() );
+    if ( font()!=page()->font() ) out+=';'+cssFont( font() );
+    out+=BL( "}\n" );
+    out+='#'+id()+BL( " .ui-corner-all{border-radius:0px}\n" );
+}
+
 void PHIDateEditItem::phisCreateData(const PHIDataParser &parser)
 {
     PHIAbstractInputItem::phisCreateData( parser );
@@ -349,8 +359,10 @@ void PHIDateEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
     if ( dates.count()>2 ) end=QDate::fromString( QString::fromLatin1( dates[2] ), isoFmt );
     if ( !end.isValid() ) end=QDate( 9999, 12, 31 );
 
-    htmlInitItem( script );
-    script+=BL( "jQuery('#" )+id()+BL( "_phit').css({cursor:'default'}).datepicker({minDate:new Date(" )
+    htmlInitItem( script, false );
+    if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text ) script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Base ) script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    script+=BL( ";\njQuery('#" )+id()+BL( "_phit').css({cursor:'default'}).datepicker({minDate:new Date(" )
         +QByteArray::number( start.year() )+','+QByteArray::number( start.month()-1 )+','
         +QByteArray::number( start.day() )+BL( "),maxDate:new Date(" )
         +QByteArray::number( end.year() )+','+QByteArray::number( end.month()-1 )+','

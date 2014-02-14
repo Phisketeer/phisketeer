@@ -28,7 +28,7 @@ class PHICalendarItem : public PHIAbstractInputItem
     Q_OBJECT
 
 public:
-    enum Wid { Calendar=32 };
+    enum Wid { Calendar=32, DateEdit=31 };
     explicit PHICalendarItem( const PHIBaseItemPrivate &p ) : PHIAbstractInputItem( p ) { if ( isGuiItem() ) initWidget(); }
     PHICalendarItem( const PHICalendarItem &it ) : PHIAbstractInputItem( it ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHICalendarItem() {}
@@ -72,7 +72,6 @@ class PHIDateEditItem : public PHICalendarItem
     Q_OBJECT
 
 public:
-    enum Wid { DateEdit=31 };
     explicit PHIDateEditItem( const PHIBaseItemPrivate &p ) : PHICalendarItem( p ), _date( 0 ), _button( 0 ) { if ( isGuiItem() ) initWidget(); }
     PHIDateEditItem( const PHIDateEditItem &it ) : PHICalendarItem( it ), _date( 0 ), _button( 0 ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHIDateEditItem() {}
@@ -84,6 +83,7 @@ public:
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual void phisCreateData( const PHIDataParser &parser );
     virtual void setValue( const QString &v );
+    virtual bool isButton() const { return true; }
 
 public slots:
     virtual QScriptValue minDate( const QScriptValue &v=QScriptValue() );
@@ -93,6 +93,7 @@ protected:
     virtual void ideUpdateData();
     virtual void setWidgetText( const QString &t );
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
+    virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
 
 private slots:
     void slotDateChanged( const QDate &d );
