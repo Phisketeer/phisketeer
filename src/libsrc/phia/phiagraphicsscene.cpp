@@ -47,6 +47,7 @@ PHIAGraphicsScene::PHIAGraphicsScene( QObject *parent )
 {
     _printer=new QPrinter();
     _printer->setResolution( 1200 );
+    setItemIndexMethod( NoIndex );
 }
 
 PHIAGraphicsScene::~PHIAGraphicsScene()
@@ -166,7 +167,7 @@ void PHIAGraphicsScene::slotDataAvailable()
             if ( length >= size ) {
                 length-=size;
                 page()->load( in, static_cast<qint32>(_version), true );
-                webView()->hide();
+                views().first()->viewport()->hide();
                 emit page()->documentSizeChanged();
                 if ( page()->flags() & PHIBasePage::FPageLeftAlign ) setAlignment( Qt::AlignLeft | Qt::AlignTop );
                 else setAlignment( Qt::AlignHCenter | Qt::AlignTop );
@@ -218,9 +219,12 @@ void PHIAGraphicsScene::slotDataAvailable()
                 if ( l ) _layouts.append( l );
                 PHIAbstractInputItem *ii=qobject_cast<PHIAbstractInputItem*>(it);
                 if ( ii ) {
-                    connect( ii, &PHIAbstractInputItem::submitClicked, this, &PHIAGraphicsScene::slotSubmitForm );
-                    connect( ii, &PHIAbstractInputItem::resetClicked, this, &PHIAGraphicsScene::slotResetForm );
-                    connect( ii, &PHIAbstractInputItem::langChangeRequested, this, &PHIAGraphicsScene::slotLangChangeRequested );
+                    connect( ii, &PHIAbstractInputItem::submitClicked, this,
+                        &PHIAGraphicsScene::slotSubmitForm, Qt::QueuedConnection );
+                    connect( ii, &PHIAbstractInputItem::resetClicked, this,
+                        &PHIAGraphicsScene::slotResetForm, Qt::QueuedConnection );
+                    connect( ii, &PHIAbstractInputItem::langChangeRequested, this,
+                        &PHIAGraphicsScene::slotLangChangeRequested, Qt::QueuedConnection );
                 }
                 _readingType=RTItemSize;
             } else break;
@@ -235,7 +239,7 @@ void PHIAGraphicsScene::slotReplyFinished()
     if ( url.isValid() ) return setUrl( url );
     if ( _reply->error()==QNetworkReply::NoError ) init();
     else {
-        webView()->show();
+        views().first()->viewport()->show();
         qDebug() << _reply->errorString();
     }
     _reply->deleteLater();
@@ -259,8 +263,7 @@ void PHIAGraphicsScene::init()
         new PHIAScriptMenuObj( webView(), appwin->menuBar() );
     }
     invalidate();
-    webView()->show();
-    QTimer::singleShot( 0, this, SLOT(slotRun()) );
+    QTimer::singleShot( 50, this, SLOT(slotRun()) );
 }
 
 void PHIAGraphicsScene::slotRun()
@@ -288,6 +291,7 @@ void PHIAGraphicsScene::slotRun()
             }
         }
     } else emit webView()->javaScriptConsoleMessage( tr( "Could not evaluate JavaScript." ), 0, _requestedUrl.toString() );
+    views().first()->viewport()->show();
 }
 
 void PHIAGraphicsScene::updateTabOrder()
