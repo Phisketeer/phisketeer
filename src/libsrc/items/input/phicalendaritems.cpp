@@ -153,7 +153,10 @@ void PHICalendarItem::slotDateChanged()
 QSizeF PHICalendarItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
     if ( which==Qt::MinimumSize ) return QSizeF( 240., 160. );
-    else if ( which==Qt::PreferredSize ) return QSizeF( 272., 160. );
+    else if ( which==Qt::PreferredSize ) {
+        QFont f=font();
+        return QSizeF( 320., 200. );
+    }
     return PHIAbstractInputItem::sizeHint( which, constraint );
 }
 
@@ -166,7 +169,14 @@ void PHICalendarItem::phisCreateData(const PHIDataParser &parser)
 void PHICalendarItem::cssStatic(const PHIRequest *req, QByteArray &out) const
 {
     Q_UNUSED( req )
-    out+='#'+id()+BL( " .ui-corner-all{border-radius:0px}\n" );
+    out+='#'+id()+BL( " .ui-widget-content{background:none;background-color:" )
+        +realBackgroundColor().name().toLatin1()+';'+cssFont( font() )+BL( "}\n" );
+    out+='#'+id()+BL( " .ui-datepicker td .ui-state-default{color:" )
+        +realColor().name().toLatin1()+BL( "}\n" );
+    out+='#'+id()+BL( " .ui-datepicker td .ui-state-active{color:" )
+        +page()->phiPalette().color( PHIPalette::ErrorText ).name().toLatin1()+BL( "}\n" );
+    out+='#'+id()+BL( " .ui-datepicker td .ui-state-hover{background:none;background-color:" )
+        +page()->phiPalette().color( PHIPalette::Highlight ).name().toLatin1()+BL( "}\n" );
 }
 
 PHIWID PHICalendarItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const

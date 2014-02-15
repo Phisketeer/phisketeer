@@ -503,22 +503,24 @@ $$=function( s, i, x, y, w, h ) {
           else js.trigger('spinchange');return o;
         };
         o.bgColor=function( c ) {
-            if ( c===undefined ) return j(id+' [class*=ui-spinner-input]').css('background-color');
-            j(id+' [class*=ui-spinner-input]').css('background-color',c); return o;
+            if ( c===undefined ) return j(id+' .ui-spinner-input').css('background-color');
+            j(id+' .ui-spinner-input').css('background-color',c); return o;
         };
         o.color=function( c ) {
-            if ( c===undefined ) return j(id+' [class*=ui-spinner-input]').css('color');
-            j(id+' [class*=ui-spinner-input]').css('color',c); return o;
+            if ( c===undefined ) return j(id+' .ui-spinner-input').css('color');
+            j(id+' .ui-spinner-input').css('color',c); return o;
         };
     }
     if ( i===32 ) {
         o.bgColor=function( c ) {
-            if ( c===undefined ) return j(id+' [class*=ui-datepicker]').css('background');
-            j(id+' [class*=ui-datepicker]').css('background',c); return o;
+            if ( c===undefined ) return j(id+' .ui-widget-content').css('background-color');
+            j(id+' .ui-widget-content').css('background-color',c);return o;
         };
         o.color=function( c ) {
-            if ( c===undefined ) return j(id+' [class*=ui-datepicker]').css('color');
-            j(id+' [class*=ui-datepicker]').css('color',c); return o;
+            if ( c===undefined ) return j(id+' .ui-datepicker td .ui-state-default').css('color');
+            j(id+' .ui-datepicker td .ui-state-default').css('color',c);
+            j(id).datepicker('refresh');
+            return o;
         };
         o.date=function( d ) {
             if ( d===undefined ) return j(id).datepicker('getDate');
@@ -550,8 +552,8 @@ $$=function( s, i, x, y, w, h ) {
     }
     if ( i===31 ) {
         o.bgColor=function( c ) {
-            if ( c===undefined ) return j(id+'_phit').css('background');
-            j(id+'_phit').css('background',c); return o;
+            if ( c===undefined ) return j(id+'_phit').css('background-color');
+            j(id+'_phit').css('background-color',c); return o;
         };
         o.color=function( c ) {
             if ( c===undefined ) return j(id+'_phit').css('color');

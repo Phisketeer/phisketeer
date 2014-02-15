@@ -44,8 +44,6 @@ public:
 
     QColor realColor() const;
     QColor realBackgroundColor() const;
-    //inline void setColor( const QColor &col ) { setColor( PHIPalette::WidgetText, _colorRole, col ); }
-    //inline void setBackgroundColor( const QColor &col ) { setColor( PHIPalette::WidgetBase, _backgroundColorRole, col ); }
     inline QString realText() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
     inline void setText( const QString &s ) { setData( DText, s.toUtf8() ); if ( !isServerItem() ) setWidgetText( s ); }
     inline quint16 realAlignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }

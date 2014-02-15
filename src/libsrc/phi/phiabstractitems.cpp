@@ -164,9 +164,9 @@ QSizeF PHIAbstractTextItem::sizeHint( Qt::SizeHint which, const QSizeF &constrai
                     if ( m.width( l )>minWidth ) minWidth=qRound(m.width( l ));
                 }
             }
-            return QSizeF( minWidth+4., qMax( 22., qRound(m.height())+6. ) );
+            return QSizeF( minWidth+4., qMax( 22., qRound(m.height())+5. ) );
         }
-        return QSizeF( 160, qMax( qRound(m.height())+6., 96. ) );
+        return QSizeF( 160, qMax( qRound(m.height())+5., 96. ) );
     }
     return PHIBaseItem::sizeHint( which, constraint );
 }

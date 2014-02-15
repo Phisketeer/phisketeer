@@ -620,9 +620,14 @@ void PHISProcessor::createUiCSS() const
         }
         dest.write( src.readAll() );
     }
-    QByteArray out=BL( "\n.phi .ui-datepicker{width:100%;height:100%;padding:.2em "
-        ".2em 0;display:none;font-size:80%;min-width:240px;}\n"
-        "div.ui-datepicker{width:auto;padding:.2em .2em 0;display:none;font-size:88%}\n" );
+    QByteArray out=BL( "\n\n/* Phisketeer 2.0.0*/\n.phi .ui-datepicker{width:100%;height:100%;padding:.2em "
+        ".2em 0;display:none;min-width:240px;}\n"
+        "div.ui-datepicker{width:auto;padding:.2em .2em 0;display:none;font-size:88%}\n"
+        ".phi .ui-corner-all{border-radius:0px}\n"
+        ".ui-datepicker .ui-widget{border-radius:0px}\n"
+        ".ui-datepicker th{padding:0;padding-top:2px;width:2em;height:1.2em}\n"
+        ".ui-datepicker td span{width:2em;height:1.2em}\n"
+        ".ui-datepicker td a{width:2em;height:1.2em}\n" );
     out+=BL( ".ui-jqgrid .ui-jqgrid-htable th div{height:16px;overflow:hidden,padding-top:4px}\n" );
     out+=BL( ".ui-jqgrid tr.ui-row-ltr{background:none}\n" );
     out+=BL( ".ui-jqgrid tr.ui-row-rtl{background:none}\n" );

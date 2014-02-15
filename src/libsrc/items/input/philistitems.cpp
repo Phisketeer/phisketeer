@@ -33,7 +33,7 @@ void PHISelectItem::initWidget()
 {
     QComboBox *cb=new PHIComboBox( this );
     setWidget( cb );
-    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed, QSizePolicy::ComboBox ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::ComboBox ) );
     if ( !isClientItem() ) return;
     connect( cb, SIGNAL( currentIndexChanged( int ) ), this, SLOT( slotChanged() ) );
 }
@@ -116,7 +116,7 @@ QSizeF PHISelectItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) c
         s.setWidth( qMax( s.width(), 32. ) );
     } else if ( which==Qt::PreferredSize ) {
         s.setHeight( qMax( s.height(), 24. ) );
-        s.setWidth( 96. );
+        s.setWidth( 128. );
     }
     return s;
 }
