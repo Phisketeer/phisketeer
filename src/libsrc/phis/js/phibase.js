@@ -510,6 +510,14 @@ $$=function( s, i, x, y, w, h ) {
             if ( c===undefined ) return j(id+' .ui-spinner-input').css('color');
             j(id+' .ui-spinner-input').css('color',c); return o;
         };
+        o.width=function(w){
+            if ( w===undefined ) return parseInt(j(id+' .ui-spinner').css('width'))-o._w;
+            j(id+' .ui-spinner').css('width',parseInt(w)+o._w); return o;
+        };
+        o.height=function(h){
+            if ( h===undefined ) return parseInt(j(id+' .ui-spinner').css('height'))-o._h;
+            j(id+' .ui-spinner').css('height',parseInt(h)+o._h); return o;
+        };
     }
     if ( i===32 ) {
         o.bgColor=function( c ) {

@@ -358,10 +358,11 @@ void PHINumberEditItem::setReadOnly( bool b )
 void PHINumberEditItem::cssStatic(const PHIRequest *req, QByteArray &out) const
 {
     Q_UNUSED( req )
-    out+='#'+id()+BL( " .ui-spinner-input{margin:0;margin-left:1px;margin-right:30px;" )+cssFont( font() )
-        +BL( ";color:" )+cssColor( realColor() )+BL( ";background-color:" )+cssColor( realBackgroundColor() )+BL( "}\n" );
+    out+='#'+id()+BL( " .ui-spinner-input{margin:0;margin-left:1px;" )+cssFont( font() )
+        +BL( ";color:" )+realColor().name().toLatin1()+BL( ";background-color:" )+realBackgroundColor().name().toLatin1()+BL( "}\n" );
     out+='#'+id()+BL( " .ui-widget{border-radius:0}\n" );
-    out+='#'+id()+BL( " .ui-spinner{height:" )+QByteArray::number( qRound(realHeight()-2) )+BL( "px}\n" );
+    //out+='#'+id()+BL( " .ui-spinner{width:" )+QByteArray::number( qRound(realWidth()) )
+    //    +BL( "px;height:" )+QByteArray::number( qRound(realHeight()) )+BL( "px}\n" );
 }
 
 PHIWID PHINumberEditItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const
@@ -448,7 +449,7 @@ QSizeF PHINumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint
 
 void PHINumberEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    //setAdjustedRect( rect().adjusted( 0, 0, 0, -2 ) );
+    setAdjustedRect( rect().adjusted( 0, 0, 0, -2 ) );
     htmlInitItem( script, false );
     if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text ) script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
     if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Base ) script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
@@ -563,7 +564,7 @@ QSizeF PHIRealNumberEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constr
 
 void PHIRealNumberEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    //setAdjustedRect( rect().adjusted( 0, 0, 0, -4 ) );
+    setAdjustedRect( rect().adjusted( 0, 0, 0, -2 ) );
     htmlInitItem( script, false );
     if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text ) script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
     if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Base ) script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );

@@ -573,11 +573,18 @@ void PHIBaseItem::setDisabled( bool b )
 
 void PHIBaseItem::ideSetHidden( bool b )
 {
-    if ( b ) _flags |= FIDEHidden;
-    else _flags &= ~FIDEHidden;
+    if ( !isChild() ) {
+        if ( b ) _flags |= FIDEHidden;
+        else _flags &= ~FIDEHidden;
+    } else _flags &= ~FIDEHidden;
     if ( _gw ) {
         _gw->setPos( realPos() );
-        _gw->setVisible( !b );
+        if ( !isChild() ) _gw->setVisible( !b );
+        else _gw->setVisible( true );
+    }
+    PHIAbstractLayoutItem *lit=qobject_cast<PHIAbstractLayoutItem*>(this);
+    if ( lit ) {
+        foreach ( PHIBaseItem *it, lit->childItems() ) it->ideSetHidden( b );
     }
 }
 
