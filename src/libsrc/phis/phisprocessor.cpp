@@ -67,8 +67,8 @@ void PHISProcessor::run()
             _req->responseRec()->timeEncoded( QFileInfo( f ).lastModified() ) );
         return;
     }
-    PHIBasePage *page=PHISPageCache::page( _req, _req->canonicalFilename() ); // implicitly copies items
-    if ( Q_UNLIKELY( !page ) ) page=PHISPageCache::insert( _req, loadPage( f ), _req->canonicalFilename() );
+    PHIBasePage *page=PHISPageCache::instance()->page( _req, _req->canonicalFilename() ); // implicitly copies items
+    if ( Q_UNLIKELY( !page ) ) page=PHISPageCache::instance()->insert( _req, loadPage( f ), _req->canonicalFilename() );
     else initDb( page );
     if ( Q_UNLIKELY( !page ) ) return _req->responseRec()->error( PHILOGCRIT, PHIRC_HTTP_INTERNAL_SERVER_ERROR, tr( "Resource error." ) );
 
@@ -98,8 +98,8 @@ void PHISProcessor::run()
         f.setFileName( resolveRelativeFile( page->templatePage() ) );
         qDebug() << "filename master" << f.fileName();
         if ( Q_LIKELY( f.exists() ) ) {
-            master=PHISPageCache::page( _req, f.fileName() );
-            if ( Q_UNLIKELY( !master ) ) master=PHISPageCache::insert( _req, loadPage( f ), f.fileName() );
+            master=PHISPageCache::instance()->page( _req, f.fileName() );
+            if ( Q_UNLIKELY( !master ) ) master=PHISPageCache::instance()->insert( _req, loadPage( f ), f.fileName() );
             if ( Q_LIKELY( master ) ) parseMaster( master, page );
         } else {
             _req->responseRec()->log( PHILOGERR, PHIRC_OBJ_NOT_FOUND_ERROR,

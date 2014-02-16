@@ -37,22 +37,34 @@ class PHISEXPORT PHISPageCache
     Q_DISABLE_COPY( PHISPageCache )
 
 public:
-    static PHIBasePage* page( const PHIRequest *req, const QString &filename ); // returns a copy
-    static PHIBasePage* insert( const PHIRequest *req, const PHIBasePage *page, const QString &filename ); // returns a copy of p
-    static QDateTime modified( const PHIRequest *req, const QString &pageId );
-    static void insertImageRect( const QByteArray &id, const QRectF &br );
-    static QRectF imageRect( const QByteArray &id );
-    static int getDbId();
-    static void removeDbId( int );
-    static void invalidate();
+    static PHISPageCache* instance();
+    ~PHISPageCache() { _instance=0; }
+
+    PHIBasePage* page( const PHIRequest *req, const QString &filename ); // returns a copy
+    PHIBasePage* insert( const PHIRequest *req, const PHIBasePage *page, const QString &filename ); // returns a copy of p
+    QDateTime modified( const PHIRequest *req, const QString &pageId );
+    int getDbId();
+    void removeDbId( int );
+    void invalidate();
+
+protected:
+    PHISPageCache() {}
 
 private:
-    static QReadWriteLock _lock;
-    static QMutex _dbLock;
-    static QHash <QString, PageHash> _pages;
-    static QHash <QString, PageModified> _modified;
-    static QSet <int> _dbIds;
+    static PHISPageCache* _instance;
+    QReadWriteLock _lock;
+    QMutex _dbLock;
+    QHash <QString, PageHash> _pages;
+    QHash <QString, PageModified> _modified;
+    QSet <int> _dbIds;
 };
+
+inline PHISPageCache* PHISPageCache::instance()
+{
+    if ( Q_LIKELY( _instance ) ) return _instance;
+    _instance=new PHISPageCache();
+    return _instance;
+}
 
 inline int PHISPageCache::getDbId()
 {

@@ -86,7 +86,7 @@ void PHISParent::stopService()
         delete PHISslListener::instance();
     }
     delete PHISListener::instance(); // disconnect all clients
-    PHISPageCache::invalidate(); // PHIPageCache is static so invalidate only
+    delete PHISPageCache::instance();
     PHISLogWriter::instance()->log( PHILOGTRACE, PHIRC_MGR_STOP,
         tr( "Phis '%1' service stopped." ).arg( _name ) );
     _listenerRunning=false;
@@ -95,6 +95,7 @@ void PHISParent::stopService()
 void PHISParent::startService()
 {
     if ( _listenerRunning ) return;
+    PHISPageCache::instance();
     invalidate();
     PHIRC rc=PHISListener::instance()->init( this );
     if ( rc==PHIRC_OK ) {
@@ -172,7 +173,7 @@ void PHISParent::invalidate( const QString &domain )
 {
     qDebug( "PHISParent::invalidate '%s'", qPrintable( domain.isEmpty() ? L1( "all" ) : domain ) );
     PHISModuleFactory::instance()->invalidate();
-    PHISPageCache::invalidate();
+    PHISPageCache::instance()->invalidate();
     _lock.lockForWrite();
     _invalidateTouch=QDateTime::currentDateTime();
     QSettings *s=phiApp->serverSettings();

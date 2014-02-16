@@ -23,11 +23,7 @@
 #include "phiitemfactory.h"
 #include "phiabstractitems.h"
 
-QHash <QString, PageHash> PHISPageCache::_pages; // domain -> pages
-QHash <QString, PageModified> PHISPageCache::_modified; // domain -> page modification
-QSet <int> PHISPageCache::_dbIds;
-QMutex PHISPageCache::_dbLock;
-QReadWriteLock PHISPageCache::_lock;
+PHISPageCache* PHISPageCache::_instance=0;
 
 static void _copyItems( PHIBasePage *dest, const PHIBasePage *source )
 {

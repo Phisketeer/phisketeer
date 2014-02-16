@@ -48,14 +48,14 @@ PHISHttp::PHISHttp( QObject *parent )
 
 PHISHttp::~PHISHttp()
 {
-    PHISPageCache::removeDbId( _dbConnId );
+    PHISPageCache::instance()->removeDbId( _dbConnId );
     qDebug( "PHISHttp::~PHISHttp()" );
 }
 
 PHIRC PHISHttp::init( qintptr socketDesc, bool usessl, QString &err )
 {
     Q_UNUSED( err );
-    _dbConnId=PHISPageCache::getDbId();
+    _dbConnId=PHISPageCache::instance()->getDbId();
     if ( usessl ) {
         _socket=new QSslSocket( this );
         _socket->setSocketDescriptor( socketDesc );

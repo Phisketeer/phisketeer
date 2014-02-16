@@ -21,6 +21,7 @@
 #include "phiapplication.h"
 #include "phismodulefactory.h"
 #include "phiimagecache.h"
+#include "phispagecache.h"
 #include "phisession.h"
 #include "phierror.h"
 #include "phisysinfo.h"
@@ -99,6 +100,7 @@ ApacheReqChild::ApacheReqChild( QObject *parent )
 {
     qDebug( "ApacheReqChild::ApacheReqChild()" );
     QString error;
+    PHISPageCache::instance();
     PHIRC rc=PHIImageCache::instance()->init( error, this );
     if ( Q_UNLIKELY( rc!=PHIRC_OK ) ) _errors << error;
     rc=PHISession::instance()->init( error, this );
@@ -111,6 +113,7 @@ ApacheReqChild::~ApacheReqChild()
 {
     delete PHISession::instance();
     delete PHIImageCache::instance();
+    delete PHISPageCache::instance();
     _instance=0;
     qDebug( "ApacheReqChild::~ApacheReqChild()" );
 }
