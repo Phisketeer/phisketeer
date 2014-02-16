@@ -24,6 +24,8 @@
 #include <QDialog>
 #include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QTextCharFormat>
+#include <QTableView>
 #include "phicalendaritems.h"
 #include "phidatasources.h"
 #include "phibasepage.h"
@@ -34,6 +36,11 @@ void PHICalendarItem::initWidget()
     QCalendarWidget *cw=new QCalendarWidget();
     setWidget( cw );
     setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
+    cw->setGridVisible( true );
+    QToolButton *tool=cw->findChild<QToolButton*>( L1( "qt_calendar_prevmonth" ) );
+    if ( tool ) tool->setArrowType( Qt::LeftArrow );
+    tool=cw->findChild<QToolButton*>( L1( "qt_calendar_nextmonth" ) );
+    if ( tool ) tool->setArrowType( Qt::RightArrow );
     if ( !isClientItem() ) return;
     connect( cw, &QCalendarWidget::selectionChanged, this, &PHICalendarItem::slotDateChanged );
     cw->setLocale( QLocale( page()->lang() ) );
@@ -75,6 +82,32 @@ void PHICalendarItem::ideUpdateData()
 void PHICalendarItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
 {
     PHIAbstractInputItem::setColor( ir, cr, col );
+    QCalendarWidget *cw=qobject_cast<QCalendarWidget*>(widget());
+    if ( !cw ) return;
+    QTableView *view=cw->findChild<QTableView*>( L1( "qt_calendar_calendarview" ) );
+    if ( view ) {
+        QPalette pal=view->palette();
+        if ( ir==PHIPalette::WidgetBase ) {
+            pal.setColor( QPalette::Mid, col );
+            pal.setColor( QPalette::Window, col.darker( 105 ) );
+            pal.setColor( QPalette::WindowText, Qt::green );
+        }
+        if ( ir==PHIPalette::WidgetText ) pal.setColor( QPalette::Text, col );
+        pal.setColor( QPalette::Base, QColor( 250, 250, 250 ) );
+        pal.setColor( QPalette::Highlight, page()->phiPalette().color( PHIPalette::Highlight ) );
+        pal.setColor( QPalette::HighlightedText, page()->phiPalette().color( PHIPalette::HighlightText ) );
+        view->setPalette( pal );
+    }
+    QTextCharFormat f=cw->headerTextFormat();
+    f.setForeground( Qt::black );
+    if ( ir==PHIPalette::WidgetBase ) f.setBackground( col );
+    cw->setHeaderTextFormat( f );
+    QWidget *navBar=cw->findChild<QWidget*>( L1( "qt_calendar_navigationbar" ) );
+    if ( navBar ) {
+        QPalette pal=navBar->palette();
+        pal.setColor( navBar->backgroundRole(), page()->phiPalette().color( PHIPalette::Button ) );
+        navBar->setPalette( pal );
+    }
 }
 
 QScriptValue PHICalendarItem::val( const QScriptValue &v )

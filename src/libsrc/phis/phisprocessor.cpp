@@ -625,9 +625,9 @@ void PHISProcessor::createUiCSS() const
         "div.ui-datepicker{width:auto;padding:.2em .2em 0;display:none;font-size:88%}\n"
         ".phi .ui-corner-all{border-radius:0px}\n"
         ".ui-datepicker .ui-widget{border-radius:0px}\n"
-        ".ui-datepicker th{padding:0;padding-top:2px;width:2em;height:1.2em}\n"
-        ".ui-datepicker td span{width:2em;height:1.2em}\n"
-        ".ui-datepicker td a{width:2em;height:1.2em}\n" );
+        ".ui-datepicker th{padding:0;padding-top:2px;width:2em;height:1.2em;text-align:center}\n"
+        ".ui-datepicker td span{width:2em;height:1.2em;text-align:center}\n"
+        ".ui-datepicker td a{width:2em;height:1.2em;text-align:center}\n" );
     out+=BL( ".ui-jqgrid .ui-jqgrid-htable th div{height:16px;overflow:hidden,padding-top:4px}\n" );
     out+=BL( ".ui-jqgrid tr.ui-row-ltr{background:none}\n" );
     out+=BL( ".ui-jqgrid tr.ui-row-rtl{background:none}\n" );
