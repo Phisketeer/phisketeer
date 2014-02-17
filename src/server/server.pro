@@ -35,7 +35,7 @@ win32 {
         LIBS = -L../../bin phid2.lib phisd2.lib
         TARGET = Phisd
     } else: TARGET = Phis
-    QMAKE_LFLAGS += /MANIFESTUAC:level=\'requireAdministrator\'
+    #QMAKE_LFLAGS += /MANIFESTUAC:level=\'requireAdministrator\'
     QMAKE_CLEAN += phis_resource.rc phisd_resource.rc
     QMAKE_DISTCLEAN += phis_resource.rc phisd_resource.rc
 }
