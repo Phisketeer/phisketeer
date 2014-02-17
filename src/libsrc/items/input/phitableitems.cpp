@@ -253,6 +253,7 @@ void PHIDecoratedTableItem::initWidget()
     if ( !isClientItem() ) return;
     connect( t->horizontalHeader(), &QHeaderView::sectionClicked, this, &PHIDecoratedTableItem::slotSectionClicked );
     connect( t, &QTableWidget::itemSelectionChanged, this, &PHIDecoratedTableItem::slotItemSelectionChanged );
+    connect( t, &QTableWidget::itemClicked, this, &PHIDecoratedTableItem::slotItemClicked );
 }
 
 void PHIDecoratedTableItem::setWidgetText( const QString &t )
@@ -400,6 +401,19 @@ int PHIDecoratedTableItem::logicRow( int row ) const
         }
     }
     return -1;
+}
+
+void PHIDecoratedTableItem::setSelection( int logicRow, bool selected )
+{
+    QTableWidget *table=qobject_cast<QTableWidget*>(widget());
+    Q_ASSERT( table );
+    if ( logicRow>=table->rowCount() ) return;
+    table->blockSignals( true );
+    for ( int c=0; c<table->columnCount(); c++ ) {
+        QTableWidgetItem *it=table->item( logicRow, c );
+        if ( it ) it->setSelected( selected );
+    }
+    table->blockSignals( false );
 }
 
 QScriptValue PHIDecoratedTableItem::delimiter( const QScriptValue &d )
@@ -572,7 +586,9 @@ QScriptValue PHIDecoratedTableItem::checked( const QScriptValue &r, const QScrip
         return self();
     }
     if ( r.toInt32()>=table->rowCount() ) return self();
-    table->item( logicRow( r.toInt32() ), 0 )->setData( Qt::CheckStateRole, v.toBool() ? Qt::Checked : Qt::Unchecked );
+    int lrow=logicRow( r.toInt32() );
+    table->item( lrow, 0 )->setData( Qt::CheckStateRole, v.toBool() ? Qt::Checked : Qt::Unchecked );
+    setSelection( lrow, v.toBool() );
     return self();
 }
 
@@ -670,10 +686,23 @@ void PHIDecoratedTableItem::slotItemSelectionChanged()
     int row=table->currentRow();
     if ( wid()==CheckList ) {
         QTableWidgetItem *it=table->item( row, 0 );
-        if ( it ) it->setCheckState( it->checkState()==Qt::Checked ? Qt::Unchecked : Qt::Checked );
+        if ( it ) {
+            it->setCheckState( it->checkState()==Qt::Checked ? Qt::Unchecked : Qt::Checked );
+            setSelection( row, it->checkState()==Qt::Checked ? true : false );
+        }
     }
     trigger( L1( "selectionChanged" ), QScriptValue( logicRow( row ) ) );
     trigger( L1( "changed" ), QScriptValue( logicRow( row ) ) );
+}
+
+void PHIDecoratedTableItem::slotItemClicked( QTableWidgetItem *it )
+{
+    if ( wid()!=CheckList ) return;
+    if ( it->column()!=0 ) return;
+    it->setCheckState( it->checkState()==Qt::Checked ? Qt::Unchecked : Qt::Checked );
+    QTableWidget *table=qobject_cast<QTableWidget*>(widget());
+    Q_ASSERT( table );
+    table->setCurrentItem( it );
 }
 
 void PHIDecoratedTableItem::cssStatic( const PHIRequest *req, QByteArray &out ) const

@@ -106,6 +106,7 @@ public slots:
 protected slots:
     void slotSectionClicked( int );
     void slotItemSelectionChanged();
+    void slotItemClicked( QTableWidgetItem *it );
 
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
@@ -117,6 +118,7 @@ protected:
     virtual void updateWidget();
     virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
     int logicRow( int row ) const;
+    void setSelection( int logicRow, bool selected );
 };
 
 class PHICheckListItem : public PHIDecoratedTableItem
