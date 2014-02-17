@@ -300,7 +300,7 @@ static int phi_handler( request_rec *r )
     QTime t=QTime::currentTime();
 #endif
 
-    int dbId=PHISPageCache::getDbId();
+    int dbId=PHISPageCache::instance()->getDbId();
     {
         PHISProcessor phiproc( &areq, dbId ); // process request (PHI engine)
         phiproc.run();
@@ -335,7 +335,7 @@ static int phi_handler( request_rec *r )
         } // remove db instance
         QSqlDatabase::removeDatabase( QString::number( dbId ) );
     }
-    PHISPageCache::removeDbId( dbId );
+    PHISPageCache::instance()->removeDbId( dbId );
 
 #ifdef PHIDEBUG
     qWarning( "Time elapsed: %d", t.msecsTo( QTime::currentTime() ) );
