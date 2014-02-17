@@ -225,6 +225,17 @@ void PHIDecoratedTableItem::ideInit()
     setOption( SingleSelection );
 }
 
+void PHIDecoratedTableItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
+{
+    PHIAbstractInputItem::setColor( ir, cr, col );
+    QTableWidget *table=qobject_cast<QTableWidget*>(widget());
+    if ( !table ) return;
+    QPalette pal=table->palette();
+    pal.setColor( QPalette::Highlight, page()->phiPalette().color( PHIPalette::Highlight ) );
+    pal.setColor( QPalette::HighlightedText, page()->phiPalette().color( PHIPalette::HighlightText ) );
+    table->setPalette( pal );
+}
+
 void PHIDecoratedTableItem::initWidget()
 {
     QTableWidget *t=new QTableWidget();
@@ -341,7 +352,7 @@ void PHIDecoratedTableItem::updateWidget()
         if ( w>0 ) table->setColumnWidth( col+off, static_cast<int>(w) );
         else table->resizeColumnToContents( col+off );
         for ( int row=0; row<table->rowCount(); row++ ) {
-            PHITableItem *it=dynamic_cast<PHITableItem*>(table->item( row, col ));
+            PHITableItem *it=dynamic_cast<PHITableItem*>(table->item( row, col+off ));
             if ( it ) {
                 if ( align & ARight ) it->setTextAlignment( Qt::AlignRight | Qt::AlignVCenter  );
                 else if ( align & ACenter ) it->setTextAlignment( Qt::AlignCenter | Qt::AlignVCenter );
@@ -656,6 +667,10 @@ void PHIDecoratedTableItem::slotItemSelectionChanged()
     QTableWidget *table=qobject_cast<QTableWidget*>(widget());
     Q_ASSERT( table );
     int row=table->currentRow();
+    if ( wid()==CheckList ) {
+        QTableWidgetItem *it=table->item( row, 0 );
+        if ( it ) it->setCheckState( it->checkState()==Qt::Checked ? Qt::Unchecked : Qt::Checked );
+    }
     trigger( L1( "selectionChanged" ), QScriptValue( logicRow( row ) ) );
     trigger( L1( "changed" ), QScriptValue( logicRow( row ) ) );
 }
@@ -683,16 +698,7 @@ void PHIDecoratedTableItem::cssStatic( const PHIRequest *req, QByteArray &out ) 
     if ( options() & HideBorder ) {
         out+='#'+id()+BL( " .ui-jqgrid{border-color:transparent}\n" );
     }
-    QFont f=font();
-    out+='#'+id()+BL( " .ui-jqgrid tr.jqgrow td{font-family:'" )+f.family().toUtf8();
-    if ( !f.lastResortFamily().isEmpty() ) {
-        out+=BL( "','" )+f.lastResortFamily().toUtf8();
-    }
-    out+=BL( "';font-size:" )+QByteArray::number( f.pointSize() )+BL( "pt;" );
-    if ( f.bold() ) out+=BL( "font-weight:bold;" );
-    if ( f.italic() ) out+=BL( "font-style:italic;" );
-    if ( f.underline() ) out+=BL( "text-decoration:underline;" );
-    out+=BL( "}\n" );
+    out+='#'+id()+BL( " .ui-jqgrid tr.jqgrow td{" )+cssFont( font() )+BL( "}\n" );
 }
 
 void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const

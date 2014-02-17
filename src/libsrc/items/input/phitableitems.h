@@ -112,6 +112,7 @@ protected:
     virtual void squeeze();
     virtual void setWidgetText( const QString &t );
     virtual void ideInit();
+    virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual void initWidget();
     virtual void updateWidget();
     virtual void cssStatic( const PHIRequest *req, QByteArray &out ) const;
