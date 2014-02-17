@@ -972,15 +972,15 @@ void PHIAbstractLayoutItem::initLayout()
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
     connect( this, &PHIAbstractLayoutItem::layoutChanged, this, &PHIAbstractLayoutItem::updateLayoutGeometry, Qt::QueuedConnection );
     setColor( PHIPalette::Foreground, PHIPalette::Window, QColor( Qt::transparent ) );
-    setColor( PHIPalette::Background, PHIPalette::Black, QColor( Qt::black ) );
+    setColor( PHIPalette::Background, PHIPalette::Button, page()->phiPalette().color( PHIPalette::Button ) );
 }
 
 void PHIAbstractLayoutItem::ideInit()
 {
     // transparent content:
     setColor( PHIPalette::Foreground, PHIPalette::Window, page()->phiPalette().color( PHIPalette::Window ) );
-    // black border:
-    setColor( PHIPalette::Background, PHIPalette::Black, page()->phiPalette().color( PHIPalette::Black ) );
+    // button background color border:
+    setColor( PHIPalette::Background, PHIPalette::Button, page()->phiPalette().color( PHIPalette::Button ) );
     setLine( 1 ); // solid line
     setPattern( 1 ); // solid pattern
 }
@@ -1357,7 +1357,6 @@ void PHIAbstractExternalItem::ideInit()
 
 QSizeF PHIAbstractExternalItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( isChild() ) return realSize();
     if ( which==Qt::PreferredSize ) return QSizeF( 300., 200. );
     return PHIBaseItem::sizeHint( which, constraint );
 }
@@ -1409,6 +1408,7 @@ void PHIAbstractExternalItem::initWidget()
     view->setAttribute( Qt::WA_OpaquePaintEvent, false );
     view->setAttribute( Qt::WA_TranslucentBackground );
     setWidget( view );
+    setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding, QSizePolicy::Frame ) );
 }
 
 void PHIAbstractExternalItem::setWidgetText( const QString &t )
@@ -1416,6 +1416,7 @@ void PHIAbstractExternalItem::setWidgetText( const QString &t )
     if ( !_webPage ) return;
     QUrl url( QString::fromLatin1( source() )+t );
     if ( url==_webPage->mainFrame()->url() ) return;
+    _webPage->mainFrame()->setContent( QByteArray() );
     _webPage->mainFrame()->setUrl( url);
 }
 

@@ -22,10 +22,12 @@
 #include "phinetmanager.h"
 
 PHIWebPage::PHIWebPage( QObject *parent )
-    : QWebPage( parent )
+    : QWebPage( parent ), _loading( false )
 {
     setNetworkAccessManager( PHINetManager::instance()->defaultNetworkAccessManager() );
     mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
     mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
     setLinkDelegationPolicy( QWebPage::DelegateExternalLinks );
+    connect( this, &QWebPage::loadStarted, this, &PHIWebPage::slotLoadingStart );
+    connect( this, &QWebPage::loadFinished, this, &PHIWebPage::slotLoadingFinished );
 }

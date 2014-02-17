@@ -87,7 +87,6 @@ void PHIGoogleStaticMapItem::html( const PHIRequest *req, QByteArray &out, QByte
 
 QSizeF PHIGooglePlusItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( isChild() ) return realSize();
     if ( which==Qt::PreferredSize ) return QSizeF( 190., 22. );
     return PHIAbstractExternalItem::sizeHint( which, constraint );
 }
@@ -164,6 +163,7 @@ void PHIGooglePlusItem::setWidgetText( const QString &t )
     setData( DTmpUrl, arr );
     // the following crashes (Qt 5.1):
     // webPage()->settings()->setAttribute( QWebSettings::PluginsEnabled, true );
+    webPage()->mainFrame()->setContent( QByteArray() );
     webPage()->mainFrame()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.google.com" ) ) );
 }
 
@@ -235,6 +235,7 @@ void PHIGoogleMapsItem::setWidgetText( const QString &t )
     QByteArray tmp=data( DTmpText ).toByteArray();
     if ( arr==tmp ) return;
     setData( DTmpText, arr );
+    webPage()->mainFrame()->setContent( QByteArray() );
     webPage()->mainFrame()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.google.com" ) ) );
 }
 
@@ -281,7 +282,6 @@ QByteArray PHIGoogleCalendarItem::source() const
 
 QSizeF PHIGoogleCalendarItem::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const
 {
-    if( isChild() ) return realSize();
     if ( which==Qt::PreferredSize ) return QSizeF( 320., 200. );
     return PHIAbstractExternalItem::sizeHint( which, constraint );
 }
@@ -298,5 +298,6 @@ void PHIGoogleCalendarItem::setWidgetText( const QString &t )
     QByteArray tmp=data( DTmpText ).toByteArray();
     if ( tmp==arr ) return;
     setData( DTmpText, arr );
+    webPage()->mainFrame()->setContent( QByteArray() );
     webPage()->mainFrame()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.google.com" ) ) );
 }

@@ -41,7 +41,6 @@ void PHITwitterItem::squeeze()
 
 QSizeF PHITwitterItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( isChild() ) return realSize();
     if ( which==Qt::PreferredSize ) return QSizeF( 100., 24. );
     return PHIAbstractExternalItem::sizeHint( which, constraint );
 }
@@ -91,8 +90,7 @@ void PHIFacebookItem::squeeze()
 
 QSizeF PHIFacebookItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( isChild() ) return realSize();
-    if ( which==Qt::PreferredSize ) return QSizeF( 400., 80. );
+    if ( which==Qt::PreferredSize ) return QSizeF( 320., 60. );
     return PHIAbstractExternalItem::sizeHint( which, constraint );
 }
 

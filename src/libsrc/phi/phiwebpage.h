@@ -26,6 +26,7 @@ class PHIWebPage : public QWebPage
 
 public:
     explicit PHIWebPage( QObject *parent=0 );
+    bool isLoading() const { return _loading; }
 
 protected slots:
     //void slotUpdateGeometry( const QRect& );
@@ -33,9 +34,13 @@ protected slots:
 protected:
     //virtual QWebPage* createWindow( WebWindowType type );
 
+private slots:
+    void slotLoadingFinished() { _loading=false; }
+    void slotLoadingStart() { _loading=true; }
+
 private:
     //QWebView *_view;
-
+    bool _loading;
 };
 
 #endif // PHIWEBPAGE_H

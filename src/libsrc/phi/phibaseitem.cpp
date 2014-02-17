@@ -1136,7 +1136,7 @@ void PHIBaseItem::htmlDragDropItem( QByteArray &script ) const
 {
     quint32 opts=dragDropOptions();
     if ( opts & DDDragEnabled ) {
-        script+=BL( "jQuery('#" )+_id+BL( "').draggable({zIndex:30000,cursor:'move'," );
+        script+=BL( "jQuery('#" )+_id+BL( "').draggable({zIndex:30000,stack:'phi',cursor:'move'," );
         if ( !(opts & DDMoveAction) ) script+=BL( "helper:function(e,ui){return jQuery(this).clone(true);}," );
         if ( opts & DDRevertOnAccept && opts & DDRevertOnIgnore ) script+=BL( "revert:true," );
         else if ( opts & DDRevertOnAccept ) script+=BL( "revert:'valid'," );

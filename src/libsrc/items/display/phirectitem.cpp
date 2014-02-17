@@ -123,7 +123,10 @@ void PHIRectItem::drawShape( QPainter *p, const QRectF& )
         if ( realBorderRadius() ) {
             if ( realPenWidth()>1. ) p->setRenderHint( QPainter::Antialiasing );
             p->drawRoundedRect( cr, realBorderRadius(), realBorderRadius() );
-        } else p->drawRect( cr );
+        } else {
+            p->drawRect( cr );
+            p->drawPoint( cr.topLeft() ); // fix pen width (missing point)
+        }
     }
 }
 

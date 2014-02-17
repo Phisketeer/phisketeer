@@ -708,6 +708,13 @@ void PHIBaseItem::checkForDragInMouseMoveEvent( QGraphicsSceneMouseEvent *e )
     QPointF origPos=data( DDragOriginalPos ).toPointF();
     QPointF dragMovePos=qobject_cast<PHIGraphicsScene*>(_gw->scene())->dragMovePos();
     qDebug() << "drop (move action)" << _id << origPos << dragMovePos;
+    if ( !parentId().isEmpty() ) {
+        PHIBaseItem *it=page()->findItem( parentId() );
+        if ( it ) {
+            QPointF relPos=it->graphicsWidget()->scenePos();
+            dragMovePos-=relPos;
+        }
+    }
     setVisible( true );
     if ( action==Qt::IgnoreAction ) {
         if ( dragDropOptions() & DDRevertOnIgnore ) {
