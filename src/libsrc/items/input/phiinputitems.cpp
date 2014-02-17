@@ -237,6 +237,9 @@ void PHITextAreaItem::initWidget()
     QPlainTextEdit *edit=new QPlainTextEdit();
 #ifdef Q_OS_MAC
     edit->setFrameStyle( QFrame::Box );
+    QPalette pal=edit->palette();
+    pal.setColor( QPalette::WindowText, Qt::lightGray );
+    edit->setPalette( pal );
 #endif
     setWidget( edit );
     if ( !isClientItem() ) return;

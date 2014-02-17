@@ -233,6 +233,7 @@ void PHIDecoratedTableItem::setColor( PHIPalette::ItemRole ir, PHIPalette::Color
     QPalette pal=table->palette();
     pal.setColor( QPalette::Highlight, page()->phiPalette().color( PHIPalette::Highlight ) );
     pal.setColor( QPalette::HighlightedText, page()->phiPalette().color( PHIPalette::HighlightText ) );
+    pal.setColor( QPalette::WindowText, Qt::lightGray );
     table->setPalette( pal );
 }
 
