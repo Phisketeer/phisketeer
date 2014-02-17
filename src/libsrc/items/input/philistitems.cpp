@@ -365,7 +365,7 @@ void PHIMultiSelectItem::initWidget()
     lw->setFrameStyle( QFrame::Box );
 #endif
     setWidget( lw );
-    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, QSizePolicy::Frame ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding, QSizePolicy::Frame ) );
     if ( !isClientItem() ) return;
     connect( lw, &QListWidget::itemSelectionChanged, this, &PHIMultiSelectItem::slotChanged );
 }

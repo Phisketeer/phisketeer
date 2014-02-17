@@ -293,7 +293,7 @@ void PHIDateEditItem::initWidget()
     QWidget *w=new QWidget();
     _date=new QDateEdit();
     if ( page() ) _date->setDisplayFormat( QLocale( page()->lang() ).dateFormat( QLocale::ShortFormat ) );
-    _date->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, QSizePolicy::LineEdit ) );
+    _date->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
     _button=new QToolButton();
     _button->setMinimumHeight( 24 );
     _button->setFixedWidth( 24 );

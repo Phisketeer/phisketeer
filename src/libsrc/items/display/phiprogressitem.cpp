@@ -36,6 +36,7 @@ void PHIProgressItem::initWidget()
     QProgressBar *bar=new QProgressBar();
     bar->setRange( 0, 100 );
     setWidget( bar );
+    setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Minimum, QSizePolicy::Frame ) );
 }
 
 void PHIProgressItem::updateWidget()

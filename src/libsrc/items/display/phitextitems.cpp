@@ -63,6 +63,7 @@ void PHILabelItem::setWidgetAligment( Qt::Alignment align )
 {
     QLabel *l=qobject_cast<QLabel*>(widget());
     Q_ASSERT( l );
+    if ( align & Qt::AlignJustify ) align=Qt::AlignLeft | Qt::AlignTop;
     l->setAlignment( align );
 }
 

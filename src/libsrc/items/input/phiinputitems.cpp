@@ -242,6 +242,7 @@ void PHITextAreaItem::initWidget()
     edit->setPalette( pal );
 #endif
     setWidget( edit );
+    setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding, QSizePolicy::Frame ) );
     if ( !isClientItem() ) return;
     connect( edit, &QPlainTextEdit::textChanged, this, &PHITextAreaItem::slotChanged );
 }

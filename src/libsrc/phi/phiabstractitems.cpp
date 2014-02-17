@@ -969,7 +969,7 @@ void PHIAbstractLayoutItem::initLayout()
     _l=new QGraphicsGridLayout();
     _l->setContentsMargins( leftMargin(), topMargin(), rightMargin(), bottomMargin() );
     gw()->setLayout( _l );
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
     connect( this, &PHIAbstractLayoutItem::layoutChanged, this, &PHIAbstractLayoutItem::updateLayoutGeometry, Qt::QueuedConnection );
     setColor( PHIPalette::Foreground, PHIPalette::Window, QColor( Qt::transparent ) );
     setColor( PHIPalette::Background, PHIPalette::Black, QColor( Qt::black ) );

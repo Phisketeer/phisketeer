@@ -353,7 +353,7 @@ void PHIFileButtonItem::ideInit()
 void PHIFileButtonItem::initWidget()
 {
     _edit=new QLineEdit();
-    _edit->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, QSizePolicy::LineEdit ) );
+    _edit->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
     _edit->setReadOnly( true );
     _tool=new QToolButton();
     _tool->setArrowType( Qt::RightArrow );
@@ -367,7 +367,7 @@ void PHIFileButtonItem::initWidget()
     l->addWidget( _edit );
     l->addWidget( _tool );
     w->setLayout( l );
-    w->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
+    w->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
     setWidget( w );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
     QPalette pal=w->palette();
