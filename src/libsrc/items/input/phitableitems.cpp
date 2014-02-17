@@ -234,6 +234,8 @@ void PHIDecoratedTableItem::setColor( PHIPalette::ItemRole ir, PHIPalette::Color
     pal.setColor( QPalette::Highlight, page()->phiPalette().color( PHIPalette::Highlight ) );
     pal.setColor( QPalette::HighlightedText, page()->phiPalette().color( PHIPalette::HighlightText ) );
     pal.setColor( QPalette::WindowText, Qt::lightGray );
+    pal.setColor( QPalette::Button, page()->phiPalette().color( PHIPalette::Button ) );
+    pal.setColor( QPalette::ButtonText, page()->phiPalette().color( PHIPalette::ButtonText ) );
     table->setPalette( pal );
 }
 
@@ -241,6 +243,7 @@ void PHIDecoratedTableItem::initWidget()
 {
     QTableWidget *t=new QTableWidget();
     setWidget( t );
+    setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
     PHITableItem *it=new PHITableItem( QString() );
     t->setItemPrototype( it );
     t->setFrameShape( QFrame::Box );
@@ -384,7 +387,6 @@ void PHIDecoratedTableItem::squeeze()
 
 QSizeF PHIDecoratedTableItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const
 {
-    if ( isChild() ) return realSize();
     if ( which==Qt::PreferredSize ) return QSizeF( 300., 150. );
     return PHIAbstractInputItem::sizeHint( which, constraint );
 }
