@@ -394,13 +394,15 @@ QString PHIRequest::userOS() const
 
 bool PHIRequest::setRedirectedFile( const QString &file )
 {
-
     QUrl url( SL( "file://" )+file );
-    QFileInfo fi( url.toLocalFile() );
+    QString path=file;
+    path.replace( QRegExp( L1( "\\?.*" ) ), QString() );
+    qDebug() << "redirect" << url.query() << path;
+    QFileInfo fi( path );
     if ( !fi.exists() ) return false;
     _canonicalFilename=fi.canonicalFilePath();
     _modified=fi.lastModified();
-    QString path=_canonicalFilename;
+    path=_canonicalFilename;
     path.replace( _documentRoot, QString() );
     _url.setPath( path );
     _url.setQuery( url.query() );
