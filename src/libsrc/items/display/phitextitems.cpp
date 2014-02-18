@@ -522,6 +522,7 @@ void PHIRichTextItem::initWidget()
     tb->setUndoRedoEnabled( false );
     tb->setOpenLinks( false );
     tb->setOpenExternalLinks( false );
+    tb->setFrameStyle( QFrame::NoFrame );
     QPalette pal=tb->palette();
     pal.setColor( QPalette::Window, Qt::transparent );
     tb->setPalette( pal );
