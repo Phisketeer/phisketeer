@@ -55,6 +55,7 @@ PHIAGraphicsScene::~PHIAGraphicsScene()
     abort();
     delete _engine;
     delete _printer;
+    qDebug( "PHIAGraphicsScene::~PHIAGraphicsScene()" );
 }
 
 QScriptEngine* PHIAGraphicsScene::scriptEngine() const

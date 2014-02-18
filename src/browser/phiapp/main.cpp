@@ -17,19 +17,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QObject>
+#include <QApplication>
+#include <QUrl>
 #include "phiapplication.h"
 #include "phiaappwindow.h"
+
 int main ( int argc, char **argv )
 {
     PHIApplication app( argc, argv, "PhiApp", PHIVERSION );
     QObject::connect( qApp, SIGNAL( lastWindowClosed() ), qApp, SLOT( quit() ) );
 
-    QStringList args=qApp->arguments();
     QString url;
-    if ( args.count()>1 ) url=args.at( 1 );
+    if ( qApp->arguments().count()>1 ) url=qApp->arguments().at( 1 );
 
-    PHIAAppWindow win;
-    win.show();
-    if ( !url.isEmpty() ) win.setUrl( QUrl( url ) );
+    PHIAAppWindow *win=new PHIAAppWindow();
+    win->setAttribute( Qt::WA_DeleteOnClose );
+    win->show();
+    if ( !url.isEmpty() ) win->setUrl( QUrl( url ) );
     return app.exec();
 }

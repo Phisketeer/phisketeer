@@ -50,7 +50,7 @@ PHIGraphicsScene::~PHIGraphicsScene()
     // don't delete _page with usual QObject parent mechanism
     // graphics items must be deleted before (via the PHIBasePage destructor!)
     delete _page;
-    // qDebug( "PHIGraphicsScene::~PHIGraphicsScene()" );
+    qDebug( "PHIGraphicsScene::~PHIGraphicsScene()" );
 }
 
 void PHIGraphicsScene::documentSizeChanged()
