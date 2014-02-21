@@ -151,7 +151,7 @@ QDataStream& operator>>( QDataStream &in, PHIDynPageData *p )
 }
 
 PHIBasePage::PHIBasePage( QObject *parent )
-    : QObject( parent ), _font( PHI::defaultFont() )
+    : QObject( parent ), _font( PHI::defaultFont() ), _flags( 0 )
 {
     _pageData=new PHIDynPageData();
     setGeometry( G4_3 );
