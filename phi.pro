@@ -1,6 +1,6 @@
 #    Copyright (C) 2010-2013  Marius B. Schumacher
-#    Copyright (C) 2011-2013  Phisys AG, Switzerland
-#    Copyright (C) 2012-2013  Phisketeer.org team
+#    Copyright (C) 2011-2014  Phisys AG, Switzerland
+#    Copyright (C) 2012-2014  Phisketeer.org team
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,25 +17,21 @@
 #
 #    Exclusion: the Phi(sketeer) libraries libphi, libphia, libphis and
 #    the Apache module mod_phi are released under the terms of the LGPLv3.
+#    The Artephis IDE (developed by Phisys AG) is proprietary and not covered
+#    by this license.
 #
 #  --------------------------------------------------------------------------------------
 #
 #  Phi(sketeer) uses the great Qt C++ toolkit, freely available at <http://qt.digia.com>.
-#  The minimum version required to successfully compile Phi is Qt 5.0.2!
+#  The minimum version required to successfully compile Phi 2.x is Qt 5.2.0!
 #
-#  Qt 5.0.2 configuration for the official release for Linux (Ubuntu64 10.04 and higher):
-#  ./configure -prefix /usr/local/qt/5.0.2 -no-linuxfb -no-directfb -nomake examples -nomake demos -strip -icu
-#     -cups -optimized-qmake -no-rpath -iconv -openssl -c++11 -commercial -release -glib -qt-xcb -javascript-jit
-#  For Phi you need the modified files found in 3rdparty/linux (adapting QPA minimal)
+#  Qt 5.2.1 configuration for the official release for Linux (Ubuntu64 12.04 and higher):
+#  ./configure -prefix /usr/local/qt/5.2.1norpath -nomake examples -nomake tools -no-rpath -release
+#  For Phi you need the modified files found in /patches
 #
-#  Qt 5.0.2 configuration for the official release for Mac OS X (Mountain Lion):
-#  ./configure -prefix /usr/local/qt/5.0.2 -commercial -release -process -force-debug-info
-#     -largefile -openssl -no-rpath -optimized-qmake -nis -cups -iconv -strip -no-dbus -no-directfb
-#     -no-linuxfb -nomake demos -nomake examples -system-proxies -qpa cocoa -c++11 -platform macx-clang-libc++
-#     -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
-#  Note: the QtWebKit library search path for /usr/local/qt/5.0.2/lib/QtWebKitWidgets.framework/Versions/5/QtWebKitWidgets
-#  may not correctly set by the install script of Qt. Use 'install_name_tool -change' to set the correct path.
-#  This might be of interest as well: https://bugreports.qt-project.org/browse/QTBUG-29003
+#  Qt 5.2.1 configuration for the official release for Mac OS X (Mavericks):
+#  ./configure -prefix /usr/local/qt/5.2.1norpath -no-rpath -release -nomake tools -nomake examples -system-proxies
+#  This might be of interest: https://bugreports.qt-project.org/browse/QTBUG-29003
 #
 #  For the Windows distribution the standard provided precompiled Qt packages are used.
 #

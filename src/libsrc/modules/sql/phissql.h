@@ -1,7 +1,7 @@
 /*
 #    Copyright (C) 2010-2013  Marius B. Schumacher
-#    Copyright (C) 2011-2013  Phisys AG, Switzerland
-#    Copyright (C) 2012-2013  Phisketeer.org team
+#    Copyright (C) 2011-2014  Phisys AG, Switzerland
+#    Copyright (C) 2012-2014  Phisketeer.org team
 #
 #    This C++ library is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
@@ -11,7 +11,7 @@
 #    This library is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Lesser General Public License for more details.
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -28,9 +28,9 @@ class PHISEmailModule : public PHISModule
     Q_PLUGIN_METADATA(IID "org.phisketeer.phis.module.sql" FILE "phissql.json")
     Q_CLASSINFO( "Author", "Marius Schumacher" )
     Q_CLASSINFO( "Url", "http://www.phisketeer.org" )
-    Q_CLASSINFO( "Version", "1.0" )
+    Q_CLASSINFO( "Version", "1.1" )
     Q_CLASSINFO( "License", "LGPL" )
-    Q_CLASSINFO( "Copyright", "2013 Phisys AG, 2013 Phisketeer Team" )
+    Q_CLASSINFO( "Copyright", "2013 Phisys AG, 2013-2014 Phisketeer Team" )
 
 public:
     virtual PHISScriptObj* create( const QString &key, const PHISInterface* ) const;
