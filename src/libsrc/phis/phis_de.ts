@@ -161,7 +161,7 @@ Copyright %7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisparent.cpp" line="102"/>
+        <location filename="phisparent.cpp" line="103"/>
         <source>Phis &apos;%1&apos; ready for service.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -336,33 +336,33 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
     <message>
         <location filename="phisserverconf.cpp" line="40"/>
         <source>PhisConf %1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="112"/>
         <source>Missing privileges</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Rechte</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="112"/>
         <source>Can not write to the config file
 &apos;%1&apos;. Try as &apos;root&apos; or &apos;Administrator&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte nicht in die Konfigurationsdatei &apos;%1&apos; schreiben. Versuchen Sie es als &apos;root&apos; oder &apos;Administrator&apos;.</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="227"/>
         <source>Overwrite config</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguration überschreiben</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="228"/>
         <source>This will store your current configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die jetzige Konfiguration wird gespeichert.</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="229"/>
         <source>Are you sure you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wollen Sie wirklich überschreiben?</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="238"/>
@@ -370,62 +370,62 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
         <location filename="phisserverconf.cpp" line="270"/>
         <location filename="phisserverconf.cpp" line="332"/>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="239"/>
         <source>Could not start the Phis Web service.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Phis Web-Dienst konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="255"/>
         <source>Could not stop the Phis Web service.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Phis Web-Dienst konnte nicht gestoppt werden.</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="270"/>
         <source>Could not clear the server cache.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Server-Cache konnte nicht gelöscht werden.</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="278"/>
         <source>Base directory</source>
-        <translation type="unfinished">Basis-Verzeichnis</translation>
+        <translation>Basis-Verzeichnis</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="286"/>
         <source>Mime types file</source>
-        <translation type="unfinished">Mime-Typen Datei</translation>
+        <translation>Mime-Typen Datei</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="293"/>
         <source>Log directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Log-Verzeichnis</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="300"/>
         <source>Document root</source>
-        <translation type="unfinished">Wurzelverzeichnis</translation>
+        <translation>Wurzelverzeichnis</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="307"/>
         <source>Temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporäres Verzeichnis</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="314"/>
         <source>SSL certificate file</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL Zertifikats-Datei</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="321"/>
         <source>SSL private key file</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL private Schlüssel-Datei</translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="332"/>
         <source>Current virtual hostname already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser virtuelle Hostname existiert bereits.</translation>
     </message>
 </context>
 <context>
@@ -513,9 +513,9 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="phispagecache.cpp" line="87"/>
-        <location filename="phispagecache.cpp" line="111"/>
-        <location filename="phispagecache.cpp" line="130"/>
+        <location filename="phispagecache.cpp" line="83"/>
+        <location filename="phispagecache.cpp" line="107"/>
+        <location filename="phispagecache.cpp" line="126"/>
         <source>Could not copy page &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -600,7 +600,7 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
         <location filename="serverconf.ui" line="158"/>
         <location filename="serverconf.ui" line="419"/>
         <source>Port</source>
-        <translation></translation>
+        <translation>Port</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="191"/>
@@ -701,7 +701,7 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
         <location filename="serverconf.ui" line="526"/>
         <location filename="serverconf.ui" line="629"/>
         <source>Host</source>
-        <translation></translation>
+        <translation>Host</translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="531"/>
@@ -721,7 +721,7 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
     <message>
         <location filename="serverconf.ui" line="608"/>
         <source>Temp</source>
-        <translation></translation>
+        <translation>Temp</translation>
     </message>
 </context>
 </TS>

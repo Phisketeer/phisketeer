@@ -161,7 +161,7 @@ Copyright %7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisparent.cpp" line="102"/>
+        <location filename="phisparent.cpp" line="103"/>
         <source>Phis &apos;%1&apos; ready for service.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -513,9 +513,9 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="phispagecache.cpp" line="87"/>
-        <location filename="phispagecache.cpp" line="111"/>
-        <location filename="phispagecache.cpp" line="130"/>
+        <location filename="phispagecache.cpp" line="83"/>
+        <location filename="phispagecache.cpp" line="107"/>
+        <location filename="phispagecache.cpp" line="126"/>
         <source>Could not copy page &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>

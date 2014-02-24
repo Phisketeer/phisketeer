@@ -663,107 +663,107 @@
 <context>
     <name>PHIAGraphicsScene</name>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="136"/>
+        <location filename="phiagraphicsscene.cpp" line="139"/>
         <source>Magic number</source>
         <translation>Magische Nummer</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="137"/>
+        <location filename="phiagraphicsscene.cpp" line="140"/>
         <source>Content type is &apos;%1&apos; but document contains invalid data.</source>
         <translation>Inhaltstyp ist &apos;%1&apos; aber das Dokument enthält ungültige Daten.</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="274"/>
+        <location filename="phiagraphicsscene.cpp" line="294"/>
         <source>Could not evaluate JavaScript.</source>
         <translation>Konnte JavaScript nicht ausführen.</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="471"/>
+        <location filename="phiagraphicsscene.cpp" line="491"/>
         <source>Page info</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="474"/>
+        <location filename="phiagraphicsscene.cpp" line="494"/>
         <source>Open URL</source>
         <translation>URL öffnen</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="477"/>
+        <location filename="phiagraphicsscene.cpp" line="497"/>
         <source>JS console</source>
         <translation>JS-Konsole</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="481"/>
+        <location filename="phiagraphicsscene.cpp" line="501"/>
         <source>Zoom</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="482"/>
+        <location filename="phiagraphicsscene.cpp" line="502"/>
         <source>Zoom in</source>
         <translation>Hineinzoomen</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="485"/>
+        <location filename="phiagraphicsscene.cpp" line="505"/>
         <source>Zoom out</source>
         <translation>Herauszoomen</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="488"/>
+        <location filename="phiagraphicsscene.cpp" line="508"/>
         <source>Zoom normal</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="494"/>
+        <location filename="phiagraphicsscene.cpp" line="514"/>
         <source>Print</source>
         <translation>Drucken</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="497"/>
+        <location filename="phiagraphicsscene.cpp" line="517"/>
         <source>Print preview</source>
         <translation>Druckvorschau</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="501"/>
+        <location filename="phiagraphicsscene.cpp" line="521"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="510"/>
+        <location filename="phiagraphicsscene.cpp" line="530"/>
         <source>Page information</source>
         <translation>Seiten-Information</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="511"/>
+        <location filename="phiagraphicsscene.cpp" line="531"/>
         <source>Author:</source>
         <translation>Autor:</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="512"/>
+        <location filename="phiagraphicsscene.cpp" line="532"/>
         <source>Company:</source>
         <translation>Gesellschaft:</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="513"/>
+        <location filename="phiagraphicsscene.cpp" line="533"/>
         <source>Copyright:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="514"/>
+        <location filename="phiagraphicsscene.cpp" line="534"/>
         <source>Version:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="515"/>
+        <location filename="phiagraphicsscene.cpp" line="535"/>
         <source>Description:</source>
         <translation>Beschreibung:</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="521"/>
+        <location filename="phiagraphicsscene.cpp" line="541"/>
         <source>Open new URL</source>
         <translation>Neuen URL öffnen</translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="521"/>
+        <location filename="phiagraphicsscene.cpp" line="541"/>
         <source>Please enter the new URL</source>
         <translation>Bitte geben Sie den neuen URL ein</translation>
     </message>
