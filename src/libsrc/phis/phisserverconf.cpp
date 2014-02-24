@@ -33,11 +33,11 @@
 #include "phinetmanager.h"
 
 PHISServerConf::PHISServerConf( QWidget *parent )
-    : QDialog( parent, Qt::Sheet )
+    : QDialog( parent, Qt::Sheet | Qt::WindowMaximizeButtonHint )
 {
     setupUi( this );
     setWindowIcon( QIcon( L1( ":/phi/logo" ) ) );
-    setWindowTitle( tr( "PhisConf %1" ).arg( L1( PHISVERSION ) ) );
+    setWindowTitle( QString::fromLatin1( "PhisConf %1" ).arg( L1( PHISVERSION ) ) );
     _configCombo->insertItem( 0, PHI::defaultString() );
     _virtualTree->setIndentation( 0 );
     _tab->setCurrentIndex( 0 );

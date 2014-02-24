@@ -409,7 +409,7 @@ void PHIFileButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray
 
 void PHIFileButtonItem::slotToolClicked()
 {
-    QFileDialog dlg( graphicsWidget()->scene()->views().first(), Qt::Sheet );
+    QFileDialog dlg( graphicsWidget()->scene()->views().first(), Qt::Sheet | Qt::WindowMaximizeButtonHint );
     dlg.setAcceptMode( QFileDialog::AcceptOpen );
     dlg.setFileMode( QFileDialog::ExistingFile );
     dlg.setDirectory( QDir::home() );

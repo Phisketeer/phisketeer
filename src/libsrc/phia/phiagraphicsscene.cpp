@@ -539,7 +539,7 @@ void PHIAGraphicsScene::slotShowPageInfo()
 void PHIAGraphicsScene::slotOpenUrlTriggered()
 {
     QString u=QInputDialog::getText( webView(), tr( "Open new URL" ), tr( "Please enter the new URL" ),
-        QLineEdit::Normal, _requestedUrl.toString(), 0, Qt::Sheet );
+        QLineEdit::Normal, _requestedUrl.toString(), 0, Qt::Sheet | Qt::WindowMaximizeButtonHint );
     QUrl url( u );
     if ( url.isRelative() ) url=PHI::createUrlForLink( _requestedUrl, u );
     setUrl( url );
