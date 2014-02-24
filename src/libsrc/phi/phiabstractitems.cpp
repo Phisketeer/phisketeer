@@ -1025,11 +1025,11 @@ void PHIAbstractLayoutItem::invalidateLayout()
 void PHIAbstractLayoutItem::updateLayoutGeometry()
 {
     foreach ( PHIBaseItem *it, childItems() ) {
-        if ( isIdeItem() ) {
+        if ( isIdeItem() || isTemplateItem() ) {
             it->setPos( it->gw()->pos() );
             it->resize( it->gw()->size() );
         } else {
-            it->gw()->setPos( realPos() );
+            it->gw()->setPos( it->realPos() );
             it->gw()->resize( it->realSize() );
             qDebug() << it->id() << it->realSize();
         }

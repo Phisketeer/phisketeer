@@ -73,7 +73,10 @@ void PHIHorizontalLayoutItem::activateLayout()
     qreal tmpHeight=realHeight(); // preserve height
     for ( int i=0; i<_childIds.count(); i++ ) {
         PHIBaseItem *it=page()->findItem( _childIds.at( i ) );
-        if ( !it ) continue;
+        if ( !it ) {
+            Q_ASSERT( it );
+            continue;
+        }
         qobject_cast<PHIVerticalLayoutItem*>(this) ? insertBaseItem( it, i ) : insertBaseItem( it, 0, i );
     }
     resize( tmpWidth, tmpHeight );
