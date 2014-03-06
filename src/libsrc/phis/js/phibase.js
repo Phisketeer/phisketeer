@@ -118,8 +118,8 @@ function PhiItem( obj ) {
     j(id).css('zIndex',i); return this;
   };
   this.accessKey=function( a ) {
-    if ( a===undefined ) return j( id ).prop( 'accesskey' );
-    j( id ).prop( 'accesskey', a ); return this;
+    if ( a===undefined ) return j( id ).attr( 'accesskey' );
+    j( id ).attr( 'accesskey', a ); return this;
   };
   this.cursor=function( c ) {
     if(!c)return j(id).css('cursor');j(id).css({cursor:c});return this;
@@ -495,8 +495,8 @@ $$=function( s, i, x, y, w, h ) {
             js.prop( 'readOnly',r ); return o;
         };
         o.accessKey=function( a ) {
-          if ( a===undefined ) return js.prop( 'accesskey' );
-          js.prop( 'accesskey', a ); return o;
+          if ( a===undefined ) return js.attr( 'accesskey' );
+          js.attr( 'accesskey', a ); return o;
         };
         o.change=function( f ){
           if(f)js.on('spinchange',function(e){f(e);});
