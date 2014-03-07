@@ -172,7 +172,9 @@ void PHIButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
         script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
     if ( !data( DUrl ).toByteArray().isEmpty() ) {
-        script+=BL( ".click(function(){phi.href('" )+data( DUrl ).toByteArray().replace( '\'', BL( "\\'" ) )+BL( "')})" );
+        if ( !data( DUrl ).toByteArray().startsWith( "javascript:" ) )
+            script+=BL( ".click(function(){phi.href('" )+data( DUrl ).toByteArray().replace( '\'', BL( "\\'" ) )+BL( "')})" );
+        else script+=BL( ".click(function(){" )+data( DUrl ).toByteArray().remove( 0, 11 )+BL( "})" );
     }
     script+=BL( ";\n" );
     out+=indent+BL( "<input type=\"button\" value=\"" )+data( DText ).toByteArray()+'"';
@@ -186,7 +188,12 @@ void PHIButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
 void PHIButtonItem::click( const QGraphicsSceneMouseEvent *e )
 {
     Q_UNUSED( e )
-    if ( !realUrl().isEmpty() ) emit linkRequested( realUrl() );
+    if ( realUrl().isEmpty() ) return;
+    if ( realUrl().startsWith( L1( "javascript:" ) ) ) {
+        scriptEngine()->evaluate( realUrl().remove( 0, 11 ) );
+        return;
+    }
+    emit linkRequested( realUrl() );
 }
 
 QScriptValue PHIButtonItem::url( const QScriptValue &u )
@@ -316,7 +323,17 @@ void PHIImageButtonItem::clientInitData()
 void PHIImageButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     setAdjustedRect( PHIInputTools::adjustedImageButton( req, rect() ) );
-    htmlInitItem( script );
+    htmlInitItem( script, false );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
+        script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
+    if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
+        script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    if ( !data( DUrl ).toByteArray().isEmpty() ) {
+        if ( !data( DUrl ).toByteArray().startsWith( "javascript:" ) )
+            script+=BL( ".click(function(){phi.href('" )+data( DUrl ).toByteArray().replace( '\'', BL( "\\'" ) )+BL( "')})" );
+        else script+=BL( ".click(function(){" )+data( DUrl ).toByteArray().remove( 0, 11 )+BL( "})" );
+    }
+    script+=BL( ";\n" );
     out+=indent+BL( "<button" );
     htmlBase( req, out, script );
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
@@ -326,7 +343,7 @@ void PHIImageButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArra
         out+=BL( "</td><td>" )+data( DText ).toByteArray()+BL( "</td></tr></table>" );
     } else {
         QByteArray s=QByteArray::number( qRound( realHeight()-24 < 16 ? 16 : realHeight()-24 ) );
-        out+=BL( "\"><table width=\"100%\"><tr><td style=\"padding:0;width:" )+s+BL( "px\"><img alt=\"\"" );
+        out+=BL( "\"><table width=\"100%\"><tr><td style=\"padding:0;padding-top:2px;width:" )+s+BL( "px\"><img alt=\"\"" );
         out+=BL( " width=\"" )+s+BL( "\" height=\"" )+s+BL( "\" src=\"" );
         if ( dirtyFlags() & DFUseFilePathInHTML ) out+=imagePath()+BL( "\">" );
         else out+=BL( "phi.phis?i=" )+imagePath()+BL( "&amp;t=1\">" );
