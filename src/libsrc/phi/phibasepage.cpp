@@ -251,9 +251,10 @@ QScriptValue PHIBasePage::createElementById( PHIWID wid, const QString &id,
     qreal x, qreal y, qreal width, qreal height )
 {
     if ( _flags & FClient ) return scriptEngine()->undefinedValue();
-    if ( containsItemId( id ) ) return scriptEngine()->undefinedValue();
+    PHIBaseItem *it=findItem( id );
+    if ( it ) return baseItemToScriptValue( scriptEngine(), it );
     PHIBaseItemPrivate p( PHIBaseItemPrivate::TServerItem, this, 0 );
-    PHIBaseItem *it=PHIItemFactory::instance()->item( wid, p );
+    it=PHIItemFactory::instance()->item( wid, p );
     if ( !it ) return scriptEngine()->undefinedValue();
     it->setId( id );
     it->setX( x );
@@ -262,20 +263,10 @@ QScriptValue PHIBasePage::createElementById( PHIWID wid, const QString &id,
     else it->setWidth( it->sizeHint( Qt::PreferredSize ).width() );
     if ( height > 0 ) it->setHeight( height );
     else it->setHeight( it->sizeHint( Qt::PreferredSize ).height() );
-    // @todo: add extensions for HTML generation
-    /*
-    if ( it->hasHtmlExtension() ) {
-        QByteArray ext, script;
-        PHIWID extWid=it->htmlHeaderExtension( ext );
-        if ( extWid ) insertHtmlHeaderExtension( extWid, ext );
-        extWid=it->htmlScriptExtension( script );
-        if ( extWid ) insertHtmlScriptExtension( extWid, script );
-    }
-    */
-    PHIDomItem *dom=new PHIDomItem( it, scriptEngine() );
-    return scriptEngine()->newQObject( dom, QScriptEngine::ScriptOwnership,
-        QScriptEngine::PreferExistingWrapperObject | QScriptEngine::SkipMethodsInEnumeration |
-        QScriptEngine::ExcludeSuperClassContents | QScriptEngine::ExcludeDeleteLater );
+    it->setFont( font() );
+    it->ideInit();
+    if ( it->hasHtmlExtension() ) _flags |= FDirtyHtmlHeader;
+    return baseItemToScriptValue( scriptEngine(), it );
 }
 
 QStringList PHIBasePage::itemIds() const
@@ -562,8 +553,25 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
         "\t<script type=\"text/javascript\" src=\"phi.phis?j=transit\"></script>\n"
         "\t<script type=\"text/javascript\" src=\"phi.phis?j=datefmt\"></script>\n"
         "\t<script type=\"text/javascript\" src=\"phi.phis?j=phibase\"></script>\n" );
+
+    const PHIBaseItem *it;
+    const QList <const PHIBaseItem*> children=findChildren<const PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly);
     QByteArray script, indent="\t", tmp;
     script.reserve( 4*1024 );
+    if ( Q_UNLIKELY( _flags & FDirtyHtmlHeader ) ) { // only true if an item was created with createElementById() via ServerScript
+        PHIWID wid;
+        QByteArray ext;
+        foreach ( it, children ) {
+            if ( Q_UNLIKELY( it->hasHtmlExtension() ) ) {
+                ext.clear();
+                wid=it->htmlHeaderExtension( req, ext );
+                if ( wid ) _headerExtensions.insert( wid, ext );
+                ext.clear();
+                wid=it->htmlScriptExtension( req, ext );
+                if ( wid ) _scriptExtensions.insert( wid, ext );
+            }
+        }
+    }
     foreach ( tmp, _scriptExtensions.values() ) script+=tmp;
     foreach ( tmp, _headerExtensions.values() ) out+='\t'+tmp;
     out+=BL( "</head>\n<body" );
@@ -590,8 +598,6 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
             +BL( "\" method=\"post\" enctype=\"multipart/form-data\""
                  " onsubmit=\"return phi.onsubmit();\" accept-charset=\"utf-8\">\n" );
     }
-    const PHIBaseItem *it;
-    const QList <const PHIBaseItem*> children=findChildren<const PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly);
     foreach( it, children ) {
         if ( it->isChild() ) continue; // handled by layouts
         it->html( req, out, script, indent );
