@@ -45,6 +45,7 @@ public:
 public slots:
     QScriptValue checked( const QScriptValue &v=QScriptValue() );
     QScriptValue text( const QScriptValue &v=QScriptValue() );
+    QScriptValue label( const QScriptValue &v=QScriptValue() );
 
 protected slots:
     virtual void slotChanged();

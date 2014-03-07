@@ -91,7 +91,8 @@ void PHICheckBoxItem::setWidgetText( const QString &s )
 {
     QAbstractButton *ab=qobject_cast<QAbstractButton*>(widget());
     if ( !ab ) return;
-    ab->setText( s );
+    QString t=s;
+    ab->setText( t.replace( L1( "\n" ), L1( " " ) ) );
 }
 
 void PHICheckBoxItem::ideUpdateData()
@@ -128,7 +129,7 @@ void PHICheckBoxItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
         script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
         script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
-    script+=BL( ";\n" );
+    script+=BL( ".text('" )+data( DText ).toByteArray().replace( "'", "\\'" ).replace( "\n", " " )+BL( "');\n" );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
     out+=BL( "\">\n" )+indent+BL( "\t<table class=\"phi\"><tr style=\"vertical-align\"><td style=\"" );
@@ -146,8 +147,8 @@ void PHICheckBoxItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
     out+=BL( "\" style=\"position:relative\" value=\"" )+data( DValue ).toByteArray()
         +BL( "\"></td><td style=\"" );
     out+=BL( "\"><label class=\"phi\" for=\"" )+id()+BL( "_phi\" id=\"" )+id()
-        +BL( "_phit\">" )+data( DText ).toByteArray().replace( '\n', BL( "<br>" ) )
-        +BL( "</label></td></tr></table>\n" )+indent+BL( "</div>\n" );
+        +BL( "_phit\"></label></td></tr></table>\n" );
+    out+=indent+BL( "</div>\n" );
 }
 
 void PHICheckBoxItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
@@ -173,6 +174,12 @@ QScriptValue PHICheckBoxItem::text( const QScriptValue &v )
     if ( !v.isValid() ) return realText();
     setText( v.toString() );
     return self();
+}
+
+QScriptValue PHICheckBoxItem::label( const QScriptValue &v )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    return text( v );
 }
 
 QScriptValue PHICheckBoxItem::checked( const QScriptValue &v )
@@ -227,7 +234,7 @@ void PHIRadioButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArra
         script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
         script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
-    script+=BL( ";\n" );
+    script+=BL( ".text('" )+data( DText ).toByteArray().replace( "'", "\\'" ).replace( "\n", " " )+BL( "');\n" );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
     // @todo: implement align?
@@ -246,8 +253,7 @@ void PHIRadioButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArra
     out+=BL( "\" style=\"position:relative\" value=\"" )+data( DValue ).toByteArray()
         +BL( "\"></td><td style=\"" );
     out+=BL( "\"><label class=\"phi\" for=\"" )+id()+BL( "_phi\" id=\"" )+id()
-        +BL( "_phit\">" )+data( DText ).toByteArray().replace( '\n', BL( "<br>" ) )
-        +BL( "</label></td></tr></table>\n" )+indent+BL( "</div>\n" );
+        +BL( "_phit\"></label></td></tr></table>\n" )+indent+BL( "</div>\n" );
 }
 
 void PHIRadioButtonItem::slotChanged()
