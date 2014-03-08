@@ -62,10 +62,10 @@ QByteArray PHIResponseRec::timeEncoded( const QDateTime &dt ) const
 {
     QLocale locale( QLocale::C );
     QByteArray arr=locale.dayName( dt.toUTC().date().dayOfWeek(),
-        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( QStringLiteral( ", dd " ) ).toLatin1()
+        QLocale::ShortFormat ).toUtf8()+dt.toUTC().toString( SL( ", dd " ) ).toUtf8()
         +locale.monthName( dt.toUTC().date().month(),
-        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( QStringLiteral( " yyyy HH:mm:ss" ) )
-        .toLatin1()+" GMT";
+        QLocale::ShortFormat ).toUtf8()+dt.toUTC().toString( SL( " yyyy HH:mm:ss" ) )
+        .toUtf8()+" GMT";
     return arr;
 }
 
@@ -105,10 +105,10 @@ QByteArray PHIResponseRec::createResponseHeader( PHIRC rc, const QString &server
     QDateTime dt=QDateTime::currentDateTime();
     QByteArray tmp="HTTP/1."+QByteArray::number( _minorHttpVer )+' '+QByteArray::number( static_cast<int>(rc) )
         +' '+textForHttpCode( rc )+"\r\n";
-    tmp+="Date: "+locale.dayName( dt.toUTC().date().dayOfWeek(), QLocale::ShortFormat ).toLatin1()
-        +dt.toUTC().toString( QStringLiteral( ", dd " ) ).toLatin1()+locale.monthName( dt.toUTC().date().month(),
-        QLocale::ShortFormat ).toLatin1()+dt.toUTC().toString( QStringLiteral( " yyyy HH:mm:ss" ) ).toLatin1()+" GMT\r\n";
-    tmp+="Server: "+serverString.toUtf8()+"\r\n";
+    tmp+="Date: "+locale.dayName( dt.toUTC().date().dayOfWeek(), QLocale::ShortFormat ).toUtf8()
+        +dt.toUTC().toString( SL( ", dd " ) ).toUtf8()+locale.monthName( dt.toUTC().date().month(),
+        QLocale::ShortFormat ).toUtf8()+dt.toUTC().toString( SL( " yyyy HH:mm:ss" ) ).toUtf8()+" GMT\r\n";
+    tmp+="Server: "+serverString.toLatin1()+"\r\n";
     qDebug( "PHIResponseRec::createResponseHeader(rc=%d)", rc );
     tmp+="Content-Type: "+_contentType+"\r\n";
     if ( rc==PHIRC_HTTP_NOT_MODIFIED ) return tmp;
