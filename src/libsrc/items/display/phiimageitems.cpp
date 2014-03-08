@@ -1004,6 +1004,18 @@ void PHIRolloverItem::saveItemData( QDataStream &out, int version )
     QByteArray arr;
     QDataStream ds( &arr, QIODevice::WriteOnly );
     ds.setVersion( PHI_DSV2 );
+    PHIByteArrayList langs;
+    if ( _imageBookData.isUnparsedStatic() ) langs << PHIData::c();
+    else if ( _imageBookData.isUnparsedTranslated() ) langs=_imageBookData.langs();
+    foreach ( QByteArray l, langs ) {
+        PHIImageHash hash=_imageBookData.imageBook( l );
+        for ( int i=0; i<hash.count(); i++ ) {
+            QImage img=hash.value( QByteArray::number( i ) );
+            img=img.scaled( realSize().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+            hash.insert( QByteArray::number( i ), img );
+        }
+        _imageBookData.setImageBook( hash, l );
+    }
     ds << &_imageBookData;
     out << qCompress( arr, 9 );
 }
@@ -1109,8 +1121,38 @@ void PHIRolloverItem::phisParseData( const PHIDataParser &parser )
 
 void PHIRolloverItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    QByteArray arr=data( DUrl ).toByteArray();
     htmlImages( req, out, script, indent );
-    script+=BL( "$$rollover('" )+id()+BL( "','" )+data( DUrl ).toByteArray().replace( '\'', BL( "\\'" ) )+BL( "');\n" );
+    script+=BL( "$$rollover('" )+id();
+    if ( arr.isEmpty() ) {
+        script+=BL( "',undefined);\n" );
+        return;
+    }
+    script+=BL( "',function(){" );
+    if ( arr.startsWith( "javascript:" ) ) {
+        arr.remove( 0, 11 );
+        script+=arr;
+    } else {
+        arr.replace( '\'', BL( "\\'" ) );
+        script+=BL( "phi.href('" )+arr+BL( "');" );
+    }
+    script+=BL( "});\n" );
+}
+
+QScriptValue PHIRolloverItem::url( const QScriptValue &v )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    if ( !v.isValid() ) return realUrl();
+    setUrl( v.toString() );
+    return self();
+}
+
+QScriptValue PHIRolloverItem::text( const QScriptValue &v )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    if ( !v.isValid() ) return realText();
+    setText( v.toString() );
+    return self();
 }
 
 void PHIRolloverItem::clientPrepareData()
@@ -1118,7 +1160,6 @@ void PHIRolloverItem::clientPrepareData()
     PHIRolloverItem::squeeze();
     removeData( DHoverColor );
     removeData( DHoverBgColor );
-
 }
 
 void PHIRolloverItem::clientInitData()
@@ -1153,7 +1194,12 @@ void PHIRolloverItem::slotImageReady( const QImage &img, int i )
 void PHIRolloverItem::click( const QGraphicsSceneMouseEvent *e )
 {
     Q_UNUSED( e )
-    if ( !realUrl().isEmpty() ) emit linkRequested( realUrl() );
+    if ( realUrl().isEmpty() ) return;
+    if ( realUrl().startsWith( L1( "javascript:" ) ) ) {
+        scriptEngine()->evaluate( realUrl().remove( 0, 11 ) );
+        return;
+    }
+    emit linkRequested( realUrl() );
 }
 
 void PHIRolloverItem::mouseover( const QGraphicsSceneHoverEvent *e )

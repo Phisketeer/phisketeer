@@ -72,11 +72,16 @@ public:
     virtual PHIIntData* intData_1() { return &_startData; }
     virtual PHIIntData* intData_2() { return &_spanData; }
     virtual void ideInit();
+    virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
     inline void setStartAngle( int a ) { setData( DStartAngle, a ); update(); }
     inline void setSpanAngle( int a ) { setData( DSpanAngle, a ); update(); }
     inline int realStartAngle() const { return data( DStartAngle, 0 ).toInt(); }
     inline int realSpanAngle() const { return data( DSpanAngle, 5760 ).toInt(); }
+
+public slots:
+    QScriptValue startAngle( const QScriptValue &v=QScriptValue() );
+    QScriptValue spanAngle( const QScriptValue &v=QScriptValue() );
 
 protected:
     virtual void ideUpdateData();

@@ -370,9 +370,12 @@ void PHIAbstractShapeItem::phisCreateData( const PHIDataParser &parser )
     setImagePath( parser.createImage( createImage() ) );
 }
 
-void PHIAbstractShapeItem::phisParseData(const PHIDataParser &parser)
+void PHIAbstractShapeItem::phisParseData( const PHIDataParser &parser )
 {
-    if ( dirtyFlags() & FDoNotCache ) setImagePath( parser.createImage( createImage(), PHIData::c(), -1 ) );
+    if ( dirtyFlags() & DFColor || dirtyFlags() & DFBackgroundColor || dirtyFlags() & DFDoNotCache ) {
+        setDirtyFlag( DFDoNotCache );
+        setImagePath( parser.createImage( createImage(), PHIData::c(), -1 ) );
+    }
 }
 
 void PHIAbstractShapeItem::clientPrepareData()
@@ -490,6 +493,33 @@ QScriptValue PHIAbstractShapeItem::borderColor( const QScriptValue &c )
     if ( !c.isValid() ) return PHI::colorToString( realOutlineColor() );
     setColor( PHIPalette::Outline, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
     setDirtyFlag( DFBackgroundColor );
+    return self();
+}
+
+QScriptValue PHIAbstractShapeItem::borderWidth( const QScriptValue &w )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    if ( !w.isValid() ) return realPenWidth();
+    setPenWidth( w.toNumber() );
+    setDirtyFlag( DFDoNotCache );
+    return self();
+}
+
+QScriptValue PHIAbstractShapeItem::pattern( const QScriptValue &p )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    if ( !p.isValid() ) return realPattern();
+    setPattern( qBound( 0, p.toInt32(), 15 ) );
+    setDirtyFlag( DFDoNotCache );
+    return self();
+}
+
+QScriptValue PHIAbstractShapeItem::line( const QScriptValue &l )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    if ( !l.isValid() ) return realLine();
+    setLine( qBound( 0, l.toInt32(), 5 ) );
+    setDirtyFlag( DFDoNotCache );
     return self();
 }
 
@@ -934,6 +964,18 @@ void PHIAbstractImageBookItem::saveItemData( QDataStream &out, int version )
     QByteArray arr;
     QDataStream ds( &arr, QIODevice::WriteOnly );
     ds.setVersion( PHI_DSV2 );
+    PHIByteArrayList langs;
+    if ( _imageBookData.isUnparsedStatic() ) langs << PHIData::c();
+    else if ( _imageBookData.isUnparsedTranslated() ) langs=_imageBookData.langs();
+    foreach ( QByteArray l, langs ) {
+        PHIImageHash hash=_imageBookData.imageBook( l );
+        for ( int i=0; i<hash.count(); i++ ) {
+            QImage img=hash.value( QByteArray::number( i ) );
+            img=img.scaled( realSize().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+            hash.insert( QByteArray::number( i ), img );
+        }
+        _imageBookData.setImageBook( hash, l );
+    }
     ds << &_imageBookData;
     out << qCompress( arr, 9 );
 }

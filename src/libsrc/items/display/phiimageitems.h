@@ -292,6 +292,10 @@ public:
     inline PHIVariantHash imageLangPathes() const { return data( DImages ).value<PHIVariantHash>(); }
     inline void setImageLangPathes( const PHIVariantHash &v ) { setData( DImages, qVariantFromValue( v ) ); }
 
+public slots:
+    QScriptValue url( const QScriptValue &v=QScriptValue() );
+    QScriptValue text( const QScriptValue &v=QScriptValue() );
+
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;
     virtual void drawShape( QPainter *p, const QRectF &exposed );

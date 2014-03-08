@@ -146,6 +146,31 @@ void PHIEllipseItem::ideInit()
     _spanData.setInteger( 5760 );
 }
 
+void PHIEllipseItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
+{
+    if ( dirtyFlags() & DFColor || dirtyFlags() & DFBackgroundColor || dirtyFlags() & DFDoNotCache )
+        setImagePath( PHIDataParser::createImage( req, this, createImage(), PHIData::c(), -1 ) );
+    PHIAbstractShapeItem::html( req, out, script, indent );
+}
+
+QScriptValue PHIEllipseItem::startAngle( const QScriptValue &v )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    if ( !v.isValid() ) return realStartAngle();
+    setStartAngle( v.toInt32() );
+    setDirtyFlag( DFDoNotCache );
+    return self();
+}
+
+QScriptValue PHIEllipseItem::spanAngle( const QScriptValue &v )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    if ( !v.isValid() ) return realSpanAngle();
+    setSpanAngle( v.toInt32() );
+    setDirtyFlag( DFDoNotCache );
+    return self();
+}
+
 void PHIEllipseItem::drawShape( QPainter *p, const QRectF& )
 {
     p->setRenderHint( QPainter::Antialiasing );
@@ -208,6 +233,7 @@ void PHIEllipseItem::phisParseData( const PHIDataParser &parser )
 {
     if ( dirtyFlags() & DFInt1 ) setData( DStartAngle, parser.text( &_startData ) );
     if ( dirtyFlags() & DFInt2 ) setData( DSpanAngle, parser.text( &_spanData ) );
+    PHIAbstractShapeItem::phisParseData( parser );
 }
 
 QRectF PHIEllipseItem::boundingRect() const
