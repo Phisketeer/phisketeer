@@ -373,7 +373,7 @@ protected:
     QWidget* widget() const;
     QScriptValue self();
 
-    QImage createImage();
+    QImage createImage() const;
     virtual QRectF boundingRect() const;
     virtual void clientInitData() {}
     virtual void updatePageFont( const QFont &font );

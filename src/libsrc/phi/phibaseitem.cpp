@@ -1394,7 +1394,7 @@ void PHIBaseItem::updateGraphicEffect()
     } else _gw->setGraphicsEffect( 0 );
 }
 
-QImage PHIBaseItem::createImage()
+QImage PHIBaseItem::createImage() const
 {
     qDebug() << "createImage" << boundingRect() << rect();
     QImage img( qRound(boundingRect().width()), qRound(boundingRect().height()), QImage::Format_ARGB32_Premultiplied );
@@ -1402,7 +1402,7 @@ QImage PHIBaseItem::createImage()
     QPainter p( &img );
     QPointF off=boundingRect().topLeft();
     p.translate( -off.x(), -off.y() );
-    paint( &p, QRectF() );
+    const_cast<PHIBaseItem*>(this)->paint( &p, QRectF() );
     p.end();
     return img;
 }
