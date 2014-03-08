@@ -441,7 +441,21 @@ $$=function( s, i, x, y, w, h ) {
           if(b===undefined)return j(id+'_phi').prop('disabled');
           j(id+'_phi').prop('disabled',b); return o;
         };
+        o.accessKey=function( a ) {
+          if ( a===undefined ) return j( id+'_phi' ).attr( 'accesskey' );
+          j( id+'_phi' ).attr( 'accesskey', a ); return this;
+        };
         o.readOnly=function( r ) { return undefined; };
+    }
+    if ( (i>5 && i<10) || i===12 ) {
+        o.val=function( t ) {
+            if ( t===undefined ) return j( id ).val();
+            j( id ).val( t ); return o;
+        };
+        o.text=function( t ) {
+            if ( t===undefined ) return j( id ).val();
+            j( id ).val( t ); return o;
+        };
     }
     if ( i===59 ) {
         j(id).progressbar({value:0});
@@ -770,7 +784,7 @@ $$table=function( s, m, d, n, v, h, ms, chk ) {
 $$rollover=function( s, u )
 {
     var o=$(s);
-    if ( u.length>0 ) o.click(function(){phi.href(u);});
+    if ( u!==undefined ) o.click(u);
     $(s+'_phi_1').hide();
     o.on('mouseover',function(){$(s+'_phi_0').hide();$(s+'_phi_1').show();});
     o.on('mouseout',function(){$(s+'_phi_1').hide();$(s+'_phi_0').show();});
