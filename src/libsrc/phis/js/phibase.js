@@ -367,6 +367,12 @@ $$=function( s, i, x, y, w, h ) {
                j( id ).attr( 'placeholder', t ); return o;
             };
         }
+        if ( i<4 || (i>49 && i<52) || (i>53 && i<55) ) {
+            o.maxLength=function( m ) {
+                if ( m===undefined ) return j(id).attr( 'maxlength' );
+                j( id ).attr( 'maxlength', m ); return o;
+            }
+        }
     }
     if ( i===11 ) {
         o.val=function( t ) {
