@@ -116,7 +116,8 @@ void PHILabelItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QBy
                 +QByteArray::number( qRound(radius) )+BL( "px " )+col+';';
         } else {
             QByteArray prefix=req->agentPrefix();
-            if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
+            if ( req->agentEngine()==PHIRequest::Trident ) prefix=QByteArray();
+            else if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
             else if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()>534 ) prefix=QByteArray();
             else if ( req->agentEngine()==PHIRequest::Presto ) prefix=QByteArray();
             out+=prefix+BL( "box-shadow:" )+QByteArray::number( qRound(xoff) )+"px ";
@@ -609,7 +610,8 @@ void PHIRichTextItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, 
                 +QByteArray::number( qRound(radius) )+BL( "px " )+col+';';
         } else {
             QByteArray prefix=req->agentPrefix();
-            if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
+            if ( req->agentEngine()==PHIRequest::Trident ) prefix=QByteArray();
+            else if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
             else if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()>534 ) prefix=QByteArray();
             else if ( req->agentEngine()==PHIRequest::Presto ) prefix=QByteArray();
             out+=prefix+BL( "box-shadow:" )+QByteArray::number( qRound(xoff) )+"px ";

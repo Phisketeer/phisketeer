@@ -968,8 +968,8 @@ void PHIBaseItem::privateStaticCSS( const PHIRequest *req, QByteArray &out ) con
         // handle native input elements as they change look on changing background-color:
         const PHIAbstractInputItem *inp=qobject_cast<const PHIAbstractInputItem*>(this);
         if ( inp ) {
-            if ( !inp->isButton() && colorRole( PHIPalette::WidgetBase )!=PHIPalette::Base ) {
-                out+=BL( "border-width:1px;background-color:" )+cssColor( bgCol );
+            if ( !inp->isButton() && bgCol!=QColor( Qt::white ) ) {
+                out+=BL( "border-width:1px;border-color:lightgray;background-color:" )+cssColor( bgCol );
             }
         } else out+=BL( "background-color:" )+cssColor( bgCol )+';';
     }
@@ -1185,7 +1185,8 @@ void PHIBaseItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QByt
             _variants.insert( DIEFilter, filter );
         } else {
             QByteArray prefix=req->agentPrefix();
-            if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
+            if ( req->agentEngine()==PHIRequest::Trident ) prefix=QByteArray();
+            else if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
             else if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()>534 ) prefix=QByteArray();
             else if ( req->agentEngine()==PHIRequest::Presto ) prefix=QByteArray();
             QColor c;

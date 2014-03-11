@@ -185,20 +185,6 @@ void PHIRectItem::html( const PHIRequest *req, QByteArray &out, QByteArray &scri
             setAdjustedRect( QRectF( off, realSize() ) );
         }
         if ( hasGraphicEffect() ) PHIBaseItem::cssGraphicEffect( req, out, script );
-        /*
-        if ( effect()->graphicsType()==PHIEffect::GTShadow ) {
-            QByteArray prefix=req->agentPrefix();
-            if ( req->agentEngine()==PHIRequest::Gecko && req->engineMajorVersion()>1 ) prefix=QByteArray();
-            else if ( req->agentEngine()==PHIRequest::WebKit && req->engineMajorVersion()>534 ) prefix=QByteArray();
-            else if ( req->agentEngine()==PHIRequest::Presto ) prefix=QByteArray();
-            QColor c;
-            qreal xOff, yOff, radius;
-            effect()->shadow( c, xOff, yOff, radius );
-            out+=prefix+BL( "box-shadow:" )+QByteArray::number( qRound(xOff) )+"px ";
-            out+=QByteArray::number( qRound(yOff) )+"px ";
-            out+=QByteArray::number( qRound(radius) )+"px "+cssRgba( c )+';';
-        }
-        */
         out+=BL( "\"></div>\n" );
         htmlInitItem( script, false );
         script+=tmp+BL( ";\n" );
