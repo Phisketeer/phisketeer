@@ -378,8 +378,7 @@ QSizeF PHIDateEditItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint )
 void PHIDateEditItem::cssStatic( const PHIRequest *req, QByteArray &out ) const
 {
     Q_UNUSED( req )
-    out+='#'+id()+BL( "_phit{color:" )+cssColor( realColor() )+BL( ";background-color:" )
-        +cssColor( realBackgroundColor() );
+    out+='#'+id()+BL( "_phit{border-width:1px;border-color:lightgray;color:" )+cssColor( realColor() );
     if ( font()!=page()->font() ) out+=';'+cssFont( font() );
     out+=BL( "}\n" );
     out+='#'+id()+BL( " .ui-corner-all{border-radius:0px}\n" );
@@ -404,7 +403,7 @@ void PHIDateEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
 
     htmlInitItem( script, false );
     if ( colorRole( PHIPalette::WidgetText )!=PHIPalette::Text ) script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
-    if ( colorRole( PHIPalette::WidgetBase )!=PHIPalette::Base ) script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
+    if ( realBackgroundColor()!=QColor( Qt::white ) ) script+=BL( ".bgColor('" )+cssColor( realBackgroundColor() )+BL( "')" );
     script+=BL( ";\njQuery('#" )+id()+BL( "_phit').css({cursor:'default'}).datepicker({minDate:new Date(" )
         +QByteArray::number( start.year() )+','+QByteArray::number( start.month()-1 )+','
         +QByteArray::number( start.day() )+BL( "),maxDate:new Date(" )
@@ -415,16 +414,17 @@ void PHIDateEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
         +QByteArray::number( now.day() )+BL( "));});\njQuery('#" )+id()
         +BL( "_phib').button({icons:{primary:'ui-icon-calendar'},text:false})"
             ".click(function(e){e.preventDefault();jQuery('#" )+id()+BL( "_phit').datepicker('show')});\n" );
-    QRectF le=PHIInputTools::adjustedLineEdit( req, rect() ).adjusted( 1, 1, -28, -1 );
+    QRectF le=PHIInputTools::adjustedLineEdit( req, rect() );
+    if ( req->agentEngine()!=PHIRequest::Trident ) le.adjust( 0, 0, 2, 2 );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
     out+=BL( "\">\n" )+indent+BL( "\t<input type=\"hidden\" id=\"" )+id()
         +BL( "_phi\" name=\"" )+id()+BL( "\">\n" )+indent
         +BL( "\t<input type=\"text\" class=\"phi\" id=\"" )+id()
-        +BL( "_phit\" readonly=\"readonly\" style=\"top:" )
+        +BL( "_phit\" readonly=\"readonly\" style=\"padding-left:2px;top:" )
         +QByteArray::number( qRound(le.y()) )+BL( "px;left:" )
         +QByteArray::number( qRound(le.x()) )+BL( "px;width:" )
-        +QByteArray::number( qRound(le.width()) )+BL( "px;height:" )
+        +QByteArray::number( qRound(le.width()-29) )+BL( "px;height:" )
         +QByteArray::number( qRound(le.height()) )+BL( "px\">\n" )+indent
         +BL( "\t<button id=\"" )+id()+BL( "_phib\" style=\"position:absolute;top:0;left:" )
         +QByteArray::number( qRound(realWidth()-24) )+BL( "px;width:24px;height:" )

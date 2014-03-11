@@ -125,7 +125,9 @@ void PHILineEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
 
 void PHILineEditItem::genHtml( const QByteArray &type, const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    setAdjustedRect( PHIInputTools::adjustedLineEdit( req, rect() ) );
+    if ( realBackgroundColor()!=QColor( Qt::white ) && req->agentEngine()!=PHIRequest::Trident )
+        setAdjustedRect( PHIInputTools::adjustedLineEdit( req, rect() ).adjusted( 0, 0, 2, 2 ) );
+    else setAdjustedRect( PHIInputTools::adjustedLineEdit( req, rect() ) );
     htmlInitItem( script, false );
     if ( Q_UNLIKELY( realReadOnly() ) ) script+=BL( ".readOnly(1)" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
@@ -272,7 +274,9 @@ void PHITextAreaItem::setReadOnly( bool b )
 
 void PHITextAreaItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
-    setAdjustedRect( PHIInputTools::adjustedTextArea( req, rect() ) );
+    if ( Q_UNLIKELY( realBackgroundColor()!=QColor( Qt::white ) && req->agentEngine()==PHIRequest::Trident ) )
+        setAdjustedRect( PHIInputTools::adjustedTextArea( req, rect() ).adjusted( 0, 0, 2, 2 ) );
+    else setAdjustedRect( PHIInputTools::adjustedTextArea( req, rect() ) );
     htmlInitItem( script, false );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
         script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
