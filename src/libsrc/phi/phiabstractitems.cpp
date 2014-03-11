@@ -505,7 +505,7 @@ QScriptValue PHIAbstractShapeItem::borderWidth( const QScriptValue &w )
     return self();
 }
 
-QScriptValue PHIAbstractShapeItem::pattern( const QScriptValue &p )
+QScriptValue PHIAbstractShapeItem::patternStyle( const QScriptValue &p )
 {
     if ( !isServerItem() ) return scriptEngine()->undefinedValue();
     if ( !p.isValid() ) return realPattern();
@@ -514,7 +514,7 @@ QScriptValue PHIAbstractShapeItem::pattern( const QScriptValue &p )
     return self();
 }
 
-QScriptValue PHIAbstractShapeItem::line( const QScriptValue &l )
+QScriptValue PHIAbstractShapeItem::lineStyle( const QScriptValue &l )
 {
     if ( !isServerItem() ) return scriptEngine()->undefinedValue();
     if ( !l.isValid() ) return realLine();
@@ -832,6 +832,7 @@ void PHIAbstractImageItem::clientInitData()
 
 QScriptValue PHIAbstractImageItem::src( const QScriptValue &v )
 {
+    if ( !isClientItem() ) return scriptEngine()->undefinedValue();
     if ( !v.isValid() ) {
         if ( imagePath().startsWith( '/' ) ) return QString::fromUtf8( imagePath() );
         return L1( "/phi.phis?i=" )+QString::fromUtf8( imagePath() )+L1( "&t=1" );
@@ -850,9 +851,16 @@ QScriptValue PHIAbstractImageItem::src( const QScriptValue &v )
     return self();
 }
 
+QScriptValue PHIAbstractImageItem::onload( const QScriptValue v )
+{
+    if ( v.isValid() ) return on( SL( "onload" ), v );
+    return trigger( SL( "onload" ) );
+}
+
 void PHIAbstractImageItem::slotImageReady( const QImage &image )
 {
     trigger( L1( "load" ) );
+    trigger( L1( "onload" ) );
     setImage( image );
 }
 

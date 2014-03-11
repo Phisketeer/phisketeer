@@ -134,8 +134,8 @@ public slots:
     virtual QScriptValue color( const QScriptValue &c=QScriptValue() );
     virtual QScriptValue borderColor( const QScriptValue &c=QScriptValue() );
     virtual QScriptValue borderWidth( const QScriptValue &w=QScriptValue() );
-    virtual QScriptValue pattern( const QScriptValue &p=QScriptValue() );
-    virtual QScriptValue line( const QScriptValue &l=QScriptValue() );
+    virtual QScriptValue patternStyle( const QScriptValue &p=QScriptValue() );
+    virtual QScriptValue lineStyle( const QScriptValue &l=QScriptValue() );
 
 protected:
     void setColorRole( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr );
@@ -181,6 +181,7 @@ public:
 
 public slots:
     QScriptValue src( const QScriptValue &v=QScriptValue() );
+    QScriptValue onload( const QScriptValue v=QScriptValue() );
 
 protected:
     virtual void ideUpdateData();
