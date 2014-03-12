@@ -47,6 +47,8 @@ protected slots:
     void on__sslCertTool_clicked();
     void on__tempTool_clicked();
     void on__rootTool_clicked();
+    void on__viewLog_clicked();
+    void on__clearLog_clicked();
     void slotCheckService();
 
 protected:

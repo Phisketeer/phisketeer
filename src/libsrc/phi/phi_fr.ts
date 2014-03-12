@@ -130,12 +130,12 @@
 <context>
     <name>PHIAbstractImageBookItem</name>
     <message>
-        <location filename="phiabstractitems.cpp" line="870"/>
+        <location filename="phiabstractitems.cpp" line="908"/>
         <source>Image not available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiabstractitems.cpp" line="871"/>
+        <location filename="phiabstractitems.cpp" line="909"/>
         <source>Image is loading...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -143,17 +143,17 @@
 <context>
     <name>PHIAbstractImageItem</name>
     <message>
-        <location filename="phiabstractitems.cpp" line="766"/>
+        <location filename="phiabstractitems.cpp" line="796"/>
         <source>Image not available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiabstractitems.cpp" line="767"/>
+        <location filename="phiabstractitems.cpp" line="797"/>
         <source>Image is loading...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiabstractitems.cpp" line="810"/>
+        <location filename="phiabstractitems.cpp" line="841"/>
         <source>Image &apos;src&apos; path must be absolute for &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -161,14 +161,14 @@
 <context>
     <name>PHIAbstractShapeItem</name>
     <message>
-        <location filename="phiabstractitems.cpp" line="617"/>
-        <location filename="phiabstractitems.cpp" line="634"/>
-        <location filename="phiabstractitems.cpp" line="646"/>
+        <location filename="phiabstractitems.cpp" line="647"/>
+        <location filename="phiabstractitems.cpp" line="664"/>
+        <location filename="phiabstractitems.cpp" line="676"/>
         <source>Pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiabstractitems.cpp" line="624"/>
+        <location filename="phiabstractitems.cpp" line="654"/>
         <source>Outline</source>
         <translation type="unfinished"></translation>
     </message>
@@ -176,12 +176,12 @@
 <context>
     <name>PHIBasePage</name>
     <message>
-        <location filename="phibasepage.cpp" line="357"/>
+        <location filename="phibasepage.cpp" line="348"/>
         <source>Could not write system CSS file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phibasepage.cpp" line="515"/>
+        <location filename="phibasepage.cpp" line="506"/>
         <source>Could not create theme &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>

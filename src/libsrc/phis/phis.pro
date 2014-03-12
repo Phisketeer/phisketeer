@@ -29,7 +29,8 @@ HEADERS += \
     phisserverrequest.h \
     phisscriptobjects.h \
     phisprocessor.h \
-    phisserverconf.h
+    phisserverconf.h \
+    phislogviewer.h
 SOURCES += \
     phis.cpp \
     phisparent.cpp \
@@ -43,7 +44,8 @@ SOURCES += \
     phisserverrequest.cpp \
     phisscriptobjects.cpp \
     phisprocessor.cpp \
-    phisserverconf.cpp
+    phisserverconf.cpp \
+    phislogviewer.cpp
 include( ../../../phiconf.pri )
 VERSION = $$PHIRELEASE
 TEMPLATE = lib

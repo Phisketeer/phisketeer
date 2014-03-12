@@ -94,6 +94,19 @@
     </message>
 </context>
 <context>
+    <name>PHISLogViewer</name>
+    <message>
+        <location filename="phislogviewer.cpp" line="45"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phislogviewer.cpp" line="45"/>
+        <source>Could not open log file &apos;%1&apos;. If you are using the Apache module examin the Apache logs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PHISLogWriter</name>
     <message>
         <location filename="phislogwriter.cpp" line="90"/>
@@ -334,96 +347,107 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
 <context>
     <name>PHISServerConf</name>
     <message>
-        <location filename="phisserverconf.cpp" line="40"/>
-        <source>PhisConf %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="phisserverconf.cpp" line="112"/>
+        <location filename="phisserverconf.cpp" line="113"/>
         <source>Missing privileges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="112"/>
+        <location filename="phisserverconf.cpp" line="113"/>
         <source>Can not write to the config file
 &apos;%1&apos;. Try as &apos;root&apos; or &apos;Administrator&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="227"/>
+        <location filename="phisserverconf.cpp" line="228"/>
         <source>Overwrite config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="228"/>
+        <location filename="phisserverconf.cpp" line="229"/>
         <source>This will store your current configuration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="229"/>
+        <location filename="phisserverconf.cpp" line="230"/>
         <source>Are you sure you want to continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="238"/>
-        <location filename="phisserverconf.cpp" line="254"/>
-        <location filename="phisserverconf.cpp" line="270"/>
-        <location filename="phisserverconf.cpp" line="332"/>
+        <location filename="phisserverconf.cpp" line="239"/>
+        <location filename="phisserverconf.cpp" line="255"/>
+        <location filename="phisserverconf.cpp" line="271"/>
+        <location filename="phisserverconf.cpp" line="319"/>
+        <location filename="phisserverconf.cpp" line="357"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="239"/>
+        <location filename="phisserverconf.cpp" line="240"/>
         <source>Could not start the Phis Web service.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="255"/>
+        <location filename="phisserverconf.cpp" line="256"/>
         <source>Could not stop the Phis Web service.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="270"/>
+        <location filename="phisserverconf.cpp" line="271"/>
         <source>Could not clear the server cache.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="278"/>
+        <location filename="phisserverconf.cpp" line="279"/>
         <source>Base directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="286"/>
+        <location filename="phisserverconf.cpp" line="287"/>
         <source>Mime types file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="293"/>
+        <location filename="phisserverconf.cpp" line="294"/>
         <source>Log directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="300"/>
+        <location filename="phisserverconf.cpp" line="301"/>
         <source>Document root</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="307"/>
-        <source>Temporary directory</source>
+        <location filename="phisserverconf.cpp" line="319"/>
+        <source>Could not access &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="314"/>
-        <source>SSL certificate file</source>
+        <location filename="phisserverconf.cpp" line="322"/>
+        <source>Clear log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisserverconf.cpp" line="321"/>
-        <source>SSL private key file</source>
+        <location filename="phisserverconf.cpp" line="323"/>
+        <source>Do you really want to clear the content of the log file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="phisserverconf.cpp" line="332"/>
+        <source>Temporary directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phisserverconf.cpp" line="339"/>
+        <source>SSL certificate file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phisserverconf.cpp" line="346"/>
+        <source>SSL private key file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phisserverconf.cpp" line="357"/>
         <source>Current virtual hostname already exists.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -561,12 +585,12 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
         <location filename="serverconf.ui" line="89"/>
         <location filename="serverconf.ui" line="110"/>
         <location filename="serverconf.ui" line="307"/>
-        <location filename="serverconf.ui" line="462"/>
-        <location filename="serverconf.ui" line="483"/>
-        <location filename="serverconf.ui" line="546"/>
-        <location filename="serverconf.ui" line="557"/>
-        <location filename="serverconf.ui" line="597"/>
-        <location filename="serverconf.ui" line="618"/>
+        <location filename="serverconf.ui" line="490"/>
+        <location filename="serverconf.ui" line="511"/>
+        <location filename="serverconf.ui" line="574"/>
+        <location filename="serverconf.ui" line="585"/>
+        <location filename="serverconf.ui" line="625"/>
+        <location filename="serverconf.ui" line="646"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -592,13 +616,13 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
     </message>
     <message>
         <location filename="serverconf.ui" line="148"/>
-        <location filename="serverconf.ui" line="396"/>
+        <location filename="serverconf.ui" line="424"/>
         <source>Interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="serverconf.ui" line="158"/>
-        <location filename="serverconf.ui" line="419"/>
+        <location filename="serverconf.ui" line="447"/>
         <source>Port</source>
         <translation type="unfinished"></translation>
     </message>
@@ -638,88 +662,98 @@ The item from the master page &apos;%3&apos; will be discarded!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="320"/>
+        <location filename="serverconf.ui" line="335"/>
+        <source>View log file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="serverconf.ui" line="342"/>
+        <source>Clear log file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="serverconf.ui" line="351"/>
         <source>Log filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="329"/>
+        <location filename="serverconf.ui" line="357"/>
         <source>Critical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="336"/>
+        <location filename="serverconf.ui" line="364"/>
         <source> User (JavaScript)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="343"/>
+        <location filename="serverconf.ui" line="371"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="350"/>
+        <location filename="serverconf.ui" line="378"/>
         <source>Trace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="357"/>
+        <location filename="serverconf.ui" line="385"/>
         <source>Warnings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="364"/>
+        <location filename="serverconf.ui" line="392"/>
         <source>Debug</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="375"/>
+        <location filename="serverconf.ui" line="403"/>
         <source>SSL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="381"/>
+        <location filename="serverconf.ui" line="409"/>
         <source>Enable SSL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="452"/>
+        <location filename="serverconf.ui" line="480"/>
         <source>Certificate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="473"/>
+        <location filename="serverconf.ui" line="501"/>
         <source>Private key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="517"/>
+        <location filename="serverconf.ui" line="545"/>
         <source>Virtual hosts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="526"/>
-        <location filename="serverconf.ui" line="629"/>
+        <location filename="serverconf.ui" line="554"/>
+        <location filename="serverconf.ui" line="657"/>
         <source>Host</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="531"/>
+        <location filename="serverconf.ui" line="559"/>
         <source>Document root</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="536"/>
+        <location filename="serverconf.ui" line="564"/>
         <source>Temp dir</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="587"/>
+        <location filename="serverconf.ui" line="615"/>
         <source>Root</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="serverconf.ui" line="608"/>
+        <location filename="serverconf.ui" line="636"/>
         <source>Temp</source>
         <translation type="unfinished"></translation>
     </message>

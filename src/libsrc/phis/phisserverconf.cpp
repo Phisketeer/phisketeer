@@ -31,6 +31,7 @@
 #include "phislogwriter.h"
 #include "phisparent.h"
 #include "phinetmanager.h"
+#include "phislogviewer.h"
 
 PHISServerConf::PHISServerConf( QWidget *parent )
     : QDialog( parent, Qt::Sheet | Qt::WindowMaximizeButtonHint )
@@ -300,6 +301,30 @@ void PHISServerConf::on__rootTool_clicked()
     QString file=QFileDialog::getExistingDirectory( this, tr( "Document root" ), _root->text() );
     if ( file.isEmpty() ) return;
     _root->setText( file );
+}
+
+void PHISServerConf::on__viewLog_clicked()
+{
+    PHISLogViewer::instance()->raise();
+}
+
+void PHISServerConf::on__clearLog_clicked()
+{
+    QSettings *s=phiApp->serverSettings();
+    s->beginGroup( PHI::defaultString() );
+    QString logFile=s->value( L1( "LogDir" ), phiApp->dataPath()+QDir::toNativeSeparators( L1( "/log" ) ) ).toString();
+    s->endGroup();
+    logFile.append( QDir::toNativeSeparators( L1( "/error.log" ) ) );
+    if ( !QFile::exists( logFile ) ) {
+        QMessageBox::warning( this, tr( "Error" ), tr( "Could not access '%1'." ).arg( logFile ), QMessageBox::Ok );
+        return;
+    }
+    QMessageBox::Button res=QMessageBox::warning( this, tr( "Clear log" ),
+        tr( "Do you really want to clear the content of the log file?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
+    if ( res==QMessageBox::No ) return;
+    QFile f( logFile );
+    f.open( QIODevice::WriteOnly );
+    f.close();
 }
 
 void PHISServerConf::on__tempTool_clicked()

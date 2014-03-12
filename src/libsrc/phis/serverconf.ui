@@ -54,7 +54,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="serverconf.qrc">:/phi/logo</pixmap>
+        <pixmap resource="../phia/phia.qrc">:/phi/logo</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -89,7 +89,7 @@
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="serverconf.qrc">
+          <iconset resource="../phia/phia.qrc">
            <normaloff>:/gnome/folder</normaloff>:/gnome/folder</iconset>
          </property>
         </widget>
@@ -110,7 +110,7 @@
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="serverconf.qrc">
+          <iconset resource="../phia/phia.qrc">
            <normaloff>:/gnome/folder</normaloff>:/gnome/folder</iconset>
          </property>
         </widget>
@@ -307,8 +307,39 @@
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="serverconf.qrc">
+            <iconset resource="../phia/phia.qrc">
              <normaloff>:/gnome/folder</normaloff>:/gnome/folder</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="_viewLog">
+           <property name="text">
+            <string>View log file</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="_clearLog">
+           <property name="text">
+            <string>Clear log file</string>
            </property>
           </widget>
          </item>
@@ -318,9 +349,6 @@
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>Log filter</string>
-         </property>
-         <property name="flat">
-          <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
@@ -462,7 +490,7 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="serverconf.qrc">
+             <iconset resource="../phia/phia.qrc">
               <normaloff>:/gnome/folder</normaloff>:/gnome/folder</iconset>
             </property>
            </widget>
@@ -483,7 +511,7 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="serverconf.qrc">
+             <iconset resource="../phia/phia.qrc">
               <normaloff>:/gnome/folder</normaloff>:/gnome/folder</iconset>
             </property>
            </widget>
@@ -500,7 +528,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="serverconf.qrc">:/gnome/secure</pixmap>
+             <pixmap resource="../phia/phia.qrc">:/gnome/secure</pixmap>
             </property>
             <property name="scaledContents">
              <bool>true</bool>
@@ -557,7 +585,7 @@
               <string>...</string>
              </property>
              <property name="icon">
-              <iconset resource="serverconf.qrc">
+              <iconset resource="../phia/phia.qrc">
                <normaloff>:/gnome/remove</normaloff>:/gnome/remove</iconset>
              </property>
             </widget>
@@ -597,7 +625,7 @@
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="serverconf.qrc">
+            <iconset resource="../phia/phia.qrc">
              <normaloff>:/gnome/folder</normaloff>:/gnome/folder</iconset>
            </property>
           </widget>
@@ -618,7 +646,7 @@
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="serverconf.qrc">
+            <iconset resource="../phia/phia.qrc">
              <normaloff>:/gnome/folder</normaloff>:/gnome/folder</iconset>
            </property>
           </widget>
@@ -651,7 +679,51 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>_configCombo</tabstop>
+  <tabstop>_tab</tabstop>
+  <tabstop>_baseDir</tabstop>
+  <tabstop>_baseDirTool</tabstop>
+  <tabstop>_mime</tabstop>
+  <tabstop>_mimeTool</tabstop>
+  <tabstop>_email</tabstop>
+  <tabstop>_index</tabstop>
+  <tabstop>_interface</tabstop>
+  <tabstop>_port</tabstop>
+  <tabstop>_keepAlive</tabstop>
+  <tabstop>_winStartupCheck</tabstop>
+  <tabstop>_start</tabstop>
+  <tabstop>_stop</tabstop>
+  <tabstop>_clearCache</tabstop>
+  <tabstop>_logDir</tabstop>
+  <tabstop>_logDirTool</tabstop>
+  <tabstop>_viewLog</tabstop>
+  <tabstop>_clearLog</tabstop>
+  <tabstop>_logCritical</tabstop>
+  <tabstop>_logError</tabstop>
+  <tabstop>_logWarn</tabstop>
+  <tabstop>_logUser</tabstop>
+  <tabstop>_logTrace</tabstop>
+  <tabstop>_logDebug</tabstop>
+  <tabstop>_sslBox</tabstop>
+  <tabstop>_sslInterface</tabstop>
+  <tabstop>_sslPort</tabstop>
+  <tabstop>_sslCert</tabstop>
+  <tabstop>_sslCertTool</tabstop>
+  <tabstop>_sslKey</tabstop>
+  <tabstop>_sslKeyTool</tabstop>
+  <tabstop>_virtualTree</tabstop>
+  <tabstop>_addTool</tabstop>
+  <tabstop>_delTool</tabstop>
+  <tabstop>_host</tabstop>
+  <tabstop>_root</tabstop>
+  <tabstop>_rootTool</tabstop>
+  <tabstop>_temp</tabstop>
+  <tabstop>_tempTool</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources>
+  <include location="../phia/phia.qrc"/>
   <include location="serverconf.qrc"/>
  </resources>
  <connections>
@@ -662,8 +734,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>254</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -678,8 +750,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>322</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
