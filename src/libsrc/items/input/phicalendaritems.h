@@ -38,6 +38,7 @@ public:
     virtual PHIWID wid() const { return Calendar; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/calendar" ) ); }
     virtual void ideInit();
+    virtual bool useTextEditor() const { return true; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const;
     virtual PHIWID htmlScriptExtension( const PHIRequest *req, QByteArray &script ) const;

@@ -38,6 +38,7 @@ public:
     virtual bool isWidthChangeable() const { return false; }
     virtual bool isHeightChangeable() const { return false; }
     virtual bool isFocusable() const { return false; }
+    virtual bool useTextEditor() const { return true; }
 
 public slots:
     virtual QScriptValue readOnly( const QScriptValue &r=QScriptValue() ) { Q_UNUSED( r ) return QScriptValue( QScriptValue::UndefinedValue ); }

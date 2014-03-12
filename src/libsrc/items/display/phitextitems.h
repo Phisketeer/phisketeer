@@ -37,6 +37,7 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/label" ) ); }
     virtual void setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col );
     virtual void ideInit();
+    virtual bool useTextEditor() const { return true; }
     bool isHtmlText() const { return data( DHtmlText, false ).toBool(); }
     void setHtmlText( bool b ) { if ( !b ) removeData( DHtmlText ); else setData( DHtmlText, b ); }
 

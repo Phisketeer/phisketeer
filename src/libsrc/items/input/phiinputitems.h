@@ -38,6 +38,7 @@ public:
     virtual PHIWID wid() const { return LineEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
     virtual void ideInit();
+    virtual bool useTextEditor() const { return true; }
     virtual PHITextData* placeholderData() { return &_placeholderData; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
     virtual QString realValue() const;
@@ -202,6 +203,7 @@ public:
     virtual PHIWID wid() const { return NumberEdit; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/lineedit" ) ); }
     virtual void ideInit();
+    virtual bool useTextEditor() const { return true; }
     virtual void setValue( const QString &v );
     virtual QString realValue() const;
     virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &headerOut ) const;

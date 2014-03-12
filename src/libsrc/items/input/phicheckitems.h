@@ -38,6 +38,7 @@ public:
     virtual void ideInit();
     virtual void setChecked( bool b );
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual bool useTextEditor() const { return true; }
     virtual bool hasValue() const { return true; }
     virtual QString realValue() const { return QString::fromUtf8( data( DValue ).toByteArray() ); }
     virtual void setValue( const QString &v ) { setData( DValue, v.toUtf8() ); }

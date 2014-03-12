@@ -90,7 +90,6 @@ public:
     virtual bool isHeightChangeable() const { return false; }
     virtual bool isWidthChangeable() const { return false; }
     virtual PHITextData* textData() { return &_textData; }
-    virtual bool hasText() const { return true; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
     inline void setText( const QString &s ) { setData( DSvgSource, s.toLatin1() ); initWidget(); }
@@ -216,7 +215,6 @@ public:
     virtual PHIWID wid() const { return Canvas; }
     virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/rect" ) ); }
     virtual PHITextData* textData() { return &_textData; }
-    virtual bool hasText() const { return true; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
     inline void setText( const QString &s ) { setData( DCanvasSource, s.toLatin1() ); initWidget(); }
@@ -279,7 +277,7 @@ public:
     QColor realHoverBgColor() const;
 
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
-    virtual bool hasText() const { return true; }
+    virtual bool useTextEditor() const { return true; }
     virtual PHITextData* textData() { return &_textData; }
     virtual bool hasImages() const { return true; }
     virtual PHIImageBookData* imageBookData() { return &_imageBookData; }

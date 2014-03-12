@@ -238,7 +238,6 @@ public: // not usable by script engine
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint=QSizeF() ) const; // return invalid size to call basic implementation
     QByteArray save( int version );
 
-    inline virtual bool hasText() const { return false; }
     inline virtual bool hasSingleImage() const { return false; }
     inline virtual bool hasImages() const { return false; }
     inline virtual bool hasUrl() const { return false; }
@@ -271,6 +270,7 @@ public: // not usable by script engine
     virtual QString listName() const=0;
     virtual QString description() const=0;
     virtual bool isPrivateItem() const { return false; }
+    virtual bool useTextEditor() const { return false; }
     virtual PHITextData* textData() { return 0; }
     virtual PHIImageData* imageData() { return 0; }
     virtual PHIImageBookData* imageBookData() { return 0; }

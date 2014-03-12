@@ -72,7 +72,6 @@ protected:
     virtual void ideDragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void ideDropEvent( QGraphicsSceneDragDropEvent *event );
-    virtual bool hasText() const { return true; }
     virtual PHITextData* textData() { return &_textData; }
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
@@ -316,7 +315,6 @@ protected:
     virtual void squeeze();
     virtual void saveItemData( QDataStream &out, int version );
     virtual void loadItemData( QDataStream &in, int version );
-    virtual bool hasText() const { return true; }
     virtual PHITextData* textData() { return &_textData; }
     virtual bool paint( QPainter *p, const QRectF &exposed );
     virtual void drawShape( QPainter *p, const QRectF &exposed );

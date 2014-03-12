@@ -39,6 +39,7 @@ public:
     virtual PHIWID wid() const { return SubmitButton; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/submit" ) ); }
     virtual void ideInit();
+    virtual bool useTextEditor() const { return true; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 public slots:

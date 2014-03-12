@@ -38,12 +38,13 @@ public:
     PHIGraphicTextItem( const PHIGraphicTextItem &it ) : PHIAbstractShapeItem( it ), _textData( it._textData ) {}
     virtual ~PHIGraphicTextItem() {}
 
-    inline virtual PHIWID wid() const { return GraphText; }
+    virtual PHIWID wid() const { return GraphText; }
     virtual QString listName() const { return tr( "Graphic text" ); }
     virtual QString description() const { return tr( "Draws colored graphical text." ); }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/graphtext" ) ); }
     virtual void ideInit();
     virtual PHITextData* textData() { return &_textData; }
+    virtual bool useTextEditor() const { return true; }
 
     inline void setText( const QString &t ) { setData( DText, t.toUtf8() ); resize( graphicSize( t ) ); _image=graphicImage( t ); update(); }
     inline QString realText() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
@@ -56,7 +57,6 @@ protected:
     QSizeF graphicSize( const QString &text ) const;
     QImage graphicImage( const QString &text ) const;
 
-    virtual bool hasText() const { return true; }
     virtual bool isWidthChangeable() const;
     virtual bool isHeightChangeable() const;
     virtual void drawShape( QPainter *painter, const QRectF &r );
