@@ -228,6 +228,7 @@ public: // not usable by script engine
     void setTransformOrigin( const QPointF &pos );
     void setTransformation( qreal hs, qreal vs, qreal xRot, qreal yRot, qreal zRot );
     void setZIndex( qint16 idx );
+    void setCursor( Qt::CursorShape cur );
     void load( const QByteArray &in, int version );
     void privateUpdateData();
     void privateStaticCSS( const PHIRequest *req, QByteArray &out ) const;
@@ -366,7 +367,6 @@ protected:
     inline void removeData( quint8 t ) { _variants.remove( t ); }
     inline QString realAccessKey() const { return QString::fromUtf8( data( DAccessKey ).toByteArray() ); }
     void setAccessKey( const QString &s );
-    void setCursor( Qt::CursorShape cur );
     void slideUp( int duration, const QString &ease );
     void slideDown( int duration, const QString &ease );
     void setWidget( QWidget* );

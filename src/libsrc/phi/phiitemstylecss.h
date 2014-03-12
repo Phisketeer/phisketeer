@@ -21,6 +21,7 @@
 
 #include <QObject>
 #include <QRegularExpression>
+#include <QCursor>
 #include "phibaseitem.h"
 #include "phieffect.h"
 #include "phi.h"
@@ -64,7 +65,7 @@ public slots:
     inline void rotate( quint8 axis=0x4, qreal stepx=0, qreal stepy=0, qreal stepz=1. )
         { _it->rotate( axis, stepx, stepy, stepz ); }
     inline void clear() { _it->clearEffects(); }
-    inline void stopAnimations() { /* @todo: stop anim */ }
+    inline void stopAnimations() { _it->stop(); }
 
 private:
     PHIBaseItem *_it;
@@ -83,7 +84,7 @@ class PHIItemStyleCSS : public QObject
     Q_PROPERTY( qreal opacity WRITE setOpacity READ opacity )
     Q_PROPERTY( qint16 zIndex WRITE setZIndex READ zIndex )
     Q_PROPERTY( QStringList properties READ properties )
-    /*
+
     Q_PROPERTY( QString borderRadius WRITE setBorderRadius READ borderRadius )
     Q_PROPERTY( quint8 line WRITE setLine READ line )
     Q_PROPERTY( quint8 pattern WRITE setPattern READ pattern )
@@ -107,7 +108,6 @@ class PHIItemStyleCSS : public QObject
     Q_PROPERTY( qreal skewX WRITE setXSkew READ xSkew )
     Q_PROPERTY( qreal skewY WRITE setYSkew READ ySkew )
     Q_PROPERTY( QString cursor WRITE setCursor READ cursor )
-    */
 
 public:
     explicit PHIItemStyleCSS( PHIDomItem* );
@@ -115,68 +115,84 @@ public:
 
 public slots:
     // CSS:
-    inline QString left() const { return QString::number( _it->realX() )+QLatin1String( "px" ); }
+    inline QString left() const { return QString::number( _it->realX() )+L1( "px" ); }
     inline void setLeft( const QString &x ) { _it->setX( toReal( x ) ); }
-    inline QString top() const { return QString::number( _it->realY() )+QLatin1String( "px" ); }
+    inline QString top() const { return QString::number( _it->realY() )+L1( "px" ); }
     inline void setTop( const QString &y ) { _it->setY( toReal( y ) ); }
     inline qint16 zIndex() const { return _it->realZIndex(); }
     inline void setZIndex( qint16 z ) { _it->setZIndex( z ); }
-    inline QString height() const { return QString::number( _it->realHeight() )+QLatin1String( "px" ); }
+    inline QString height() const { return QString::number( _it->realHeight() )+L1( "px" ); }
     inline void setHeight( const QString &h ) { _it->setHeight( toReal( h ) ); }
-    inline QString width() const { return QString::number( _it->realWidth() )+QLatin1String( "px" ); }
+    inline QString width() const { return QString::number( _it->realWidth() )+L1( "px" ); }
     inline void setWidth( const QString &w ) { _it->setWidth( toReal( w ) ); }
-    /*
-    inline void setColor( const QString &c ) { _it->setColor( c ); }
-    inline QString color() const { return _it->color().name(); }
-    inline void setBackgroundColor( const QString &c ) { _it->setOutlineColor( c ); }
-    inline QString backgroundColor() const { return _it->outlineColor().name(); }
-    QString visibility() const;
-    void setVisibility( const QString& );
-    inline void setBorderRadius( const QString &r ) {
-        QString rr=r; _it->setBorderRadius( rr.replace( QStringLiteral( "px" ), QString() ).toShort() ); }
-    inline QString borderRadius() const { return QString::number( _it->borderRadius() )+QLatin1String( "px" ); }
-    inline QString cursor() const { return QString::fromLatin1( _it->cursor() ); }
-    inline void setCursor( const QString &c ) { _it->setCursor( c.toLatin1() ); }
-*/
+    inline void setColor( const QString &c ) {
+        _it->setColor( PHIPalette::Foreground, PHIPalette::Custom, PHI::colorFromString( c ) );
+        _it->setColor( PHIPalette::WidgetText, PHIPalette::Custom, PHI::colorFromString( c ) );
+    }
+    inline QString color() const {
+        if ( _it->colorForRole( PHIPalette::Foreground ).isValid() ) return _it->colorForRole( PHIPalette::Foreground ).name();
+        if ( _it->colorForRole( PHIPalette::WidgetText ).isValid() ) return _it->colorForRole( PHIPalette::WidgetText ).name();
+        return QString( L1( "#000000" ) );
+    }
+    inline void setBackgroundColor( const QString &c ) {
+        _it->setColor( PHIPalette::Background, PHIPalette::Custom, PHI::colorFromString( c ) );
+        _it->setColor( PHIPalette::WidgetBase, PHIPalette::Custom, PHI::colorFromString( c ) );
+    }
+    inline QString backgroundColor() const {
+        if ( _it->colorForRole( PHIPalette::Background ).isValid() ) return _it->colorForRole( PHIPalette::Background ).name();
+        if ( _it->colorForRole( PHIPalette::WidgetBase ).isValid() ) return _it->colorForRole( PHIPalette::WidgetBase ).name();
+        return QString( L1( "#000000" ) );
+    }
+    inline QString visibility() const { if ( _it->realVisible() ) return QString( L1( "visible" ) ); return QString( L1( "hidden" ) ); }
+    inline void setVisibility( const QString &s ) {
+        if ( s==L1( "visible" ) ) _it->setVisible( true );
+        else if ( s==L1( "hidden" ) ) _it->setVisible( false );
+    }
+    inline void setBorderRadius( const QString &r ) { _it->setProperty( "_borderRadius", toNumber( r ) ); }
+    inline QString borderRadius() const { return QString::number( _it->property( "_borderRadius" ).toInt() )+L1( "px" ); }
+    inline QString cursor() const { return QString::fromLatin1( PHI::toCursorString( _it->graphicsWidget()->cursor().shape() ) ); }
+    inline void setCursor( const QString &c ) { _it->setCursor( PHI::toCursorShape( c.toLatin1() ) ); }
+
     // PHI extensions
     inline qreal opacity() const { return _it->realOpacity(); }
     inline void setOpacity( qreal o ) { _it->setOpacity( o ); }
-/*
-    inline void setPattern( quint8 p ) { _it->setPattern( p ); }
-    inline quint8 pattern() const { return _it->pattern(); }
-    inline void setLine( quint8 l ) { _it->setLine( l ); }
-    inline quint8 line() const { return _it->line(); }
-    inline void setRolloverTextColor( const QString &c ) { _it->setRolloverTextColor( c ); }
-    inline QString rolloverTextColor() const { return _it->rolloverTextColor().name(); }
-    inline void setRolloverBackgroundColor( const QString &c ) { _it->setRolloverBackgroundColor( c ); }
-    inline QString rolloverBackgroundColor() const { return _it->rolloverBackgroundColor().name(); }
-    inline void setOutlineColor( const QString &c ) { _it->setOutlineColor( c ); }
-    inline QString outlineColor() const { return _it->outlineColor().name(); }
-    inline void setPenWidth( qreal w ) { _it->setPenWidth( w ); }
-    inline qreal penWidth() const { return _it->penWidth(); }
-    inline void setSpanAngle( qint16 a ) { _it->setSpanAngle( a ); }
-    inline qint16 spanAngle() const { return _it->spanAngle(); }
-    inline void setStartAngle( qint16 a ) { _it->setStartAngle( a ); }
-    inline qint16 startAngle() const { return _it->startAngle(); }
+
+    // deprecated
+    inline void setPattern( quint8 p ) { _it->setProperty( "_pattern", p ); }
+    inline quint8 pattern() const { return _it->property( "_pattern" ).value<quint8>(); }
+    inline void setLine( quint8 l ) { _it->setProperty( "_line", l ); }
+    inline quint8 line() const { return _it->property( "_line" ).value<quint8>(); }
+    inline void setRolloverTextColor( const QString &c ) { _it->setColor( PHIPalette::Hover, PHIPalette::Custom, PHI::colorFromString( c ) ); }
+    inline QString rolloverTextColor() const { return _it->colorForRole( PHIPalette::Hover ).name(); }
+    inline void setRolloverBackgroundColor( const QString &c ) { _it->setColor( PHIPalette::HoverBackground, PHIPalette::Custom, PHI::colorFromString( c ) ); }
+    inline QString rolloverBackgroundColor() const { return _it->colorForRole( PHIPalette::HoverBackground ).name(); }
+    inline void setOutlineColor( const QString &c ) { setBackgroundColor( c ); }
+    inline QString outlineColor() const { return backgroundColor(); }
+    inline void setPenWidth( qreal w ) { _it->setProperty( "_penWidth", w ); }
+    inline qreal penWidth() const { return _it->property( "_penWidth" ).toReal(); }
+    inline void setSpanAngle( qint16 a ) { _it->setProperty( "_spanAngle", a ); }
+    inline qint16 spanAngle() const { return _it->property( "_spanAngle" ).value<qint16>(); }
+    inline void setStartAngle( qint16 a ) { _it->setProperty( "_startAngle", a ); }
+    inline qint16 startAngle() const { return _it->property( "_startAngle" ).value<qint16>(); }
     inline void setXRotation( qreal xr ) { _it->setXRotation( xr ); }
     inline qreal xRotation() const { return _it->xRotation(); }
     inline void setYRotation( qreal yr ) { _it->setYRotation( yr ); }
     inline qreal yRotation() const { return _it->yRotation(); }
     inline void setZRotation( qreal zr ) { _it->setZRotation( zr ); }
     inline qreal zRotation() const { return _it->zRotation(); }
-    inline void setHShear( qreal hs ) { _it->setHShear( hs ); }
-    inline qreal hShear() const { return _it->hShear(); }
-    inline void setVShear( qreal vs ) { _it->setVShear( vs ); }
-    inline qreal vShear() const { return _it->vShear(); }
-    inline void setXTranslation( qreal xt ) { _it->setXTranslation( xt ); }
-    inline qreal xTranslation() const { return _it->xTranslation(); }
-    inline void setYTranslation( qreal yt ) { _it->setYTranslation( yt ); }
-    inline qreal yTranslation() const { return _it->yTranslation(); }
-    inline void setXSkew( qreal xs ) { _it->setHShear( xs ); }
-    inline qreal xSkew() const { return _it->hShear(); }
-    inline void setYSkew( qreal ys ) { _it->setVShear( ys ); }
-    inline qreal ySkew() const { return _it->vShear(); }
-    */
+    inline void setHShear( qreal hs ) { _it->setHSkew( hs ); }
+    inline qreal hShear() const { return _it->hSkew(); }
+    inline void setVShear( qreal vs ) { _it->setVSkew( vs ); }
+    inline qreal vShear() const { return _it->vSkew(); }
+    inline void setXTranslation( qreal xt ) { _it->setTransformOrigin( QPointF( xt, _it->transformOrigin().y() ) ); }
+    inline qreal xTranslation() const { return _it->transformOrigin().x(); }
+    inline void setYTranslation( qreal yt ) { _it->setTransformOrigin( QPointF( _it->transformOrigin().x(), yt ) ); }
+    inline qreal yTranslation() const { return _it->transformOrigin().y(); }
+    inline void setXSkew( qreal xs ) { _it->setHSkew( xs ); }
+    inline qreal xSkew() const { return _it->hSkew(); }
+    inline void setYSkew( qreal ys ) { _it->setVSkew( ys ); }
+    inline qreal ySkew() const { return _it->vSkew(); }
+
     inline QStringList properties() const { return PHI::properties( this ); }
 
 protected:
