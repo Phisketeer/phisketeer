@@ -268,6 +268,8 @@ public:
     virtual ~PHIAbstractLayoutItem() {}
 
     virtual bool isDroppable() const { return true; }
+    virtual bool isWidthChangeable() const;
+    virtual bool isHeightChangeable() const;
     virtual void setFont( const QFont &font );
     virtual void addBaseItems( const QList <PHIBaseItem*> &list )=0;
     virtual void activateLayout()=0; // called once after page loading

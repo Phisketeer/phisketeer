@@ -1100,6 +1100,20 @@ void PHIAbstractLayoutItem::updateLayoutGeometry()
     update();
 }
 
+bool PHIAbstractLayoutItem::isWidthChangeable() const
+{
+    if ( !_l ) return true;
+    if ( _l->minimumWidth()==_l->maximumWidth() ) return false;
+    return true;
+}
+
+bool PHIAbstractLayoutItem::isHeightChangeable() const
+{
+    if ( !_l ) return true;
+    if ( _l->minimumHeight()==_l->maximumHeight() ) return false;
+    return true;
+}
+
 void PHIAbstractLayoutItem::setFont( const QFont &font )
 {
     foreach ( PHIBaseItem *it, _children ) {
