@@ -90,7 +90,7 @@ void PHICalendarItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole c
         if ( ir==PHIPalette::WidgetBase ) {
             pal.setColor( QPalette::Mid, col );
             pal.setColor( QPalette::Window, col.darker( 105 ) );
-            pal.setColor( QPalette::WindowText, Qt::green );
+            //pal.setColor( QPalette::WindowText, Qt::green );
         }
         if ( ir==PHIPalette::WidgetText ) pal.setColor( QPalette::Text, col );
         pal.setColor( QPalette::Base, QColor( 250, 250, 250 ) );
@@ -166,7 +166,9 @@ void PHICalendarItem::setValue( const QString &v )
     setData( DValue, date.toString( QString::fromLatin1( PHI::isoDateFormat() ) ) );
     QCalendarWidget *cw=qobject_cast<QCalendarWidget*>(widget());
     if ( !cw ) return;
+    cw->blockSignals( true );
     cw->setSelectedDate( date );
+    cw->blockSignals( false );
 }
 
 QString PHICalendarItem::realValue() const
@@ -179,6 +181,8 @@ void PHICalendarItem::slotDateChanged()
     QCalendarWidget *cw=qobject_cast<QCalendarWidget*>(widget());
     Q_ASSERT( cw );
     QDate date=cw->selectedDate();
+    // @todo: remove .datepicker() inconsistency (supress change trigger)
+    // if ( date.toString( QString::fromLatin1( PHI::isoDateFormat() ) )==PHIBaseItem::data( DValue ).toString() ) return;
     setData( DValue, date.toString( QString::fromLatin1( PHI::isoDateFormat() ) ) );
     if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
 }
@@ -346,7 +350,9 @@ void PHIDateEditItem::setValue( const QString &v )
     if ( !date.isValid() ) return;
     setData( DValue, date.toString( QString::fromLatin1( PHI::isoDateFormat() ) ) );
     if ( !_date ) return;
+    _date->blockSignals( true );
     _date->setDate( date );
+    _date->blockSignals( false );
 }
 
 QScriptValue PHIDateEditItem::minDate( const QScriptValue &v )
@@ -435,6 +441,8 @@ void PHIDateEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
 
 void PHIDateEditItem::slotDateChanged( const QDate &date )
 {
+    // @todo: remove .datepicker() inconsistency
+    // if ( date.toString( QString::fromLatin1( PHI::isoDateFormat() ) )==PHIBaseItem::data( DValue ).toString() ) return;
     setData( DValue, date.toString( QString::fromLatin1( PHI::isoDateFormat() ) ) );
     if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
 }
@@ -458,10 +466,11 @@ void PHIDateEditItem::slotButtonClicked()
     cal->setDateRange( _date->minimumDate(), _date->maximumDate() );
     cal->setSelectedDate( _date->date() );
     qDebug() << _date->date().toString( QString::fromLatin1( PHI::isoDateFormat() ) );
-    connect( cal, &QCalendarWidget::selectionChanged, &dlg, &QDialog::reject );
+    connect( cal, &QCalendarWidget::clicked, &dlg, &QDialog::reject );
     vbox->addWidget( cal );
     dlg.setLayout( vbox );
     dlg.exec();
-    if ( cal->selectedDate()==_date->date() ) return;
+    // if ( cal->selectedDate()==_date->date() ) return;
     setValue( cal->selectedDate().toString( QString::fromLatin1( PHI::isoDateFormat() ) ) );
+    slotDateChanged( cal->selectedDate() );
 }

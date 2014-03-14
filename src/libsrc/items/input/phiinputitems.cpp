@@ -56,6 +56,7 @@ void PHILineEditItem::slotChanged()
 {
     QLineEdit *edit=qobject_cast<QLineEdit*>(widget());
     Q_ASSERT( edit );
+    if ( realText()==edit->text() ) return;
     setData( DText, edit->text().toUtf8() );
     if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
 }
@@ -246,6 +247,7 @@ void PHITextAreaItem::initWidget()
     setWidget( edit );
     setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding, QSizePolicy::Frame ) );
     if ( !isClientItem() ) return;
+    edit->setTabChangesFocus( true );
     connect( edit, &QPlainTextEdit::textChanged, this, &PHITextAreaItem::slotChanged );
 }
 
@@ -261,7 +263,9 @@ void PHITextAreaItem::setWidgetText( const QString &t )
 {
     QPlainTextEdit *edit=qobject_cast<QPlainTextEdit*>(widget());
     if ( !edit ) return;
+    edit->blockSignals( true );
     edit->setPlainText( t );
+    edit->blockSignals( false );
 }
 
 void PHITextAreaItem::setReadOnly( bool b )
@@ -270,6 +274,16 @@ void PHITextAreaItem::setReadOnly( bool b )
     QPlainTextEdit *edit=qobject_cast<QPlainTextEdit*>(widget());
     if ( !edit ) return;
     edit->setReadOnly( b );
+}
+
+void PHITextAreaItem::blur( const QFocusEvent *e )
+{
+    Q_UNUSED( e )
+    QPlainTextEdit *edit=qobject_cast<QPlainTextEdit*>(widget());
+    if ( !edit ) return;
+    if ( realText()==edit->toPlainText() ) return;
+    setData( DText, edit->toPlainText().toUtf8() );
+    if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
 }
 
 void PHITextAreaItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
@@ -311,9 +325,10 @@ void PHITextAreaItem::slotChanged()
         edit->blockSignals( true );
         edit->setPlainText( tmp );
         edit->blockSignals( false );
+        QTextCursor cur=edit->textCursor();
+        cur.movePosition( QTextCursor::End );
+        edit->setTextCursor( cur );
     }
-    setData( DText, tmp.toUtf8() );
-    if ( flags() & FHasChangeEventHandler ) trigger( L1( "change" ) );
 }
 
 QScriptValue PHITextAreaItem::maxLength( const QScriptValue &l )
@@ -432,7 +447,9 @@ void PHINumberEditItem::setValue( const QString &v )
     setText( QString( SL( "%1:%2:%3:%4" ) ).arg( v.toInt() ).arg( min ).arg( max ).arg( step ) );
     QSpinBox *spin=qobject_cast<QSpinBox*>(widget());
     if ( !spin ) return;
+    spin->blockSignals( true );
     spin->setValue( v.toInt() );
+    spin->blockSignals( false );
 }
 
 QString PHINumberEditItem::realValue() const

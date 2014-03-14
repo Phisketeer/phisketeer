@@ -187,7 +187,6 @@ QScriptValue PHICheckBoxItem::checked( const QScriptValue &v )
     if ( !v.isValid() ) return realChecked();
     if ( v.toBool()==realChecked() ) return self();
     setChecked( v.toBool() );
-    if ( isClientItem() ) slotChanged();
     return self();
 }
 

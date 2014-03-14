@@ -169,7 +169,7 @@ QScriptValue PHIBaseItem::trigger( const QString &name, const QScriptValue &args
     PHIDomEvent fake( name, this );
     QScriptValue event, fn, res ;
     if ( de ) event=de->self();
-    else event=scriptEngine()->toScriptValue( &fake );
+    else event=eventToScriptValue( scriptEngine(), &fake );
     foreach ( fn, functions ) {
         if ( fn.isFunction() ) {
             res=fn.call( self(), QScriptValueList() << event << args );

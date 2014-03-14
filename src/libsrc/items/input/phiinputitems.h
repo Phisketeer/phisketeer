@@ -160,6 +160,7 @@ protected:
     virtual void squeeze();
     virtual void setWidgetText( const QString &t );
     virtual void setReadOnly( bool b );
+    virtual void blur( const QFocusEvent *e );
 
 protected slots:
     void slotChanged();

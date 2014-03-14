@@ -424,11 +424,15 @@ QScriptValue PHIMultiSelectItem::selected( const QScriptValue &v, const QScriptV
     for ( int i=0; i<lw->count(); i++ ) {
         if ( lw->item( i )->data( Qt::UserRole ).toString().isEmpty() ) {
             if ( lw->item( i )->text()==v.toString() ) {
+                lw->blockSignals( true );
                 lw->item( i )->setSelected( b.toBool() );
+                lw->blockSignals( false );
                 return self();
             }
         } else if ( lw->item( i )->data( Qt::UserRole ).toString()==v.toString() ) {
+            lw->blockSignals( true );
             lw->item( i )->setSelected( b.toBool() );
+            lw->blockSignals( false );
             return self();
         }
     }
