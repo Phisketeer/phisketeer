@@ -21,10 +21,13 @@
 #include <QNetworkReply>
 #include <QNetworkProxy>
 #include <QNetworkDiskCache>
-#include <QWebPage>
 #include "phinetmanager.h"
 #include "phisysinfo.h"
 #include "phiapplication.h"
+
+#ifdef PHIWEBKIT
+#include <QWebPage>
+#endif
 
 class PHIDiskCache : public QNetworkDiskCache
 {
@@ -105,9 +108,13 @@ PHINetManager::PHINetManager( QObject *parent )
     : QObject( parent ), _defaultNam( 0 )
 {
     QString tmp;
-    tmp=L1( "Mozilla/5.0 (" )+PHISysInfo::systemString()+L1( ") " )
-        +L1( "AppleWebKit/" )+qWebKitVersion()+L1( " (KHTML, like Gecko) " )
-        +phiApp->applicationName()+L1( "/" )+PHI::libVersion();
+    tmp=L1( "Mozilla/5.0 (" )+PHISysInfo::systemString()+L1( ") " )+L1( "AppleWebKit/" )
+#ifdef PHIWEBKIT
+        +qWebKitVersion()
+#else
+        +L1( "???" )
+#endif
+        +L1( " (KHTML, like Gecko) " )+phiApp->applicationName()+L1( "/" )+PHI::libVersion();
     PHINetworkAccessManager::setUserAgent( tmp );
     tmp=QString::fromLatin1( PHI::phiMimeType() )+L1( ",text/html,application/xml;q=0.9,application/xhtml+xml;q=0.8,"
         "text/plain;q=0.8,image/png,image/*;q=0.6,*/*;q=0.5" );

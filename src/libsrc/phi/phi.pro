@@ -104,9 +104,10 @@ isEmpty( PHIDOM ): error( PHIDOM is not specified )
 isEmpty( PHIORG ): error( PHIORG is not specified )
 TEMPLATE = lib
 TARGET = phi
-QT = core gui network script widgets sql webkit webkitwidgets
+QT = core gui network script widgets sql
+contains ( PHICONF, webkit ): QT += webkit webkitwidgets
 DEFINES += PHILIB PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
-#DEFINES += PHIPRINTDIRS
+
 TRANSLATIONS += phi_de.ts phi_fr.ts
 RESOURCES += phi.qrc
 unix { 

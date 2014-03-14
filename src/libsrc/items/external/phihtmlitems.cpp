@@ -16,7 +16,6 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QWebFrame>
 #include "phihtmlitems.h"
 #include "phiwebpage.h"
 #include "phidataparser.h"
@@ -73,7 +72,7 @@ void PHITwitterItem::setWidgetText( const QString &t )
     QByteArray tmp=data( DTmpText ).toByteArray();
     if ( tmp==arr ) return;
     setData( DTmpText, arr );
-    webPage()->mainFrame()->setContent( arr, L1( "text/html" ), QUrl( L1( "http://platform.twitter.com" ) ) );
+    webPage()->setContent( arr, L1( "text/html" ), QUrl( L1( "http://platform.twitter.com" ) ) );
 }
 
 void PHIFacebookItem::ideInit()
@@ -108,7 +107,7 @@ void PHIFacebookItem::setWidgetText( const QString &t )
     QByteArray tmp=data( DTmpText ).toByteArray();
     if ( tmp==arr ) return;
     setData( DTmpText, arr );
-    webPage()->mainFrame()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.facebook.com" ) ) );
+    webPage()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.facebook.com" ) ) );
 }
 
 QByteArray PHIFacebookItem::source() const

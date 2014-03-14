@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 include( ../items.pri )
-QT += webkit webkitwidgets
+contains( PHICONF, webkit ): QT += webkit webkitwidgets
 HEADERS += phiexternalitems.h \
     phigoogleitems.h \
     phihtmlitems.h

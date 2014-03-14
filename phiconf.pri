@@ -22,8 +22,7 @@ PHIDOM = phisketeer.org
 PHIORG = Phisketeer
 PHIRELEASE = 2.0.0
 PHIMACDEPLOY = 10.7
-#PHIMACSDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
-#mac: PHICONF = macappstore
+# Available options for PHICONF: macappstore webkit
 PHICONF =
 
 CONFIG += qt thread largefile ordered c++11 warn_on
@@ -34,6 +33,7 @@ MOC_DIR = .tmp
 RCC_DIR = .tmp
 CONFIG(debug,debug|release): DEFINES += PHIDEBUG PHIDIR=\\\"$$PWD\\\"
 else: DEFINES += QT_NO_DEBUG_OUTPUT
+contains ( PHICONF, webkit ): DEFINES += PHIWEBKIT
 unix {
     QMAKE_LFLAGS_RPATH =
     mac {

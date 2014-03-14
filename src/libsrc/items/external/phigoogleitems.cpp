@@ -16,7 +16,6 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QWebFrame>
 #include "phigoogleitems.h"
 #include "phinetrequest.h"
 #include "phirequest.h"
@@ -163,8 +162,7 @@ void PHIGooglePlusItem::setWidgetText( const QString &t )
     setData( DTmpUrl, arr );
     // the following crashes (Qt 5.1):
     // webPage()->settings()->setAttribute( QWebSettings::PluginsEnabled, true );
-    webPage()->mainFrame()->setContent( QByteArray() );
-    webPage()->mainFrame()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.google.com" ) ) );
+    webPage()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.google.com" ) ) );
 }
 
 void PHIYouTubeItem::ideInit()
@@ -235,8 +233,7 @@ void PHIGoogleMapsItem::setWidgetText( const QString &t )
     QByteArray tmp=data( DTmpText ).toByteArray();
     if ( arr==tmp ) return;
     setData( DTmpText, arr );
-    webPage()->mainFrame()->setContent( QByteArray() );
-    webPage()->mainFrame()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.google.com" ) ) );
+    webPage()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.google.com" ) ) );
 }
 
 void PHIGoogleMapsItem::phisCreateData( const PHIDataParser &parser )
@@ -298,6 +295,5 @@ void PHIGoogleCalendarItem::setWidgetText( const QString &t )
     QByteArray tmp=data( DTmpText ).toByteArray();
     if ( tmp==arr ) return;
     setData( DTmpText, arr );
-    webPage()->mainFrame()->setContent( QByteArray() );
-    webPage()->mainFrame()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.google.com" ) ) );
+    webPage()->setContent( arr, L1( "text/html" ), QUrl( L1( "https://www.google.com" ) ) );
 }

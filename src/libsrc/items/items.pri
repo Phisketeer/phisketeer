@@ -14,23 +14,15 @@
 #
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+include( ../../../phiconf.pri )
 QT += core gui widgets script network sql
 TEMPLATE = lib
-CONFIG += qt plugin thread largefile
 INCLUDEPATH += ../../phi
-DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QT_NO_CAST_FROM_BYTEARRAY
-OBJECTS_DIR = .tmp
-MOC_DIR = .tmp
-RCC_DIR = .tmp
 win32 {
     DESTDIR = ../../../../bin/plugins/items
     LIBS = -L../../../../bin phi2.lib
     CONFIG(debug,debug|release) {
         LIBS = -L../../../../bin phid2.lib
-        DEFINES += PHIDEBUG
-    } else {
-        DEFINES += QT_NO_DEBUG_OUTPUT
     }
 }
 unix {
@@ -38,9 +30,6 @@ unix {
     LIBS = -L../../../../lib -lphi
     CONFIG(debug,debug|release){
         LIBS = -L../../../../lib -lphi_debug
-        DEFINES += PHIDEBUG
-    } else {
-        DEFINES += QT_NO_DEBUG_OUTPUT
     }
     mac {
         LIBS = -L../../../../lib -lphi

@@ -18,6 +18,10 @@
 */
 #ifndef PHIWEBPAGE_H
 #define PHIWEBPAGE_H
+#include <QUrl>
+#include <QString>
+
+#ifdef PHIWEBKIT
 #include <QWebPage>
 
 class PHIWebPage : public QWebPage
@@ -27,6 +31,9 @@ class PHIWebPage : public QWebPage
 public:
     explicit PHIWebPage( QObject *parent=0 );
     bool isLoading() const { return _loading; }
+    void setContent( const QByteArray &, const QString &mimeType=QString(), const QUrl &baseUrl=QUrl() );
+    void setUrl( const QUrl &url );
+    QUrl url() const;
 
 protected slots:
     //void slotUpdateGeometry( const QRect& );
@@ -42,5 +49,26 @@ private:
     //QWebView *_view;
     bool _loading;
 };
+
+#else // don't use webkit:
+#include <QObject>
+
+class PHIWebPage : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit PHIWebPage( QObject *parent=0 );
+    bool isLoading() const { return _loading; }
+    void setContent( const QByteArray &, const QString &mimeType=QString(), const QUrl &baseUrl=QUrl() );
+
+private slots:
+    void slotLoadingFinished() { _loading=false; }
+    void slotLoadingStart() { _loading=true; }
+
+private:
+    bool _loading;
+};
+#endif // PHIWEBKIT
 
 #endif // PHIWEBPAGE_H

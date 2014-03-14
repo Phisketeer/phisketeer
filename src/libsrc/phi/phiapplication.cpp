@@ -28,7 +28,6 @@
 #include <QTranslator>
 #include <QEvent>
 #include <QFileOpenEvent>
-#include <QWebSettings>
 #include <QSizePolicy>
 #include <QMessageBox>
 #include "phiapplication.h"
@@ -37,6 +36,10 @@
 #include "phiitemfactory.h"
 #include "phidatasources.h"
 #include "phinetmanager.h"
+
+#ifdef PHIWEBKIT
+#include <QWebSettings>
+#endif
 
 #ifdef Q_OS_WIN
 extern QString qAppFileName();
@@ -285,11 +288,13 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     PHINetManager::instance();
     new PHIItemFactory( _itemsPath, this );
 
+#ifdef PHIWEBKIT
     QWebSettings *ws=QWebSettings::globalSettings();
     ws->setAttribute( QWebSettings::PluginsEnabled, true );
     ws->setAttribute( QWebSettings::JavascriptCanOpenWindows, true );
     ws->setAttribute( QWebSettings::LocalContentCanAccessRemoteUrls, true );
     ws->setAttribute( QWebSettings::JavascriptEnabled, true );
+#endif
 }
 
 PHIApplication::~PHIApplication()

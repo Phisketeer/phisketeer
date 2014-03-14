@@ -22,8 +22,6 @@
 #include <QMimeData>
 #include <QWidget>
 #include <QGraphicsGridLayout>
-#include <QWebFrame>
-#include <QWebView>
 #include <QHttpMultiPart>
 #include <QHttpPart>
 #include "phiabstractitems.h"
@@ -1413,6 +1411,10 @@ void PHIAbstractInputItem::clientPostData( QHttpMultiPart *multiPart ) const
     multiPart->append( hp );
 }
 
+#ifdef PHIWEBKIT
+#include <QWebView>
+#endif
+
 void PHIAbstractExternalItem::ideInit()
 {
     setColor( PHIPalette::WidgetText, PHIPalette::Text, page()->phiPalette().color( PHIPalette::Text ) );
@@ -1463,6 +1465,7 @@ QScriptValue PHIAbstractExternalItem::accessKey( const QScriptValue &a )
 void PHIAbstractExternalItem::initWidget()
 {
     connect( this, &PHIBaseItem::sizeChanged, this, &PHIAbstractExternalItem::slotSizeChanged );
+#ifdef PHIWEBKIT
     QWebView *view=new QWebView();
     _webPage=new PHIWebPage( this );
     view->setPage( _webPage );
@@ -1472,6 +1475,7 @@ void PHIAbstractExternalItem::initWidget()
     view->setAttribute( Qt::WA_OpaquePaintEvent, false );
     view->setAttribute( Qt::WA_TranslucentBackground );
     setWidget( view );
+#endif
     setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding, QSizePolicy::Frame ) );
 }
 
@@ -1479,9 +1483,11 @@ void PHIAbstractExternalItem::setWidgetText( const QString &t )
 {
     if ( !_webPage ) return;
     QUrl url( QString::fromLatin1( source() )+t );
-    if ( url==_webPage->mainFrame()->url() ) return;
-    _webPage->mainFrame()->setContent( QByteArray() );
-    _webPage->mainFrame()->setUrl( url);
+#ifdef PHIWEBKIT
+    if ( url==_webPage->url() ) return;
+    _webPage->setContent( QByteArray() );
+    _webPage->setUrl( url);
+#endif
 }
 
 QByteArray PHIAbstractExternalItem::mapLanguage( const QByteArray &lang ) const
