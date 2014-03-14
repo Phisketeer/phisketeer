@@ -50,7 +50,7 @@ void PHIItemFactory::invalidate()
         qWarning( "Did not find items path (%s)", qPrintable( dir.path() ) );
         return;
     }
-    QStringList files=dir.entryList( QDir::Files );
+    QStringList files=dir.entryList( QDir::Files | QDir::NoSymLinks );
     QString file;
     PHIItemPlugin *plugin;
     _lock.lockForWrite();
@@ -68,6 +68,7 @@ void PHIItemFactory::invalidate()
             qWarning( "Could not load item plug-in '%s': %s", qPrintable( file ), qPrintable( loader.errorString() ) );
             continue;
         }
+        qDebug()<< "loaded plugin:" << file;
         if ( plugin ) {
             QStringList keys=plugin->keys();
             _keysForCategory.insert( plugin->category(), keys );
