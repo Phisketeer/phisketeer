@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+include( ../../phiconf.pri )
 CONFIG += ordered
-SUBDIRS = phi items phis modules phia
 TEMPLATE = subdirs
+SUBDIRS = phi items phis modules
+contains( PHICONF, webkit ): SUBDIRS += phia

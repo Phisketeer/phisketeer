@@ -23,7 +23,7 @@ PHIORG = Phisketeer
 PHIRELEASE = 2.0.0
 PHIMACDEPLOY = 10.7
 # Available options for PHICONF: macappstore webkit
-PHICONF =
+PHICONF = webkit
 
 CONFIG += qt thread largefile ordered c++11 warn_on
 INCLUDEPATH += .

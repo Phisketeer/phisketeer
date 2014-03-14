@@ -103,7 +103,6 @@ void PHIAAppWindow::slotUnsupportedContent( PHIAAbstractWebView *view, const QUr
 {
     Q_UNUSED( view )
     QDesktopServices::openUrl( url );
-    close();
 }
 
 void PHIAAppWindow::slotShowStatusBar( bool b )

@@ -251,6 +251,7 @@ void PHIAGraphicsScene::init()
 {
     emit pagePaletteChanged( page()->phiPalette() );
     emit pageFontChanged( page()->font() );
+    emit webView()->geometryChangeRequested( QRect( -1, -1, page()->width(), page()->height() ) );
     updateTabOrder();
     foreach( PHIAbstractLayoutItem *l, _layouts ) l->activateLayout();
     _engine=new QScriptEngine( page() );

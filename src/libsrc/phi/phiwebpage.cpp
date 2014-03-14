@@ -22,9 +22,10 @@
 #ifdef PHIWEBKIT
 #include <QWebFrame>
 #include <QWebSettings>
+#include <QWebView>
 
 PHIWebPage::PHIWebPage( QObject *parent )
-    : QWebPage( parent ), _loading( false )
+    : QWebPage( parent ), _view( 0 ), _loading( false )
 {
     setNetworkAccessManager( PHINetManager::instance()->defaultNetworkAccessManager() );
     mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
@@ -36,7 +37,7 @@ PHIWebPage::PHIWebPage( QObject *parent )
 
 void PHIWebPage::setContent( const QByteArray &content, const QString &mimeType, const QUrl &baseUrl )
 {
-    mainFrame()->setContent( QByteArray() ); // Some Qt versions crashed without clearing
+    mainFrame()->setContent( QByteArray() ); // Some QtWebkit versions crashed without clearing the content before
     mainFrame()->setContent( content, mimeType, baseUrl );
 }
 
@@ -48,6 +49,44 @@ void PHIWebPage::setUrl( const QUrl &url )
 QUrl PHIWebPage::url() const
 {
     return mainFrame()->url();
+}
+
+void PHIWebPage::slotUpdateGeometry( const QRect &r )
+{
+    if ( !_view ) return;
+    _view->resize( r.width(), r.height() );
+}
+
+void PHIWebPage::slotLinkClicked( const QUrl &url )
+{
+    if ( !_view ) return;
+    _view->setUrl( url );
+}
+
+void PHIWebPage::slotIconChanged()
+{
+    if ( !_view ) return;
+    _view->setWindowIcon( _view->icon() );
+}
+
+QWebPage* PHIWebPage::createWindow( QWebPage::WebWindowType type )
+{
+    QWebView *view=new QWebView();
+    PHIWebPage *page=new PHIWebPage();
+    view->setPage( page );
+    page->setView( view );
+    if ( type==QWebPage::WebModalDialog ) view->setWindowModality( Qt::ApplicationModal);
+    view->setPage( page );
+    view->setAttribute( Qt::WA_DeleteOnClose );
+    connect( page, SIGNAL( geometryChangeRequested( const QRect& ) ),
+        page, SLOT( slotUpdateGeometry( const QRect& ) ) );
+    connect( page, SIGNAL( windowCloseRequested() ), view, SLOT( close() ) );
+    connect( page, SIGNAL( microFocusChanged() ), view, SLOT( updateMicroFocus() ) );
+    connect( page, SIGNAL( linkClicked( const QUrl& ) ), page, SLOT( slotLinkClicked( const QUrl& ) ) );
+    connect( view, &QWebView::titleChanged, view, &QWebView::setWindowTitle );
+    connect( view, &QWebView::iconChanged, page, &PHIWebPage::slotIconChanged );
+    view->show();
+    return page;
 }
 
 #else // don't use webkit

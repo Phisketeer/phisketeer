@@ -24,29 +24,34 @@
 #ifdef PHIWEBKIT
 #include <QWebPage>
 
+class QWebView;
+
 class PHIWebPage : public QWebPage
 {
     Q_OBJECT
 
 public:
     explicit PHIWebPage( QObject *parent=0 );
-    bool isLoading() const { return _loading; }
+    inline bool isLoading() const { return _loading; }
+    inline void setView( QWebView *view ){ _view=view; }
     void setContent( const QByteArray &, const QString &mimeType=QString(), const QUrl &baseUrl=QUrl() );
     void setUrl( const QUrl &url );
     QUrl url() const;
 
 protected slots:
-    //void slotUpdateGeometry( const QRect& );
+    void slotUpdateGeometry( const QRect &rect );
+    void slotLinkClicked( const QUrl &url );
+    void slotIconChanged();
 
 protected:
-    //virtual QWebPage* createWindow( WebWindowType type );
+    virtual QWebPage* createWindow( WebWindowType type );
 
 private slots:
     void slotLoadingFinished() { _loading=false; }
     void slotLoadingStart() { _loading=true; }
 
 private:
-    //QWebView *_view;
+    QWebView *_view;
     bool _loading;
 };
 

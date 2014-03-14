@@ -294,6 +294,7 @@ PHIApplication::PHIApplication( int &argc, char **argv, const char *name , const
     ws->setAttribute( QWebSettings::JavascriptCanOpenWindows, true );
     ws->setAttribute( QWebSettings::LocalContentCanAccessRemoteUrls, true );
     ws->setAttribute( QWebSettings::JavascriptEnabled, true );
+    ws->setIconDatabasePath( _cachePath );
 #endif
 }
 
