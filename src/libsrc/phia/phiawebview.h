@@ -62,6 +62,7 @@ public slots:
 protected slots:
     void slotIconChanged( const QIcon &icon );
     void slotTitleChanged( const QString &title );
+    void slotPageSizeChanged();
 
 private:
     PHIGraphicsView *_view;

@@ -76,6 +76,7 @@ void PHISProcessor::run()
     _findMatchingLang( page, _req );
     _req->setDefaultLang( page->defaultLanguage() );
     page->setLang( _req->currentLang() );
+    page->setDefaultLanguage( _req->currentLang() );
     PHIDataParser parser( _req, page->id(), _db );
     page->phisParseData( parser );
 

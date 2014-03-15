@@ -37,6 +37,7 @@ PHIAWebView::PHIAWebView( QWidget *parent )
     connect( s, &PHIAGraphicsScene::iconChanged, this, &PHIAWebView::slotIconChanged );
     connect( s, &PHIAGraphicsScene::titleChanged, this, &PHIAWebView::slotTitleChanged );
     connect( s, &PHIAGraphicsScene::linkRequested, this, &PHIAWebView::slotLinkRequested );
+    connect( s->page(), &PHIBasePage::documentSizeChanged, this, &PHIAWebView::slotPageSizeChanged );
 }
 
 PHIAGraphicsScene* PHIAWebView::scene() const
@@ -58,6 +59,11 @@ void PHIAWebView::slotTitleChanged( const QString &title )
 {
     Q_UNUSED( title )
     emit titleChanged( this );
+}
+
+void PHIAWebView::slotPageSizeChanged()
+{
+    emit geometryChangeRequested( QRect( -1, -1, scene()->page()->width(), scene()->page()->height() ) );
 }
 
 QIcon PHIAWebView::icon() const
