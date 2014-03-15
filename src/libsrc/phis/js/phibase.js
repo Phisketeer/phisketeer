@@ -794,15 +794,17 @@ $$rollover=function( s, u )
     $(s+'_phi_1').hide();
     o.on('mouseover',function(){$(s+'_phi_0').hide();$(s+'_phi_1').show();});
     o.on('mouseout',function(){$(s+'_phi_1').hide();$(s+'_phi_0').show();});
+    return o;
 };
 
 $$link=function( s, u, c, b, h, d )
 {
     var o=$(s);
-    if ( u.length>0 ) o.click(function(){phi.href(u);});
+    if ( u!==undefined ) o.click(u);
     o.on('mouseover',function(){o.color(h);if ( d.length>0 ) o.bgColor(d);});
     o.on('mouseout',function(){ o.color(c);
         if ( b.length>0 ) o.bgColor(b);
         else o.bgColor('');
     });
+    return o;
 };

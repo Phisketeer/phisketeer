@@ -216,12 +216,28 @@ QColor PHILinkItem::realHoverBgColor() const
 void PHILinkItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
     PHILabelItem::html( req, out, script, indent );
-    script+=BL( "$$link('" )+id()+BL( "','" )+data( DUrl ).toByteArray().replace( '\'', BL( "\\'" ) );
-    script+=BL( "','" )+cssColor( realColor() )+BL( "','" );
+    QByteArray arr=data( DUrl ).toByteArray();
+    script+=BL( "$$link('" )+id()+BL( "'," );
+    if ( arr.isEmpty() ) {
+        script+=BL( "undefined" );
+    } else {
+        script+=BL( "function(){" );
+        if ( arr.startsWith( "javascript:" ) ) {
+            arr.remove( 0, 11 );
+            script+=arr;
+        } else {
+            arr.replace( '\'', BL( "\\'" ) );
+            script+=BL( "phi.href('" )+arr+BL( "');" );
+        }
+        script+='}';
+    }
+    script+=BL( ",'" )+cssColor( realColor() )+BL( "','" );
     if ( realBackgroundColor()!=QColor( Qt::transparent ) ) script+=cssColor( realBackgroundColor() );
     script+=BL( "','" )+cssColor( realHoverColor() )+BL( "','" );
     if ( realHoverBgColor()!=QColor( Qt::transparent ) ) script+=cssColor( realHoverBgColor() );
-    script+=BL( "');\n" );
+    script+=BL( "')" );
+    if ( arr.isEmpty() ) script+=BL( ";\n" );
+    else script+=BL( ".cursor('pointer');\n" );
 }
 
 QScriptValue PHILinkItem::url( const QScriptValue &v )
@@ -293,7 +309,12 @@ void PHILinkItem::mouseout( const QGraphicsSceneHoverEvent *e )
 void PHILinkItem::click( const QGraphicsSceneMouseEvent *e )
 {
     Q_UNUSED( e )
-    if ( !realUrl().isEmpty() ) emit linkRequested( realUrl() );
+    if ( realUrl().isEmpty() ) return;
+    if ( realUrl().startsWith( L1( "javascript:" ) ) ) {
+        scriptEngine()->evaluate( realUrl().remove( 0, 11 ) );
+        return;
+    }
+    emit linkRequested( realUrl() );
 }
 
 void PHILinkItem::clientPrepareData()
@@ -308,7 +329,7 @@ void PHILinkItem::clientInitData()
     PHILabelItem::clientInitData();
     _hoverColorRole=static_cast<PHIPalette::ColorRole>(data( DTmpHoverRole ).value<quint8>());
     _hoverBackgroundColorRole=static_cast<PHIPalette::ColorRole>(data( DTmpHoverBgRole ).value<quint8>());
-    //setCursor( Qt::PointingHandCursor );
+    if ( !realUrl().isEmpty() ) setCursor( Qt::PointingHandCursor );
 }
 
 PHIConfigWidget *PHILinkItem::ideConfigWidget()

@@ -64,6 +64,7 @@ class PHILinkItem : public PHILabelItem
 {
     Q_OBJECT
     Q_PROPERTY( QString _url READ realUrl WRITE setUrl SCRIPTABLE false )
+    Q_PROPERTY( QString _accessKey WRITE setAccessKey READ realAccessKey SCRIPTABLE false )
 
 public:
     enum Wid { Link=23 };
@@ -78,7 +79,7 @@ public:
     virtual PHIWID wid() const { return Link; }
     virtual QPixmap pixmap() const { return QPixmap( QLatin1String( ":/items/button" ) ); }
     virtual bool hasUrl() const { return true; }
-    virtual bool isFocusable() const { return true; }
+    virtual bool isFocusable() const { return false; } // @todo: enable later with accessKey()
     virtual PHIPalette::ColorRole colorRole( PHIPalette::ItemRole role ) const;
     virtual QColor colorForRole( PHIPalette::ItemRole role ) const;
 

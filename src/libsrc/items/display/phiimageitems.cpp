@@ -938,6 +938,9 @@ QSizeF PHIRolloverItem::sizeHint( Qt::SizeHint which, const QSizeF &constraint )
 void PHIRolloverItem::drawShape( QPainter *p, const QRectF &exposed )
 {
     Q_UNUSED( exposed )
+    p->setRenderHint( QPainter::TextAntialiasing );
+    p->setRenderHint( QPainter::SmoothPixmapTransform );
+    p->setRenderHint( QPainter::Antialiasing );
     if ( isClientItem() ) {
         QImage img;
         if ( _hover ) img=realImages().value( "1" );
@@ -945,7 +948,6 @@ void PHIRolloverItem::drawShape( QPainter *p, const QRectF &exposed )
         if ( !img.isNull() ) p->drawImage( rect(), img );
         return;
     }
-    p->setRenderHint( QPainter::TextAntialiasing );
     QFont f=font();
     f.setPointSizeF( PHI::adjustedFontSize( f.pointSizeF() ) );
     p->setFont( f );
@@ -1136,7 +1138,7 @@ void PHIRolloverItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
         arr.replace( '\'', BL( "\\'" ) );
         script+=BL( "phi.href('" )+arr+BL( "');" );
     }
-    script+=BL( "});\n" );
+    script+=BL( "}).cursor('pointer');\n" );
 }
 
 QScriptValue PHIRolloverItem::url( const QScriptValue &v )
@@ -1181,6 +1183,7 @@ void PHIRolloverItem::clientInitData()
         PHIImageRequest *req=new PHIImageRequest( this, url, i );
         connect( req, &PHIImageRequest::imageReady, this, &PHIRolloverItem::slotImageReady );
     }
+    if ( !realUrl().isEmpty() ) setCursor( Qt::PointingHandCursor );
 }
 
 void PHIRolloverItem::slotImageReady( const QImage &img, int i )
