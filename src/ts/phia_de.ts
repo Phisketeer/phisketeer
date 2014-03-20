@@ -1012,7 +1012,7 @@
         <translation type="vanished">Keine Seite geladen.</translation>
     </message>
     <message>
-        <location filename="phiawebview.cpp" line="108"/>
+        <location filename="phiawebview.cpp" line="114"/>
         <source>There is no JavaScript attached to this Phi page.</source>
         <translation>Für diese Phi-Seite ist kein JavaScript verfügbar.</translation>
     </message>

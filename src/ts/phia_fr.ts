@@ -624,7 +624,7 @@
 <context>
     <name>PHIAWebView</name>
     <message>
-        <location filename="phiawebview.cpp" line="108"/>
+        <location filename="phiawebview.cpp" line="114"/>
         <source>There is no JavaScript attached to this Phi page.</source>
         <translation type="unfinished"></translation>
     </message>

@@ -130,12 +130,12 @@
 <context>
     <name>PHIAbstractImageBookItem</name>
     <message>
-        <location filename="phiabstractitems.cpp" line="908"/>
+        <location filename="phiabstractitems.cpp" line="906"/>
         <source>Image not available</source>
         <translation>Bild nicht verfügbar</translation>
     </message>
     <message>
-        <location filename="phiabstractitems.cpp" line="909"/>
+        <location filename="phiabstractitems.cpp" line="907"/>
         <source>Image is loading...</source>
         <translation>Bild lädt...</translation>
     </message>
@@ -143,17 +143,17 @@
 <context>
     <name>PHIAbstractImageItem</name>
     <message>
-        <location filename="phiabstractitems.cpp" line="796"/>
+        <location filename="phiabstractitems.cpp" line="794"/>
         <source>Image not available</source>
         <translation>Bild nicht verfügbar</translation>
     </message>
     <message>
-        <location filename="phiabstractitems.cpp" line="797"/>
+        <location filename="phiabstractitems.cpp" line="795"/>
         <source>Image is loading...</source>
         <translation>Bild lädt...</translation>
     </message>
     <message>
-        <location filename="phiabstractitems.cpp" line="841"/>
+        <location filename="phiabstractitems.cpp" line="839"/>
         <source>Image &apos;src&apos; path must be absolute for &apos;%1&apos;.</source>
         <translation>Bild &apos;src&apos;-Pfad muss für &apos;%1&apos; absolut sein.</translation>
     </message>
@@ -161,14 +161,14 @@
 <context>
     <name>PHIAbstractShapeItem</name>
     <message>
-        <location filename="phiabstractitems.cpp" line="647"/>
-        <location filename="phiabstractitems.cpp" line="664"/>
-        <location filename="phiabstractitems.cpp" line="676"/>
+        <location filename="phiabstractitems.cpp" line="645"/>
+        <location filename="phiabstractitems.cpp" line="662"/>
+        <location filename="phiabstractitems.cpp" line="674"/>
         <source>Pattern</source>
         <translation>Muster</translation>
     </message>
     <message>
-        <location filename="phiabstractitems.cpp" line="654"/>
+        <location filename="phiabstractitems.cpp" line="652"/>
         <source>Outline</source>
         <translation>Randlinie</translation>
     </message>
@@ -892,13 +892,13 @@
 <context>
     <name>PHIUnknownItem</name>
     <message>
-        <location filename="phiitemfactory.cpp" line="104"/>
+        <location filename="phiitemfactory.cpp" line="105"/>
         <source>Unknown item</source>
         <translation>Unbekanntes Element</translation>
     </message>
     <message>
-        <location filename="phiitemfactory.cpp" line="109"/>
-        <location filename="phiitemfactory.cpp" line="118"/>
+        <location filename="phiitemfactory.cpp" line="110"/>
+        <location filename="phiitemfactory.cpp" line="119"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>

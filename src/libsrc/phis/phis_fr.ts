@@ -192,154 +192,154 @@ Copyright %7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="106"/>
+        <location filename="phisprocessor.cpp" line="107"/>
         <source>The page &apos;%1&apos; is marked for using a master template &apos;%2&apos;.
 However the file could not be resolved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="213"/>
+        <location filename="phisprocessor.cpp" line="214"/>
         <source>Page &apos;%1&apos; (or its master page)
 is using the old server module interface. Please use &apos;loadModule(&lt;module&gt;)&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="232"/>
+        <location filename="phisprocessor.cpp" line="233"/>
         <source>Parse error in master page with ID &apos;%1&apos;, line: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="242"/>
+        <location filename="phisprocessor.cpp" line="243"/>
         <source>Parse error in page &apos;%1&apos;, line: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="250"/>
+        <location filename="phisprocessor.cpp" line="251"/>
         <source>Reply content type not set in server script for page &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="253"/>
+        <location filename="phisprocessor.cpp" line="254"/>
         <source>Script parsing error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="265"/>
+        <location filename="phisprocessor.cpp" line="266"/>
         <source>Using a defined database in master template pages is not supported.
 The database settings of page &apos;%1&apos; will be used instead (if any)
 for &apos;%2&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="278"/>
+        <location filename="phisprocessor.cpp" line="279"/>
         <source>The page &apos;%1&apos; contains already an item with id &apos;%2&apos;.
 The item from the master page &apos;%3&apos; will be discarded!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="301"/>
+        <location filename="phisprocessor.cpp" line="302"/>
         <source>Could not access Phis file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="311"/>
+        <location filename="phisprocessor.cpp" line="312"/>
         <source>Could not read Phis file header for &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="316"/>
+        <location filename="phisprocessor.cpp" line="317"/>
         <source>Phis file version for &apos;%1&apos; is newer than the server can handle.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="354"/>
+        <location filename="phisprocessor.cpp" line="355"/>
         <source>Could not create item for WID &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="394"/>
+        <location filename="phisprocessor.cpp" line="395"/>
         <source>There are not enough fields to extract the database settings from the file &apos;%1&apos;. A valid string is: &apos;QDRIVER:host:dbname:username:passwd:connectoptions:portnumber&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="411"/>
+        <location filename="phisprocessor.cpp" line="412"/>
         <source>Could not open file &apos;%1&apos; for reading database settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="427"/>
+        <location filename="phisprocessor.cpp" line="428"/>
         <source>Page &apos;%1&apos; with ID &apos;%2&apos; is marked for database access. But the DB could not be opened using DB name &apos;%3&apos;, user &apos;%4&apos;, host &apos;%5&apos;, port &apos;%6&apos;. DB error: [%7] %8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="436"/>
+        <location filename="phisprocessor.cpp" line="437"/>
         <source>Page &apos;%1&apos; with ID &apos;%2&apos; is marked for database access. But the DB is invalid using DB name &apos;%3&apos;, user &apos;%4&apos;, host &apos;%5&apos;, port &apos;%6&apos;. DB error: [%7] %8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="453"/>
+        <location filename="phisprocessor.cpp" line="454"/>
         <source>Could not access requested phi* system item.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="486"/>
+        <location filename="phisprocessor.cpp" line="487"/>
         <source>Image file &apos;%1&apos; is not accessible. Referer: &apos;%2&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="488"/>
+        <location filename="phisprocessor.cpp" line="489"/>
         <source>Could not find image with id &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="504"/>
-        <location filename="phisprocessor.cpp" line="510"/>
+        <location filename="phisprocessor.cpp" line="505"/>
+        <location filename="phisprocessor.cpp" line="511"/>
         <source>Could not access CSS file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="505"/>
+        <location filename="phisprocessor.cpp" line="506"/>
         <source>System CSS not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="511"/>
+        <location filename="phisprocessor.cpp" line="512"/>
         <source>Could not access CSS file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="527"/>
-        <location filename="phisprocessor.cpp" line="533"/>
+        <location filename="phisprocessor.cpp" line="528"/>
+        <location filename="phisprocessor.cpp" line="534"/>
         <source>Could not access JavaScript file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="528"/>
+        <location filename="phisprocessor.cpp" line="529"/>
         <source>JavaScript file not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="534"/>
+        <location filename="phisprocessor.cpp" line="535"/>
         <source>Could not access JavaScript file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="574"/>
+        <location filename="phisprocessor.cpp" line="575"/>
         <source>Could not read JavaScript data &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="580"/>
+        <location filename="phisprocessor.cpp" line="581"/>
         <source>Could not write JavaScript file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="608"/>
+        <location filename="phisprocessor.cpp" line="609"/>
         <source>Could not write to UI CSS file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisprocessor.cpp" line="618"/>
+        <location filename="phisprocessor.cpp" line="619"/>
         <source>Could not read internal CSS data &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
