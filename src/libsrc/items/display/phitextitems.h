@@ -91,6 +91,8 @@ public:
 
 public slots:
     QScriptValue url( const QScriptValue &v=QScriptValue() );
+    QScriptValue hoverColor( const QScriptValue &c=QScriptValue() );
+    QScriptValue hoverBgColor( const QScriptValue &c=QScriptValue() );
 
 protected:
     virtual void saveItemData( QDataStream &out, int version );

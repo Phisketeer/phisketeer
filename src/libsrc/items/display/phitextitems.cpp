@@ -248,6 +248,22 @@ QScriptValue PHILinkItem::url( const QScriptValue &v )
     return self();
 }
 
+QScriptValue PHILinkItem::hoverColor( const QScriptValue &c )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    if ( !c.isValid() ) return PHI::colorToString( realHoverColor() );
+    setColor( PHIPalette::Hover, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
+    return self();
+}
+
+QScriptValue PHILinkItem::hoverBgColor( const QScriptValue &c )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    if ( !c.isValid() ) return PHI::colorToString( realHoverBgColor() );
+    setColor( PHIPalette::HoverBackground, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
+    return self();
+}
+
 void PHILinkItem::saveItemData( QDataStream &out, int version )
 {
     PHILabelItem::saveItemData( out, version );
