@@ -1,4 +1,4 @@
-This is release V2.0.0 BETA of the Phi(sketeer) software suite.
+This is the release candidate v2.0.0RC of the Phi(sketeer) software suite.
 You find all recent changes at http://wiki.phisketeer.org by clicking on "Change log" in the navigation bar.
 
 Professional installation and compiling support is available through our main sponsor Phisys AG.
@@ -30,7 +30,7 @@ Mac OS X notes:
 
 Linux notes:
 ===============
-- The BETA only comes as a targz ball and is NOT ready for production envrionments: it currently requires a running X-server.
+- The RC only comes as a targz ball and is NOT ready for production envrionments: it currently requires a running X-server.
 - Check the file permissions for the document-root (default: '/var/phis/default/localhost')
 - Running the Phis daemon does not require root anymore
 - Artephis -> Settings -> Server provides you a GUI to view the current state of the Phis service
