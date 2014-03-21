@@ -415,107 +415,123 @@
 <context>
     <name>PHIAGraphicsScene</name>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="139"/>
+        <location filename="phiagraphicsscene.cpp" line="119"/>
+        <location filename="phiagraphicsscene.cpp" line="249"/>
+        <source>Request error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="119"/>
+        <source>File not found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="144"/>
         <source>Magic number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="140"/>
+        <location filename="phiagraphicsscene.cpp" line="145"/>
         <source>Content type is &apos;%1&apos; but document contains invalid data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="294"/>
+        <location filename="phiagraphicsscene.cpp" line="250"/>
+        <source>Network response: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="phiagraphicsscene.cpp" line="300"/>
         <source>Could not evaluate JavaScript.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="491"/>
+        <location filename="phiagraphicsscene.cpp" line="497"/>
         <source>Page info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="494"/>
+        <location filename="phiagraphicsscene.cpp" line="500"/>
         <source>Open URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="497"/>
+        <location filename="phiagraphicsscene.cpp" line="503"/>
         <source>JS console</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="501"/>
+        <location filename="phiagraphicsscene.cpp" line="507"/>
         <source>Zoom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="502"/>
+        <location filename="phiagraphicsscene.cpp" line="508"/>
         <source>Zoom in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="505"/>
+        <location filename="phiagraphicsscene.cpp" line="511"/>
         <source>Zoom out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="508"/>
+        <location filename="phiagraphicsscene.cpp" line="514"/>
         <source>Zoom normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="514"/>
+        <location filename="phiagraphicsscene.cpp" line="520"/>
         <source>Print</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="517"/>
+        <location filename="phiagraphicsscene.cpp" line="523"/>
         <source>Print preview</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="521"/>
+        <location filename="phiagraphicsscene.cpp" line="527"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="530"/>
+        <location filename="phiagraphicsscene.cpp" line="536"/>
         <source>Page information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="531"/>
+        <location filename="phiagraphicsscene.cpp" line="537"/>
         <source>Author:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="532"/>
+        <location filename="phiagraphicsscene.cpp" line="538"/>
         <source>Company:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="533"/>
+        <location filename="phiagraphicsscene.cpp" line="539"/>
         <source>Copyright:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="534"/>
+        <location filename="phiagraphicsscene.cpp" line="540"/>
         <source>Version:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="535"/>
+        <location filename="phiagraphicsscene.cpp" line="541"/>
         <source>Description:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="541"/>
+        <location filename="phiagraphicsscene.cpp" line="548"/>
         <source>Open new URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiagraphicsscene.cpp" line="541"/>
+        <location filename="phiagraphicsscene.cpp" line="548"/>
         <source>Please enter the new URL</source>
         <translation type="unfinished"></translation>
     </message>
