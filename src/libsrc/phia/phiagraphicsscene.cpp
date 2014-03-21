@@ -241,7 +241,8 @@ void PHIAGraphicsScene::slotReplyFinished()
     if ( _reply->error()==QNetworkReply::NoError ) init();
     else {
         views().first()->viewport()->show();
-        qDebug() << _reply->errorString();
+        QMessageBox::warning( webView(), tr( "Request error" ),
+            tr( "Network response: %1" ).arg( _reply->errorString() ), QMessageBox::Ok );
     }
     _reply->deleteLater();
     _reply=0;
@@ -538,8 +539,10 @@ void PHIAGraphicsScene::slotShowPageInfo()
 
 void PHIAGraphicsScene::slotOpenUrlTriggered()
 {
+    bool ok;
     QString u=QInputDialog::getText( webView(), tr( "Open new URL" ), tr( "Please enter the new URL" ),
-        QLineEdit::Normal, _requestedUrl.toString(), 0, Qt::Sheet | Qt::WindowMaximizeButtonHint );
+        QLineEdit::Normal, _requestedUrl.toString(), &ok, Qt::Sheet | Qt::WindowMaximizeButtonHint );
+    if ( !ok || u.isEmpty() ) return;
     QUrl url( u );
     if ( url.isRelative() ) url=PHI::createUrlForLink( _requestedUrl, u );
     setUrl( url );
