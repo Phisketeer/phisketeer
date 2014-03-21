@@ -617,7 +617,14 @@ void PHICanvasItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
     } else { // we try to create an image from script
         if ( !scriptEngine() ) return;
         QString t=realText();
-        if ( t.isEmpty() ) return;
+        if ( t.isEmpty() ) {
+            // IE678 can try to use excanvas.js
+            out+=indent+BL( "<canvas width=\"" )+QByteArray::number( qRound(realWidth()) )
+                +BL( "\" height=\"" )+QByteArray::number( qRound(realHeight()) )+'"';
+            htmlBase( req, out, script );
+            out+=BL( "\"></canvas>\n" );
+            return;
+        }
         // @todo: move to script object in server and client:
         qScriptRegisterMetaType( scriptEngine(), domRectToScriptValue, domRectFromScriptValue );
         qScriptRegisterMetaType( scriptEngine(), canvasGradientToScriptValue, canvasGradientFromScriptValue );
@@ -636,6 +643,15 @@ void PHICanvasItem::html( const PHIRequest *req, QByteArray &out, QByteArray &sc
         setImagePath( imgid );
         return htmlImg( req, out, script, indent );
     }
+}
+
+PHIWID PHICanvasItem::htmlHeaderExtension( const PHIRequest *req, QByteArray &header ) const
+{
+    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
+        header+=BL( "<script type=\"text/javascript\" src=\"phi.phis?j=excanvas\"></script>\n" );
+        return Canvas;
+    }
+    return Unknown;
 }
 
 void PHICanvasItem::clientInitData()

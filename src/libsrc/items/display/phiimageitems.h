@@ -216,6 +216,8 @@ public:
     virtual QPixmap pixmap() const { return QPixmap( L1( ":/items/rect" ) ); }
     virtual PHITextData* textData() { return &_textData; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
+    virtual bool hasHtmlExtension() const { return true; }
+    virtual PHIWID htmlHeaderExtension( const PHIRequest *req, QByteArray &headerOut ) const;
 
     inline void setText( const QString &s ) { setData( DCanvasSource, s.toLatin1() ); initWidget(); }
     inline QString realText() const { return QString::fromLatin1( data( DCanvasSource, QString() ).toByteArray() ); }

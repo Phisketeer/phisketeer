@@ -833,7 +833,7 @@ QScriptValue PHIAbstractImageItem::src( const QScriptValue &v )
     if ( !isClientItem() ) return scriptEngine()->undefinedValue();
     if ( !v.isValid() ) {
         if ( imagePath().startsWith( '/' ) ) return QString::fromUtf8( imagePath() );
-        return L1( "/phi.phis?i=" )+QString::fromUtf8( imagePath() )+L1( "&t=1" );
+        return L1( "phi.phis?i=" )+QString::fromUtf8( imagePath() )+L1( "&amp;t=1" );
     }
     if ( !v.toString().startsWith( QLatin1Char( '/' ) ) ) {
         emit javaScriptError( QScriptValue( tr( "Image 'src' path must be absolute for '%1'." ).arg( name() ) ) );

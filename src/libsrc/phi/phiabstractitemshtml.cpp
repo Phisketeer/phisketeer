@@ -93,6 +93,8 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
         if ( realLine()>0 ) script+=BL( ".borderColor('" )+cssColor( realOutlineColor() )+BL( "')" );
         script+=BL( ";\n" );
     } else { // create an image
+        out+=BL( "background:url(phi.phis?i=" )+imagePath()+BL( "&amp;t=1) 0 0 no-repeat\">\n" );
+        /*
         out+=BL( "\">\n" );
         QByteArray imgId=imagePath();
         if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
@@ -103,6 +105,7 @@ void PHIAbstractLayoutItem::html( const PHIRequest *req, QByteArray &out, QByteA
         } else {
             out+=indent+BL( "\t<img alt=\"\" id=\"phibgi_" )+_id+BL( "\" src=\"phi.phis?i=" )+imgId+BL( "&amp;t=1\">\n" );
         }
+        */
         htmlInitItem( script );
     }
     // generate child items:

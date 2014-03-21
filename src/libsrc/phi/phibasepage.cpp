@@ -576,8 +576,8 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     foreach ( tmp, _headerExtensions.values() ) out+='\t'+tmp;
     out+=BL( "</head>\n<body" );
     if ( _flags & FUseBgImage ) {
-        out+=BL( " style=\"background-image:url(/phi.phis?i=" );
-        out+=_variants.value( DBgImageUrl ).toByteArray()+BL( "&t=1);" );
+        out+=BL( " style=\"background-image:url(phi.phis?i=" );
+        out+=_variants.value( DBgImageUrl ).toByteArray()+BL( "&amp;t=1);" );
         quint8 opts=bgImageOptions();
         if ( opts & IRepeatX ) {
             if ( opts & IRepeatY ) out+=BL( "background-repeat:repeat;" );
