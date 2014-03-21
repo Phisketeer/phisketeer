@@ -20,13 +20,14 @@
 #define PHIWEBPAGE_H
 #include <QUrl>
 #include <QString>
+#include "phi.h"
 
 #ifdef PHIWEBKIT
 #include <QWebPage>
 
 class QWebView;
 
-class PHIWebPage : public QWebPage
+class PHIEXPORT PHIWebPage : public QWebPage
 {
     Q_OBJECT
 
@@ -58,7 +59,7 @@ private:
 #else // don't use webkit:
 #include <QObject>
 
-class PHIWebPage : public QObject
+class PHIEXPORT PHIWebPage : public QObject
 {
     Q_OBJECT
 

@@ -18,12 +18,12 @@
 */
 #ifndef PHISLOGVIEWER_H
 #define PHISLOGVIEWER_H
-
 #include <QWidget>
+#include "phis.h"
 
 class QPlainTextEdit;
 
-class PHISLogViewer : public QWidget
+class PHISEXPORT PHISLogViewer : public QWidget
 {
     Q_OBJECT
 
