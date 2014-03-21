@@ -115,9 +115,14 @@ void PHIAGraphicsScene::slotDataAvailable()
     if ( !_contentTypeChecked ) {
         if ( _reply->header( QNetworkRequest::ContentTypeHeader ).toByteArray()!=PHI::phiMimeType() ) {
             disconnect( _reply, 0, this, 0 );
-            qDebug() << "unsupported content" << _reply->header( QNetworkRequest::ContentTypeHeader ).toByteArray();
+            if ( _reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt()==404 ) {
+                QMessageBox::warning( webView(), tr( "Request error" ), L1( "404 - ")+tr( "File not found." )
+                    +L1( "\n" )+_reply->url().toString(), QMessageBox::Ok );
+            } else {
+                emit webView()->unsupportedContent( webView(), _reply->url() );
+                qDebug() << "unsupported content" << _reply->header( QNetworkRequest::ContentTypeHeader ).toByteArray();
+            }
             emit webView()->loading( false );
-            emit webView()->unsupportedContent( webView(), _reply->url() );
             _reply->abort();
             return;
         } else {
