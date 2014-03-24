@@ -420,8 +420,8 @@ void PHIDateEditItem::html( const PHIRequest *req, QByteArray &out, QByteArray &
         +QByteArray::number( now.day() )+BL( "));});\njQuery('#" )+id()
         +BL( "_phib').button({icons:{primary:'ui-icon-calendar'},text:false})"
             ".click(function(e){e.preventDefault();jQuery('#" )+id()+BL( "_phit').datepicker('show')});\n" );
-    QRectF le=PHIInputTools::adjustedLineEdit( req, rect() );
-    if ( req->agentEngine()!=PHIRequest::Trident ) le.adjust( 0, 0, 2, 2 );
+    QRectF le=PHIInputTools::adjustedLineEdit( req, rect() ).adjusted( 0, 0, 2, 2 );
+    if ( req->agentEngine()==PHIRequest::Trident && req->engineMajorVersion()>6 ) le.adjust( 0, 0, -2, -2 );
     out+=indent+BL( "<div" );
     htmlBase( req, out, script );
     out+=BL( "\">\n" )+indent+BL( "\t<input type=\"hidden\" id=\"" )+id()
