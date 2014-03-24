@@ -264,7 +264,7 @@ void PHIRequest::init() // must be executed AFTER all GET and POST var extractio
         } else if ( Q_UNLIKELY( _engineMinorVersion < 9 ) ) { // Opera 10.5-11.5
             _agentFeatures &= ~Gradients & ~Transform3D;
             _agentFeatures |= Ogg;
-        } else { // Opera 11.6-12.1 (Opera >=15 uses WebKit
+        } else { // Opera 11.6-12.1 (Opera >=15 uses WebKit)
             _agentFeatures &= ~Transform3D;
             _agentFeatures |= Ogg;
         }

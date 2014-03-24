@@ -613,6 +613,10 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     out+=BL( "</div>\n<script type=\"text/javascript\">\n/* <![CDATA[ */\n" );
     out+=BL( "var phi=new Phi('" )+_currentLang+BL( "','" )
         +_variants.value( DSession ).toByteArray()+BL( "');\n" )+script;
+    if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
+        if ( req->engineMajorVersion()==3 ) out+=BL( "jQuery(function($){alert('"
+            "This browser version is not longer officially supported. Expect visual inconsistencies.');});\n" );
+    }
     if ( _flags & FJavaScript ) {
         out+=BL( "/* BEGIN custom script */\n" )+_variants.value( DJavascript ).toByteArray();
         out+=BL( "\n/* END custom script */\n" );
