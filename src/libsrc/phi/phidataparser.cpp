@@ -731,10 +731,14 @@ QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const P
         arr=it->id()+QByteArray::number( num )+req->currentLangByteArray()+QByteArray::number( t.determinant() )
         +QByteArray::number( it->hasGraphicEffect() ? 1 : 0 )+req->canonicalFilename().toUtf8();
         arr=QCryptographicHash::hash( arr, QCryptographicHash::Md5 ).toHex();
-        QFileInfo fi( req->imgDir()+QLatin1Char( '/')+QString::fromUtf8( arr )+SL( ".png" ) );
+        if ( Q_UNLIKELY( ( !(req->agentFeatures() & PHIRequest::Transform3D) && !t.isAffine() )
+                || ( !(req->agentFeatures() & PHIRequest::Transform2D) && !t.isAffine() ) ) ) {
+            arr.append( "t" );
+        }
+        QFileInfo fi( req->imgDir()+QLatin1Char( '/' )+QString::fromUtf8( arr )+SL( ".png" ) );
         if ( fi.exists() && fi.lastModified()>=req->lastModified() ) {
             QRectF r=br;
-            qDebug() << "using cache" << br;
+            qDebug() << "using cache for" << it->id() << br;
             if ( it->hasTransformation() ) {
                 if ( Q_LIKELY( req->agentFeatures() & PHIRequest::Transform3D ) ) {
                     br=graphicsImageRect( arr );
@@ -810,11 +814,11 @@ QByteArray PHIDataParser::createTransformedImage( const PHIRequest *req, const P
         }
     }
     if ( !t.isIdentity() ) {
-        if ( Q_UNLIKELY( (!t.isAffine() && !(req->agentFeatures() & PHIRequest::Transform3D))
-                || (t.isAffine() && !(req->agentFeatures() & PHIRequest::Transform2D)) ) ) {
+        if ( Q_UNLIKELY( ( !(req->agentFeatures() & PHIRequest::Transform3D) && !t.isAffine() )
+                || ( !(req->agentFeatures() & PHIRequest::Transform2D) && !t.isAffine() ) ) ) {
             t=it->computeTransformation( true ); // with translation
             br=t.mapRect( br );
-            arr.append( 't' );
+            qDebug() << "saving transformed image (not affine)" << it->id() << arr;
             insertTransformedImageRect( arr, br );
             img.transformed( t, Qt::SmoothTransformation )
                 .save( req->imgDir()+QLatin1Char( '/' )+QString::fromLatin1( arr )+SL( ".png" ), "PNG" );
