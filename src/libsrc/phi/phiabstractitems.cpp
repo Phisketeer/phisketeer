@@ -1020,7 +1020,8 @@ void PHIAbstractLayoutItem::initLayout()
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
     connect( this, &PHIAbstractLayoutItem::layoutChanged, this, &PHIAbstractLayoutItem::updateLayoutGeometry, Qt::QueuedConnection );
     setColor( PHIPalette::Foreground, PHIPalette::Window, QColor( Qt::transparent ) );
-    setColor( PHIPalette::Background, PHIPalette::Button, page()->phiPalette().color( PHIPalette::Button ) );
+    if ( page() ) setColor( PHIPalette::Background, PHIPalette::Button, page()->phiPalette().color( PHIPalette::Button ) );
+    else setColor( PHIPalette::Background, PHIPalette::Button, qApp->palette().color( QPalette::Button ) );
 }
 
 void PHIAbstractLayoutItem::ideInit()
