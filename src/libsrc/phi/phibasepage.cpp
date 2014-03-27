@@ -733,7 +733,7 @@ void PHIBasePage::copyMasterData( const PHIBasePage *m )
         _pal=m->phiPalette();
         _flags |= FUseOwnPalette;
         PHIBaseItem *it;
-        foreach( it, findChildren<PHIBaseItem*>() ) it->phiPaletteChanged( _pal );
+        foreach( it, findChildren<PHIBaseItem*>(QString(), Qt::FindDirectChildrenOnly) ) it->phiPaletteChanged( _pal );
         _bgColor=m->backgroundColor();
     }
     if ( !_variants.value( DTitle ).isValid() ) _variants.insert( DTitle, m->data().value( DTitle ) );
@@ -776,6 +776,10 @@ void PHIBasePage::copyMasterData( const PHIBasePage *m )
     }
     if ( _menuEntries.count()==0 ) {
         _menuEntries=m->menuEntries();
+    }
+    if ( !(_flags & FHasFavicon) && (m->flags() & FHasFavicon) ) {
+        _favicon=m->favicon();
+        _flags |= FHasFavicon;
     }
 }
 
