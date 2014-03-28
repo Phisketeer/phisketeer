@@ -61,6 +61,23 @@ static QScriptValue newImage( QScriptContext*, QScriptEngine *engine )
         QScriptEngine::ExcludeDeleteLater );
 }
 
+static QScriptValue exitFunc( QScriptContext *ctx, QScriptEngine *engine )
+{
+    if ( ctx->argumentCount()>0 ) {
+        QScriptValue code=ctx->argument( 0 );
+        if ( code.toInt32()!=0 ) {
+            QString errString=L1( "undefined" );
+            if ( ctx->argumentCount()>1 ) errString=ctx->argument( 1 ).toString();
+            QScriptValue err=ctx->throwError( errString );
+            err.setProperty( L1( "lineNumber" ), -1 );
+            engine->abortEvaluation( err );
+            return err;
+        }
+    }
+    engine->abortEvaluation();
+    return engine->undefinedValue();
+}
+
 static QScriptValue getItemFunc( QScriptContext *ctx, QScriptEngine *engine )
 {
     QScriptValue id=ctx->argument( 0 );
@@ -115,6 +132,7 @@ PHISGlobalScriptObj::PHISGlobalScriptObj( PHIBasePage *page, const PHIRequest *r
     go.setProperty( SL( "print" ), engine->newFunction( print, static_cast<void*>(phisif) ) );
     go.setProperty( SL( "Image" ), engine->newFunction( newImage, 0 ) );
     go.setProperty( SL( "$" ), engine->newFunction( getItemFunc, 1 ) );
+    go.setProperty( SL( "exit" ), engine->newFunction( exitFunc, 1 ) );
 }
 
 #undef PHISSCRIPTEXTENSION
