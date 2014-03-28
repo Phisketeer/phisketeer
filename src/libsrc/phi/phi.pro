@@ -108,7 +108,7 @@ QT = core gui network script widgets sql
 contains ( PHICONF, webkit ): QT += webkit webkitwidgets
 DEFINES += PHILIB PHIVERSION=\\\"$$VERSION\\\" PHIDOM=\\\"$$PHIDOM\\\" PHIORG=\\\"$$PHIORG\\\"
 
-TRANSLATIONS += phi_de.ts phi_fr.ts
+TRANSLATIONS += phi_de.ts phi_fr.ts phi_cs.ts
 RESOURCES += phi.qrc
 unix { 
     DESTDIR = ../../../lib

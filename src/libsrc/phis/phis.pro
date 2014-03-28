@@ -56,7 +56,7 @@ DEFINES += PHISLIB PHISVERSION=\\\"$$VERSION\\\"
 RESOURCES += phis.qrc serverconf.qrc
 OTHER_FILES += js/phibase.js js/excanvas.js
 FORMS += serverconf.ui
-TRANSLATIONS = phis_de.ts phis_fr.ts
+TRANSLATIONS = phis_de.ts phis_fr.ts phis_cs.ts
 
 win32 { 
     LIBS = -L../../../bin phi2.lib

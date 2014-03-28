@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="de_DE">
+<TS version="2.1" language="cs_CZ">
 <context>
     <name>ColorConfig</name>
     <message>
         <location filename="colorconfig.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation>fomulář</translation>
     </message>
     <message>
         <location filename="colorconfig.ui" line="32"/>
         <source>Custom colors</source>
-        <translation>Benutzerdefinierte Farben</translation>
+        <translation>výchozí barvy</translation>
     </message>
     <message>
         <location filename="colorconfig.ui" line="56"/>
         <source>Note: a custom defined color is fix and does not change automatically on a palette update. Use the predefined colors in the color tool if you want to enable automatic palette color changes.</source>
-        <translation>Anmerkung: eine benutzerdefinierte Farbe ist fix und ändert sich nicht automatisch beim Ändern der Palette. Nutzen Sie die vordefinierten Farben aus der Farbleiste, falls Sie automatische Farbänderung aktivieren möchten.</translation>
+        <translation>Poznámka: výchozí barva je stálá a nemění se automaticky. Použijte předdefinované barvy v nástrojích pokud chcete automatické změny v paletách barev.</translation>
     </message>
     <message>
         <location filename="colorconfig.ui" line="79"/>
         <source>Color</source>
-        <translation>Farbe</translation>
+        <translation>barva</translation>
     </message>
     <message>
         <location filename="colorconfig.ui" line="105"/>
         <source>Outline color</source>
-        <translation>Randfarbe</translation>
+        <translation>barva okraje</translation>
     </message>
     <message>
         <location filename="colorconfig.ui" line="169"/>
         <source>Settings</source>
-        <translation>Einstellungen</translation>
+        <translation>nastavení</translation>
     </message>
     <message>
         <location filename="colorconfig.ui" line="182"/>
         <source>Preview</source>
-        <translation>Vorschau</translation>
+        <translation>náhled</translation>
     </message>
 </context>
 <context>
@@ -44,87 +44,87 @@
     <message>
         <location filename="layoutconfig.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation>fomulář</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="41"/>
         <source>Header</source>
-        <translation>Kopfzeile</translation>
+        <translation>hlavička</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="62"/>
         <source>Enable header</source>
-        <translation>Kopfzeile aktivieren</translation>
+        <translation>zpřístupňit hlavičku</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="79"/>
         <source>Height</source>
-        <translation>Höhe</translation>
+        <translation>výška</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="101"/>
         <source>Margins &amp;&amp; spacing</source>
-        <translation>Abstände</translation>
+        <translation>okraje &amp;&amp; mezery</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="122"/>
         <source>Left</source>
-        <translation>Links</translation>
+        <translation>vlevo</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="145"/>
         <source>Right</source>
-        <translation>Rechts</translation>
+        <translation>vpravo</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="168"/>
         <source>Top</source>
-        <translation>Oben</translation>
+        <translation>horní</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="191"/>
         <source>Bottom</source>
-        <translation>Unten</translation>
+        <translation>spodní</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="214"/>
         <source>Horizontal</source>
-        <translation></translation>
+        <translation>horizontální</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="237"/>
         <source>Vertical</source>
-        <translation>Vertikal</translation>
+        <translation>vertikální</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="263"/>
         <source>Border width &amp;&amp; radius</source>
-        <translation>Randbreite &amp;&amp; Radius</translation>
+        <translation>šířka okraje &amp;&amp; rádius</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="294"/>
         <source>Bottom right</source>
-        <translation>Unten rechts</translation>
+        <translation>spodní pravý</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="317"/>
         <source>Bottom left</source>
-        <translation>Unten links</translation>
+        <translation>spodní levý</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="330"/>
         <source>Top left</source>
-        <translation>Oben links</translation>
+        <translation>horní levý</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="353"/>
         <source>Top right</source>
-        <translation>Oben rechts</translation>
+        <translation>horní pravý</translation>
     </message>
     <message>
         <location filename="layoutconfig.ui" line="389"/>
         <source>Width</source>
-        <translation>Breite</translation>
+        <translation>šířka</translation>
     </message>
 </context>
 <context>
@@ -132,12 +132,12 @@
     <message>
         <location filename="phiabstractitems.cpp" line="906"/>
         <source>Image not available</source>
-        <translation>Bild nicht verfügbar</translation>
+        <translation>obrázek nedostupný</translation>
     </message>
     <message>
         <location filename="phiabstractitems.cpp" line="907"/>
         <source>Image is loading...</source>
-        <translation>Bild lädt...</translation>
+        <translation>obrázek se nahrává</translation>
     </message>
 </context>
 <context>
@@ -145,17 +145,17 @@
     <message>
         <location filename="phiabstractitems.cpp" line="794"/>
         <source>Image not available</source>
-        <translation>Bild nicht verfügbar</translation>
+        <translation>obrázek nedostupný</translation>
     </message>
     <message>
         <location filename="phiabstractitems.cpp" line="795"/>
         <source>Image is loading...</source>
-        <translation>Bild lädt...</translation>
+        <translation>obrázek se nahrává</translation>
     </message>
     <message>
         <location filename="phiabstractitems.cpp" line="839"/>
         <source>Image &apos;src&apos; path must be absolute for &apos;%1&apos;.</source>
-        <translation>Bild &apos;src&apos;-Pfad muss für &apos;%1&apos; absolut sein.</translation>
+        <translation>obrázek &apos;src&apos; musí být absolutní pro &apos;%1&apos;.</translation>
     </message>
 </context>
 <context>
@@ -165,12 +165,12 @@
         <location filename="phiabstractitems.cpp" line="662"/>
         <location filename="phiabstractitems.cpp" line="674"/>
         <source>Pattern</source>
-        <translation>Muster</translation>
+        <translation>vzor</translation>
     </message>
     <message>
         <location filename="phiabstractitems.cpp" line="652"/>
         <source>Outline</source>
-        <translation>Randlinie</translation>
+        <translation>okraj</translation>
     </message>
 </context>
 <context>
@@ -178,12 +178,12 @@
     <message>
         <location filename="phibasepage.cpp" line="348"/>
         <source>Could not write system CSS file &apos;%1&apos;.</source>
-        <translation>CSS System-Datei &apos;%1&apos; konnte nicht geschrieben werden.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="phibasepage.cpp" line="506"/>
         <source>Could not create theme &apos;%1&apos;.</source>
-        <translation>Thema &apos;%1&apos; konnte nicht generiert werden.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -192,25 +192,25 @@
         <location filename="phicolorconfig.cpp" line="108"/>
         <location filename="phicolorconfig.cpp" line="173"/>
         <source>Text color</source>
-        <translation>Textfarbe</translation>
+        <translation>barva textu</translation>
     </message>
     <message>
         <location filename="phicolorconfig.cpp" line="109"/>
         <location filename="phicolorconfig.cpp" line="184"/>
         <source>Base color</source>
-        <translation>Grundfarbe</translation>
+        <translation>základní barva</translation>
     </message>
     <message>
         <location filename="phicolorconfig.cpp" line="112"/>
         <location filename="phicolorconfig.cpp" line="172"/>
         <source>Pattern color</source>
-        <translation>Musterfarbe</translation>
+        <translation>barva vzoru</translation>
     </message>
     <message>
         <location filename="phicolorconfig.cpp" line="113"/>
         <location filename="phicolorconfig.cpp" line="183"/>
         <source>Outline color</source>
-        <translation>Randfarbe</translation>
+        <translation>barva okraje</translation>
     </message>
 </context>
 <context>
@@ -218,7 +218,7 @@
     <message>
         <location filename="phicolorconfig.cpp" line="71"/>
         <source>Sample colored text</source>
-        <translation>Beispieltext</translation>
+        <translation>barva vzorového textu</translation>
     </message>
 </context>
 <context>
@@ -761,33 +761,33 @@
     <message>
         <location filename="phicolorconfig.cpp" line="197"/>
         <source>Background color</source>
-        <translation>Hintergrundfarbe</translation>
+        <translation>barva podkladu</translation>
     </message>
     <message>
         <location filename="phicolorconfig.cpp" line="198"/>
         <source>Text color</source>
-        <translation>Textfarbe</translation>
+        <translation>barva textu</translation>
     </message>
     <message>
         <location filename="phicolorconfig.cpp" line="200"/>
         <source>Hover colors</source>
-        <translation>&apos;Hover&apos;-Farben</translation>
+        <translation>barvy zvýraznění</translation>
     </message>
     <message>
         <location filename="phicolorconfig.cpp" line="205"/>
         <source>Hover text color</source>
-        <translation>&apos;Hover&apos;-Textfarbe</translation>
+        <translation>barvy zvýraznění textu</translation>
     </message>
     <message>
         <location filename="phicolorconfig.cpp" line="217"/>
         <location filename="phicolorconfig.cpp" line="242"/>
         <source>Hover background color</source>
-        <translation>&apos;Hover&apos;-Hintergrundfarbe</translation>
+        <translation>barva zvýraznění podkladu</translation>
     </message>
     <message>
         <location filename="phicolorconfig.cpp" line="232"/>
         <source>Hover color</source>
-        <translation>&apos;Hover&apos;-Farbe</translation>
+        <translation>barva zvýraznění</translation>
     </message>
 </context>
 <context>
@@ -833,12 +833,12 @@
     <message>
         <location filename="philayoutconfig.cpp" line="76"/>
         <source>Background color</source>
-        <translation>Hintergrundfarbe</translation>
+        <translation>barva podkladu</translation>
     </message>
     <message>
         <location filename="philayoutconfig.cpp" line="77"/>
         <source>Border color</source>
-        <translation>Randfarbe</translation>
+        <translation>barva okraje</translation>
     </message>
 </context>
 <context>
@@ -894,13 +894,13 @@
     <message>
         <location filename="phiitemfactory.cpp" line="105"/>
         <source>Unknown item</source>
-        <translation>Unbekanntes Element</translation>
+        <translation>neznámá položka</translation>
     </message>
     <message>
         <location filename="phiitemfactory.cpp" line="110"/>
         <location filename="phiitemfactory.cpp" line="119"/>
         <source>Unknown</source>
-        <translation>Unbekannt</translation>
+        <translation>neznámé</translation>
     </message>
 </context>
 <context>
@@ -908,12 +908,12 @@
     <message>
         <location filename="phinetrequest.cpp" line="104"/>
         <source>Url &apos;%1&apos; is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>url &apos;%1&apos; je nesprávná</translation>
     </message>
     <message>
         <location filename="phinetrequest.cpp" line="120"/>
         <source>Could not get data from url &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nemůžu získat data z url &apos;%1&apos;: &apos;%2</translation>
     </message>
 </context>
 </TS>

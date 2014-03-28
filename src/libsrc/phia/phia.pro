@@ -38,7 +38,7 @@ SOURCES += \
 
 include( ../../../phiconf.pri )
 VERSION = $$PHIRELEASE
-TRANSLATIONS = phia_de.ts phia_fr.ts
+TRANSLATIONS = phia_de.ts phia_fr.ts phia_cs.ts
 TEMPLATE = lib
 TARGET = phia
 QT = core gui network svg script widgets webkit webkitwidgets printsupport

@@ -257,12 +257,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phidataparser.cpp" line="761"/>
+        <location filename="phidataparser.cpp" line="765"/>
         <source>Could not resolve image path for item &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phidataparser.cpp" line="772"/>
+        <location filename="phidataparser.cpp" line="776"/>
         <source>Could not load image &apos;%1&apos; for item &apos;%2&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
