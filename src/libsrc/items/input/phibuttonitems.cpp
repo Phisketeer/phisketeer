@@ -419,7 +419,7 @@ void PHIFileButtonItem::html( const PHIRequest *req, QByteArray &out, QByteArray
 {
     setAdjustedRect( PHIInputTools::adjustedFileButton( req, rect() ) );
     htmlInitItem( script );
-    out+=indent+BL( "<input type=\"file\"" );
+    out+=indent+BL( "<input type=\"file\" name=\"" )+id()+'"';
     htmlBase( req, out, script );
     out+=BL( "\">\n" );
 }
