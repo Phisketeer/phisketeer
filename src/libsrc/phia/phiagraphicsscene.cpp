@@ -32,6 +32,7 @@
 #include <QPrintDialog>
 #include <QInputDialog>
 #include <QTimer>
+#include <QKeyEvent>
 #include "phiagraphicsscene.h"
 #include "phibasepage.h"
 #include "phiawebview.h"
@@ -48,6 +49,7 @@ PHIAGraphicsScene::PHIAGraphicsScene( QObject *parent )
     _printer=new QPrinter();
     _printer->setResolution( 1200 );
     setItemIndexMethod( NoIndex );
+    setStickyFocus( false );
 }
 
 PHIAGraphicsScene::~PHIAGraphicsScene()
@@ -257,7 +259,6 @@ void PHIAGraphicsScene::init()
 {
     emit pagePaletteChanged( page()->phiPalette() );
     emit pageFontChanged( page()->font() );
-    updateTabOrder();
     foreach( PHIAbstractLayoutItem *l, _layouts ) l->activateLayout();
     _engine=new QScriptEngine( page() );
     new PHIAScriptWindowObj( webView() ); // constructor sets _engine as parent
@@ -270,7 +271,7 @@ void PHIAGraphicsScene::init()
         new PHIAScriptMenuObj( webView(), appwin->menuBar() );
     }
     invalidate();
-    QTimer::singleShot( 50, this, SLOT(slotRun()) );
+    QTimer::singleShot( 10, this, SLOT(slotRun()) );
 }
 
 void PHIAGraphicsScene::slotRun()
@@ -281,6 +282,7 @@ void PHIAGraphicsScene::slotRun()
             it->gw()->resize( it->realSize() );
         }
     }
+    updateTabOrder();
     startAnimations();
     QString script=page()->javascript();
     if ( _engine->canEvaluate( script ) ) {
@@ -303,13 +305,24 @@ void PHIAGraphicsScene::slotRun()
 
 void PHIAGraphicsScene::updateTabOrder()
 {
+    setFocus();
     QMultiMap <qint16, QGraphicsWidget*> map;
     foreach ( PHIBaseItem *it, page()->items() ) {
-        if ( it->isFocusable() ) map.insert( it->realTabIndex(), it->gw() );
+        if ( it->isFocusable() ) {
+            //it->gw()->setFocusPolicy( Qt::StrongFocus );
+            map.insert( it->realTabIndex(), it->gw() );
+        }
     }
     QList <QGraphicsWidget*> list=map.values();
+    if ( list.count() ) QGraphicsWidget::setTabOrder( 0, list.first() );
     for ( int i=0; i<list.count()-1; i++ ) {
+        qDebug() << list.at( i );
         QGraphicsWidget::setTabOrder( list.at( i ), list.at( i+1 ) );
+    }
+    if ( list.count() ) {
+        QGraphicsWidget::setTabOrder( list.last(), 0 );
+        list.first()->setFocus( Qt::TabFocusReason );
+        list.first()->setSelected( true );
     }
 }
 
@@ -360,6 +373,12 @@ void PHIAGraphicsScene::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
 {
     setDragMovePos( event->scenePos() );
     PHIGraphicsScene::dragMoveEvent( event );
+}
+
+void PHIAGraphicsScene::keyReleaseEvent( QKeyEvent *event )
+{
+    QGraphicsScene::keyReleaseEvent( event );
+    qDebug() << "keypress" << event->key();
 }
 
 void PHIAGraphicsScene::drawBackground( QPainter *painter, const QRectF &rect )

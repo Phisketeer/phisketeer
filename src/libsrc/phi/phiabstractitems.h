@@ -404,7 +404,7 @@ public:
     explicit PHIAbstractExternalItem( const PHIBaseItemPrivate &p ) : PHIAbstractTextItem( p ), _webPage( 0 ) { if ( isGuiItem() ) initWidget(); }
     PHIAbstractExternalItem( const PHIAbstractExternalItem &it ) : PHIAbstractTextItem( it ), _webPage( 0 ) { if ( isGuiItem() ) initWidget(); }
     virtual ~PHIAbstractExternalItem() {}
-    bool isFocusable() const { return true; }
+    virtual bool isFocusable() const { return true; }
     virtual void html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const;
 
 public slots:

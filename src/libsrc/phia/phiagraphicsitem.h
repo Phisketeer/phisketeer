@@ -55,6 +55,7 @@ protected:
     virtual void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dragLeaveEvent( QGraphicsSceneDragDropEvent *event );
     virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
+    virtual bool focusNextPrevChild( bool next );
 };
 
 #endif // PHIAGRAPHICSITEM_H

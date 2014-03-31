@@ -47,7 +47,7 @@ void PHIAGraphicsItem::keyPressEvent( QKeyEvent *event )
         PHIDomEvent keydown( SL( "keydown" ), baseItem(), true );
         keydown.setKeyEvent( event );
         baseItem()->trigger( SL( "keydown" ), QScriptValue(), &keydown );
-        if ( keydown.isDefaultPrevented() ) return event->accept();
+        if ( keydown.isDefaultPrevented() ) return event->ignore();
     }
     baseItem()->keydown( event );
     if ( !event->text().isEmpty() ) { // real key - not only a metakey
@@ -55,27 +55,25 @@ void PHIAGraphicsItem::keyPressEvent( QKeyEvent *event )
             PHIDomEvent keypress( SL( "keypress" ), baseItem(), true );
             keypress.setKeyEvent( event );
             baseItem()->trigger( SL( "keypress" ), QScriptValue(), &keypress );
-            if ( keypress.isDefaultPrevented() ) return event->accept();
+            if ( keypress.isDefaultPrevented() ) return event->ignore();
         }
         PHIGraphicsItem::keyPressEvent( event );
         baseItem()->keypress( event );
-        qDebug() << "keypress" << baseItem()->id();
-        return;
     } else {
         PHIGraphicsItem::keyPressEvent( event );
     }
+    qDebug() << "keypress" << baseItem()->id();
 }
 
 void PHIAGraphicsItem::keyReleaseEvent( QKeyEvent *event )
 {
-    PHIGraphicsItem::keyReleaseEvent( event );
-    event->accept();
     baseItem()->keyup( event );
     if ( baseItem()->flags() & PHIBaseItem::FHasKeyEventHandler ) {
         PHIDomEvent keyup( SL( "keyup" ), baseItem(), false );
         keyup.setKeyEvent( event );
         baseItem()->trigger( SL( "keyup" ), QScriptValue(), &keyup );
     }
+    PHIGraphicsItem::keyReleaseEvent( event );
 }
 
 void PHIAGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
@@ -177,26 +175,28 @@ void PHIAGraphicsItem::hoverMoveEvent( QGraphicsSceneHoverEvent *event )
 
 void PHIAGraphicsItem::focusInEvent( QFocusEvent *event )
 {
+    qDebug() << "focus in" << baseItem()->id();
     if ( baseItem()->flags() & PHIBaseItem::FHasFocusEventHandler ) {
         PHIDomEvent focus( SL( "focus" ), baseItem(), true );
         focus.setFocusEvent( event );
         baseItem()->trigger( SL( "focus" ), QScriptValue(), &focus );
         if ( focus.isDefaultPrevented() ) return event->ignore();
     }
-    PHIGraphicsItem::focusInEvent( event );
     baseItem()->focus( event );
+    PHIGraphicsItem::focusInEvent( event );
 }
 
 void PHIAGraphicsItem::focusOutEvent( QFocusEvent *event )
 {
+    qDebug() << "focus out" << baseItem()->id();
     if ( baseItem()->flags() & PHIBaseItem::FHasFocusEventHandler ) {
         PHIDomEvent blur( SL( "blur" ), baseItem(), true );
         blur.setFocusEvent( event );
         baseItem()->trigger( SL( "blur" ), QScriptValue(), &blur );
         if ( blur.isDefaultPrevented() ) return event->ignore();
     }
-    PHIGraphicsItem::focusOutEvent( event );
     baseItem()->blur( event );
+    PHIGraphicsItem::focusOutEvent( event );
 }
 
 void PHIAGraphicsItem::dragEnterEvent( QGraphicsSceneDragDropEvent *event )
@@ -219,4 +219,9 @@ void PHIAGraphicsItem::dropEvent( QGraphicsSceneDragDropEvent *event )
 {
     // event->ignore() or event->accept() has no effect!
     baseItem()->checkDropEvent( event );
+}
+
+bool PHIAGraphicsItem::focusNextPrevChild( bool next )
+{
+    return QGraphicsProxyWidget::focusNextPrevChild( next );
 }

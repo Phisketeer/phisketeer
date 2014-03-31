@@ -25,6 +25,7 @@ class QScriptEngine;
 class QNetworkReply;
 class QMenuBar;
 class QPrinter;
+class QKeyEvent;
 class PHIAWebView;
 class PHIAbstractLayoutItem;
 
@@ -55,8 +56,9 @@ protected:
     void init();
     void updateTabOrder();
     void startAnimations();
-    void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
     void initMenuBar( QMenuBar *menubar );
+    void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
+    void keyReleaseEvent( QKeyEvent *event );
 
 signals:
     void titleChanged( const QString &title );
