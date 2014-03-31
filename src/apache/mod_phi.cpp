@@ -305,35 +305,42 @@ static int phi_handler( request_rec *r )
         PHISProcessor phiproc( &areq, dbId ); // process request (PHI engine)
         phiproc.run();
     }
+    if ( QSqlDatabase::contains( QString::number( dbId ) ) ) {
+        { // needed to delete db instance before removing
+            QSqlDatabase db=QSqlDatabase::database( QString::number( dbId ) );
+            if ( db.isValid() && db.isOpen() ) db.close();
+        } // remove db instance
+        QSqlDatabase::removeDatabase( QString::number( dbId ) );
+    }
     // Print out any occured log entries
     PHIResponseRecLogEntry entry;
     foreach ( entry, resp->logEntries() ) {
         PHI_RLOG_ERR(entry._rc,entry._file,entry._line,entry._desc);
         PHI_RLOG_RC(entry._rc);
     }
+
     if ( resp->options() & PHIResponseRec::Redirect ) {
         if ( !areq.setRedirectedFile( resp->fileName() ) ) {
             QString err=QObject::tr( "Redirected file '%1' not found." ).arg( resp->fileName() );
             resp->error( PHILOGERR, PHIRC_HTTP_NOT_FOUND, err );
         } else {
-            PHISProcessor phiproc( &areq, dbId );
-            phiproc.run();
+            {
+                PHISProcessor phiproc( &areq, dbId );
+                phiproc.run();
+            }
             // Print out any occured log entries
             foreach ( entry, resp->logEntries() ) {
                 PHI_RLOG_ERR(entry._rc,entry._file,entry._line,entry._desc);
                 PHI_RLOG_RC(entry._rc);
             }
-        }
-    }
-
-    if ( QSqlDatabase::contains( QString::number( dbId ) ) ) {
-        { // needed to delete db instance before removing
-            QSqlDatabase db=QSqlDatabase::database( QString::number( dbId ) );
-            if ( db.isValid() && db.isOpen() ) {
-                db.close();
+            if ( QSqlDatabase::contains( QString::number( dbId ) ) ) {
+                { // needed to delete db instance before removing
+                    QSqlDatabase db=QSqlDatabase::database( QString::number( dbId ) );
+                    if ( db.isValid() && db.isOpen() ) db.close();
+                } // remove db instance
+                QSqlDatabase::removeDatabase( QString::number( dbId ) );
             }
-        } // remove db instance
-        QSqlDatabase::removeDatabase( QString::number( dbId ) );
+        }
     }
     PHISPageCache::instance()->removeDbId( dbId );
 

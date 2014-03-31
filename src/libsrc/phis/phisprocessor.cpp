@@ -22,6 +22,7 @@
 #include <QDir>
 #include <QScriptEngine>
 #include <QScriptValue>
+#include <QThread>
 #include "phisprocessor.h"
 #include "phirequest.h"
 #include "phispagecache.h"
@@ -384,7 +385,7 @@ void PHISProcessor::initDb( const PHIBasePage *page )
 {
     Q_ASSERT( page );
     if ( page->flags() & PHIBasePage::FUseDB ) {
-        qDebug() << "initDB" << _dbConnId;
+        qDebug() << "initDB" << _dbConnId << QThread::currentThread();
         Q_ASSERT( !QSqlDatabase::contains( QString::number( _dbConnId ) ) );
         if ( Q_UNLIKELY( page->flags() & PHIBasePage::FDBFile ) ) {
             QFile dbfile( page->dbFileName() );
