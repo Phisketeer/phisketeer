@@ -386,7 +386,7 @@ void PHIFileButtonItem::initWidget()
     w->setLayout( l );
     w->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
     setWidget( w );
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
+    setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed, QSizePolicy::LineEdit ) );
     QPalette pal=w->palette();
     pal.setColor( QPalette::Window, Qt::transparent );
     w->setPalette( pal );
