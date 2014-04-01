@@ -410,7 +410,8 @@ void PHIFileButtonItem::clientPostData( QHttpMultiPart *multiPart ) const
     QByteArray mime=PHI::mimeTypeForFile( QFileInfo( *file ) );
     QHttpPart part;
     part.setHeader( QNetworkRequest::ContentTypeHeader, mime );
-    part.setHeader( QNetworkRequest::ContentDispositionHeader, BL( "form-data; name=\"" )+id()+BL( "\"" ) );
+    part.setHeader( QNetworkRequest::ContentDispositionHeader, BL( "form-data; name=\"" )+id()+BL( "\"; filename=\"" )
+        +QFileInfo( file->fileName() ).fileName().toUtf8()+BL( "\"" ) );
     part.setBodyDevice( file );
     multiPart->append( part );
 }
