@@ -609,7 +609,7 @@ void PHIPasswordItem::initWidget()
 {
     QLineEdit *pwd=qobject_cast<QLineEdit*>(widget());
     Q_ASSERT( pwd );
-    pwd->setEchoMode( QLineEdit::PasswordEchoOnEdit );
+    pwd->setEchoMode( QLineEdit::Password );
 }
 
 void PHIPasswordItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
