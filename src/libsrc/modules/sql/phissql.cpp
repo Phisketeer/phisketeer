@@ -56,13 +56,3 @@ QList<QVariant> PHISSqlObj::values() const
     for ( int i=0; i < rec.count(); i++ ) list.append( rec.value( i ) );
     return list;
 }
-
-bool PHISSqlObj::query( const QString &q ) const
-{
-    bool res=_query.exec( q );
-    if ( !res ) {
-        PHIS_ERROR( tr( "SQL query '%1' failed. DB error: [%2] %3" ).arg( q )
-            .arg( _query.lastError().number() ).arg( _query.lastError().text() ) );
-    }
-    return res;
-}
