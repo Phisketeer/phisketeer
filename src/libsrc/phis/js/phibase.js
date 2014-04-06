@@ -776,7 +776,7 @@ $$table=function( s, m, d, n, v, h, ms, chk ) {
     o.clear=function(r) { o._v=[]; o._chk=[]; o._c=[]; o._b=[]; o._hr=[]; j(gid).jqGrid('clearGridData').trigger('reloadGrid');};
     var g=j(gid).jqGrid({colModel:m,datatype:'jsonstring',gridview:true,autowidth:true,height:o.height()+h,cmTemplate:{sortable:false,cellattr:o._cellFn},
         jsonReader:{root:'d',page:'p',total:'t',records:'r',cell:'c',id:'i'},datastr:d,viewsortcols:[true,'vertical',true],rownumbers:n,
-        onSelectRow:o._selRowFn,sortable:true,multiselect:ms,gridComplete:o._completeFn,rowNum:-1});
+        onSelectRow:o._selRowFn,sortable:true,multiselect:ms,gridComplete:o._completeFn,rowNum:1000000});
     if ( ms ) {
         j('#cb_'+g[0].id).hide();
         j('#jqgh_'+g[0].id+'_cb').addClass('ui-jqgrid-sortable');
