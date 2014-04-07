@@ -10,7 +10,7 @@ PHIMAS=$6
 MYSQLC=libmysqlclient.18.dylib
 MYSQLDIR=/usr/local/mysql
 USEQT="QtCore QtNetwork QtSql QtGui QtSvg QtScript QtOpenGL QtWidgets QtWebKit QtWebKitWidgets \
-    QtPrintSupport QtXml QtPositioning QtSensors QtMultimedia QtMultimediaWidgets"
+    QtPrintSupport QtXml QtPositioning QtSensors QtMultimedia QtMultimediaWidgets QtQuick QtQml"
 PLUGINPATH="sqldrivers imageformats iconengines platforms printsupport accessible"
 PHILIBS="libphi.2.dylib libphis.2.dylib libphia.2.dylib"
 PHIAPPS="Artephis"
