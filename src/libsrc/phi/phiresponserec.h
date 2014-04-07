@@ -89,7 +89,7 @@ public:
 
     void setCookie( const QString &name, const QString &value, const QDateTime &expires,
         const QString &path=QLatin1String( "/" ), const QString &domain=QString(), bool secure=false, bool discard=false );
-    void setCookie( const QString &name, const QString &value, int maxage, const QString &path=QLatin1String( "/" ),
+    void setCookie( const QString &name, const QString &value, int maxage=-1, const QString &path=QLatin1String( "/" ),
         const QString &domain=QString(), bool secure=false, bool discard=false );
     void log( int type, const char* file, int line, const QDateTime&, PHIRC rc, const QString &desc );
     void clear();

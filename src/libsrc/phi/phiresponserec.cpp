@@ -65,7 +65,7 @@ QByteArray PHIResponseRec::timeEncoded( const QDateTime &dt ) const
         QLocale::ShortFormat ).toUtf8()+dt.toUTC().toString( SL( ", dd " ) ).toUtf8()
         +locale.monthName( dt.toUTC().date().month(),
         QLocale::ShortFormat ).toUtf8()+dt.toUTC().toString( SL( " yyyy HH:mm:ss" ) )
-        .toUtf8()+" GMT";
+        .toUtf8()+BL( " GMT" );
     return arr;
 }
 
@@ -73,20 +73,21 @@ void PHIResponseRec::setCookie( const QString &name, const QString &value, int m
     const QString &domain, bool secure, bool discard )
 {
     QByteArray arr;
+    arr.reserve( 200 );
     if ( _minorHttpVer==0 ) {
         QDateTime dt=QDateTime::currentDateTime().addSecs( maxage );
-        arr=name.toUtf8()+"="+value.toUtf8()+"; Expires="+timeEncoded( dt )+"; Path="+path.toUtf8()+"; ";
-        if ( !domain.isEmpty() ) arr+="Domain="+domain.toUtf8()+"; ";
+        arr=name.toUtf8()+'='+value.toUtf8()+BL( "; Expires=" )+timeEncoded( dt )+BL( "; Path=" )+path.toUtf8()+BL( "; " );
+        if ( !domain.isEmpty() ) arr+=BL( "Domain=" )+domain.toUtf8()+BL( "; " );
     } else {
-        arr=name.toUtf8()+"=\""+value.toUtf8()+"\"; Max-Age=\""+QByteArray::number( maxage )+
-            "\"; Path=\""+path.toUtf8()+"\"; ";
-        if ( !domain.isEmpty() ) arr+="Domain=\""+domain.toUtf8()+"\"; ";
+        arr=name.toUtf8()+'='+value.toUtf8()+BL( "; " );
+        if ( maxage!=-1 ) arr+=BL( "Max-Age=" )+QByteArray::number( maxage )+BL( "; " );
+        arr+=BL( "Path=" )+path.toUtf8()+BL( "; " );
+        if ( !domain.isEmpty() ) arr+=BL( "Domain=" )+domain.toUtf8()+BL( "; " );
     }
-    if ( secure ) arr+="Secure; ";
-    if ( discard ) arr+="Discard; ";
-    if ( _minorHttpVer==0 ) arr+="Version=1";
-    else arr+="Version=\"1\"";
-    _headersOut.insertMulti( "Set-Cookie", arr );
+    if ( secure ) arr+=BL( "Secure; " );
+    if ( discard ) arr+=BL( "Discard; " );
+    arr+=BL( "Version=1" );
+    _headersOut.insertMulti( BL( "Set-Cookie" ), arr );
     qDebug( "Set-Cookie: %s", arr.data() );
 }
 

@@ -26,7 +26,7 @@ class PHISRequestModule : public PHISModule
     Q_PLUGIN_METADATA(IID "org.phisketeer.phis.module.request" FILE "phisrequest.json")
     Q_CLASSINFO( "Author", "Marius Schumacher" )
     Q_CLASSINFO( "Url", "http://www.phisketeer.org" )
-    Q_CLASSINFO( "Version", "1.1" )
+    Q_CLASSINFO( "Version", "1.2" )
     Q_CLASSINFO( "License", "LGPL" )
     Q_CLASSINFO( "Copyright", "2013 Phisys AG, 2013-2014 Phisketeer Team" )
 
@@ -127,7 +127,7 @@ public slots:
         bool secure=false, bool discard=false ) const {
         PHIS_IF()->setCookie( name, value, expires, path, domain, secure, discard );
     }
-    void setCookie( const QString &name, const QString &value, int maxage, const QString &path=_slash,
+    void setCookie( const QString &name, const QString &value, int maxage=-1, const QString &path=_slash,
         const QString &domain=QString(), bool secure=false, bool discard=false ) const {
         PHIS_IF()->setCookie( name, value, maxage, path, domain, secure, discard );
     }

@@ -614,8 +614,12 @@ void PHIBasePage::generateHtml( const PHIRequest *req, QByteArray &out ) const
     out+=BL( "var phi=new Phi('" )+_currentLang+BL( "','" )
         +_variants.value( DSession ).toByteArray()+BL( "');\n" )+script;
     if ( Q_UNLIKELY( req->agentFeatures() & PHIRequest::IE678 ) ) {
-        if ( req->engineMajorVersion()==3 ) out+=BL( "jQuery(function($){alert('"
-            "This browser version is not longer officially supported. Expect visual inconsistencies.');});\n" );
+        QString key=SL( "phiUnsupportedBrowserMsg" );
+        if ( req->engineMajorVersion()==3 && req->cookieValue( key )==QString() ) {
+            out+=BL( "jQuery(function($){alert('"
+                "This browser version is not longer officially supported. Expect visual inconsistencies.');});\n" );
+            req->responseRec()->setCookie( key, SL( "true" ) );
+        }
     }
     if ( _flags & FJavaScript ) {
         out+=BL( "/* BEGIN custom script */\n" )+_variants.value( DJavascript ).toByteArray();
