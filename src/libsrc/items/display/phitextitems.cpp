@@ -124,7 +124,10 @@ void PHILabelItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, QBy
             out+=QByteArray::number( qRound(yoff) )+"px ";
             out+=QByteArray::number( qRound(radius) )+"px "+col+';';
         }
-    } else PHIAbstractTextItem::cssGraphicEffect( req, out, script );
+    } else {
+        if ( realBackgroundColor()!=QColor( Qt::transparent ) )
+            PHIAbstractTextItem::cssGraphicEffect( req, out, script );
+    }
 }
 
 void PHILabelItem::setColor( PHIPalette::ItemRole ir, PHIPalette::ColorRole cr, const QColor &col )
@@ -655,7 +658,10 @@ void PHIRichTextItem::cssGraphicEffect( const PHIRequest *req, QByteArray &out, 
             out+=QByteArray::number( qRound(yoff) )+"px ";
             out+=QByteArray::number( qRound(radius) )+"px "+col+';';
         }
-    } else PHIAbstractTextItem::cssGraphicEffect( req, out, script );
+    } else {
+        if ( realBackgroundColor()!=QColor( Qt::transparent ) )
+            PHIAbstractTextItem::cssGraphicEffect( req, out, script );
+    }
 }
 
 void PHIRichTextItem::slotAnchorClicked( const QUrl &url )
