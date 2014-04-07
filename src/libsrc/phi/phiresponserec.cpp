@@ -74,7 +74,7 @@ void PHIResponseRec::setCookie( const QString &name, const QString &value, int m
 {
     QByteArray arr;
     arr.reserve( 200 );
-    if ( _minorHttpVer==0 ) {
+    if ( Q_UNLIKELY( _minorHttpVer==0 ) ) {
         QDateTime dt=QDateTime::currentDateTime().addSecs( maxage );
         arr=name.toUtf8()+'='+value.toUtf8()+BL( "; Expires=" )+timeEncoded( dt )+BL( "; Path=" )+path.toUtf8()+BL( "; " );
         if ( !domain.isEmpty() ) arr+=BL( "Domain=" )+domain.toUtf8()+BL( "; " );
@@ -104,25 +104,27 @@ QByteArray PHIResponseRec::createResponseHeader( PHIRC rc, const QString &server
 {
     QLocale locale( QLocale::C );
     QDateTime dt=QDateTime::currentDateTime();
-    QByteArray tmp="HTTP/1."+QByteArray::number( _minorHttpVer )+' '+QByteArray::number( static_cast<int>(rc) )
-        +' '+textForHttpCode( rc )+"\r\n";
-    tmp+="Date: "+locale.dayName( dt.toUTC().date().dayOfWeek(), QLocale::ShortFormat ).toUtf8()
+    QByteArray tmp;
+    tmp.reserve( 1024 );
+    tmp+=BL( "HTTP/1." )+QByteArray::number( _minorHttpVer )+' '+QByteArray::number( static_cast<int>(rc) )
+        +' '+textForHttpCode( rc )+BL( "\r\n" );
+    tmp+=BL( "Date: " )+locale.dayName( dt.toUTC().date().dayOfWeek(), QLocale::ShortFormat ).toUtf8()
         +dt.toUTC().toString( SL( ", dd " ) ).toUtf8()+locale.monthName( dt.toUTC().date().month(),
-        QLocale::ShortFormat ).toUtf8()+dt.toUTC().toString( SL( " yyyy HH:mm:ss" ) ).toUtf8()+" GMT\r\n";
-    tmp+="Server: "+serverString.toLatin1()+"\r\n";
+        QLocale::ShortFormat ).toUtf8()+dt.toUTC().toString( SL( " yyyy HH:mm:ss" ) ).toUtf8()+BL( " GMT\r\n" );
+    tmp+=BL( "Server: " )+serverString.toLatin1()+BL( "\r\n" );
     qDebug( "PHIResponseRec::createResponseHeader(rc=%d)", rc );
-    tmp+="Content-Type: "+_contentType+"\r\n";
+    tmp+=BL( "Content-Type: " )+_contentType+BL( "\r\n" );
     if ( rc==PHIRC_HTTP_NOT_MODIFIED ) return tmp;
-    tmp+="Content-Length: "+QByteArray::number( _contentLength )+"\r\n";
+    tmp+=BL( "Content-Length: " )+QByteArray::number( _contentLength )+BL( "\r\n" );
     if ( rc!=PHIRC_HTTP_OK ) return tmp;
     QByteArray key;
     foreach ( key, _headersOut.keys() ) {
-        if ( !key.startsWith( "Set-Cookie" ) ) tmp+=key+": "+_headersOut.value( key )+"\r\n";
+        if ( !key.startsWith( BL( "Set-Cookie" ) ) ) tmp+=key+": "+_headersOut.value( key )+BL( "\r\n" );
     }
-    QList <QByteArray> cookies=_headersOut.values( "Set-Cookie" );
+    QList <QByteArray> cookies=_headersOut.values( BL( "Set-Cookie" ) );
     if ( cookies.count()>0 ) {
         //tmp+=QByteArray( "Set-Cookie: " ); // some browsers have problems to merge cookies into one header
-        foreach ( key, cookies ) tmp+=QByteArray( "Set-Cookie: " )+key+"\r\n";
+        foreach ( key, cookies ) tmp+=BL( "Set-Cookie: " )+key+BL( "\r\n" );
         //tmp.chop( 2 ); // remove trailing comma
         //tmp+="\r\n";
     }
@@ -135,13 +137,13 @@ QByteArray PHIResponseRec::createErrorResponse( PHIRC rc, const QString &err ) c
     _minorHttpVer=0; // create "old" document header
     QByteArray content=createDocumentHeader();
     _minorHttpVer=ver;
-    content+="<head>\n<title>"+QByteArray::number( static_cast<int>(rc) )+' '
-        +textForHttpCode( rc )+"</title>\n<meta http-equiv=\"content-type\" ";
+    content+=BL( "<head>\n<title>" )+QByteArray::number( static_cast<int>(rc) )+' '
+        +textForHttpCode( rc )+BL( "</title>\n<meta http-equiv=\"content-type\" " );
     //if ( _minorHttpVer>0 ) content+="content=\"application/xhtml+xml;";
-    content+="content=\"text/html;";
-    content+=" charset=UTF-8\" />\n</head>\n<body>\n<h1>"+QByteArray::number( static_cast<int>(rc) );
-    content+=' '+textForHttpCode( rc )+"</h1>\n<p>"+PHIError::instance()->longDesc( rc ).toUtf8()+"</p>\n";
-    content+="<p>"+err.toUtf8()+"</p>\n</body>\n</html>\n";
+    content+=BL( "content=\"text/html;" );
+    content+=BL( " charset=UTF-8\" />\n</head>\n<body>\n<h1>" )+QByteArray::number( static_cast<int>(rc) );
+    content+=' '+textForHttpCode( rc )+BL( "</h1>\n<p>" )+PHIError::instance()->longDesc( rc ).toUtf8()+BL( "</p>\n" );
+    content+=BL( "<p>" )+err.toUtf8()+BL( "</p>\n</body>\n</html>\n" );
     return content;
 }
 
@@ -149,10 +151,10 @@ QByteArray PHIResponseRec::createErrorResponse( PHIRC rc, const QString &err ) c
 QByteArray PHIResponseRec::createErrorResponseHeader( PHIRC rc, const QString &serverString ) const
 {
     QByteArray header=createResponseHeader( rc, serverString );
-    if ( _minorHttpVer>0 ) header+="Cache-Control:";
-    else header+="Pragma:";
-    header+=" no-cache\r\n";
-    if ( _minorHttpVer>0 ) header+="Connection: close\r\n";
+    if ( Q_LIKELY( _minorHttpVer>0 ) ) header+=BL( "Cache-Control:" );
+    else header+=BL( "Pragma:" );
+    header+=BL( " no-cache\r\n" );
+    if ( Q_LIKELY( _minorHttpVer>0 ) ) header+=BL( "Connection: close\r\n" );
     return header;
 }
 
