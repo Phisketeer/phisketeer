@@ -95,10 +95,12 @@ QByteArray PHIImageCache::createUid( const PHIRequest *req )
     const QString path=req->imgDir()+QDir::separator()+QLatin1Char( '$' )+uid+SL( ".png" );
     const QDateTime cdt=QDateTime::currentDateTime();
     QSqlQuery query( _db );
-    QString sql=SL( "INSERT INTO imgcache (cid,dtime,tout,path) VALUES( '" );
-    sql.append( uid ).append( SL( "','" ) ).append( cdt.toString( PHI::dtFormatString() ) )
-        .append( SL( "',60,'" ) ).append( path ).append( SL( "')" ) );
-    if ( Q_UNLIKELY( !query.exec( sql ) ) ) {
+    query.prepare( SL( "INSERT INTO imgcache (cid,dtime,tout,path) VALUES(?,?,?,?)" ) );
+    query.bindValue( 0, uid );
+    query.bindValue( 1, cdt.toString( PHI::dtFormatString() ) );
+    query.bindValue( 2, 60 );
+    query.bindValue( 3, path );
+    if ( Q_UNLIKELY( !query.exec() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_QUERY_ERROR,
             tr( "Could not insert image cache key into DB. Image '%1' will not be removed automatically: '%2'." )
             .arg( path ).arg( query.lastError().text() ) );
