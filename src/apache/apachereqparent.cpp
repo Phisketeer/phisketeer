@@ -44,7 +44,7 @@ ApacheReqParent::ApacheReqParent( QObject *parent )
     for ( int i=0; i<p_argc; ++i ) p_argv[i]=argvData[i].data();
     new PHIApplication( p_argc, p_argv.data(), "phis", PHIVERSION, PHIApplication::ApacheModule );
     PHIError::instance( this );
-    PHISModuleFactory::instance( this );
+    PHISModuleFactory::instance( this )->invalidate();
 }
 
 ApacheReqParent::~ApacheReqParent()
