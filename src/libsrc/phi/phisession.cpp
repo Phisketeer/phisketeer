@@ -90,18 +90,21 @@ QString PHISession::createSession( const PHIRequest *req, qint32 timeout, const 
     }
     qDebug( "SESSION create %s (%d)", qPrintable( uid ), timeout );
     QSqlQuery query( _db );
-    query.exec( SL( "DELETE FROM sess WHERE sid='" )+uid+SL( "'" ) );
+    query.prepare( SL( "DELETE FROM sess WHERE sid=?" ) );
+    query.bindValue( 0, sid );
+    query.exec();
     QDateTime cdt=QDateTime::currentDateTime();
-    QString sql=SL( "INSERT INTO sess (sid,dtime,tout) VALUES('" );
-    sql+=uid+L1( "','" )+cdt.toString( PHI::dtFormatString() )
-        +L1( "'," )+QString::number( timeout )+QLatin1Char( ')' );
-    if ( Q_UNLIKELY( !query.exec( sql ) ) ) {
+    query.prepare( SL( "INSERT INTO sess (sid,dtime,tout) VALUES(?,?,?)" ) );
+    query.bindValue( 0, uid );
+    query.bindValue( 1, cdt.toString( PHI::dtFormatString() ) );
+    query.bindValue( 2, timeout );
+    if ( Q_UNLIKELY( !query.exec() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_QUERY_ERROR,
             tr( "Could not insert session key into DB: %1" ).arg( query.lastError().text() ) );
         return QString();
     }
-    sql=SL( "SELECT sid,dtime,tout FROM sess" );
-    if ( Q_UNLIKELY( !query.exec( sql ) ) ) {
+    query.prepare( SL( "SELECT sid,dtime,tout FROM sess" ) );
+    if ( Q_UNLIKELY( !query.exec() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_QUERY_ERROR,
             tr( "Could not cleanup session DB for page '%1': %2" )
             .arg( req->canonicalFilename() ).arg( query.lastError().text() ) );
@@ -114,9 +117,12 @@ QString PHISession::createSession( const PHIRequest *req, qint32 timeout, const 
         if ( dt.addSecs( query.value( 2 ).toInt()*60 ) < cdt )
             timeoutIds.append( query.value( 0 ).toString() );
     }
-    foreach ( sql, timeoutIds ) {
-        query.exec( SL( "DELETE FROM sess WHERE sid='" )+sql+QLatin1Char( '\'' ) );
-        qDebug( "Deleting %s", qPrintable( sql ) );
+    QString tmp;
+    foreach ( tmp, timeoutIds ) {
+        query.prepare( SL( "DELETE FROM sess WHERE sid=?" ) );
+        query.bindValue( 0, tmp );
+        query.exec();
+        qDebug( "Deleting %s", qPrintable( tmp ) );
     }
     return uid;
 }
@@ -129,8 +135,9 @@ bool PHISession::validateSession( const PHIRequest *req, qint32 timeout, const Q
         return false;
     }
     QSqlQuery query( _db );
-    QString sql=SL( "SELECT dtime,tout FROM sess WHERE sid='" )+uid+QLatin1Char( '\'' );
-    if ( Q_UNLIKELY( !query.exec( sql ) ) ) {
+    query.prepare( SL( "SELECT dtime,tout FROM sess WHERE sid=?" ) );
+    query.bindValue( 0, uid );
+    if ( Q_UNLIKELY( !query.exec() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_QUERY_ERROR,
             tr( "Could not get session key from DB for page '%1': %2" )
             .arg( req->canonicalFilename() ).arg( query.lastError().text() ) );
@@ -149,9 +156,10 @@ bool PHISession::validateSession( const PHIRequest *req, qint32 timeout, const Q
             qPrintable( cdt.toString( QStringLiteral( "hh:mm:ss:zzz" ) ) ) );
         return false;
     }
-    sql=SL( "UPDATE sess SET dtime='" )+cdt.toString( PHI::dtFormatString() )
-        +L1( "' WHERE sid='" )+uid+QLatin1Char( '\'' );
-    if ( Q_UNLIKELY( !query.exec( sql ) ) ) {
+    query.prepare( SL( "UPDATE sess SET dtime=? WHERE sid=?" ) );
+    query.bindValue( 0, cdt.toString( PHI::dtFormatString() ) );
+    query.bindValue( 1, uid );
+    if ( Q_UNLIKELY( !query.exec() ) ) {
         req->responseRec()->log( PHILOGERR, PHIRC_QUERY_ERROR,
             tr( "Could not update session key in DB for page '%1': %2" )
             .arg( req->canonicalFilename() ).arg( query.lastError().text() ) );
