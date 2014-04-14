@@ -178,7 +178,7 @@ public:
     void squeeze();
     void phisParseData( const PHIDataParser &parser );
     void phisCreateData( const PHIDataParser &parser );
-    void copyMasterData( const PHIBasePage *master );
+    void copyMasterData( const PHIBasePage *master , const PHIRequest *req );
     QScriptEngine* scriptEngine() const { return findChild<QScriptEngine*>(QString(), Qt::FindDirectChildrenOnly); }
     void createCSSFile( const PHIRequest *req ) const;
     void generateHtml( const PHIRequest *req, QByteArray &out ) const;

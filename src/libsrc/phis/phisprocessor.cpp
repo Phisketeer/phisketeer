@@ -247,6 +247,7 @@ bool PHISProcessor::runScript( const PHIBasePage *master, PHIBasePage *page ) co
         tmp+=QString::fromLatin1( PHI::nl()+PHI::nl() )+list.join( QString::fromLatin1( PHI::nl() ) );
         _req->responseRec()->log( PHILOGERR, PHIRC_SCRIPT_PARSE_ERROR, tmp );
     }
+    delete engine;
     if ( Q_UNLIKELY( _req->responseRec()->contentLength() ) ) {
         if ( Q_UNLIKELY( _req->responseRec()->contentType().isEmpty() ) ) {
             QString tmp=tr( "Reply content type not set in server script for page '%1'." )
@@ -270,7 +271,7 @@ void PHISProcessor::parseMaster( PHIBasePage *master, PHIBasePage *page ) const
     }
     PHIDataParser parser( _req, master->id(), _db );
     master->phisParseData( parser );
-    page->copyMasterData( master );
+    page->copyMasterData( master, _req );
     PHIBaseItem *it;
     PHIByteArrayList itemIds=page->itemIdsByteArray();
     qint16 count=master->itemCount()+1;

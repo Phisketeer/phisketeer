@@ -731,7 +731,7 @@ void PHIBasePage::phisParseData( const PHIDataParser &p )
     }
 }
 
-void PHIBasePage::copyMasterData( const PHIBasePage *m )
+void PHIBasePage::copyMasterData( const PHIBasePage *m, const PHIRequest *req )
 {
     if ( _flags & FUseMasterPalette ) {
         _pal=m->phiPalette();
@@ -779,12 +779,14 @@ void PHIBasePage::copyMasterData( const PHIBasePage *m )
         modules |= m->serverModules();
         setServerModules( modules );
     }
-    if ( _menuEntries.count()==0 ) {
+    if ( Q_LIKELY( _menuEntries.count()==0 ) ) {
         _menuEntries=m->menuEntries();
     }
     if ( !(_flags & FHasFavicon) && (m->flags() & FHasFavicon) ) {
         _favicon=m->favicon();
         _flags |= FHasFavicon;
+        if ( Q_UNLIKELY( !QFileInfo( req->imgDir()+QLatin1Char( '/' )+id()+SL( ".ico" ) ).exists() ) )
+            _favicon.save( req->imgDir()+QLatin1Char( '/' )+id()+SL( ".ico" ), "ICO" );
     }
 }
 
