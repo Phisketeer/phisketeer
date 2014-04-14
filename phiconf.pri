@@ -20,7 +20,7 @@
 
 PHIDOM = phisketeer.org
 PHIORG = Phisketeer
-PHIRELEASE = 2.0.0
+PHIRELEASE = 2.0.1
 PHIMACDEPLOY = 10.7
 # Available options for PHICONF: macappstore webkit
 PHICONF = webkit
