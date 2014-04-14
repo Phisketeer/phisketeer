@@ -107,9 +107,9 @@ QImage PHIGraphicTextItem::graphicImage( const QString &t ) const
     it.setPen( pen );
     it.setBrush( brush );
     it.setText( t );
-    QSizeF s=it.boundingRect().size();
-    if ( realLine()>0 ) s+=QSizeF( realPenWidth(), realPenWidth() );
-    QImage img( s.toSize(), QImage::Format_ARGB32_Premultiplied );
+    //QSizeF s=it.boundingRect().size();
+    //if ( realLine()>0 ) s+=QSizeF( realPenWidth(), realPenWidth() );
+    QImage img( realSize().toSize(), QImage::Format_ARGB32_Premultiplied );
     img.fill( 0 );
     QPainter p( &img );
     p.translate( realPenWidth()/2., realPenWidth()/2. );
