@@ -750,6 +750,7 @@ void PHIBasePage::copyMasterData( const PHIBasePage *m )
     if ( !_variants.value( DKeys ).isValid() ) _variants.insert( DKeys, m->data().value( DKeys ) );
     if ( !_variants.value( DAction ).isValid() ) _variants.insert( DAction, m->data().value( DAction ) );
     if ( Q_LIKELY( m->data().value( DJavascript ).isValid() ) ) {
+        _flags |= FJavaScript;
         if ( Q_LIKELY( _variants.value( DJavascript ).isValid() ) ) {
             _variants.insert( DJavascript, m->data().value( DJavascript ).toByteArray()
                 +'\n'+_variants.value( DJavascript ).toByteArray() );
