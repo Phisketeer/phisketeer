@@ -1094,7 +1094,7 @@ void PHIRolloverItem::phisCreateData( const PHIDataParser &parser )
             PHIByteArrayList list=_imageBookData.imageIds( l );
             if ( list.isEmpty() ) {
                 list=_imageBookData.imageIds();
-                l=PHIData::c();
+                //l=PHIData::c();
             }
             QString imgDir=parser.request()->imgDir()+QDir::separator();
             if ( list.count() ) pathes.append( imgDir+QString::fromUtf8( list.at( 0 ) )+L1( ".png" ) );
@@ -1103,16 +1103,16 @@ void PHIRolloverItem::phisCreateData( const PHIDataParser &parser )
             else pathes.append( QString() );
         }
         Q_ASSERT( pathes.count()==2 );
-        QImage img1, img2;
-        if ( !pathes.at( 0 ).isEmpty() ) img1=QImage( pathes.at( 0 ) );
-        img1=createImage( text, img1, realColor(), realOutlineColor() );
+        QImage img, tmp;
+        if ( !pathes.at( 0 ).isEmpty() ) tmp=QImage( pathes.at( 0 ) );
+        img=createImage( text, tmp, realColor(), realOutlineColor() );
         PHIByteArrayList list;
-        list << parser.createImage( img1, l, 0 ); // overwrite
-        if ( !pathes.at( 1 ).isEmpty() ) img2=QImage( pathes.at( 1 ) );
-        else img2=img1;
-        img2=createImage( text, img2, realHoverColor(), realHoverBgColor() );
-        list << parser.createImage( img2, l, 1 ); // overwrite
+        list << parser.createImage( img, l, 0 ); // overwrite
+        if ( !pathes.at( 1 ).isEmpty() ) tmp=QImage( pathes.at( 1 ) );
+        img=createImage( text, tmp, realHoverColor(), realHoverBgColor() );
+        list << parser.createImage( img, l, 1 ); // overwrite
         _imageBookData.setImageIds( list, l ); // |= TmpObjectCreated
+        _imageBookData.setSource( PHIData::Translated );
     }
     if ( _imageBookData.source()==PHIData::File ) _imageBookData.setSource( PHIData::Translated );
 }
