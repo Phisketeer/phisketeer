@@ -295,6 +295,7 @@ public:
 public slots:
     QScriptValue url( const QScriptValue &v=QScriptValue() );
     QScriptValue text( const QScriptValue &v=QScriptValue() );
+    QScriptValue hoverColor( const QScriptValue &v=QScriptValue() );
 
 protected:
     virtual QSizeF sizeHint( Qt::SizeHint which, const QSizeF &constraint ) const;

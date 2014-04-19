@@ -1119,26 +1119,24 @@ void PHIRolloverItem::phisCreateData( const PHIDataParser &parser )
 
 void PHIRolloverItem::phisParseData( const PHIDataParser &parser )
 {
-    if ( Q_UNLIKELY( dirtyFlags() & DFText || dirtyFlags() & DFCustom1 ) ) {
-        setData( DText, parser.text( &_textData ) );
-        PHIByteArrayList pathes=parser.imagePathes( &_imageBookData );
-        pathes << "" << ""; // force at least two entries
-        QImage img;
-        if ( !pathes.at( 0 ).isEmpty() )
-            img=QImage( parser.request()->imgDir()+QDir::separator()+QString::fromUtf8( pathes.at( 0 ) )+SL( ".png" ) );
-        // expensive:
-        pathes[0]=parser.createImage( createImage( realText(), img, realColor(), realOutlineColor() ), PHIData::c(), -1 );
-        if ( !pathes.at( 1 ).isEmpty() )
-            img=QImage( parser.request()->imgDir()+QDir::separator()+QString::fromUtf8( pathes.at( 1 ) )+SL( ".png") );
-        pathes[1]=parser.createImage( createImage( realText(), img, realHoverColor(), realHoverBgColor() ), PHIData::c(), -1 );
-        setImagePathes( PHIByteArrayList() << pathes[0] << pathes[1] );
-    } else {
-        setImagePathes( parser.imagePathes( &_imageBookData ) );
-    }
+    setImagePathes( parser.imagePathes( &_imageBookData ) );
 }
 
 void PHIRolloverItem::html( const PHIRequest *req, QByteArray &out, QByteArray &script, const QByteArray &indent ) const
 {
+    if ( Q_UNLIKELY( dirtyFlags() & DFText || dirtyFlags() & DFColor || dirtyFlags() & DFCustom1 ) ) {
+        PHIByteArrayList pathes=imagePathes();
+        pathes << "" << ""; // force at least two entries
+        QImage img;
+        if ( !pathes.at( 0 ).isEmpty() )
+            img=QImage( req->imgDir()+QDir::separator()+QString::fromUtf8( pathes.at( 0 ) )+SL( ".png" ) );
+        // expensive:
+        pathes[0]=PHIDataParser::createImage( req, this, createImage( realText(), img, realColor(), realOutlineColor() ), PHIData::c(), -1 );
+        if ( !pathes.at( 1 ).isEmpty() )
+            img=QImage( req->imgDir()+QDir::separator()+QString::fromUtf8( pathes.at( 1 ) )+SL( ".png") );
+        pathes[1]=PHIDataParser::createImage( req, this, createImage( realText(), img, realHoverColor(), realHoverBgColor() ), PHIData::c(), -1 );
+        setImagePathes( PHIByteArrayList() << pathes[0] << pathes[1] );
+    }
     QByteArray arr=data( DUrl ).toByteArray();
     htmlImages( req, out, script, indent );
     script+=BL( "$$rollover('" )+id();
@@ -1170,6 +1168,16 @@ QScriptValue PHIRolloverItem::text( const QScriptValue &v )
     if ( !isServerItem() ) return scriptEngine()->undefinedValue();
     if ( !v.isValid() ) return realText();
     setText( v.toString() );
+    setDirtyFlag( DFText );
+    return self();
+}
+
+QScriptValue PHIRolloverItem::hoverColor( const QScriptValue &c )
+{
+    if ( !isServerItem() ) return scriptEngine()->undefinedValue();
+    if ( !c.isValid() ) return PHI::colorToString( realHoverColor() );
+    setColor( PHIPalette::Hover, PHIPalette::Custom, PHI::colorFromString( c.toString() ) );
+    setDirtyFlag( DFColor );
     return self();
 }
 

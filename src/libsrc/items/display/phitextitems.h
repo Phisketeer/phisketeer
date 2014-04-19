@@ -41,7 +41,7 @@ public:
     bool isHtmlText() const { return data( DHtmlText, false ).toBool(); }
     void setHtmlText( bool b ) { if ( !b ) removeData( DHtmlText ); else setData( DHtmlText, b ); }
 
-protected slots:
+public slots:
     QScriptValue text( const QScriptValue &t=QScriptValue() );
     QScriptValue html( const QScriptValue &h=QScriptValue() );
 
