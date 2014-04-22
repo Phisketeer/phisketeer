@@ -107,9 +107,9 @@ QImage PHIGraphicTextItem::graphicImage( const QString &t ) const
     it.setPen( pen );
     it.setBrush( brush );
     it.setText( t );
-    //QSizeF s=it.boundingRect().size();
-    //if ( realLine()>0 ) s+=QSizeF( realPenWidth(), realPenWidth() );
-    QImage img( realSize().toSize(), QImage::Format_ARGB32_Premultiplied );
+    QSizeF s=it.boundingRect().size();
+    if ( realLine()>0 ) s+=QSizeF( realPenWidth(), realPenWidth() );
+    QImage img( s.toSize(), QImage::Format_ARGB32_Premultiplied );
     img.fill( 0 );
     QPainter p( &img );
     p.translate( realPenWidth()/2., realPenWidth()/2. );
@@ -117,7 +117,14 @@ QImage PHIGraphicTextItem::graphicImage( const QString &t ) const
     p.setRenderHint( QPainter::Antialiasing, true );
     it.paint( &p, &opt, 0 );
     p.end();
-    return img;
+    if ( img.width()>realWidth() ) img=img.scaled( realSize().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    else if ( img.height()>realHeight() ) img=img.scaledToHeight( realHeight(), Qt::SmoothTransformation );
+    QImage dest( realSize().toSize(), QImage::Format_ARGB32_Premultiplied );
+    dest.fill( 0 );
+    p.begin( &dest );
+    p.drawImage( 0, 0, img );
+    p.end();
+    return dest;
 }
 
 QRectF PHIGraphicTextItem::boundingRect() const
