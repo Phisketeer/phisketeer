@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr_FR">
+<TS version="2.1" language="cs_CZ">
 <context>
     <name>AddressDlg</name>
     <message>
         <location filename="addressdlg.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>dialog</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="25"/>
         <source>Private</source>
-        <translation type="unfinished"></translation>
+        <translation>soukromé</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="35"/>
         <source>Business</source>
-        <translation type="unfinished"></translation>
+        <translation>pracovní</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="46"/>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>titul</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="59"/>
         <source>First name</source>
-        <translation type="unfinished"></translation>
+        <translation>jméno</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="72"/>
         <source>Last name</source>
-        <translation type="unfinished"></translation>
+        <translation>příjmení</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="85"/>
         <source>Organisation</source>
-        <translation type="unfinished"></translation>
+        <translation>společnost</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="98"/>
         <source>Unit</source>
-        <translation type="unfinished"></translation>
+        <translation>odbor</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="111"/>
         <source>Street</source>
-        <translation type="unfinished"></translation>
+        <translation>ulice</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="124"/>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>kraj</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="137"/>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation>mĕsto</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="150"/>
         <source>Zip code</source>
-        <translation type="unfinished"></translation>
+        <translation>PSČ</translation>
     </message>
     <message>
         <location filename="addressdlg.ui" line="163"/>
         <source>Country code</source>
-        <translation type="unfinished"></translation>
+        <translation>zemĕ</translation>
     </message>
 </context>
 <context>
@@ -74,22 +74,22 @@
     <message>
         <location filename="authdlg.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>dialog</translation>
     </message>
     <message>
         <location filename="authdlg.ui" line="26"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>TextLabel</translation>
     </message>
     <message>
         <location filename="authdlg.ui" line="35"/>
         <source>&amp;User</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;jméno</translation>
     </message>
     <message>
         <location filename="authdlg.ui" line="48"/>
         <source>&amp;Password</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;heslo</translation>
     </message>
 </context>
 <context>
@@ -97,47 +97,47 @@
     <message>
         <location filename="contactdlg.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>dialog</translation>
     </message>
     <message>
         <location filename="contactdlg.ui" line="25"/>
         <source>Private</source>
-        <translation type="unfinished"></translation>
+        <translation>soukromé</translation>
     </message>
     <message>
         <location filename="contactdlg.ui" line="35"/>
         <source>Business</source>
-        <translation type="unfinished"></translation>
+        <translation>pracovní</translation>
     </message>
     <message>
         <location filename="contactdlg.ui" line="49"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>jméno</translation>
     </message>
     <message>
         <location filename="contactdlg.ui" line="62"/>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>email</translation>
     </message>
     <message>
         <location filename="contactdlg.ui" line="75"/>
         <source>Mobile</source>
-        <translation type="unfinished"></translation>
+        <translation>mobil</translation>
     </message>
     <message>
         <location filename="contactdlg.ui" line="88"/>
         <source>Phone</source>
-        <translation type="unfinished"></translation>
+        <translation>telefon</translation>
     </message>
     <message>
         <location filename="contactdlg.ui" line="101"/>
         <source>Fax</source>
-        <translation type="unfinished"></translation>
+        <translation>fax</translation>
     </message>
     <message>
         <location filename="contactdlg.ui" line="117"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
 </context>
 <context>
@@ -145,37 +145,37 @@
     <message>
         <location filename="cookiedlg.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>dialog</translation>
     </message>
     <message>
         <location filename="cookiedlg.ui" line="24"/>
         <source>Domain</source>
-        <translation type="unfinished"></translation>
+        <translation>doména</translation>
     </message>
     <message>
         <location filename="cookiedlg.ui" line="29"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>jméno</translation>
     </message>
     <message>
         <location filename="cookiedlg.ui" line="34"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>hodnota</translation>
     </message>
     <message>
         <location filename="cookiedlg.ui" line="39"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>cesta</translation>
     </message>
     <message>
         <location filename="cookiedlg.ui" line="49"/>
         <source>Clear all</source>
-        <translation type="unfinished"></translation>
+        <translation>vymazat vše</translation>
     </message>
     <message>
         <location filename="cookiedlg.ui" line="56"/>
         <source>Delete cookie</source>
-        <translation type="unfinished"></translation>
+        <translation>vymazat cookie</translation>
     </message>
 </context>
 <context>
@@ -183,42 +183,42 @@
     <message>
         <location filename="creditcarddlg.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>dialog</translation>
     </message>
     <message>
         <location filename="creditcarddlg.ui" line="25"/>
         <source>Private</source>
-        <translation type="unfinished"></translation>
+        <translation>soukromé</translation>
     </message>
     <message>
         <location filename="creditcarddlg.ui" line="35"/>
         <source>Business</source>
-        <translation type="unfinished"></translation>
+        <translation>pracovní</translation>
     </message>
     <message>
         <location filename="creditcarddlg.ui" line="49"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>typ</translation>
     </message>
     <message>
         <location filename="creditcarddlg.ui" line="59"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>jméno</translation>
     </message>
     <message>
         <location filename="creditcarddlg.ui" line="72"/>
         <source>Number</source>
-        <translation type="unfinished"></translation>
+        <translation>číslo</translation>
     </message>
     <message>
         <location filename="creditcarddlg.ui" line="85"/>
         <source>Valid thru</source>
-        <translation type="unfinished"></translation>
+        <translation>platné do</translation>
     </message>
     <message>
         <location filename="creditcarddlg.ui" line="102"/>
         <source>CIV</source>
-        <translation type="unfinished"></translation>
+        <translation>CIV</translation>
     </message>
 </context>
 <context>
@@ -226,37 +226,37 @@
     <message>
         <location filename="downloaddlg.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>dialog</translation>
     </message>
     <message>
         <location filename="downloaddlg.ui" line="24"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>soubor</translation>
     </message>
     <message>
         <location filename="downloaddlg.ui" line="29"/>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>čas</translation>
     </message>
     <message>
         <location filename="downloaddlg.ui" line="34"/>
         <source>Progress</source>
-        <translation type="unfinished"></translation>
+        <translation>postup</translation>
     </message>
     <message>
         <location filename="downloaddlg.ui" line="39"/>
         <source>Total KB</source>
-        <translation type="unfinished"></translation>
+        <translation>celkem KB</translation>
     </message>
     <message>
         <location filename="downloaddlg.ui" line="44"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>stav</translation>
     </message>
     <message>
         <location filename="downloaddlg.ui" line="54"/>
         <source>Clear list</source>
-        <translation type="unfinished"></translation>
+        <translation>vymazat seznam</translation>
     </message>
 </context>
 <context>
@@ -264,113 +264,113 @@
     <message>
         <location filename="mainwindow.ui" line="14"/>
         <source>MainWindow</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="32"/>
         <source>Φ</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="36"/>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation>zobrazení</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="61"/>
         <location filename="mainwindow.ui" line="64"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>otevřít</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="67"/>
         <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="76"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>uložit</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="79"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="88"/>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>vytisknout</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="91"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="100"/>
         <source>User profile</source>
-        <translation type="unfinished"></translation>
+        <translation>uživatleský profil</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="109"/>
         <source>Zoom in</source>
-        <translation type="unfinished"></translation>
+        <translation>přiblížit</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="112"/>
         <source>Ctrl++</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="121"/>
         <source>Zoom out</source>
-        <translation type="unfinished"></translation>
+        <translation>oddálit</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="124"/>
         <source>Ctrl+-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="133"/>
         <source>Zoom normal</source>
-        <translation type="unfinished"></translation>
+        <translation>původní velikost</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="142"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>odejít</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="145"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="154"/>
         <source>Print preview</source>
-        <translation type="unfinished"></translation>
+        <translation>vytisknout náhled</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="163"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>o programu</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="172"/>
         <source>Cookies</source>
-        <translation type="unfinished"></translation>
+        <translation>cookies</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="181"/>
         <source>Downloads</source>
-        <translation type="unfinished"></translation>
+        <translation>stažené soubory</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="190"/>
         <source>JavaScript console</source>
-        <translation type="unfinished"></translation>
+        <translation>panel JavaScriptu</translation>
     </message>
 </context>
 <context>
@@ -378,17 +378,17 @@
     <message>
         <location filename="phiaabstractwebview.cpp" line="216"/>
         <source>Reply:</source>
-        <translation type="unfinished"></translation>
+        <translation>Odpověď:</translation>
     </message>
     <message>
         <location filename="phiaabstractwebview.cpp" line="220"/>
         <source>Do you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Chcete pokračovat?</translation>
     </message>
     <message>
         <location filename="phiaabstractwebview.cpp" line="221"/>
         <source>SSL error</source>
-        <translation type="unfinished"></translation>
+        <translation>chyba SSL</translation>
     </message>
 </context>
 <context>
@@ -396,12 +396,12 @@
     <message>
         <location filename="phiaappwindow.cpp" line="51"/>
         <source>Start:</source>
-        <translation type="unfinished"></translation>
+        <translation>start:</translation>
     </message>
     <message>
         <location filename="phiaappwindow.cpp" line="54"/>
         <source>JavaScript log</source>
-        <translation type="unfinished"></translation>
+        <translation>přihlášení JavaScript</translation>
     </message>
 </context>
 <context>
@@ -409,7 +409,7 @@
     <message>
         <location filename="phiaauthdlg.cpp" line="26"/>
         <source>Authentication required</source>
-        <translation type="unfinished"></translation>
+        <translation>požadována autorizace</translation>
     </message>
 </context>
 <context>
@@ -418,122 +418,122 @@
         <location filename="phiagraphicsscene.cpp" line="121"/>
         <location filename="phiagraphicsscene.cpp" line="251"/>
         <source>Request error</source>
-        <translation type="unfinished"></translation>
+        <translation>chyba požadavku</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="121"/>
         <source>File not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>soubor nenalezen.</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="146"/>
         <source>Magic number</source>
-        <translation type="unfinished"></translation>
+        <translation>Magic number</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="147"/>
         <source>Content type is &apos;%1&apos; but document contains invalid data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Obsahuje typ &apos;%1&apos; ale dokument obsahuje neplatná data.</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="252"/>
         <source>Network response: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>odpověď sítě: %1</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="302"/>
         <source>Could not evaluate JavaScript.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nemohu vyhodnotit JavaScript.</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="516"/>
         <source>Page info</source>
-        <translation type="unfinished"></translation>
+        <translation>informace o stránce</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="519"/>
         <source>Open URL</source>
-        <translation type="unfinished"></translation>
+        <translation>otevřít URL</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="522"/>
         <source>JS console</source>
-        <translation type="unfinished"></translation>
+        <translation>panel JS</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="526"/>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>lupa</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="527"/>
         <source>Zoom in</source>
-        <translation type="unfinished"></translation>
+        <translation>přiblížit</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="530"/>
         <source>Zoom out</source>
-        <translation type="unfinished"></translation>
+        <translation>oddálit</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="533"/>
         <source>Zoom normal</source>
-        <translation type="unfinished"></translation>
+        <translation>původní velikost</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="539"/>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>vytisknout</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="542"/>
         <source>Print preview</source>
-        <translation type="unfinished"></translation>
+        <translation>vytisknout náhled</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="546"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>zavřít</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="555"/>
         <source>Page information</source>
-        <translation type="unfinished"></translation>
+        <translation>informace o stránce</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="556"/>
         <source>Author:</source>
-        <translation type="unfinished"></translation>
+        <translation>autor:</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="557"/>
         <source>Company:</source>
-        <translation type="unfinished"></translation>
+        <translation>společnost:</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="558"/>
         <source>Copyright:</source>
-        <translation type="unfinished"></translation>
+        <translation>copyright:</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="559"/>
         <source>Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>verze:</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="560"/>
         <source>Description:</source>
-        <translation type="unfinished"></translation>
+        <translation>popis:</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="567"/>
         <source>Open new URL</source>
-        <translation type="unfinished"></translation>
+        <translation>otevřít nové URL</translation>
     </message>
     <message>
         <location filename="phiagraphicsscene.cpp" line="567"/>
         <source>Please enter the new URL</source>
-        <translation type="unfinished"></translation>
+        <translation>vložte nové URL</translation>
     </message>
 </context>
 <context>
@@ -541,57 +541,57 @@
     <message>
         <location filename="phiascriptobjects.cpp" line="260"/>
         <source>Unknown method &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>neznámá metoda &apos;%1&apos;.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="263"/>
         <source>Allowed methods are GET, POST and HEAD.</source>
-        <translation type="unfinished"></translation>
+        <translation>Povolené metody jsou GET, POST a HEAD.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="266"/>
         <source>URL is invalid &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatná URL &apos;%1&apos;.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="269"/>
         <source>Security violation using a different host name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Porušení bezpečnosti použitím jiného host name.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="281"/>
         <source>AJAX: invalid object.</source>
-        <translation type="unfinished"></translation>
+        <translation>AJAX: neplatný objekt.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="294"/>
         <source>Could not set a header, wrong readyState.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nemohu nastavit hlavičku, nesprávné readyState.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="301"/>
         <source>Header &apos;%1&apos; can not be overwritten.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hlavička &apos;%1&apos; nemůže být přepsána.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="303"/>
         <source>Header &apos;%1&apos; is not allowed to be set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hlavička &apos;%1&apos; není povoleno nastavit.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="314"/>
         <source>Could not send, in wrong &apos;readyState&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nemohu poslat, chyba &apos;readyState&apos;.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="316"/>
         <source>A request is already in progress.</source>
-        <translation type="unfinished"></translation>
+        <translation>Požadavek je zpracováván.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="319"/>
         <source>Phi does not yet support syncronus requests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Phi nepodporuje synchronní požadavky.</translation>
     </message>
 </context>
 <context>
@@ -605,36 +605,36 @@
         <location filename="phiascriptobjects.cpp" line="856"/>
         <location filename="phiascriptobjects.cpp" line="863"/>
         <source>Menu item with ID &apos;%1&apos; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Položka menu s ID &apos;%1&apos; nebyla nalezena.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="739"/>
         <location filename="phiascriptobjects.cpp" line="767"/>
         <location filename="phiascriptobjects.cpp" line="776"/>
         <source>Menu or menu item with ID &apos;%1&apos; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Menu nebo položka menu s ID &apos;%1&apos; nebyla nalezena.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="748"/>
         <source>Menu item with ID &apos;%1&apos; is not checkable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Položka menu s ID &apos;%1&apos; není zkontrolovatelná.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="800"/>
         <location filename="phiascriptobjects.cpp" line="819"/>
         <source>Parent menu with ID &apos;%1&apos; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdrojové menu s ID &apos;%1&apos; nebylo nalezeno.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="805"/>
         <location filename="phiascriptobjects.cpp" line="824"/>
         <source>Menu item with ID &apos;%1&apos; already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Položka menu s ID &apos;%1&apos; již existuje.</translation>
     </message>
     <message>
         <location filename="phiascriptobjects.cpp" line="841"/>
         <source>Menu or menu item with ID &apos;%1&apos; already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Menu nebo položka menu s ID &apos;%1&apos; již existuje.</translation>
     </message>
 </context>
 <context>
@@ -642,7 +642,7 @@
     <message>
         <location filename="phiawebview.cpp" line="114"/>
         <source>There is no JavaScript attached to this Phi page.</source>
-        <translation type="unfinished"></translation>
+        <translation>Žádné JavaScript není přiloženo k této Phi stránce.</translation>
     </message>
 </context>
 <context>
@@ -650,48 +650,48 @@
     <message>
         <location filename="settingsdlg.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>dialog</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="27"/>
         <source>Main</source>
-        <translation type="unfinished"></translation>
+        <translation>hlavní</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="33"/>
         <source>Security</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="settingsdlg.ui" line="46"/>
-        <source>Always ask before sending POST data over an unsecure connection</source>
-        <translation type="unfinished"></translation>
+        <translation>zabezpečení</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="39"/>
         <source>Always ask before starting Phi in application mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaždé se při startu Phi zeptat  v aplikačním módu</translation>
+    </message>
+    <message>
+        <location filename="settingsdlg.ui" line="46"/>
+        <source>Always ask before sending POST data over an unsecure connection</source>
+        <translation>Pokaždé se před odesláním POST data zeptat při nezabezpečeném spojení</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="94"/>
         <source>Protect user profile with a password</source>
-        <translation type="unfinished"></translation>
+        <translation>Ochránit uživatelský profil heslem</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="103"/>
         <location filename="settingsdlg.ui" line="469"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>heslo</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="136"/>
         <source>Verify</source>
-        <translation type="unfinished"></translation>
+        <translation>potvrdit</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="172"/>
         <source>Accepted languages</source>
-        <translation type="unfinished"></translation>
+        <translation>Povolené jazyky</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="185"/>
@@ -699,297 +699,297 @@
         <location filename="settingsdlg.ui" line="568"/>
         <location filename="settingsdlg.ui" line="625"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="216"/>
         <source>Note: the default language of the server will always be accepted!</source>
-        <translation type="unfinished"></translation>
+        <translation>Poznámka: původní jazykové nastavení serveru je vždy povoleno!</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="258"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>nastavení</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="264"/>
         <source>Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>aktualizace</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="272"/>
         <source>Current version of this Phi installation is:</source>
-        <translation type="unfinished"></translation>
+        <translation>Současná verze této Phi instalace je:</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="279"/>
         <location filename="settingsdlg.ui" line="313"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>TextLabel</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="303"/>
         <source>Check for updates</source>
-        <translation type="unfinished"></translation>
+        <translation>vyhledat aktualizace</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="335"/>
         <source>Download update and start installation automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Automaticky stáhnout  a instalovat aktualizace</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="344"/>
         <source>Phi download server</source>
-        <translation type="unfinished"></translation>
+        <translation>Phi download server</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="357"/>
         <source>Check now</source>
-        <translation type="unfinished"></translation>
+        <translation>Zkontrolovat nyní</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="369"/>
         <source>Home</source>
-        <translation type="unfinished"></translation>
+        <translation>domů</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="375"/>
         <location filename="settingsdlg.ui" line="840"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="385"/>
         <source>http://</source>
-        <translation type="unfinished"></translation>
+        <translation>http://</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="414"/>
         <source>Use Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Použij Proxy</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="426"/>
         <source>Host</source>
-        <translation type="unfinished"></translation>
+        <translation>host</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="439"/>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>port</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="479"/>
         <source>User name</source>
-        <translation type="unfinished"></translation>
+        <translation>uživatleské jméno</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="493"/>
         <source>Config</source>
-        <translation type="unfinished"></translation>
+        <translation>konfigurace</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="499"/>
         <source>WebKit settings (this has no effect in Phi)</source>
-        <translation type="unfinished"></translation>
+        <translation>nastavení WebKit (toto nemá žádný efekt v Phi)</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="505"/>
         <source>Enable JavaScript</source>
-        <translation type="unfinished"></translation>
+        <translation>Zpřístupnit JavaScript</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="512"/>
         <source>JavaScript is allowed to open windows</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript má povolení k otvírání oken</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="519"/>
         <source>Enable Java</source>
-        <translation type="unfinished"></translation>
+        <translation>Zpřístupnit Java</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="526"/>
         <source>Auto load images</source>
-        <translation type="unfinished"></translation>
+        <translation>Atomatické zobrazení obrázků</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="533"/>
         <source>Print backgrounds</source>
-        <translation type="unfinished"></translation>
+        <translation>vytisknout pozadí</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="540"/>
         <source>Enable Plug-Ins</source>
-        <translation type="unfinished"></translation>
+        <translation>Zpřístupnit Plug-Ins</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="550"/>
         <source>Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Paměť</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="558"/>
         <location filename="settingsdlg.ui" line="615"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresář</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="578"/>
         <source>Clear cache</source>
-        <translation type="unfinished"></translation>
+        <translation>vymazat paměť</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="609"/>
         <source>Downloads</source>
-        <translation type="unfinished"></translation>
+        <translation>stažené soubory</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="658"/>
         <source>Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>adresy</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="664"/>
         <source>Phi can automatically fill out address lines if you enter your addresses here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Phi může automaticky vyplnit adresy, pokud zde vyplníte Vaše adresy.</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="684"/>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>titul</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="689"/>
         <source>Firstname</source>
-        <translation type="unfinished"></translation>
+        <translation>jméno</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="694"/>
         <source>Lastname</source>
-        <translation type="unfinished"></translation>
+        <translation>příjmení</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="699"/>
         <source>Organisation</source>
-        <translation type="unfinished"></translation>
+        <translation>společnost</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="704"/>
         <source>Unit</source>
-        <translation type="unfinished"></translation>
+        <translation>odbor</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="709"/>
         <source>Street</source>
-        <translation type="unfinished"></translation>
+        <translation>ulice</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="714"/>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>kraj</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="719"/>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation>mĕsto</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="724"/>
         <source>Zip</source>
-        <translation type="unfinished"></translation>
+        <translation>PSČ</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="729"/>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>zemĕ</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="739"/>
         <location filename="settingsdlg.ui" line="850"/>
         <location filename="settingsdlg.ui" line="956"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>přidat</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="759"/>
         <location filename="settingsdlg.ui" line="870"/>
         <location filename="settingsdlg.ui" line="976"/>
         <source>Change</source>
-        <translation type="unfinished"></translation>
+        <translation>změnit</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="779"/>
         <location filename="settingsdlg.ui" line="890"/>
         <location filename="settingsdlg.ui" line="996"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>vymazat</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="789"/>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>kontakty</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="795"/>
         <source>Phi can automatically fill out contact lines if you enter your contact information here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Phi může automaticky vyplnit kontakty, pokud zde vyplníte Vaše kontaktní informace.</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="815"/>
         <location filename="settingsdlg.ui" line="931"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>jméno</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="820"/>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>email</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="825"/>
         <source>Mobile</source>
-        <translation type="unfinished"></translation>
+        <translation>mobil</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="830"/>
         <source>Phone</source>
-        <translation type="unfinished"></translation>
+        <translation>telefon</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="835"/>
         <source>Fax</source>
-        <translation type="unfinished"></translation>
+        <translation>fax</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="900"/>
         <source>Credit cards</source>
-        <translation type="unfinished"></translation>
+        <translation>kreditní karty</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="906"/>
         <source>Phi can automatically fill out credit card information if you enter your credit cards here. The information is currently not stored encrypted - we recommend to store only a part of the number (for example the first 10 digests).</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="926"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>typ</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="936"/>
         <source>Number</source>
-        <translation type="unfinished"></translation>
+        <translation>číslo</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="941"/>
         <source>Valid thru</source>
-        <translation type="unfinished"></translation>
+        <translation>platné do</translation>
     </message>
     <message>
         <location filename="settingsdlg.ui" line="946"/>
         <source>CIV</source>
-        <translation type="unfinished"></translation>
+        <translation>CIV</translation>
     </message>
 </context>
 <context>
@@ -997,7 +997,7 @@
     <message>
         <location filename="sourcedialog.ui" line="14"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>zdroj</translation>
     </message>
 </context>
 </TS>
