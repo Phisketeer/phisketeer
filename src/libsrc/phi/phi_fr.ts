@@ -813,17 +813,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiimagecache.cpp" line="103"/>
+        <location filename="phiimagecache.cpp" line="105"/>
         <source>Could not insert image cache key into DB. Image &apos;%1&apos; will not be removed automatically: &apos;%2&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiimagecache.cpp" line="114"/>
+        <location filename="phiimagecache.cpp" line="116"/>
         <source>Image cache DB &apos;%1&apos; is not open. Could not clean the cache!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phiimagecache.cpp" line="121"/>
+        <location filename="phiimagecache.cpp" line="123"/>
         <source>Could not cleanup image cache DB: &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -864,27 +864,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisession.cpp" line="100"/>
+        <location filename="phisession.cpp" line="103"/>
         <source>Could not insert session key into DB: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisession.cpp" line="106"/>
+        <location filename="phisession.cpp" line="109"/>
         <source>Could not cleanup session DB for page &apos;%1&apos;: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisession.cpp" line="128"/>
+        <location filename="phisession.cpp" line="134"/>
         <source>Session DB is not open: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisession.cpp" line="135"/>
+        <location filename="phisession.cpp" line="142"/>
         <source>Could not get session key from DB for page &apos;%1&apos;: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="phisession.cpp" line="156"/>
+        <location filename="phisession.cpp" line="164"/>
         <source>Could not update session key in DB for page &apos;%1&apos;: %2</source>
         <translation type="unfinished"></translation>
     </message>
