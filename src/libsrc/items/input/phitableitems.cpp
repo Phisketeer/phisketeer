@@ -833,7 +833,7 @@ void PHIDecoratedTableItem::html( const PHIRequest *req, QByteArray &out, QByteA
     if ( options() & HideBorder ) setAdjustedRect( rect().adjusted( -1, -1, -1, -24 ) );
     else setAdjustedRect( rect().adjusted( 0, 0, -2, -25 ) );
     htmlInitItem( script, false );
-    script+=BL( ".dateFormat('" )+QLocale( page()->lang() ).dateFormat( QLocale::ShortFormat ).toLatin1().toLower()+BL( "')" );
+    script+=BL( ".dateFormat('" )+QLocale( page()->lang() ).dateFormat( QLocale::ShortFormat ).toUtf8().toLower()+BL( "')" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetText )==PHIPalette::Custom ) )
         script+=BL( ".color('" )+cssColor( realColor() )+BL( "')" );
     if ( Q_UNLIKELY( colorRole( PHIPalette::WidgetBase )==PHIPalette::Custom ) )
