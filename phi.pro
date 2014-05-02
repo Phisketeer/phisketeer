@@ -15,14 +15,14 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#    Exclusion: the Phi(sketeer) libraries libphi, libphia, libphis and
+#    Exclusion: the Phi[sketeer] libraries libphi, libphia, libphis and
 #    the Apache module mod_phi are released under the terms of the LGPLv3.
 #    The Artephis IDE (developed by Phisys AG) is proprietary and not covered
 #    by this license.
 #
 #  --------------------------------------------------------------------------------------
 #
-#  Phi(sketeer) uses the great Qt C++ toolkit, freely available at <http://qt.digia.com>.
+#  Phi[sketeer] uses the great Qt C++ toolkit, freely available at <http://qt.digia.com>.
 #  The minimum version required to successfully compile Phi 2.x is Qt 5.2.0!
 #
 #  Qt 5.2.1 configuration for the official release for Linux (Ubuntu64 12.04 and higher):
@@ -42,7 +42,7 @@ message( Phi configuration: $$PHICONF )
 OTHER_FILES = doc/license.txt doc/readme.txt scripts/phiupdate.xml doc/LGPLv3 doc/GPLv3
 
 unix {
-    message( "run 'make' to compile Phi(sketeer)" )
+    message( "run 'make' to compile Phi[sketeer]" )
     updts.target = updatets
     updts.commands = scripts/updts.sh $$[QT_INSTALL_BINS] $$PWD
     QMAKE_EXTRA_TARGETS += updts
