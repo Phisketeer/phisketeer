@@ -98,10 +98,10 @@ SOURCES += phi.cpp \
 FORMS += colorconfig.ui \
     layoutconfig.ui
 
-VERSION = 2.0.0
 include( ../../../phiconf.pri )
 isEmpty( PHIDOM ): error( PHIDOM is not specified )
 isEmpty( PHIORG ): error( PHIORG is not specified )
+VERSION = $$PHIRELEASE
 TEMPLATE = lib
 TARGET = phi
 QT = core gui network script widgets sql
