@@ -121,8 +121,12 @@ QImage PHIGraphicTextItem::graphicImage( const QString &t ) const
     else if ( img.height()>realHeight() ) img=img.scaledToHeight( realHeight(), Qt::SmoothTransformation );
     QImage dest( realSize().toSize(), QImage::Format_ARGB32_Premultiplied );
     dest.fill( 0 );
+    qreal offx( 0 );
+    Qt::Alignment align=static_cast<Qt::Alignment>(realAlignment());
+    if ( align & Qt::AlignRight ) offx=realWidth()-img.width();
+    else if ( align & Qt::AlignCenter ) offx=(realWidth()-img.width())/2.;
     p.begin( &dest );
-    p.drawImage( 0, 0, img );
+    p.drawImage( QPointF( offx, 0 ), img );
     p.end();
     return dest;
 }

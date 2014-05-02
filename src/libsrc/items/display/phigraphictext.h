@@ -46,10 +46,12 @@ public:
     virtual PHITextData* textData() { return &_textData; }
     virtual bool useTextEditor() const { return true; }
 
-    inline void setText( const QString &t ) { setData( DText, t.toUtf8() ); resize( graphicSize( t ) ); _image=graphicImage( t ); update(); }
+    inline void setText( const QString &t ) { setData( DText, t.toUtf8() ); resize( graphicSize( t ) );
+        if ( !isServerItem() ) _image=graphicImage( t ); update(); }
     inline QString realText() const { return QString::fromUtf8( data( DText ).toByteArray() ); }
     inline quint16 realAlignment() const { return data( DAlignment, static_cast<quint16>( Qt::AlignLeft | Qt::AlignVCenter ) ).value<quint16>(); }
-    inline void setAlignment( quint16 align ) { setData( DAlignment, align ); update(); }
+    inline void setAlignment( quint16 align ) { setData( DAlignment, align );
+        if ( !isServerItem() ) _image=graphicImage( realText() ); update(); }
 
 public slots:
 
