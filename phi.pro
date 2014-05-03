@@ -51,7 +51,8 @@ unix {
     QMAKE_DISTCLEAN += -r bin/* lib/*
 
     mac {
-        message( "run 'make distmac' to create a Mac OSX packaged distribution in 'distmac'" )
+        message( "See 'scripts/distmac.sh' for an example to create a Mac OSX packaged distribution in 'distmac'" )
+        message( "Binaries are built in 'bin'." )
         distmac.target = distmac
         distmac.commands = scripts/distmac.sh $$PHIRELEASE $$[QT_INSTALL_LIBS] $$[QT_INSTALL_BINS] \
             $$[QT_INSTALL_PLUGINS] $$[QT_INSTALL_TRANSLATIONS]
