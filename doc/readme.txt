@@ -13,7 +13,7 @@ Phi components:
 - PhiApp is an OS natively running program for displaying Phi content
 - libmod_phi is the Phisketeer module for the Apache Web server (MPM worker and prefork are supported)
 - Amphibia is an open source example Web browser including native Phi support (provided with the source code only)
-- Artephis free edition (with friendly permission from Phisys AG) is your intuitive IDE creating genius Phi Web pages
+- Artephis free edition (with friendly permission from Phisys AG) is your intuitive IDE creating brilliant Phi Web pages
 
 Windows notes:
 ===============
@@ -31,7 +31,7 @@ Mac OS X notes:
 Linux notes:
 ===============
 - Check the file permissions for the document-root (default: '/var/phis/default/localhost')
-- Running the Phis daemon does not require root anymore
+- Running the Phis daemon does not require 'root' anymore
 - Artephis -> Settings -> Server provides you a GUI to view the current state of the Phis service
 - for starting the Artephis IDE run:
    $ phisketeer-2.0.1/bin/Artephis
@@ -41,7 +41,7 @@ Linux notes:
 
 Please do not hesitate to report bugs and suggestions to bugs@phisketeer.org or feedback@phisketeer.org!
 Any contributions are welcome. We are looking for volunteers and developers extending our team.
-Donations are also highly appreciated and ensure future development... ;-)
+Donations or any other support are also highly appreciated and ensure future development... ;-)
 
 One for all, all for you!
 Your Phisketeer team.
